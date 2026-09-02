@@ -1,0 +1,1080 @@
+{
+  "_meta": {
+    "sprite": "back",
+    "size": 32,
+    "note": "眨眼 = 眼部矩形内像素压暗一档",
+    "counts": {
+      "visible": 1,
+      "hidden": 121,
+      "ambiguous": 29
+    },
+    "method": "用 tools/pipeline 的 read_png 解码（已与 PIL 逐像素对比，1024/1024 一致），自动候选（内部封闭暗/亮斑，不接触外部背景、不与轮廓笔画相连）+ 14x 网格逐只目视复核。",
+    "caveat": "仅 status==\"visible\" 的条目可驱动眨眼。全部 148 只 hidden/ambiguous 的 boxes 一律留空，避免压暗错误区域。唯一 visible 的 #137 已验证：框内 4 像素全为 0，且四邻被 85/170 躯体包围、不含外部背景。"
+  },
+  "regions": {
+    "1": {
+      "slug": "bulbasaur",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "2": {
+      "slug": "ivysaur",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "3": {
+      "slug": "venusaur",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "4": {
+      "slug": "charmander",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "5": {
+      "slug": "charmeleon",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "6": {
+      "slug": "charizard",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "7": {
+      "slug": "squirtle",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "头部略转，(16,10) 附近有暗点，但与轮廓笔画相连，无法确认"
+    },
+    "8": {
+      "slug": "wartortle",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(19,9) 有孤立暗点，位置偏高，可能是壳缘阴影"
+    },
+    "9": {
+      "slug": "blastoise",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "10": {
+      "slug": "caterpie",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(18,14)/(18,17) 两处暗点，可能是体节纹路"
+    },
+    "11": {
+      "slug": "metapod",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "12": {
+      "slug": "butterfree",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "头部左转，(8,11)-(9,13) 有被暗轮廓围住的白斑，疑似眼白；但候选框内 4/6 为白像素，无法与翅膜缝隙区分，故不给坐标"
+    },
+    "13": {
+      "slug": "weedle",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "14": {
+      "slug": "kakuna",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "15": {
+      "slug": "beedrill",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "16": {
+      "slug": "pidgey",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "17": {
+      "slug": "pidgeotto",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(15,10) 3x1 暗条，疑似眼但形状不像"
+    },
+    "18": {
+      "slug": "pidgeot",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "19": {
+      "slug": "rattata",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "20": {
+      "slug": "raticate",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "多处 1xN 暗条，疑似须毛纹理而非眼"
+    },
+    "21": {
+      "slug": "spearow",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "22": {
+      "slug": "fearow",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "23": {
+      "slug": "ekans",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "24": {
+      "slug": "arbok",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "25": {
+      "slug": "pikachu",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "皮卡丘：头部有侧转迹象，但未找到可确认的眼部像素簇"
+    },
+    "26": {
+      "slug": "raichu",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "雷丘：大面积 85 躯体，(19,20) 亮斑更像高光而非眼"
+    },
+    "27": {
+      "slug": "sandshrew",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "28": {
+      "slug": "sandslash",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "29": {
+      "slug": "nidoran-f",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "30": {
+      "slug": "nidorina",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "31": {
+      "slug": "nidoqueen",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "32": {
+      "slug": "nidoran-m",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "33": {
+      "slug": "nidorino",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(13,12) 暗点孤立，位置可能偏低"
+    },
+    "34": {
+      "slug": "nidoking",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "35": {
+      "slug": "clefairy",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(10,23) 单暗点，位置偏低，疑似为脚部阴影"
+    },
+    "36": {
+      "slug": "clefable",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "37": {
+      "slug": "vulpix",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(11,13) 暗点，被毛发笔画干扰"
+    },
+    "38": {
+      "slug": "ninetales",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "39": {
+      "slug": "jigglypuff",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "40": {
+      "slug": "wigglytuff",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "41": {
+      "slug": "zubat",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "42": {
+      "slug": "golbat",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "43": {
+      "slug": "oddish",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "44": {
+      "slug": "gloom",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "45": {
+      "slug": "vileplume",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "46": {
+      "slug": "paras",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "47": {
+      "slug": "parasect",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "48": {
+      "slug": "venonat",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "49": {
+      "slug": "venomoth",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "50": {
+      "slug": "diglett",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "51": {
+      "slug": "dugtrio",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "三处纵向暗点，疑似爪/土纹"
+    },
+    "52": {
+      "slug": "meowth",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "53": {
+      "slug": "persian",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "54": {
+      "slug": "psyduck",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "55": {
+      "slug": "golduck",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "56": {
+      "slug": "mankey",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "57": {
+      "slug": "primeape",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "58": {
+      "slug": "growlithe",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "59": {
+      "slug": "arcanine",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "60": {
+      "slug": "poliwag",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "61": {
+      "slug": "poliwhirl",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "深色躯体上 (17,9)/(18,10) 两处白像素呈对角分布，更像抖动高光而非左右对称的双眼，故不给坐标"
+    },
+    "62": {
+      "slug": "poliwrath",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "深色躯体上有白斑疑似眼，但唯一候选框 (16,8) 含外部背景像素，压暗会啃掉轮廓，故不给坐标"
+    },
+    "63": {
+      "slug": "abra",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(7,8) 白斑被暗轮廓围住，疑似眼，但也可能是耳根阴影"
+    },
+    "64": {
+      "slug": "kadabra",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "65": {
+      "slug": "alakazam",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "66": {
+      "slug": "machop",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "67": {
+      "slug": "machoke",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "68": {
+      "slug": "machamp",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "69": {
+      "slug": "bellsprout",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(10,11)/(10,14) 暗点，疑似为叶脉"
+    },
+    "70": {
+      "slug": "weepinbell",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "71": {
+      "slug": "victreebel",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "72": {
+      "slug": "tentacool",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(19..24,15..25) 有大环状结构，疑似大眼；坐标无法收敛"
+    },
+    "73": {
+      "slug": "tentacruel",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "74": {
+      "slug": "geodude",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "75": {
+      "slug": "graveler",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "76": {
+      "slug": "golem",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(9,17) 4x1 暗条，疑似眼缝但过宽"
+    },
+    "77": {
+      "slug": "ponyta",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "78": {
+      "slug": "rapidash",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(21,13) 3x4 白块被暗围，疑似眼，也可能是鬃毛间隙"
+    },
+    "79": {
+      "slug": "slowpoke",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "80": {
+      "slug": "slowbro",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "81": {
+      "slug": "magnemite",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "82": {
+      "slug": "magneton",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "83": {
+      "slug": "farfetchd",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "84": {
+      "slug": "doduo",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "85": {
+      "slug": "dodrio",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "86": {
+      "slug": "seel",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "87": {
+      "slug": "dewgong",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "88": {
+      "slug": "grimer",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(16,13) 暗点，躯体为泥状噪点，不可分辨"
+    },
+    "89": {
+      "slug": "muk",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "90": {
+      "slug": "shellder",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "91": {
+      "slug": "cloyster",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "92": {
+      "slug": "gastly",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "93": {
+      "slug": "haunter",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "94": {
+      "slug": "gengar",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "95": {
+      "slug": "onix",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "96": {
+      "slug": "drowzee",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "97": {
+      "slug": "hypno",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "98": {
+      "slug": "krabby",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "99": {
+      "slug": "kingler",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "100": {
+      "slug": "voltorb",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "101": {
+      "slug": "electrode",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "102": {
+      "slug": "exeggcute",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(18,14)/(22,15) 暗点，蛋壳裂纹干扰"
+    },
+    "103": {
+      "slug": "exeggutor",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "104": {
+      "slug": "cubone",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "105": {
+      "slug": "marowak",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "106": {
+      "slug": "hitmonlee",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(18,20) 1x3 暗条，疑似为腿部线条"
+    },
+    "107": {
+      "slug": "hitmonchan",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "108": {
+      "slug": "lickitung",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "109": {
+      "slug": "koffing",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "110": {
+      "slug": "weezing",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "111": {
+      "slug": "rhyhorn",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "112": {
+      "slug": "rhydon",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "113": {
+      "slug": "chansey",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "114": {
+      "slug": "tangela",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "115": {
+      "slug": "kangaskhan",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "116": {
+      "slug": "horsea",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "117": {
+      "slug": "seadra",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "118": {
+      "slug": "goldeen",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "119": {
+      "slug": "seaking",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "120": {
+      "slug": "staryu",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "121": {
+      "slug": "starmie",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(14,23)/(12,24) 暗点，可能是宝石核心而非眼"
+    },
+    "122": {
+      "slug": "mr-mime",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "123": {
+      "slug": "scyther",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "124": {
+      "slug": "jynx",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(22,12)/(22,16) 两处白块，被发丝包围，疑似但不确定"
+    },
+    "125": {
+      "slug": "electabuzz",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "126": {
+      "slug": "magmar",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "127": {
+      "slug": "pinsir",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "128": {
+      "slug": "tauros",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "129": {
+      "slug": "magikarp",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "130": {
+      "slug": "gyarados",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "131": {
+      "slug": "lapras",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "132": {
+      "slug": "ditto",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "133": {
+      "slug": "eevee",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "134": {
+      "slug": "vaporeon",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(12,21) 3x1 暗条，疑似眼缝"
+    },
+    "135": {
+      "slug": "jolteon",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "136": {
+      "slug": "flareon",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "137": {
+      "slug": "porygon",
+      "status": "visible",
+      "boxes": [
+        {
+          "x": 20,
+          "y": 20,
+          "w": 2,
+          "h": 2
+        }
+      ],
+      "confidence": "medium",
+      "note": "头部侧转，眼为纯 0 的 2x2 块，四周被 85/170 躯体包围，边界干净"
+    },
+    "138": {
+      "slug": "omanyte",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(22,19) 附近有眼状构造，但与壳纹交织无法分离"
+    },
+    "139": {
+      "slug": "omastar",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "140": {
+      "slug": "kabuto",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(11,18)/(19,19) 暗点，甲壳花纹干扰"
+    },
+    "141": {
+      "slug": "kabutops",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "142": {
+      "slug": "aerodactyl",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(19,20)/(20,22) 暗点，翼膜阴影干扰"
+    },
+    "143": {
+      "slug": "snorlax",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "144": {
+      "slug": "articuno",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "145": {
+      "slug": "zapdos",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "146": {
+      "slug": "moltres",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "147": {
+      "slug": "dratini",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "148": {
+      "slug": "dragonair",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "149": {
+      "slug": "dragonite",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "150": {
+      "slug": "mewtwo",
+      "status": "hidden",
+      "boxes": [],
+      "confidence": "high",
+      "note": "纯背影，无可见眼部"
+    },
+    "151": {
+      "slug": "mew",
+      "status": "ambiguous",
+      "boxes": [],
+      "confidence": "low",
+      "note": "(6,22)/(9,23) 暗点，位置偏低，疑似尾/足"
+    }
+  }
+}

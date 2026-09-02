@@ -243,9 +243,18 @@ def main() -> int:
 
         evo = evolutions.get(slug, {})
 
+        # 中文名在 species.names 里（zh-hans 简体 / zh-hant 繁体）。
+        # 实测 151 只全都有，不需要另找数据源。
+        zh = ""
+        for nm in sp.get("names") or []:
+            if (nm.get("language") or {}).get("name") == "zh-hans":
+                zh = nm.get("name", "")
+                break
+
         mons.append({
             "id": i,
             "slug": slug,
+            "zh": zh,
             "types": types,
             "habitat": (sp.get("habitat") or {}).get("name", ""),
             "capture_rate": sp.get("capture_rate", 45),
@@ -293,6 +302,10 @@ def main() -> int:
     print("\n进化触发方式")
     for t, c in trig.most_common():
         print(f"  {t:<16}{c:>4}")
+
+    no_zh = [m["id"] for m in mons if not m["zh"]]
+    print(f"\n中文名: {len(mons)-len(no_zh)}/{len(mons)}"
+          + (f"　缺失 {no_zh}" if no_zh else " ✓"))
     print(f"\n有进化: {sum(1 for m in mons if m['evolve_to'])} 只")
 
     print(f"\n下一步：")

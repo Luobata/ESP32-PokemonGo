@@ -22,7 +22,8 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from sensing import (  # noqa: E402
-    CHANNEL_24G_MAX, MOVING, STAYING, SensingCore, load_ndjson,
+    CHANNEL_24G_MAX, MOVE_THRESHOLD, MOVING, SMOOTH_WINDOW, STAYING,
+    SensingCore, load_ndjson,
 )
 
 
@@ -49,6 +50,9 @@ def main() -> int:
     p.add_argument("--verbose", "-v", action="store_true", help="逐次扫描输出")
     p.add_argument("--motion-per-event", type=float, default=3.0,
                    help="累积多少移动量触发一次遭遇（默认 3.0）")
+    p.add_argument("--window", type=int, default=SMOOTH_WINDOW,
+                   help=f"滑动窗口大小（默认 {SMOOTH_WINDOW}）。"
+                        "设 1 可复现修复前的单帧行为，用于对比")
     args = p.parse_args()
 
     # 读取
@@ -72,7 +76,9 @@ def main() -> int:
               "可验证逻辑，但判别质量不代表真实水平。\n", file=sys.stderr)
 
     # 跑
-    core = SensingCore(only_24g=args.only_24g, motion_per_event=args.motion_per_event)
+    core = SensingCore(only_24g=args.only_24g,
+                       motion_per_event=args.motion_per_event,
+                       smooth_window=args.window)
     results = core.run(scans)
 
     if args.verbose:
@@ -94,7 +100,11 @@ def main() -> int:
     print("感知层回放结果")
     print("=" * 62)
 
-    print(f"\n扫描次数      {len(results)}")
+    print(f"\n滑动窗口      {args.window}"
+          + ("（单帧，等于修复前的行为）" if args.window <= 1 else
+             f"　≈ 移动检测延迟 {args.window} 次扫描"))
+    print(f"移动阈值      {MOVE_THRESHOLD}")
+    print(f"扫描次数      {len(results)}")
     print(f"时间跨度      {fmt_dur(span)}（{fmt_ts(scans[0].ts)} → {fmt_ts(scans[-1].ts)}）")
     if len(results) > 1:
         print(f"平均间隔      {span / (len(results)-1):.0f}s")
@@ -147,7 +157,9 @@ def main() -> int:
     print("\n" + "-" * 62)
     print("怎么读这份结果（docs/07-roadmap.md#72）：")
     print("  · 地点数应该是 3~5 个。远多于此 = 阈值太严，同一地点被拆成多个")
-    print("  · 状态转换应该 < 2 次/小时。远高于此 = 误报，需调迟滞")
+    print("  · 状态转换应该 < 2 次/小时。远高于此 = 误报，需调迟滞或加大窗口")
+    print(f"  · 窗口 {args.window} 意味着移动检测延迟约 "
+          f"{args.window} × 扫描间隔。--window 1 可对比修复前")
     print("  · 若在单一地点采集，状态应几乎全是驻留、地点数为 1")
     print("-" * 62)
 

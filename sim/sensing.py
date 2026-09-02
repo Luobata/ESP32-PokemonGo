@@ -28,9 +28,38 @@ from typing import Iterable, Optional
 
 TOP_N = 8               # 指纹保留最强的 N 个 AP
 MATCH_THRESHOLD = 0.35  # 加权 Jaccard >= 此值判为同一地点
-MOVE_THRESHOLD = 0.50   # 相邻扫描距离 > 此值判为「在移动」
+MOVE_THRESHOLD = 0.40   # 相邻扫描距离 > 此值判为「在移动」
 HYSTERESIS = 2          # 状态切换需连续 N 次一致才确认
 PLACE_SLOTS = 8         # LRU 槽位数（对应固件 512 字节预算）
+
+# 滑动窗口大小 —— 用最近 N 次扫描的 AP 出现率建指纹，而非单次快照。
+#
+# 这是**真实数据驱动的修正**，不是设计时想到的。家里静坐 20 分钟的
+# 40 次扫描实测：单帧指纹给出 11 次状态转换、30% 时间判为「移动中」，
+# 而人根本没动。
+#
+# 根因：家里 28 个 AP 中只有 9 个出现率 >=59%，另 19 个 <=37% 且几乎
+# 全在 -80dBm 以下。单次取 top-8 时噪声 AP 频繁挤进指纹，相邻距离
+# 飙到 0.6~0.7。docs/02-sensing.md#24 预警过稀疏环境问题，但真实情况
+# 比估计严重 —— 不是「一个 AP 掉线占比大」，而是「近半数 AP 每次都在闪」。
+#
+# 静态过滤（RSSI 地板、收紧 topN）实测基本无效，因为问题不在阈值而在
+# 逐次比对本身：单次漏检是随机的，任何瞬时比较都被它主导。
+#
+# 窗口平滑的实测效果（理想是转换 <=1、移动 0%）：
+#   窗口 1（旧）  转换 11  移动 19%
+#   窗口 3        转换  1  移动  0%
+#   窗口 4        转换  1  移动  0%   ← 采用
+#   窗口 6        转换  1  移动  0%
+#
+# 代价是移动检测延迟约 window × 扫描间隔。窗口 4 = 90 秒（30s 间隔），
+# 通勤持续几十分钟，可接受。窗口 6 要 120 秒，没必要。
+SMOOTH_WINDOW = 4
+
+# 「新鲜 AP 占比」阈值 —— 移动判定的第二条判据。
+# 一次扫描里若有 >=25% 的 AP 是历史从未见过的，说明在往新地方走。
+# 驻留时这个值接近 0（AP 集合封闭），通勤时持续偏高。
+FRESH_RATIO_THRESHOLD = 0.25
 
 RSSI_FLOOR = -100       # 权重曲线下界（dBm）
 RSSI_CEIL = -40         # 权重曲线上界（dBm）
@@ -186,6 +215,65 @@ class Signature:
             self.weights = dict(keep)
 
 
+class SlidingSignature:
+    """滑动窗口指纹 —— 用最近 N 次扫描的 AP 出现率建指纹。
+
+    这是对单帧 `Signature` 的补充，不是替代：
+      · 单帧指纹仍用于计算 transient_aps（瞬现 AP 是猎场遭遇的原料，
+        平滑会把它抹掉）
+      · 平滑指纹用于移动判定与地点匹配（抗噪）
+
+    权重公式：
+        weight(h) = (窗口内出现次数 / 窗口大小) × (该 AP 平均 rssi_weight)
+
+    出现率这一项是关键。稳定 AP 每次都在，出现率接近 1；噪声 AP
+    时有时无，出现率被压到 0.2~0.4，于是挤不进 top-N。
+
+    固件侧实现：窗口是定长环形缓冲（4 × top8 × (uint32+uint8) = 160 字节），
+    仍在 RTC slow memory 预算内。
+    """
+
+    __slots__ = ("window", "top_n", "_buf")
+
+    def __init__(self, window: int = SMOOTH_WINDOW, top_n: int = TOP_N):
+        from collections import deque
+        self.window = window
+        self.top_n = top_n
+        self._buf: "deque[list[AP]]" = deque(maxlen=window)
+
+    def push(self, scan: Scan) -> None:
+        self._buf.append(list(scan.aps))
+
+    def __len__(self) -> int:
+        return len(self._buf)
+
+    def current(self) -> Signature:
+        """当前窗口的平滑指纹。"""
+        if not self._buf:
+            return Signature()
+
+        # 同一 BSSID 在一次扫描里可能出现多次（多 SSID 共用射频），
+        # 每次扫描内先去重取最强，避免重复计数抬高出现率
+        counts: dict[int, int] = {}
+        wsum: dict[int, float] = {}
+        for snapshot in self._buf:
+            best: dict[int, int] = {}
+            for ap in snapshot:
+                if not ap.bssid:
+                    continue
+                h = hash32(ap.bssid)
+                if h not in best or ap.rssi > best[h]:
+                    best[h] = ap.rssi
+            for h, rssi in best.items():
+                counts[h] = counts.get(h, 0) + 1
+                wsum[h] = wsum.get(h, 0.0) + rssi_weight(rssi)
+
+        n = len(self._buf)
+        weights = {h: (counts[h] / n) * (wsum[h] / counts[h]) for h in counts}
+        top = sorted(weights.items(), key=lambda kv: kv[1], reverse=True)[:self.top_n]
+        return Signature({h: w for h, w in top if w > 0})
+
+
 @dataclass
 class Place:
     """一个已知地点。"""
@@ -274,13 +362,19 @@ class MotionState:
     _streak: int = 0
     transitions: int = 0
 
-    def update(self, distance: float, threshold: float = MOVE_THRESHOLD) -> str:
+    def update(self, distance: float, threshold: float = MOVE_THRESHOLD,
+               fresh: bool = False) -> str:
         """喂入相邻扫描距离，返回确认后的状态。
 
         迟滞：需连续 HYSTERESIS 次指向同一状态才切换。
         这是防误报的关键 —— 单次扫描漏掉几个 AP 很常见。
+
+        `fresh` 是第二条判据：本次扫描是否带进大量没见过的 AP。
+        平滑距离会把「连续变化」压低（实测通勤只有 0.2~0.39，低于阈值），
+        而新鲜度不受平滑影响 —— 它看的是「有没有新东西」而非「变了多少」。
+        两条判据取或：距离超阈值**或**持续见到新 AP，都算移动。
         """
-        raw = MOVING if distance > threshold else STAYING
+        raw = MOVING if (distance > threshold or fresh) else STAYING
 
         if raw == self._pending:
             self._streak += 1
@@ -328,12 +422,14 @@ class SensingCore:
         self,
         only_24g: bool = False,
         motion_per_event: float = 3.0,
+        smooth_window: int = SMOOTH_WINDOW,
     ):
         self.only_24g = only_24g
         self.motion_per_event = motion_per_event
 
         self.memory = PlaceMemory()
         self.motion = MotionState()
+        self.smooth = SlidingSignature(window=smooth_window)
 
         self._prev_sig: Optional[Signature] = None
         self._prev_hashes: set[int] = set()
@@ -347,8 +443,16 @@ class SensingCore:
         if self.only_24g:
             scan = scan.only_24g()
 
-        sig = Signature.from_scan(scan)
-        cur_hashes = set(sig.weights.keys())
+        # 单帧指纹 —— 只用于 transient_aps（瞬现 AP 是猎场遭遇的原料，
+        # 平滑会把它抹掉，见 docs/04-gameplay.md#411）
+        frame_sig = Signature.from_scan(scan)
+        cur_hashes = set(frame_sig.weights.keys())
+
+        # 平滑指纹 —— 用于移动判定与地点匹配。
+        # 单帧比对在真实稀疏环境下会被 AP 闪烁主导（实测静坐 20 分钟报出
+        # 11 次状态转换），见 SMOOTH_WINDOW 的说明。
+        self.smooth.push(scan)
+        sig = self.smooth.current()
 
         # 与上次扫描的距离 → 移动判定
         if self._prev_sig is not None:
@@ -356,7 +460,22 @@ class SensingCore:
         else:
             dist = 0.0   # 第一次没有参照，不算移动
 
-        state = self.motion.update(dist)
+        # 移动的第二条判据：AP 新鲜度。
+        #
+        # 单靠平滑距离不够 —— 平滑会把「连续变化」也压低。实测合成通勤数据
+        # 距离只有 0.2~0.39（阈值 0.4），于是通勤被误判为驻留并沿路建了 5 个地点。
+        #
+        # 但通勤有个驻留没有的特征：**持续见到全新 AP**。驻留时 AP 集合封闭，
+        # 偶有闪烁但都是老面孔；移动时每次扫描都带进没见过的 BSSID。
+        # 这一条不受平滑影响，因为它看的是「有没有新东西」而非「变了多少」。
+        fresh_ratio = (len(cur_hashes - self.seen_hashes) / len(cur_hashes)
+                       if cur_hashes else 0.0)
+        # 第一次扫描时 seen_hashes 为空，所有 AP 都"新" —— 那不是移动，
+        # 只是还没有历史。等积累到一个窗口再启用这条判据。
+        is_fresh = (len(self.smooth) >= self.smooth.window
+                    and fresh_ratio >= FRESH_RATIO_THRESHOLD)
+
+        state = self.motion.update(dist, fresh=is_fresh)
 
         # 距离本身是否指向「静止」。迟滞机制下 state 切换有延迟，
         # 移动的第一帧 state 仍是 staying —— 只看 state 会把通勤第一帧
@@ -370,7 +489,7 @@ class SensingCore:
                 self.motion_accum -= self.motion_per_event
                 self.motion_events += 1
 
-        # 转瞬即逝的 AP —— 猎场遭遇的天然映射（docs/04-gameplay.md#411）
+        # 转瞬即逝的 AP —— 用单帧哈希，不用平滑（平滑会抹掉一次性出现的 AP）
         transient = len(cur_hashes - self._prev_hashes) if self._prev_hashes else 0
 
         # 地点识别只在驻留时做：移动中指纹一直在变，记下来毫无意义，
@@ -379,6 +498,8 @@ class SensingCore:
         # 注意这里同时看 state 和 distance：迟滞机制下状态切换要等 HYSTERESIS 次，
         # 而移动的第一帧此时仍是 staying —— 若只看 state，通勤第一帧会被误建成新地点。
         # 这是实测跑出来的 bug（7 天合成数据建出 8 个地点，实际只有 3 个）。
+        #
+        # 用平滑指纹匹配地点：地点应当是稳定的，用抗噪的那份更合理。
         place: Optional[Place] = None
         score = 0.0
         is_new = False
