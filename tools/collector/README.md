@@ -8,10 +8,16 @@
 ## 构建与使用
 
 ```bash
-./build.sh                                    # 编译（需 Xcode CLT）
-./wifi-collect --count 1                      # 试跑一次
-./wifi-collect -i 30 -o ../../data/raw/day1.ndjson   # 正式采集
+./build.sh && ./make-app.sh     # 编译 + 打包（需 Xcode CLT）
+./collect.sh --count 1 -o /tmp/probe.ndjson   # 试跑一次
+./collect.sh                                  # 正式采集（默认 30s 间隔）
+./collect.sh -i 10 -o ../../data/raw/commute.ndjson
 ```
+
+> **必须用 `collect.sh` 启动，不要直接跑 `wifi-collect`。**
+> 原因见下方「定位授权」—— 直接 exec 拿不到 BSSID。
+
+停止采集：`pkill -f WiFiCollect`
 
 | 参数 | 说明 |
 |---|---|
@@ -29,42 +35,48 @@
 程序启动时会**实扫一次自我检测**（比查 `authorizationStatus()` 可靠，
 因为最终能否读到 BSSID 由系统综合判定）。检测到无授权会给出指引并退出。
 
-### 关键：必须打包成 .app
+### 关键：必须打包成 .app，且必须用 open 启动
 
-**TCC（隐私授权）按 bundle identifier 判定权限，而裸可执行文件没有身份。**
-后果是两条看起来显然的路都走不通（本机已实测）：
+**TCC 按「发起进程的 app 身份」判权，而裸可执行文件没有身份。**
+这导致两层问题，本机（macOS 14.7.8）实测：
 
 | 尝试 | 结果 |
 |---|---|
-| 在「定位服务」列表里给 iTerm 授权 | ✗ **列表里根本没有 iTerm** |
-| `sudo ./wifi-collect` | ✗ **同样拿不到 BSSID** —— root 不等于有 TCC 授权 |
-| `system_profiler SPAirPortDataType` | ✗ 能列出网络但不给 BSSID |
+| 在定位服务列表里找 iTerm 授权 | ✗ **列表里根本没有 iTerm** |
+| `sudo ./wifi-collect` | ✗ 拿不到 BSSID —— **root 不等于有 TCC 授权** |
+| `system_profiler SPAirPortDataType` | ✗ 能列网络但不给 BSSID |
+| 打包 .app 后**直接 exec** 里面的二进制 | ✗ 仍然 nil —— 系统认的是调用方（shell），不是这个 app |
+| 打包 .app + **`open -a` 启动** | ✓ **成功** |
 
-所以正解是给它一个身份：
+最后一条是关键：`open` 经 LaunchServices 启动，进程才真正以 WiFiCollect 的身份运行。
 
-```bash
-./make-app.sh        # 打包 + ad-hoc 签名（不需要开发者账号）
-```
-
-然后**在你自己的终端里**跑一次触发授权弹窗：
+### 完整流程
 
 ```bash
-./WiFiCollect.app/Contents/MacOS/wifi-collect --count 1
+./build.sh && ./make-app.sh
 ```
 
-弹窗出现就点「允许」。没弹窗则去 **系统设置 → 隐私与安全性 → 定位服务**，
+然后**在你自己的终端里**跑一次，触发授权弹窗（点「允许」）：
+
+```bash
+./collect.sh --count 1 -o /tmp/probe.ndjson
+```
+
+没弹窗就去 **系统设置 → 隐私与安全性 → 定位服务**，
 找到 **WiFiCollect** 打开开关 —— 打包后它才会出现在列表里。
 
-> 弹窗需要图形会话触发。从非交互环境（比如 AI agent 的 shell）跑不出弹窗，
-> 必须你亲自在终端里执行。
+> 弹窗需要图形会话触发。非交互环境（比如 AI agent 的 shell）跑不出弹窗。
 
-验证：
+验证成功的样子：输出里 `"b"` 是真实 MAC 而非 `syn:` 前缀。
 
-```bash
-./check-auth.sh --app
-```
+### 一个已修的实现坑
 
-成功会打印 `✓ BSSID 可读`，并报告扫到多少 AP、其中 2.4GHz 几个。
+早期版本创建完 `CLLocationManager` 就直接扫描、从不进 run loop，
+于是 `authorizationStatus` 永远停在 `notDetermined` ——
+**即便用户已经在系统设置里打开了开关**。
+
+授权状态变化是通过 delegate 回调送达的，而回调只在 run loop 转起来时才派发。
+现在 `AuthWaiter` 会把 run loop 转起来等状态确定（超时 3 秒）。
 
 ### 降级模式（仅验证管线）
 
@@ -117,13 +129,13 @@ hash   = channel * 7919 + bucket * 104729 + index
 
 ```bash
 # 在家开一个（睡前到起床）
-./wifi-collect -i 30 -o ../../data/raw/home.ndjson
+./collect.sh -i 30 -o ../../data/raw/home.ndjson
 
 # 通勤路上开一个（间隔调短，捕捉快速变化的 AP）
-./wifi-collect -i 10 -o ../../data/raw/commute.ndjson
+./collect.sh -i 10 -o ../../data/raw/commute.ndjson
 
 # 公司开一个
-./wifi-collect -i 30 -o ../../data/raw/office.ndjson
+./collect.sh -i 30 -o ../../data/raw/office.ndjson
 ```
 
 采集完用回放器看结果：

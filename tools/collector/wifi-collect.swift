@@ -150,14 +150,50 @@ func authLabel(_ n: CWNetwork) -> String {
 
 // MARK: - 定位授权自检
 
+/// CLLocationManager 的 delegate。
+///
+/// 授权状态变化是通过 delegate 回调送达的，而回调只在 run loop 转起来时才会派发。
+/// 早期版本创建完 manager 就直接扫描、从不进 run loop，
+/// 于是 authorizationStatus 永远停在 notDetermined —— 即便用户已经在
+/// 系统设置里打开了开关。这是实测踩到的坑（status=0 但开关已开）。
+final class AuthWaiter: NSObject, CLLocationManagerDelegate {
+    private let manager = CLLocationManager()
+    private var settled = false
+
+    override init() {
+        super.init()
+        manager.delegate = self
+    }
+
+    func locationManagerDidChangeAuthorization(_ m: CLLocationManager) {
+        if m.authorizationStatus != .notDetermined { settled = true }
+    }
+
+    /// 请求授权并把 run loop 转起来，直到状态确定或超时。
+    func waitForAuthorization(timeout: TimeInterval = 3.0) -> CLAuthorizationStatus {
+        if manager.authorizationStatus != .notDetermined {
+            return manager.authorizationStatus
+        }
+
+        manager.requestWhenInUseAuthorization()
+
+        // 关键：转 run loop 让 delegate 回调有机会派发。
+        // 弹窗也需要 run loop 才能显示。
+        let deadline = Date().addingTimeInterval(timeout)
+        while !settled && Date() < deadline {
+            RunLoop.current.run(mode: .default, before: Date().addingTimeInterval(0.1))
+        }
+        return manager.authorizationStatus
+    }
+}
+
 /// 返回 true 表示能拿到真 BSSID
 func probeBSSIDAccess(_ iface: CWInterface) -> Bool {
-    // 触发一次授权请求（首次运行会弹窗，或静默留在 notDetermined）
-    let lm = CLLocationManager()
-    lm.requestWhenInUseAuthorization()
+    // 先把授权谈妥（含 run loop），再验证实际能否读到 BSSID
+    _ = AuthWaiter().waitForAuthorization()
 
-    // 实扫一次看 bssid 是否为 nil —— 这比查 authorizationStatus 更可靠，
-    // 因为最终能否读到 BSSID 由系统综合判定
+    // 以实扫结果为准而非查 authorizationStatus ——
+    // 最终能否读到 BSSID 由系统综合判定
     guard let nets = try? iface.scanForNetworks(withSSID: nil) else { return false }
     return nets.contains { $0.bssid != nil }
 }

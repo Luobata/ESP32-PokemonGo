@@ -39,8 +39,8 @@ C3 不支持外接 PSRAM，因此约 400KB SRAM 就是全部内存 —— 240×3
 
 ```bash
 # 1. 采集真实 WiFi 环境（macOS，需定位授权，见下方说明）
-tools/collector/build.sh
-tools/collector/wifi-collect --interval 30 --out data/raw/$(date +%Y%m%d).ndjson
+tools/collector/build.sh && tools/collector/make-app.sh
+tools/collector/collect.sh -i 30 -o data/raw/$(date +%Y%m%d).ndjson
 
 # 2. 用采集数据回放感知层算法
 python3 sim/replay.py data/raw/20260902.ndjson
@@ -56,12 +56,14 @@ Python 部分**零第三方依赖**，用系统 python3 即可（已在 3.9 上�
 macOS 12+ 对 BSSID 做了权限门禁：**没有定位授权时 `bssid` 和 `ssid` 全返回 nil**，
 只剩 RSSI 和 channel。而指纹方案的核心正是 BSSID。
 
-已实测：本机 `CLLocationManager.authorizationStatus() == 0`（notDetermined），
-命令行程序默认拿不到授权。授权方式见
-[tools/collector/README.md](tools/collector/README.md#定位授权)。
+**已实测通过的唯一路径是「打包成 .app + 用 `open` 启动」**，也就是 `collect.sh` 做的事。
+以下都试过且无效：给 iTerm 授权（列表里根本没有它）、`sudo`（root 不等于有 TCC 授权）、
+直接 exec .app 里的二进制（系统认的是调用方 shell）。
+完整对照表见 [tools/collector/README.md](tools/collector/README.md#定位授权)。
 
 采集器支持**降级模式**：无授权时用 `channel + RSSI 分桶`合成伪 BSSID，
 可以先把管线跑通、验证算法逻辑，但**指纹判别质量会明显下降**，不能用于最终标定。
+不过 channel 与 RSSI 不受权限限制，所以「这里能扫到几个 2.4GHz AP」这个数即使降级也准。
 
 ## 文档
 
@@ -80,6 +82,7 @@ macOS 12+ 对 BSSID 做了权限门禁：**没有定位授权时 `bssid` 和 `ss
 ```
 docs/                 设计文档
 tools/collector/      macOS WiFi 采集器（Swift + CoreWLAN）
+  collect.sh          采集入口 —— 必须用这个启动（见定位授权）
 sim/                  PC 端仿真：感知层算法、回放器、玩法原型
   sensing.py          加权 Jaccard 匹配、8槽 LRU、迟滞状态机、移动量
   gameplay.py         三条状态轴、遭遇判定、确定性 PRNG 刷新
