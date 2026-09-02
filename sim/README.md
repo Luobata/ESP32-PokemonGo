@@ -11,8 +11,10 @@
 |---|---|
 | `sensing.py` | 加权 Jaccard 匹配、8 槽 LRU 地点记忆、迟滞状态机、移动量累积 |
 | `gameplay.py` | OUI/SSID 语义映射、biome 分类、确定性刷新、三条状态轴 |
+| `effects.py` | 渲染动效：缩放/闪白/抖动/进化闪烁/待机呼吸（全部零素材成本） |
 | `replay.py` | 回放采集数据，输出感知层判定 |
 | `prototype.py` | 玩法原型，输出模拟游玩报告 |
+| `preview_effects.py` | 逐帧 ASCII 目检动效 |
 
 `sensing.py` 刻意写成**固件的参考实现** —— 无浮点必需、无动态分配、状态量定长，
 以便后续用定点整数移植到 ESP32-C3。
@@ -20,6 +22,10 @@
 ## 用法
 
 ```bash
+# 目检动效（呼吸方向、缩放中心这些只能看出来）
+python3 sim/preview_effects.py --data /tmp/gen1 --id 25 --effect breath
+python3 sim/preview_effects.py --data /tmp/gen1 --id 150 --view front --effect all
+
 # 回放真实采集
 python3 sim/replay.py data/raw/day1.ndjson --only-24g
 python3 sim/replay.py data/raw/*.ndjson -v          # 逐次扫描明细
