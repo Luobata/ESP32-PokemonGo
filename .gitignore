@@ -22,3 +22,6 @@ tools/collector/WiFiCollect.app/
 # 素材产物（可由 tools/pipeline 重新生成）
 assets/*.bin
 assets/*.txt
+
+# 验收页面产物（由 tools/inspector/build.py 生成，含 200KB 内嵌资产）
+tools/inspector/index.html

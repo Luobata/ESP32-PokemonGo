@@ -1,0 +1,400 @@
+<title>Kanto Asset Inspector</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --dmg-0:#0f380f; --dmg-1:#306230; --dmg-2:#8bac0f; --dmg-3:#9bbc0f;
+  --shell:#c4bfb4; --shell-dk:#9d9890; --ink:#1b1f18; --ink-soft:#4c5347;
+  --bg:#ded9cd; --panel:#ebe7dd; --line:#bdb8ab; --accent:#7c1d1d;
+  --ok:#2f6b34; --warn:#8a6a12;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --shell:#2a2d28; --shell-dk:#1a1c18; --ink:#e6e4da; --ink-soft:#a3a89c;
+    --bg:#15170f; --panel:#1e2118; --line:#343829; --accent:#d98a8a;
+    --ok:#8bac6f; --warn:#d4b25f;
+  }
+}
+:root[data-theme="dark"]{
+  --shell:#2a2d28; --shell-dk:#1a1c18; --ink:#e6e4da; --ink-soft:#a3a89c;
+  --bg:#15170f; --panel:#1e2118; --line:#343829; --accent:#d98a8a;
+  --ok:#8bac6f; --warn:#d4b25f;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:14px/1.6 "IBM Plex Mono",ui-monospace,monospace}
+h1,h2,h3,.px{font-family:"Silkscreen","IBM Plex Mono",monospace;font-weight:700}
+
+.wrap{max-width:1240px;margin:0 auto;padding:28px 20px 80px}
+header{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:26px}
+h1{font-size:26px;margin:0 0 6px;letter-spacing:.02em;text-wrap:balance}
+.sub{color:var(--ink-soft);font-size:13px}
+.sub b{color:var(--ink)}
+
+.stats{display:flex;flex-wrap:wrap;gap:0;margin-top:18px;
+  border:1px solid var(--line);background:var(--panel)}
+.stat{flex:1 1 120px;padding:10px 14px;border-right:1px solid var(--line)}
+.stat:last-child{border-right:0}
+.stat .k{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft)}
+.stat .v{font-family:"Silkscreen",monospace;font-size:17px;font-variant-numeric:tabular-nums}
+
+.cols{display:grid;grid-template-columns:288px 1fr;gap:24px;align-items:start}
+@media(max-width:880px){.cols{grid-template-columns:1fr}}
+
+/* 设备外壳 */
+.device{position:sticky;top:20px;background:var(--shell);
+  border:1px solid var(--shell-dk);border-radius:8px 8px 22px 8px;
+  padding:16px 16px 20px;box-shadow:0 2px 0 var(--shell-dk)}
+.screen-frame{background:var(--shell-dk);border-radius:4px;padding:12px 10px 16px}
+.screen{background:var(--dmg-3);image-rendering:pixelated;
+  width:100%;aspect-ratio:3/4;display:block;border:1px solid #00000030}
+.screen-label{font-family:"Silkscreen",monospace;font-size:8px;color:var(--shell);
+  text-align:center;letter-spacing:.18em;margin-top:7px;opacity:.75}
+.dpad{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding:0 4px}
+.btn3{display:flex;gap:7px}
+.btn3 span{width:19px;height:19px;border-radius:50%;background:var(--shell-dk);
+  display:grid;place-items:center;font-size:8px;color:var(--shell);
+  font-family:"Silkscreen",monospace}
+
+.readout{margin-top:14px;font-size:12px;line-height:1.75}
+.readout .nm{font-family:"Silkscreen",monospace;font-size:15px;display:block;margin-bottom:4px}
+.readout dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:8px 0 0}
+.readout dt{color:var(--ink-soft);font-size:11px}
+.readout dd{margin:0;font-variant-numeric:tabular-nums}
+
+.ctrls{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.ctrls button{font:600 10px/1 "IBM Plex Mono",monospace;padding:7px 9px;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  cursor:pointer;letter-spacing:.04em}
+.ctrls button:hover{border-color:var(--ink)}
+.ctrls button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.ctrls button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+/* 图鉴网格 */
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:14px}
+.toolbar input,.toolbar select{font:13px "IBM Plex Mono",monospace;padding:7px 9px;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+.toolbar input{flex:1 1 180px;min-width:140px}
+.count{font-size:11px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.cell{border:1px solid var(--line);background:var(--panel);padding:7px 5px 6px;
+  cursor:pointer;text-align:center;position:relative}
+.cell:hover{border-color:var(--ink)}
+.cell[aria-current="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.cell canvas{image-rendering:pixelated;width:100%;max-width:56px;height:auto;
+  background:var(--dmg-3);display:block;margin:0 auto}
+.cell .no{font-family:"Silkscreen",monospace;font-size:9px;color:var(--ink-soft);
+  font-variant-numeric:tabular-nums}
+.cell .nm2{font-size:10px;line-height:1.3;word-break:break-all;color:var(--ink)}
+.cell .sz{position:absolute;top:3px;right:4px;font-size:8px;color:var(--ink-soft);
+  font-family:"Silkscreen",monospace}
+.cell.star::after{content:"";position:absolute;top:0;left:0;
+  border-top:9px solid var(--accent);border-right:9px solid transparent}
+
+section.notes{margin-top:34px;border-top:2px solid var(--ink);padding-top:20px}
+h2{font-size:15px;margin:0 0 12px;letter-spacing:.02em}
+h3{font-size:12px;margin:20px 0 6px;letter-spacing:.03em;color:var(--ink-soft)}
+.notes p{max-width:66ch;margin:0 0 10px;font-size:13px}
+.notes ul{max-width:66ch;margin:0 0 10px;padding-left:18px;font-size:13px}
+.notes li{margin-bottom:5px}
+code{background:var(--panel);border:1px solid var(--line);padding:.5px 4px;font-size:12px}
+.tbl-scroll{overflow-x:auto;margin:0 0 12px}
+table{border-collapse:collapse;font-size:12px;min-width:340px}
+th,td{text-align:left;padding:5px 11px 5px 0;border-bottom:1px solid var(--line);
+  font-variant-numeric:tabular-nums}
+th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);font-weight:500}
+.tag{display:inline-block;font-size:10px;padding:1px 5px;border:1px solid var(--line);
+  margin-right:3px;color:var(--ink-soft)}
+.ok{color:var(--ok);font-weight:600}
+.warn{color:var(--warn);font-weight:600}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+<header>
+  <h1>Kanto Asset Inspector</h1>
+  <div class="sub">从 <b>gen1.bin / gen1_front.bin / gen1_back.bin</b> 直接解码 ——
+    页面读的是固件真实产物，不是另画一份。左侧模拟 240&times;320 设备屏。</div>
+  <div class="stats" id="stats"></div>
+</header>
+
+<div class="cols">
+  <div class="device">
+    <div class="screen-frame">
+      <canvas class="screen" id="screen" width="240" height="320"></canvas>
+      <div class="screen-label">DOT MATRIX WITH STEREO SOUND</div>
+    </div>
+    <div class="dpad">
+      <div style="font-family:Silkscreen,monospace;font-size:8px;color:var(--shell-dk)">ESP32-C3</div>
+      <div class="btn3"><span>A</span><span>B</span><span>C</span></div>
+    </div>
+    <div class="readout" id="readout"></div>
+    <div class="ctrls" id="ctrls"></div>
+  </div>
+
+  <div>
+    <div class="toolbar">
+      <input id="q" type="search" placeholder="搜索名字或编号…" aria-label="搜索">
+      <select id="fbiome" aria-label="按 biome 筛选"><option value="">全部 biome</option></select>
+      <select id="ftype" aria-label="按属性筛选"><option value="">全部属性</option></select>
+      <span class="count" id="count"></span>
+    </div>
+    <div class="grid" id="grid"></div>
+  </div>
+</div>
+
+<section class="notes">
+  <h2>验收要点</h2>
+
+  <h3>① front 尺寸必须是三档，不是统一值</h3>
+  <p>格子右上角标着该只的原生尺寸。<b>小型宝可梦 40、中型 48、大型 56</b> ——
+  点开超梦（#150）和妙蛙种子（#1）对比，体型差异应当明显。
+  早期版本统一缩到 40&times;40，把大型宝可梦压小了 30%，破坏了原版的体型对比。</p>
+  <div class="tbl-scroll"><table id="segtbl"></table></div>
+
+  <h3>② 数值是初代原版，不是现代值</h3>
+  <p>初代不分特攻/特防，只有单一 <b>Special</b>。实测 46 只的初代 Special
+  与现代特攻不同 —— 抽查吉利蛋（#113）应为 <b>105</b>（现代特攻只有 35）。</p>
+
+  <h3>③ 属性只有初代 15 种</h3>
+  <p>没有恶、钢（二代）与妖精（六代）。皮皮（#35）、皮可西（#36）、胖丁（#39）、
+  胖可丁（#40）、魔墙人偶（#122）在现代都是妖精系，这里应显示为
+  <b>一般</b>/<b>超能</b> —— 用属性筛选器确认妖精不在列表里。</p>
+
+  <h3>④ 待机呼吸只向上浮动</h3>
+  <p>点「呼吸」看 back sprite 动效。<b>图应整体上移再回落，底部不能被切。</b>
+  实测 151 只 back 的下方留白 137 只都只有 4 行，所以向下浮动会裁掉贴底边的 sprite。</p>
+
+  <h3>⑤ 动效零素材成本</h3>
+  <p>缩放、闪白、抖动、进化闪烁都是<b>对同一张静态图做变换</b> ——
+  初代 sprite 本身完全静态，连呼吸都没有（晃动是二代才引入的）。
+  这些动效不占额外 flash。</p>
+
+  <h2>flash 预算</h2>
+  <div class="tbl-scroll"><table id="budget"></table></div>
+  <p style="font-size:12px;color:var(--ink-soft)">
+  余量按 8MB 片内 flash 计。固件本体（ESP-IDF + WiFi/BLE 栈）估 1200 KB，
+  待 <code>idf.py size</code> 实测替换。</p>
+</section>
+</div>
+
+<script>
+const D = ASSETS_JSON;
+const SHADES = ["#0f380f","#306230","#8bac0f","#9bbc0f"];
+
+function b64bytes(s){
+  const bin = atob(s), a = new Uint8Array(bin.length);
+  for (let i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i);
+  return a;
+}
+// 2bpp 解包：每字节 4 像素，高位在左
+function px(bytes,size,x,y){
+  const rowBytes = (size*2+7)>>3;
+  const b = bytes[y*rowBytes + ((x*2)>>3)];
+  return (b >> (6-((x*2)&7))) & 3;
+}
+function drawSprite(ctx,bytes,size,dx,dy,scale,shadeMap){
+  const m = shadeMap || [0,1,2,3];
+  for(let y=0;y<size;y++) for(let x=0;x<size;x++){
+    const v = px(bytes,size,x,y);
+    if(v===3) continue;                 // 最亮当透明
+    ctx.fillStyle = SHADES[m[v]];
+    ctx.fillRect(dx+x*scale, dy+y*scale, scale, scale);
+  }
+}
+
+/* ---- 动效（与 sim/effects.py 一致）---- */
+const IDENTITY=[0,1,2,3], FLASH_WHITE=[3,3,3,3], INVERT=[3,2,1,0];
+function breathSeq(frames,rise){            // 吸气快、屏息、呼气慢
+  const lv=[]; for(let s=0;s<=rise;s++){ const w = s===rise?2:1;
+    for(let k=0;k<w;k++) lv.push(-s); }
+  const tail = rise>0 ? lv.slice(0,-2).reverse() : lv.slice().reverse();
+  const all = lv.concat(tail);
+  return Array.from({length:frames},(_,i)=>({oy:all[Math.floor(i*all.length/frames)]||0}));
+}
+const EFFECTS = {
+  none:  ()=>[{}],
+  breath:()=>breathSeq(8,2),
+  zoom:  ()=>Array.from({length:8},(_,i)=>({sn:i+1,sd:8})),
+  shake: ()=>Array.from({length:6},(_,i)=>({ox:i%2?-2:2})),
+  flash: ()=>Array.from({length:6},(_,i)=>({map:i%2?IDENTITY:FLASH_WHITE})),
+  evolve:()=>Array.from({length:12},(_,i)=>{
+    const p=Math.max(1,Math.floor((12-i)/3));
+    return {map: Math.floor(i/p)%2 ? INVERT : IDENTITY};
+  }),
+};
+
+let cur = 25, effect="breath", view="back", frame=0, timer=null;
+
+const screen = document.getElementById("screen");
+const sctx = screen.getContext("2d");
+
+function paint(){
+  const m = D.mons[cur-1];
+  const isBack = view==="back";
+  const size = isBack ? D.meta.backSize : m.fsize;
+  const bytes = b64bytes(isBack ? D.back[cur] : D.front[cur]);
+
+  sctx.fillStyle = SHADES[3];
+  sctx.fillRect(0,0,240,320);
+
+  const seq = EFFECTS[effect]();
+  const tf = seq[frame % seq.length] || {};
+  const sn = tf.sn||1, sd = tf.sd||1;
+  const scale = Math.max(1, Math.floor(240/size/1.35));
+  const eff = Math.max(1, Math.round(scale*sn/sd));
+  const w = size*eff;
+  const dx = Math.round((240-w)/2) + (tf.ox||0)*eff;
+  const dy = Math.round((320-w)/2) + (tf.oy||0)*eff;
+
+  drawSprite(sctx,bytes,size,dx,dy,eff,tf.map);
+
+  // 屏幕底部信息条 —— 模拟设备 UI
+  sctx.fillStyle = SHADES[0];
+  sctx.font = '11px "IBM Plex Mono",monospace';
+  sctx.fillText(`No.${String(m.id).padStart(3,"0")}  ${m.slug.toUpperCase()}`, 10, 300);
+  sctx.fillText(`${isBack?"BACK":"FRONT"} ${size}x${size}   ${effect.toUpperCase()}`, 10, 313);
+}
+
+function tick(){ frame++; paint(); }
+function restart(){
+  clearInterval(timer);
+  frame = 0; paint();
+  const n = EFFECTS[effect]().length;
+  if(n>1) timer = setInterval(tick, 260);   // ~4fps，接近静息呼吸节律
+}
+
+function readout(){
+  const m = D.mons[cur-1];
+  const ty = m.t2 ? `${m.t1} / ${m.t2}` : m.t1;
+  const evo = m.trig ? `${m.trig} → #${m.evo}${m.lv?` @Lv${m.lv}`:""}` : "不进化";
+  document.getElementById("readout").innerHTML = `
+    <span class="nm">#${String(m.id).padStart(3,"0")} ${m.slug}</span>
+    ${m.legend?'<span class="tag" style="border-color:var(--accent);color:var(--accent)">传说</span>':""}
+    ${m.myth?'<span class="tag" style="border-color:var(--accent);color:var(--accent)">幻兽</span>':""}
+    <span class="tag">${ty}</span>
+    <dl>
+      <dt>种族值</dt><dd>HP ${m.st[0]} · 攻 ${m.st[1]} · 防 ${m.st[2]}
+        · <b>特殊 ${m.st[3]}</b> · 速 ${m.st[4]}</dd>
+      <dt>捕获率</dt><dd>${m.catch} / 255</dd>
+      <dt>进化</dt><dd>${evo}</dd>
+      <dt>biome</dt><dd>${m.biomes.join("、")}</dd>
+      <dt>体型</dt><dd>${(m.h/10).toFixed(1)} m · ${(m.w/10).toFixed(1)} kg</dd>
+      <dt>front</dt><dd>${m.fsize}&times;${m.fsize}</dd>
+    </dl>`;
+}
+
+/* ---- 控件 ---- */
+const CTRLS = [
+  ["view","back","背面"],["view","front","正面"],
+  ["fx","none","静止"],["fx","breath","呼吸"],["fx","zoom","缩放"],
+  ["fx","shake","抖动"],["fx","flash","闪白"],["fx","evolve","进化"],
+];
+const ctrls = document.getElementById("ctrls");
+ctrls.innerHTML = CTRLS.map(([g,v,l])=>
+  `<button data-g="${g}" data-v="${v}">${l}</button>`).join("");
+function syncCtrls(){
+  ctrls.querySelectorAll("button").forEach(b=>{
+    const on = b.dataset.g==="view" ? b.dataset.v===view : b.dataset.v===effect;
+    b.setAttribute("aria-pressed", on);
+  });
+}
+ctrls.addEventListener("click", e=>{
+  const b = e.target.closest("button"); if(!b) return;
+  if(b.dataset.g==="view") view = b.dataset.v; else effect = b.dataset.v;
+  syncCtrls(); readout(); restart();
+});
+
+/* ---- 网格 ---- */
+const grid = document.getElementById("grid");
+function renderGrid(){
+  const q = document.getElementById("q").value.trim().toLowerCase();
+  const fb = document.getElementById("fbiome").value;
+  const ft = document.getElementById("ftype").value;
+
+  const list = D.mons.filter(m=>{
+    if(q && !(m.slug.includes(q) || String(m.id)===q ||
+              String(m.id).padStart(3,"0")===q)) return false;
+    if(fb && !m.biomes.includes(fb)) return false;
+    if(ft && m.t1!==ft && m.t2!==ft) return false;
+    return true;
+  });
+
+  document.getElementById("count").textContent = `${list.length} / ${D.meta.count}`;
+  grid.innerHTML = list.map(m=>`
+    <div class="cell${m.legend||m.myth?" star":""}" data-id="${m.id}"
+         ${m.id===cur?'aria-current="true"':""} role="button" tabindex="0">
+      <span class="sz">${m.fsize}</span>
+      <canvas width="${m.fsize}" height="${m.fsize}"></canvas>
+      <div class="no">${String(m.id).padStart(3,"0")}</div>
+      <div class="nm2">${m.slug}</div>
+    </div>`).join("");
+
+  grid.querySelectorAll(".cell").forEach(c=>{
+    const id = +c.dataset.id, m = D.mons[id-1];
+    const ctx = c.querySelector("canvas").getContext("2d");
+    ctx.fillStyle = SHADES[3]; ctx.fillRect(0,0,m.fsize,m.fsize);
+    drawSprite(ctx, b64bytes(D.front[id]), m.fsize, 0,0,1);
+  });
+}
+function select(id){
+  cur = id; readout(); restart();
+  grid.querySelectorAll(".cell").forEach(c=>
+    c.setAttribute("aria-current", +c.dataset.id===id));
+}
+grid.addEventListener("click", e=>{
+  const c = e.target.closest(".cell"); if(c) select(+c.dataset.id);
+});
+grid.addEventListener("keydown", e=>{
+  if(e.key!=="Enter" && e.key!==" ") return;
+  const c = e.target.closest(".cell"); if(c){ e.preventDefault(); select(+c.dataset.id); }
+});
+["q","fbiome","ftype"].forEach(id=>
+  document.getElementById(id).addEventListener("input", renderGrid));
+
+/* ---- 头部统计 + 表格 ---- */
+(function init(){
+  const M = D.meta;
+  const total = M.dataBytes + M.frontBytes + M.backBytes;
+  document.getElementById("stats").innerHTML = [
+    ["图鉴", `${M.count}`],
+    ["数据表", `${(M.dataBytes/1024).toFixed(1)} KB`],
+    ["front", `${(M.frontBytes/1024).toFixed(1)} KB`],
+    ["back", `${(M.backBytes/1024).toFixed(1)} KB`],
+    ["合计", `${(total/1024).toFixed(0)} KB`],
+    ["占 8MB", `${(total/8/1024/1024*100).toFixed(2)}%`],
+  ].map(([k,v])=>`<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+
+  document.getElementById("segtbl").innerHTML =
+    `<tr><th>原生尺寸</th><th>只数</th><th>单张</th><th>段计</th></tr>` +
+    M.segs.map(s=>`<tr><td>${s.size}&times;${s.size}</td><td>${s.n}</td>
+      <td>${s.per} B</td><td>${(s.per*s.n/1024).toFixed(1)} KB</td></tr>`).join("");
+
+  const rows = [
+    ["怪物数据表", M.dataBytes/1024, `${M.count} 条 &times; ${M.recSize} B + 名字池`],
+    ["front sprite", M.frontBytes/1024, "三档原生尺寸，分段存放"],
+    ["back sprite", M.backBytes/1024, `151 &times; ${M.backSize}&times;${M.backSize}，定长`],
+    ["动效", 0, "零素材 —— 全是对静态图做变换"],
+    ["固件本体（估）", 1200, "ESP-IDF + WiFi/BLE 栈"],
+  ];
+  const used = rows.reduce((a,r)=>a+r[1],0);
+  document.getElementById("budget").innerHTML =
+    `<tr><th>项</th><th>KB</th><th>说明</th></tr>` +
+    rows.map(r=>`<tr><td>${r[0]}</td>
+      <td>${r[1]===0?'<span class="ok">0</span>':r[1].toFixed(1)}</td>
+      <td style="color:var(--ink-soft)">${r[2]}</td></tr>`).join("") +
+    `<tr><td><b>已用</b></td><td><b>${used.toFixed(0)}</b></td>
+      <td>占 8MB 的 <b>${(used/8192*100).toFixed(1)}%</b></td></tr>` +
+    `<tr><td><b>剩余</b></td><td class="ok"><b>${(8192-used).toFixed(0)}</b></td>
+      <td class="ok">${((8192-used)/1024).toFixed(1)} MB 余量充裕</td></tr>`;
+
+  const bs=new Set(), ts=new Set();
+  D.mons.forEach(m=>{ m.biomes.forEach(b=>bs.add(b)); ts.add(m.t1); if(m.t2) ts.add(m.t2); });
+  document.getElementById("fbiome").insertAdjacentHTML("beforeend",
+    [...bs].map(b=>`<option>${b}</option>`).join(""));
+  document.getElementById("ftype").insertAdjacentHTML("beforeend",
+    [...ts].sort().map(t=>`<option>${t}</option>`).join(""));
+
+  syncCtrls(); renderGrid(); readout(); restart();
+})();
+</script>
