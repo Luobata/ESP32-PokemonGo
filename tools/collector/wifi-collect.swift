@@ -190,12 +190,20 @@ if !hasBSSID {
         macOS 12+ 要求定位授权才能读取 BSSID/SSID。这是指纹方案的核心字段，
         没有它采集的数据无法用于标定。
 
-        解决方式（任选，详见 tools/collector/README.md）：
+        TCC（隐私授权）按 bundle identifier 判定权限，而裸可执行文件没有身份 ——
+        所以它既不会出现在「定位服务」列表里，sudo 也提不了权（已实测无效）。
 
-          1. 系统设置 → 隐私与安全性 → 定位服务 → 打开，并为终端 App
-             （Terminal / iTerm / 你的编辑器）授权
-          2. 用 sudo 运行本程序：sudo ./wifi-collect ...
-          3. 若只想先把管线跑通，加 --allow-degraded 用合成伪 BSSID
+        解决方式（详见 tools/collector/README.md）：
+
+          1. 打包成 .app 让它有身份：
+               ./make-app.sh
+             然后在你自己的终端里跑一次触发授权弹窗（点「允许」）：
+               ./WiFiCollect.app/Contents/MacOS/wifi-collect --count 1
+             没弹窗就去 系统设置 → 隐私与安全性 → 定位服务，
+             找到 WiFiCollect 打开开关（打包后它才会出现在列表里）。
+             验证：./check-auth.sh --app
+
+          2. 若只想先把管线跑通，加 --allow-degraded 用合成伪 BSSID
              （判别质量明显下降，仅用于验证代码逻辑）
 
         """)

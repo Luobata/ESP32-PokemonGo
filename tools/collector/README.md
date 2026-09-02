@@ -29,26 +29,44 @@
 程序启动时会**实扫一次自我检测**（比查 `authorizationStatus()` 可靠，
 因为最终能否读到 BSSID 由系统综合判定）。检测到无授权会给出指引并退出。
 
-### 三种解决方式
+### 关键：必须打包成 .app
 
-**① 给终端 App 授权（推荐）**
+**TCC（隐私授权）按 bundle identifier 判定权限，而裸可执行文件没有身份。**
+后果是两条看起来显然的路都走不通（本机已实测）：
 
-系统设置 → 隐私与安全性 → 定位服务 → 打开，
-然后在列表里为你的终端（Terminal / iTerm / 编辑器）打勾。
+| 尝试 | 结果 |
+|---|---|
+| 在「定位服务」列表里给 iTerm 授权 | ✗ **列表里根本没有 iTerm** |
+| `sudo ./wifi-collect` | ✗ **同样拿不到 BSSID** —— root 不等于有 TCC 授权 |
+| `system_profiler SPAirPortDataType` | ✗ 能列出网络但不给 BSSID |
 
-首次运行本程序会触发 `requestWhenInUseAuthorization()`，
-但命令行程序没有 bundle identifier，弹窗可能不出现 —— 那就手动去设置里加。
-
-**② 用 sudo 运行**
+所以正解是给它一个身份：
 
 ```bash
-sudo ./wifi-collect --count 1
+./make-app.sh        # 打包 + ad-hoc 签名（不需要开发者账号）
 ```
 
-root 权限通常能绕过门禁。缺点是采集文件的所有者会变成 root，
-后续 Python 读取可能需要 `sudo chown`。
+然后**在你自己的终端里**跑一次触发授权弹窗：
 
-**③ 降级模式（仅验证管线）**
+```bash
+./WiFiCollect.app/Contents/MacOS/wifi-collect --count 1
+```
+
+弹窗出现就点「允许」。没弹窗则去 **系统设置 → 隐私与安全性 → 定位服务**，
+找到 **WiFiCollect** 打开开关 —— 打包后它才会出现在列表里。
+
+> 弹窗需要图形会话触发。从非交互环境（比如 AI agent 的 shell）跑不出弹窗，
+> 必须你亲自在终端里执行。
+
+验证：
+
+```bash
+./check-auth.sh --app
+```
+
+成功会打印 `✓ BSSID 可读`，并报告扫到多少 AP、其中 2.4GHz 几个。
+
+### 降级模式（仅验证管线）
 
 ```bash
 ./wifi-collect --count 2 --allow-degraded
@@ -66,6 +84,10 @@ hash   = channel * 7919 + bucket * 104729 + index
 
 > ⚠️ **但判别质量明显下降，不能用于最终标定。**
 > 输出行会带 `"degraded":true` 标记，`sim/` 侧会识别并警告。
+>
+> 不过有一点是真的：**channel 和 RSSI 不受权限限制**，
+> 所以「这个地方能扫到几个 2.4GHz AP」这个数即使在降级模式下也是准的 ——
+> 而它正好决定[降级阶梯](../../docs/02-sensing.md#23-降级阶梯)要降到哪一级。
 
 ## 输出格式
 
