@@ -305,6 +305,19 @@ class PlaceMemory:
         self.places: list[Place] = []
         self._next_pid = 1
 
+        # 按 biome 的累计驻留秒数 —— **与地点表解耦，只增不减**。
+        #
+        # 为什么不直接遍历 places 求和：LRU 满了会 pop 掉最久未访问的槽，
+        # 连同它的 total_dwell 一起丢。于是有个反直觉的失败模式 ——
+        # 攒了三周的办公区驻留，出差一趟回来发现槽位被沿途新地点挤掉，
+        # 进度归零。这违反「不做惩罚性死亡」的精神
+        # （docs/04-gameplay.md#432 那条虽然只约束状态轴，但精神一致）。
+        #
+        # S7 进化的 biome 驻留条件依赖这份累计（docs/systems/S7-evolution.md），
+        # 所以它必须独立于地点表的生命周期。
+        # 固件侧是 5 × uint32 = 20 字节，进存档。
+        self.biome_dwell: dict[str, int] = {}
+
     def match(self, sig: Signature) -> tuple[Optional[Place], float]:
         """找最相似的地点。返回 (地点或 None, 最佳得分)。"""
         best: Optional[Place] = None
@@ -338,6 +351,17 @@ class PlaceMemory:
 
     def days_since_visit(self, place: Place, now: int) -> float:
         return (now - place.last_seen) / 86400.0
+
+    def add_dwell(self, biome: Optional[str], seconds: int) -> None:
+        """累计某 biome 的驻留时长。biome 为 None 时忽略。
+
+        调用方在确认驻留时调用。与 Place.total_dwell 并存 ——
+        后者是「这个地点待了多久」（会随 LRU 淘汰丢失），
+        前者是「这类环境累计待了多久」（永不丢失）。
+        """
+        if not biome or seconds <= 0:
+            return
+        self.biome_dwell[biome] = self.biome_dwell.get(biome, 0) + seconds
 
 
 # ---------------------------------------------------------------------------
@@ -507,9 +531,23 @@ class SensingCore:
         if settled and sig:
             place, is_new = self.memory.observe(sig, scan.ts)
             _, score = self.memory.match(sig)
+            # biome 首次分类后冻结（docs/03-spawning.md#36）——
+            # 世界是被「发现」的，不是每次重新掷骰。
+            # 分类器在 gameplay 层，这里延迟导入避免循环依赖。
+            if place.biome is None:
+                try:
+                    from gameplay import classify_biome
+                    place.biome = classify_biome(scan.aps)
+                except ImportError:
+                    pass       # 纯感知层测试时 gameplay 可能不可用
+
             # 累积驻留时长（对应 2.2 的「驻留时长」可再生信号）
             if self._prev_ts is not None and not is_new:
-                place.total_dwell += scan.ts - self._prev_ts
+                elapsed = scan.ts - self._prev_ts
+                place.total_dwell += elapsed
+                # 同时记进 biome 累计器 —— 它不随 LRU 淘汰丢失，
+                # S7 进化的 biome 驻留条件依赖这份数据
+                self.memory.add_dwell(place.biome, elapsed)
 
         self.seen_hashes |= cur_hashes
         self._prev_sig = sig

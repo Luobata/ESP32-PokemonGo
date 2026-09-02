@@ -45,15 +45,18 @@
    off  size  field
    0    4     ts              Unix 秒
    4    1     species_id      1~151
-   5    1     packed          bit0-3=type_index(0~14)
-                              bit4-6=rarity(1~5)
-                              bit7  =is_transient
-   6    2     bssid_hash16    from_bssid_hash 的低 16 位（只为去重与展示）
+   5    1     packed          bit0-3 = type_index(0~14)
+                              bit4-6 = rarity(1~5)
+                              bit7   = is_transient
+   6    2     packed2         bit0-14 = bssid_hash 低 15 位（去重用）
+                              bit15   = is_shiny（见 S8-shiny.md）
 队列头部 4 B:  head | count | biome_of_last | reserved
 ```
 
-`from_bssid_hash` 截断到 16 位是有意的：只用于「同一个 AP 别连刷」的去重，
-不需要反查。原始 BSSID 从不落盘（[02-sensing.md#28](../02-sensing.md)）。
+`packed` 的 8 位**刚好用满**（4+3+1），所以 [S8 闪光](S8-shiny.md)
+要求的 `is_shiny` 位挪到 `packed2` 的最高位，代价是 BSSID 哈希从 16 位
+截到 15 位。这不影响用途：哈希只用于「同一个 AP 别连刷」的去重，
+不需要反查，原始 BSSID 从不落盘（[02-sensing.md#28](../02-sensing.md)）。
 
 ## 与三键约束的关系
 
@@ -76,6 +79,6 @@ P1 待机页只需显示一个「未处理 N 条」的角标。
 
 1. **`aps` 为空**（扫描失败 / 全 5GHz 环境）—— 不产生遭遇，直接返回，不能拿空列表取模。
 2. **队列满且全为同一稀有度** —— 退化为丢最旧，行为仍确定。
-3. **同一 AP 在同一时间桶内被反复选中** —— `spawn_seed()` 会给出同一只怪；用 `bssid_hash16` 去重，同桶同 AP 只入队一次。
+3. **同一 AP 在同一时间桶内被反复选中** —— `spawn_seed()` 会给出同一只怪；用 `packed2` 的 15 位哈希去重，同桶同 AP 只入队一次。
 4. **`ts` 回跳**（RTC 对时或漂移修正）—— `ts // BASE_SPAWN_INTERVAL` 可能跨回旧桶造成连刷；`last_base_bucket` 需允许「桶号变化」而非「桶号增大」，但要对单次会话内的入队数设上限（建议 ≤2）。
 5. **`state` 在迟滞窗口内抖动** —— 移动/驻留反复切换时两个触发源都可能命中；以猎场优先，同一次 `feed()` 只产出一条遭遇。
