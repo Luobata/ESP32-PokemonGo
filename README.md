@@ -81,6 +81,7 @@ macOS 12+ 对 BSSID 做了权限门禁：**没有定位授权时 `bssid` 和 `ss
 
 ```
 docs/                 设计文档
+tools/pipeline/       素材管线：Tuxemon YAML→二进制、精灵图→2bpp、flash 预算
 tools/collector/      macOS WiFi 采集器（Swift + CoreWLAN）
   collect.sh          采集入口 —— 必须用这个启动（见定位授权）
 sim/                  PC 端仿真：感知层算法、回放器、玩法原型
