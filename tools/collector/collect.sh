@@ -9,13 +9,16 @@
 #
 # 用法：
 #   ./collect.sh                                    # 默认 30s 间隔，写 data/raw/
-#   ./collect.sh -i 10 -o ../../data/raw/commute.ndjson
+#   ./collect.sh -i 10 -o data/raw/commute.ndjson   # 相对路径按仓库根解析
 #   ./collect.sh --count 1                          # 只扫一次（自检用）
 
 set -uo pipefail
 cd "$(dirname "$0")"
 
 APP="$(pwd)/WiFiCollect.app"
+# 仓库根 —— 相对路径按它解析，而不是按脚本所在目录。
+# 否则 `-o data/raw/x.ndjson` 会落到 tools/collector/data/raw/ 去（踩过）。
+REPO_ROOT="$(cd ../.. && pwd)"
 
 if [ ! -d "$APP" ]; then
     echo "先打包：./build.sh && ./make-app.sh" >&2
@@ -24,8 +27,8 @@ fi
 
 # 默认参数：30 秒间隔，输出到 data/raw/<日期>.ndjson
 if [ $# -eq 0 ]; then
-    mkdir -p ../../data/raw
-    set -- -i 30 -o "$(cd ../../data/raw && pwd)/$(date +%Y%m%d-%H%M).ndjson"
+    mkdir -p "$REPO_ROOT/data/raw"
+    set -- -i 30 -o "$REPO_ROOT/data/raw/$(date +%Y%m%d-%H%M).ndjson"
 fi
 
 # open --args 传参时，相对路径会相对于 app 的工作目录（不确定），
@@ -38,8 +41,9 @@ while [ $# -gt 0 ]; do
             p="$1"
             case "$p" in
                 /*) ;;   # 已是绝对路径
-                *)  d="$(dirname "$p")"; mkdir -p "$d"
-                    p="$(cd "$d" && pwd)/$(basename "$p")" ;;
+                *)  # 相对路径按仓库根解析，符合「从仓库根敲命令」的直觉
+                    p="$REPO_ROOT/$p"
+                    mkdir -p "$(dirname "$p")" ;;
             esac
             args+=(-o "$p")
             ;;

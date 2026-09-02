@@ -11,7 +11,7 @@
 ./build.sh && ./make-app.sh     # 编译 + 打包（需 Xcode CLT）
 ./collect.sh --count 1 -o /tmp/probe.ndjson   # 试跑一次
 ./collect.sh                                  # 正式采集（默认 30s 间隔）
-./collect.sh -i 10 -o ../../data/raw/commute.ndjson
+./collect.sh -i 10 -o data/raw/commute.ndjson
 ```
 
 > **必须用 `collect.sh` 启动，不要直接跑 `wifi-collect`。**
@@ -129,19 +129,19 @@ hash   = channel * 7919 + bucket * 104729 + index
 
 ```bash
 # 在家开一个（睡前到起床）
-./collect.sh -i 30 -o ../../data/raw/home.ndjson
+./collect.sh -i 30 -o data/raw/home.ndjson
 
 # 通勤路上开一个（间隔调短，捕捉快速变化的 AP）
-./collect.sh -i 10 -o ../../data/raw/commute.ndjson
+./collect.sh -i 10 -o data/raw/commute.ndjson
 
 # 公司开一个
-./collect.sh -i 30 -o ../../data/raw/office.ndjson
+./collect.sh -i 30 -o data/raw/office.ndjson
 ```
 
 采集完用回放器看结果：
 
 ```bash
-python3 ../../sim/replay.py ../../data/raw/home.ndjson
+python3 sim/replay.py data/raw/home.ndjson   # 从仓库根跑
 ```
 
 ## 与目标硬件的差异（重要）
