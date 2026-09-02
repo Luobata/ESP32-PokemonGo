@@ -1,6 +1,6 @@
 # ESP32-PokemonGo
 
-在一台**没有 GPS**的 ESP32-C3 掌机上实现「现实世界探索 + 怪物收集 + 电子宠物养成」。
+在一台**没有 GPS**的 ESP32-C3 掌机上实现「现实世界探索 + 初代宝可梦收集 + 电子宠物养成」。
 
 用 WiFi/BLE/声学的**环境指纹**代替 GPS 定位。设备揣在兜里后台低频扫描、静默累积事件；
 玩家偶尔掏出来，30 秒内处理完一批。形态上接近 Tamagotchi 与宝可梦步行者，而不是掌机。
@@ -81,7 +81,7 @@ macOS 12+ 对 BSSID 做了权限门禁：**没有定位授权时 `bssid` 和 `ss
 
 ```
 docs/                 设计文档
-tools/pipeline/       素材管线：Tuxemon YAML→二进制、精灵图→2bpp、flash 预算
+tools/pipeline/       素材管线：初代 151 只数据+sprite→二进制、flash 预算
 tools/collector/      macOS WiFi 采集器（Swift + CoreWLAN）
   collect.sh          采集入口 —— 必须用这个启动（见定位授权）
 sim/                  PC 端仿真：感知层算法、回放器、玩法原型

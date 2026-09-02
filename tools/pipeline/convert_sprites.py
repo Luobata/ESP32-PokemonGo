@@ -65,15 +65,20 @@ def read_png(path: str) -> tuple[int, int, list[list[tuple[int, int, int, int]]]
         elif ctype == b"IEND":
             break
 
-    if bit_depth != 8:
-        raise ValueError(f"只支持 8 位色深，这个是 {bit_depth}")
+    if bit_depth not in (1, 2, 4, 8):
+        raise ValueError(f"不支持的色深 {bit_depth}")
 
     channels = {0: 1, 2: 3, 3: 1, 4: 2, 6: 4}.get(color_type)
     if channels is None:
         raise ValueError(f"不支持的 color_type {color_type}")
 
     raw = zlib.decompress(bytes(idat))
-    stride = width * channels
+
+    # 低位深（1/2/4）时多个像素挤在一个字节里，filter 也是按字节做的。
+    # 原版 RBY sprite 正是 depth=2 的索引图（4 色，即 GB 四阶灰）——
+    # 这条路径不是边缘情况，而是主路径。
+    stride = (width * channels * bit_depth + 7) // 8
+    bpp_bytes = max(1, (channels * bit_depth + 7) // 8)   # filter 的偏移单位
 
     # 反 filter
     out = bytearray()
@@ -86,20 +91,20 @@ def read_png(path: str) -> tuple[int, int, list[list[tuple[int, int, int, int]]]
         p += stride
 
         if ftype == 1:      # Sub
-            for i in range(channels, stride):
-                line[i] = (line[i] + line[i - channels]) & 0xFF
+            for i in range(bpp_bytes, stride):
+                line[i] = (line[i] + line[i - bpp_bytes]) & 0xFF
         elif ftype == 2:    # Up
             for i in range(stride):
                 line[i] = (line[i] + prev[i]) & 0xFF
         elif ftype == 3:    # Average
             for i in range(stride):
-                a = line[i - channels] if i >= channels else 0
+                a = line[i - bpp_bytes] if i >= bpp_bytes else 0
                 line[i] = (line[i] + ((a + prev[i]) >> 1)) & 0xFF
         elif ftype == 4:    # Paeth
             for i in range(stride):
-                a = line[i - channels] if i >= channels else 0
+                a = line[i - bpp_bytes] if i >= bpp_bytes else 0
                 b = prev[i]
-                c = prev[i - channels] if i >= channels else 0
+                c = prev[i - bpp_bytes] if i >= bpp_bytes else 0
                 pa, pb, pc = abs(b - c), abs(a - c), abs(a + b - 2 * c)
                 pred = a if (pa <= pb and pa <= pc) else (b if pb <= pc else c)
                 line[i] = (line[i] + pred) & 0xFF
@@ -109,26 +114,38 @@ def read_png(path: str) -> tuple[int, int, list[list[tuple[int, int, int, int]]]
         out += line
         prev = line
 
+    def sample(y: int, x: int, ch: int) -> int:
+        """取第 y 行、第 x 像素、第 ch 通道的原始值（处理低位深打包）。"""
+        if bit_depth == 8:
+            return out[y * stride + x * channels + ch]
+        # 1/2/4 位：高位在前
+        bit_index = (x * channels + ch) * bit_depth
+        byte = out[y * stride + bit_index // 8]
+        shift = 8 - bit_depth - (bit_index % 8)
+        return (byte >> shift) & ((1 << bit_depth) - 1)
+
     # 转 RGBA
     rows: list[list[tuple[int, int, int, int]]] = []
+    maxval = (1 << bit_depth) - 1
     for y in range(height):
         row = []
-        base = y * stride
         for x in range(width):
-            o = base + x * channels
-            if color_type == 0:
-                g = out[o]; row.append((g, g, g, 255))
-            elif color_type == 2:
-                row.append((out[o], out[o + 1], out[o + 2], 255))
-            elif color_type == 3:
-                idx = out[o]
+            if color_type == 0:                       # 灰度
+                g = sample(y, x, 0) * 255 // maxval
+                row.append((g, g, g, 255))
+            elif color_type == 2:                     # RGB
+                row.append((sample(y, x, 0), sample(y, x, 1), sample(y, x, 2), 255))
+            elif color_type == 3:                     # 调色板
+                idx = sample(y, x, 0)
                 r, g, b = palette[idx] if idx < len(palette) else (0, 0, 0)
                 a = trns[idx] if idx < len(trns) else 255
                 row.append((r, g, b, a))
-            elif color_type == 4:
-                g = out[o]; row.append((g, g, g, out[o + 1]))
-            else:
-                row.append((out[o], out[o + 1], out[o + 2], out[o + 3]))
+            elif color_type == 4:                     # 灰度 + alpha
+                g = sample(y, x, 0) * 255 // maxval
+                row.append((g, g, g, sample(y, x, 1) * 255 // maxval))
+            else:                                     # RGBA
+                row.append((sample(y, x, 0), sample(y, x, 1),
+                            sample(y, x, 2), sample(y, x, 3)))
         rows.append(row)
 
     return width, height, rows

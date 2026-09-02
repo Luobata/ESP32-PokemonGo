@@ -84,8 +84,8 @@ tools/collector/        data/raw/    sim/replay.py       sim/sensing.py
 
 需要做的转换（全部在 PC 上，见 [05-art-audio.md](05-art-audio.md#tuxemon-的-411-个-yaml-是最大的现成资产)）：
 
-1. Tuxemon 的 411 个怪物 YAML → 紧凑二进制表
-2. DawnLike / Tuxemon 精灵图 → 2bpp 四阶灰
+1. 初代 151 只数据 → 紧凑二进制表（✅ 已完成，5.4 KB）
+2. front/back sprite → 2bpp 四阶灰（✅ 已完成，97 KB）
 3. 中文点阵字体子集化（只保留用到的字）
 4. 按 8MB flash 预算做容量核算
 
@@ -96,11 +96,11 @@ tools/collector/        data/raw/    sim/replay.py       sim/sensing.py
 
 | 项 | 实测 |
 |---|---|
-| 怪物数据 411 条 | 12.9 KB |
-| 精灵图 413 张 @48×48 2bpp | 231 KB |
+| 初代 151 只数据 | 5.4 KB |
+| front+back sprite | 97 KB |
 | 中文点阵 12×12 全字库 | 118 KB |
 | 固件本体（估） | 1200 KB |
-| **合计** | **约 1.5 MB / 8 MB** |
+| **合计** | **约 1.4 MB / 8 MB** |
 
 因此精灵尺寸可以往大取 —— 48×48 只占 2.8%，上到 64×64（411KB）也毫无压力。
 详见 [tools/pipeline/README.md](../tools/pipeline/README.md)。

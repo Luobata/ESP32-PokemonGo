@@ -21,7 +21,7 @@ from datetime import datetime
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from gameplay import (  # noqa: E402
-    Encounter, PetState, classify_biome, roll_encounter,
+    SPECIES_COUNT, Encounter, PetState, classify_biome, roll_encounter,
 )
 from sensing import (  # noqa: E402
     AP, MOVING, Scan, SensingCore, load_ndjson,
@@ -123,7 +123,7 @@ def main() -> int:
 
     # 初始化
     core = SensingCore(only_24g=args.only_24g)
-    pet = PetState(species_id=7, type_name="火", nickname="小火")
+    pet = PetState(species_id=4, type_name="火", nickname="小火龙")   # 初代 #4
 
     encounters: list[Encounter] = []
     prev_motion_events = 0
@@ -249,7 +249,7 @@ def main() -> int:
             print(f"    {b:<8} {n:>4}")
 
         uniq = len({e.species_id for e in encounters})
-        print(f"\n  不同种类 {uniq} / 411")
+        print(f"\n  不同种类 {uniq} / {SPECIES_COUNT}")
 
     print(f"\n【感知】地点 {len(core.memory.places)} 个　"
           f"转换 {core.motion.transitions} 次　"

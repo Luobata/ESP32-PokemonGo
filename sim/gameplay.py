@@ -21,10 +21,16 @@ from typing import Optional
 # 属性系统
 # ---------------------------------------------------------------------------
 
+# 初代 15 属性。没有恶/钢/妖精 —— 恶与钢是二代加的，妖精是六代。
+# 妖精系引入后官方把皮皮线、胖丁线、魔墙人偶追认为妖精系，
+# 本项目做初代情怀，这 5 只已在 tools/pipeline/convert_gen1.py 还原回去。
 TYPES = [
-    "一般", "火", "水", "草", "电", "冰", "格斗", "毒", "地面",
-    "飞行", "超能", "虫", "岩石", "幽灵", "龙", "恶", "钢", "妖精",
+    "一般", "火", "水", "电", "草", "冰",
+    "格斗", "毒", "地面", "飞行", "超能",
+    "虫", "岩石", "幽灵", "龙",
 ]
+
+SPECIES_COUNT = 151      # 初代关都图鉴
 
 # OUI → 场所语义 → 属性倾向（docs/03-spawning.md#32）
 #
@@ -33,15 +39,15 @@ TYPES = [
 # 注意：AP 的 BSSID 是稳定的，客户端 MAC 随机化不影响这套。
 OUI_SEMANTICS: dict[str, tuple[str, list[str]]] = {
     # 企业级 —— 园区、写字楼、学校
-    "00:74:9c": ("enterprise", ["钢", "超能"]),      # Ruijie 锐捷
-    "00:23:89": ("enterprise", ["钢", "超能"]),      # H3C
-    "00:1a:1e": ("enterprise", ["钢", "超能"]),      # Aruba
-    "00:0c:29": ("enterprise", ["钢", "超能"]),      # Cisco 系
-    "ac:4b:c8": ("enterprise", ["钢", "超能"]),      # Huawei 企业
+    "00:74:9c": ("enterprise", ["超能", "电"]),      # Ruijie 锐捷
+    "00:23:89": ("enterprise", ["超能", "电"]),      # H3C
+    "00:1a:1e": ("enterprise", ["超能", "电"]),      # Aruba
+    "00:0c:29": ("enterprise", ["超能", "电"]),      # Cisco 系
+    "ac:4b:c8": ("enterprise", ["超能", "电"]),      # Huawei 企业
     # 家用路由 —— 住宅
-    "50:64:2b": ("home", ["一般", "妖精"]),          # TP-Link
-    "28:6c:07": ("home", ["一般", "妖精"]),          # Xiaomi
-    "c8:3a:35": ("home", ["一般", "妖精"]),          # Tenda
+    "50:64:2b": ("home", ["一般", "超能"]),          # TP-Link
+    "28:6c:07": ("home", ["一般", "超能"]),          # Xiaomi
+    "c8:3a:35": ("home", ["一般", "超能"]),          # Tenda
     # 运营商网关
     "00:1f:64": ("carrier", ["电"]),
     # 手机热点 —— 人流聚集
@@ -53,13 +59,13 @@ OUI_SEMANTICS: dict[str, tuple[str, list[str]]] = {
 SSID_KEYWORDS: list[tuple[tuple[str, ...], list[str]]] = [
     (("小学", "中学", "大学", "school", "univ", "campus"), ["超能", "一般"]),
     (("starbucks", "coffee", "cafe", "咖啡"), ["火", "一般"]),
-    (("地铁", "metro", "subway", "station", "车站"), ["钢", "电"]),
+    (("地铁", "metro", "subway", "station", "车站"), ["电", "岩石"]),
     (("医院", "hospital", "clinic"), ["毒", "超能"]),
-    (("酒店", "hotel", "guest", "inn"), ["一般", "妖精"]),
-    (("mall", "商场", "plaza", "shop", "store"), ["电", "钢"]),
+    (("酒店", "hotel", "guest", "inn"), ["一般", "超能"]),
+    (("mall", "商场", "plaza", "shop", "store"), ["电", "一般"]),
     (("park", "公园", "garden", "花园"), ["草", "虫"]),
     (("gym", "健身", "fitness", "sport"), ["格斗"]),
-    (("printer", "print", "打印", "hp-", "epson"), ["钢"]),
+    (("printer", "print", "打印", "hp-", "epson"), ["电"]),
 ]
 
 
@@ -92,7 +98,7 @@ def ap_type_bias(bssid: str, ssid: str, auth: str) -> list[str]:
 
     # authmode 兜底：企业级加密 = 机构，开放 = 公共商业区
     if auth in ("wpa2-ent", "wpa3-ent", "wpa-ent"):
-        return ["钢", "超能"]
+        return ["超能", "电"]
     if auth == "open":
         return ["电", "一般"]
     return ["一般"]
@@ -149,10 +155,10 @@ def classify_biome(aps: list, ble_count: int = 0) -> str:
 
 BIOME_TYPE_POOL: dict[str, list[str]] = {
     BIOME_WILD:        ["草", "虫", "飞行", "地面", "一般"],
-    BIOME_RESIDENTIAL: ["一般", "妖精", "超能", "毒"],
-    BIOME_OFFICE:      ["钢", "超能", "电", "岩石"],
-    BIOME_COMMERCIAL:  ["电", "火", "钢", "一般"],
-    BIOME_TRANSIT:     ["钢", "电", "格斗", "恶"],
+    BIOME_RESIDENTIAL: ["一般", "超能", "毒", "电"],
+    BIOME_OFFICE:      ["超能", "电", "岩石", "毒"],
+    BIOME_COMMERCIAL:  ["电", "火", "一般", "格斗"],
+    BIOME_TRANSIT:     ["电", "格斗", "幽灵", "毒"],
 }
 
 
@@ -235,7 +241,7 @@ def roll_encounter(
         pool = pool + [pet_type] * 2   # 主宠属性权重翻倍
 
     type_name = pool[seed % len(pool)]
-    species_id = (seed >> 8) % 411 + 1   # 411 = Tuxemon 怪物定义数量
+    species_id = (seed >> 8) % SPECIES_COUNT + 1
 
     return Encounter(
         ts=ts,
