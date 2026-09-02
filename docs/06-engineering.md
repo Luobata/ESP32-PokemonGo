@@ -85,7 +85,7 @@ tools/collector/        data/raw/    sim/replay.py       sim/sensing.py
 需要做的转换（全部在 PC 上，见 [05-art-audio.md](05-art-audio.md#tuxemon-的-411-个-yaml-是最大的现成资产)）：
 
 1. 初代 151 只数据 → 紧凑二进制表（✅ 已完成，5.4 KB）
-2. front/back sprite → 2bpp 四阶灰（✅ 已完成，97 KB）
+2. front/back sprite → 2bpp 四阶灰（✅ 已完成，126 KB，原生尺寸）
 3. 中文点阵字体子集化（只保留用到的字）
 4. 按 8MB flash 预算做容量核算
 
@@ -96,8 +96,8 @@ tools/collector/        data/raw/    sim/replay.py       sim/sensing.py
 
 | 项 | 实测 |
 |---|---|
-| 初代 151 只数据 | 5.4 KB |
-| front+back sprite | 97 KB |
+| 初代 151 只数据 | 5.2 KB |
+| front+back sprite | 126 KB |
 | 中文点阵 12×12 全字库 | 118 KB |
 | 固件本体（估） | 1200 KB |
 | **合计** | **约 1.4 MB / 8 MB** |

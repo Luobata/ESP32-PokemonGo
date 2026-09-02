@@ -8,9 +8,15 @@
 数据来自 PokeAPI (pokeapi.co)，sprite 来自 PokeAPI/sprites 仓库。
 带本地缓存 —— 重跑不会重复请求，也方便离线迭代。
 
-关于 sprite 的一个关键事实：**原版 RBY sprite 就是 4 色索引图**
-（depth=2，调色板是 GB 绿），索引值 0~3 直接就是我们要的 2bpp 四阶灰。
-不需要转灰度、不需要量化 —— 比处理彩色素材质量高得多。
+关于 sprite 的两个关键事实（均为实测）：
+
+**① 原版就是 4 色（depth=2）**，索引/灰度值 0~3 直接对应 2bpp 四阶灰，
+不需要转灰度或量化。默认用 gray 变体（colortype=0，无 PLTE，真 4 级灰阶）；
+不带 gray 的路径是 SGB/GBC 的 4 色**彩色**版。
+
+**② front 尺寸不固定**：40×40 有 44 只、48×48 有 43 只、56×56 有 50 只
+（RBY 按 5×5/6×6/7×7 tile 存）。back 统一 32×32。
+转换时必须按各自原生尺寸处理，否则大型宝可梦会被压小。
 
 零第三方依赖（urllib 在标准库里）。
 """
@@ -29,6 +35,12 @@ from concurrent.futures import ThreadPoolExecutor
 API = "https://pokeapi.co/api/v2"
 SPRITES = ("https://raw.githubusercontent.com/PokeAPI/sprites/master"
            "/sprites/pokemon/versions/generation-i")
+
+# 用 gray 变体而非默认的彩色 palette 版。
+# 实测：red-blue/{id}.png 是 4 色**彩色**调色板（SGB/GBC 着色版），
+# 而 red-blue/gray/{id}.png 是 colortype=0、无 PLTE 的**真 4 级灰阶** ——
+# 正是 DMG 的原生表现，不需要再做彩色→灰度转换。
+GRAY = True
 
 GEN1_COUNT = 151
 
@@ -132,7 +144,12 @@ def main() -> int:
     p.add_argument("--version", default="red-blue",
                    choices=["red-blue", "yellow"],
                    help="sprite 版本（yellow 的调色板偏黄）")
-    p.add_argument("--jobs", type=int, default=8, help="并发数")
+    p.add_argument("--jobs", type=int, default=4,
+                   help="并发数。太高会触发 GitHub raw 限流（实测 8 并发有约 5%% 失败）")
+    p.add_argument("--gray", action="store_true", default=True,
+                   help="用 gray 变体（真 4 级灰阶，默认）")
+    p.add_argument("--color", dest="gray", action="store_false",
+                   help="用彩色 palette 变体（SGB/GBC 着色版）")
     p.add_argument("--count", type=int, default=GEN1_COUNT, help="拉前 N 只")
     args = p.parse_args()
 
@@ -178,9 +195,10 @@ def main() -> int:
     print(f"\n拉取 sprite（{args.version}）...")
 
     def get_sprite(i: int) -> tuple[bool, bool]:
-        f = fetch_binary(f"{SPRITES}/{args.version}/{i}.png",
+        sub = "gray/" if args.gray else ""
+        f = fetch_binary(f"{SPRITES}/{args.version}/{sub}{i}.png",
                          os.path.join(front_dir, f"{i:03d}.png"))
-        b = fetch_binary(f"{SPRITES}/{args.version}/back/{i}.png",
+        b = fetch_binary(f"{SPRITES}/{args.version}/back/{sub}{i}.png",
                          os.path.join(back_dir, f"{i:03d}.png"))
         return f, b
 
@@ -208,6 +226,21 @@ def main() -> int:
 
         stats = {s["stat"]["name"]: s["base_stat"] for s in mon["stats"]}
 
+        # 初代只有一个 Special，现代拆成了特攻/特防。
+        # PokeAPI 把初代原值放在 past_stats[generation-i] 里 ——
+        # 必须读它，而不是拿现代的 special_attack 当初代 Special。
+        # 实测胡地：现代 SpA=135 / SpD=95，初代 Special=135（此例恰好等于 SpA，
+        # 但并非所有宝可梦都如此，不能假设）。
+        gen1_special = None
+        for past in mon.get("past_stats") or []:
+            if (past.get("generation") or {}).get("name") == "generation-i":
+                for st in past.get("stats") or []:
+                    if st["stat"]["name"] == "special":
+                        gen1_special = st["base_stat"]
+                        break
+        if gen1_special is None:
+            gen1_special = stats.get("special-attack", 0)
+
         evo = evolutions.get(slug, {})
 
         mons.append({
@@ -224,6 +257,7 @@ def main() -> int:
                 "hp": stats.get("hp", 0),
                 "attack": stats.get("attack", 0),
                 "defense": stats.get("defense", 0),
+                "special": gen1_special,      # 初代单一 Special
                 "special_attack": stats.get("special-attack", 0),
                 "special_defense": stats.get("special-defense", 0),
                 "speed": stats.get("speed", 0),

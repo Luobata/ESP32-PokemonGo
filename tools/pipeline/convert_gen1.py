@@ -136,6 +136,7 @@ TRIGGER_ID = {
 #   13   1     special          初代只有一个「特殊」，不分特攻特防
 #   14   1     speed
 #   15   1     flags            bit0=传说 bit1=幻兽
+#                                bit2-3=front 尺寸档（0:40 1:48 2:56）
 #   16   2     height           dm
 #   18   2     weight           hg
 #   20   8     reserved         预留：招式表偏移、图鉴描述偏移等
@@ -147,6 +148,14 @@ VERSION = 1
 
 FLAG_LEGENDARY = 1 << 0
 FLAG_MYTHICAL = 1 << 1
+FLAG_SIZE_SHIFT = 2          # bit2-3 存 front 尺寸档
+
+# front sprite 的三档原生尺寸。RBY 按 5×5 / 6×6 / 7×7 tile 存精灵，
+# 实测分布：40×40 有 48 只、48×48 有 48 只、56×56 有 55 只。
+# **必须按各自原生尺寸处理** —— 早期版本统一缩到 40×40，
+# 等于把 56×56 的大型宝可梦压小了 30%，破坏了原版的体型对比。
+FRONT_SIZES = [40, 48, 56]
+BACK_SIZE = 32               # back 实测 151 只全部统一 32×32
 
 
 def biome_mask(habitat: str, types: list[str] | None = None) -> int:
@@ -165,7 +174,8 @@ def biome_mask(habitat: str, types: list[str] | None = None) -> int:
     return mask or (1 << BIOME_ID["wild"])
 
 
-def build_data(mons: list[dict]) -> tuple[bytes, dict]:
+def build_data(mons: list[dict],
+               tier_of: dict[int, int] | None = None) -> tuple[bytes, dict]:
     mons = sorted(mons, key=lambda m: m["id"])
     slug_to_id = {m["slug"]: m["id"] for m in mons}
 
@@ -191,16 +201,18 @@ def build_data(mons: list[dict]) -> tuple[bytes, dict]:
         trig = TRIGGER_ID.get(m["evolve_trigger"], TRIGGER_NONE) if evo_to else TRIGGER_NONE
 
         st = m["stats"]
-        # 初代只有一个「特殊」值，不分特攻/特防。
-        # PokeAPI 给的是拆分后的现代数值，取特攻作为初代的特殊
-        # （官方还原初代数据时也是这么对应的）。
-        special = st["special_attack"]
+        # 初代只有一个 Special。fetch_gen1.py 已从 past_stats[generation-i]
+        # 取到原值存在 st["special"] —— 不要用现代的 special_attack 替代，
+        # 二者并非总是相等。
+        special = st.get("special", st["special_attack"])
 
         flags = 0
         if m.get("is_legendary"):
             flags |= FLAG_LEGENDARY
         if m.get("is_mythical"):
             flags |= FLAG_MYTHICAL
+        if tier_of:
+            flags |= (tier_of.get(m["id"], 0) & 0x3) << FLAG_SIZE_SHIFT
 
         records += struct.pack(
             "<HBBBBBBBBBBBBBBHH8s",
@@ -231,50 +243,110 @@ def build_data(mons: list[dict]) -> tuple[bytes, dict]:
     }
 
 
-def build_sprites(src_dir: str, ids: list[int], size: int,
-                  verbose: bool = False) -> tuple[bytes, list[str], int]:
-    """把一个目录里的 PNG 转成定长 2bpp 图集。"""
-    per = (size * size * 2 + 7) // 8
+def png_native_size(path: str) -> tuple[int, int]:
+    """只读 IHDR 拿尺寸，不解整张图。"""
+    with open(path, "rb") as f:
+        head = f.read(26)
+    w, h = struct.unpack(">II", head[16:24])
+    return w, h
+
+
+def to_2bpp_native(path: str) -> tuple[bytearray, int]:
+    """读 PNG，按**原生尺寸**直接转 2bpp，不缩放。
+
+    gray 变体是 colortype=0、depth=2 的真 4 级灰阶，
+    灰度值 0~3 就是我们要的 2bpp —— 所以这里只是重新打包位，
+    不做任何有损转换（这是用 gray 变体而非彩色版的全部意义）。
+    """
+    w, h, rows = read_png(path)
+
+    # colortype=0 且 depth=2 时，read_png 已把 0~3 映射到 0/85/170/255，
+    # quantize_2bpp 的阈值 (60,120,190) 能把它们准确还原回 0~3。
+    gray = [[px[0] for px in row] for row in rows]
+    return quantize_2bpp(gray), w
+
+
+def build_front_atlas(src_dir: str, ids: list[int]) -> tuple[bytes, dict[int, int], list[str]]:
+    """front 图集：按尺寸分三段存放，各段内定长。
+
+    返回 (二进制, {id: 尺寸档}, 失败列表)。
+
+    为什么分段而不是统一 pad 到 56×56：pad 会浪费约 28KB，
+    而分段只需在记录里存 2 bit 档位。固件按档位算段内偏移即可，
+    依然是 O(1) 寻址。
+    """
+    buckets: dict[int, list[tuple[int, bytearray]]] = {s: [] for s in FRONT_SIZES}
+    tier_of: dict[int, int] = {}
+    failed: list[str] = []
+
+    for i in ids:
+        path = os.path.join(src_dir, f"{i:03d}.png")
+        try:
+            w, h = png_native_size(path)
+            if w != h or w not in FRONT_SIZES:
+                raise ValueError(f"意外尺寸 {w}×{h}")
+            blob, _ = to_2bpp_native(path)
+            expect = (w * w * 2 + 7) // 8
+            if len(blob) != expect:
+                raise ValueError(f"长度 {len(blob)} != {expect}")
+            buckets[w].append((i, blob))
+            tier_of[i] = FRONT_SIZES.index(w)
+        except Exception as e:
+            failed.append(f"{i:03d}: {type(e).__name__} {e}")
+
+    # 段头：每段记录 尺寸 / 单张字节 / 数量，随后是 (id, 位图) 序列。
+    # id 显式存下来，因为分段后 id 不再等于段内下标。
+    out = bytearray()
+    out += struct.pack("<4sHH", b"FRNT", VERSION, len(FRONT_SIZES))
+    seg_meta = bytearray()
+    seg_data = bytearray()
+    for size in FRONT_SIZES:
+        items = sorted(buckets[size])
+        per = (size * size * 2 + 7) // 8
+        seg_meta += struct.pack("<HHII", size, per, len(items), len(seg_data))
+        for i, blob in items:
+            seg_data += struct.pack("<H", i) + bytes(blob)
+    out += seg_meta + seg_data
+    return bytes(out), tier_of, failed
+
+
+def build_back_atlas(src_dir: str, ids: list[int]) -> tuple[bytes, int, list[str]]:
+    """back 图集：151 只全部 32×32，定长，可直接按 id 索引。"""
+    per = (BACK_SIZE * BACK_SIZE * 2 + 7) // 8
     blobs: list[bytearray] = []
     failed: list[str] = []
 
     for i in ids:
         path = os.path.join(src_dir, f"{i:03d}.png")
         try:
-            w, h, rows = read_png(path)
-            cropped = split_frames_by_gaps(rows)
-            sh, sw = len(cropped), len(cropped[0])
-            scale = min(size / sw, size / sh)
-            tw, th = max(1, round(sw * scale)), max(1, round(sh * scale))
-            small = box_downscale(cropped, sw, sh, tw, th)
-
-            gray = [[255] * size for _ in range(size)]
-            ox, oy = (size - tw) // 2, (size - th) // 2
-            for y in range(th):
-                for x in range(tw):
-                    gray[oy + y][ox + x] = small[y][x]
-
-            blob = quantize_2bpp(gray)
+            w, h = png_native_size(path)
+            if (w, h) != (BACK_SIZE, BACK_SIZE):
+                raise ValueError(f"意外尺寸 {w}×{h}（预期 {BACK_SIZE}²）")
+            blob, _ = to_2bpp_native(path)
             if len(blob) != per:
                 raise ValueError(f"长度 {len(blob)} != {per}")
             blobs.append(blob)
         except Exception as e:
             failed.append(f"{i:03d}: {type(e).__name__} {e}")
-            blobs.append(bytearray(per))     # 占位，保持 id 对齐
+            blobs.append(bytearray(per))     # 占位保持 id 对齐
 
-    header = struct.pack("<4sHHHHI", b"SPRT", VERSION, size, size, per, len(blobs))
-    return header + b"".join(bytes(b) for b in blobs), failed, per
+    header = struct.pack("<4sHHHHI", b"BACK", VERSION,
+                         BACK_SIZE, BACK_SIZE, per, len(blobs))
+    return header + b"".join(bytes(b) for b in blobs), per, failed
 
 
-def preview(blob: bytes, size: int, index: int, per: int, label: str) -> None:
+def preview_raw(bmp: bytes, size: int, label: str) -> None:
+    """把单张 2bpp 位图以 ASCII 画出来，用于目检。
+
+    转换器必须能目检 —— 统计数字（"151 张成功"）完全看不出图是错的。
+    """
     shades = " .oO"
     row_bytes = (size * 2 + 7) // 8
-    base = 16 + index * per
     print(f"\n{label}")
     for y in range(size):
         line = ""
         for x in range(size):
-            byte = blob[base + y * row_bytes + (x * 2) // 8]
+            byte = bmp[y * row_bytes + (x * 2) // 8]
             shift = 6 - ((x * 2) % 8)
             line += shades[3 - ((byte >> shift) & 3)]
         print("  " + line)
@@ -317,32 +389,64 @@ def main() -> int:
         print(f"\n  属性已还原为初代（妖精系是六代才加的）：")
         print(f"    {', '.join(st['retconned'])}")
 
-    # ---- 精灵图 ----
+    # ---- 精灵图（原生尺寸，不缩放）----
     ids = [m["id"] for m in sorted(mons, key=lambda m: m["id"])]
+
+    front_src = os.path.join(args.src, "front")
+    back_src = os.path.join(args.src, "back")
+
+    tier_of: dict[int, int] = {}
     total_sprite = 0
-    for name, sub, size in (("front", "front", args.front_size),
-                            ("back", "back", args.back_size)):
-        src = os.path.join(args.src, sub)
-        if not os.path.isdir(src):
-            print(f"\n⚠️  跳过 {name}：{src} 不存在")
-            continue
 
-        sblob, failed, per = build_sprites(src, ids, size)
-        out_path = os.path.join(args.out, f"gen1_{name}.bin")
-        with open(out_path, "wb") as f:
-            f.write(sblob)
-        total_sprite += len(sblob)
+    if os.path.isdir(front_src):
+        fblob, tier_of, ffail = build_front_atlas(front_src, ids)
+        fpath = os.path.join(args.out, "gen1_front.bin")
+        with open(fpath, "wb") as f:
+            f.write(fblob)
+        total_sprite += len(fblob)
 
-        print(f"\n{out_path}")
-        print(f"  {len(ids)} 张 @ {size}×{size} 2bpp，单张 {per} B")
-        print(f"  合计 {len(sblob)/1024:.1f} KB")
-        if failed:
-            print(f"  ⚠️  {len(failed)} 张失败：{failed[:3]}")
+        import collections
+        tiers: collections.Counter = collections.Counter(
+            FRONT_SIZES[t] for t in tier_of.values())
+        print(f"\n{fpath}")
+        for size in FRONT_SIZES:
+            n = tiers.get(size, 0)
+            per = (size * size * 2 + 7) // 8
+            print(f"  {size}×{size}  {n:>4} 只  单张 {per:>4} B  段计 {n*per/1024:>6.1f} KB")
+        print(f"  合计 {len(fblob)/1024:.1f} KB")
+        if ffail:
+            print(f"  ⚠️  {len(ffail)} 张失败：{ffail[:3]}")
+    else:
+        print(f"\n⚠️  跳过 front：{front_src} 不存在")
 
-        if 1 <= args.preview <= len(ids):
-            m = next(x for x in mons if x["id"] == args.preview)
-            preview(sblob, size, args.preview - 1, per,
-                    f"#{args.preview} {m['slug']} ({name} {size}×{size})")
+    if os.path.isdir(back_src):
+        bblob, bper, bfail = build_back_atlas(back_src, ids)
+        bpath = os.path.join(args.out, "gen1_back.bin")
+        with open(bpath, "wb") as f:
+            f.write(bblob)
+        total_sprite += len(bblob)
+        print(f"\n{bpath}")
+        print(f"  {len(ids)} 张 @ {BACK_SIZE}×{BACK_SIZE}  单张 {bper} B")
+        print(f"  合计 {len(bblob)/1024:.1f} KB")
+        if bfail:
+            print(f"  ⚠️  {len(bfail)} 张失败：{bfail[:3]}")
+    else:
+        print(f"\n⚠️  跳过 back：{back_src} 不存在")
+
+    # 数据表要带上 sprite 尺寸档，所以放在 sprite 之后重建
+    blob, st = build_data(mons, tier_of)
+    with open(data_path, "wb") as f:
+        f.write(blob)
+
+    if 1 <= args.preview <= len(ids):
+        m = next(x for x in mons if x["id"] == args.preview)
+        fp = os.path.join(front_src, f"{args.preview:03d}.png")
+        bp = os.path.join(back_src, f"{args.preview:03d}.png")
+        for path, label in ((fp, "front"), (bp, "back")):
+            if os.path.exists(path):
+                w, _ = png_native_size(path)
+                bmp, _ = to_2bpp_native(path)
+                preview_raw(bmp, w, f"#{args.preview} {m['slug']} ({label} {w}×{w})")
 
     print(f"\n总计 {(st['total'] + total_sprite)/1024:.1f} KB"
           f"　占 8MB flash 的 {(st['total']+total_sprite)/(8*1024*1024)*100:.2f}%")
