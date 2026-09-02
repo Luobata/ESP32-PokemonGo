@@ -1,0 +1,17 @@
+# 采集的原始数据不入库（可能含真实 BSSID，属位置关联数据）
+data/raw/
+*.ndjson
+
+# Swift 编译产物
+tools/collector/wifi-collect
+tools/collector/*.o
+tools/collector/*.dSYM/
+.build/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# macOS
+.DS_Store
