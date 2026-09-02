@@ -25,8 +25,9 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from convert_sprites import (  # noqa: E402
-    box_downscale, quantize_2bpp, read_png, split_frames_by_gaps,
+    box_downscale, quantize_2bpp, read_png, read_png_full, split_frames_by_gaps,
 )
+from convert_palettes import indices_to_2bpp, sorted_palette  # noqa: E402
 
 # ---------------------------------------------------------------------------
 # 初代 15 属性。没有 dark(恶)/steel(钢)/fairy(妖精) —— 那些是二代和六代加的。
@@ -254,14 +255,23 @@ def png_native_size(path: str) -> tuple[int, int]:
 def to_2bpp_native(path: str) -> tuple[bytearray, int]:
     """读 PNG，按**原生尺寸**直接转 2bpp，不缩放。
 
-    gray 变体是 colortype=0、depth=2 的真 4 级灰阶，
-    灰度值 0~3 就是我们要的 2bpp —— 所以这里只是重新打包位，
-    不做任何有损转换（这是用 gray 变体而非彩色版的全部意义）。
-    """
-    w, h, rows = read_png(path)
+    两条路径都零有损：
 
-    # colortype=0 且 depth=2 时，read_png 已把 0~3 映射到 0/85/170/255，
-    # quantize_2bpp 的阈值 (60,120,190) 能把它们准确还原回 0~3。
+    **彩色**（colortype=3，depth=2）：原始索引按亮度重排后直接打包。
+    索引顺序必须重排 —— PNG 里的顺序是任意的，实测每只都不同
+    （皮卡丘 [1,2,3,0]、超梦 [3,0,1,2]），不重排明暗会反。
+
+    **灰阶**（colortype=0，depth=2）：灰度值 0~3 已经是 2bpp，
+    read_png 把它们映射到 0/85/170/255，quantize_2bpp 的阈值
+    (60,120,190) 能准确还原。
+    """
+    w, h, rows, pal, indices = read_png_full(path)
+
+    if pal and indices:
+        # 彩色索引图 —— 重排后直接打包，不经过灰度
+        _new_pal, remap = sorted_palette(pal)
+        return indices_to_2bpp(indices, remap), w
+
     gray = [[px[0] for px in row] for row in rows]
     return quantize_2bpp(gray), w
 

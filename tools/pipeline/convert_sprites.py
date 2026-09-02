@@ -33,8 +33,26 @@ QUANT_THRESHOLDS = (60, 120, 190)
 # 极简 PNG 解码（够读 Tuxemon 的素材：8 位、RGB/RGBA/调色板）
 # ---------------------------------------------------------------------------
 
+def read_png_full(path: str):
+    """返回 (宽, 高, 逐行 RGBA 像素, 调色板, 原始索引矩阵)。
+
+    彩色素材需要调色板与原始索引：
+      · 调色板给固件用（4 色 × RGB565 = 8 字节/套）
+      · 原始索引不能直接当 2bpp 用 —— PNG 的索引顺序是任意的，
+        实测每只都不同（妙蛙种子 [2,3,1,0]、皮卡丘 [1,2,3,0]、
+        超梦 [3,0,1,2]），必须按亮度重排，否则明暗会反。
+    """
+    w, h, rows, pal, idx = _read_png_impl(path)
+    return w, h, rows, pal, idx
+
+
 def read_png(path: str) -> tuple[int, int, list[list[tuple[int, int, int, int]]]]:
-    """返回 (宽, 高, 逐行 RGBA 像素)。"""
+    """返回 (宽, 高, 逐行 RGBA 像素)。向后兼容的窄接口。"""
+    w, h, rows, _pal, _idx = _read_png_impl(path)
+    return w, h, rows
+
+
+def _read_png_impl(path: str):
     with open(path, "rb") as f:
         data = f.read()
 
@@ -124,11 +142,13 @@ def read_png(path: str) -> tuple[int, int, list[list[tuple[int, int, int, int]]]
         shift = 8 - bit_depth - (bit_index % 8)
         return (byte >> shift) & ((1 << bit_depth) - 1)
 
-    # 转 RGBA
+    # 转 RGBA，同时保留原始索引（调色板图才有意义）
     rows: list[list[tuple[int, int, int, int]]] = []
+    indices: list[list[int]] = []
     maxval = (1 << bit_depth) - 1
     for y in range(height):
         row = []
+        irow = []
         for x in range(width):
             if color_type == 0:                       # 灰度
                 g = sample(y, x, 0) * 255 // maxval
@@ -140,6 +160,7 @@ def read_png(path: str) -> tuple[int, int, list[list[tuple[int, int, int, int]]]
                 r, g, b = palette[idx] if idx < len(palette) else (0, 0, 0)
                 a = trns[idx] if idx < len(trns) else 255
                 row.append((r, g, b, a))
+                irow.append(idx)
             elif color_type == 4:                     # 灰度 + alpha
                 g = sample(y, x, 0) * 255 // maxval
                 row.append((g, g, g, sample(y, x, 1) * 255 // maxval))
@@ -147,8 +168,9 @@ def read_png(path: str) -> tuple[int, int, list[list[tuple[int, int, int, int]]]
                 row.append((sample(y, x, 0), sample(y, x, 1),
                             sample(y, x, 2), sample(y, x, 3)))
         rows.append(row)
+        indices.append(irow)
 
-    return width, height, rows
+    return width, height, rows, palette, indices
 
 
 # ---------------------------------------------------------------------------

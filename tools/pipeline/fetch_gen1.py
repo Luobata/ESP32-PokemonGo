@@ -146,10 +146,10 @@ def main() -> int:
                    help="sprite 版本（yellow 的调色板偏黄）")
     p.add_argument("--jobs", type=int, default=4,
                    help="并发数。太高会触发 GitHub raw 限流（实测 8 并发有约 5%% 失败）")
-    p.add_argument("--gray", action="store_true", default=True,
-                   help="用 gray 变体（真 4 级灰阶，默认）")
-    p.add_argument("--color", dest="gray", action="store_false",
-                   help="用彩色 palette 变体（SGB/GBC 着色版）")
+    p.add_argument("--gray", dest="gray", action="store_true",
+                   help="用 gray 变体（4 级灰阶，DMG 观感）")
+    p.add_argument("--color", dest="gray", action="store_false", default=False,
+                   help="用彩色 palette 变体（SGB/GBC 官方着色，默认）")
     p.add_argument("--count", type=int, default=GEN1_COUNT, help="拉前 N 只")
     args = p.parse_args()
 
