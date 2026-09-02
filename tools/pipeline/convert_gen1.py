@@ -122,8 +122,8 @@ TRIGGER_ID = {
 # 记录结构：定长 28 字节，固件可 (base + id*28) 直接索引
 #
 #   off  size  field
-#   0    2     name_offset      字符串池偏移
-#   2    1     name_len
+#   0    2     name_offset      slug 在字符串池的偏移
+#   2    1     name_len         slug 长度
 #   3    1     type_primary     初代 15 属性之一
 #   4    1     type_secondary   0xFF = 无
 #   5    1     biome_mask       5 个 biome 的位掩码
@@ -140,10 +140,13 @@ TRIGGER_ID = {
 #                                bit2-3=front 尺寸档（0:40 1:48 2:56）
 #   16   2     height           dm
 #   18   2     weight           hg
-#   20   8     reserved         预留：招式表偏移、图鉴描述偏移等
+#   20   2     zh_offset        中文名在字符串池的偏移
+#   22   1     zh_len           中文名 UTF-8 字节数（3 字节/汉字）
+#   23   1     palette_index    配色索引（低 4 位，10 套；高 4 位预留）
+#   24   8     reserved         预留：招式表偏移、图鉴描述偏移
 # ---------------------------------------------------------------------------
 
-RECORD_SIZE = 28
+RECORD_SIZE = 32
 MAGIC = b"GEN1"
 VERSION = 1
 
@@ -176,16 +179,25 @@ def biome_mask(habitat: str, types: list[str] | None = None) -> int:
 
 
 def build_data(mons: list[dict],
-               tier_of: dict[int, int] | None = None) -> tuple[bytes, dict]:
+               tier_of: dict[int, int] | None = None,
+               palette_of: dict[int, int] | None = None) -> tuple[bytes, dict]:
     mons = sorted(mons, key=lambda m: m["id"])
     slug_to_id = {m["slug"]: m["id"] for m in mons}
 
+    # 字符串池同时存 slug 与中文名。
+    # 中文名 151/151 全有（取自 PokeAPI species.names 的 zh-hans），
+    # 共用 209 个不同汉字 —— 16×16 点阵字库只要 6.5KB，不是瓶颈。
     pool = bytearray()
     offsets: dict[str, tuple[int, int]] = {}
+    zh_offsets: dict[str, tuple[int, int]] = {}
     for m in mons:
         b = m["slug"].encode("utf-8")
         offsets[m["slug"]] = (len(pool), len(b))
         pool += b
+    for m in mons:
+        zb = (m.get("zh") or "").encode("utf-8")
+        zh_offsets[m["slug"]] = (len(pool), len(zb))
+        pool += zb
 
     retconned = []
     records = bytearray()
@@ -215,8 +227,9 @@ def build_data(mons: list[dict],
         if tier_of:
             flags |= (tier_of.get(m["id"], 0) & 0x3) << FLAG_SIZE_SHIFT
 
+        zoff, zlen = zh_offsets[m["slug"]]
         records += struct.pack(
-            "<HBBBBBBBBBBBBBBHH8s",
+            "<HBBBBBBBBBBBBBBHHHBB8s",
             off, min(ln, 255),
             t1, t2,
             biome_mask(m.get("habitat", ""), types),
@@ -228,6 +241,8 @@ def build_data(mons: list[dict],
             min(special, 255), min(st["speed"], 255),
             flags,
             min(m.get("height", 0), 65535), min(m.get("weight", 0), 65535),
+            zoff, min(zlen, 255),
+            (palette_of or {}).get(m["id"], 0) & 0x0F,
             b"\x00" * 8,
         )
 
@@ -385,19 +400,9 @@ def main() -> int:
     print(f"读取 {len(mons)} 只")
     os.makedirs(args.out, exist_ok=True)
 
-    # ---- 数据 ----
-    blob, st = build_data(mons)
+    # 数据表在 sprite 之后才建 —— 它需要 sprite 的尺寸档与配色索引。
+    # 这里只定路径。
     data_path = os.path.join(args.out, "gen1.bin")
-    with open(data_path, "wb") as f:
-        f.write(blob)
-
-    print(f"\n{data_path}")
-    print(f"  记录      {st['records']:>7} B  ({st['count']} × {RECORD_SIZE})")
-    print(f"  字符串池  {st['pool']:>7} B")
-    print(f"  合计      {st['total']:>7} B = {st['total']/1024:.1f} KB")
-    if st["retconned"]:
-        print(f"\n  属性已还原为初代（妖精系是六代才加的）：")
-        print(f"    {', '.join(st['retconned'])}")
 
     # ---- 精灵图（原生尺寸，不缩放）----
     ids = [m["id"] for m in sorted(mons, key=lambda m: m["id"])]
@@ -444,9 +449,38 @@ def main() -> int:
         print(f"\n⚠️  跳过 back：{back_src} 不存在")
 
     # 数据表要带上 sprite 尺寸档，所以放在 sprite 之后重建
-    blob, st = build_data(mons, tier_of)
+    # 配色索引 —— 与 convert_palettes.py 用同一套排序规则
+    palette_of: dict[int, int] = {}
+    try:
+        from convert_palettes import sorted_palette
+        from convert_sprites import read_png_full
+        uniq: dict[tuple, int] = {}
+        for m in mons:
+            fp = os.path.join(front_src, f"{m['id']:03d}.png")
+            if not os.path.exists(fp):
+                continue
+            _w, _h, _rows, pal, _idx = read_png_full(fp)
+            if not pal:
+                continue
+            key = tuple(sorted_palette(pal)[0])
+            if key not in uniq:
+                uniq[key] = len(uniq)
+            palette_of[m["id"]] = uniq[key]
+    except Exception as e:
+        print(f"  注：配色索引提取失败（{type(e).__name__}），全部记 0", file=sys.stderr)
+
+    blob, st = build_data(mons, tier_of, palette_of)
     with open(data_path, "wb") as f:
         f.write(blob)
+
+    print(f"\n{data_path}")
+    print(f"  记录      {st['records']:>7} B  ({st['count']} × {RECORD_SIZE})")
+    print(f"  字符串池  {st['pool']:>7} B  （slug + 中文名）")
+    print(f"  合计      {st['total']:>7} B = {st['total']/1024:.1f} KB")
+    if st["retconned"]:
+        print(f"  属性已还原为初代：{', '.join(st['retconned'])}")
+    if palette_of:
+        print(f"  配色索引  {len(set(palette_of.values()))} 套")
 
     if 1 <= args.preview <= len(ids):
         m = next(x for x in mons if x["id"] == args.preview)
