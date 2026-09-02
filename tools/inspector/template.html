@@ -110,6 +110,80 @@ th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-
 .ok{color:var(--ok);font-weight:600}
 .warn{color:var(--warn);font-weight:600}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ── tab 导航 ── */
+.tabs{display:flex;flex-wrap:wrap;gap:0;margin:0 0 20px;border-bottom:2px solid var(--ink)}
+.tabs button{font:600 12px/1 "IBM Plex Mono",monospace;padding:10px 14px;
+  border:1px solid var(--line);border-bottom:0;background:var(--bg);
+  color:var(--ink-soft);cursor:pointer;margin-right:-1px;letter-spacing:.03em}
+.tabs button:hover{color:var(--ink)}
+.tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.panel[hidden]{display:none}
+
+/* ── 逐帧步进 ── */
+.stepper{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;
+  padding:10px;border:1px solid var(--line);background:var(--panel)}
+.stepper .fr{font-family:"Silkscreen",monospace;font-size:13px;
+  font-variant-numeric:tabular-nums;min-width:62px}
+.stepper input[type=range]{flex:1 1 90px;min-width:70px}
+.stepper label{font-size:10px;color:var(--ink-soft);letter-spacing:.05em}
+
+/* ── 数据回放 ── */
+.replay-grid{display:grid;grid-template-columns:1fr;gap:18px}
+.chart{border:1px solid var(--line);background:var(--panel);padding:12px}
+.chart h3{margin:0 0 10px;font-size:11px;color:var(--ink-soft)}
+.chart canvas{width:100%;display:block;image-rendering:auto}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:10px;
+  color:var(--ink-soft);margin-top:8px}
+.legend i{display:inline-block;width:9px;height:9px;margin-right:4px;vertical-align:-1px}
+.apbar{display:flex;align-items:center;gap:7px;font-size:11px;margin-bottom:3px}
+.apbar .nm{width:130px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.apbar .track{flex:1;height:11px;background:var(--bg);border:1px solid var(--line)}
+.apbar .fill{height:100%;background:var(--ink-soft)}
+.apbar.stable .fill{background:var(--ok)}
+.apbar.noise .fill{background:var(--warn)}
+.apbar .pc{width:38px;text-align:right;font-variant-numeric:tabular-nums}
+.cmp{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:0;
+  border:1px solid var(--line);margin-bottom:14px}
+.cmp>div{padding:10px 12px;border-right:1px solid var(--line)}
+.cmp>div:last-child{border-right:0}
+.cmp .lbl{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+.cmp .big{font-family:"Silkscreen",monospace;font-size:20px;font-variant-numeric:tabular-nums}
+.cmp .bad .big{color:var(--accent)}
+.cmp .good .big{color:var(--ok)}
+
+/* ── UI 原型 ── */
+.protos{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px}
+.proto{border:1px solid var(--line);background:var(--panel);padding:12px}
+.proto h3{margin:0 0 4px;font-size:12px}
+.proto .keys{font-size:10px;color:var(--ink-soft);margin-bottom:8px}
+.proto canvas{width:100%;max-width:240px;image-rendering:pixelated;
+  border:1px solid var(--shell-dk);display:block;margin:0 auto;background:#9bbc0f}
+
+/* ── 像素检查器 ── */
+.px-wrap{display:grid;grid-template-columns:1fr 200px;gap:18px;align-items:start}
+@media(max-width:700px){.px-wrap{grid-template-columns:1fr}}
+.px-canvas{border:1px solid var(--line);image-rendering:pixelated;width:100%;
+  background:var(--panel)}
+.hist{border:1px solid var(--line);background:var(--panel);padding:12px}
+.hist .row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:11px}
+.hist .sw{width:16px;height:16px;border:1px solid var(--line)}
+.hist .track{flex:1;height:10px;background:var(--bg);border:1px solid var(--line)}
+.hist .fill{height:100%}
+
+/* ── 相克热力图 ── */
+.eff-scroll{overflow-x:auto}
+table.eff{border-collapse:collapse;font-size:9px}
+table.eff th,table.eff td{width:22px;height:22px;text-align:center;padding:0;
+  border:1px solid var(--line);font-variant-numeric:tabular-nums}
+table.eff th{font-weight:500;color:var(--ink-soft);font-size:8px}
+table.eff th.rot{writing-mode:vertical-rl;height:52px}
+td.x0{background:#2b2b2b;color:#fff}
+td.x05{background:var(--accent);color:#fff;opacity:.55}
+td.x1{background:transparent;color:var(--ink-soft)}
+td.x2{background:var(--ok);color:#fff}
+td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
 </style>
 
 <div class="wrap">
@@ -120,6 +194,16 @@ th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-
   <div class="stats" id="stats"></div>
 </header>
 
+
+<div class="tabs" role="tablist" id="tabs">
+  <button role="tab" data-p="dex"     aria-selected="true">图鉴 / 动效</button>
+  <button role="tab" data-p="sensing" aria-selected="false">感知层回放</button>
+  <button role="tab" data-p="proto"   aria-selected="false">UI 页面原型</button>
+  <button role="tab" data-p="pixels"  aria-selected="false">2bpp 像素</button>
+  <button role="tab" data-p="systems" aria-selected="false">系统与预算</button>
+</div>
+
+<div class="panel" id="p-dex">
 <div class="cols">
   <div class="device">
     <div class="screen-frame">
@@ -132,6 +216,18 @@ th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-
     </div>
     <div class="readout" id="readout"></div>
     <div class="ctrls" id="ctrls"></div>
+    <div class="stepper">
+      <button id="pp" title="播放/暂停">⏸</button>
+      <button id="prev" title="上一帧">◀</button>
+      <button id="next" title="下一帧">▶</button>
+      <span class="fr" id="fr-label">—</span>
+    </div>
+    <div class="stepper">
+      <label>帧率</label>
+      <input id="fps" type="range" min="1" max="12" value="4">
+      <span class="fr" id="fps-v">4 fps</span>
+      <label><input type="checkbox" id="shiny"> 闪光</label>
+    </div>
   </div>
 
   <div>
@@ -143,6 +239,46 @@ th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-
     </div>
     <div class="grid" id="grid"></div>
   </div>
+</div>
+
+</div><!-- /p-dex -->
+
+<div class="panel" id="p-sensing" hidden>
+  <p class="sub" style="margin:0 0 14px">
+    读 <b>data/raw/*.ndjson</b> 跑一遍感知层。<b>窗口 1 vs 4</b> 的对比直接验收
+    <a href="https://github.com/Luobata/ESP32-PokemonGo/blob/main/docs/02-sensing.md">2.4.1</a>
+    那个修复 —— 静坐数据在窗口 1 下会大量误判「移动中」。</p>
+  <div id="sens-body"></div>
+</div>
+
+<div class="panel" id="p-proto" hidden>
+  <p class="sub" style="margin:0 0 14px">
+    240×320 真实尺寸，用真实 sprite 与中文名绘制。三键分配见每页标题下。
+    详细设计见 <b>docs/08-systems.md</b>。</p>
+  <div class="protos" id="proto-body"></div>
+</div>
+
+<div class="panel" id="p-pixels" hidden>
+  <div class="stepper">
+    <label>编号</label><input id="px-id" type="number" min="1" max="151" value="25" style="width:64px">
+    <label>视图</label>
+    <button id="px-view" data-v="front">front</button>
+    <label>放大</label><input id="px-zoom" type="range" min="4" max="16" value="8">
+    <span class="fr" id="px-zv">8×</span>
+    <label><input type="checkbox" id="px-grid" checked> 网格</label>
+    <label><input type="checkbox" id="px-shiny"> 闪光配色</label>
+  </div>
+  <div class="px-wrap" style="margin-top:16px">
+    <canvas class="px-canvas" id="px-canvas"></canvas>
+    <div>
+      <div class="hist" id="px-hist"></div>
+      <div class="hist" id="px-pal" style="margin-top:12px"></div>
+    </div>
+  </div>
+</div>
+
+<div class="panel" id="p-systems" hidden>
+  <div id="sys-body"></div>
 </div>
 
 <section class="notes">
@@ -182,7 +318,16 @@ th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-
 
 <script>
 const D = ASSETS_JSON;
+// DMG 绿作为 fallback；有调色板时用官方配色（彩色屏）
 const SHADES = ["#0f380f","#306230","#8bac0f","#9bbc0f"];
+function palOf(id, shiny){
+  const P = D.palettes;
+  if(!P || !P.perMon) return SHADES;
+  const idx = P.perMon[id-1] ?? 0;
+  const set = (shiny ? P.shiny : P.normal)[idx];
+  return set || SHADES;
+}
+function nameOf(m){ return m.zh || m.slug; }
 
 function b64bytes(s){
   const bin = atob(s), a = new Uint8Array(bin.length);
@@ -195,12 +340,13 @@ function px(bytes,size,x,y){
   const b = bytes[y*rowBytes + ((x*2)>>3)];
   return (b >> (6-((x*2)&7))) & 3;
 }
-function drawSprite(ctx,bytes,size,dx,dy,scale,shadeMap){
+function drawSprite(ctx,bytes,size,dx,dy,scale,shadeMap,pal){
   const m = shadeMap || [0,1,2,3];
+  const C = pal || SHADES;
   for(let y=0;y<size;y++) for(let x=0;x<size;x++){
     const v = px(bytes,size,x,y);
     if(v===3) continue;                 // 最亮当透明
-    ctx.fillStyle = SHADES[m[v]];
+    ctx.fillStyle = C[m[v]];
     ctx.fillRect(dx+x*scale, dy+y*scale, scale, scale);
   }
 }
@@ -227,6 +373,7 @@ const EFFECTS = {
 };
 
 let cur = 25, effect="breath", view="back", frame=0, timer=null;
+let shinyMode = false, manual = false, fps = 4;
 
 const screen = document.getElementById("screen");
 const sctx = screen.getContext("2d");
@@ -237,7 +384,8 @@ function paint(){
   const size = isBack ? D.meta.backSize : m.fsize;
   const bytes = b64bytes(isBack ? D.back[cur] : D.front[cur]);
 
-  sctx.fillStyle = SHADES[3];
+  const scrPal = palOf(cur, shinyMode);
+  sctx.fillStyle = scrPal[3];
   sctx.fillRect(0,0,240,320);
 
   const seq = EFFECTS[effect]();
@@ -249,21 +397,36 @@ function paint(){
   const dx = Math.round((240-w)/2) + (tf.ox||0)*eff;
   const dy = Math.round((320-w)/2) + (tf.oy||0)*eff;
 
-  drawSprite(sctx,bytes,size,dx,dy,eff,tf.map);
+  drawSprite(sctx,bytes,size,dx,dy,eff,tf.map,palOf(cur,shinyMode));
 
   // 屏幕底部信息条 —— 模拟设备 UI
-  sctx.fillStyle = SHADES[0];
-  sctx.font = '11px "IBM Plex Mono",monospace';
-  sctx.fillText(`No.${String(m.id).padStart(3,"0")}  ${m.slug.toUpperCase()}`, 10, 300);
-  sctx.fillText(`${isBack?"BACK":"FRONT"} ${size}x${size}   ${effect.toUpperCase()}`, 10, 313);
+  sctx.fillStyle = "#1b1f18";
+  sctx.font = '12px "IBM Plex Mono",monospace';
+  sctx.fillText(`No.${String(m.id).padStart(3,"0")}  ${nameOf(m)}`, 10, 300);
+  sctx.font = '10px "IBM Plex Mono",monospace';
+  const seqLen = EFFECTS[effect]().length;
+  sctx.fillText(`${isBack?"BACK":"FRONT"} ${size}x${size}  ${effect}`
+    + (seqLen>1 ? `  frame ${frame%seqLen+1}/${seqLen}` : "")
+    + (shinyMode ? "  ✦SHINY" : ""), 10, 313);
 }
 
-function tick(){ frame++; paint(); }
+function tick(){ frame++; paint(); updStepper(); }
 function restart(){
   clearInterval(timer);
-  frame = 0; paint();
+  frame = 0; paint(); updStepper();
+  if(manual) return;
   const n = EFFECTS[effect]().length;
-  if(n>1) timer = setInterval(tick, 260);   // ~4fps，接近静息呼吸节律
+  if(n>1) timer = setInterval(tick, Math.round(1000/fps));
+}
+function step(delta){
+  const n = EFFECTS[effect]().length;
+  frame = (frame + delta + n*8) % Math.max(1,n);
+  paint(); updStepper();
+}
+function updStepper(){
+  const n = EFFECTS[effect]().length;
+  const el = document.getElementById("fr-label");
+  if(el) el.textContent = n>1 ? `${frame%n+1} / ${n}` : "静止";
 }
 
 function readout(){
@@ -335,8 +498,9 @@ function renderGrid(){
   grid.querySelectorAll(".cell").forEach(c=>{
     const id = +c.dataset.id, m = D.mons[id-1];
     const ctx = c.querySelector("canvas").getContext("2d");
-    ctx.fillStyle = SHADES[3]; ctx.fillRect(0,0,m.fsize,m.fsize);
-    drawSprite(ctx, b64bytes(D.front[id]), m.fsize, 0,0,1);
+    const gp = palOf(id, shinyMode);
+    ctx.fillStyle = gp[3]; ctx.fillRect(0,0,m.fsize,m.fsize);
+    drawSprite(ctx, b64bytes(D.front[id]), m.fsize, 0,0,1, null, gp);
   });
 }
 function select(id){
@@ -353,6 +517,536 @@ grid.addEventListener("keydown", e=>{
 });
 ["q","fbiome","ftype"].forEach(id=>
   document.getElementById(id).addEventListener("input", renderGrid));
+
+
+/* ── 逐帧步进控件 ── */
+document.getElementById("pp").onclick = e => {
+  manual = !manual;
+  e.target.textContent = manual ? "▶" : "⏸";
+  restart();
+};
+document.getElementById("prev").onclick = () => { manual=true;
+  document.getElementById("pp").textContent="▶"; clearInterval(timer); step(-1); };
+document.getElementById("next").onclick = () => { manual=true;
+  document.getElementById("pp").textContent="▶"; clearInterval(timer); step(1); };
+document.getElementById("fps").oninput = e => {
+  fps = +e.target.value;
+  document.getElementById("fps-v").textContent = fps + " fps";
+  if(!manual) restart();
+};
+document.getElementById("shiny").onchange = e => {
+  shinyMode = e.target.checked; paint(); renderGrid();
+};
+
+/* ── tab 切换 ── */
+const PANELS = ["dex","sensing","proto","pixels","systems"];
+let built = {dex:1};
+document.getElementById("tabs").addEventListener("click", e => {
+  const b = e.target.closest("button"); if(!b) return;
+  const want = b.dataset.p;
+  document.querySelectorAll("#tabs button").forEach(x =>
+    x.setAttribute("aria-selected", x.dataset.p === want));
+  PANELS.forEach(n => document.getElementById("p-"+n).hidden = (n !== want));
+  if(!built[want]){ BUILD[want] && BUILD[want](); built[want] = 1; }
+});
+
+/* ── 面板构建函数 ── */
+const BUILD = {};
+
+/* ① 感知层回放 */
+BUILD.sensing = () => {
+  const S = D.sensing || {};
+  const names = Object.keys(S);
+  const host = document.getElementById("sens-body");
+  if(!names.length){
+    host.innerHTML = `<p class="sub">没有采集数据。先跑
+      <b>tools/collector/collect.sh</b>，然后
+      <b>./tools/inspector/serve.sh --rebuild</b>。</p>`;
+    return;
+  }
+
+  host.innerHTML = names.map(nm => {
+    const d = S[nm], w1 = d.runs["1"], w4 = d.runs["4"];
+    const hrs = (d.span/3600).toFixed(1);
+    const dwell = Object.entries(w4.biomeDwell||{})
+      .map(([k,v]) => `${k} ${(v/60).toFixed(0)}分`).join("　") || "—";
+
+    // AP 出现率条
+    const bars = d.aps.map(a => {
+      const cls = a.pct >= 55 ? "stable" : (a.pct <= 40 ? "noise" : "");
+      return `<div class="apbar ${cls}">
+        <span class="nm" title="${a.b}">${a.ssid || "(隐藏)"}</span>
+        <span class="track"><span class="fill" style="width:${a.pct}%"></span></span>
+        <span class="pc">${a.pct}%</span>
+        <span style="width:52px;text-align:right;color:var(--ink-soft)">${a.avg}dBm</span>
+      </div>`;
+    }).join("");
+
+    const stable = d.aps.filter(a => a.pct >= 55).length;
+    const noise  = d.aps.filter(a => a.pct <= 40).length;
+
+    return `
+    <h2>${nm}　<span class="sub">${d.scans} 次扫描 / ${hrs} 小时</span></h2>
+
+    <div class="cmp">
+      <div class="${w1.trans>2?"bad":""}">
+        <div class="lbl">窗口 1 · 转换</div><div class="big">${w1.trans}</div></div>
+      <div class="${w1.moving>0?"bad":""}">
+        <div class="lbl">窗口 1 · 移动</div><div class="big">${Math.round(w1.moving/d.scans*100)}%</div></div>
+      <div class="${w4.trans<=2?"good":""}">
+        <div class="lbl">窗口 4 · 转换</div><div class="big">${w4.trans}</div></div>
+      <div class="${w4.moving===0?"good":""}">
+        <div class="lbl">窗口 4 · 移动</div><div class="big">${Math.round(w4.moving/d.scans*100)}%</div></div>
+      <div><div class="lbl">识别地点</div><div class="big">${w4.places}</div></div>
+    </div>
+    <p class="sub" style="margin:-6px 0 16px">biome 驻留累计：${dwell}</p>
+
+    <div class="replay-grid">
+      <div class="chart">
+        <h3>相邻扫描距离（红线 = 移动阈值 0.40）</h3>
+        <canvas class="dist-chart" data-f="${nm}" height="150"></canvas>
+        <div class="legend">
+          <span><i style="background:var(--accent)"></i>窗口 1</span>
+          <span><i style="background:var(--ok)"></i>窗口 4</span>
+          <span><i style="background:var(--warn);height:2px"></i>阈值</span>
+        </div>
+      </div>
+
+      <div class="chart">
+        <h3>状态判定时间轴</h3>
+        <canvas class="state-chart" data-f="${nm}" height="86"></canvas>
+        <div class="legend">
+          <span><i style="background:var(--accent)"></i>误判移动（窗口 1）</span>
+          <span><i style="background:var(--ok)"></i>驻留</span>
+        </div>
+      </div>
+
+      <div class="chart">
+        <h3>AP 出现率　<span style="color:var(--ok)">稳定 ${stable}</span>
+          / <span style="color:var(--warn)">噪声 ${noise}</span>
+          / 共 ${d.aps.length}</h3>
+        ${bars}
+        <div class="legend"><span>这张图是误报的根因 ——
+          近半数 AP 出现率 ≤40%，单帧取 top-8 时它们频繁挤进指纹</span></div>
+      </div>
+    </div>`;
+  }).join("");
+
+  // 画图
+  host.querySelectorAll(".dist-chart").forEach(cv => drawDist(cv, S[cv.dataset.f]));
+  host.querySelectorAll(".state-chart").forEach(cv => drawState(cv, S[cv.dataset.f]));
+};
+
+function fitCanvas(cv){
+  const r = cv.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  cv.width = Math.max(320, Math.round(r.width * dpr));
+  cv.height = Math.round(cv.height * dpr / (cv.style.height ? 1 : 1));
+  const ctx = cv.getContext("2d");
+  ctx.scale(dpr, dpr);
+  return {ctx, w: cv.width/dpr, h: cv.height/dpr};
+}
+
+function cssVar(n){ return getComputedStyle(document.body).getPropertyValue(n).trim(); }
+
+function drawDist(cv, d){
+  const H = 150; cv.height = H;
+  const {ctx, w, h} = fitCanvas(cv);
+  const r1 = d.runs["1"].rows, r4 = d.runs["4"].rows;
+  const n = Math.max(r1.length, r4.length);
+  const X = i => i / Math.max(1,n-1) * (w-8) + 4;
+  const Y = v => h - 12 - Math.min(1, v) * (h - 24);
+
+  ctx.clearRect(0,0,w,h);
+  // 阈值线
+  ctx.strokeStyle = cssVar("--warn"); ctx.setLineDash([4,3]); ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, Y(0.40)); ctx.lineTo(w, Y(0.40)); ctx.stroke();
+  ctx.setLineDash([]);
+
+  for(const [rows, color] of [[r1, cssVar("--accent")], [r4, cssVar("--ok")]]){
+    ctx.strokeStyle = color; ctx.lineWidth = 1.4; ctx.beginPath();
+    rows.forEach((r,i) => i ? ctx.lineTo(X(i), Y(r.d)) : ctx.moveTo(X(i), Y(r.d)));
+    ctx.stroke();
+  }
+  ctx.fillStyle = cssVar("--ink-soft"); ctx.font = '9px monospace';
+  ctx.fillText("1.0", 2, 12); ctx.fillText("0", 2, h-2);
+}
+
+function drawState(cv, d){
+  const H = 86; cv.height = H;
+  const {ctx, w, h} = fitCanvas(cv);
+  ctx.clearRect(0,0,w,h);
+  const lanes = [["1", d.runs["1"].rows], ["4", d.runs["4"].rows]];
+  const lh = 26;
+  lanes.forEach(([lbl, rows], li) => {
+    const y = 16 + li * (lh + 12);
+    const bw = (w - 34) / rows.length;
+    rows.forEach((r,i) => {
+      ctx.fillStyle = r.st === "m" ? cssVar("--accent")
+                    : r.st === "s" ? cssVar("--ok") : cssVar("--line");
+      ctx.fillRect(30 + i*bw, y, Math.max(1, bw+0.5), lh);
+    });
+    ctx.fillStyle = cssVar("--ink-soft"); ctx.font = '10px monospace';
+    ctx.fillText("窗"+lbl, 2, y + lh/2 + 3);
+  });
+}
+
+/* ② UI 页面原型 */
+const PAGES = [
+  {id:"P1", nm:"待机", keys:"A 照料 / B 图鉴 / C 遭遇", draw:drawP1},
+  {id:"P2", nm:"遭遇列表", keys:"A 选中 / B 返回 / C 丢弃", draw:drawP2},
+  {id:"P3", nm:"遭遇 · 战斗", keys:"A 捕获 / B 战斗 / C 逃跑", draw:drawP3},
+  {id:"P4", nm:"捕获", keys:"A 投球 / B 换球 / C 取消", draw:drawP4},
+  {id:"P5", nm:"照料", keys:"A 执行 / B 切换 / C 返回", draw:drawP5},
+  {id:"P6", nm:"图鉴", keys:"A 详情 / B 翻页 / C 返回", draw:drawP6},
+  {id:"P7", nm:"成绩", keys:"A 切榜 / B 翻页 / C 返回", draw:drawP7},
+];
+
+BUILD.proto = () => {
+  document.getElementById("proto-body").innerHTML = PAGES.map(p =>
+    `<div class="proto"><h3>${p.id} ${p.nm}</h3>
+     <div class="keys">${p.keys}</div>
+     <canvas id="pg-${p.id}" width="240" height="320"></canvas></div>`).join("");
+  PAGES.forEach(p => {
+    const cv = document.getElementById("pg-"+p.id);
+    const ctx = cv.getContext("2d");
+    ctx.fillStyle = "#9bbc0f"; ctx.fillRect(0,0,240,320);
+    p.draw(ctx);
+  });
+};
+
+const INK = "#0f380f", DIM = "#306230", MID = "#8bac0f";
+function fr(ctx,x,y,w,h){ ctx.strokeStyle=INK; ctx.lineWidth=1;
+  ctx.strokeRect(x+.5,y+.5,w-1,h-1); }
+function txt(ctx,t,x,y,sz,col){ ctx.fillStyle=col||INK;
+  ctx.font=`${sz||12}px "IBM Plex Mono",monospace`; ctx.fillText(t,x,y); }
+function bar(ctx,x,y,w,h,pct,col){
+  ctx.fillStyle="#ffffff60"; ctx.fillRect(x,y,w,h);
+  ctx.fillStyle=col||DIM; ctx.fillRect(x,y,Math.round(w*pct),h);
+  fr(ctx,x,y,w,h);
+}
+function keybar(ctx,a,b,c){
+  ctx.fillStyle=INK; ctx.fillRect(0,292,240,28);
+  ctx.fillStyle="#9bbc0f"; ctx.font='11px "IBM Plex Mono",monospace';
+  ctx.fillText(`A ${a}`, 8, 310);
+  ctx.fillText(`B ${b}`, 88, 310);
+  ctx.fillText(`C ${c}`, 166, 310);
+}
+function sprAt(ctx,id,view,cx,cy,scale){
+  const m = D.mons[id-1]; if(!m) return;
+  const size = view==="back" ? D.meta.backSize : m.fsize;
+  const src = view==="back" ? D.back[id] : D.front[id];
+  if(!src) return;
+  drawSprite(ctx, b64bytes(src), size,
+    Math.round(cx-size*scale/2), Math.round(cy-size*scale/2),
+    scale, null, palOf(id,false));
+}
+
+function drawP1(ctx){
+  const m = D.mons[3];      // 小火龙
+  txt(ctx, `${nameOf(m)} Lv12`, 8, 17, 13); txt(ctx,"♥ 78", 195, 17, 12, DIM);
+  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,24); ctx.lineTo(240,24); ctx.stroke();
+  sprAt(ctx, 4, "back", 120, 120, 3);
+  txt(ctx,"饱食",8,214,11,DIM); bar(ctx,44,205,180,10,0.62);
+  txt(ctx,"心情",8,232,11,DIM); bar(ctx,44,223,180,10,0.84);
+  txt(ctx,"体能",8,250,11,DIM); bar(ctx,44,241,180,10,0.95);
+  txt(ctx,"今日行程",8,272,11,DIM); bar(ctx,72,263,152,10,0.7,INK);
+  keybar(ctx,"照料","图鉴","遭遇3");
+}
+function drawP2(ctx){
+  txt(ctx,"刚才路上遇到  3",8,17,13);
+  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,24); ctx.lineTo(240,24); ctx.stroke();
+  [[19,"住宅区","23:14",2],[16,"野外","23:22",3],[41,"交通枢纽","23:31",4]]
+  .forEach(([id,bi,tm,ra],i)=>{
+    const y = 34 + i*74;
+    if(i===0){ txt(ctx,"▸",4,y+26,14); }
+    sprAt(ctx,id,"front",34,y+24,1);
+    const m = D.mons[id-1];
+    txt(ctx,nameOf(m),62,y+18,13);
+    txt(ctx,"★".repeat(ra)+"☆".repeat(5-ra),62,y+34,10,DIM);
+    txt(ctx,`${bi}  ${tm}`,62,y+50,10,DIM);
+  });
+  keybar(ctx,"选中","返回","丢弃");
+}
+function drawP3(ctx){
+  const w = D.mons[18];
+  txt(ctx,`${nameOf(w)} Lv8`,8,17,13);
+  txt(ctx,"★★☆☆☆",165,17,11,DIM);
+  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,24); ctx.lineTo(240,24); ctx.stroke();
+  sprAt(ctx,19,"front",88,110,2);
+  sprAt(ctx,4,"back",180,180,1);
+  txt(ctx,"小火龙 HP",8,244,11,DIM); bar(ctx,80,235,144,10,0.72);
+  txt(ctx,"效果绝佳！",8,266,12);
+  keybar(ctx,"捕获","战斗","逃跑");
+}
+function drawP4(ctx){
+  const w = D.mons[18];
+  txt(ctx,`捕获 ${nameOf(w)}`,8,17,13);
+  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,24); ctx.lineTo(240,24); ctx.stroke();
+  sprAt(ctx,19,"front",120,96,2);
+  txt(ctx,"球",8,182,11,DIM); txt(ctx,"精灵球 ×12",34,182,13);
+  txt(ctx,"[B] 切换",165,182,10,DIM);
+  // 判定条：绿区 = 窗口
+  const x=20,y=225,w2=200,h=18;
+  ctx.fillStyle="#ffffff70"; ctx.fillRect(x,y,w2,h);
+  ctx.fillStyle=DIM; ctx.fillRect(x+72,y,56,h);
+  fr(ctx,x,y,w2,h);
+  ctx.fillStyle=INK; ctx.beginPath();
+  ctx.moveTo(x+96,y-5); ctx.lineTo(x+90,y-13); ctx.lineTo(x+102,y-13); ctx.fill();
+  txt(ctx,"命中绿区，越宽越好抓",20,262,10,DIM);
+  keybar(ctx,"投球","换球","取消");
+}
+function drawP5(ctx){
+  const m = D.mons[3];
+  txt(ctx,`${nameOf(m)} Lv12`,8,17,13);
+  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,24); ctx.lineTo(240,24); ctx.stroke();
+  sprAt(ctx,4,"back",120,104,3);
+  ["喂食   浆果 ×5","玩耍","休息","查看详情"].forEach((t,i)=>{
+    const y=210+i*24;
+    if(i===0) txt(ctx,"▸",8,y,13);
+    txt(ctx,t,24,y,13, i===0?INK:DIM);
+  });
+  keybar(ctx,"执行","切换","返回");
+}
+function drawP6(ctx){
+  txt(ctx,"图鉴 47/151",8,17,13);
+  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,24); ctx.lineTo(240,24); ctx.stroke();
+  for(let r=0;r<4;r++) for(let c=0;c<5;c++){
+    const id = 1 + r*5 + c;
+    const cx = 28 + c*46, cy = 56 + r*54;
+    const owned = (id*7)%3 !== 0;
+    const m = D.mons[id-1];
+    if(m && D.front[id]){
+      const size = m.fsize;
+      drawSprite(ctx, b64bytes(D.front[id]), size,
+        Math.round(cx-size/2), Math.round(cy-size/2), 1,
+        owned ? null : [0,0,0,3],            // 未捕获 = 全暗剪影
+        owned ? palOf(id,false) : ["#306230","#306230","#306230","#9bbc0f"]);
+    }
+    if(r===3&&c===0) txt(ctx,"▸",2,cy+4,12);
+  }
+  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,262); ctx.lineTo(240,262); ctx.stroke();
+  const sel = D.mons[24];
+  txt(ctx,`#025 ${nameOf(sel)}`,8,280,13);
+  txt(ctx,"电　住宅区",130,280,11,DIM);
+  keybar(ctx,"详情","翻页","返回");
+}
+function drawP7(ctx){
+  txt(ctx,"成绩",8,17,13); txt(ctx,"第 12 天",180,17,11,DIM);
+  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,24); ctx.lineTo(240,24); ctx.stroke();
+  txt(ctx,"个人纪录",8,46,12);
+  [["单日遭遇最多","38","09-01"],["单日移动量","24","08-29"],
+   ["连续照料","12 天",""],["连续出门","7 天",""],
+   ["最稀有捕获","★★★★☆",""],["闪光捕获","1 只",""]]
+  .forEach(([k,v,d],i)=>{
+    const y=70+i*26;
+    txt(ctx,k,8,y,11,DIM); txt(ctx,v,140,y,12);
+    if(d) txt(ctx,d,190,y,9,DIM);
+  });
+  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,232); ctx.lineTo(240,232); ctx.stroke();
+  txt(ctx,"biome 分布",8,250,11,DIM);
+  [["住宅区",.62],["野外",.2],["办公区",.12],["商业区",.06]].forEach(([k,v],i)=>{
+    txt(ctx,k,8,268+i*0,9,DIM);
+    bar(ctx,58+i*46,258,40,8,v);
+  });
+  keybar(ctx,"切榜","翻页","返回");
+}
+
+/* ③ 2bpp 像素检查器 */
+function pxRender(){
+  const id = Math.max(1, Math.min(151, +document.getElementById("px-id").value||25));
+  const vbtn = document.getElementById("px-view");
+  const view = vbtn.dataset.v;
+  const zoom = +document.getElementById("px-zoom").value;
+  const grid = document.getElementById("px-grid").checked;
+  const shiny = document.getElementById("px-shiny").checked;
+  document.getElementById("px-zv").textContent = zoom + "×";
+  vbtn.textContent = view;
+
+  const m = D.mons[id-1];
+  const size = view==="back" ? D.meta.backSize : m.fsize;
+  const src = view==="back" ? D.back[id] : D.front[id];
+  if(!src) return;
+  const bytes = b64bytes(src);
+  const pal = palOf(id, shiny);
+
+  const cv = document.getElementById("px-canvas");
+  cv.width = size*zoom; cv.height = size*zoom;
+  const ctx = cv.getContext("2d");
+  ctx.fillStyle = pal[3]; ctx.fillRect(0,0,cv.width,cv.height);
+
+  const hist = [0,0,0,0];
+  for(let y=0;y<size;y++) for(let x=0;x<size;x++){
+    const v = px(bytes,size,x,y); hist[v]++;
+    ctx.fillStyle = pal[v];
+    ctx.fillRect(x*zoom, y*zoom, zoom, zoom);
+  }
+  if(grid && zoom>=6){
+    ctx.strokeStyle="rgba(0,0,0,.14)"; ctx.lineWidth=1;
+    for(let i=0;i<=size;i++){
+      ctx.beginPath(); ctx.moveTo(i*zoom+.5,0); ctx.lineTo(i*zoom+.5,cv.height); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0,i*zoom+.5); ctx.lineTo(cv.width,i*zoom+.5); ctx.stroke();
+    }
+    // 8×8 tile 边界加粗（GB 的 tile 网格）
+    ctx.strokeStyle="rgba(0,0,0,.4)"; ctx.lineWidth=1.6;
+    for(let i=0;i<=size;i+=8){
+      ctx.beginPath(); ctx.moveTo(i*zoom,0); ctx.lineTo(i*zoom,cv.height); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0,i*zoom); ctx.lineTo(cv.width,i*zoom); ctx.stroke();
+    }
+  }
+
+  const tot = size*size;
+  document.getElementById("px-hist").innerHTML =
+    `<div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+      color:var(--ink-soft);margin-bottom:8px">四阶分布 ${size}×${size}</div>` +
+    hist.map((c,v)=>`<div class="row">
+      <span class="sw" style="background:${pal[v]}"></span>
+      <span style="width:14px">${v}</span>
+      <span class="track"><span class="fill" style="width:${c/tot*100}%;
+        background:${pal[v]}"></span></span>
+      <span style="width:38px;text-align:right;font-variant-numeric:tabular-nums">${
+        (c/tot*100).toFixed(0)}%</span></div>`).join("");
+
+  document.getElementById("px-pal").innerHTML =
+    `<div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+      color:var(--ink-soft);margin-bottom:8px">配色 #${
+      (D.palettes.perMon||[])[id-1] ?? "?"}${shiny?" 闪光":""}</div>` +
+    pal.map((c,i)=>`<div class="row">
+      <span class="sw" style="background:${c}"></span>
+      <span style="font-variant-numeric:tabular-nums">${c}</span></div>`).join("") +
+    `<div style="font-size:10px;color:var(--ink-soft);margin-top:8px">
+      #${String(id).padStart(3,"0")} ${nameOf(m)}<br>${view} ${size}×${size}
+      ${(size*size*2/8)} B</div>`;
+}
+BUILD.pixels = () => {
+  ["px-id","px-zoom"].forEach(i =>
+    document.getElementById(i).addEventListener("input", pxRender));
+  ["px-grid","px-shiny"].forEach(i =>
+    document.getElementById(i).addEventListener("change", pxRender));
+  document.getElementById("px-view").onclick = e => {
+    e.target.dataset.v = e.target.dataset.v === "front" ? "back" : "front";
+    pxRender();
+  };
+  pxRender();
+};
+
+/* ④ 系统与预算 */
+const TYPES15 = ["一般","火","水","电","草","冰","格斗","毒","地面","飞行","超能","虫","岩石","幽灵","龙"];
+// 初代相克表。值 = 倍率 ×100。4 条初代特有差异见 GEN1_DIFF
+const EFF = (() => {
+  const t = {};
+  const set = (a,b,v) => { (t[a]=t[a]||{})[b]=v; };
+  const S = (a,list,v) => list.forEach(b => set(a,b,v));
+  S("火",["草","虫","冰"],200); S("火",["水","岩石","火","龙"],50);
+  S("水",["火","地面","岩石"],200); S("水",["水","草","龙"],50);
+  S("草",["水","地面","岩石"],200); S("草",["火","草","毒","飞行","虫","龙"],50);
+  S("电",["水","飞行"],200); S("电",["草","电","龙"],50); set("电","地面",0);
+  S("冰",["草","地面","飞行","龙"],200); S("冰",["水","冰"],50);
+  S("格斗",["一般","冰","岩石"],200); S("格斗",["毒","飞行","超能","虫"],50);
+  set("格斗","幽灵",0);
+  S("毒",["草"],200); S("毒",["毒","地面","岩石","幽灵"],50);
+  S("地面",["火","电","毒","岩石"],200); S("地面",["草","虫"],50); set("地面","飞行",0);
+  S("飞行",["草","格斗","虫"],200); S("飞行",["电","岩石"],50);
+  S("超能",["格斗","毒"],200); S("超能",["超能"],50);
+  S("虫",["草","超能"],200); S("虫",["火","格斗","飞行","幽灵"],50);
+  S("岩石",["火","冰","飞行","虫"],200); S("岩石",["格斗","地面"],50);
+  set("幽灵","幽灵",200); S("幽灵",["一般"],0);
+  S("龙",["龙"],200);
+  S("一般",["岩石"],50); set("一般","幽灵",0);
+  // ★ 初代特有的 4 条
+  set("幽灵","超能",0);   set("毒","虫",200);
+  set("虫","毒",200);     set("冰","火",100);
+  return t;
+})();
+const GEN1_DIFF = new Set(["幽灵>超能","毒>虫","虫>毒","冰>火"]);
+
+BUILD.systems = () => {
+  const M = D.meta;
+  const total = M.dataBytes + M.frontBytes + M.backBytes;
+  const rows = [
+    ["怪物数据", M.dataBytes/1024, `${M.count} × ${M.recSize} B + slug 与中文名池`],
+    ["front sprite", M.frontBytes/1024, "三档原生尺寸 40/48/56，分段存放"],
+    ["back sprite", M.backBytes/1024, `151 × ${M.backSize}×${M.backSize} 定长`],
+    ["调色板", 0.32, "10 套普通 + 10 套闪光 + 151 索引 = 323 B"],
+    ["动效", 0, "零素材 —— 全是对静态图做变换"],
+    ["中文点阵 16×16", 6.5, "209 个汉字（151 只名字共用）"],
+    ["固件本体（估）", 1200, "ESP-IDF + WiFi/BLE 栈，待 idf.py size 实测"],
+  ];
+  const used = rows.reduce((a,r)=>a+r[1],0);
+
+  const effRows = TYPES15.map(a => {
+    const cells = TYPES15.map(b => {
+      const v = (EFF[a]||{})[b] ?? 100;
+      const cls = v===0?"x0":v===50?"x05":v===200?"x2":"x1";
+      const g1 = GEN1_DIFF.has(a+">"+b) ? " gen1" : "";
+      const label = v===100 ? "" : (v===0?"0":v===50?"½":"2");
+      return `<td class="${cls}${g1}" title="${a} → ${b} = ${v}%">${label}</td>`;
+    }).join("");
+    return `<tr><th>${a}</th>${cells}</tr>`;
+  }).join("");
+
+  document.getElementById("sys-body").innerHTML = `
+  <h2>flash 预算</h2>
+  <div class="tbl-scroll"><table>
+    <tr><th>项</th><th>KB</th><th>说明</th></tr>
+    ${rows.map(r=>`<tr><td>${r[0]}</td>
+      <td>${r[1]===0?'<span class="ok">0</span>':r[1].toFixed(1)}</td>
+      <td style="color:var(--ink-soft)">${r[2]}</td></tr>`).join("")}
+    <tr><td><b>已用</b></td><td><b>${used.toFixed(0)}</b></td>
+      <td>占 8MB 的 <b>${(used/8192*100).toFixed(1)}%</b></td></tr>
+    <tr><td><b>剩余</b></td><td class="ok"><b>${(8192-used).toFixed(0)}</b></td>
+      <td class="ok">${((8192-used)/1024).toFixed(1)} MB</td></tr>
+  </table></div>
+
+  <h2>SRAM 约束（约 400 KB，无 PSRAM）</h2>
+  <div class="tbl-scroll"><table>
+    <tr><th>缓冲</th><th>大小</th><th>占 SRAM</th><th>可行</th></tr>
+    <tr><td>240×320×16bit 整帧</td><td>150 KB</td><td>38%</td>
+      <td class="warn">✗ 必须分块</td></tr>
+    <tr><td>56×56 @scale3 包围盒</td><td>55 KB</td><td>14%</td>
+      <td class="warn">✗ 偏大</td></tr>
+    <tr><td>56×56 @scale2 包围盒</td><td>24 KB</td><td>6%</td>
+      <td class="ok">✓ 采用</td></tr>
+    <tr><td>240×16 横带</td><td>7.5 KB</td><td>1.9%</td><td class="ok">✓</td></tr>
+  </table></div>
+
+  <h2>初代属性相克表</h2>
+  <p class="sub">行 = 攻击方，列 = 防御方。
+    <span class="warn">黄框</span> = 初代特有的 4 条差异
+    （幽灵→超能 0% 是著名 bug，现代是 200%）。
+    <b>0</b> 无效 / <b>½</b> 减半 / 空 = 正常 / <b>2</b> 双倍。
+    15×15 半字节表 = 113 字节。</p>
+  <div class="eff-scroll"><table class="eff">
+    <tr><th></th>${TYPES15.map(t=>`<th class="rot">${t}</th>`).join("")}</tr>
+    ${effRows}
+  </table></div>
+
+  <h2>存档布局（约 891 字节）</h2>
+  <div class="tbl-scroll"><table>
+    <tr><th>项</th><th>字节</th><th>系统</th><th>可再生</th></tr>
+    <tr><td>头部（魔数/版本/CRC32）</td><td>10</td><td>S6</td><td>—</td></tr>
+    <tr><td>主宠状态</td><td>9</td><td>S4</td><td class="warn">✗ 不可</td></tr>
+    <tr><td>图鉴位图 ×4（已见/已捕/闪光已见/闪光已捕）</td><td>76</td><td>S5+S8</td><td class="warn">✗ 不可</td></tr>
+    <tr><td>道具</td><td>4</td><td>S9</td><td class="ok">✓</td></tr>
+    <tr><td>成绩与纪录</td><td>132</td><td>S10</td><td class="warn">✗ 不可</td></tr>
+    <tr><td>地点表（RTC RAM 镜像）</td><td>512</td><td>感知层</td><td class="ok">✓</td></tr>
+    <tr><td>biome 驻留累计</td><td>20</td><td>感知层→S7</td><td class="warn">✗ 不可</td></tr>
+    <tr><td>遭遇队列</td><td>128</td><td>S1</td><td class="ok">✓</td></tr>
+    <tr><td><b>合计</b></td><td><b>891</b></td><td>双 buffer = 1.8 KB</td>
+      <td class="warn">CRC 必需</td></tr>
+  </table></div>
+
+  <h2>10 个系统</h2>
+  <div class="tbl-scroll"><table>
+    <tr><th>#</th><th>系统</th><th>依赖实测</th></tr>
+    ${[["S1","遭遇累积","⏳ 遭遇频率"],["S2","捕获判定","—"],["S3","自动战斗","—"],
+       ["S4","养成状态机","⏳ RTC 精度"],["S5","图鉴","—"],["S6","存档","⏳ flash 磨损"],
+       ["S7","进化","—"],["S8","闪光","—"],["S9","道具","—"],["S10","成绩与排行","—"]]
+      .map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td>
+        <td style="color:var(--ink-soft)">${r[2]}</td></tr>`).join("")}
+  </table></div>
+  <p class="sub">详见 <b>docs/08-systems.md</b> 与 <b>docs/systems/</b>。</p>`;
+};
 
 /* ---- 头部统计 + 表格 ---- */
 (function init(){
@@ -397,6 +1091,6 @@ grid.addEventListener("keydown", e=>{
   document.getElementById("ftype").insertAdjacentHTML("beforeend",
     [...ts].sort().map(t=>`<option>${t}</option>`).join(""));
 
-  syncCtrls(); renderGrid(); readout(); restart();
+  syncCtrls(); renderGrid(); readout(); restart(); updStepper();
 })();
 </script>

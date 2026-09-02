@@ -48,11 +48,13 @@ def load_data(path: pathlib.Path) -> list[dict]:
     for i in range(cnt):
         o = i * rsz
         (off, ln, t1, t2, bm, cr, tg, ev, el,
-         hp, at, df, sp, spd, fl, h, w, _rv) = struct.unpack(
-            "<HBBBBBBBBBBBBBBHH8s", recs[o:o + rsz])
+         hp, at, df, sp, spd, fl, h, w, zo, zl, pi, _rv) = struct.unpack(
+            "<HBBBBBBBBBBBBBBHHHBB8s", recs[o:o + rsz])
         out.append({
             "id": i + 1,
             "slug": pool[off:off + ln].decode("utf-8"),
+            "zh": pool[zo:zo + zl].decode("utf-8") if zl else "",
+            "pal": pi & 0x0F,
             "t1": TYPES_CN[t1] if t1 < len(TYPES_CN) else "?",
             "t2": TYPES_CN[t2] if t2 < len(TYPES_CN) else None,
             "biomes": [BIOMES_CN[j] for j in range(5) if bm >> j & 1],
@@ -65,6 +67,37 @@ def load_data(path: pathlib.Path) -> list[dict]:
             "h": h, "w": w,
         })
     return out
+
+
+def load_palettes(path: pathlib.Path) -> dict:
+    """调色板表：10 套普通 + 10 套闪光 + 每只索引。
+
+    彩色屏用，且闪光就是换调色板（S8）—— 位图完全相同。
+    """
+    if not path.exists():
+        return {}
+    d = path.read_bytes()
+    magic, ver, nsets, ncolors, count = struct.unpack("<4sHHHH", d[:12])
+    if magic != b"PALS":
+        raise ValueError(f"{path.name} magic 不对：{magic!r}")
+
+    body = d[12:]
+    per_set = ncolors * 2
+    normal, shiny = [], []
+    for i in range(nsets * 2):
+        o = i * per_set
+        colors = []
+        for c in range(ncolors):
+            (rgb565,) = struct.unpack("<H", body[o + c * 2:o + c * 2 + 2])
+            r = ((rgb565 >> 11) & 0x1F) << 3
+            g = ((rgb565 >> 5) & 0x3F) << 2
+            b = (rgb565 & 0x1F) << 3
+            colors.append(f"#{r:02x}{g:02x}{b:02x}")
+        (normal if i < nsets else shiny).append(colors)
+
+    idx_off = nsets * 2 * per_set
+    per_mon = list(body[idx_off:idx_off + count])
+    return {"normal": normal, "shiny": shiny, "perMon": per_mon}
 
 
 def load_front(path: pathlib.Path) -> tuple[dict[int, str], list[dict], int]:
@@ -108,6 +141,75 @@ def load_back(path: pathlib.Path) -> tuple[dict[int, str], int, int]:
     return sprites, w, len(bd)
 
 
+def load_sensing(repo: pathlib.Path) -> dict:
+    """把 data/raw/*.ndjson 跑一遍感知层，打包判定结果供页面可视化。
+
+    页面上能直接对比「单帧 vs 窗口 4」的判定差异 ——
+    这是验收 docs/02-sensing.md#241 那个修复的唯一直观方式。
+    """
+    raw = repo / "data" / "raw"
+    if not raw.is_dir():
+        return {}
+
+    sys.path.insert(0, str(repo / "sim"))
+    try:
+        from sensing import SensingCore, load_ndjson  # noqa: E402
+    except ImportError:
+        return {}
+
+    import collections
+    out: dict[str, dict] = {}
+    for f in sorted(raw.glob("*.ndjson")):
+        scans = load_ndjson(str(f))
+        if not scans:
+            continue
+
+        # 两种窗口各跑一遍，页面上可切换对比
+        runs = {}
+        for w in (1, 4):
+            core = SensingCore(only_24g=True, smooth_window=w)
+            results = core.run(scans)
+            runs[str(w)] = {
+                "rows": [
+                    {"ts": r.ts, "n": r.ap_count, "st": r.state[0],
+                     "d": round(r.distance, 3), "tr": r.transient_aps,
+                     "new": 1 if r.is_new_place else 0}
+                    for r in results
+                ],
+                "trans": core.motion.transitions,
+                "places": len(core.memory.places),
+                "moving": sum(1 for r in results if r.state == "moving"),
+                "biomeDwell": dict(core.memory.biome_dwell),
+            }
+
+        # AP 出现率 —— 一眼看出「稳定核心 + 噪声」的分布
+        counts: collections.Counter = collections.Counter()
+        rssi: dict[str, list[int]] = {}
+        for sc in scans:
+            for ap in sc.only_24g().aps:
+                counts[ap.bssid] += 1
+                rssi.setdefault(ap.bssid, []).append(ap.rssi)
+
+        n = len(scans)
+        aps = [
+            {"b": b[-8:], "ssid": "", "n": c, "pct": round(c / n * 100),
+             "avg": round(sum(rssi[b]) / len(rssi[b]))}
+            for b, c in counts.most_common()
+        ]
+        # 补 SSID（取最后一次见到的）
+        ssid_of = {}
+        for sc in scans:
+            for ap in sc.only_24g().aps:
+                if ap.ssid:
+                    ssid_of[ap.bssid[-8:]] = ap.ssid
+        for a in aps:
+            a["ssid"] = ssid_of.get(a["b"], "")
+
+        out[f.name] = {"scans": n, "runs": runs, "aps": aps,
+                       "span": scans[-1].ts - scans[0].ts}
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="构建验收页面")
     ap.add_argument("--src", default="/tmp/gen1",
@@ -135,6 +237,8 @@ def main() -> int:
             return 1
 
     mons = load_data(assets / "gen1.bin")
+    palettes = load_palettes(assets / "palettes.bin")
+    sensing = load_sensing(REPO)
     front, seg_meta, front_bytes = load_front(assets / "gen1_front.bin")
     back, back_size, back_bytes = load_back(assets / "gen1_back.bin")
 
@@ -145,13 +249,15 @@ def main() -> int:
     payload = {
         "meta": {
             "count": len(mons),
-            "recSize": 28,
+            "recSize": 32,
             "dataBytes": (assets / "gen1.bin").stat().st_size,
             "frontBytes": front_bytes,
             "backBytes": back_bytes,
             "backSize": back_size,
             "segs": seg_meta,
         },
+        "palettes": palettes,
+        "sensing": sensing,
         "mons": mons,
         "front": {str(k): v for k, v in sorted(front.items())},
         "back": {str(k): v for k, v in sorted(back.items())},
@@ -171,6 +277,12 @@ def main() -> int:
     print(f"\n{out}  {out.stat().st_size/1024:.0f} KB")
     print(f"  {len(mons)} 只　front {len(front)}　back {len(back)}")
     print(f"  资产合计 {total/1024:.1f} KB（占 8MB 的 {total/8/1024/1024*100:.2f}%）")
+    if sensing:
+        for name, d in sensing.items():
+            w1, w4 = d["runs"]["1"], d["runs"]["4"]
+            print(f"  感知层 {name}: {d['scans']} 次扫描　"
+                  f"窗口1 转换{w1['trans']}/移动{w1['moving']}　"
+                  f"窗口4 转换{w4['trans']}/移动{w4['moving']}")
     print(f"\n启动：./tools/inspector/serve.sh")
     return 0
 
