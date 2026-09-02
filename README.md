@@ -76,6 +76,7 @@ macOS 12+ 对 BSSID 做了权限门禁：**没有定位授权时 `bssid` 和 `ss
 | [05-art-audio.md](docs/05-art-audio.md) | 美术与音频 —— GB 像素风、chiptune、素材来源 |
 | [06-engineering.md](docs/06-engineering.md) | 工程 —— 仿真器、内容管线、存档、调度 |
 | [07-roadmap.md](docs/07-roadmap.md) | 推进节奏 —— 当前可做什么、Phase 0 要测什么 |
+| **[08-systems.md](docs/08-systems.md)** | **系统索引** —— 10 个系统 + 7 个页面的导航与状态。各系统详见 `docs/systems/` |
 
 ## 目录结构
 
@@ -89,6 +90,7 @@ sim/                  PC 端仿真：感知层算法、回放器、玩法原型
   gameplay.py         三条状态轴、遭遇判定、确定性 PRNG 刷新
   replay.py           回放采集数据，输出感知层判定结果
   prototype.py        玩法原型，输出模拟游玩日志
+assets/               素材产物 + 眼部标注归档
 data/raw/             采集的原始数据（.gitignore，不入库）
 firmware/             ESP32 固件（硬件到手后）
 ```
