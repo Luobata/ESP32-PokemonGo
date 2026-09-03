@@ -14,7 +14,7 @@
 | S3 | 自动战斗 | **✅ 已实现** | — | [S3-battle.md](systems/S3-battle.md) |
 | S4 | 养成状态机 | **✅ 已实现** | ⏳ RTC 精度 | [S4-nurture.md](systems/S4-nurture.md) |
 | S5 | 图鉴 | **✅ 已实现** | — | [S5-dex.md](systems/S5-dex.md) |
-| S6 | 存档 | **✅ 已实现** | ⏳ flash 磨损 | [S6-save.md](systems/S6-save.md) |
+| S6 | 存档 | **✅ 已实现** | — | [S6-save.md](systems/S6-save.md) |
 | S7 | 进化 | **✅ 已实现** | — | [S7-evolution.md](systems/S7-evolution.md) |
 | S8 | 闪光 | **✅ 已实现** | — | [S8-shiny.md](systems/S8-shiny.md) |
 | S9 | 道具 | **✅ 已实现** | — | [S9-items.md](systems/S9-items.md) |
@@ -22,6 +22,11 @@
 | S11 | 开场流程 | **✅ 已实现** | — | [S11-intro.md](systems/S11-intro.md) |
 | S12 | 昵称 | **✅ 已实现** | — | [S12-naming.md](systems/S12-naming.md) |
 | S13 | 音频 | **✅ 已实现** | ⏳ 音频通路 / 续航 | [S13-audio.md](systems/S13-audio.md) |
+| S14 | 队伍与仓库 | **✅ 已实现** | — | [S14-party.md](systems/S14-party.md) |
+| S15 | 转场动画 | **✅ 已实现** | — | [S15-transitions.md](systems/S15-transitions.md) |
+| S16 | 开场剧情 | **✅ 已实现** | — | [S16-opening.md](systems/S16-opening.md) |
+| S17 | 道馆与四天王 | **✅ 已实现** | — | [S17-gyms.md](systems/S17-gyms.md) |
+| S18 | 自动存档 | **✅ 已实现** | — | [S18-autosave.md](systems/S18-autosave.md) |
 
 实现分布在三个模块：
 
@@ -35,6 +40,11 @@
 | [`sim/naming.py`](../sim/naming.py) | S12 | 预设昵称 + `NamePicker` |
 | [`sim/strings.py`](../sim/strings.py) | 全部 | UI 文案单一来源 + 排版审计 |
 | [`sim/audio.py`](../sim/audio.py) | S13 | 四通道 APU + 11 条音效 |
+| [`sim/party.py`](../sim/party.py) | S14 | 队伍 6 + 仓库 30 |
+| [`sim/transitions.py`](../sim/transitions.py) | S15 | 闪光星环 / 转场 / 进化闪烁 |
+| [`sim/opening.py`](../sim/opening.py) | S16 | 大木博士台词 |
+| [`sim/gyms.py`](../sim/gyms.py) | S17 | 八馆 + 四天王 + 赤红 |
+| [`sim/autosave.py`](../sim/autosave.py) | S18 | 分级自动存档 |
 
 ## UI 页面
 
