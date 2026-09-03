@@ -1,8 +1,8 @@
 {
   "version": 1,
   "sessionName": "midscene-web",
-  "targetIdentity": "http://127.0.0.1:8765/index.html?v=7",
-  "reportFileName": "midscene-web-http___127.0.0.1_8765_index.html_v_7-2026-09-03_18-44-17-wuqo551r",
-  "reportPath": "/Users/bytedance/luobata/ESP32-PokemonGo/midscene_run/report/midscene-web-http___127.0.0.1_8765_index.html_v_7-2026-09-03_18-44-17-wuqo551r.html",
-  "createdAt": 1788432257640
+  "targetIdentity": "http://127.0.0.1:8765/index.html?v=9",
+  "reportFileName": "midscene-web-http___127.0.0.1_8765_index.html_v_9-2026-09-03_19-22-35-6jnmihhd",
+  "reportPath": "/Users/bytedance/luobata/ESP32-PokemonGo/midscene_run/report/midscene-web-http___127.0.0.1_8765_index.html_v_9-2026-09-03_19-22-35-6jnmihhd.html",
+  "createdAt": 1788434555846
 }

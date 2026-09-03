@@ -1019,3 +1019,116 @@
 [2026-09-03T18:45:45.990+08:00] screenshotBase64 end, cost: 26ms
 [2026-09-03T18:45:45.995+08:00] screenshotBase64 begin
 [2026-09-03T18:45:46.024+08:00] screenshotBase64 end, cost: 29ms
+[2026-09-03T19:19:20.221+08:00] screenshotBase64 begin
+[2026-09-03T19:19:20.224+08:00] Midscene - Added base-select appearance style for select elements because of forceChromeSelectRendering is enabled
+[2026-09-03T19:19:20.298+08:00] screenshotBase64 end, cost: 77ms
+[2026-09-03T19:19:22.319+08:00] Midscene - Added base-select appearance style for select elements because of forceChromeSelectRendering is enabled
+[2026-09-03T19:19:22.330+08:00] evaluate function begin
+[2026-09-03T19:19:22.331+08:00] evaluate function end
+[2026-09-03T19:19:22.331+08:00] screenshotBase64 begin
+[2026-09-03T19:19:22.362+08:00] screenshotBase64 end, cost: 31ms
+[2026-09-03T19:19:25.660+08:00] screenshotBase64 begin
+[2026-09-03T19:19:25.674+08:00] screenshotBase64 end, cost: 14ms
+[2026-09-03T19:19:29.165+08:00] screenshotBase64 begin
+[2026-09-03T19:19:29.192+08:00] screenshotBase64 end, cost: 27ms
+[2026-09-03T19:19:29.397+08:00] mouse move to 960, 242
+[2026-09-03T19:19:29.404+08:00] mouse click 960, 242, left, 1
+[2026-09-03T19:19:29.730+08:00] waitForNavigation begin at moment afterInvokeAction with timeout: 5000 and actionName: Tap
+[2026-09-03T19:19:29.731+08:00] waitForNetworkIdle begin at moment afterInvokeAction with timeout: 2000 and concurrency: 2 and actionName: Tap
+[2026-09-03T19:19:29.739+08:00] waitForNavigation end
+[2026-09-03T19:19:29.934+08:00] waitForNetworkIdle end
+[2026-09-03T19:19:29.934+08:00] screenshotBase64 begin
+[2026-09-03T19:19:29.956+08:00] screenshotBase64 end, cost: 22ms
+[2026-09-03T19:19:32.883+08:00] screenshotBase64 begin
+[2026-09-03T19:19:32.907+08:00] screenshotBase64 end, cost: 24ms
+[2026-09-03T19:19:32.912+08:00] screenshotBase64 begin
+[2026-09-03T19:19:32.940+08:00] screenshotBase64 end, cost: 28ms
+[2026-09-03T19:20:05.526+08:00] Midscene - Added base-select appearance style for select elements because of forceChromeSelectRendering is enabled
+[2026-09-03T19:20:05.534+08:00] evaluate function begin
+[2026-09-03T19:20:05.535+08:00] evaluate function end
+[2026-09-03T19:20:05.535+08:00] screenshotBase64 begin
+[2026-09-03T19:20:05.566+08:00] screenshotBase64 end, cost: 31ms
+[2026-09-03T19:20:09.702+08:00] screenshotBase64 begin
+[2026-09-03T19:20:09.722+08:00] screenshotBase64 end, cost: 20ms
+[2026-09-03T19:20:13.263+08:00] screenshotBase64 begin
+[2026-09-03T19:20:13.291+08:00] screenshotBase64 end, cost: 28ms
+[2026-09-03T19:20:13.495+08:00] evaluate function begin
+[2026-09-03T19:20:13.496+08:00] evaluate function end
+[2026-09-03T19:20:13.496+08:00] mouse move to 261, 598
+[2026-09-03T19:20:13.497+08:00] mouse wheel 0, 350
+[2026-09-03T19:20:14.315+08:00] waitForNavigation begin at moment afterInvokeAction with timeout: 5000 and actionName: Scroll
+[2026-09-03T19:20:14.316+08:00] waitForNetworkIdle begin at moment afterInvokeAction with timeout: 2000 and concurrency: 2 and actionName: Scroll
+[2026-09-03T19:20:14.321+08:00] waitForNavigation end
+[2026-09-03T19:20:14.517+08:00] waitForNetworkIdle end
+[2026-09-03T19:20:14.517+08:00] screenshotBase64 begin
+[2026-09-03T19:20:14.539+08:00] screenshotBase64 end, cost: 22ms
+[2026-09-03T19:20:19.856+08:00] screenshotBase64 begin
+[2026-09-03T19:20:19.871+08:00] screenshotBase64 end, cost: 15ms
+[2026-09-03T19:20:22.631+08:00] screenshotBase64 begin
+[2026-09-03T19:20:22.655+08:00] screenshotBase64 end, cost: 24ms
+[2026-09-03T19:20:25.586+08:00] screenshotBase64 begin
+[2026-09-03T19:20:25.605+08:00] screenshotBase64 end, cost: 19ms
+[2026-09-03T19:20:25.809+08:00] begin mouse drag from 157, 614 to 302, 614
+[2026-09-03T19:20:27.336+08:00] end mouse drag from 157, 614 to 302, 614
+[2026-09-03T19:20:27.638+08:00] waitForNavigation begin at moment afterInvokeAction with timeout: 5000 and actionName: DragAndDrop
+[2026-09-03T19:20:27.639+08:00] waitForNetworkIdle begin at moment afterInvokeAction with timeout: 2000 and concurrency: 2 and actionName: DragAndDrop
+[2026-09-03T19:20:27.642+08:00] waitForNavigation end
+[2026-09-03T19:20:27.841+08:00] waitForNetworkIdle end
+[2026-09-03T19:20:27.841+08:00] screenshotBase64 begin
+[2026-09-03T19:20:27.853+08:00] screenshotBase64 end, cost: 12ms
+[2026-09-03T19:20:31.856+08:00] screenshotBase64 begin
+[2026-09-03T19:20:31.870+08:00] screenshotBase64 end, cost: 14ms
+[2026-09-03T19:20:31.876+08:00] screenshotBase64 begin
+[2026-09-03T19:20:31.901+08:00] screenshotBase64 end, cost: 25ms
+[2026-09-03T19:22:36.085+08:00] screenshotBase64 begin
+[2026-09-03T19:22:36.086+08:00] Midscene - Added base-select appearance style for select elements because of forceChromeSelectRendering is enabled
+[2026-09-03T19:22:36.153+08:00] screenshotBase64 end, cost: 68ms
+[2026-09-03T19:22:38.164+08:00] Midscene - Added base-select appearance style for select elements because of forceChromeSelectRendering is enabled
+[2026-09-03T19:22:38.172+08:00] evaluate function begin
+[2026-09-03T19:22:38.173+08:00] evaluate function end
+[2026-09-03T19:22:38.173+08:00] screenshotBase64 begin
+[2026-09-03T19:22:38.208+08:00] screenshotBase64 end, cost: 35ms
+[2026-09-03T19:22:44.570+08:00] screenshotBase64 begin
+[2026-09-03T19:22:44.603+08:00] screenshotBase64 end, cost: 33ms
+[2026-09-03T19:22:47.815+08:00] screenshotBase64 begin
+[2026-09-03T19:22:47.852+08:00] screenshotBase64 end, cost: 37ms
+[2026-09-03T19:22:48.056+08:00] mouse move to 961, 243
+[2026-09-03T19:22:48.057+08:00] mouse click 961, 243, left, 1
+[2026-09-03T19:22:48.371+08:00] waitForNavigation begin at moment afterInvokeAction with timeout: 5000 and actionName: Tap
+[2026-09-03T19:22:48.372+08:00] waitForNetworkIdle begin at moment afterInvokeAction with timeout: 2000 and concurrency: 2 and actionName: Tap
+[2026-09-03T19:22:48.379+08:00] waitForNavigation end
+[2026-09-03T19:22:48.575+08:00] waitForNetworkIdle end
+[2026-09-03T19:22:48.575+08:00] screenshotBase64 begin
+[2026-09-03T19:22:48.600+08:00] screenshotBase64 end, cost: 25ms
+[2026-09-03T19:22:55.481+08:00] screenshotBase64 begin
+[2026-09-03T19:22:55.502+08:00] screenshotBase64 end, cost: 21ms
+[2026-09-03T19:22:58.483+08:00] screenshotBase64 begin
+[2026-09-03T19:22:58.500+08:00] screenshotBase64 end, cost: 17ms
+[2026-09-03T19:22:58.704+08:00] evaluate function begin
+[2026-09-03T19:22:58.705+08:00] evaluate function end
+[2026-09-03T19:22:58.705+08:00] mouse move to 260, 600
+[2026-09-03T19:22:58.706+08:00] mouse wheel 0, 350
+[2026-09-03T19:22:59.511+08:00] waitForNavigation begin at moment afterInvokeAction with timeout: 5000 and actionName: Scroll
+[2026-09-03T19:22:59.512+08:00] waitForNetworkIdle begin at moment afterInvokeAction with timeout: 2000 and concurrency: 2 and actionName: Scroll
+[2026-09-03T19:22:59.514+08:00] waitForNavigation end
+[2026-09-03T19:22:59.713+08:00] waitForNetworkIdle end
+[2026-09-03T19:22:59.714+08:00] screenshotBase64 begin
+[2026-09-03T19:22:59.733+08:00] screenshotBase64 end, cost: 19ms
+[2026-09-03T19:23:03.156+08:00] screenshotBase64 begin
+[2026-09-03T19:23:03.182+08:00] screenshotBase64 end, cost: 26ms
+[2026-09-03T19:23:06.924+08:00] screenshotBase64 begin
+[2026-09-03T19:23:06.949+08:00] screenshotBase64 end, cost: 25ms
+[2026-09-03T19:23:10.936+08:00] screenshotBase64 begin
+[2026-09-03T19:23:10.949+08:00] screenshotBase64 end, cost: 13ms
+[2026-09-03T19:23:11.151+08:00] begin mouse drag from 154, 612 to 206, 614
+[2026-09-03T19:23:12.679+08:00] end mouse drag from 154, 612 to 206, 614
+[2026-09-03T19:23:12.981+08:00] waitForNavigation begin at moment afterInvokeAction with timeout: 5000 and actionName: DragAndDrop
+[2026-09-03T19:23:12.981+08:00] waitForNetworkIdle begin at moment afterInvokeAction with timeout: 2000 and concurrency: 2 and actionName: DragAndDrop
+[2026-09-03T19:23:12.984+08:00] waitForNavigation end
+[2026-09-03T19:23:13.183+08:00] waitForNetworkIdle end
+[2026-09-03T19:23:13.183+08:00] screenshotBase64 begin
+[2026-09-03T19:23:13.199+08:00] screenshotBase64 end, cost: 16ms
+[2026-09-03T19:23:18.637+08:00] screenshotBase64 begin
+[2026-09-03T19:23:18.649+08:00] screenshotBase64 end, cost: 12ms
+[2026-09-03T19:23:18.656+08:00] screenshotBase64 begin
+[2026-09-03T19:23:18.683+08:00] screenshotBase64 end, cost: 27ms

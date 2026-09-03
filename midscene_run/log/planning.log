@@ -2800,3 +2800,284 @@
 }
 [2026-09-03T18:45:37.399+08:00] locateFields [ 'locate' ]
 [2026-09-03T18:45:45.963+08:00] task completed via <complete> tag, stop planning
+[2026-09-03T19:19:25.659+08:00] actionInActionSpace matched {
+  name: 'Tap',
+  description: 'Tap the element',
+  interfaceAlias: 'aiTap',
+  paramSchema: ZodObject {
+    spa: [Function: bound safeParseAsync] AsyncFunction,
+    _def: {
+      shape: [Function: shape],
+      unknownKeys: 'strip',
+      catchall: [ZodNever],
+      typeName: 'ZodObject'
+    },
+    parse: [Function: bound parse],
+    safeParse: [Function: bound safeParse],
+    parseAsync: [Function: bound parseAsync] AsyncFunction,
+    safeParseAsync: [Function: bound safeParseAsync] AsyncFunction,
+    refine: [Function: bound refine],
+    refinement: [Function: bound refinement],
+    superRefine: [Function: bound superRefine],
+    optional: [Function: bound optional],
+    nullable: [Function: bound nullable],
+    nullish: [Function: bound nullish],
+    array: [Function: bound array],
+    promise: [Function: bound promise],
+    or: [Function: bound or],
+    and: [Function: bound and],
+    transform: [Function: bound transform],
+    brand: [Function: bound brand],
+    default: [Function: bound default],
+    catch: [Function: bound catch],
+    describe: [Function: bound describe],
+    pipe: [Function: bound pipe],
+    readonly: [Function: bound readonly],
+    isNullable: [Function: bound isNullable],
+    isOptional: [Function: bound isOptional],
+    '~standard': { version: 1, vendor: 'zod', validate: [Function: validate] },
+    _cached: null,
+    nonstrict: [Function: passthrough],
+    augment: [Function: extend]
+  },
+  sample: { locate: { prompt: 'the "Submit" button' } },
+  call: [AsyncFunction: call]
+}
+[2026-09-03T19:19:25.659+08:00] locateFields [ 'locate' ]
+[2026-09-03T19:19:32.883+08:00] task completed via <complete> tag, stop planning
+[2026-09-03T19:20:09.702+08:00] actionInActionSpace matched {
+  name: 'Scroll',
+  description: 'Scroll the page or a scrollable element to browse content. This is the preferred way to scroll on all platforms, including mobile. Supports scrollToBottom/scrollToTop for boundary navigation. Default: direction `down`, scrollType `singleAction`, distance `null`.',
+  interfaceAlias: 'aiScroll',
+  paramSchema: ZodObject {
+    spa: [Function: bound safeParseAsync] AsyncFunction,
+    _def: {
+      shape: [Function: shape],
+      unknownKeys: 'strip',
+      catchall: [ZodNever],
+      typeName: 'ZodObject'
+    },
+    parse: [Function: bound parse],
+    safeParse: [Function: bound safeParse],
+    parseAsync: [Function: bound parseAsync] AsyncFunction,
+    safeParseAsync: [Function: bound safeParseAsync] AsyncFunction,
+    refine: [Function: bound refine],
+    refinement: [Function: bound refinement],
+    superRefine: [Function: bound superRefine],
+    optional: [Function: bound optional],
+    nullable: [Function: bound nullable],
+    nullish: [Function: bound nullish],
+    array: [Function: bound array],
+    promise: [Function: bound promise],
+    or: [Function: bound or],
+    and: [Function: bound and],
+    transform: [Function: bound transform],
+    brand: [Function: bound brand],
+    default: [Function: bound default],
+    catch: [Function: bound catch],
+    describe: [Function: bound describe],
+    pipe: [Function: bound pipe],
+    readonly: [Function: bound readonly],
+    isNullable: [Function: bound isNullable],
+    isOptional: [Function: bound isOptional],
+    '~standard': { version: 1, vendor: 'zod', validate: [Function: validate] },
+    _cached: null,
+    nonstrict: [Function: passthrough],
+    augment: [Function: extend]
+  },
+  sample: {
+    direction: 'down',
+    scrollType: 'singleAction',
+    locate: { prompt: 'the center of the product list area' }
+  },
+  call: [AsyncFunction: call]
+}
+[2026-09-03T19:20:09.702+08:00] locateFields [ 'locate' ]
+[2026-09-03T19:20:19.856+08:00] actionInActionSpace matched {
+  name: 'DragAndDrop',
+  description: 'Pick up a specific UI element and move it to a new position (e.g., reorder a card, move a file into a folder, sort list items). The element itself moves with your finger/mouse.',
+  interfaceAlias: 'aiDragAndDrop',
+  paramSchema: ZodObject {
+    spa: [Function: bound safeParseAsync] AsyncFunction,
+    _def: {
+      shape: [Function: shape],
+      unknownKeys: 'strip',
+      catchall: [ZodNever],
+      typeName: 'ZodObject'
+    },
+    parse: [Function: bound parse],
+    safeParse: [Function: bound safeParse],
+    parseAsync: [Function: bound parseAsync] AsyncFunction,
+    safeParseAsync: [Function: bound safeParseAsync] AsyncFunction,
+    refine: [Function: bound refine],
+    refinement: [Function: bound refinement],
+    superRefine: [Function: bound superRefine],
+    optional: [Function: bound optional],
+    nullable: [Function: bound nullable],
+    nullish: [Function: bound nullish],
+    array: [Function: bound array],
+    promise: [Function: bound promise],
+    or: [Function: bound or],
+    and: [Function: bound and],
+    transform: [Function: bound transform],
+    brand: [Function: bound brand],
+    default: [Function: bound default],
+    catch: [Function: bound catch],
+    describe: [Function: bound describe],
+    pipe: [Function: bound pipe],
+    readonly: [Function: bound readonly],
+    isNullable: [Function: bound isNullable],
+    isOptional: [Function: bound isOptional],
+    '~standard': { version: 1, vendor: 'zod', validate: [Function: validate] },
+    _cached: null,
+    nonstrict: [Function: passthrough],
+    augment: [Function: extend]
+  },
+  sample: {
+    from: { prompt: 'the "report.pdf" file icon' },
+    to: { prompt: 'the upload drop zone' }
+  },
+  call: [AsyncFunction: call]
+}
+[2026-09-03T19:20:19.856+08:00] locateFields [ 'from', 'to' ]
+[2026-09-03T19:20:31.856+08:00] task completed via <complete> tag, stop planning
+[2026-09-03T19:22:44.569+08:00] actionInActionSpace matched {
+  name: 'Tap',
+  description: 'Tap the element',
+  interfaceAlias: 'aiTap',
+  paramSchema: ZodObject {
+    spa: [Function: bound safeParseAsync] AsyncFunction,
+    _def: {
+      shape: [Function: shape],
+      unknownKeys: 'strip',
+      catchall: [ZodNever],
+      typeName: 'ZodObject'
+    },
+    parse: [Function: bound parse],
+    safeParse: [Function: bound safeParse],
+    parseAsync: [Function: bound parseAsync] AsyncFunction,
+    safeParseAsync: [Function: bound safeParseAsync] AsyncFunction,
+    refine: [Function: bound refine],
+    refinement: [Function: bound refinement],
+    superRefine: [Function: bound superRefine],
+    optional: [Function: bound optional],
+    nullable: [Function: bound nullable],
+    nullish: [Function: bound nullish],
+    array: [Function: bound array],
+    promise: [Function: bound promise],
+    or: [Function: bound or],
+    and: [Function: bound and],
+    transform: [Function: bound transform],
+    brand: [Function: bound brand],
+    default: [Function: bound default],
+    catch: [Function: bound catch],
+    describe: [Function: bound describe],
+    pipe: [Function: bound pipe],
+    readonly: [Function: bound readonly],
+    isNullable: [Function: bound isNullable],
+    isOptional: [Function: bound isOptional],
+    '~standard': { version: 1, vendor: 'zod', validate: [Function: validate] },
+    _cached: null,
+    nonstrict: [Function: passthrough],
+    augment: [Function: extend]
+  },
+  sample: { locate: { prompt: 'the "Submit" button' } },
+  call: [AsyncFunction: call]
+}
+[2026-09-03T19:22:44.569+08:00] locateFields [ 'locate' ]
+[2026-09-03T19:22:55.481+08:00] actionInActionSpace matched {
+  name: 'Scroll',
+  description: 'Scroll the page or a scrollable element to browse content. This is the preferred way to scroll on all platforms, including mobile. Supports scrollToBottom/scrollToTop for boundary navigation. Default: direction `down`, scrollType `singleAction`, distance `null`.',
+  interfaceAlias: 'aiScroll',
+  paramSchema: ZodObject {
+    spa: [Function: bound safeParseAsync] AsyncFunction,
+    _def: {
+      shape: [Function: shape],
+      unknownKeys: 'strip',
+      catchall: [ZodNever],
+      typeName: 'ZodObject'
+    },
+    parse: [Function: bound parse],
+    safeParse: [Function: bound safeParse],
+    parseAsync: [Function: bound parseAsync] AsyncFunction,
+    safeParseAsync: [Function: bound safeParseAsync] AsyncFunction,
+    refine: [Function: bound refine],
+    refinement: [Function: bound refinement],
+    superRefine: [Function: bound superRefine],
+    optional: [Function: bound optional],
+    nullable: [Function: bound nullable],
+    nullish: [Function: bound nullish],
+    array: [Function: bound array],
+    promise: [Function: bound promise],
+    or: [Function: bound or],
+    and: [Function: bound and],
+    transform: [Function: bound transform],
+    brand: [Function: bound brand],
+    default: [Function: bound default],
+    catch: [Function: bound catch],
+    describe: [Function: bound describe],
+    pipe: [Function: bound pipe],
+    readonly: [Function: bound readonly],
+    isNullable: [Function: bound isNullable],
+    isOptional: [Function: bound isOptional],
+    '~standard': { version: 1, vendor: 'zod', validate: [Function: validate] },
+    _cached: null,
+    nonstrict: [Function: passthrough],
+    augment: [Function: extend]
+  },
+  sample: {
+    direction: 'down',
+    scrollType: 'singleAction',
+    locate: { prompt: 'the center of the product list area' }
+  },
+  call: [AsyncFunction: call]
+}
+[2026-09-03T19:22:55.481+08:00] locateFields [ 'locate' ]
+[2026-09-03T19:23:03.156+08:00] actionInActionSpace matched {
+  name: 'DragAndDrop',
+  description: 'Pick up a specific UI element and move it to a new position (e.g., reorder a card, move a file into a folder, sort list items). The element itself moves with your finger/mouse.',
+  interfaceAlias: 'aiDragAndDrop',
+  paramSchema: ZodObject {
+    spa: [Function: bound safeParseAsync] AsyncFunction,
+    _def: {
+      shape: [Function: shape],
+      unknownKeys: 'strip',
+      catchall: [ZodNever],
+      typeName: 'ZodObject'
+    },
+    parse: [Function: bound parse],
+    safeParse: [Function: bound safeParse],
+    parseAsync: [Function: bound parseAsync] AsyncFunction,
+    safeParseAsync: [Function: bound safeParseAsync] AsyncFunction,
+    refine: [Function: bound refine],
+    refinement: [Function: bound refinement],
+    superRefine: [Function: bound superRefine],
+    optional: [Function: bound optional],
+    nullable: [Function: bound nullable],
+    nullish: [Function: bound nullish],
+    array: [Function: bound array],
+    promise: [Function: bound promise],
+    or: [Function: bound or],
+    and: [Function: bound and],
+    transform: [Function: bound transform],
+    brand: [Function: bound brand],
+    default: [Function: bound default],
+    catch: [Function: bound catch],
+    describe: [Function: bound describe],
+    pipe: [Function: bound pipe],
+    readonly: [Function: bound readonly],
+    isNullable: [Function: bound isNullable],
+    isOptional: [Function: bound isOptional],
+    '~standard': { version: 1, vendor: 'zod', validate: [Function: validate] },
+    _cached: null,
+    nonstrict: [Function: passthrough],
+    augment: [Function: extend]
+  },
+  sample: {
+    from: { prompt: 'the "report.pdf" file icon' },
+    to: { prompt: 'the upload drop zone' }
+  },
+  call: [AsyncFunction: call]
+}
+[2026-09-03T19:23:03.156+08:00] locateFields [ 'from', 'to' ]
+[2026-09-03T19:23:18.636+08:00] task completed via <complete> tag, stop planning

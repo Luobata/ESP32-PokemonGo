@@ -238,6 +238,7 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
   <button role="tab" data-p="nurture" aria-selected="false">S4-S7 养成</button>
   <button role="tab" data-p="meta"    aria-selected="false">S8-S11 元系统</button>
   <button role="tab" data-p="audio"   aria-selected="false">S13 音频</button>
+  <button role="tab" data-p="anim"    aria-selected="false">S15 转场动画</button>
   <button role="tab" data-p="systems" aria-selected="false">系统与预算</button>
 </div>
 
@@ -348,6 +349,15 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
     塞 WAV 进页面要 150 KB，且验收不了「固件也能算出同样的声音」。
     设计见 <b>docs/systems/S13-audio.md</b>。</p>
   <div id="audio-body"></div>
+</div>
+
+<div class="panel" id="p-anim" hidden>
+  <p class="sub" style="margin:0 0 16px">
+    闪光星环 / 遭遇转场 / 进化闪烁，参数<b>全部来自 pret 反汇编逐行阅读</b>，
+    不是估的。三段都能逐帧步进 ——
+    「闪光是不是真的沿圆周逐个点亮」这种事不看就验不了。
+    设计见 <b>docs/systems/S15-transitions.md</b>。</p>
+  <div id="anim-body"></div>
 </div>
 
 <div class="panel" id="p-systems" hidden>
@@ -612,7 +622,7 @@ document.getElementById("shiny").onchange = e => {
 };
 
 /* ── tab 切换 ── */
-const PANELS = ["dex","sensing","proto","pixels","gameplay","nurture","meta","audio","systems"];
+const PANELS = ["dex","sensing","proto","pixels","gameplay","nurture","meta","audio","anim","systems"];
 let built = {dex:1};
 document.getElementById("tabs").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
@@ -2542,6 +2552,459 @@ function initDutyDemo(S){
               ? '<span class="ok">最圆，感知音量最高</span>' : "")}`;
     };
   });
+}
+
+
+
+/* ── S15 转场动画验收 ──
+   三段动画都能逐帧步进。JS 重算 Python 的公式，与抽样帧比对。   */
+BUILD.anim = () => {
+  const S = D.sys2 && D.sys2.s15;
+  const host = document.getElementById("anim-body");
+  if(!S || !S.shiny){
+    host.innerHTML = `<p class="sub">S15 数据未打包。跑
+      <b>./tools/inspector/serve.sh --rebuild</b>。</p>`;
+    return;
+  }
+  const SH = S.shiny, EV = S.evolve, G = S.grid;
+
+  host.innerHTML = `
+  <div class="gp-sec">
+    <h2>① 闪光星环　<span class="sub">逐帧可步进</span></h2>
+    <p class="gp-note"><b>最容易做错的地方：不是星星向外飞散。</b>
+      8 颗星停在<b>半径 ${SH.radius}px 圆周的固定角度</b>，
+      从正右方起顺时针每 45° 一颗、每 ${SH.step} 帧点亮一颗。
+      星星<b>不动</b>（偏移只在生成时算一次），只播自己的闪烁帧然后自删
+      —— 单颗寿命 ${SH.life} 帧。所以圆环是「逐个亮起并各自消失」的流动感，
+      不是 8 颗同时长亮的静态环。
+      <br>总 ${SH.total} 帧（${SH.step}×8 + 尾 ${SH.tail}）。
+      时序上它<b>插在 sprite 已就位与叫声之间</b>，是独立的第二次动画调用
+      —— 普通遭遇这里什么都不插。</p>
+    <div class="cols" style="align-items:flex-start">
+      <div class="device">
+        <div class="screen-frame">
+          <canvas class="screen" id="sh-cv" width="240" height="320"></canvas>
+          <div class="screen-label">SHINY ENCOUNTER</div>
+        </div>
+        <div class="stepper">
+          <button id="sh-pp">▶</button>
+          <button id="sh-prev">◀</button>
+          <button id="sh-next">▶</button>
+          <span class="fr" id="sh-fr">—</span>
+        </div>
+        <div class="stepper">
+          <input id="sh-scrub" type="range" min="1" max="${SH.total+1}" value="1"
+            style="flex:1">
+        </div>
+        <div class="readout" id="sh-out"></div>
+      </div>
+      <div style="flex:1;min-width:280px">
+        <h3 style="margin:0 0 6px;font-size:12px">8 颗星的时序与偏移</h3>
+        <p class="gp-note">偏移由反汇编的正弦表算出（周期 64 = 整圈）。
+          下表的期望值直接抄自反汇编，JS 算完比对。</p>
+        <div class="tbl-scroll"><table>
+          <tr><th>param</th><th>点亮帧</th><th>偏移</th><th>角度</th>
+            <th>大小</th><th>校验</th></tr>
+          ${SH.stars.map((x,i)=>{
+            const want = [[16,0],[11,11],[0,16],[-11,11],
+                          [-16,0],[-11,-11],[0,-16],[11,-11]][i];
+            const ok = x.dx===want[0] && x.dy===want[1];
+            return `<tr><td>$${(i*8).toString(16).padStart(2,"0").toUpperCase()}</td>
+              <td>${x.frame}</td>
+              <td>(${x.dx>=0?"+":""}${x.dx}, ${x.dy>=0?"+":""}${x.dy})</td>
+              <td>${x.deg}°</td>
+              <td>${x.big?"16×16":"8×8"}</td>
+              <td class="${ok?"ok":"warn"}">${ok?"✓":"✗ 期望 "+want}</td></tr>`;
+          }).join("")}
+        </table></div>
+        <div class="formula" id="sh-cmp"></div>
+        <p class="gp-note" style="margin-top:10px">
+          原版 Gen 2 的判定是 DV：<code>Atk&amp;%0010≠0 且 Def=Spd=Spc=10</code>
+          → <b>1/${SH.gen2Denom}</b>。本项目不做个体值，用
+          <code>crc32(bssid|hour|rarity)</code>，概率取 <b>1/512</b> ——
+          8192 是为几百小时流程设计的，而这台设备遭遇频率低得多。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="gp-sec">
+    <h2>② 遭遇转场　<span class="sub">可交互</span></h2>
+    <p class="gp-note"><b>完全确定性，不随机。</b>3 个 bit 查表：
+      训练师战 / 敌方等级 ≥ 我方 +3 / 密闭 biome。
+      这是原版一个聪明的设计 —— <b>玩家会从转场认出对手强弱</b>，
+      看到某种转场就知道这场不好打。随机化会毁掉这个信息通道。
+      <br>机制上全是<b>往 BG 写纯黑 tile</b>（${G.w}×${G.h} 网格），
+      不是 scanline 也不是调色板；只有圆形系开头那 72 帧闪屏用调色板。</p>
+    <div class="tbl-scroll"><table>
+      <tr><th>bits</th><th>对手</th><th>强弱</th><th>biome</th>
+        <th>转场</th><th>帧数</th><th>推导</th></tr>
+      ${S.pickTable.map(r=>{
+        const t = S.transitions[r.name];
+        return `<tr><td>${r.idx.toString(2).padStart(3,"0")}</td>
+          <td>${r.trainer?"训练师":"野生"}</td>
+          <td>${r.strong?"强敌":"同级"}</td>
+          <td>${r.biome}</td>
+          <td><b>${t.zh}</b></td><td>${t.frames}</td>
+          <td style="color:var(--ink-soft)">${t.note}</td></tr>`;
+      }).join("")}
+    </table></div>
+    <div class="knobs" style="border:1px solid var(--line);padding:8px 10px">
+      <label>转场</label>
+      <select id="tr-name" style="font:12px monospace;padding:5px">
+        ${Object.entries(S.transitions).map(([k,v])=>
+          `<option value="${k}">${v.zh}（${v.frames} 帧）</option>`).join("")}
+      </select>
+      <label>进度</label>
+      <input id="tr-p" type="range" min="0" max="100" value="40" style="flex:1">
+      <span class="fr" id="tr-pv" style="min-width:40px"></span>
+      <button id="tr-play">▶ 播放</button>
+    </div>
+    <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:flex-start">
+      <canvas id="tr-cv" width="240" height="320"
+        style="width:180px;image-rendering:pixelated;border:1px solid var(--line)"></canvas>
+      <div style="flex:1;min-width:220px">
+        <div class="out" id="tr-out"></div>
+        <div class="formula" id="tr-cmp"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gp-sec">
+    <h2>③ 进化闪烁　<span class="sub">加速曲线</span></h2>
+    <p class="gp-note">两处我原本都会做错：
+      <b>闪烁是加速的</b>（8 轮，每轮来回次数 1→8 递增、轮间等待 16→2 帧递减），
+      而且<b>整段是黑色剪影</b>在两个形态间跳 —— 不是彩色图对切。
+      结束时才恢复新形态的正常调色板。用固定间隔或彩色对切都不对味。
+      <br>纯闪烁 <b>${EV.blinkFrames} 帧</b>（来回 36 次 × 2 切图 × 3 帧 = 216，
+      加轮间等待 72）＝ ${(EV.blinkFrames/59.7).toFixed(1)}s；
+      含前置静止 ${EV.preWait} 帧共 ${EV.totalFrames} 帧。</p>
+    <div class="cols" style="align-items:flex-start">
+      <div class="device">
+        <div class="screen-frame">
+          <canvas class="screen" id="ev-cv" width="240" height="320"></canvas>
+          <div class="screen-label">EVOLUTION</div>
+        </div>
+        <div class="stepper">
+          <button id="ev-pp">▶</button>
+          <button id="ev-prev">◀</button>
+          <button id="ev-next">▶</button>
+          <span class="fr" id="ev-fr">—</span>
+        </div>
+        <div class="stepper">
+          <input id="ev-scrub" type="range" min="0" max="${EV.totalFrames}"
+            value="0" style="flex:1">
+        </div>
+        <div class="readout" id="ev-out"></div>
+      </div>
+      <div style="flex:1;min-width:280px">
+        <h3 style="margin:0 0 6px;font-size:12px">逐轮参数</h3>
+        <div class="tbl-scroll"><table>
+          <tr><th>轮</th><th>来回次数</th><th>轮间等待</th><th>本轮帧数</th></tr>
+          ${EV.rounds.map(r=>`<tr><td>${r.round}</td><td>${r.swaps}</td>
+            <td>${r.wait}</td><td>${r.frames}</td></tr>`).join("")}
+          <tr><td colspan="3"><b>合计</b></td>
+            <td><b>${EV.blinkFrames}</b></td></tr>
+        </table></div>
+        <div id="ev-curve" style="margin-top:10px"></div>
+        <h3 style="margin:16px 0 6px;font-size:12px">音频时序</h3>
+        <p class="gp-note"><b>闪烁期间没有逐次音效</b> —— 只有一段 BGM。
+          逐次加音效会变成噪音。</p>
+        <div class="tbl-scroll"><table>
+          ${EV.audio.map(([k,v])=>`<tr><td><code>${k}</code></td>
+            <td style="color:var(--ink-soft)">${v}</td></tr>`).join("")}
+        </table></div>
+      </div>
+    </div>
+  </div>`;
+
+  initShiny(SH); initTrans(S); initEvolve(EV);
+};
+
+/* 闪光：JS 重算逐帧状态，与抽样帧比对 */
+function shinyStateJS(frame, SH){
+  const stars = [];
+  SH.stars.forEach(s => {
+    const age = frame - s.frame;
+    if(age >= 0 && age < SH.life){
+      const fi = Math.floor(age / 4);
+      stars.push({i:s.i, dx:s.dx, dy:s.dy, age, big: fi === 0});
+    }
+  });
+  let inverted = false;
+  if(frame <= SH.flashes * SH.flashFrames)
+    inverted = Math.floor((frame-1)/SH.flashFrames) % 2 === 0;
+  const sfx = SH.stars.some(s => s.frame === frame);
+  return {frame, stars, inverted, sfx, done: frame > SH.total};
+}
+
+function initShiny(SH){
+  const cv = document.getElementById("sh-cv"), ctx = cv.getContext("2d");
+  const ART = D.sys2 && D.sys2.art;
+  const SID = 25;                                   // 皮卡丘做示例
+  let f = 1, timer = null;
+
+  const drawStar = (x, y, big) => {
+    if(!ART || !ART.stars) return;
+    /* 尺寸按原版比例反推：原版半径 16 相对 56px sprite = 0.286，
+       大星 16×16、小星 8×8 也是相对 56px。
+       这里 sprite 显示 96px，缩放系数 96/56 = 1.71：
+         半径 16 × 1.71 ≈ 27px（我第一版用 ×2 = 32，偏大）
+         大星 7pt → 27px 需 scale 4；小星 5pt → 14px 需 scale 3
+       第一版 scale 3/2 让星星只有 21/10px —— 在 96px 的 sprite 旁边太小，
+       看不出是星星。 */
+    const g = ART.stars[big ? "7" : "5"], pal = ART.pal.star;
+    const h = g.length, w = g[0].length, sc = big ? 4 : 3;
+    const x0 = Math.round(x - w*sc/2), y0 = Math.round(y - h*sc/2);
+    for(let yy=0;yy<h;yy++) for(let xx=0;xx<w;xx++){
+      if(g[yy][xx] === 3) continue;
+      ctx.fillStyle = pal[g[yy][xx]];
+      ctx.fillRect(x0+xx*sc, y0+yy*sc, sc, sc);
+    }
+  };
+
+  const show = () => {
+    const st = shinyStateJS(f, SH);
+    // 反相闪屏 —— 原版是 BGP 在 dc 3,2,1,0 与 dc 0,1,2,3 间交替
+    ctx.fillStyle = st.inverted ? "#f0f0e0" : "#182838";
+    ctx.fillRect(0,0,240,320);
+
+    const m = D.mons[SID-1];
+    const cx = 120, cy = 150, size = 96;
+    if(m){
+      const pal = palOf(SID, true);                 // 闪光调色板
+      const off = document.createElement("canvas");
+      off.width = off.height = m.fsize;
+      const octx = off.getContext("2d");
+      octx.fillStyle = st.inverted ? "#f0f0e0" : "#182838";
+      octx.fillRect(0,0,m.fsize,m.fsize);
+      drawSprite(octx, b64bytes(D.front[SID]), m.fsize, 0,0,1, null, pal);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(off, cx-size/2, cy-size/2, size, size);
+    }
+    // 星星画在半径 radius 的圆周上。屏幕放大 2×，所以偏移也 ×2
+    // 半径按 96/56 = 1.71 缩放（原版半径/sprite 比例 = 0.286）
+    const RS = 96/56;
+    st.stars.forEach(s => drawStar(cx + s.dx*RS, cy + s.dy*RS, s.big));
+
+    document.getElementById("sh-fr").textContent = `${f}/${SH.total}`;
+    document.getElementById("sh-scrub").value = f;
+    document.getElementById("sh-out").innerHTML =
+      `帧 ${f}　亮 <b>${st.stars.length}</b> 颗　` +
+      `${st.inverted ? '<span class="warn">反相闪屏</span>' : "正常"}` +
+      `${st.sfx ? '　<b class="warn">♪ SFX_SHINE</b>' : ""}` +
+      `${st.done ? '　<span class="ok">结束</span>' : ""}` +
+      `<br><span class="sub">${SH.stars.map(x =>
+        st.stars.some(y=>y.i===x.i) ? "★" : "·").join("")}</span>`;
+  };
+  const step = d => { f = ((f-1+d+SH.total+1) % (SH.total+1)) + 1; show(); };
+  const stop = () => { if(timer){ clearInterval(timer); timer=null;
+    document.getElementById("sh-pp").textContent="▶"; } };
+  document.getElementById("sh-prev").onclick = () => { stop(); step(-1); };
+  document.getElementById("sh-next").onclick = () => { stop(); step(1); };
+  document.getElementById("sh-scrub").oninput = e => { stop(); f=+e.target.value; show(); };
+  document.getElementById("sh-pp").onclick = () => {
+    if(timer){ stop(); return; }
+    document.getElementById("sh-pp").textContent = "⏸";
+    timer = setInterval(()=>step(1), 1000/30);
+  };
+  show();
+
+  // 与 Python 抽样帧比对
+  let bad = [];
+  SH.frameCheck.forEach(c => {
+    const js = shinyStateJS(c.f, SH);
+    const lit = js.stars.map(s=>s.i);
+    const same = lit.length===c.lit.length && lit.every((v,i)=>v===c.lit[i])
+              && js.inverted===c.inverted && js.sfx===c.sfx;
+    if(!same) bad.push(`帧${c.f}: JS[${lit}] vs PY[${c.lit}]`);
+  });
+  document.getElementById("sh-cmp").innerHTML = bad.length === 0
+    ? `<span class="ok">✓ JS 逐帧状态与 Python 一致</span>
+       ${SH.frameCheck.length} 个抽样帧全对（亮哪几颗 / 反相 / 音效）`
+    : `<span class="warn">✗ ${bad.length} 帧不一致</span><br>${bad.join("<br>")}`;
+}
+
+/* 转场：JS 自己算 mask（纯几何，不传数据），与 Python 的填充格数比对 */
+function transMaskJS(name, p, S){
+  const G = S.grid, kind = S.transitions[name].kind;
+  const W = G.w, H = G.h;
+  const m = Array.from({length:H}, () => new Array(W).fill(false));
+  const cx = (W-1)/2, cy = (H-1)/2;
+  p = Math.max(0, Math.min(1, p));
+
+  if(kind === "circle"){
+    const rMax = Math.hypot(cx, cy), rNow = rMax*(1-p);
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++)
+      m[y][x] = Math.hypot(x-cx, y-cy) > rNow;
+    if(name === "double_circle"){
+      const rIn = rMax*p*0.45;
+      for(let y=0;y<H;y++) for(let x=0;x<W;x++)
+        if(Math.hypot(x-cx,y-cy) < rIn) m[y][x] = true;
+    }
+  } else if(kind === "stripes"){
+    // 隔行填充才有「百叶」的透光感 —— 一次填满整行就只是幕布下落
+    if(name === "h_stripes"){
+      for(let x=0;x<Math.floor(W*p);x++) for(let y=0;y<H;y+=2) m[y][x]=true;
+      if(p>0.5) for(let x=0;x<Math.floor(W*(p-0.5)*2);x++)
+        for(let y=1;y<H;y+=2) m[y][x]=true;
+    } else {
+      for(let y=0;y<Math.floor(H*p);y++) for(let x=0;x<W;x+=2) m[y][x]=true;
+      if(p>0.5) for(let y=0;y<Math.floor(H*(p-0.5)*2);y++)
+        for(let x=1;x<W;x+=2) m[y][x]=true;
+    }
+  } else if(kind === "spiral"){
+    const cells = [];
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++)
+      cells.push([Math.hypot(x-cx,y-cy) + Math.atan2(y-cy,x-cx)/(2*Math.PI), y, x]);
+    cells.sort((a,b)=> name==="spiral_in" ? b[0]-a[0] : a[0]-b[0]);
+    for(let k=0;k<Math.floor(cells.length*p);k++) m[cells[k][1]][cells[k][2]]=true;
+  } else if(kind === "shrink"){
+    const by = Math.floor(cy*p)+1, bx = Math.floor(cx*p)+1;
+    for(let y=0;y<H;y++) for(let x=0;x<W;x++)
+      if(y<by || y>=H-by || x<bx || x>=W-bx) m[y][x]=true;
+  } else if(kind === "split"){
+    const half = Math.floor(cy*p)+1;
+    for(let y=0;y<H;y++) if(Math.abs(y-cy)<half) m[y].fill(true);
+  }
+  return m;
+}
+
+function initTrans(S){
+  const cv = document.getElementById("tr-cv"), ctx = cv.getContext("2d");
+  const G = S.grid;
+  let timer = null;
+
+  const draw = () => {
+    const name = document.getElementById("tr-name").value;
+    const p = +document.getElementById("tr-p").value/100;
+    document.getElementById("tr-pv").textContent = Math.round(p*100)+"%";
+    // 底下画点东西，才看得出黑块盖住了什么
+    ctx.fillStyle = "#5a7a4a"; ctx.fillRect(0,0,240,320);
+    ctx.fillStyle = "#3a5a2a";
+    for(let y=0;y<320;y+=16) for(let x=(y/16%2)*16;x<240;x+=32)
+      ctx.fillRect(x,y,16,16);
+    const m = transMaskJS(name, p, S);
+    ctx.fillStyle = "#000";
+    for(let y=0;y<G.h;y++) for(let x=0;x<G.w;x++)
+      if(m[y][x]) ctx.fillRect(x*G.tile, y*G.tile, G.tile, G.tile);
+
+    const t = S.transitions[name];
+    const filled = m.reduce((a,r)=>a+r.filter(Boolean).length,0);
+    document.getElementById("tr-out").innerHTML =
+      `<b>${t.zh}</b>　${t.frames} 帧　已填 ${filled}/${G.w*G.h} 格
+       （${(filled/(G.w*G.h)*100).toFixed(0)}%）
+       <br><span class="sub">${t.note}</span>`;
+
+    // 与 Python 的填充格数比对
+    const chk = S.maskCheck[name] || [];
+    const bad = [];
+    chk.forEach(c => {
+      const mm = transMaskJS(name, c.p, S);
+      const n = mm.reduce((a,r)=>a+r.filter(Boolean).length,0);
+      if(n !== c.filled) bad.push(`p=${c.p}: JS ${n} vs PY ${c.filled}`);
+    });
+    document.getElementById("tr-cmp").innerHTML = bad.length === 0
+      ? `<span class="ok">✓ JS 填充格数与 Python 一致</span>
+         ${chk.length} 个进度点全对
+         <br><span class="sub">mask 是纯几何，所以不传数据、只传校验点 ——
+         传完整网格是 53 KB，占整个 payload 七成。</span>`
+      : `<span class="warn">✗ ${bad.length} 处不一致</span><br>${bad.join("<br>")}`;
+  };
+
+  document.getElementById("tr-name").onchange = draw;
+  document.getElementById("tr-p").oninput = () => { if(timer){clearInterval(timer);timer=null;} draw(); };
+  document.getElementById("tr-play").onclick = () => {
+    if(timer){ clearInterval(timer); timer=null; return; }
+    const name = document.getElementById("tr-name").value;
+    const frames = S.transitions[name].frames;
+    let i = 0;
+    const sl = document.getElementById("tr-p");
+    timer = setInterval(() => {
+      i++;
+      sl.value = Math.round(i/frames*100);
+      draw();
+      if(i >= frames){ clearInterval(timer); timer=null; }
+    }, 1000/60);
+  };
+  draw();
+}
+
+/* 进化：逐帧步进，黑色剪影在两形态间跳 */
+function initEvolve(EV){
+  const cv = document.getElementById("ev-cv"), ctx = cv.getContext("2d");
+  const FROM = 1, TO = 2;                 // 妙蛙种子 → 妙蛙草
+  let f = 0, timer = null;
+
+  const stateAt = frame => {
+    // 找 <= frame 的最后一次切图
+    let cur = null;
+    for(const e of EV.timeline){ if(e.frame <= frame) cur = e; else break; }
+    return cur;
+  };
+
+  const show = () => {
+    ctx.fillStyle = "#182838"; ctx.fillRect(0,0,240,320);
+    const st = stateAt(f);
+    const pre = f < EV.preWait;
+    const sid = (st && st.show_new) ? TO : FROM;
+    const m = D.mons[sid-1];
+    if(m){
+      // **黑色剪影** —— 整段闪烁用 PAL_BLACK，不是彩色对切。
+      // 只有最后定格才恢复新形态的正常调色板。
+      const last = EV.timeline[EV.timeline.length-1];
+      const done = f >= last.frame;
+      const pal = (done || pre) ? palOf(sid,false)
+                                : ["#000","#000","#000", "#182838"];
+      const off = document.createElement("canvas");
+      off.width = off.height = m.fsize;
+      const octx = off.getContext("2d");
+      octx.fillStyle = "#182838"; octx.fillRect(0,0,m.fsize,m.fsize);
+      drawSprite(octx, b64bytes(D.front[sid]), m.fsize, 0,0,1, null, pal);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(off, 120-56, 150-56, 112, 112);
+    }
+    document.getElementById("ev-fr").textContent = `${f}/${EV.totalFrames}`;
+    document.getElementById("ev-scrub").value = f;
+    const last = EV.timeline[EV.timeline.length-1];
+    document.getElementById("ev-out").innerHTML = pre
+      ? `帧 ${f}　<span class="sub">前置静止（${EV.preWait} 帧，BGM 已起）</span>`
+      : (f >= last.frame
+        ? `帧 ${f}　<span class="ok">定格新形态</span>　恢复正常调色板`
+        : `帧 ${f}　第 <b>${st?st.round:"?"}</b> 轮　
+           显示 <b>${st&&st.show_new?"新":"旧"}形态</b>　
+           <span class="warn">黑色剪影</span>`);
+  };
+  const step = d => { f = (f + d + EV.totalFrames + 1) % (EV.totalFrames + 1); show(); };
+  const stop = () => { if(timer){clearInterval(timer);timer=null;
+    document.getElementById("ev-pp").textContent="▶";} };
+  document.getElementById("ev-prev").onclick = () => { stop(); step(-1); };
+  document.getElementById("ev-next").onclick = () => { stop(); step(1); };
+  document.getElementById("ev-scrub").oninput = e => { stop(); f=+e.target.value; show(); };
+  document.getElementById("ev-pp").onclick = () => {
+    if(timer){ stop(); return; }
+    document.getElementById("ev-pp").textContent = "⏸";
+    timer = setInterval(()=>step(1), 1000/60);
+  };
+  show();
+
+  // 加速曲线图
+  const W=280,H=90,pad=6;
+  const mx = Math.max(...EV.rounds.map(r=>r.wait));
+  const bars = EV.rounds.map((r,i)=>{
+    const w=(W-2*pad)/EV.rounds.length, x=pad+i*w;
+    const hw=r.wait/mx*(H-2*pad), hs=r.swaps/8*(H-2*pad);
+    return `<rect x="${x+1}" y="${H-pad-hw}" width="${w/2-1}" height="${hw}"
+              fill="var(--accent)" opacity=".5"/>
+            <rect x="${x+w/2}" y="${H-pad-hs}" width="${w/2-1}" height="${hs}"
+              fill="var(--ok)" opacity=".6"/>`;
+  }).join("");
+  document.getElementById("ev-curve").innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;
+      border:1px solid var(--line);background:var(--panel)">${bars}</svg>
+    <div class="sub" style="font-size:10px">
+      <span style="color:var(--accent)">▮ 轮间等待（16→2 递减）</span>
+      <span style="color:var(--ok)">▮ 来回次数（1→8 递增）</span>
+      —— 两条反向曲线合成「越来越快」</div>`;
 }
 
 

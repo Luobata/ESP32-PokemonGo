@@ -641,6 +641,72 @@ def load_systems2(repo: pathlib.Path, mons: list[dict]) -> dict:
         print(f"  注：party 导入失败（{e}）", file=sys.stderr)
         s14 = {}
 
+    # ---- S15 转场与出场动画 ----
+    # 参数全部来自 pret 反汇编。页面上要能**逐帧步进**看，
+    # 否则「闪光是不是真的沿圆周逐个点亮」这种事根本验不了。
+    try:
+        import transitions as TR                # noqa: E402
+        s15 = {
+            "shiny": {
+                "stars": [{"i": x.index, "frame": x.frame, "dx": x.dx,
+                           "dy": x.dy, "deg": x.angle_deg, "big": x.big}
+                          for x in TR.shiny_stars()],
+                "total": TR.SHINY_TOTAL_FRAMES,
+                "life": TR.SHINY_STAR_LIFE,
+                "step": TR.SHINY_STEP_FRAMES,
+                "radius": TR.SHINY_RADIUS,
+                "tail": TR.SHINY_TAIL_FRAMES,
+                "flashes": TR.SHINY_BGP_FLASHES,
+                "flashFrames": TR.SHINY_BGP_FLASH_FRAMES,
+                "phase": TR.SHINY_PHASE,
+                "gen2Denom": TR.GEN2_SHINY_DENOM,
+                # 逐帧状态**不全传** —— 64 帧 × 8 颗星的完整状态是 17 KB，
+                # 而 JS 用同样的公式一算就有。只传抽样帧供比对。
+                "frameCheck": [
+                    {"f": f, **{k: v for k, v in TR.shiny_frame_state(f).items()
+                                if k != "stars"},
+                     "lit": [x["i"] for x in TR.shiny_frame_state(f)["stars"]]}
+                    for f in (1, 5, 13, 21, 29, 40, 48, 50, 64, 65)
+                ],
+            },
+            "transitions": TR.TRANSITIONS,
+            "openBiomes": list(TR.OPEN_BIOMES),
+            "grid": {"w": TR.GRID_W, "h": TR.GRID_H, "tile": TR.TILE},
+            # 转场 mask **不传** —— 它是纯几何，JS 自己算就行。
+            # 我第一版传了 8 种 × 5 个进度快照的 30×40 网格 = 53 KB，
+            # 占了整个 s15 payload 的七成，而那些数据 JS 一行公式就能生成。
+            # 只传几个校验点，让 JS 算完能对一下。
+            "maskCheck": {
+                name: [
+                    {"p": pr,
+                     "filled": sum(sum(1 for c in row if c)
+                                   for row in TR.transition_mask(name, pr))}
+                    for pr in (0.25, 0.5, 0.75, 1.0)
+                ]
+                for name in TR.TRANSITIONS
+            },
+            "pickTable": [
+                {"trainer": t, "strong": st, "biome": b,
+                 "name": TR.pick_transition(t, 20 if st else 10, 12, b)[0],
+                 "idx": TR.pick_transition(t, 20 if st else 10, 12, b)[1]}
+                for t in (False, True) for st in (False, True)
+                for b in ("野外", "办公区")
+            ],
+            "evolve": {
+                "rounds": TR.evolution_rounds(),
+                "timeline": TR.evolution_timeline(),
+                "blinkFrames": TR.evolution_blink_frames(),
+                "totalFrames": TR.evolution_total_frames(),
+                "preWait": TR.EVOLVE_PRE_WAIT,
+                "silhouette": TR.EVOLVE_SILHOUETTE,
+                "audio": TR.EVOLVE_AUDIO,
+            },
+            "budget": TR.budget(),
+        }
+    except ImportError as e:
+        print(f"  注：transitions 导入失败（{e}）", file=sys.stderr)
+        s15 = {}
+
     # ---- 开场用的像素素材（精灵球 / 手指 / 星光）----
     # 验收截图暴露画风打架：canvas 矢量圆没有台阶感，而周围一切都有。
     # 改成与 sprite 同一套 2bpp 点阵路径。
@@ -661,7 +727,7 @@ def load_systems2(repo: pathlib.Path, mons: list[dict]) -> dict:
 
     return {"s4": s4, "s5": s5, "s6": s6, "s7": s7,
             "s8": s8, "s9": s9, "s10": s10, "s11": s11, "s13": s13,
-            "s14": s14, "art": art}
+            "s14": s14, "s15": s15, "art": art}
 
 
 # 进化石反查：gen1.bin 只存「道具触发」，具体哪块石头要按物种查。
@@ -775,6 +841,18 @@ def main() -> int:
             print(f"  S14 队伍 {len(q['party'])}/{q['partyMax']}　"
                   f"仓库 {len(q['box'])}/{q['boxMax']}　{q['bytes']} B　"
                   f"重复物种 {len(q['dups'])} 种")
+        if systems2.get("s15"):
+            g = systems2["s15"]
+            sh, ev = g["shiny"], g["evolve"]
+            offs = [(x["dx"], x["dy"]) for x in sh["stars"]]
+            want = [(16, 0), (11, 11), (0, 16), (-11, 11),
+                    (-16, 0), (-11, -11), (0, -16), (11, -11)]
+            print(f"  S15 闪光 {sh['total']} 帧 8 颗星 r={sh['radius']}"
+                  f"　偏移对齐反汇编 {'✓' if offs == want else '✗'}")
+            print(f"      转场 {len(g['transitions'])} 种（确定性 3-bit 查表）"
+                  f"　进化闪烁 {ev['blinkFrames']} 帧"
+                  f"{'✓' if ev['blinkFrames'] == 288 else ' ✗ 应为 288'}"
+                  f"　{len(ev['rounds'])} 轮加速")
         if systems2.get("s13"):
             b = systems2["s13"]["budget"]
             worst = max(systems2["s13"]["metrics"].items(),
