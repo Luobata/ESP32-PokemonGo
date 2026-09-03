@@ -56,19 +56,52 @@ FONT_CANDIDATES = [
 # 且只有真机点亮才发现。
 
 
+def _names_from_bin(path: str) -> set:
+    """从已入库的 gen1.bin 读 151 只中文名。
+
+    **优先用这个而不是 /tmp 的中间 json** —— 中间文件会被清掉
+    （我清磁盘时就删了 /tmp/gen1c，导致字库从 420 字掉到 297，
+    151 只中文名全丢），而 gen1.bin 是入库产物，永远在。
+
+    记录格式见 tools/pipeline/convert_gen1.py：32 字节定长记录 +
+    名字池，中文名的偏移与长度在记录的 zo/zl 字段。
+    """
+    if not os.path.exists(path):
+        return set()
+    d = open(path, "rb").read()
+    magic, ver, rsz, cnt, poolsz = struct.unpack("<4sHHII", d[:16])
+    if magic != b"GEN1":
+        return set()
+    recs = d[16:16 + cnt * rsz]
+    pool = d[16 + cnt * rsz:]
+    out: set = set()
+    for i in range(cnt):
+        o = i * rsz
+        # zo/zl 在记录偏移 20、22 —— 记录格式是
+        # "<HBBBBBBBBBBBBBBHHHBB8s"（见 tools/inspector/build.py:52），
+        # 逐字段累加得出。我第一版目测数成 24，收不到任何名字。
+        zo, zl = struct.unpack("<HB", recs[o + 20:o + 23])
+        if zl:
+            out |= set(pool[zo:zo + zl].decode("utf-8", "ignore"))
+    return out
+
+
 def collect_charset(gen1_json: str) -> tuple[set, dict]:
     """收集需要的字符集。返回 (字符集, 分类统计)。"""
     chars: set = set()
     stat = {"names": 0, "ui": 0}
 
-    if os.path.exists(gen1_json):
+    # 物种中文名：先试入库的 gen1.bin，回退到 /tmp 的中间 json
+    repo = os.path.dirname(os.path.dirname(os.path.dirname(
+        os.path.abspath(__file__))))
+    name_chars = _names_from_bin(os.path.join(repo, "assets", "gen1.bin"))
+    if not name_chars and os.path.exists(gen1_json):
         with open(gen1_json, encoding="utf-8") as f:
             mons = json.load(f)
-        name_chars: set = set()
         for m in mons:
             name_chars |= set(m.get("zh", ""))
-        chars |= name_chars
-        stat["names"] = len(name_chars)
+    chars |= name_chars
+    stat["names"] = len(name_chars)
 
     # UI 文案与昵称：从 sim/ 的单一来源取
     ui_chars: set = set()
@@ -79,9 +112,11 @@ def collect_charset(gen1_json: str) -> tuple[set, dict]:
     try:
         import strings as UI          # noqa: E402
         import naming as NM           # noqa: E402
+        import opening as OP          # noqa: E402
         ui_chars |= UI.charset()
         ui_chars |= NM.charset()
-        stat["src"] = "sim/strings.py + sim/naming.py"
+        ui_chars |= OP.charset()      # 大木博士台词（S16）
+        stat["src"] = "sim/strings.py + naming.py + opening.py"
     except ImportError as e:
         print(f"⚠️  读不到 sim/strings.py（{e}）—— UI 字将缺失", file=sys.stderr)
         stat["src"] = "缺失"
