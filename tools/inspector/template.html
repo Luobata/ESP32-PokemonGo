@@ -161,6 +161,44 @@ th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-
 .proto canvas{width:100%;max-width:240px;image-rendering:pixelated;
   border:1px solid var(--shell-dk);display:block;margin:0 auto;background:#9bbc0f}
 
+/* ── 试玩后台 ── */
+/* 三栏：时间线 | 该步状态 | 该跑法总览。
+ * 原先右栏是「该步状态」叠「总览」两块，总览被推到折叠线以下 ——
+ * 而它恰是最该一眼看到的（跑法之间的对比全靠它）。实测要滚很远，
+ * 所以改成并列。窄屏才退化成堆叠。 */
+.play-wrap{display:grid;grid-template-columns:1fr 210px 250px;gap:16px;
+  align-items:start;margin-top:14px}
+@media(max-width:1100px){.play-wrap{grid-template-columns:1fr 220px}}
+@media(max-width:860px){.play-wrap{grid-template-columns:1fr}}
+.pl-h{margin:0 0 8px;font-size:12px;color:var(--ink-soft)}
+.pl-tl{border:1px solid var(--line);background:var(--panel);
+  max-height:520px;overflow-y:auto}
+.pl-e{display:grid;grid-template-columns:64px 84px 1fr;gap:8px;
+  padding:5px 8px;font-size:11px;border-bottom:1px solid var(--line);
+  cursor:pointer;align-items:baseline}
+.pl-e:hover{background:var(--bg)}
+.pl-e.on{background:var(--accent);color:#fff}
+.pl-e.on .pl-k,.pl-e.on .pl-t{color:#fff}
+.pl-ts{color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.pl-e.on .pl-ts{color:#fff}
+.pl-k{font-size:10px;padding:1px 4px;border:1px solid var(--line);
+  text-align:center;color:var(--ink-soft)}
+.pl-d{color:var(--ink-soft);font-size:10px;margin-top:2px}
+.pl-e.on .pl-d{color:#ffffffcc}
+.pl-box{border:1px solid var(--line);background:var(--panel);padding:10px;
+  font-size:11px}
+.pl-box .r{display:flex;justify-content:space-between;gap:8px;
+  padding:2px 0;border-bottom:1px solid var(--line)}
+.pl-box .r:last-child{border-bottom:0}
+.pl-box .r b{font-weight:600;font-variant-numeric:tabular-nums}
+.pl-ax{height:7px;background:var(--bg);border:1px solid var(--line);
+  position:relative;margin:3px 0 6px}
+.pl-ax i{position:absolute;inset:0 auto 0 0;background:var(--ink-soft)}
+.pl-cov{display:flex;flex-wrap:wrap;gap:5px}
+.pl-cov span{font-size:10px;padding:2px 6px;border:1px solid var(--line);
+  background:var(--panel)}
+.pl-cov span.no{color:var(--accent);border-color:var(--accent)}
+
 /* ── 像素检查器 ── */
 .px-wrap{display:grid;grid-template-columns:1fr 200px;gap:18px;align-items:start}
 @media(max-width:700px){.px-wrap{grid-template-columns:1fr}}
@@ -240,6 +278,7 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
   <button role="tab" data-p="audio"   aria-selected="false">S13 音频</button>
   <button role="tab" data-p="anim"    aria-selected="false">S15 转场动画</button>
   <button role="tab" data-p="systems" aria-selected="false">系统与预算</button>
+  <button role="tab" data-p="play"    aria-selected="false">▶ 试玩</button>
 </div>
 
 <div class="panel" id="p-dex">
@@ -362,6 +401,39 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
 
 <div class="panel" id="p-systems" hidden>
   <div id="sys-body"></div>
+</div>
+
+<div class="panel" id="p-play" hidden>
+  <p class="sub" style="margin:0 0 12px">
+    唯一消费 <b>orchestrate.play_through()</b> 的面板 —— 其余十个 tab 都是单系统，
+    各自造输入；这里跑的是 19 个系统同时工作的真实流程，
+    也就是<b>系统接缝唯一会被看到的地方</b>。</p>
+  <div class="stepper">
+    <label>跑法</label><select id="pl-run"></select>
+    <button id="pl-first">⏮</button>
+    <button id="pl-prev">◀ 上一步</button>
+    <button id="pl-play">▶ 播放</button>
+    <button id="pl-next">下一步 ▶</button>
+    <button id="pl-last">⏭</button>
+    <label>筛选</label><select id="pl-kind"></select>
+    <span class="fr" id="pl-pos"></span>
+  </div>
+  <p class="sub" id="pl-note" style="margin:10px 0 0"></p>
+  <div id="pl-cover" style="margin-top:12px"></div>
+  <div class="play-wrap">
+    <div>
+      <h3 class="pl-h">时间线</h3>
+      <div id="pl-timeline" class="pl-tl"></div>
+    </div>
+    <div>
+      <h3 class="pl-h">该步状态（累积到这一步）</h3>
+      <div id="pl-state"></div>
+    </div>
+    <div>
+      <h3 class="pl-h">该跑法总览（跑完）</h3>
+      <div id="pl-sum"></div>
+    </div>
+  </div>
 </div>
 
 <section class="notes">
@@ -622,7 +694,7 @@ document.getElementById("shiny").onchange = e => {
 };
 
 /* ── tab 切换 ── */
-const PANELS = ["dex","sensing","proto","pixels","gameplay","nurture","meta","audio","anim","systems"];
+const PANELS = ["dex","sensing","proto","pixels","gameplay","nurture","meta","audio","anim","systems","play"];
 let built = {dex:1};
 document.getElementById("tabs").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
@@ -3005,6 +3077,200 @@ function initEvolve(EV){
       <span style="color:var(--accent)">▮ 轮间等待（16→2 递减）</span>
       <span style="color:var(--ok)">▮ 来回次数（1→8 递增）</span>
       —— 两条反向曲线合成「越来越快」</div>`;
+}
+
+
+/* ⑪ 试玩后台 —— 时间线 + 单步 + 状态面板
+ *
+ * 数据来自 build.py 的 load_playthrough()：几个「跑法」，各带完整
+ * Session.log。这里做的是把日志按 ts 排开、可点击、可单步，
+ * 并在每一步显示「到这一步为止」的累积状态。
+ *
+ * 累积状态是**从日志重算**的，不是另存一份快照 —— 那样会有两份状态
+ * 需要保持一致（同 S14 party[0] 与 pet_* 的关系：只留一个权威）。
+ */
+let PL = { run: null, i: 0, kind: "", timer: null };
+
+BUILD.play = () => {
+  const P = D.play;
+  const sel = document.getElementById("pl-run");
+  if (!P || !P.runs || !P.runs.length) {
+    document.getElementById("pl-timeline").innerHTML =
+      `<div style="padding:14px;font-size:12px;color:var(--ink-soft)">
+        试玩数据不可用 —— build.py 的 load_playthrough() 没能导入 sim/。
+        确认 sim/orchestrate.py 与 data/raw/*.ndjson 都在。</div>`;
+    return;
+  }
+  sel.innerHTML = P.runs.map((r,i)=>
+    `<option value="${i}">${r.label}（${r.log.length} 条）</option>`).join("");
+  sel.onchange = () => plLoad(+sel.value);
+
+  // 系统覆盖 —— 哪些系统在流程里真的被走到了。
+  // 「从未记日志」不等于「没实现」，但它是查孤岛的第一道线索：
+  // 上一轮串联发现过 8 个模块只被 build.py 读参数、编排层从不调用。
+  document.getElementById("pl-cover").innerHTML =
+    `<div class="pl-cov">` +
+    P.coverage.map(c=>`<span>✓ ${c}</span>`).join("") +
+    P.neverLogged.map(c=>`<span class="no">✗ ${c} 无日志</span>`).join("") +
+    `</div>`;
+
+  const kinds = [...new Set(P.runs.flatMap(r=>Object.keys(r.kinds)))].sort();
+  document.getElementById("pl-kind").innerHTML =
+    `<option value="">全部</option>` +
+    kinds.map(k=>`<option>${k}</option>`).join("");
+  document.getElementById("pl-kind").onchange = e => {
+    PL.kind = e.target.value; plRender();
+  };
+
+  const btn = (id, fn) => document.getElementById(id).onclick = fn;
+  btn("pl-first", ()=>{ plStop(); PL.i=0; plRender(); });
+  btn("pl-prev",  ()=>{ plStop(); plSeek(-1); });
+  btn("pl-next",  ()=>{ plStop(); plSeek(1); });
+  btn("pl-last",  ()=>{ plStop(); PL.i=plVisible().length-1; plRender(); });
+  btn("pl-play",  plToggle);
+
+  plLoad(0);
+};
+
+function plLoad(idx){
+  plStop();
+  PL.run = D.play.runs[idx]; PL.i = 0;
+  document.getElementById("pl-note").textContent = PL.run.note;
+  plRender();
+}
+
+/** 当前筛选下可见的日志条目（带原始下标，状态重算要用它） */
+function plVisible(){
+  const log = PL.run ? PL.run.log : [];
+  return PL.kind ? log.map((e,j)=>[e,j]).filter(([e])=>e.kind===PL.kind)
+                 : log.map((e,j)=>[e,j]);
+}
+
+function plSeek(d){
+  const n = plVisible().length;
+  PL.i = Math.max(0, Math.min(n-1, PL.i + d));
+  plRender();
+}
+
+function plToggle(){
+  const b = document.getElementById("pl-play");
+  if (PL.timer){ plStop(); return; }
+  b.textContent = "⏸ 暂停";
+  PL.timer = setInterval(()=>{
+    if (PL.i >= plVisible().length-1){ plStop(); return; }
+    PL.i++; plRender();
+  }, 260);
+}
+function plStop(){
+  if (PL.timer){ clearInterval(PL.timer); PL.timer = null; }
+  document.getElementById("pl-play").textContent = "▶ 播放";
+}
+
+const PL_TS = ts => {
+  const d = new Date(ts*1000);
+  const p = n => String(n).padStart(2,"0");
+  return `${p(d.getMonth()+1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`;
+};
+
+function plRender(){
+  const vis = plVisible();
+  if (!vis.length){
+    document.getElementById("pl-timeline").innerHTML =
+      `<div style="padding:14px;font-size:12px;color:var(--ink-soft)">
+        该筛选下没有日志</div>`;
+    document.getElementById("pl-pos").textContent = "0 / 0";
+    return;
+  }
+  PL.i = Math.max(0, Math.min(vis.length-1, PL.i));
+
+  document.getElementById("pl-timeline").innerHTML = vis.map(([e,j],k)=>{
+    const dt = e.detail && Object.keys(e.detail).length
+      ? `<div class="pl-d">${Object.entries(e.detail)
+          .map(([a,b])=>`${a}=${typeof b==="object"?JSON.stringify(b):b}`)
+          .join("  ")}</div>` : "";
+    return `<div class="pl-e${k===PL.i?" on":""}" data-k="${k}">
+      <span class="pl-ts">${PL_TS(e.ts)}</span>
+      <span class="pl-k">${e.kind}</span>
+      <span class="pl-t">${e.text}${dt}</span></div>`;
+  }).join("");
+
+  document.querySelectorAll("#pl-timeline .pl-e").forEach(el=>{
+    el.onclick = () => { plStop(); PL.i = +el.dataset.k; plRender(); };
+  });
+  const cur = document.querySelector("#pl-timeline .pl-e.on");
+  if (cur) cur.scrollIntoView({block:"nearest"});
+
+  const [e, rawIdx] = vis[PL.i];
+  document.getElementById("pl-pos").textContent =
+    `${PL.i+1} / ${vis.length}　${PL_TS(e.ts)}`;
+  plState(rawIdx);
+  plSummary();
+}
+
+/** 到原始下标 upto（含）为止的累积状态 —— 从日志重算 */
+function plState(upto){
+  const log = PL.run.log;
+  const st = {enc:0, cap:0, hit:0, care:0, save:0, place:0, day:0,
+              biome:"", items:null, evolve:0, gym:0};
+  for (let j=0; j<=upto; j++){
+    const e = log[j];
+    if (e.kind==="encounter") st.enc++;
+    else if (e.kind==="capture"){ st.cap++; if (e.text.startsWith("捕获")) st.hit++; }
+    else if (e.kind==="care") st.care++;
+    else if (e.kind==="save") st.save++;
+    else if (e.kind==="place") st.place++;
+    else if (e.kind==="day") st.day++;
+    else if (e.kind==="biome") st.biome = e.text.replace(/（.*/,"").replace("进入","");
+    else if (e.kind==="evolve") st.evolve++;
+    else if (e.kind==="gym") st.gym++;
+  }
+  const rate = st.cap ? (st.hit/st.cap*100).toFixed(0)+"%" : "—";
+  const rows = [
+    ["当前 biome", st.biome || "—"],
+    ["遭遇", st.enc], ["投球", st.cap],
+    ["命中", `${st.hit}　(${rate})`],
+    ["发现新地点", st.place], ["照料", st.care],
+    ["存档写入", st.save], ["日切", st.day],
+    ["可进化提示", st.evolve], ["可挑战道馆", st.gym],
+  ];
+  document.getElementById("pl-state").innerHTML =
+    `<div class="pl-box">` +
+    rows.map(([k,v])=>`<div class="r"><span>${k}</span><b>${v}</b></div>`).join("") +
+    `</div>`;
+}
+
+function plSummary(){
+  const s = PL.run.summary, pet = s.pet || {};
+  const ax = (label, v) => `<div class="r"><span>${label}</span>
+    <b>${v==null?"—":(+v).toFixed(0)}</b></div>
+    <div class="pl-ax"><i style="width:${Math.max(0,Math.min(100,+v||0))}%"></i></div>`;
+  const dw = Object.entries(s.biome_dwell_h||{})
+    .sort((a,b)=>b[1]-a[1])
+    .map(([k,v])=>`<div class="r"><span>${k}</span><b>${v}h</b></div>`).join("");
+  const it = Object.entries(s.items||{})
+    .map(([k,v])=>`${k} ${v}`).join("　");
+  const sd = Object.entries(s.save_detail||{})
+    .sort((a,b)=>b[1]-a[1])
+    .map(([k,v])=>`<div class="r"><span>${k}</span><b>${v}</b></div>`).join("");
+  document.getElementById("pl-sum").innerHTML = `<div class="pl-box">
+    <div class="r"><span>按键时机</span><b>${PL.run.pressOffset}ms
+      ${PL.run.pressJitter?`±${PL.run.pressJitter}`:""}</b></div>
+    <div class="r"><span>扫描数</span><b>${PL.run.scans}</b></div>
+    <div class="r"><span>天数</span><b>${s.days}</b></div>
+    <div class="r"><span>主宠</span><b>${s.leader||"—"} Lv${s.leader_level}</b></div>
+    <div class="r"><span>队伍 / 仓库</span><b>${s.party} / ${s.box}</b></div>
+    <div class="r"><span>图鉴 已捕 / 见过</span><b>${s.caught} / ${s.seen}</b></div>
+    <div class="r"><span>徽章</span><b>${s.badges}　${s.stage||""}</b></div>
+    <div class="r"><span>道具</span><b>${it}</b></div>
+    ${ax("饱食", pet.satiety)}${ax("心情", pet.mood)}
+    ${ax("体能", pet.stamina)}${ax("亲密度", pet.intimacy)}
+    ${pet.despondent?'<div class="r"><span style="color:var(--accent)">消沉中</span><b>—</b></div>':""}
+    </div>
+    <details style="margin-top:10px">
+      <summary class="pl-h" style="cursor:pointer">biome 驻留 / 存档原因</summary>
+      <div class="pl-box" style="margin-top:6px">${dw||"—"}</div>
+      <div class="pl-box" style="margin-top:6px">${sd||"—"}</div>
+    </details>`;
 }
 
 
