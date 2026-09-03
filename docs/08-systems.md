@@ -15,10 +15,11 @@
 | S4 | 养成状态机 | **✅ 已实现** | ⏳ RTC 精度 | [S4-nurture.md](systems/S4-nurture.md) |
 | S5 | 图鉴 | **✅ 已实现** | — | [S5-dex.md](systems/S5-dex.md) |
 | S6 | 存档 | **✅ 已实现** | ⏳ flash 磨损 | [S6-save.md](systems/S6-save.md) |
-| S7 | 进化 | ◐ 条件判定已实现 | — | [S7-evolution.md](systems/S7-evolution.md) |
+| S7 | 进化 | **✅ 已实现** | — | [S7-evolution.md](systems/S7-evolution.md) |
 | S8 | 闪光 | **✅ 已实现** | — | [S8-shiny.md](systems/S8-shiny.md) |
 | S9 | 道具 | **✅ 已实现** | — | [S9-items.md](systems/S9-items.md) |
 | S10 | 成绩与排行 | **✅ 已实现** | — | [S10-records.md](systems/S10-records.md) |
+| S11 | 开场流程 | **✅ 已实现** | — | [S11-intro.md](systems/S11-intro.md) |
 
 实现分布在三个模块：
 
@@ -26,7 +27,9 @@
 |---|---|---|
 | [`sim/systems.py`](../sim/systems.py) | S1 S2 S3 S8 | 共享遭遇队列，S1 生产、S2/S3 消费 |
 | [`sim/state.py`](../sim/state.py) | S5 S6 S9 S10 | 状态容器，S6 存档序列化其余三个 |
-| [`sim/gameplay.py`](../sim/gameplay.py) | S4 S7 | `PetState` 与进化条件 |
+| [`sim/gameplay.py`](../sim/gameplay.py) | S4 | `PetState` 三条状态轴 |
+| [`sim/systems.py`](../sim/systems.py) | S7 | `check_evolution()` / `do_evolve()` |
+| [`sim/intro.py`](../sim/intro.py) | S11 | GB 启动动画 + 伙伴选择 |
 
 ## UI 页面
 

@@ -527,3 +527,137 @@ def auto_battle(pet_types: list[str], pet_stats: list[int], pet_level: int,
     exp = wild_level * 8 + (20 if won else 0)
 
     return BattleResult(won=won, rounds=rounds, exp=exp, wild_hp_ratio=ratio)
+
+
+# ---------------------------------------------------------------------------
+# S7 进化
+#
+# 对应 docs/systems/S7-evolution.md。设计已定，这里只实现：
+#   · 三种原版触发的处理（升级 52 / 道具 14 / 交换 4）
+#   · 道具进化改 biome 驻留条件（不做进化石，见 S9）
+#   · 交换进化用「高门槛单机替代」（方案 ①，不引入新依赖）
+# ---------------------------------------------------------------------------
+
+TRIGGER_LEVEL_UP = 0
+TRIGGER_ITEM = 1
+TRIGGER_TRADE = 2
+TRIGGER_NONE = 0xFF
+
+# 道具进化的 14 只 → biome 驻留条件。
+# 原版靠五种进化石，但做成收集品会让玩家卡在「没有雷之石」上，
+# 而设备没有商店（S9 已决定不做进化石）。
+#
+# 映射依据是 docs/03-spawning.md#32 的 OUI 语义：
+# 企业级 AP → 超能/电 → 办公区；开放网络 → 商业区；AP 稀疏 → 野外。
+STONE_BIOME = {
+    "thunder-stone": "办公区",    # 电系 —— 呼应企业级 AP → 电
+    "fire-stone": "商业区",
+    "water-stone": "商业区",
+    "leaf-stone": "野外",
+    "moon-stone": "住宅区",       # 月之石 —— 夜间在家，见下方 night_only
+}
+
+# 需要的驻留秒数。⏳ 待 Phase 0 验证 —— 依赖真实驻留时长分布。
+# 实测家里一天可累积约 10 小时住宅区驻留，公司约 8 小时办公区，
+# 所以 6 小时门槛意味着「专门在那类环境待一天」。
+STONE_DWELL_SECONDS = 6 * 3600
+
+# 交换进化的高门槛替代（方案 ①）。保留「交换进化更难得」的原版语义。
+TRADE_INTIMACY = 90.0
+TRADE_EXPLORE_MULT = 4          # explore >= evolve_level × 4
+
+
+@dataclass
+class EvolutionCheck:
+    """进化条件检查结果 —— 未满足时说明差什么，便于 UI 提示。"""
+
+    can: bool
+    reason: str = ""
+    need_intimacy: float = 0.0
+    need_explore: int = 0
+    need_biome: str = ""
+    need_dwell: int = 0
+    progress: dict = field(default_factory=dict)
+
+
+def check_evolution(pet, trigger: int, evolve_to: int, evolve_level: int,
+                    biome_dwell: Optional[dict] = None,
+                    item_hint: str = "") -> EvolutionCheck:
+    """检查主宠能否进化。
+
+    两个条件必须同时满足：物种侧有进化目标，养成侧攒够资源。
+    `PetState.can_evolve()` 的意图是**两条线各自都能推进但都推不满** ——
+    只在家陪着攒不满探索值，只出门走攒不满亲密度。
+
+    evolve_level 携带了原版「这只进化早还是晚」的信息，不该丢：
+    需求探索值 = evolve_level × 2（妙蛙种子 @16 → 32）。
+    """
+    if trigger == TRIGGER_NONE or not evolve_to:
+        return EvolutionCheck(can=False, reason="这只不会进化")
+
+    need_int = 60.0
+    need_exp = max(10, evolve_level * 2)
+    need_biome = ""
+    need_dwell = 0
+
+    if trigger == TRIGGER_TRADE:
+        # 高门槛单机替代 —— 「难得」靠门槛传达，不必靠交换机制本身
+        need_int = TRADE_INTIMACY
+        need_exp = max(20, evolve_level * TRADE_EXPLORE_MULT)
+    elif trigger == TRIGGER_ITEM:
+        need_biome = STONE_BIOME.get(item_hint, "野外")
+        need_dwell = STONE_DWELL_SECONDS
+
+    prog = {
+        "intimacy": (pet.intimacy, need_int),
+        "explore": (pet.explore_value, need_exp),
+    }
+
+    if pet.intimacy < need_int:
+        return EvolutionCheck(False, f"亲密度不足（{pet.intimacy:.0f}/{need_int:.0f}）",
+                              need_int, need_exp, need_biome, need_dwell, prog)
+    if pet.explore_value < need_exp:
+        return EvolutionCheck(False, f"探索值不足（{pet.explore_value}/{need_exp}）",
+                              need_int, need_exp, need_biome, need_dwell, prog)
+
+    if need_biome:
+        got = (biome_dwell or {}).get(need_biome, 0)
+        prog["dwell"] = (got, need_dwell)
+        if got < need_dwell:
+            return EvolutionCheck(
+                False,
+                f"{need_biome}驻留不足（{got//3600:.0f}/{need_dwell//3600} 小时）",
+                need_int, need_exp, need_biome, need_dwell, prog)
+
+    return EvolutionCheck(True, "可以进化", need_int, need_exp,
+                          need_biome, need_dwell, prog)
+
+
+@dataclass
+class EvolutionResult:
+    from_species: int
+    to_species: int
+    frames: list = field(default_factory=list)   # shade_map 序列，供动效播放
+
+
+def do_evolve(pet, to_species: int, to_type: str,
+              next_evolve_level: int = 0) -> EvolutionResult:
+    """执行进化。
+
+    **intimacy 与 explore_value 不清零** —— 进化是奖励不是重置。
+    清零会让连续进化线（妙蛙种子→妙蛙草→妙蛙花）第二段变成漫长的
+    重新攒资源。但下一段门槛按新的 evolve_level 重算，所以仍有推进感。
+
+    动效复用 sim/effects.py 的 evolution_sequence()：
+    调用方在 IDENTITY 帧画旧形态、INVERT 帧画新形态。
+    """
+    from effects import evolution_sequence
+
+    old = pet.species_id
+    pet.species_id = to_species
+    pet.type_name = to_type
+    # 进化提振心情 —— 这是个高兴的事
+    pet.mood = min(100.0, pet.mood + 15.0)
+
+    return EvolutionResult(from_species=old, to_species=to_species,
+                           frames=evolution_sequence(12))
