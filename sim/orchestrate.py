@@ -475,7 +475,8 @@ def check_progress(s: Session) -> dict:
         g = GY.GYMS[s.badges]
         c = GY.check_gym(g, s.badges, s.core.memory.biome_dwell,
                          s.records.total_encounters, s.dex.count("seen"),
-                         biome_visits=s.biome_visits)
+                         biome_visits=s.biome_visits,
+                         place_count=len(s.core.memory.places))
         out["gym"] = {"order": g.order, "leader": g.leader,
                       "can": c.can, "why": c.reason,
                       "progress": c.progress}
@@ -495,7 +496,8 @@ def challenge_gym(s: Session) -> dict:
     g = GY.GYMS[s.badges]
     c = GY.check_gym(g, s.badges, s.core.memory.biome_dwell,
                      s.records.total_encounters, s.dex.count("seen"),
-                     biome_visits=s.biome_visits)
+                     biome_visits=s.biome_visits,
+                     place_count=len(s.core.memory.places))
     if not c.can:
         return {"ok": False, "why": c.reason, "progress": c.progress}
 

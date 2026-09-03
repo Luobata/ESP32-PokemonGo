@@ -91,6 +91,10 @@ class Gym:
     # 该 biome 的**访问次数**要求；0 = 不看访问，只看驻留小时。
     # 稀有 biome（商业区/交通枢纽）用这个，见 GYMS 上方的注释。
     visits: int = 0
+    # 累计**新地点数**要求；0 = 不看。
+    # 这是唯一不依赖 biome 判定准确性的探索指标 —— 地点识别靠指纹
+    # 相似度（实测家与公司相似度 0.0000），比 biome 分类可靠得多。
+    new_places: int = 0
 
 
 # 等级上限：**取得第 N 枚徽章后**可指挥到多少级。
@@ -156,14 +160,32 @@ GYMS = [
         "野外", LEVEL_CAPS[4], dwell_hours=8, encounters=150, seen=45,
         team=[(109, 37), (89, 39), (109, 37), (110, 43)]),
         # 瓦斯弹、臭臭泥、瓦斯弹、双弹瓦斯（原版真有两只瓦斯弹）
-    # 第 6、7 馆用**访问次数** —— 稀有 biome 不能按累计小时衡量
+    # 第 6、7 馆用**访问次数** —— 稀有 biome 不能按累计小时衡量。
+    #
+    # 第 6 馆原本绑交通枢纽，**但那个 biome 判不出来**：
+    # classify_biome 的交通枢纽分支要 ble_count > 10，而采集工具
+    # 从不输出 BLE 计数、5 处调用全不传 —— 那是死代码（详见
+    # sim/gameplay.py 的注释）。绑一个永不出现的 biome，
+    # 无论门槛多低都不可达。
+    #
+    # 改绑商业区（每周去几次商场/超市，实测占 0.8%），
+    # 访问次数按「每周 2~3 次」定 → 4 次约 10 天。
+    # 等固件能扫 BLE，交通枢纽会自动开始工作，那时可以再改回来。
     Gym(6, "娜姿", "ナツメ", "金黄市", "超能", "金色徽章",
-        "交通枢纽", LEVEL_CAPS[5], dwell_hours=0, visits=8,
+        "商业区", LEVEL_CAPS[5], dwell_hours=0, visits=4,
         encounters=200, seen=58,
         team=[(64, 38), (122, 37), (49, 38), (65, 43)]),
         # 勇基拉、魔墙人偶、摩鲁蛾、胡地
+    # 第 7 馆改用**新地点数**而非 biome —— 火系馆主要求「走得远」。
+    #
+    # 这么改的理由不只是避开商业区重复：新地点数是唯一**不依赖 biome
+    # 判定准确性**的探索指标。地点识别靠指纹相似度（实测家与公司
+    # 相似度 0.0000，几乎完美可分），而 biome 分类靠阈值决策树 ——
+    # 后者本轮已经暴露了两个缺陷（AP 稀疏误判野外、交通枢纽死代码）。
+    #
+    # 实测 19.9 小时识别出 6~8 个地点，20 个约需 3~4 天的活动范围。
     Gym(7, "夏伯", "カツラ", "红莲镇", "火", "深红徽章",
-        "商业区", LEVEL_CAPS[6], dwell_hours=0, visits=12,
+        "", LEVEL_CAPS[6], dwell_hours=0, new_places=20,
         encounters=260, seen=72,
         team=[(58, 42), (77, 40), (78, 42), (59, 47)]),
         # 卡蒂狗、小火马、烈焰马、风速狗
@@ -232,7 +254,8 @@ class GymCheck:
 
 def check_gym(gym: Gym, badges: int, biome_dwell: dict,
               total_encounters: int, seen_count: int,
-              biome_visits: Optional[dict] = None) -> GymCheck:
+              biome_visits: Optional[dict] = None,
+              place_count: int = 0) -> GymCheck:
     """能否挑战第 N 馆。
 
     四个条件：
@@ -261,7 +284,9 @@ def check_gym(gym: Gym, badges: int, biome_dwell: dict,
     # 按小时算门槛会变成事实上不可达（原设计第 6 馆需 3400 天）。
     got_h = biome_dwell.get(gym.biome, 0) / 3600.0
     got_v = (biome_visits or {}).get(gym.biome, 0)
-    if gym.visits:
+    if gym.new_places:
+        prog["places"] = (place_count, gym.new_places)
+    elif gym.visits:
         prog["visits"] = (got_v, gym.visits)
     else:
         prog["dwell"] = (round(got_h, 1), gym.dwell_hours)
@@ -270,7 +295,12 @@ def check_gym(gym: Gym, badges: int, biome_dwell: dict,
     # ④ 已见物种
     prog["seen"] = (seen_count, gym.seen)
 
-    if gym.visits:
+    if gym.new_places:
+        if place_count < gym.new_places:
+            return GymCheck(False,
+                            f"去过的地方还不够多（{place_count}/{gym.new_places}）",
+                            prog)
+    elif gym.visits:
         if got_v < gym.visits:
             return GymCheck(False,
                             f"去过{gym.biome}的次数不足（{got_v}/{gym.visits}）",

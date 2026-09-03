@@ -204,7 +204,20 @@ def classify_biome(aps: list, ble_count: int = 0) -> str:
     if open_ratio > 0.3 and max_family >= 3:
         return BIOME_COMMERCIAL
 
-    # AP 多 + BLE 设备多 —— 交通枢纽（人流密集）
+    # 交通枢纽 —— **这个分支目前是死代码**。
+    #
+    # 它要 ble_count > 10，但采集工具（tools/collector）从不输出 BLE 计数，
+    # 而全部 5 处调用都不传这个参数（默认 0）。所以自项目开始至今
+    # 它一次都没执行过 —— 实测通勤数据里交通枢纽出现 0 次。
+    #
+    # 试过找纯 WiFi 的替代判据，都不成立：
+    #   运营商 AP 占比  家 0.27 > 通勤 0.00  ← 方向反了
+    #   open 网络占比   办公 0.33 > 通勤 0.23  ← 也反了
+    # 地铁站的 AP 密度高、SSID 聚合高，特征与写字楼几乎相同。
+    #
+    # 所以保留这个分支但**不依赖它**：S17 的第 6 馆已改绑别的 biome
+    # （见 sim/gyms.py）。等固件能扫 BLE 后它会自动开始工作 ——
+    # ESP32-C3 有 BLE，只是 PC 侧采集工具没做。
     if n >= 15 and ble_count > 10:
         return BIOME_TRANSIT
 
