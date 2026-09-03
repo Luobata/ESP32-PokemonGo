@@ -718,6 +718,56 @@ def main() -> int:
         print(f"  缺字：{cc['missing_chars']}")
     print(f"  字库中无人使用的字 {cc['font_unused_count']} 个："
           f"{cc['font_unused']}")
+
+    # ---- 断言区：非零退出码，可直接当 CI 门禁 -------------------------------
+    #
+    # 「上屏文案来源 − 字库 = 空集」这条在一轮开发里**重现了两次**：
+    # 先是 S17 道馆漏 29 字，修完又发现 S14/S2·S7/S18 漏 16 字，
+    # 再修完又发现 strings.charset() 自己漏了 KEYS 的键名（A/B/C 与方括号，
+    # 九处三键提示行的键位标签全空白）。
+    #
+    # 三次的共同点：**所有常规指标都正常** —— 字数在涨、文件大小对、
+    # magic 对、码点升序、charset.txt 与 bin 一致。缺陷只在做差集时才现形，
+    # 而在真机上表现为「那一片文字是空白」，且要点亮走到那个页面才发现。
+    #
+    # 所以这不是一次性疏漏，是缺少守护。让脚本用退出码说话。
+    #
+    # 这里枚举来源时**不读 convert_font.py 的 SOURCES 清单** ——
+    # 而是自己去 import 各模块取 charset()。这样才能查出
+    # 「新模块忘了登记」这类 convert_font.py 自己查不到的问题。
+    fails = []
+    if cc["total_missing"]:
+        fails.append(f"字库缺 {cc['total_missing']} 字：{cc['missing_chars']}")
+    blank_real = [c for c in ft.get("blank_glyphs", []) if not c.isspace()]
+    if blank_real:
+        fails.append(f"{len(blank_real)} 个空白字形：「{''.join(blank_real)}」"
+                     f"（字体没有该字形，需换符号或改用点阵生成）")
+    # sprite 完整性：front 带显式 id（能查缺号/重号），back 按序号排（只能查空条目）
+    fr, bk = r["front"], r["back"]
+    if fr["missing_1_151"]:
+        fails.append(f"front 缺 {len(fr['missing_1_151'])} 只："
+                     f"{fr['missing_1_151'][:10]}")
+    if fr["duplicate_ids"] or fr["out_of_range_ids"]:
+        fails.append(f"front id 异常：重复 {fr['duplicate_ids']}"
+                     f" 越界 {fr['out_of_range_ids']}")
+    for label, d in (("front", fr), ("back", bk)):
+        if d["blank_entries"]:
+            fails.append(f"{label} 有 {len(d['blank_entries'])} 个全零条目："
+                         f"{d['blank_entries'][:10]}")
+    if bk["count"] != 151:
+        fails.append(f"back 只有 {bk['count']} 张，应为 151")
+    if not bk["per_ok"] or not ft["per_ok"]:
+        fails.append(f"定长不符：back per_ok={bk['per_ok']}"
+                     f" font per_ok={ft['per_ok']}")
+    if not ft["charset_txt_matches_bin"]:
+        fails.append("font16_charset.txt 与 font16.bin 不一致 —— 需重跑 convert_font.py")
+
+    if fails:
+        print("\n❌ 断言失败：")
+        for f in fails:
+            print(f"   · {f}")
+        return 1
+    print("\n✅ 全部断言通过（字库覆盖、无空白字形、sprite 齐全、定长自洽）")
     return 0
 
 

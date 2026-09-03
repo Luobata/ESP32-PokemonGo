@@ -19,6 +19,10 @@
 而字库体积差得不多（209 字：12×12 是 3.7 KB，16×16 是 6.5 KB），
 在 8MB flash 里都是零头。**清晰度值这 2.8 KB。**
 
+（上面 209 字是当时只算物种名的基数。字库后来收齐了八个上屏来源 ——
+UI 文案、昵称、开场台词、道馆、队伍菜单、判定提示、存档槽 ——
+现在是 **550 字 / 17.6 KB**，仍是 8MB 的 0.2%。结论不变。）
+
 ## 依赖说明
 
 这个脚本需要 PIL（Pillow）——**管线里唯一的第三方依赖**，
@@ -167,12 +171,15 @@ def collect_charset(gen1_json: str) -> tuple[set, dict]:
     stat["missing_src"] = failed
     # 数字与常用符号 —— 屏幕上到处都是
     #
-    # 两个符号刻意**不收**，因为 PingFang 没有它们的字形（收了就是空白字形）：
+    # 三个符号刻意**不收**，因为 PingFang 没有它们的字形（收了就是空白字形）：
     #   ▸ 菜单选中光标 → sim/pixelart.py 的 menu_cursor() 生成
     #   ✦ 闪光标记     → sim/pixelart.py 的 star() 生成（S8 本来就有）
+    #   ♥ 亲密度心形   → sim/pixelart.py 的 HEART 手绘点阵
     # ✦ 原先在这里，但它只出现在 orchestrate 日志与 inspector 网页上 ——
     # 那些走系统字体，不读 font16.bin。设备上的闪光是点阵星星。
     #
+    # A/B/C 与 [] 不在这里 —— 它们由 strings.charset() 收（键名来自
+    # KEYS 的字典键，见那边的说明）。
     # — 是 progress_summary 的空占位（四天王/冠军未定时显示）。
     ui_chars |= set("0123456789/×★☆%·—")
     chars |= ui_chars

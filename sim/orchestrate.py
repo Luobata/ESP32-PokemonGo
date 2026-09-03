@@ -171,6 +171,11 @@ class Session:
     cand_biome: str = ""            # 候选 biome（还没确认成访问）
     cand_count: int = 0
     confirmed_biome: str = ""       # 已确认的当前 biome
+    # 「可以进化 / 可以挑战」的去重标记 —— 这两个条件一旦满足会一直满足，
+    # 每次 check_progress 都播报会刷屏（实测 30 天 245 条重复）。
+    # 只在状态翻转时说一次。
+    evolve_announced: bool = False
+    gym_announced: int = 0          # 已播报的馆序号（换馆要能重新播报）
 
     # 日志
     log: list = field(default_factory=list)
@@ -324,8 +329,20 @@ def feed_scan(s: Session, scan: Scan) -> None:
     biome = raw_biome or s.confirmed_biome or s.cand_biome
 
     # 三条轴：advance 只需要「过了多久」（S4）
+    #
+    # advance() 的 motion_events 只用于算体能消耗，**不加探索值** ——
+    # 加探索值的是 pet.on_motion_event()，而它原先全项目只有 prototype.py
+    # 调过一次，编排层从不调用。后果：探索值恒为 0，而 S7 进化要
+    # 「探索值 ≥ 10」，于是**进化在完整流程里永久不可达**
+    # （30 天跑下来主宠还是初始形态，check_evolution 一直返回
+    #  「探索值不足（0/10）」）。
+    #
+    # 同 Inventory.use() 那条：文档写了规则，代码只实现一半。
     if s.pet:
-        s.pet.advance(scan.ts, motion_events=1 if res.state == "moving" else 0)
+        moving = res.state == "moving"
+        s.pet.advance(scan.ts, motion_events=1 if moving else 0)
+        if moving:
+            s.pet.on_motion_event()
 
     # 浆果：驻留时按时间产出（S9）
     if res.state == "staying":
@@ -352,6 +369,12 @@ def feed_scan(s: Session, scan: Scan) -> None:
 
     if res.is_new_place:
         s.day.new_places += 1
+        # 心情加成 —— on_new_place() 原先也没被编排层调用（同 on_motion_event）。
+        # 漏了它，「去了新地方会开心」这条设计在完整流程里不存在：
+        # 心情只会被时间衰减和照料抬升，探索对它毫无影响。
+        # 而 S4 的立意正是「让探索反哺养成」（docs/04-gameplay.md）。
+        if s.pet:
+            s.pet.on_new_place()
         s.say("place", f"发现新地点（{biome}）", biome=biome)
         s.fire("place")
 
@@ -509,8 +532,17 @@ def check_progress(s: Session) -> dict:
                                 item_hint=info["stone"])
             out["evolve"] = {"can": c.can, "why": c.reason,
                              "to": info["to"]}
-            if c.can:
+            # 只在**状态翻转时**说一次。check_progress 每次遭遇后都调，
+            # 条件一旦满足就会一直满足 —— 原先每次都 say，30 天刷出
+            # 245 条重复的「可以进化」，把时间线冲得没法看。
+            #
+            # 这与 P7 文档记的「首周纪录刷屏」是同一类问题：
+            # 持续为真的状态不该每帧播报。
+            if c.can and not s.evolve_announced:
                 s.say("evolve", f"可以进化 → #{info['to']}（{c.reason}）")
+                s.evolve_announced = True
+            elif not c.can:
+                s.evolve_announced = False
 
     # 徽章（S17）
     if s.badges < len(GY.GYMS):
@@ -523,7 +555,13 @@ def check_progress(s: Session) -> dict:
                       "can": c.can, "why": c.reason,
                       "progress": c.progress}
         if c.can:
-            s.say("gym", f"可以挑战{g.leader}（{g.badge}）")
+            # 同 evolve：只在翻转时说一次，且换馆后要能重新说
+            # （s.badges 变了就是换了一个馆，用它当去重键）。
+            if s.gym_announced != g.order:
+                s.say("gym", f"可以挑战{g.leader}（{g.badge}）")
+                s.gym_announced = g.order
+        elif s.gym_announced == g.order:
+            s.gym_announced = 0
     return out
 
 
@@ -660,6 +698,31 @@ def _evo_info(sid: int) -> dict:
 # ---------------------------------------------------------------------------
 # 一键跑通：给验收平台与回归测试用
 # ---------------------------------------------------------------------------
+
+# ⚠️ 等级永不增长 —— **全项目没有任何经验值/升级机制**。
+#
+# grep exp / gain_exp / level_up / level += 在 sim/ 下零命中。
+# 主宠从 run_intro 拿到 Lv5，30 天跑下来还是 Lv5。
+#
+# 这不是「还没做的功能」，是**已写进设计的机制缺了实现**：
+#   · docs/systems/S3-battle.md 明确写「练到 Lv30 能回头收拾 ★★★★」，
+#     并列了火系御三家「小火龙→火恐龙→喷火龙」的成长曲线表
+#   · sim/strings.py 的 P3 文案有「经验」标签、P5 有「等级」
+#   · systems.effective_stat(base, level) 按等级算能力值
+#   · systems.wild_level(rarity, pet_level) 让野怪等级跟主宠联动
+#   · gyms.level_cap(badges) 用徽章解锁等级上限
+#   · S7 的 evolve_level 是等级触发的进化条件
+# 这六处全都假设等级会涨。等级恒定 Lv5 让它们同时失去意义：
+# 野怪等级永远按 Lv5 生成、徽章上限永远用不到、等级触发的进化永远不达。
+#
+# **不在这里顺手实现** —— 经验曲线是玩法设计决策（打一场给多少、
+# 稀有度加权多少、要不要跟 level_cap 联动、升级要不要回满 HP），
+# 定错了会连带影响战斗胜率、捕获窗口、道馆门槛三条链路。
+# 需要先定曲线再实现，那是 S3/S4 的设计工作，不是编排层的接线工作。
+#
+# 现有的 auto_battle() 返回 BattleResult 但**不含经验字段** ——
+# 实现时的第一步是给它加，然后在 handle_encounter 的战斗分支里结算。
+
 
 def play_through(scans: list, choice: int = 3, auto_capture: bool = True,
                  care_hours: tuple = (8, 13, 21),

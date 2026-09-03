@@ -449,7 +449,23 @@ class PetState:
         self.stamina = min(100.0, self.stamina + STAMINA_RECOVER_PER_HOUR * hours)
 
     def on_new_place(self) -> None:
-        """去了新地方 —— 心情加成（可再生信号，不会衰减到零）。"""
+        """去了新地方 —— 心情加成（可再生信号，不会衰减到零）。
+
+        ⚠️ **+12 这个数字未经实测校准，实测下来偏高**。
+
+        接进编排层后（原先它只被 prototype.py 调用）跑真实数据：
+        19.9 小时里发现 15 个新地点 → +180 心情，
+        而同期衰减只有 MOOD_DECAY_PER_HOUR(3.0) × 19.9 = −59.7。
+        净效果是心情长期顶在 100 上限。
+
+        后果是 S4 的立意被抵消：「照料每天三次」变得没有必要，
+        因为出门本身就把心情喂饱了。而 S2 的 catch_window_bonus 挂在心情上，
+        于是捕获窗口也长期处于最宽状态。
+
+        这个数该定多少是 S4 的平衡设计问题（要不要随「今天已发现几个」
+        递减？要不要跟 biome 稀有度挂钩？），需要先想清再调，
+        所以这里只记录不动。
+        """
         self.mood = min(100.0, self.mood + 12.0)
 
     def on_reunion(self, days_away: float) -> None:

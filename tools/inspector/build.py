@@ -730,6 +730,130 @@ def load_systems2(repo: pathlib.Path, mons: list[dict]) -> dict:
             "s14": s14, "s15": s15, "art": art}
 
 
+def load_playthrough(repo: pathlib.Path, mons: list[dict]) -> dict:
+    """导出完整流程日志 —— 试玩后台（时间线 + 单步）的数据源。
+
+    这是**唯一消费 `orchestrate.play_through()` 的地方**。
+    其余十个 tab 都是单系统面板，各自造自己的输入；
+    这里跑的是 19 个系统同时工作的真实流程，所以它也是系统接缝
+    唯一会在验收平台上被看到的地方。
+
+    ## 为什么导出多个「跑法」而不是一个
+
+    单跑一次只能看「发生了什么」，看不出「参数改了会怎样」。
+    而这个项目最需要验证的恰恰是后者 —— 比如按键时机：
+    `press_offset_ms` 从 300 改到 600，捕获数从 36 掉到 3
+    （指针周期 1200ms，600 落在三角波顶点，永远打不中窗口）。
+    这种事只有并排放着才看得出来。
+
+    每个跑法都带完整日志，前端可以时间线展开、单步回放、互相对比。
+    """
+    sim = repo / "sim"
+    if str(sim) not in sys.path:
+        sys.path.insert(0, str(sim))
+    try:
+        import orchestrate as O          # noqa: E402
+        from prototype import synthetic_scans   # noqa: E402
+        from sensing import load_ndjson  # noqa: E402
+    except ImportError as e:
+        print(f"⚠️  试玩数据不可用（{e}）", file=sys.stderr)
+        return {}
+
+    zh = {m["id"]: m.get("zh") or m.get("slug", "") for m in mons}
+
+    # 真实采集：三份按时间拼起来 —— 与 docs/00-handoff.md 的验证命令同一份输入
+    real: list = []
+    for f in ("home", "commute", "office"):
+        p = repo / "data" / "raw" / f"{f}.ndjson"
+        if p.exists():
+            real += load_ndjson(str(p))
+    real.sort(key=lambda x: x.ts)
+
+    # 跑法定义。real 只有 19.9 小时（跨 1 天），照料/日切/道馆几乎不触发，
+    # 所以另配合成数据的多天跑法 —— 两者各自能看到不同的东西。
+    runs_def = [
+        {"key": "real", "label": "真实采集 19.9h",
+         "note": "data/raw/ 三份拼接。跨 1 天，看得到 biome 判定与存档分布，"
+                 "但照料只触发 1 次、日切 1 次",
+         "scans": real, "off": 300, "jit": 0},
+        {"key": "real_worst", "label": "真实采集（按键最差相位）",
+         "note": "同上但 press_offset_ms=600 —— 指针周期的半程，"
+                 "落在三角波顶点。对比 real 能看出按键时机的全部影响",
+         "scans": real, "off": 600, "jit": 0},
+        {"key": "syn7", "label": "合成 7 天",
+         "note": "prototype.synthetic_scans(7)。AP 分布照 data/raw/ 实测调过。"
+                 "看得到照料节律、日切结算、纪录刷新",
+         "scans": synthetic_scans(7) if real is not None else [],
+         "off": 300, "jit": 80},
+        {"key": "syn30", "label": "合成 30 天",
+         "note": "长线：图鉴增长曲线、仓库溢出、连续照料纪录",
+         "scans": synthetic_scans(30), "off": 300, "jit": 80},
+    ]
+
+    runs = []
+    for d in runs_def:
+        if not d["scans"]:
+            continue
+        s = O.play_through(d["scans"], choice=3,
+                           press_offset_ms=d["off"], press_jitter_ms=d["jit"])
+        sm = O.summary(s)
+        log = [{"ts": e.ts, "kind": e.kind, "text": e.text,
+                "detail": _jsonable(e.detail)} for e in s.log]
+        # 按 kind 计数 —— 前端的筛选器与「哪些系统真的被调到了」检查
+        kinds: dict[str, int] = {}
+        for e in log:
+            kinds[e["kind"]] = kinds.get(e["kind"], 0) + 1
+        runs.append({
+            "key": d["key"], "label": d["label"], "note": d["note"],
+            "scans": len(d["scans"]),
+            "pressOffset": d["off"], "pressJitter": d["jit"],
+            "summary": _jsonable(sm), "log": log, "kinds": kinds,
+            "t0": log[0]["ts"] if log else 0,
+            "t1": log[-1]["ts"] if log else 0,
+        })
+
+    # 19 个系统里哪些在流程中真的被日志记到了 —— 孤岛检查。
+    # 上一轮串联发现过 8 个模块「只被 build.py 读参数，编排层从不调用」，
+    # 这份映射让它在验收平台上可见，而不用再靠人去 grep。
+    kind_to_system = {
+        "boot": "S15 转场", "story": "S16 开场", "choose": "S16 开场",
+        "place": "S1 感知/地点", "biome": "S1 感知/biome",
+        "encounter": "S1 遭遇累积", "battle": "S3 自动战斗",
+        "capture": "S2 捕获判定", "item": "S9 道具",
+        "transition": "S15 转场", "care": "S4 养成",
+        "day": "S10 成绩", "save": "S18 自动存档",
+        "gym": "S17 道馆", "evolve": "S7 进化", "shiny": "S8 闪光",
+        "name": "S12 取名", "party": "S14 队伍",
+    }
+    seen_kinds: set = set()
+    for r in runs:
+        seen_kinds |= set(r["kinds"])
+    coverage = sorted({kind_to_system.get(k, f"(未映射: {k})")
+                       for k in seen_kinds})
+    never = sorted({v for k, v in kind_to_system.items()
+                    if k not in seen_kinds})
+
+    return {"runs": runs, "zh": zh,
+            "kindMap": kind_to_system,
+            "coverage": coverage, "neverLogged": never}
+
+
+def _jsonable(o):
+    """把 dataclass / set / 元组键的 dict 压成能 json 化的形状。
+
+    Session 的 detail 里混着这些 —— 直接 json.dumps 会炸。
+    """
+    if isinstance(o, dict):
+        return {str(k): _jsonable(v) for k, v in o.items()}
+    if isinstance(o, (list, tuple)):
+        return [_jsonable(v) for v in o]
+    if isinstance(o, set):
+        return sorted(_jsonable(v) for v in o)
+    if isinstance(o, (str, int, float, bool)) or o is None:
+        return o
+    return str(o)
+
+
 # 进化石反查：gen1.bin 只存「道具触发」，具体哪块石头要按物种查。
 _STONES = {
     26: "thunder-stone", 36: "moon-stone", 40: "moon-stone",
@@ -777,6 +901,7 @@ def main() -> int:
     sensing = load_sensing(REPO)
     systems = load_systems(REPO, mons)
     systems2 = load_systems2(REPO, mons)
+    play = load_playthrough(REPO, mons)
     front, seg_meta, front_bytes = load_front(assets / "gen1_front.bin")
     back, back_size, back_bytes = load_back(assets / "gen1_back.bin")
 
@@ -798,6 +923,7 @@ def main() -> int:
         "sensing": sensing,
         "systems": systems,
         "sys2": systems2,
+        "play": play,
         "mons": mons,
         "front": {str(k): v for k, v in sorted(front.items())},
         "back": {str(k): v for k, v in sorted(back.items())},

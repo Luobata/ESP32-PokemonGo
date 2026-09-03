@@ -56,6 +56,13 @@ KEYS = {
     "INTRO": {"A": "确认", "B": "移动", "C": "预览"},   # 伙伴选择（S11）
 }
 
+# 键名 —— 从 KEYS 的字典键推导，不再写死一份。
+#
+# 这三个字形一度不在字库里：charset() 只收 KEYS 的 values，
+# 键名（"A"/"B"/"C"）从没被收进去，于是九处提示行的键位标签全空白。
+# 推导而非硬编码，是为了将来若改键名（比如加第四个键）不会再漏。
+KEYS_LABELS = sorted({k for page in KEYS.values() for k in page})
+
 # ---------------------------------------------------------------------------
 # 逐页文案
 # ---------------------------------------------------------------------------
@@ -171,10 +178,28 @@ def all_strings() -> list[str]:
 
 
 def charset() -> set[str]:
-    """UI 用到的全部字符 —— 字库只需收这些。"""
+    """UI 用到的全部字符 —— 字库只需收这些。
+
+    ## 为什么要单独加键名与提示行括号
+
+    `KEYS` 用 "A"/"B"/"C" 作**字典键**，而 `_walk()` 只收 values ——
+    于是 `A B C` 三个字形从没进过字库。而每个页面文档写的底部提示行是
+
+        [A]照料 [B]图鉴 [C]遭遇
+
+    键名和方括号全缺 → 八个页面加开场共九处提示行都渲染成
+    「照料 图鉴 遭遇」，玩家不知道按哪个键。三键设备上这是致命的：
+    没有屏幕外的键位标记，提示行是键位的**唯一**说明。
+
+    这里不改 `_walk()` 去收 dict 键 —— `all_strings()` 还被排版校验用，
+    往里塞键名会让「行宽是否超 232px」的计算多算三个字符。
+    """
     out: set[str] = set()
     for s in all_strings():
         out |= set(s)
+    # 三键提示行：键名（KEYS 的字典键）+ 方括号 + 分隔空格
+    out |= set(KEYS_LABELS) | set("[] ")
+    return out
     return out
 
 
@@ -190,12 +215,54 @@ USABLE_W = SCREEN_W - MARGIN * 2         # 232px
 
 
 def text_px(s: str) -> int:
-    """字串宽度（像素）。汉字全宽 16，ASCII 半宽 8。"""
+    """字串宽度（像素）。汉字全宽 16，ASCII 半宽 8。
+
+    ⚠️ **这个模型与 assets/font16.bin 的实际格式不符** —— 见 text_px_fixed()。
+    """
     return sum(GLYPH if c > "ÿ" else GLYPH // 2 for c in s)
 
 
+def text_px_fixed(s: str) -> int:
+    """字串宽度（像素），按**字库的实际格式**算：每字形定长 16px。
+
+    ## 为什么要有两个宽度函数
+
+    `text_px()` 假设 ASCII 半宽 8px，八份页面文档的「184px / 232px
+    （余 48px）」全部基于它。但 `assets/font16.bin` 实测是
+    **定长 per=32（16×16 的 1bpp），头部没有任何 advance / 变宽字段**：
+
+        magic=FNT1 ver=1 字号=16 per=32 字形数=550
+
+    ASCII 字形的墨迹确实只占中间几列（「A」x=2~11、「5」x=4~11、
+    「[」x=6~9），是半宽画在全宽格里居中 —— 所以半宽渲染在数据上可行，
+    但需要渲染器按字符类型决定步进，而字库格式不带这个信息。
+
+    差距不小：P1 提示行「[A]照料  [B]图鉴  [C]遭遇」
+    半宽模型 200px（放得下），定长模型 **304px（溢出 72px）**。
+
+    ## 没有替 text_px 定论，因为这是规格决策
+
+    三条路都成立，选哪条要看固件渲染器怎么写：
+      ① 渲染器按 `c < 0x80` 用 8px 步进 —— 零字库改动，但要在固件里
+         硬编码「ASCII 半宽」这条规则，且 550 个字形里有 13 个白占一半格
+      ② 字库加 advance 字段（每字形 +1 B，共 +550 B）—— 格式变更，
+         但把宽度信息放在数据里，渲染器不需要知道字符分类
+      ③ 提示行改用更短的文案 —— 不动格式，但八页都要改，且
+         `KEY_HINT_MAX_ACTION = 2` 已经压到极限
+
+    在定下来之前，`check_key_hints()` 同时按两个模型校验，
+    并把差距报出来 —— 让这个矛盾在跑校验时可见，而不是留到真机上发现截断。
+    """
+    return GLYPH * len(s)
+
+
 def check_key_hints() -> list[str]:
-    """三键提示是否放得下 —— 动作词 ≤2 字，且整行放得下。"""
+    """三键提示是否放得下 —— 动作词 ≤2 字，且整行放得下。
+
+    按**两个**宽度模型校验：text_px（半宽假设，页面文档用的）与
+    text_px_fixed（字库实际的定长）。后者超宽只报 ⚠️ 而不算失败 ——
+    它是已知的规格待决项（见 text_px_fixed 的说明），不是文案的错。
+    """
     bad = []
     for page, keys in KEYS.items():
         for k, action in keys.items():
@@ -208,6 +275,12 @@ def check_key_hints() -> list[str]:
         budget = USABLE_W - (24 if page == "P1" else 0)
         if px > budget:
             bad.append(f"{page} 提示行 {px}px > {budget}px：「{line}」")
+        # 字库实际格式下的宽度 —— 规格待决，只提示
+        pxf = text_px_fixed(line)
+        if pxf > budget:
+            bad.append(f"⚠️ {page} 按字库定长 16px/字算 {pxf}px > {budget}px"
+                       f"（溢出 {pxf - budget}px）—— 半宽模型算 {px}px。"
+                       f"font16.bin 无 advance 字段，见 text_px_fixed()")
     return bad
 
 
