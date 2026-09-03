@@ -115,11 +115,39 @@ BIOME_COMMERCIAL = "商业区"
 BIOME_TRANSIT = "交通枢纽"
 
 
+def ssid_family(ssid: str) -> str:
+    """取 SSID 的「家族名」—— 去掉常见的变体后缀。
+
+    企业部署会给同一网络配多个 SSID 变体：
+        Inspire Creativity / -Test / -Guest / -2.4G
+    这些属于同一套设备，家族名相同。而家用环境每个路由器
+    SSID 各不相同，家族名不会聚合。
+    """
+    base = ssid.split("-")[0].split("_")[0].strip()
+    return base.lower() or ssid.lower()
+
+
 def classify_biome(aps: list, ble_count: int = 0) -> str:
     """由聚合统计判定 biome。
 
     aps 是 sensing.AP 列表。这里用手调决策树而非 ML ——
     几个阈值就够，C3 跑得动，也便于调试。
+
+    ## 判别特征的实测依据
+
+    早期版本用「企业级 authmode 占比 > 0.4」判办公区，**实测不成立** ——
+    真实办公环境（公司 14 个 2.4G AP）企业级只占 0.29，而商业区规则
+    （SSID 聚合 >=5 且 open > 0.2）会先命中，把公司误判成商业区。
+
+    实测发现一个远更强的特征 —— **SSID 家族聚合占比**：
+
+        家       0.17 ~ 0.21
+        通勤     0.15 ~ 0.25
+        公司     **0.93**
+
+    企业部署给同一网络配多个 SSID 变体（Test/Guest/2.4G），
+    家用路由不会。这个特征几乎完美可分，且不依赖 authmode ——
+    后者受运营商与设备年代影响很大。
 
     注意：ESP32-C3 只有 2.4GHz，5G-only 的现代写字楼会显得异常稀疏，
     因此办公区的 AP 密度阈值不能定太高（docs/03-spawning.md#33）。
@@ -127,29 +155,41 @@ def classify_biome(aps: list, ble_count: int = 0) -> str:
     n = len(aps)
     if n == 0:
         return BIOME_WILD
+    if n <= 3:
+        return BIOME_WILD
 
     ent = sum(1 for a in aps if a.auth in ("wpa2-ent", "wpa3-ent", "wpa-ent"))
     opn = sum(1 for a in aps if a.auth == "open")
 
-    # SSID 聚合度：同一 SSID 对应多少个 BSSID。
-    # 高聚合 = 大型统一部署（商场/机场/校园），这个信号极强。
-    ssid_counts: dict[str, int] = {}
+    # SSID 家族聚合 —— 最强的判别特征（见上方实测数据）
+    fam: dict[str, int] = {}
     for a in aps:
         if a.ssid:
-            ssid_counts[a.ssid] = ssid_counts.get(a.ssid, 0) + 1
-    max_cluster = max(ssid_counts.values()) if ssid_counts else 0
+            k = ssid_family(a.ssid)
+            fam[k] = fam.get(k, 0) + 1
+    max_family = max(fam.values()) if fam else 0
+    family_ratio = max_family / n
 
     ent_ratio = ent / n
     open_ratio = opn / n
 
-    if n <= 3:
-        return BIOME_WILD
-    if max_cluster >= 5 and open_ratio > 0.2:
-        return BIOME_COMMERCIAL
+    # 大型统一部署 —— 家族聚合是主判据，authmode 只用于区分办公/商业
+    if family_ratio >= 0.5:
+        # 企业级加密存在 → 办公区；纯开放 → 商业区（商场/机场的公共 WiFi）
+        return BIOME_OFFICE if ent > 0 else BIOME_COMMERCIAL
+
+    # 家族聚合不高但企业级占比高 —— 小型办公或园区边缘
     if ent_ratio > 0.4:
         return BIOME_OFFICE
+
+    # 开放网络为主 + 有一定聚合 —— 商业区
+    if open_ratio > 0.3 and max_family >= 3:
+        return BIOME_COMMERCIAL
+
+    # AP 多 + BLE 设备多 —— 交通枢纽（人流密集）
     if n >= 15 and ble_count > 10:
         return BIOME_TRANSIT
+
     return BIOME_RESIDENTIAL
 
 
