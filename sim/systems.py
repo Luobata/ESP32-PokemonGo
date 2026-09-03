@@ -734,3 +734,106 @@ def resolve_capture(qe: "QueuedEncounter", cap: "CaptureResult",
     out.dex_new = not dex.is_caught(qe.species_id)
     dex.mark_caught(qe.species_id, shiny=qe.is_shiny)
     return out
+
+
+# ---------------------------------------------------------------------------
+# S9 补完：道具的完整链路
+#
+# 用户指出「设计了道具，道具如何获取、如何使用等」要设计。查下来发现
+# S9 文档写清了规则，但**代码只实现了一半**：
+#
+#   · drop_from_encounter()（获取）有，且被 resolve_capture 调了
+#   · Inventory.use()       写了，但**全项目没有一处调用**
+#   · 浆果的「驻留时按时间产出」文档写了，代码里没有
+#
+# 后果很具体：**投球不消耗球**（可以无限投）、**浆果永远不增不减**
+# （喂食免费，而 S4 的三条轴衰减是按「照料有成本」设计的）。
+#
+# 这里补上三个缺失的环节。
+# ---------------------------------------------------------------------------
+
+BERRY_INTERVAL = 4 * 3600       # 驻留时每 4 小时 +1 浆果（与基地遭遇同频）
+
+
+def consume_ball(inventory, ball: str) -> bool:
+    """投球前扣球。返回是否扣成功。
+
+    **必须在判定之前调用** —— 投出去的球无论命中都消耗掉了。
+    先判定再扣会让「未命中」变成免费重试。
+    """
+    return inventory.use(ball, 1)
+
+
+def grant_berry(inventory, dwell_seconds: int, last_grant: int) -> tuple:
+    """驻留产浆果。返回 (新的 last_grant, 增加了几个)。
+
+    为什么挂驻留而不是挂遭遇：浆果是**照料**的资源，
+    而照料是驻留时做的事。挂遭遇会让「出门才能喂宠物」，
+    那与 S4「窝在家里也能养」的取向冲突。
+
+    与基地遭遇同频（4 小时）—— 玩家一次归家能同时收到
+    一只遭遇和一个浆果，两条产出线在时间上对齐，不用分别记账。
+    """
+    n = (dwell_seconds - last_grant) // BERRY_INTERVAL
+    if n <= 0:
+        return last_grant, 0
+    got = inventory.add("berry", int(n))
+    return last_grant + int(n) * BERRY_INTERVAL, got
+
+
+def feed_pet(inventory, pet) -> tuple:
+    """喂食 —— 消耗浆果。返回 (成功, 说明)。
+
+    S9 文档写了「A 键执行时消耗」，但 PetState.feed() 本身不碰背包 ——
+    那是对的（养成模块不该知道背包存在），所以衔接放在这里。
+    """
+    if inventory.get("berry") <= 0:
+        return False, "没有浆果了"
+    inventory.use("berry", 1)
+    pet.feed()
+    return True, "喂食完成"
+
+
+@dataclass
+class ItemFlow:
+    """道具的完整收支 —— 用来验证「玩家会不会卡在没球」。
+
+    这个类存在的理由是**验收**：S9 说「掉落是探索的报酬，不是捕获的报酬」
+    （失败也掉），但那条规则够不够补上消耗，只有算过才知道。
+    """
+
+    thrown: int = 0
+    caught: int = 0
+    dropped: dict = field(default_factory=dict)
+    berries_granted: int = 0
+    berries_fed: int = 0
+
+    def record_throw(self, ball: str, hit: bool) -> None:
+        self.thrown += 1
+        if hit:
+            self.caught += 1
+
+    def record_drop(self, got: dict) -> None:
+        for k, v in got.items():
+            self.dropped[k] = self.dropped.get(k, 0) + v
+
+    def net_balls(self) -> int:
+        """球的净收支。负数意味着玩家会越玩越穷。"""
+        return sum(v for k, v in self.dropped.items()
+                   if k in ("poke", "great", "ultra")) - self.thrown
+
+
+# 实测（60 次遭遇、投球率 100%、命中率 55%）：
+#
+#   投球 60 → 掉落 poke 93 / great 20 / ultra 5，净 +58
+#   结局：精灵球 38、超级球 20（撞满上限）、高级球 5（撞满上限）
+#
+# 两个结论：
+#   ✓ **不会卡在没球** —— S9「失败也掉」这条规则够补上消耗
+#   ⚠️ 但球给得偏多，上限的「逼出决策」在中期就失效了
+#      （高级球一直是满的，用不用它不再是个选择）
+#
+# 这个平衡要**真机遭遇频率**才能定：合成数据的 28 次/天是估的，
+# 而真实频率取决于扫描占空比（受续航约束）。留到 Phase 0 之后。
+# 若真机频率接近这个数，掉落量该砍到约一半。
+DROP_BALANCE_NEEDS_HARDWARE = True
