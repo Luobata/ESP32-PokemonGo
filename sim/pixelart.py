@@ -115,6 +115,52 @@ CURSOR_PALETTE = ["#101010", "#f8f8f8", "#f8f8f8", "#182838"]
 
 
 # ---------------------------------------------------------------------------
+# 菜单选中光标 —— 朝右实心三角（P2 列表 / P5 照料 / P6 图鉴 / P7 成绩）
+#
+# 为什么不用字库里的字符：**PingFang 没有任何朝右的三角字形**。
+# ▸ ▶ ► 三个都渲染成全空白（`convert_font.py --preview` 目检出来的）。
+# 收进字库只会得到一个隐形光标 —— 而「我选中的是哪一项」是四个页面
+# 唯一的选中态表达，隐形等于这四页没法用。
+#
+# 那 ▲ 呢？PingFang 有它，但朝上的三角在纵向列表里指不准行 ——
+# 它指向行与行之间，而不是某一行。
+#
+# 所以按 poke_ball 的同一条路走：算法生成点阵，走 sprite 的渲染路径。
+# 这也顺带省掉一个字库槽位（16×16 = 32 字节/字形）。
+#
+# 三角比字形更适合生成：它是纯几何的，用「行宽随行数收缩」就能画，
+# 且天然有台阶感 —— 不会出现精灵球那次「矢量圆在像素画里太平滑」的问题。
+# ---------------------------------------------------------------------------
+
+def menu_cursor(height: int = 9) -> list[list[int]]:
+    """朝右实心三角。height 应为奇数（要有唯一的尖端行）。
+
+    宽度取 height 的一半多一点（(h+1)//2）—— 等宽等高的三角太钝，
+    看着像方块；再瘦就退化成一条线。这个比例接近 GB 原版菜单光标。
+
+    每行的宽度：从尖端行往上下对称递减。第 k 行（距中心 k 行）
+    画 w-k 列，于是斜边每行退一格，台阶感是**像素级**的，
+    不需要抗锯齿也不该有。
+    """
+    if height % 2 == 0:
+        height += 1
+    w = (height + 1) // 2
+    c = height // 2
+    g = [[CLEAR] * w for _ in range(height)]
+    for y in range(height):
+        k = abs(y - c)              # 距中心的行数
+        run = w - k                 # 这一行画多少列
+        for x in range(run):
+            # 描边留在斜边外沿：最右一格用 INK，其余填 MID
+            g[y][x] = INK if x == run - 1 else MID
+    return g
+
+
+MENU_CURSOR = menu_cursor(9)
+MENU_CURSOR_PALETTE = ["#101010", "#303030", "#f0f0f0", "#182838"]
+
+
+# ---------------------------------------------------------------------------
 # 星光 —— 闪光出场用（S8）
 #
 # 四角星，三档尺寸。GB 的闪光星星就是这种简单十字星，
@@ -181,6 +227,7 @@ def budget() -> dict:
         "ball_24": to_2bpp(poke_ball(24)),
         "ball_24_open": to_2bpp(poke_ball(24, open_top=True)),
         "cursor": to_2bpp(CURSOR),
+        "menu_cursor": to_2bpp(MENU_CURSOR),
     }
     for s in STAR_SIZES:
         items[f"star_{s}"] = to_2bpp(star(s))
@@ -199,3 +246,13 @@ def ascii_preview(grid: list[list[int]]) -> str:
 def is_symmetric(grid: list[list[int]]) -> bool:
     """左右对称检查 —— 精灵球与星星都必须对称。"""
     return all(row == row[::-1] for row in grid)
+
+
+def is_vsymmetric(grid: list[list[int]]) -> bool:
+    """上下对称检查 —— 菜单三角光标用这个。
+
+    朝右的三角**左右不对称**（那是它的全部意义），
+    所以 is_symmetric 对它永远返回 False。要检查的是纵向：
+    尖端必须在正中间，否则光标会指偏行。
+    """
+    return grid == grid[::-1]

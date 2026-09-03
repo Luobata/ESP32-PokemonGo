@@ -41,13 +41,30 @@ MAGIC = b"FNT1"
 VERSION = 1
 GLYPH_SIZE = 16          # 16×16，1bpp = 32 字节/字
 
-# 系统字体候选，按优先级。PingFang 是 macOS 的现代黑体，
-# 点阵化后笔画最匀；STHeiti 作为兼容回退。
+# 系统字体候选，按优先级：(路径, 子字体索引, 名称)。
+#
+# **索引不能省** —— PingFang.ttc 是字体集合，12 个子字体的排列是
+#   0 HK-Regular  1 TC-Regular  2 SC-Regular  3 HK-Medium  …
+# Pillow 默认取 index=0，也就是**香港繁体**。用它渲简体中文的后果实测：
+#   · 简体「鉴」PingFang HK 根本没有这个字形 → 渲成全空白
+#     （P6 图鉴页标题、S5 的「图鉴」到处都是它）
+#   · 另有 142 个字形被渲成港台写法：「龙」少一横、「这/过/选」走之底
+#     笔形不同、标点「！，？」繁体居中而简体偏左下
+# 合计 27% 的字库是错的，而字数统计、文件大小、缺字差集全都正常 ——
+# 只有把字形逐个画出来对比才看得见（同 handoff「点阵要看 ASCII 预览」）。
+#
+# STHeiti Light.ttc 同样是集合，其 index 0 是简体（M/L 两个子字体）。
 FONT_CANDIDATES = [
-    "/System/Library/Fonts/PingFang.ttc",
-    "/System/Library/Fonts/STHeiti Light.ttc",
-    "/System/Library/Fonts/Supplemental/Songti.ttc",
+    ("/System/Library/Fonts/PingFang.ttc", 2, "PingFang SC Regular"),
+    ("/System/Library/Fonts/STHeiti Light.ttc", 0, "STHeiti Light"),
+    ("/System/Library/Fonts/Supplemental/Songti.ttc", 0, "Songti SC"),
 ]
+
+# 子字体自检用字 —— 简繁写法不同且必须存在。
+# 「鉴」验证简体字形存在（HK 没有它），「龙」验证不是繁体写法（繁体作「龍」，
+# 点阵完全不同）。两个都是项目真的要上屏的字：
+# 「鉴」在 P6 标题，「龙」在多个物种名（可达鸭→不是，是快龙/迷你龙/哈克龙）。
+SANITY_CHARS = "鉴龙"
 
 # UI 文案不在这里定义 —— 单一来源是 sim/strings.py 与 sim/naming.py。
 #
@@ -104,24 +121,60 @@ def collect_charset(gen1_json: str) -> tuple[set, dict]:
     stat["names"] = len(name_chars)
 
     # UI 文案与昵称：从 sim/ 的单一来源取
+    #
+    # 逐模块收集而非一个 try 包住全部 —— 原先五个 import 共享一个
+    # except ImportError，任一模块失败就丢掉**全部** UI 字，
+    # 而只打印一行警告。真机上的表现是「大片文字渲染成空白」，
+    # 极难反查到是字库脚本。现在哪个模块塌了就报哪个。
     ui_chars: set = set()
     sim = os.path.join(os.path.dirname(os.path.dirname(
         os.path.dirname(os.path.abspath(__file__)))), "sim")
     if sim not in sys.path:
         sys.path.insert(0, sim)
-    try:
-        import strings as UI          # noqa: E402
-        import naming as NM           # noqa: E402
-        import opening as OP          # noqa: E402
-        ui_chars |= UI.charset()
-        ui_chars |= NM.charset()
-        ui_chars |= OP.charset()      # 大木博士台词（S16）
-        stat["src"] = "sim/strings.py + naming.py + opening.py"
-    except ImportError as e:
-        print(f"⚠️  读不到 sim/strings.py（{e}）—— UI 字将缺失", file=sys.stderr)
-        stat["src"] = "缺失"
+
+    # (模块名, 说明) —— 新增系统若有上屏文案，**必须在这里登记**，
+    # 否则它的字不会进字库。这张表漏登记过两轮，各自的表现都是
+    # 「真机上那一片文字渲染成空白」，而字数统计、文件大小全都正常：
+    #   · S17 道馆漏登记 → 29 字（八馆主 + 八城市 + 八徽章 + 四天王 + 赤红）
+    #   · S14 队伍 / S2·S7 判定 / S18 存档漏登记 → 16 字
+    #     （「设为主宠」「存入仓库」「仓库满了」「这只不会进化」「两份都损坏」…）
+    #
+    # 判断标准：**模块里有没有会出现在屏幕上的字面量**。
+    # 注意不只是 strings.py 那种集中定义的文案 —— dataclass 字段的
+    # 默认值、函数动态拼的菜单项、失败提示的 reason 串全都算。
+    SOURCES = [
+        ("strings", "UI 文案"),
+        ("naming", "昵称候选（S12）"),
+        ("opening", "大木博士台词（S16）"),
+        ("gyms", "道馆／四天王／徽章名（S17）"),
+        ("party", "队伍与仓库菜单（S14）"),
+        ("systems", "捕获／进化判定提示（S2·S7）"),
+        ("state", "存档槽来源说明（S18）"),
+    ]
+    ok, failed = [], []
+    for mod_name, desc in SOURCES:
+        try:
+            mod = __import__(mod_name)
+            ui_chars |= mod.charset()
+            ok.append(mod_name)
+        except (ImportError, AttributeError) as e:
+            failed.append(f"{mod_name}（{desc}）: {e}")
+    if failed:
+        for f in failed:
+            print(f"⚠️  取不到字符集 —— {f}", file=sys.stderr)
+        print("   → 这些系统的文案在真机上会渲染成空白", file=sys.stderr)
+    stat["src"] = " + ".join(f"sim/{m}.py" for m in ok) or "缺失"
+    stat["missing_src"] = failed
     # 数字与常用符号 —— 屏幕上到处都是
-    ui_chars |= set("0123456789/×★☆✦%·")
+    #
+    # 两个符号刻意**不收**，因为 PingFang 没有它们的字形（收了就是空白字形）：
+    #   ▸ 菜单选中光标 → sim/pixelart.py 的 menu_cursor() 生成
+    #   ✦ 闪光标记     → sim/pixelart.py 的 star() 生成（S8 本来就有）
+    # ✦ 原先在这里，但它只出现在 orchestrate 日志与 inspector 网页上 ——
+    # 那些走系统字体，不读 font16.bin。设备上的闪光是点阵星星。
+    #
+    # — 是 progress_summary 的空占位（四天王/冠军未定时显示）。
+    ui_chars |= set("0123456789/×★☆%·—")
     chars |= ui_chars
     stat["ui"] = len(ui_chars)
     stat["overlap"] = len(name_chars & ui_chars) if stat["names"] else 0
@@ -168,6 +221,9 @@ def main() -> int:
     ap.add_argument("--out", default="assets")
     ap.add_argument("--size", type=int, default=GLYPH_SIZE)
     ap.add_argument("--font", default="", help="指定字体路径")
+    ap.add_argument("--font-index", type=int, default=0,
+                    help="集合字体(.ttc)的子字体索引 —— 配 --font 使用。"
+                         "PingFang.ttc 的简体是 2，不是默认的 0")
     ap.add_argument("--preview", default="", help="预览这几个字的点阵")
     args = ap.parse_args()
 
@@ -180,25 +236,50 @@ def main() -> int:
         return 1
 
     # 找字体
-    path = args.font
-    if not path:
-        for c in FONT_CANDIDATES:
-            if os.path.exists(c):
-                path = c
-                break
-    if not path or not os.path.exists(path):
-        print(f"找不到中文字体。候选：\n  " + "\n  ".join(FONT_CANDIDATES),
+    #
+    # --font 允许手动指定路径，配 --font-index 指定子字体
+    # （集合字体必须给索引，否则又会静默落到 index 0）。
+    size = args.size
+    font = None
+    if args.font:
+        if not os.path.exists(args.font):
+            print(f"找不到字体 {args.font}", file=sys.stderr)
+            return 1
+        cands = [(args.font, args.font_index, os.path.basename(args.font))]
+    else:
+        cands = [(p, i, nm) for p, i, nm in FONT_CANDIDATES
+                 if os.path.exists(p)]
+    if not cands:
+        print("找不到中文字体。候选：\n  " +
+              "\n  ".join(f"{p} (index {i}, {nm})"
+                          for p, i, nm in FONT_CANDIDATES),
               file=sys.stderr)
         return 1
 
-    size = args.size
-    try:
-        font = ImageFont.truetype(path, size)
-    except Exception as e:
-        print(f"加载字体失败 {path}: {e}", file=sys.stderr)
+    # 逐个候选试，**每个都过简体自检**才采用。
+    # 自检失败就换下一个 —— 静默用错子字体是这个脚本历史上最贵的 bug：
+    # 27% 字形错成港台写法，而所有统计指标都正常。
+    rejected = []
+    for path, index, name in cands:
+        try:
+            f = ImageFont.truetype(path, size, index=index)
+        except Exception as e:
+            rejected.append(f"{name}: 加载失败 {e}")
+            continue
+        bad = [ch for ch in SANITY_CHARS if not any(render_glyph(f, ch, size))]
+        if bad:
+            rejected.append(f"{name} (index {index}): "
+                            f"渲不出「{''.join(bad)}」—— 可能不是简体子字体")
+            continue
+        font, font_path, font_index, font_name = f, path, index, name
+        break
+    for r in rejected:
+        print(f"⚠️  跳过 {r}", file=sys.stderr)
+    if font is None:
+        print("没有候选字体通过简体自检 —— 无法生成字库", file=sys.stderr)
         return 1
 
-    print(f"字体 {os.path.basename(path)} @ {size}px")
+    print(f"字体 {font_name} (index {font_index}) @ {size}px")
 
     # 预览模式
     if args.preview:

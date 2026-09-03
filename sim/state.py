@@ -460,3 +460,17 @@ class DualBufferSave:
 
     def total_bytes(self) -> int:
         return sum(len(b) for b in self.slots if b)
+
+
+def charset() -> set:
+    """S18 上屏用到的字符 —— 字库子集化要收进去。
+
+    只有 `load()` 返回的三个来源说明：「主槽」「备份槽」「两份都损坏」。
+
+    最后一个是最要紧的 —— 两份存档都坏时它是玩家看到的**唯一**解释。
+    缺字会让这个场景显示成一片空白，而那正是最需要说清话的时候。
+    """
+    out: set = set()
+    for s in ("主槽", "备份槽", "两份都损坏"):
+        out |= set(s)
+    return out

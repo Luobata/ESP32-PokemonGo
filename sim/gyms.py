@@ -410,6 +410,38 @@ def badge_names() -> list:
     return [g.badge for g in GYMS]
 
 
+def charset() -> set:
+    """S17 上屏用到的全部字符 —— 字库子集化要收进去。
+
+    **这个函数原本不存在，导致 29 个汉字没进字库**：八个馆主名、
+    八个城市名、八个徽章名（徽章是颜色名）、四天王与赤红，
+    在真机上会全部渲染成空白。
+
+    根因是 `tools/pipeline/convert_font.py` 的 `collect_charset()`
+    只引 strings/naming/opening 三个模块 —— S17 是后加的，脚本没跟上。
+    所以这里既要有函数，convert_font.py 那边也要加引用，缺一不可。
+
+    `name_ja` 不收：日文原名只用于文档对照，不上屏
+    （收了要多 40 个假名字形，纯浪费 flash）。
+    """
+    out: set = set()
+    for g in GYMS:
+        out |= set(g.leader) | set(g.city) | set(g.badge)
+        out |= set(g.type_name) | set(g.biome)
+    for e in ELITE_FOUR:
+        out |= set(e.name) | set(e.type_name)
+    out |= set(CHAMPION_NAME) | set(RED_NAME)
+    # 挑战条件与进度提示里的固定串（check_* 与 progress_summary 的返回）
+    for s in ("要先取得第 枚徽章", "已取得", "去过的地方还不够多",
+              "去过的次数不足", "驻留不足 小时", "遭遇次数不足",
+              "图鉴见闻不足", "可以挑战", "需要八枚徽章",
+              "队伍至少要 只能战斗", "要先打完四天王",
+              "图鉴收集不足", "白银山顶有人在等你",
+              "四天王", "全部完成"):
+        out |= set(s)
+    return out
+
+
 def all_opponents() -> list:
     """全部对手 —— 用于验收面板展示。"""
     out = [{"kind": "gym", "order": g.order, "name": g.leader,

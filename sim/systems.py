@@ -844,3 +844,23 @@ class ItemFlow:
 # 「野怪可能逃跑」一条，那条足够了 —— 它针对的是具体那一只，
 # 而不是玩家的长期资源。
 BALL_SCARCITY_BY_DESIGN = False      # 球不做稀缺资源（休闲取向）
+
+
+def charset() -> set:
+    """本模块上屏用到的字符 —— 字库子集化要收进去。
+
+    只有三处：捕获判定的 `reason`（S2）、进化检查的 `reason`（S7）、
+    以及捕获收容后的 `where`（S14，「队伍」或「仓库」）。
+
+    这些是 dataclass 字段里的字面量，不在 strings.py 里 ——
+    所以字库脚本看不到它们。「会」「仓」「库」「宠」等字缺失就来自这里。
+    """
+    out: set = set()
+    # S2 捕获判定 reason（capture_attempt 的三个分支）
+    for s in ("命中", "未命中", "未命中，逃跑了"):
+        out |= set(s)
+    # S7 进化检查 reason
+    out |= set("这只不会进化")
+    # S14 收容位置 where
+    out |= set("队伍") | set("仓库")
+    return out

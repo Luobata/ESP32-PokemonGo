@@ -316,3 +316,25 @@ class PartyBrowser:
             acts.append("与队伍交换")
         acts += ["查看详情", "取名", "返回"]
         return acts
+
+
+def charset() -> set:
+    """S14 上屏用到的全部字符 —— 字库子集化要收进去。
+
+    队伍页的菜单项是 `actions()` **动态**拼的（按上下文变），
+    所以这里不能只收 REASON_* 常量，得把两个分支的菜单项都列上。
+
+    这个函数原本不存在 → 「设为主宠」「存入仓库」「加入队伍」「仓库满了」
+    等 9 个汉字没进字库，在真机上是空白。同 gyms 的情形
+    （见 tools/pipeline/convert_font.py 的 SOURCES 登记表）。
+    """
+    out: set = set()
+    for s in (REASON_OK, REASON_BOX_FULL, REASON_EMPTY, REASON_LAST_ONE):
+        out |= set(s)
+    # actions() 的全部可能菜单项（两个 view × 各分支）
+    for s in ("设为主宠", "存入仓库", "加入队伍", "与队伍交换",
+              "查看详情", "取名", "返回"):
+        out |= set(s)
+    # 视图标题（S14 文档：C 键在「队伍」与「仓库」间切换）
+    out |= set("队伍") | set("仓库")
+    return out
