@@ -321,7 +321,10 @@ class PetState:
 
     species_id: int = 1
     type_name: str = "一般"
-    nickname: str = "小家伙"
+    # 昵称存**预设候选的索引**（1 字节），不是字符串。
+    # 0xFF = 没起过名 → 显示物种中文名。见 sim/naming.py：
+    # 三键设备上自由取名要按 692 次键，算出来就否掉了。
+    nickname_idx: int = 0xFF
 
     satiety: float = 80.0    # 饱食
     mood: float = 70.0       # 心情

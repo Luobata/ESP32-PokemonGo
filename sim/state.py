@@ -381,6 +381,9 @@ class SaveData:
     intimacy: int = 0
     explore_value: int = 0
     pet_hp: int = 100
+    # 昵称：预设候选索引，0xFF = 未命名（显示物种中文名）。
+    # 1 字节而非 UTF-8 12 字节 —— 见 sim/naming.py 与 docs/systems/S12-naming.md。
+    nickname_idx: int = 0xFF
     dex: Dex = field(default_factory=Dex)
     inventory: Inventory = field(default_factory=Inventory)
     records: Records = field(default_factory=Records)
@@ -389,10 +392,11 @@ class SaveData:
 
     def to_bytes(self) -> bytes:
         """序列化 + CRC。布局见 docs/systems/S6-save.md。"""
-        pet = struct.pack("<BBBBBBHB", self.pet_species, self.pet_level,
+        pet = struct.pack("<BBBBBBHBB", self.pet_species, self.pet_level,
                           self.satiety, self.mood, self.stamina,
                           min(int(self.intimacy), 255),
-                          min(self.explore_value, 65535), self.pet_hp)
+                          min(self.explore_value, 65535), self.pet_hp,
+                          self.nickname_idx & 0xFF)
         dwell = struct.pack("<5I", *[min(v, 0xFFFFFFFF) for v in self.biome_dwell])
         body = (pet + self.dex.to_bytes() + self.inventory.to_bytes()
                 + self.records.to_bytes() + dwell

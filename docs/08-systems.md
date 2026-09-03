@@ -20,6 +20,7 @@
 | S9 | 道具 | **✅ 已实现** | — | [S9-items.md](systems/S9-items.md) |
 | S10 | 成绩与排行 | **✅ 已实现** | — | [S10-records.md](systems/S10-records.md) |
 | S11 | 开场流程 | **✅ 已实现** | — | [S11-intro.md](systems/S11-intro.md) |
+| S12 | 昵称 | **✅ 已实现** | — | [S12-naming.md](systems/S12-naming.md) |
 
 实现分布在三个模块：
 
@@ -30,6 +31,8 @@
 | [`sim/gameplay.py`](../sim/gameplay.py) | S4 | `PetState` 三条状态轴 |
 | [`sim/systems.py`](../sim/systems.py) | S7 | `check_evolution()` / `do_evolve()` |
 | [`sim/intro.py`](../sim/intro.py) | S11 | GB 启动动画 + 伙伴选择 |
+| [`sim/naming.py`](../sim/naming.py) | S12 | 预设昵称 + `NamePicker` |
+| [`sim/strings.py`](../sim/strings.py) | 全部 | UI 文案单一来源 + 排版审计 |
 
 ## UI 页面
 
@@ -41,7 +44,12 @@
 | P4 | 捕获 | A 投球 / B 换球 / C 取消 | [P4-capture.md](pages/P4-capture.md) |
 | P5 | 照料 | A 执行 / B 切换 / C 返回 | [P5-care.md](pages/P5-care.md) |
 | P6 | 图鉴 | A 详情 / B 翻页 / C 返回 | [P6-dex.md](pages/P6-dex.md) |
-| P7 | 成绩 | A 切换榜单 / B 翻页 / C 返回 | [P7-records.md](pages/P7-records.md) |
+| P7 | 成绩 | A 切榜 / B 翻页 / C 返回 | [P7-records.md](pages/P7-records.md) |
+| P8 | 取名 | A 确认 / B 下个 / C 上个 | [P8-naming.md](pages/P8-naming.md) |
+
+> 页面文档由 [`tools/pipeline/gen_pages.py`](../tools/pipeline/gen_pages.py)
+> 从 [`sim/strings.py`](../sim/strings.py) 生成 —— 文案有**单一来源**，
+> 索引见 [pages/README.md](pages/README.md)。
 
 > **P7 的进入路径**：P1 的三个键已占满（A 照料 / B 图鉴 / C 遭遇），
 > 所以成绩页挂在图鉴之后 —— `P1 ──B──→ P6 图鉴 ──B(末页)──→ P7 成绩`。

@@ -49,32 +49,11 @@ FONT_CANDIDATES = [
     "/System/Library/Fonts/Supplemental/Songti.ttc",
 ]
 
-# UI 文案 —— 所有会显示在屏幕上的字。
-# 按页面组织，便于对照 docs/08-systems.md 的页面清单增删。
-UI_STRINGS = [
-    # P1 待机
-    "饱食", "心情", "体能", "今日行程", "照料", "图鉴", "遭遇",
-    # P2 遭遇列表
-    "刚才路上遇到", "选中", "返回", "丢弃", "野外", "住宅区",
-    "办公区", "商业区", "交通枢纽",
-    # P3 战斗
-    "捕获", "战斗", "逃跑", "效果绝佳", "效果不好", "没有效果",
-    "胜", "败", "经验", "回合",
-    # P4 捕获
-    "球", "精灵球", "超级球", "高级球", "切换", "投球", "取消",
-    "命中", "未命中", "跑掉了",
-    # P5 照料
-    "喂食", "玩耍", "休息", "查看详情", "执行", "浆果",
-    "愉快", "平静", "低落", "消沉",
-    # P6 图鉴
-    "详情", "翻页", "已捕获", "未捕获", "闪光",
-    # P7 成绩
-    "成绩", "个人纪录", "单日遭遇最多", "单日移动量", "连续照料",
-    "连续出门", "最稀有捕获", "闪光捕获", "第", "天", "切榜",
-    # 通用
-    "等级", "属性", "进化", "亲密度", "探索值", "只",
-    "无", "是", "否", "只有", "共",
-]
+# UI 文案不在这里定义 —— 单一来源是 sim/strings.py 与 sim/naming.py。
+#
+# 之前这里有一份 UI_STRINGS，与页面文档、inspector 原型共三份，必然漂移。
+# 漂移的后果很具体：字库没收的字在屏幕上是一片空白，
+# 且只有真机点亮才发现。
 
 
 def collect_charset(gen1_json: str) -> tuple[set, dict]:
@@ -91,9 +70,21 @@ def collect_charset(gen1_json: str) -> tuple[set, dict]:
         chars |= name_chars
         stat["names"] = len(name_chars)
 
+    # UI 文案与昵称：从 sim/ 的单一来源取
     ui_chars: set = set()
-    for s in UI_STRINGS:
-        ui_chars |= set(s)
+    sim = os.path.join(os.path.dirname(os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__)))), "sim")
+    if sim not in sys.path:
+        sys.path.insert(0, sim)
+    try:
+        import strings as UI          # noqa: E402
+        import naming as NM           # noqa: E402
+        ui_chars |= UI.charset()
+        ui_chars |= NM.charset()
+        stat["src"] = "sim/strings.py + sim/naming.py"
+    except ImportError as e:
+        print(f"⚠️  读不到 sim/strings.py（{e}）—— UI 字将缺失", file=sys.stderr)
+        stat["src"] = "缺失"
     # 数字与常用符号 —— 屏幕上到处都是
     ui_chars |= set("0123456789/×★☆✦%·")
     chars |= ui_chars

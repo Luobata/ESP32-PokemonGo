@@ -186,7 +186,8 @@ def apply_choice(choice_index: int) -> dict:
         "pet_species": s["id"],
         "pet_level": STARTER_LEVEL,
         "pet_type": s["type"],
-        "nickname": s["zh"],
+        # 初始不起名 —— 显示物种中文名，玩家想改再去 P5 改
+        "nickname_idx": 0xFF,
         "satiety": 80,
         "mood": 70,          # 不给满 —— 留出「照料能提升」的空间
         "stamina": 90,

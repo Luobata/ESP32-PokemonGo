@@ -123,7 +123,7 @@ def main() -> int:
 
     # 初始化
     core = SensingCore(only_24g=args.only_24g)
-    pet = PetState(species_id=4, type_name="火", nickname="小火龙")   # 初代 #4
+    pet = PetState(species_id=4, type_name="火")   # 初代 #4，未命名 → 显示物种名
 
     encounters: list[Encounter] = []
     prev_motion_events = 0
@@ -211,7 +211,9 @@ def main() -> int:
     print(f"\n模拟时长      {span_days:.1f} 天")
     print(f"扫描次数      {len(scans)}")
 
-    print(f"\n【主宠】{pet.nickname}（#{pet.species_id} {pet.type_name}系）")
+    from naming import display_name
+    name = display_name(pet.nickname_idx, "小火龙")
+    print(f"\n【主宠】{name}（#{pet.species_id} {pet.type_name}系）")
     print(f"  {pet.bars()}")
     print(f"  状态 {pet.mood_label}　亲密度 {pet.intimacy:.1f}　"
           f"探索值 {pet.explore_value}")
