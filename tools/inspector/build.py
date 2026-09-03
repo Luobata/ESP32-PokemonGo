@@ -578,6 +578,69 @@ def load_systems2(repo: pathlib.Path, mons: list[dict]) -> dict:
         print(f"  注：audio 导入失败（{e}）", file=sys.stderr)
         s13 = {}
 
+    # ---- S14 队伍与仓库 ----
+    # 这个系统补的是一个**真断层**：在它之前 attempt_capture() 成功后
+    # 只点亮图鉴 bit，实体就消失了 —— 玩家抓三十只能玩的还是开场那只。
+    try:
+        import party as PT                      # noqa: E402
+        from systems import resolve_capture     # noqa: E402
+
+        pt = PT.Party()
+        pt.receive(PT.Mon(species_id=25, level=12, intimacy=40))
+        # 造一串收容样本，看断层是否真的接上。
+        # 不用 load_systems 里那份真实队列 —— 那是另一个函数的局部变量，
+        # 跨函数取会把两个面板的数据耦在一起（我第一版就是这么写的，NameError）。
+        from systems import wild_level          # noqa: E402
+        demo_log = []
+        for sid, rar in [(19, 1), (16, 1), (10, 2), (63, 3), (95, 3),
+                         (143, 4), (131, 4), (149, 5), (19, 1), (150, 5)]:
+            lv = wild_level(rar)
+            before_party = len(pt.party)
+            ok, note, vic = pt.receive(PT.Mon(species_id=sid, level=lv,
+                                              shiny=(sid == 63)))
+            demo_log.append({
+                "id": sid, "rarity": rar, "lv": lv, "ok": ok, "note": note,
+                "where": "队伍" if len(pt.party) > before_party else "仓库",
+                "party": len(pt.party), "box": len(pt.box),
+            })
+
+        # 仓库满时的替换策略 —— 三种情况各造一个样本
+        def _full(dup: bool):
+            p2 = PT.Party()
+            for i in range(PT.PARTY_MAX):
+                p2.receive(PT.Mon(species_id=1, level=50))
+            for i in range(PT.BOX_MAX):
+                p2.receive(PT.Mon(species_id=19 if dup else i + 20,
+                                  level=10 + i))
+            ok, note, vic = p2.receive(PT.Mon(species_id=150, level=70))
+            return {"dup": dup, "ok": ok, "note": note,
+                    "victim": ({"id": vic.species_id, "lv": vic.level}
+                               if vic else None)}
+
+        s14 = {
+            "partyMax": PT.PARTY_MAX, "boxMax": PT.BOX_MAX,
+            "monBytes": PT.MON_BYTES, "bytes": PT.SERIALIZED_BYTES,
+            "log": demo_log,
+            "party": [{"id": m.species_id, "lv": m.level, "hp": m.hp,
+                       "shiny": m.shiny, "inti": m.intimacy}
+                      for m in pt.party],
+            "box": [{"id": m.species_id, "lv": m.level, "hp": m.hp,
+                     "shiny": m.shiny} for m in pt.box],
+            "dups": pt.duplicates(),
+            "fullCases": [_full(True), _full(False)],
+            # 三键菜单随上下文变 —— 不给无效选项
+            "menus": {
+                "party_first": PT.PartyBrowser(view=PT.VIEW_PARTY,
+                                               cursor=0).actions(pt),
+                "party_other": PT.PartyBrowser(view=PT.VIEW_PARTY,
+                                               cursor=1).actions(pt),
+                "box": PT.PartyBrowser(view=PT.VIEW_BOX, cursor=0).actions(pt),
+            },
+        }
+    except ImportError as e:
+        print(f"  注：party 导入失败（{e}）", file=sys.stderr)
+        s14 = {}
+
     # ---- 开场用的像素素材（精灵球 / 手指 / 星光）----
     # 验收截图暴露画风打架：canvas 矢量圆没有台阶感，而周围一切都有。
     # 改成与 sprite 同一套 2bpp 点阵路径。
@@ -598,7 +661,7 @@ def load_systems2(repo: pathlib.Path, mons: list[dict]) -> dict:
 
     return {"s4": s4, "s5": s5, "s6": s6, "s7": s7,
             "s8": s8, "s9": s9, "s10": s10, "s11": s11, "s13": s13,
-            "art": art}
+            "s14": s14, "art": art}
 
 
 # 进化石反查：gen1.bin 只存「道具触发」，具体哪块石头要按物种查。
@@ -707,6 +770,11 @@ def main() -> int:
                       f"{x['ok']}：{x['why']}", file=sys.stderr)
         print(f"  S11 开场 {systems2['s11']['frames']} 帧　"
               f"音效帧 {[x['f'] for x in systems2['s11']['sounds']]}")
+        if systems2.get("s14"):
+            q = systems2["s14"]
+            print(f"  S14 队伍 {len(q['party'])}/{q['partyMax']}　"
+                  f"仓库 {len(q['box'])}/{q['boxMax']}　{q['bytes']} B　"
+                  f"重复物种 {len(q['dups'])} 种")
         if systems2.get("s13"):
             b = systems2["s13"]["budget"]
             worst = max(systems2["s13"]["metrics"].items(),

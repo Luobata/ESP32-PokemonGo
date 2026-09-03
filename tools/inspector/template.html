@@ -1377,10 +1377,172 @@ BUILD.nurture = () => {
         <td class="js">—</td>
         <td style="color:var(--ink-soft)">${p.note}</td></tr>`).join("")}
     </table></div>
+  </div>
+
+  <div class="gp-sec">
+    <h2>S14 队伍与仓库　<span class="sub">可交互</span></h2>
+    <p class="gp-note">这个系统补的是一个<b>真断层</b>：在它之前
+      <code>attempt_capture()</code> 成功后只点亮一个图鉴 bit，
+      <b>那只宝可梦的实体就消失了</b> —— 玩家抓三十只，能玩的还是开场那只。
+      S1~S13 各自成立，但「捕获 → 养成」这条链是断的。</p>
+    <div id="s14-body"></div>
   </div>`;
 
-  initS4(s4); initS5(s5); initS6(s6); initS7(s7);
+  initS4(s4); initS5(s5); initS6(s6); initS7(s7); initS14(S.s14);
 };
+
+function initS14(q){
+  const host = document.getElementById("s14-body");
+  if(!q || !q.party){ host.innerHTML = `<p class="sub">S14 数据未打包。</p>`; return; }
+  const nm = id => (D.mons[id-1] && (D.mons[id-1].zh || D.mons[id-1].slug)) || ("#"+id);
+
+  // 队伍与仓库的实时状态（JS 侧可操作）
+  let party = q.party.map(m => ({...m}));
+  let box = q.box.map(m => ({...m}));
+  let view = 0, cursor = 0;
+
+  const menuFor = () => {
+    // 与 party.py 的 PartyBrowser.actions() 同一套逻辑 —— 菜单随上下文变，
+    // 不给无效选项（队首没有「设为主宠」、队伍满时是「交换」而非「加入」）
+    if(view === 0){
+      const a = [];
+      if(cursor > 0) a.push("设为主宠");
+      if(party.length > 1 && box.length < q.boxMax) a.push("存入仓库");
+      return a.concat(["查看详情","取名","返回"]);
+    }
+    const a = [];
+    a.push(party.length < q.partyMax ? "加入队伍" : "与队伍交换");
+    return a.concat(["查看详情","取名","返回"]);
+  };
+
+  const render = (msg) => {
+    const lst = view === 0 ? party : box;
+    const sel = lst[cursor];
+    const row = (m, i, cur) => {
+      const mm = D.mons[m.id-1] || {};
+      return `<div class="qrow" style="${cur?"background:var(--bg)":""}">
+        <span style="width:16px">${cur?"▸":""}</span>
+        <canvas id="s14c-${view}-${i}" width="${mm.fsize||40}"
+          height="${mm.fsize||40}" style="width:30px;height:30px"></canvas>
+        <span>${m.shiny?'<span class="shiny">✦</span> ':""}${nm(m.id)}</span>
+        <span>Lv${m.lv}</span>
+        <span class="${m.hp>50?"ok":(m.hp>0?"warn":"")}">HP ${m.hp}%</span>
+        <span style="color:var(--ink-soft)">${i===0&&view===0?"主宠":""}</span>
+      </div>`;
+    };
+    host.innerHTML = `
+      <div class="cmp">
+        <div><div class="lbl">队伍</div>
+          <div class="big">${party.length}<span style="font-size:11px;
+            color:var(--ink-soft)">/${q.partyMax}</span></div></div>
+        <div><div class="lbl">仓库</div>
+          <div class="big">${box.length}<span style="font-size:11px;
+            color:var(--ink-soft)">/${q.boxMax}</span></div></div>
+        <div><div class="lbl">主宠</div>
+          <div class="big" style="font-size:13px">${
+            party.length?nm(party[0].id):"—"}</div></div>
+        <div class="good"><div class="lbl">序列化</div>
+          <div class="big">${q.bytes} B</div></div>
+        <div><div class="lbl">每只</div><div class="big">${q.monBytes} B</div></div>
+      </div>
+      <div class="knobs" style="border:1px solid var(--line);border-top:0;padding:8px 10px">
+        <button id="s14-view">C 切换（当前：${view===0?"队伍":"仓库"}）</button>
+        <button id="s14-next">B 下一只</button>
+        <button id="s14-act">A 执行首项</button>
+        <span class="fr" style="min-width:150px">${menuFor()[0]||"—"}</span>
+      </div>
+      <div style="border:1px solid var(--line);border-top:0">
+        <div class="qrow hdr"><span></span><span></span><span>名字</span>
+          <span>等级</span><span>状态</span><span></span></div>
+        ${lst.length ? lst.map((m,i)=>row(m,i,i===cursor)).join("")
+                     : '<div class="qrow"><span></span><span class="sub">空</span></div>'}
+      </div>
+      <div class="out">${msg || `选中 <b>${sel?nm(sel.id):"—"}</b>　
+        可做：${menuFor().join(" / ")}`}</div>
+      <div class="formula">
+        <b>主宠就是 party[0]</b> —— 不设独立的 pet_species 字段。
+        「换主宠」等于「移到队首」，一个操作解决两件事，
+        且不会出现「主宠与队伍不一致」这种状态（那是必然的 bug 来源）。
+        <br>仓库上限 ${q.boxMax} 是<b>三键 UI 的约束</b>不是存储的约束：
+        每只 ${q.monBytes} B，${q.boxMax} 只才 ${q.boxMax*q.monBytes} B，
+        8MB 里是零头；但 B 键循环浏览 ${q.boxMax} 只平均要按
+        ${Math.floor(q.boxMax/2)} 次，再多就得做分页而那要第四个键。
+      </div>`;
+
+    lst.forEach((m,i) => {
+      const cv = document.getElementById(`s14c-${view}-${i}`); if(!cv) return;
+      const mm = D.mons[m.id-1]; if(!mm) return;
+      const pal = palOf(m.id, m.shiny), ctx = cv.getContext("2d");
+      ctx.fillStyle = pal[3]; ctx.fillRect(0,0,mm.fsize,mm.fsize);
+      drawSprite(ctx, b64bytes(D.front[m.id]), mm.fsize, 0,0,1, null, pal);
+    });
+
+    document.getElementById("s14-view").onclick = () => {
+      view = 1 - view;
+      cursor = Math.min(cursor, Math.max(0, (view===0?party:box).length - 1));
+      render();
+    };
+    document.getElementById("s14-next").onclick = () => {
+      const n = (view===0?party:box).length;
+      if(n) cursor = (cursor + 1) % n;
+      render();
+    };
+    document.getElementById("s14-act").onclick = () => {
+      const act = menuFor()[0];
+      if(act === "设为主宠"){
+        // insert(0, pop(i)) 而非 swap —— swap 会打乱队伍其余顺序，
+        // 而玩家心里的队伍是有次序的（谁是二号、三号）
+        party.unshift(party.splice(cursor,1)[0]); cursor = 0;
+        render(`<span class="ok">✓ ${nm(party[0].id)} 成为主宠</span>
+          　队伍顺序保持：${party.map(m=>nm(m.id)).join(" → ")}`);
+      } else if(act === "存入仓库"){
+        const m = party.splice(cursor,1)[0]; box.push(m);
+        cursor = Math.min(cursor, party.length-1);
+        render(`<span class="ok">✓ ${nm(m.id)} 存入仓库</span>`);
+      } else if(act === "加入队伍"){
+        const m = box.splice(cursor,1)[0]; party.push(m);
+        cursor = Math.min(cursor, Math.max(0,box.length-1));
+        render(`<span class="ok">✓ ${nm(m.id)} 加入队伍</span>`);
+      } else if(act === "与队伍交换"){
+        const m = box[cursor]; box[cursor] = party[0]; party[0] = m;
+        render(`<span class="ok">✓ ${nm(m.id)} 与主宠交换</span>
+          　新主宠 ${nm(party[0].id)}`);
+      } else {
+        render(`<span class="sub">「${act}」在验收平台里不模拟</span>`);
+      }
+    };
+  };
+  render();
+
+  // 收容日志 + 仓库满的策略，附在下方
+  const full = q.fullCases.map(c => `<tr>
+    <td>${c.dup?"有重复物种":"全不重复"}</td>
+    <td class="${c.ok?"ok":"warn"}">${c.ok?"收容成功":"拒绝"}</td>
+    <td>${c.note||"—"}</td>
+    <td>${c.victim?`#${c.victim.id} Lv${c.victim.lv}`:"—"}</td></tr>`).join("");
+  host.insertAdjacentHTML("beforeend", `
+    <h3 style="margin:18px 0 6px;font-size:12px">收容日志　<span class="sub">断层接上了</span></h3>
+    <p class="gp-note">优先进队伍（未满时），否则进仓库 —— 刚抓到的应该能立刻用，
+      而不是要先去仓库取。</p>
+    <div class="tbl-scroll"><table>
+      <tr><th>物种</th><th>稀有度</th><th>等级</th><th>去处</th>
+        <th>队伍</th><th>仓库</th></tr>
+      ${q.log.map(l=>`<tr>
+        <td>${l.shiny?"✦ ":""}${nm(l.id)}</td>
+        <td>${"★".repeat(l.rarity)+"☆".repeat(5-l.rarity)}</td>
+        <td>${l.lv}</td>
+        <td class="${l.ok?"ok":"warn"}">${l.ok?l.where:"失败"}</td>
+        <td>${l.party}</td><td>${l.box}</td></tr>`).join("")}
+    </table></div>
+    <h3 style="margin:18px 0 6px;font-size:12px">仓库满了怎么办</h3>
+    <p class="gp-note"><b>不做「放生」</b> —— 玩家不该被逼着删自己养的东西。
+      改成替换掉<b>重复物种里等级最低的那只</b>；若没有重复物种则拒绝捕获，
+      让玩家自己去整理。重复个体是唯一「明确可牺牲」的对象。</p>
+    <div class="tbl-scroll"><table>
+      <tr><th>仓库状况</th><th>结果</th><th>说明</th><th>被替换</th></tr>
+      ${full}
+    </table></div>`);
+}
 
 /* S4：JS 侧重算衰减，与 Python 曲线逐点对照。
    公式必须与 sim/gameplay.py 逐字一致 —— 我第一版凭印象写，

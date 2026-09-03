@@ -362,7 +362,11 @@ class Records:
 # ---------------------------------------------------------------------------
 
 SAVE_MAGIC = b"KNT1"
-SAVE_VERSION = 1
+SAVE_VERSION = 2          # v2 起含 S14 队伍区
+
+# 队伍区字节数。这里写死而不 import party，避免 state ← party 的循环依赖
+# （party 不依赖 state，但 systems.resolve_capture 两边都用）。
+PARTY_BLOB_BYTES = 2 + (6 + 30) * 8       # 290，与 party.SERIALIZED_BYTES 一致
 
 
 @dataclass
@@ -389,6 +393,13 @@ class SaveData:
     records: Records = field(default_factory=Records)
     biome_dwell: list = field(default_factory=lambda: [0] * 5)
     day_index: int = 0
+    # S14 队伍 + 仓库（290 B 定长）。
+    #
+    # 注意 pet_* 那几个字段**保留**：它们是 S4 的三条轴，属于
+    # 「当前主宠的实时状态」，而 party 存的是持久身份。
+    # 仓库里的宝可梦状态冻结（不衰减）—— 否则玩家一周不上线
+    # 回来发现三十只全体消沉，那是惩罚性的。
+    party: object = None
 
     def to_bytes(self) -> bytes:
         """序列化 + CRC。布局见 docs/systems/S6-save.md。"""
@@ -398,9 +409,15 @@ class SaveData:
                           min(self.explore_value, 65535), self.pet_hp,
                           self.nickname_idx & 0xFF)
         dwell = struct.pack("<5I", *[min(v, 0xFFFFFFFF) for v in self.biome_dwell])
+        # party 可能为 None（旧存档 / 未初始化）—— 补零保持定长
+        if self.party is not None:
+            party_blob = self.party.to_bytes()
+        else:
+            party_blob = bytes(PARTY_BLOB_BYTES)
         body = (pet + self.dex.to_bytes() + self.inventory.to_bytes()
                 + self.records.to_bytes() + dwell
-                + struct.pack("<H", min(self.day_index, 65535)))
+                + struct.pack("<H", min(self.day_index, 65535))
+                + party_blob)
         crc = zlib.crc32(body) & 0xFFFFFFFF
         return struct.pack("<4sHI", SAVE_MAGIC, SAVE_VERSION, crc) + body
 

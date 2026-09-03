@@ -661,3 +661,76 @@ def do_evolve(pet, to_species: int, to_type: str,
 
     return EvolutionResult(from_species=old, to_species=to_species,
                            frames=evolution_sequence(12))
+
+
+# ---------------------------------------------------------------------------
+# S14 衔接：捕获成功 → 收容 → 图鉴 → 掉落
+#
+# 这个函数补的是一个**真断层**：在它之前，attempt_capture() 成功后
+# 只有调用方各自去点亮图鉴 bit，那只宝可梦的实体就消失了。
+# 玩家抓三十只，能玩的还是开场那只 —— 捕获这个玩法的产出无处可去。
+#
+# 「谁负责收容」以前没人负责。现在由这里负责，且是**唯一**入口。
+# ---------------------------------------------------------------------------
+
+@dataclass
+class CaptureOutcome:
+    """一次遭遇的完整结果 —— 捕获判定 + 收容 + 图鉴 + 掉落。"""
+
+    result: "CaptureResult"
+    stored: bool = False               # 实体是否成功收容
+    store_note: str = ""               # 收容说明（含替换信息）
+    replaced: object = None            # 被替换掉的那只（仓库满时）
+    drops: dict = field(default_factory=dict)
+    dex_new: bool = False              # 是否首次捕获该物种
+    where: str = ""                    # "队伍" / "仓库"
+
+
+def resolve_capture(qe: "QueuedEncounter", cap: "CaptureResult",
+                    party, dex, inventory, level: int = 0,
+                    is_new_place: bool = False) -> CaptureOutcome:
+    """把一次投球的结果落到各个系统上。
+
+    参数刻意收全（party / dex / inventory）—— 让「捕获会影响哪些系统」
+    在签名上一目了然，而不是散在调用方各处。
+
+    `level` 要显式传：QueuedEncounter 不存等级（它是 wild_level(rarity,...)
+    现算的，见 S3），队列里存的 8 字节没有等级字段。
+    我第一版写了 qe.level —— 那个属性不存在。
+
+    顺序有讲究：
+      ① 先收容（可能失败：仓库满且无重复物种）
+      ② 收容成功才点亮「已捕获」—— 否则图鉴会记下一只实际不存在的
+      ③ 掉落**无论成败**（S9 的设计：掉落是探索的报酬，不是捕获的报酬）
+    """
+    from party import Mon                     # 延迟导入避免循环
+
+    out = CaptureOutcome(result=cap)
+
+    # ③ 掉落先算 —— 它与捕获成败无关，先算避免被 ① 的早退跳过
+    out.drops = inventory.drop_from_encounter(qe.rarity, is_new_place)
+
+    if not cap.caught:
+        # 没抓到也要记「已见」—— S8 那份「闪光遇到了但跑了」的遗憾
+        dex.mark_seen(qe.species_id, shiny=qe.is_shiny)
+        return out
+
+    # ① 收容
+    lv = level or wild_level(qe.rarity)
+    mon = Mon(species_id=qe.species_id, level=lv,
+              hp=max(1, int(qe.hp_ratio)), shiny=qe.is_shiny)
+    ok, note, victim = party.receive(mon)
+    out.stored, out.store_note, out.replaced = ok, note, victim
+
+    if not ok:
+        # 收容失败 —— 只记「已见」，不记「已捕获」。
+        # 图鉴不能记下一只实际不在手上的宝可梦。
+        dex.mark_seen(qe.species_id, shiny=qe.is_shiny)
+        return out
+
+    out.where = "队伍" if mon in party.party else "仓库"
+
+    # ② 收容成功才点亮已捕获
+    out.dex_new = not dex.is_caught(qe.species_id)
+    dex.mark_caught(qe.species_id, shiny=qe.is_shiny)
+    return out
