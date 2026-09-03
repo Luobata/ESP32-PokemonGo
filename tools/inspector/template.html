@@ -235,6 +235,8 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
   <button role="tab" data-p="proto"   aria-selected="false">UI 页面原型</button>
   <button role="tab" data-p="pixels"  aria-selected="false">2bpp 像素</button>
   <button role="tab" data-p="gameplay" aria-selected="false">S1-S3 玩法</button>
+  <button role="tab" data-p="nurture" aria-selected="false">S4-S7 养成</button>
+  <button role="tab" data-p="meta"    aria-selected="false">S8-S11 元系统</button>
   <button role="tab" data-p="systems" aria-selected="false">系统与预算</button>
 </div>
 
@@ -318,6 +320,24 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
     JS 重算一遍 Python 的公式，两边算出同一个数才算验收通过。
     设计见 <b>docs/systems/S1~S3</b>。</p>
   <div id="gp-body"></div>
+</div>
+
+<div class="panel" id="p-nurture" hidden>
+  <p class="sub" style="margin:0 0 16px">
+    S4 养成 / S5 图鉴 / S6 存档 / S7 进化，<b>每个都能动手推进</b> ——
+    推时间看三轴衰减、翻图鉴页、注入存档损坏看回退、改亲密度看进化门槛。
+    页面 JS 重算 Python 的公式，<b>不一致就红色报警</b>。
+    设计见 <b>docs/systems/S4~S7</b>。</p>
+  <div id="nur-body"></div>
+</div>
+
+<div class="panel" id="p-meta" hidden>
+  <p class="sub" style="margin:0 0 16px">
+    S8 闪光 / S9 道具 / S10 成绩 / S11 开场。
+    开场动画是<b>逐帧可步进</b>的 —— 参数取自 DMG boot ROM 反汇编，
+    音效落在第 98/100 步（落定瞬间，不是开头）。
+    设计见 <b>docs/systems/S8~S11</b>。</p>
+  <div id="meta-body"></div>
 </div>
 
 <div class="panel" id="p-systems" hidden>
@@ -582,7 +602,7 @@ document.getElementById("shiny").onchange = e => {
 };
 
 /* ── tab 切换 ── */
-const PANELS = ["dex","sensing","proto","pixels","gameplay","systems"];
+const PANELS = ["dex","sensing","proto","pixels","gameplay","nurture","meta","systems"];
 let built = {dex:1};
 document.getElementById("tabs").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
@@ -1215,6 +1235,897 @@ const EFF = (() => {
   return t;
 })();
 const GEN1_DIFF = new Set(["幽灵>超能","毒>虫","虫>毒","冰>火"]);
+
+/* ── S4-S7 养成验收 ──
+   四个系统都要能动手推进。取向与 S2 捕获面板一致：
+   **JS 重算 Python 的公式，两边算出同一个数才算通过**，
+   而不是把 Python 结果印出来看 —— 那验收不了移植一致性。          */
+BUILD.nurture = () => {
+  const S = D.sys2;
+  const host = document.getElementById("nur-body");
+  if(!S || !S.s4){
+    host.innerHTML = `<p class="sub">sys2 数据未打包。跑
+      <b>./tools/inspector/serve.sh --rebuild</b>。</p>`;
+    return;
+  }
+
+  const s4 = S.s4, s5 = S.s5, s6 = S.s6, s7 = S.s7;
+  const nPass = s7.probes.filter(p => p.pass).length;
+
+  host.innerHTML = `
+  <div class="gp-sec">
+    <h2>S4 养成状态机　<span class="sub">可交互</span></h2>
+    <p class="gp-note">三条轴独立衰减：饱食 ${s4.decay.sat}/h、心情 ${s4.decay.mood}/h、
+      体能 +${s4.decay.stamRec}/h（夜间 ×2）−${s4.decay.stamCost}/移动事件。
+      低于 <b>${s4.low}</b> 进入消沉，能力打 <b>${s4.penalty}</b> 折。
+      <b>实测饱食在 ${s4.satZeroHour} 小时归零</b> —— 这就是「一天照料一次不够、
+      改 3 次/天」那个修正的依据。拖时间轴看曲线。</p>
+    <div class="cap">
+      <div class="knobs">
+        <label>经过</label>
+        <input id="n4-h" type="range" min="0" max="72" step="1" value="0">
+        <span class="fr" id="n4-hv" style="min-width:44px"></span>
+        <label>移动事件</label>
+        <input id="n4-mo" type="range" min="0" max="40" value="0">
+        <span class="fr" id="n4-mov" style="min-width:30px"></span>
+        <label><input type="checkbox" id="n4-night"> 夜间</label>
+      </div>
+      <div id="n4-axes"></div>
+      <div class="out" id="n4-out"></div>
+      <div class="formula" id="n4-cmp"></div>
+    </div>
+    <div id="n4-curve" style="margin-top:14px"></div>
+  </div>
+
+  <div class="gp-sec">
+    <h2>S5 图鉴　<span class="sub">可交互</span></h2>
+    <p class="gp-note">四个位图各 ${s5.dexBytes} 字节 = <b>${s5.bytes} B</b>。
+      为什么要四个而不是两个：S8 那份「闪光遇到了但跑了」的遗憾需要独立记，
+      否则存不下。当前样本 已捕 ${s5.caught} / 已见 ${s5.seen} / 闪光 ${s5.shinyCaught}。
+      <b>位图是从固件字节解出来的</b>，不是另存一份 owned 数组。</p>
+    <div class="knobs" style="border:1px solid var(--line);border-bottom:0;padding:8px 10px">
+      <button id="n5-prev">◀ 上页</button>
+      <span class="fr" id="n5-pg" style="min-width:70px"></span>
+      <button id="n5-next">下页 ▶</button>
+      <label style="margin-left:12px">显示</label>
+      <select id="n5-mode" style="font:12px monospace;padding:4px">
+        <option value="normal">正常</option>
+        <option value="silhouette">未捕获=剪影</option>
+      </select>
+    </div>
+    <div id="n5-grid" style="border:1px solid var(--line);padding:10px;
+      display:grid;grid-template-columns:repeat(10,1fr);gap:6px"></div>
+    <div class="formula" id="n5-cmp"></div>
+  </div>
+
+  <div class="gp-sec">
+    <h2>S6 存档　<span class="sub">可交互</span></h2>
+    <p class="gp-note">实测 <b>${s6.total} B</b>（+ 地点表 ${s6.placeTable}
+      + 队列 ${s6.queue} = ${s6.total + s6.placeTable + s6.queue} B），
+      双 buffer ${s6.dual} B。养成与成绩是<b>唯一不可再生的</b>，
+      而这类设备随时会被拔电 —— 所以 CRC 与双槽都不是可选项。
+      点「注入损坏」翻主槽一个 bit，看它是否回退到备份槽。</p>
+    <div class="cmp">
+      ${s6.layout.map(l => `<div><div class="lbl">${l.n}</div>
+        <div class="big">${l.b}</div></div>`).join("")}
+    </div>
+    <div class="knobs" style="border:1px solid var(--line);border-top:0;padding:8px 10px">
+      <button id="n6-write">写入存档</button>
+      <button id="n6-break">注入损坏（翻 1 bit）</button>
+      <button id="n6-reset">重置</button>
+    </div>
+    <div id="n6-slots"></div>
+    <div class="formula">
+      Python 侧实测：完好校验 <b class="${s6.verifyGood?"ok":"warn"}">${s6.verifyGood}</b>
+      损坏校验 <b class="${!s6.verifyBroken?"ok":"warn"}">${s6.verifyBroken}</b>
+      损坏前读自「${s6.srcBefore}」→ 损坏后读自「<b>${s6.srcAfter}</b>」
+    </div>
+  </div>
+
+  <div class="gp-sec">
+    <h2>S7 进化　<span class="sub">可交互</span></h2>
+    <p class="gp-note">三种原版触发都处理：<b>升级 ${s7.counts["升级"]} 只</b>、
+      <b>道具 ${s7.counts["道具"]} 只</b>、<b>交换 ${s7.counts["交换"]} 只</b>。
+      需求探索值 = evolve_level × 2，保留原版「这只进化早还是晚」的信息。
+      道具进化改成 biome 驻留 ${s7.dwellSec/3600}h（设备没商店，卡在「没有雷之石」
+      上无解）；交换进化用高门槛单机替代（亲密度 ${s7.tradeInt}、
+      探索 ×${s7.tradeMult}）。<b>进化后亲密度与探索值不清零</b> ——
+      实测进化后 亲密 ${s7.afterEvolve.inti} / 探索 ${s7.afterEvolve.expl} /
+      心情 ${s7.afterEvolve.mood}（+15），动效 ${s7.afterEvolve.frames} 帧。</p>
+
+    <div class="cap">
+      <div class="knobs">
+        <label>物种</label>
+        <select id="n7-mon" style="font:12px monospace;padding:5px"></select>
+        <label>亲密度</label><input id="n7-int" type="range" min="0" max="100" value="65">
+        <span class="fr" id="n7-intv" style="min-width:30px"></span>
+        <label>探索值</label><input id="n7-exp" type="range" min="0" max="300" value="40">
+        <span class="fr" id="n7-expv" style="min-width:36px"></span>
+        <label>驻留h</label><input id="n7-dw" type="range" min="0" max="12" value="0">
+        <span class="fr" id="n7-dwv" style="min-width:28px"></span>
+      </div>
+      <div id="n7-prog"></div>
+      <div class="out" id="n7-out"></div>
+      <div class="formula" id="n7-anim"></div>
+    </div>
+
+    <h3 style="margin:18px 0 6px;font-size:12px">判定探针
+      <span class="${nPass===s7.probes.length?"ok":"warn"}">
+        ${nPass}/${s7.probes.length} ${nPass===s7.probes.length?"✓":"✗"}</span></h3>
+    <p class="gp-note">每条探针都带<b>期望值</b>。没有期望值的探针验收不了任何东西 ——
+      「2/6 通过」既可能是设计如此、也可能是实现坏了，看不出区别。
+      这里 JS 重算，与 Python 期望不符就标红。</p>
+    <div class="tbl-scroll"><table>
+      <tr><th>物种</th><th>触发</th><th>亲密</th><th>探索</th><th>驻留</th>
+        <th>期望</th><th>Python</th><th>JS 重算</th><th>说明</th></tr>
+      ${s7.probes.map((p,i) => `<tr id="n7-pr-${i}">
+        <td>#${p.id} ${p.zh}</td><td>${p.trig}</td>
+        <td>${p.inti}</td><td>${p.expl}</td>
+        <td>${Object.entries(p.dwell).map(([k,v])=>k+v+"h").join("")||"—"}</td>
+        <td>${p.want?"可进化":"拦住"}</td>
+        <td class="${p.pass?"ok":"warn"}">${p.ok?"可进化":"拦住"}</td>
+        <td class="js">—</td>
+        <td style="color:var(--ink-soft)">${p.note}</td></tr>`).join("")}
+    </table></div>
+  </div>`;
+
+  initS4(s4); initS5(s5); initS6(s6); initS7(s7);
+};
+
+/* S4：JS 侧重算衰减，与 Python 曲线逐点对照。
+   公式必须与 sim/gameplay.py 逐字一致 —— 我第一版凭印象写，
+   三处都错了（消沉只看两轴、能力系数掺了体能项、窗口加成系数写错），
+   是这个面板的对照报警把它们逼出来的。这就是为什么要 JS 重算而非印 Python 结果。 */
+function petAdvance(hours, motion, night){
+  const s4 = D.sys2.s4, d = s4.decay;
+  const sat = Math.max(0, 80 - d.sat * hours);
+  const mood = Math.max(0, 70 - d.mood * hours);
+  const rec = d.stamRec * (night ? 2 : 1) * hours;
+  const stam = Math.max(0, Math.min(100, 90 + rec - d.stamCost * motion));
+  // is_despondent = min(三轴) < LOW_THRESHOLD —— 三轴，不是两轴
+  const desp = Math.min(sat, mood, stam) < s4.low;
+  // ability_factor 是纯二值：消沉 ×penalty，否则 1.0（不掺体能）
+  const af = desp ? s4.penalty : 1.0;
+  // catch_window_bonus = 1 + (mood - 50)/100
+  const cw = 1.0 + (mood - 50) / 100;
+  return {sat, mood, stam, desp, af, cw};
+}
+
+function initS4(s4){
+  const hR = document.getElementById("n4-h"), moR = document.getElementById("n4-mo"),
+        nk = document.getElementById("n4-night");
+  const upd = () => {
+    const h = +hR.value, mo = +moR.value, night = nk.checked;
+    document.getElementById("n4-hv").textContent = h + " h";
+    document.getElementById("n4-mov").textContent = mo;
+    const r = petAdvance(h, mo, night);
+    const bar = (lbl, v, warn) => `
+      <div style="display:flex;align-items:center;gap:8px;margin:5px 0">
+        <span style="width:38px;font-size:11px">${lbl}</span>
+        <span style="flex:1;height:12px;background:var(--bg);
+          border:1px solid var(--line);position:relative">
+          <span style="position:absolute;inset:0 auto 0 0;width:${v}%;
+            background:${warn?"var(--accent)":"var(--ok)"};opacity:.6"></span>
+          <span style="position:absolute;left:${s4.low}%;top:-2px;bottom:-2px;
+            width:1px;background:var(--ink-soft)"></span>
+        </span>
+        <span class="fr" style="min-width:44px;text-align:right">${v.toFixed(1)}</span>
+      </div>`;
+    document.getElementById("n4-axes").innerHTML =
+      bar("饱食", r.sat, r.sat < s4.low) + bar("心情", r.mood, r.mood < s4.low) +
+      bar("体能", r.stam, r.stam < s4.low) +
+      `<div class="sub" style="font-size:10px">竖线 = 消沉阈值 ${s4.low}</div>`;
+    document.getElementById("n4-out").innerHTML = r.desp
+      ? `<span class="warn">消沉</span>　能力 ×${r.af.toFixed(2)}　捕获窗口 ×${r.cw.toFixed(2)}`
+      : `<span class="ok">状态正常</span>　能力 ×${r.af.toFixed(2)}　捕获窗口 ×${r.cw.toFixed(2)}`;
+
+    // 与 Python 曲线对照（只在 6 的倍数上有采样点）
+    //
+    // **af/cw 也必须纳入比对** —— 只比三轴的话，能力系数与窗口加成
+    // 抄错了照样全绿。我第一版就是这么漏掉三个公式错误的。
+    const py = s4.curve.find(c => c.h === h);
+    const box = document.getElementById("n4-cmp");
+    if(py && mo === 0 && !night){
+      const dif = Math.abs(py.sat - r.sat) + Math.abs(py.mood - r.mood)
+                + Math.abs(py.stam - r.stam);
+      const difA = Math.abs(py.af - r.af) + Math.abs(py.cw - r.cw);
+      const lowOk = py.low === r.desp;
+      box.innerHTML = (dif < 0.15 && difA < 0.005 && lowOk)
+        ? `<span class="ok">✓ 与 Python 一致</span>　${h}h：
+           饱食 ${py.sat} 心情 ${py.mood} 体能 ${py.stam}
+           　能力 ×${py.af} 窗口 ×${py.cw} 消沉 ${py.low}`
+        : `<span class="warn">✗ 不一致</span>
+           Python ${py.sat}/${py.mood}/${py.stam} af=${py.af} cw=${py.cw} low=${py.low}
+           　JS ${r.sat.toFixed(1)}/${r.mood.toFixed(1)}/${r.stam.toFixed(1)}
+           af=${r.af.toFixed(3)} cw=${r.cw.toFixed(3)} low=${r.desp}`;
+    } else {
+      box.innerHTML = `<span class="sub">（Python 曲线只采样 0/6/12…72h、
+        无移动、非夜间；当前参数无对照点）</span>`;
+    }
+  };
+  [hR, moR].forEach(x => x.addEventListener("input", upd));
+  nk.addEventListener("change", upd);
+  upd();
+
+  // 整条 72h 曲线
+  const W = 520, H = 110, pad = 4;
+  const pts = k => s4.curve.map((c,i) =>
+    `${pad + i/(s4.curve.length-1)*(W-2*pad)},${pad + (100-c[k])/100*(H-2*pad)}`).join(" ");
+  document.getElementById("n4-curve").innerHTML = `
+    <h3 style="margin:0 0 6px;font-size:12px">72 小时无照料曲线</h3>
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;
+      border:1px solid var(--line);background:var(--panel)">
+      <line x1="${pad}" x2="${W-pad}" y1="${pad+(100-s4.low)/100*(H-2*pad)}"
+        y2="${pad+(100-s4.low)/100*(H-2*pad)}"
+        stroke="var(--ink-soft)" stroke-dasharray="3 3"/>
+      <polyline points="${pts("sat")}" fill="none" stroke="var(--accent)" stroke-width="1.5"/>
+      <polyline points="${pts("mood")}" fill="none" stroke="var(--ok)" stroke-width="1.5"/>
+      <polyline points="${pts("stam")}" fill="none" stroke="var(--ink-soft)" stroke-width="1.5"/>
+    </svg>
+    <div class="sub" style="font-size:10px">
+      <span style="color:var(--accent)">━ 饱食</span>
+      <span style="color:var(--ok)">━ 心情</span>
+      <span style="color:var(--ink-soft)">━ 体能（夜间恢复）　虚线 = 消沉阈值</span>
+      　饱食 <b>${s4.satZeroHour}h</b> 归零</div>`;
+}
+
+/* S5：从固件位图解位，翻页 */
+function initS5(s5){
+  const bits = {};
+  for(const k in s5.bits) bits[k] = b64bytes(s5.bits[k]);
+  const getBit = (k, sid) =>
+    !!(bits[k][(sid-1) >> 3] & (1 << ((sid-1) & 7)));
+
+  let page = 0;
+  const draw = () => {
+    const per = s5.perPage, start = page * per + 1;
+    const mode = document.getElementById("n5-mode").value;
+    document.getElementById("n5-pg").textContent = `${page+1} / ${s5.pages}`;
+    const cells = [];
+    for(let sid = start; sid < Math.min(start + per, 152); sid++){
+      const m = D.mons[sid-1];
+      const owned = getBit("caught", sid), seen = getBit("seen", sid);
+      const sh = getBit("shiny_caught", sid);
+      cells.push(`<div style="text-align:center">
+        <canvas id="n5c-${sid}" width="${m.fsize}" height="${m.fsize}"
+          style="width:100%;image-rendering:pixelated;
+          border:1px solid var(--line);background:var(--bg)"></canvas>
+        <div style="font-size:9px;color:var(--ink-soft);margin-top:2px">
+          ${sh?'<span class="shiny">✦</span>':""}${owned?"":(seen?"见":"—")}
+          ${String(sid).padStart(3,"0")}</div></div>`);
+    }
+    document.getElementById("n5-grid").innerHTML = cells.join("");
+
+    for(let sid = start; sid < Math.min(start + per, 152); sid++){
+      const cv = document.getElementById("n5c-"+sid); if(!cv) continue;
+      const m = D.mons[sid-1], owned = getBit("caught", sid);
+      const sh = getBit("shiny_caught", sid);
+      const ctx = cv.getContext("2d");
+      // 未捕获 = 全暗剪影：shade_map 全指向最深色，零素材成本
+      const pal = (!owned && mode === "silhouette")
+        ? ["#1a1a1a","#1a1a1a","#1a1a1a", palOf(sid,false)[3]]
+        : palOf(sid, sh);
+      ctx.fillStyle = pal[3]; ctx.fillRect(0,0,m.fsize,m.fsize);
+      drawSprite(ctx, b64bytes(D.front[sid]), m.fsize, 0,0,1, null, pal);
+    }
+
+    // JS 解位的计数与 Python 对照
+    let c=0,s=0;
+    for(let i=1;i<=151;i++){ if(getBit("caught",i)) c++; if(getBit("seen",i)) s++; }
+    const ok = c === s5.caught && s === s5.seen;
+    document.getElementById("n5-cmp").innerHTML = ok
+      ? `<span class="ok">✓ JS 解位与 Python 一致</span>　已捕 ${c}　已见 ${s}
+         　共 ${s5.pages} 页 × ${s5.perPage} 只`
+      : `<span class="warn">✗ 位图解码不一致</span>　JS ${c}/${s}
+         　Python ${s5.caught}/${s5.seen}`;
+  };
+  document.getElementById("n5-prev").onclick = () => {
+    page = (page - 1 + s5.pages) % s5.pages; draw(); };
+  document.getElementById("n5-next").onclick = () => {
+    page = (page + 1) % s5.pages; draw(); };
+  document.getElementById("n5-mode").onchange = draw;
+  draw();
+}
+
+/* S6：双 buffer 交替写 + 注入损坏看回退 */
+function initS6(s6){
+  let slots = [null, null], active = 0, writes = 0;
+  const render = (msg) => {
+    document.getElementById("n6-slots").innerHTML = `
+      <div class="cmp">
+        ${[0,1].map(i => `<div class="${
+          slots[i]===null ? "" : (slots[i].ok ? "good" : "bad")}">
+          <div class="lbl">槽 ${"AB"[i]}${i===active?"（活动）":""}</div>
+          <div class="big">${slots[i]===null ? "空"
+            : (slots[i].ok ? "完好" : "损坏")}</div></div>`).join("")}
+        <div><div class="lbl">写入次数</div><div class="big">${writes}</div></div>
+      </div>
+      <div class="out">${msg}</div>`;
+  };
+  const load = () => {
+    for(const [i, lbl] of [[active,"主槽"],[1-active,"备份槽"]]){
+      if(slots[i] && slots[i].ok)
+        return `<span class="ok">读取成功</span>　来源「<b>${lbl}</b>」`;
+    }
+    return `<span class="warn">两份都损坏</span>　需要重新开始`;
+  };
+  document.getElementById("n6-write").onclick = () => {
+    const t = 1 - active;
+    slots[t] = {ok:true};      // 写非活动槽
+    active = t;                 // 切换 = 提交
+    writes++;
+    render(`写入槽 ${"AB"[t]} 并切为活动。${load()}`);
+  };
+  document.getElementById("n6-break").onclick = () => {
+    if(!slots[active]){ render(`<span class="warn">活动槽是空的，先写入</span>`); return; }
+    slots[active] = {ok:false};
+    render(`翻转活动槽 ${"AB"[active]} 的一个 bit → CRC 校验失败。${load()}`);
+  };
+  document.getElementById("n6-reset").onclick = () => {
+    slots = [null,null]; active = 0; writes = 0;
+    render(`<span class="sub">已重置。连按两次「写入存档」让两槽都有数据，
+      再「注入损坏」看回退。</span>`);
+  };
+  document.getElementById("n6-reset").onclick();
+}
+
+/* S7：改滑块看门槛判定，同时 JS 重算所有探针 */
+function checkEvolveJS(m, inti, expl, dwellH, s7){
+  if(!m.evo || !m.trig) return {can:false, why:"这只不会进化"};
+  let needInt = 60, needExp = Math.max(10, m.lv * 2), needBiome = "";
+  if(m.trig === "交换"){
+    needInt = s7.tradeInt;
+    needExp = Math.max(20, m.lv * s7.tradeMult);
+  } else if(m.trig === "道具"){
+    needBiome = s7.probeBiome[m.id] || "野外";
+  }
+  if(inti < needInt) return {can:false, why:`亲密度不足（${inti}/${needInt}）`,
+                            needInt, needExp, needBiome};
+  if(expl < needExp) return {can:false, why:`探索值不足（${expl}/${needExp}）`,
+                             needInt, needExp, needBiome};
+  if(needBiome && dwellH * 3600 < s7.dwellSec)
+    return {can:false, why:`${needBiome}驻留不足（${dwellH}/${s7.dwellSec/3600} 小时）`,
+            needInt, needExp, needBiome};
+  return {can:true, why:"可以进化", needInt, needExp, needBiome};
+}
+
+function initS7(s7){
+  // 道具进化的 biome 由 Python 侧算好逐只带过来，避免 JS 再抄一份石头表
+  s7.probeBiome = {};
+  s7.samples.forEach(s => { if(s.biome) s7.probeBiome[s.id] = s.biome; });
+
+  const sel = document.getElementById("n7-mon");
+  sel.innerHTML = s7.samples.map(s =>
+    `<option value="${s.id}">#${s.id} ${s.zh} → ${s.toZh}（${s.trig}）</option>`).join("");
+
+  const iR = document.getElementById("n7-int"), eR = document.getElementById("n7-exp"),
+        dR = document.getElementById("n7-dw");
+  const upd = () => {
+    const s = s7.samples.find(x => x.id === +sel.value);
+    const m = D.mons[s.id-1];
+    const inti = +iR.value, expl = +eR.value, dwellH = +dR.value;
+    document.getElementById("n7-intv").textContent = inti;
+    document.getElementById("n7-expv").textContent = expl;
+    document.getElementById("n7-dwv").textContent = dwellH + "h";
+    const r = checkEvolveJS({...m, trig:s.trig, lv:s.lv, evo:s.to},
+                            inti, expl, dwellH, s7);
+
+    const row = (lbl, cur, need) => {
+      const pct = need ? Math.min(100, cur/need*100) : 100;
+      return `<div style="display:flex;align-items:center;gap:8px;margin:5px 0">
+        <span style="width:52px;font-size:11px">${lbl}</span>
+        <span style="flex:1;height:12px;background:var(--bg);
+          border:1px solid var(--line);position:relative">
+          <span style="position:absolute;inset:0 auto 0 0;width:${pct}%;
+            background:${cur>=need?"var(--ok)":"var(--accent)"};opacity:.6"></span></span>
+        <span class="fr" style="min-width:66px;text-align:right">${cur}/${need}</span></div>`;
+    };
+    let html = row("亲密度", inti, r.needInt) + row("探索值", expl, r.needExp);
+    if(r.needBiome) html += row(r.needBiome, dwellH, s7.dwellSec/3600);
+    document.getElementById("n7-prog").innerHTML = html;
+
+    document.getElementById("n7-out").innerHTML = r.can
+      ? `<span class="ok">✓ ${r.why}</span>　#${s.id} ${s.zh} → #${s.to} ${s.toZh}`
+      : `<span class="warn">✗ ${r.why}</span>`;
+    document.getElementById("n7-anim").innerHTML = r.can
+      ? `进化动效 ${s7.afterEvolve.frames} 帧（effects.py 的 evolution_sequence，
+         IDENTITY 帧画旧形态 / INVERT 帧画新形态，零素材）。
+         进化后亲密与探索<b>不清零</b>，心情 +15。`
+      : `触发类型 <b>${s.trig}</b>　门槛：亲密 ${r.needInt}　探索 ${r.needExp}
+         ${r.needBiome ? "　"+r.needBiome+" 驻留 "+(s7.dwellSec/3600)+"h" : ""}`;
+  };
+  [sel, iR, eR, dR].forEach(x => x.addEventListener("input", upd));
+  sel.addEventListener("change", upd);
+  upd();
+
+  // 逐条重算探针，与 Python 期望对照
+  s7.probes.forEach((p, i) => {
+    const m = D.mons[p.id-1];
+    const smp = s7.samples.find(x => x.id === p.id) || {};
+    const dwellH = Object.values(p.dwell)[0] || 0;
+    const key = Object.keys(p.dwell)[0] || "";
+    // biome 不对时驻留不该算 —— 传 0
+    const eff = (smp.biome && key && key !== smp.biome) ? 0 : dwellH;
+    const r = checkEvolveJS({...m, trig:p.trig, lv:smp.lv ?? m.lv, evo:smp.to ?? m.evo},
+                            p.inti, p.expl, eff, s7);
+    const tr = document.getElementById("n7-pr-"+i);
+    if(!tr) return;
+    const cell = tr.querySelector(".js");
+    const agree = r.can === p.ok && r.can === p.want;
+    cell.className = agree ? "js ok" : "js warn";
+    cell.textContent = (r.can ? "可进化" : "拦住") + (agree ? " ✓" : " ✗");
+    if(!agree) cell.title = r.why;
+  });
+}
+
+
+/* ── S8-S11 元系统验收 ── */
+BUILD.meta = () => {
+  const S = D.sys2;
+  const host = document.getElementById("meta-body");
+  if(!S || !S.s11){
+    host.innerHTML = `<p class="sub">sys2 数据未打包。跑
+      <b>./tools/inspector/serve.sh --rebuild</b>。</p>`;
+    return;
+  }
+  const s8 = S.s8, s9 = S.s9, s10 = S.s10, s11 = S.s11;
+
+  host.innerHTML = `
+  <div class="gp-sec">
+    <h2>S8 闪光　<span class="sub">可交互</span></h2>
+    <p class="gp-note">1/${s8.denom}，<b>彩色屏让它几乎免费</b> ——
+      位图完全相同，只换调色板。判定是确定性的
+      （<code>crc32(bssid|hour|rarity)</code>），所以同一个 AP 同一小时
+      刷出的闪光是稳定的，不会因为重启而变。
+      100 次遭遇内见到的概率 <b>${s8.expect1}%</b>，500 次 <b>${s8.expect500}%</b>。
+      点物种看两套调色板对比。</p>
+    <div class="knobs" style="border:1px solid var(--line);border-bottom:0;padding:8px 10px">
+      <label>物种</label>
+      <select id="m8-mon" style="font:12px monospace;padding:5px"></select>
+      <button id="m8-rand">随机一只</button>
+    </div>
+    <div id="m8-cmp" style="border:1px solid var(--line);padding:12px;
+      display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap"></div>
+  </div>
+
+  <div class="gp-sec">
+    <h2>S9 道具　<span class="sub">可交互</span></h2>
+    <p class="gp-note">四种道具各一字节，<b>不做背包页面</b> ——
+      数量显示在用到它的页面上。上限存在的意义是<b>逼出决策</b>：
+      高级球只有 ${s9.caps.ultra} 个，用不用在这只身上是个真选择。
+      掉落<b>无论捕获成败</b>，否则玩家会陷入「球不够→不敢投→更没球」的死锁。
+      切球<b>跳过数量为 0 的</b>：只有精灵球时从 great 切也应落回
+      <b>${s9.skipEmpty.from_great}</b>。</p>
+    <div class="cmp">
+      ${Object.entries(s9.caps).map(([k,v]) => `<div>
+        <div class="lbl">${{poke:"精灵球",great:"超级球",ultra:"高级球",berry:"浆果"}[k]} 上限</div>
+        <div class="big">${v}</div></div>`).join("")}
+    </div>
+    <div class="knobs" style="border:1px solid var(--line);border-top:0;padding:8px 10px">
+      <label>稀有度</label>
+      <select id="m9-r" style="font:12px monospace;padding:5px">
+        ${[1,2,3,4,5].map(r=>`<option value="${r}">${"★".repeat(r)+"☆".repeat(5-r)}</option>`).join("")}
+      </select>
+      <label><input type="checkbox" id="m9-new"> 新地点</label>
+      <button id="m9-drop">触发一次掉落</button>
+      <button id="m9-reset">清空</button>
+    </div>
+    <div id="m9-bag"></div>
+    <div class="formula" id="m9-cmp"></div>
+  </div>
+
+  <div class="gp-sec">
+    <h2>S10 成绩　<span class="sub">可交互</span></h2>
+    <p class="gp-note"><b>不做联网排行榜</b> —— 单机无对手，这里的「排行」是与自己的历史比。
+      这不是妥协：Tamagotchi 从来没有排行榜，靠的就是「我养了多久」。
+      纪录<b>只在日切时更新，不实时比对</b> —— 实时不会更准，只会多写 flash。
+      共 ${s10.bytes} B。点「推进一天」逐日看纪录被打破的时刻。</p>
+    <div class="knobs" style="border:1px solid var(--line);border-bottom:0;padding:8px 10px">
+      <button id="m10-day">推进一天</button>
+      <button id="m10-all">跑完 14 天</button>
+      <button id="m10-reset">重置</button>
+      <span class="fr" id="m10-at" style="min-width:80px"></span>
+    </div>
+    <div id="m10-body"></div>
+  </div>
+
+  <div class="gp-sec">
+    <h2>S11 开场动画　<span class="sub">逐帧可步进</span></h2>
+    <p class="gp-note">参数取自 <b>DMG boot ROM 反汇编</b>，不是估的：
+      <code>LD D,$64</code> 滚动 ${s11.scrollSteps} 步、
+      <code>CP $62</code>/<code>CP $64</code> 在第
+      <b>${s11.sound1}</b> 与 <b>${s11.sound2}</b> 步播两声、
+      <code>LD D,$20</code> 落定后暂停 ${s11.settle} 步。
+      <b>关键细节：音效在落定瞬间响，不是开头</b> ——
+      很多复刻版把「叮」放在动画开始，节奏感完全不同。
+      共 ${s11.frames} 帧，30fps ≈ ${(s11.frames/30).toFixed(1)} 秒。</p>
+    <div class="cols" style="align-items:flex-start">
+      <div class="device">
+        <div class="screen-frame">
+          <canvas class="screen" id="m11-screen" width="240" height="320"></canvas>
+          <div class="screen-label">DOT MATRIX WITH STEREO SOUND</div>
+        </div>
+        <div class="stepper">
+          <button id="m11-pp" title="播放/暂停">▶</button>
+          <button id="m11-prev">◀</button>
+          <button id="m11-next">▶</button>
+          <span class="fr" id="m11-fr">—</span>
+        </div>
+        <div class="stepper">
+          <input id="m11-scrub" type="range" min="1" max="${s11.frames}" value="1"
+            style="flex:1">
+        </div>
+        <div class="readout" id="m11-out"></div>
+      </div>
+      <div style="flex:1;min-width:260px">
+        <h3 style="margin:0 0 6px;font-size:12px">logo Y 轨迹</h3>
+        <div id="m11-track"></div>
+        <h3 style="margin:16px 0 6px;font-size:12px">伙伴选择　<span class="sub">三键</span></h3>
+        <p class="gp-note">三球一排（御三家）+ <b>皮卡丘在球外</b> ——
+          它在原版黄版里就是跟在训练家身后、从不进球，
+          放在三球之外一眼就能看出「这只不一样」，不需要任何文字说明。
+          它的位置<b>刻意不与三球对齐</b>，强化这一点。
+          C 键预览是对原版的偏离：原版选了才知道，但三键无触摸下那是纯赌博。</p>
+        <div class="knobs" style="border:1px solid var(--line);padding:8px 10px">
+          <button id="m11-b">B 移动光标</button>
+          <button id="m11-c">C 预览</button>
+          <button id="m11-a">A 确认</button>
+          <button id="m11-r">重来</button>
+        </div>
+        <canvas id="m11-choose" width="240" height="320"
+          style="width:100%;max-width:240px;image-rendering:pixelated;
+          border:1px solid var(--line);margin-top:10px;background:#000"></canvas>
+        <div class="formula" id="m11-result"></div>
+      </div>
+    </div>
+  </div>`;
+
+  initS8(); initS9(s9); initS10(s10); initS11(s11);
+};
+
+function initS8(){
+  const sel = document.getElementById("m8-mon");
+  // 挑闪光差异明显的：调色板索引不同的几只
+  sel.innerHTML = D.mons.map(m =>
+    `<option value="${m.id}">#${String(m.id).padStart(3,"0")} ${m.zh||m.slug}</option>`).join("");
+  sel.value = 25;
+  const draw = () => {
+    const sid = +sel.value, m = D.mons[sid-1];
+    const pn = palOf(sid,false), ps = palOf(sid,true);
+    document.getElementById("m8-cmp").innerHTML = [["普通",false,pn],["闪光",true,ps]]
+      .map(([lbl,sh,pal]) => `
+        <div style="text-align:center">
+          <canvas id="m8c-${sh?1:0}" width="${m.fsize}" height="${m.fsize}"
+            style="width:120px;image-rendering:pixelated;border:1px solid var(--line)"></canvas>
+          <div style="font-size:11px;margin-top:4px">
+            ${sh?'<span class="shiny">✦</span> ':""}${lbl}</div>
+          <div style="display:flex;gap:2px;justify-content:center;margin-top:4px">
+            ${pal.map(c=>`<span style="width:18px;height:18px;background:${c};
+              border:1px solid var(--line)" title="${c}"></span>`).join("")}</div>
+        </div>`).join("") +
+      `<div style="flex:1;min-width:180px;font-size:11px;color:var(--ink-soft)">
+        <b>位图字节完全相同</b> —— 两张图读的是同一份
+        <code>gen1_front.bin</code> 数据，只有调色板不同。<br><br>
+        这就是彩色屏让闪光「几乎免费」的原因：黑白屏要靠改 shade_map 做区分，
+        效果弱且会与遭遇动效冲突；彩色屏只需另存 10 套调色板
+        （每套 ${pn.length} 色 × 2 B = ${pn.length*2} B）。</div>`;
+    [[0,false],[1,true]].forEach(([i,sh]) => {
+      const cv = document.getElementById("m8c-"+i); if(!cv) return;
+      const pal = palOf(sid, sh), ctx = cv.getContext("2d");
+      ctx.fillStyle = pal[3]; ctx.fillRect(0,0,m.fsize,m.fsize);
+      drawSprite(ctx, b64bytes(D.front[sid]), m.fsize, 0,0,1, null, pal);
+    });
+  };
+  sel.onchange = draw;
+  document.getElementById("m8-rand").onclick = () => {
+    sel.value = 1 + Math.floor(Math.random()*151); draw(); };
+  draw();
+}
+
+function initS9(s9){
+  const NAME = {poke:"精灵球", great:"超级球", ultra:"高级球", berry:"浆果"};
+  let bag = {poke:0, great:0, ultra:0, berry:0}, drops = 0;
+  // JS 重算 drop_from_encounter
+  const dropJS = (r, isNew) => {
+    const got = {};
+    const add = (k,n) => {
+      const before = bag[k];
+      bag[k] = Math.min(s9.caps[k], bag[k] + n);
+      return bag[k] - before;
+    };
+    got.poke = add("poke", r >= 3 ? 2 : 1);
+    if(r >= 3) got.great = add("great", 1);
+    if(r >= 5) got.ultra = add("ultra", 1);
+    if(isNew) got.ultra = (got.ultra||0) + add("ultra", 1);
+    return got;
+  };
+  const nextBall = (cur) => {
+    const order = ["poke","great","ultra"];
+    if(!order.includes(cur)) cur = "poke";
+    for(let i=1;i<=order.length;i++){
+      const nx = order[(order.indexOf(cur)+i) % order.length];
+      if(bag[nx] > 0) return nx;
+    }
+    return cur;
+  };
+  const render = (last) => {
+    document.getElementById("m9-bag").innerHTML = `
+      <div class="cmp">
+        ${Object.keys(NAME).map(k => `<div class="${
+          bag[k] >= s9.caps[k] ? "bad" : ""}">
+          <div class="lbl">${NAME[k]}</div>
+          <div class="big">${bag[k]}<span style="font-size:11px;
+            color:var(--ink-soft)">/${s9.caps[k]}</span></div></div>`).join("")}
+        <div><div class="lbl">掉落次数</div><div class="big">${drops}</div></div>
+      </div>
+      <div class="out">${last || '<span class="sub">点「触发一次掉落」</span>'}</div>`;
+    // 切球跳空验收
+    const hasAny = Object.values(bag).slice(0,3).some(v=>v>0);
+    document.getElementById("m9-cmp").innerHTML = hasAny
+      ? `切球循环（跳过空的）：poke → <b>${nextBall("poke")}</b>
+         great → <b>${nextBall("great")}</b>　ultra → <b>${nextBall("ultra")}</b>
+         <br><span class="sub">避免玩家切到空球再发现不能投。</span>`
+      : `<span class="sub">三种球都是 0，切球会保持原样（无处可切）。</span>`;
+  };
+  document.getElementById("m9-drop").onclick = () => {
+    const r = +document.getElementById("m9-r").value;
+    const isNew = document.getElementById("m9-new").checked;
+    const got = dropJS(r, isNew);
+    drops++;
+    const txt = Object.entries(got).filter(([,v])=>v)
+      .map(([k,v])=>`${NAME[k]} +${v}`).join("　") || "全部已满，没掉到东西";
+    // 与 Python 表对照
+    const py = s9.drops.find(d => d.rarity === r);
+    const ref = isNew ? py.newPlace : py.normal;
+    const refTxt = Object.entries(ref).map(([k,v])=>`${NAME[k]} +${v}`).join("　");
+    render(`${txt}　<span class="sub">（Python 空包同条件：${refTxt}）</span>`);
+  };
+  document.getElementById("m9-reset").onclick = () => {
+    bag = {poke:0,great:0,ultra:0,berry:0}; drops = 0; render(); };
+  render();
+}
+
+function initS10(s10){
+  let at = 0;
+  const render = () => {
+    const shown = s10.days.slice(0, at);
+    document.getElementById("m10-at").textContent = `第 ${at} / 14 天`;
+    const W = 520, H = 90, pad = 4;
+    const mx = Math.max(1, ...s10.days.map(d=>d.enc));
+    const bars = shown.map((d,i) => {
+      const w = (W-2*pad)/14, x = pad + i*w;
+      const h = d.enc/mx*(H-2*pad);
+      return `<rect x="${x+1}" y="${H-pad-h}" width="${w-2}" height="${h}"
+        fill="${d.broken.length?"var(--accent)":"var(--ok)"}" opacity=".6"/>`;
+    }).join("");
+    document.getElementById("m10-body").innerHTML = `
+      <svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;
+        border:1px solid var(--line);border-top:0;background:var(--panel)">${bars}</svg>
+      <div class="sub" style="font-size:10px;margin-bottom:8px">
+        每日遭遇数　<span style="color:var(--accent)">红 = 该日打破了纪录</span></div>
+      <div class="tbl-scroll"><table>
+        <tr><th>日</th><th>遭遇</th><th>捕获</th><th>移动</th><th>新地点</th>
+          <th>照料</th><th>出门</th><th>连续</th><th>打破的纪录</th></tr>
+        ${shown.map(d=>`<tr>
+          <td>${d.d}</td><td>${d.enc}</td><td>${d.cap}</td><td>${d.mot}</td>
+          <td>${d.newp}</td>
+          <td class="${d.cared?"ok":"warn"}">${d.cared?"✓":"✗"}</td>
+          <td class="${d.out?"ok":"warn"}">${d.out?"✓":"✗"}</td>
+          <td>照${d.careStreak}/出${d.outStreak}</td>
+          <td style="color:var(--accent)">${d.broken.join("、")||"—"}</td></tr>`).join("")}
+      </table></div>
+      ${at >= 14 ? `<div class="cmp">
+        <div><div class="lbl">单日遭遇最多</div><div class="big">${s10.final.bestEnc}</div></div>
+        <div><div class="lbl">单日移动量</div><div class="big">${s10.final.bestMot}</div></div>
+        <div><div class="lbl">连续照料</div><div class="big">${s10.final.careStreak}</div></div>
+        <div><div class="lbl">连续出门</div><div class="big">${s10.final.outStreak}</div></div>
+        <div><div class="lbl">累计遭遇</div><div class="big">${s10.final.totalEnc}</div></div>
+        <div class="good"><div class="lbl">序列化</div>
+          <div class="big">${s10.bytes} B</div></div>
+      </div>
+      <div class="formula">连续天数中断则归零，但<b>历史最长值保留</b> ——
+        断了一天不该把「我坚持过 30 天」这件事也抹掉。
+        趋势只留最近 ${s10.trendDays} 天，环形覆盖。</div>` : ""}`;
+  };
+  document.getElementById("m10-day").onclick = () => {
+    if(at < 14){ at++; render(); } };
+  document.getElementById("m10-all").onclick = () => { at = 14; render(); };
+  document.getElementById("m10-reset").onclick = () => { at = 0; render(); };
+  render();
+}
+
+function initS11(s11){
+  /* --- 启动动画逐帧 --- */
+  const cv = document.getElementById("m11-screen"), ctx = cv.getContext("2d");
+  let fi = 1, timer = null;
+
+  // GB logo 的极简点阵近似（真机是 boot ROM 里的压缩位图）。
+  // 这里只求形状与比例对得上，验收的是**时序**而不是字形。
+  const drawLogo = (y) => {
+    ctx.fillStyle = "#c4cfa1"; ctx.fillRect(0,0,240,320);   // DMG 屏绿
+    ctx.fillStyle = "#0f380f";
+    const L = s11.logo;
+    ctx.fillRect(L.x, y, L.w, L.h);
+    ctx.fillStyle = "#c4cfa1";
+    ctx.font = "bold 9px 'Silkscreen', monospace";
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("KANTO", L.x + L.w/2, y + L.h/2 + 1);
+  };
+  const show = () => {
+    const y = s11.ys[fi-1] ?? s11.logo.y1;
+    drawLogo(y);
+    const snd = s11.sounds.find(s => s.f === fi);
+    if(snd){
+      // 音效帧画一圈提示环 —— 验收「响在落定瞬间」
+      ctx.strokeStyle = "#0f380f"; ctx.lineWidth = 2;
+      ctx.strokeRect(s11.logo.x-8, y-8, s11.logo.w+16, s11.logo.h+16);
+    }
+    const settled = fi > s11.scrollSteps;
+    document.getElementById("m11-fr").textContent = `${fi}/${s11.frames}`;
+    document.getElementById("m11-scrub").value = fi;
+    document.getElementById("m11-out").innerHTML =
+      `帧 ${fi}　logo Y=${y}　${settled
+        ? `<span class="ok">落定暂停（第 ${fi-s11.scrollSteps}/${s11.settle} 帧）</span>`
+        : `滚动中（第 ${fi}/${s11.scrollSteps} 步）`}` +
+      (snd ? `　<b class="warn">♪ 音效 #${snd.s}</b>` : "");
+  };
+  const step = (d) => { fi = ((fi - 1 + d + s11.frames) % s11.frames) + 1; show(); };
+  document.getElementById("m11-prev").onclick = () => { stop(); step(-1); };
+  document.getElementById("m11-next").onclick = () => { stop(); step(1); };
+  document.getElementById("m11-scrub").oninput = e => { stop(); fi = +e.target.value; show(); };
+  function stop(){ if(timer){ clearInterval(timer); timer = null;
+    document.getElementById("m11-pp").textContent = "▶"; } }
+  document.getElementById("m11-pp").onclick = () => {
+    if(timer){ stop(); return; }
+    document.getElementById("m11-pp").textContent = "⏸";
+    timer = setInterval(() => step(1), 1000/30);      // 30fps
+  };
+  show();
+
+  // Y 轨迹图，标出两个音效帧
+  const W = 300, H = 100, pad = 6;
+  const pts = s11.ys.map((y,i) =>
+    `${pad + i/(s11.ys.length-1)*(W-2*pad)},${pad + (y-100)/140*(H-2*pad)}`).join(" ");
+  const marks = s11.sounds.map(s => {
+    const x = pad + (s.f-1)/(s11.ys.length-1)*(W-2*pad);
+    return `<line x1="${x}" x2="${x}" y1="${pad}" y2="${H-pad}"
+      stroke="var(--accent)" stroke-width="1"/>
+      <text x="${x-2}" y="${pad+10}" font-size="8" fill="var(--accent)"
+        text-anchor="end">♪${s.f}</text>`;
+  }).join("");
+  document.getElementById("m11-track").innerHTML = `
+    <svg viewBox="0 0 ${W} ${H}" style="width:100%;max-width:${W}px;
+      border:1px solid var(--line);background:var(--panel)">
+      ${marks}
+      <polyline points="${pts}" fill="none" stroke="var(--ink)" stroke-width="1.5"/>
+    </svg>
+    <div class="sub" style="font-size:10px">
+      Y 从 ${s11.logo.y0} 降到 ${s11.logo.y1}。
+      <span style="color:var(--accent)">红线 = 音效帧</span>，
+      落在<b>曲线末端</b>而非起点 —— 这正是原版的节奏。</div>`;
+
+  /* --- 伙伴选择 --- */
+  const ch = document.getElementById("m11-choose"), cc = ch.getContext("2d");
+  let cursor = 1, revealed = [false,false,false,false], confirmed = null;
+
+  const drawBall = (x, y, open) => {
+    cc.save(); cc.translate(x, y);
+    cc.fillStyle = open ? "#8b8b8b" : "#d03030";
+    cc.beginPath(); cc.arc(0,0,17,Math.PI,0); cc.fill();
+    cc.fillStyle = "#f0f0f0";
+    cc.beginPath(); cc.arc(0,0,17,0,Math.PI); cc.fill();
+    cc.strokeStyle = "#101010"; cc.lineWidth = 2;
+    cc.beginPath(); cc.arc(0,0,17,0,Math.PI*2); cc.stroke();
+    cc.beginPath(); cc.moveTo(-17,0); cc.lineTo(17,0); cc.stroke();
+    cc.fillStyle = "#f0f0f0"; cc.beginPath(); cc.arc(0,0,5,0,Math.PI*2); cc.fill();
+    cc.strokeStyle = "#101010"; cc.lineWidth = 2; cc.stroke();
+    cc.restore();
+  };
+  const drawCursor = (x, y) => {
+    // 手指光标 —— 原版选择菜单的标志性元素：一只手，不是箭头。
+    // 我第一版画成了向下箭头（路径写反），丢掉了原版最认得出的符号。
+    //
+    // 这里手指在目标**下方指向上**：原版菜单的手指在左侧向右指，
+    // 但那是纵向列表；三球横排下 240px 装不开每球各配左侧手指
+    // （每格需 86px，三格 258px > 240），实算才发现。
+    // 位置由 sim/intro.py 的 CURSOR_OFFSET_X/Y 决定，JS 不自己再算。
+    // 尺寸 1.6× 放大：22px 的手在 240 屏上缩放显示后只剩十几像素，
+    // 认不出是手。原版 GB 的光标手指相对 160px 屏是很大的一块。
+    cc.save();
+    cc.translate(x, y); cc.scale(1.6, 1.6);
+    cc.fillStyle = "#f8f8f8"; cc.strokeStyle = "#101010";
+    cc.lineWidth = 1.2; cc.lineJoin = "round";
+    cc.beginPath();
+    // 手掌 + 伸出的食指，朝上
+    cc.moveTo(-5, 1);                    // 食指左缘
+    cc.lineTo(-5, -9);
+    cc.lineTo(-2, -9);
+    cc.lineTo(0, -14);                   // 指尖
+    cc.lineTo(2, -9);
+    cc.lineTo(5, -9);                    // 食指右缘
+    cc.lineTo(5, -1);
+    cc.lineTo(8, 1);                     // 握起的其余指节
+    cc.lineTo(8, 6);
+    cc.lineTo(-5, 6);
+    cc.closePath();
+    cc.fill(); cc.stroke();
+    // 指节分隔线 —— 让「这是一只手」更明确
+    cc.beginPath();
+    cc.moveTo(5, 1); cc.lineTo(-1, 1);
+    cc.strokeStyle = "#606060"; cc.lineWidth = 0.8; cc.stroke();
+    cc.restore();
+  };
+  const drawMon = (sid, x, y, size) => {
+    // drawSprite 把 shade 3（最亮档）当透明跳过 —— 那是给「叠在已有背景上」
+    // 设计的。这里画在离屏 canvas 上，不先铺一层底色的话，
+    // 浅色区域全是透明，皮卡丘这种主色偏浅的只剩零散深色块，
+    // 看着像 sprite 画歪了。**必须先铺 pal[3] 再画。**
+    const m = D.mons[sid-1], pal = palOf(sid, false);
+    const off = document.createElement("canvas");
+    off.width = off.height = m.fsize;
+    const octx = off.getContext("2d");
+    octx.fillStyle = pal[3];
+    octx.fillRect(0, 0, m.fsize, m.fsize);
+    drawSprite(octx, b64bytes(D.front[sid]), m.fsize, 0,0,1, null, pal);
+    cc.imageSmoothingEnabled = false;
+    cc.drawImage(off, x - size/2, y - size/2, size, size);
+  };
+
+  const drawChoose = () => {
+    cc.fillStyle = "#182838"; cc.fillRect(0,0,240,320);
+    cc.fillStyle = "#f0f0f0";
+    cc.font = "bold 13px 'Silkscreen', monospace";
+    cc.textAlign = "center"; cc.textBaseline = "middle";
+    cc.fillText("CHOOSE  A  PARTNER", 120, 40);
+
+    // 三球一排
+    s11.ballXs.forEach((bx, i) => {
+      if(revealed[i]) drawMon(s11.starters[i].id, bx, s11.ballY - 4, 46);
+      else drawBall(bx, s11.ballY, false);
+    });
+    // 皮卡丘在球外，位置刻意不与三球对齐
+    drawMon(s11.starters[3].id, s11.pika[0], s11.pika[1], 50);
+
+    // 光标 —— 位置用 sim/intro.py 导出的偏移，不在 JS 里重新发明
+    const sp = cursor < 3
+      ? [s11.ballXs[cursor], s11.ballY]
+      : [s11.pika[0], s11.pika[1]];
+    drawCursor(sp[0] + s11.cursorDx, sp[1] + s11.cursorDy);
+
+    // 当前目标名
+    const t = s11.starters[cursor];
+    cc.fillStyle = "#f0f0f0";
+    cc.font = "11px 'Silkscreen', monospace";
+    const label = (cursor < 3 && !revealed[cursor]) ? "? ? ?" : `${t.zh}　${t.type}`;
+    cc.fillText(label, 120, 292);
+    if(cursor === 3){
+      cc.font = "9px 'Silkscreen', monospace";
+      cc.fillStyle = "#c8c8c8";
+      cc.fillText("NOT IN A BALL", 120, 308);
+    }
+
+    const r = confirmed === null ? null : s11.results[confirmed];
+    document.getElementById("m11-result").innerHTML = r
+      ? `<span class="ok">✓ 已选 ${s11.starters[confirmed].zh}</span>
+         初始存档：Lv${r.pet_level}　饱食 ${r.satiety} 心情 ${r.mood} 体能 ${r.stamina}
+         道具 ${Object.entries(r.items).map(([k,v])=>k+"×"+v).join(" ")}
+         图鉴已捕 #${r.dex_caught.join(",")}
+         <br><span class="sub">亲密度与探索值从 0 起 ——
+         初始伙伴也要靠养成推进，不给白送的进度。</span>`
+      : `光标位置 ${cursor}（${cursor<3?"球 "+(cursor+1):"皮卡丘"}）
+         <span class="sub">B 移动 / C 开球预览 / A 确认</span>`;
+  };
+  document.getElementById("m11-b").onclick = () => {
+    cursor = (cursor + 1) % 4; drawChoose(); };
+  document.getElementById("m11-c").onclick = () => {
+    revealed[cursor] = true; drawChoose(); };
+  document.getElementById("m11-a").onclick = () => {
+    confirmed = cursor; revealed[cursor] = true; drawChoose(); };
+  document.getElementById("m11-r").onclick = () => {
+    cursor = 1; revealed = [false,false,false,false]; confirmed = null; drawChoose(); };
+  drawChoose();
+}
+
 
 BUILD.systems = () => {
   const M = D.meta;

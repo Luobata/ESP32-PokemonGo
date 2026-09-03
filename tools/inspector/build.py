@@ -294,6 +294,269 @@ def load_systems(repo: pathlib.Path, mons: list[dict]) -> dict:
     }
 
 
+def load_systems2(repo: pathlib.Path, mons: list[dict]) -> dict:
+    """S4~S11 的验收数据。
+
+    与 load_systems 同一取向：**导出参数与 Python 实测值，JS 侧重算一遍对照**。
+    页面上每个系统都要能动手推进（推时间、翻页、掉道具、日切、播开场），
+    而不是只看一张静态表 —— 静态表验收不了交互。
+
+    每个 `expect` 字段都是 Python 侧算出的期望值，页面会拿 JS 结果去比。
+    两边不一致就红色报警，这是真的一致性检验，不是装饰。
+    """
+    sys.path.insert(0, str(repo / "sim"))
+    try:
+        import gameplay as GP                              # noqa: E402
+        import intro as IN                                 # noqa: E402
+        from gameplay import PetState                      # noqa: E402
+        from state import (                                # noqa: E402
+            BIOME_ORDER, DEX_BYTES, ITEM_CAPS, TREND_DAYS,
+            DailyCounters, Dex, DualBufferSave, Inventory, Records, SaveData,
+        )
+        from systems import (                              # noqa: E402
+            SHINY_DENOM, STONE_BIOME, STONE_DWELL_SECONDS, TRADE_EXPLORE_MULT,
+            TRADE_INTIMACY, TRIGGER_ITEM, TRIGGER_LEVEL_UP, TRIGGER_TRADE,
+            check_evolution, do_evolve,
+        )
+    except ImportError as e:
+        print(f"  注：S4-S11 导入失败（{e}），跳过", file=sys.stderr)
+        return {}
+
+    # ---- S4 养成：跑一条 72 小时无照料曲线 ----
+    # 页面滑块会重算同一条，对照两边的 satiety/mood/stamina。
+    #
+    # 注意 advance() 首次调用只设时间基准点就返回（不知起点无法算 delta），
+    # 所以必须先 advance(0) 立基准，再 advance(h*3600)。
+    # 我第一版漏了这步，整条曲线是平的 —— 80/70/90 一动不动。
+    curve = []
+    for h in range(0, 73, 6):
+        p = PetState(species_id=4, type_name="火")
+        p.advance(0)                       # 立基准
+        p.advance(h * 3600)
+        curve.append({"h": h, "sat": round(p.satiety, 1), "mood": round(p.mood, 1),
+                      "stam": round(p.stamina, 1), "low": p.is_despondent,
+                      "af": round(p.ability_factor, 3),
+                      "cw": round(p.catch_window_bonus, 3)})
+    # 「不照料多久会饿到底」—— S4 那条「一天一次不够」推算的复核
+    zero_h = next((c["h"] for c in curve if c["sat"] <= 0), None)
+
+    s4 = {
+        "decay": {"sat": GP.SATIETY_DECAY_PER_HOUR, "mood": GP.MOOD_DECAY_PER_HOUR,
+                  "stamRec": GP.STAMINA_RECOVER_PER_HOUR,
+                  "stamCost": GP.STAMINA_COST_PER_MOTION_EVENT},
+        "low": GP.LOW_THRESHOLD, "penalty": GP.DESPONDENT_PENALTY,
+        "bucket": GP.TIME_BUCKET_SECONDS,
+        "curve": curve, "satZeroHour": zero_h,
+    }
+
+    # ---- S5 图鉴：用 S1 队列的真实捕获建一份图鉴 ----
+    dex = Dex()
+    for m in mons[:47]:            # 造一份「已收 47 只」的样本，够翻满 3 页
+        dex.mark_caught(m["id"], shiny=(m["id"] % 37 == 0))
+    for sid in (52, 63, 92, 130, 151):
+        dex.mark_seen(sid)         # 见过没抓到 —— 剪影 + seen 标记要能区分
+    s5 = {
+        "bytes": len(dex.to_bytes()), "dexBytes": DEX_BYTES,
+        "pages": dex.pages, "perPage": 20,
+        "caught": dex.count("caught"), "seen": dex.count("seen"),
+        "shinyCaught": dex.count("shiny_caught"),
+        # 位图导出为 base64，页面自己解位 —— 与固件同一份数据
+        "bits": {k: base64.b64encode(bytes(getattr(dex, k))).decode()
+                 for k in ("seen", "caught", "shiny_seen", "shiny_caught")},
+    }
+
+    # ---- S6 存档：真实字节布局 + 双 buffer ----
+    sd = SaveData()
+    sd.dex = dex
+    blob = sd.to_bytes()
+    dual = DualBufferSave()
+    dual.save(sd)
+    dual.save(sd)
+    ok_blob, src = dual.load()
+    # 注入损坏：翻主槽一个 bit，应当回退到备份槽
+    broken = bytearray(dual.slots[dual.active])
+    broken[40] ^= 0xFF
+    dual.slots[dual.active] = bytes(broken)
+    _, src_after = dual.load()
+    s6 = {
+        "total": len(blob), "dual": len(blob) * 2,
+        "layout": [
+            {"n": "魔数+版本+CRC", "b": 10},
+            {"n": "主宠（9 字段）", "b": 9},
+            {"n": "图鉴 4 位图", "b": len(dex.to_bytes())},
+            {"n": "背包 4 种", "b": len(sd.inventory.to_bytes())},
+            {"n": "成绩纪录", "b": len(sd.records.to_bytes())},
+            {"n": "biome 驻留 5×u32", "b": 20},
+            {"n": "day_index", "b": 2},
+        ],
+        "verifyGood": SaveData.verify(blob),
+        "verifyBroken": SaveData.verify(bytes(broken)),
+        "srcBefore": src, "srcAfter": src_after,
+        "placeTable": 512, "queue": 128,
+    }
+
+    # ---- S7 进化：三种触发各取样本 + 交互判定的期望值 ----
+    evo_samples = []
+    for m in mons:
+        if not m["evo"] or not m["trig"]:
+            continue
+        trig = {"升级": TRIGGER_LEVEL_UP, "道具": TRIGGER_ITEM,
+                "交换": TRIGGER_TRADE}.get(m["trig"])
+        if trig is None:
+            continue
+        evo_samples.append({
+            "id": m["id"], "zh": m["zh"] or m["slug"], "to": m["evo"],
+            "toZh": mons[m["evo"] - 1]["zh"] or mons[m["evo"] - 1]["slug"],
+            "trig": m["trig"], "trigCode": trig, "lv": m["lv"],
+            "needInt": m["lv"] * 1.0 if trig == TRIGGER_LEVEL_UP else (
+                TRADE_INTIMACY if trig == TRIGGER_TRADE else 0),
+            "needExp": m["lv"] * 2 if trig == TRIGGER_LEVEL_UP else (
+                m["lv"] * TRADE_EXPLORE_MULT if trig == TRIGGER_TRADE else 0),
+            "biome": STONE_BIOME.get(_stone_of(m), "") if trig == TRIGGER_ITEM else "",
+        })
+
+    # 判定探针：每条都带 **期望值**，页面用它比对。
+    #
+    # 没有期望值的探针验收不了任何东西 —— 「2/6 通过」既可能是设计如此，
+    # 也可能是实现坏了，看不出区别。带上 want 之后，红色就一定是 bug。
+    #
+    # 探针必须**隔离出要测的那一条**：测驻留就得先让 intimacy/explore 达标，
+    # 否则 check_evolution 在亲密度那步就返回了，根本走不到驻留判定。
+    # 我第一版皮卡丘给了 intimacy 50（通用门槛 60），两条驻留探针都卡在
+    # 亲密度上，看起来「驻留判定没生效」，其实是探针没构造对。
+    def _probe(sid: int, inti: float, expl: int, dwell: dict,
+               want: bool, note: str) -> dict:
+        m = mons[sid - 1]
+        trig = {"升级": TRIGGER_LEVEL_UP, "道具": TRIGGER_ITEM,
+                "交换": TRIGGER_TRADE}[m["trig"]]
+        p = PetState(species_id=sid, type_name=m["t1"])
+        p.intimacy, p.explore_value = inti, expl
+        c = check_evolution(p, trig, m["evo"], m["lv"],
+                            biome_dwell=dwell, item_hint=_stone_of(m))
+        return {"id": sid, "zh": m["zh"] or m["slug"], "trig": m["trig"],
+                "inti": inti, "expl": expl,
+                "dwell": {k: v // 3600 for k, v in dwell.items()},
+                "ok": c.can, "why": c.reason,
+                "want": want, "pass": c.can == want, "note": note,
+                "needInt": c.need_intimacy, "needExp": c.need_explore,
+                "needBiome": c.need_biome}
+
+    probes = [
+        # 升级触发：妙蛙种子 @16 → 需 intimacy 60、explore 32
+        _probe(1, 65, 40, {}, True, "升级线达标"),
+        _probe(1, 20, 40, {}, False, "亲密度不足 → 拦住"),
+        _probe(1, 65, 20, {}, False, "探索值不足（20/32）→ 拦住"),
+        # 交换触发：勇基拉 需 intimacy 90（高门槛单机替代）
+        _probe(64, 65, 40, {}, False, "交换线门槛更高，65 不够"),
+        _probe(64, 95, 200, {}, True, "交换线达标"),
+        # 道具触发：皮卡丘 需办公区驻留 6h。
+        # 前两条先让 intimacy/explore 达标，才测得到驻留这一条。
+        _probe(25, 65, 40, {"办公区": 6 * 3600}, True, "驻留 6h 达标"),
+        _probe(25, 65, 40, {"办公区": 3600}, False, "驻留仅 1h → 拦住"),
+        _probe(25, 65, 40, {"住宅区": 9 * 3600}, False, "驻留够但 biome 不对"),
+    ]
+
+    # 进化后不清零的证据
+    pe = PetState(species_id=1, type_name="草")
+    pe.intimacy, pe.explore_value, pe.mood = 70.0, 40, 60.0
+    er = do_evolve(pe, 2, "草", 32)
+    s7 = {
+        "samples": evo_samples,
+        "counts": {k: sum(1 for e in evo_samples if e["trig"] == k)
+                   for k in ("升级", "道具", "交换")},
+        "stoneBiome": STONE_BIOME, "dwellSec": STONE_DWELL_SECONDS,
+        "tradeInt": TRADE_INTIMACY, "tradeMult": TRADE_EXPLORE_MULT,
+        "probes": probes,
+        "afterEvolve": {"inti": pe.intimacy, "expl": pe.explore_value,
+                        "mood": pe.mood, "frames": len(er.frames)},
+    }
+
+    # ---- S8 闪光 ----
+    s8 = {"denom": SHINY_DENOM,
+          "expect1": round((1 - (1 - 1 / SHINY_DENOM) ** 100) * 100, 2),
+          "expect500": round((1 - (1 - 1 / SHINY_DENOM) ** 500) * 100, 1)}
+
+    # ---- S9 道具：掉落规则 + 切球跳空 ----
+    inv = Inventory()
+    drops = []
+    for r in range(1, 6):
+        i2 = Inventory(poke=0, great=0, ultra=0, berry=0)
+        drops.append({"rarity": r, "normal": i2.drop_from_encounter(r),
+                      "newPlace": Inventory(poke=0, great=0, ultra=0, berry=0)
+                      .drop_from_encounter(r, is_new_place=True)})
+    # 切球跳空：只有精灵球时循环应停在 poke
+    only_poke = Inventory(poke=5, great=0, ultra=0)
+    s9 = {
+        "caps": ITEM_CAPS, "drops": drops,
+        "skipEmpty": {"from_poke": only_poke.next_ball("poke"),
+                      "from_great": only_poke.next_ball("great")},
+        "bytes": len(inv.to_bytes()),
+    }
+
+    # ---- S10 成绩：跑 14 天日切 ----
+    rec = Records()
+    days = []
+    import random as _rnd
+    rr = _rnd.Random(20260901)
+    for d in range(1, 15):
+        dc = DailyCounters(encounters=rr.randint(4, 30), captures=rr.randint(0, 8),
+                           motion_events=rr.randint(0, 40),
+                           new_places=rr.randint(0, 2),
+                           cared=rr.random() > 0.15, went_out=rr.random() > 0.3)
+        broken = rec.roll_day(d, dc, intimacy=d * 5)
+        days.append({"d": d, "enc": dc.encounters, "cap": dc.captures,
+                     "mot": dc.motion_events, "newp": dc.new_places,
+                     "cared": dc.cared, "out": dc.went_out,
+                     "broken": broken, "careStreak": rec.care_streak,
+                     "outStreak": rec.out_streak})
+    s10 = {
+        "days": days, "bytes": len(rec.to_bytes()), "trendDays": TREND_DAYS,
+        "biomeOrder": BIOME_ORDER,
+        "final": {"bestEnc": rec.best_encounters, "bestMot": rec.best_motion,
+                  "bestNew": rec.best_new_places,
+                  "careStreak": rec.longest_care_streak,
+                  "outStreak": rec.longest_out_streak,
+                  "totalEnc": rec.total_encounters, "days": rec.total_days},
+    }
+
+    # ---- S11 开场：帧序列 + 选择状态机 ----
+    seq = IN.boot_sequence()
+    sounds = [{"f": i + 1, "s": f.sound, "y": f.logo_y}
+              for i, f in enumerate(seq) if f.sound]
+    s11 = {
+        "scrollSteps": IN.SCROLL_STEPS, "sound1": IN.SOUND_STEP_1,
+        "sound2": IN.SOUND_STEP_2, "settle": IN.SETTLE_PAUSE_STEPS,
+        "logo": {"w": IN.LOGO_W, "h": IN.LOGO_H, "x": IN.LOGO_X,
+                 "y0": IN.LOGO_Y_START, "y1": IN.LOGO_Y_END},
+        "frames": len(seq), "sounds": sounds,
+        "ys": [f.logo_y for f in seq],
+        "starters": IN.STARTERS, "ballY": IN.BALL_Y, "ballXs": list(IN.BALL_XS),
+        "pika": list(IN.PIKA_POS),
+        "cursorDx": IN.CURSOR_OFFSET_X, "cursorDy": IN.CURSOR_OFFSET_Y,
+        "level": IN.STARTER_LEVEL, "items": IN.STARTER_ITEMS,
+        "results": [IN.apply_choice(i) for i in range(len(IN.STARTERS))],
+    }
+
+    return {"s4": s4, "s5": s5, "s6": s6, "s7": s7,
+            "s8": s8, "s9": s9, "s10": s10, "s11": s11}
+
+
+# 进化石反查：gen1.bin 只存「道具触发」，具体哪块石头要按物种查。
+_STONES = {
+    26: "thunder-stone", 36: "moon-stone", 40: "moon-stone",
+    38: "fire-stone", 78: "fire-stone", 59: "fire-stone",
+    62: "water-stone", 73: "water-stone", 87: "water-stone",
+    91: "water-stone", 121: "water-stone", 134: "water-stone",
+    135: "thunder-stone", 136: "fire-stone",
+    45: "leaf-stone", 71: "leaf-stone", 103: "leaf-stone",
+}
+
+
+def _stone_of(m: dict) -> str:
+    """该物种进化用哪块石头。按**进化后**的 id 查（表里存的是结果形态）。"""
+    return _STONES.get(m.get("evo", 0), "fire-stone")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="构建验收页面")
     ap.add_argument("--src", default="/tmp/gen1",
@@ -324,6 +587,7 @@ def main() -> int:
     palettes = load_palettes(assets / "palettes.bin")
     sensing = load_sensing(REPO)
     systems = load_systems(REPO, mons)
+    systems2 = load_systems2(REPO, mons)
     front, seg_meta, front_bytes = load_front(assets / "gen1_front.bin")
     back, back_size, back_bytes = load_back(assets / "gen1_back.bin")
 
@@ -344,6 +608,7 @@ def main() -> int:
         "palettes": palettes,
         "sensing": sensing,
         "systems": systems,
+        "sys2": systems2,
         "mons": mons,
         "front": {str(k): v for k, v in sorted(front.items())},
         "back": {str(k): v for k, v in sorted(back.items())},
@@ -367,6 +632,21 @@ def main() -> int:
         st = systems["s1"]["stat"]
         print(f"  系统 S1: {st['scans']} 次扫描 → 队列 {len(systems['s1']['queue'])} 条"
               f"（猎场{st['hunt']} 基地{st['base']}）{st['bytes']} B")
+    if systems2:
+        print(f"  S4 饱食归零 {systems2['s4']['satZeroHour']}h　"
+              f"S5 图鉴 {systems2['s5']['bytes']} B/{systems2['s5']['pages']} 页　"
+              f"S6 存档 {systems2['s6']['total']} B")
+        pr = systems2['s7']['probes']
+        npass = sum(1 for x in pr if x['pass'])
+        print(f"  S7 进化样本 {len(systems2['s7']['samples'])} 只"
+              f"（{systems2['s7']['counts']}）　判定探针 {npass}/{len(pr)}"
+              f"{' ✓' if npass == len(pr) else ' ✗ 有探针与期望不符'}")
+        for x in pr:
+            if not x['pass']:
+                print(f"    ✗ #{x['id']} {x['zh']} 期望 {x['want']} 实得 "
+                      f"{x['ok']}：{x['why']}", file=sys.stderr)
+        print(f"  S11 开场 {systems2['s11']['frames']} 帧　"
+              f"音效帧 {[x['f'] for x in systems2['s11']['sounds']]}")
     if sensing:
         for name, d in sensing.items():
             w1, w4 = d["runs"]["1"], d["runs"]["4"]

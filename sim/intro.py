@@ -100,9 +100,24 @@ STARTERS = [
 # 240×320 上的坐标。三球一排在中部，皮卡丘在下方偏右 —— 刻意不对齐，
 # 强化「它不在队列里」的感觉。
 BALL_Y = 150
-BALL_XS = (52, 112, 172)        # 三球中心 X，间距 60
-PIKA_POS = (170, 236)           # 皮卡丘中心
-CURSOR_OFFSET_Y = -34           # 手指光标相对目标中心的偏移
+BALL_XS = (54, 120, 186)        # 三球中心 X，间距 66
+# 皮卡丘上移到 226：它的下方手指（中心 +30，形状占 -16~+6）
+# 原本落在 252~274，压在 sprite（213~263）身上。上移后手指在 240~262，
+# sprite 在 201~251 —— 手指尖触到它下缘，与三球一致。
+PIKA_POS = (172, 226)           # 皮卡丘中心
+
+# 手指光标的位置：目标**下方**，指向上。
+#
+# 原版菜单的手指在选项左侧向右指，但那是**纵向列表**。这里是三球横排，
+# 240px 宽装不下「每球各配一个左侧手指」——
+#   每格需 手指22 + 间隙30 + 球34 = 86px，三格 258px > 240。
+# 实测算出来才发现，所以改成手指在球下方向上指：只占垂直空间，
+# 三球 102px + 间隙 24px = 126px 绰绰有余。
+#
+# 保留「手指」这个形状而不换成箭头 —— 那是初代菜单最认得出的符号，
+# 换成箭头功能一样但味道就没了。
+CURSOR_OFFSET_X = 0
+CURSOR_OFFSET_Y = 30            # 在目标下方 30px
 
 
 @dataclass
@@ -139,10 +154,9 @@ class StarterChoice:
         return STARTERS[self.cursor]
 
     def cursor_pos(self) -> tuple[int, int]:
-        """手指光标当前该画在哪。"""
-        if self.cursor < 3:
-            return (BALL_XS[self.cursor], BALL_Y + CURSOR_OFFSET_Y)
-        return (PIKA_POS[0], PIKA_POS[1] + CURSOR_OFFSET_Y)
+        """手指光标当前该画在哪 —— 目标下方，指向上。"""
+        cx, cy = self.sprite_pos(self.cursor)
+        return (cx + CURSOR_OFFSET_X, cy + CURSOR_OFFSET_Y)
 
     def sprite_pos(self, index: int) -> tuple[int, int]:
         """第 index 只的 sprite 中心位置。"""
