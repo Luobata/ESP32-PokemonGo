@@ -21,6 +21,7 @@
 | S10 | 成绩与排行 | **✅ 已实现** | — | [S10-records.md](systems/S10-records.md) |
 | S11 | 开场流程 | **✅ 已实现** | — | [S11-intro.md](systems/S11-intro.md) |
 | S12 | 昵称 | **✅ 已实现** | — | [S12-naming.md](systems/S12-naming.md) |
+| S13 | 音频 | **✅ 已实现** | ⏳ 音频通路 / 续航 | [S13-audio.md](systems/S13-audio.md) |
 
 实现分布在三个模块：
 
@@ -33,6 +34,7 @@
 | [`sim/intro.py`](../sim/intro.py) | S11 | GB 启动动画 + 伙伴选择 |
 | [`sim/naming.py`](../sim/naming.py) | S12 | 预设昵称 + `NamePicker` |
 | [`sim/strings.py`](../sim/strings.py) | 全部 | UI 文案单一来源 + 排版审计 |
+| [`sim/audio.py`](../sim/audio.py) | S13 | 四通道 APU + 11 条音效 |
 
 ## UI 页面
 

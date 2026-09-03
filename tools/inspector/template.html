@@ -237,6 +237,7 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
   <button role="tab" data-p="gameplay" aria-selected="false">S1-S3 玩法</button>
   <button role="tab" data-p="nurture" aria-selected="false">S4-S7 养成</button>
   <button role="tab" data-p="meta"    aria-selected="false">S8-S11 元系统</button>
+  <button role="tab" data-p="audio"   aria-selected="false">S13 音频</button>
   <button role="tab" data-p="systems" aria-selected="false">系统与预算</button>
 </div>
 
@@ -338,6 +339,15 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
     音效落在第 98/100 步（落定瞬间，不是开头）。
     设计见 <b>docs/systems/S8~S11</b>。</p>
   <div id="meta-body"></div>
+</div>
+
+<div class="panel" id="p-audio" hidden>
+  <p class="sub" style="margin:0 0 16px">
+    <b>点按钮能真的听见</b> —— 页面用 WebAudio 现场合成，
+    读的是与固件同一份音序数据、同一套公式（方波/波表/LFSR 噪声）。
+    塞 WAV 进页面要 150 KB，且验收不了「固件也能算出同样的声音」。
+    设计见 <b>docs/systems/S13-audio.md</b>。</p>
+  <div id="audio-body"></div>
 </div>
 
 <div class="panel" id="p-systems" hidden>
@@ -602,7 +612,7 @@ document.getElementById("shiny").onchange = e => {
 };
 
 /* ── tab 切换 ── */
-const PANELS = ["dex","sensing","proto","pixels","gameplay","nurture","meta","systems"];
+const PANELS = ["dex","sensing","proto","pixels","gameplay","nurture","meta","audio","systems"];
 let built = {dex:1};
 document.getElementById("tabs").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
@@ -2124,6 +2134,254 @@ function initS11(s11){
   document.getElementById("m11-r").onclick = () => {
     cursor = 1; revealed = [false,false,false,false]; confirmed = null; drawChoose(); };
   drawChoose();
+}
+
+
+
+/* ── S13 音频验收 ──
+   JS 侧重实现 sim/audio.py 的合成公式，与 Python 实测的
+   peak/dc/rms 逐条比对。**听得见**是这个面板存在的首要理由 ——
+   音效好不好听只有耳朵能判断，而这不需要等硬件。            */
+BUILD.audio = () => {
+  const S = D.sys2 && D.sys2.s13;
+  const host = document.getElementById("audio-body");
+  if(!S || !S.sfx){
+    host.innerHTML = `<p class="sub">音频数据未打包。跑
+      <b>./tools/inspector/serve.sh --rebuild</b>。</p>`;
+    return;
+  }
+  const B = S.budget, M = S.metrics;
+  const names = Object.keys(S.sfx);
+
+  host.innerHTML = `
+  <div class="gp-sec">
+    <h2>存储账　<span class="sub">「几乎不占 flash」的证据</span></h2>
+    <p class="gp-note">ESP32-C3 <b>无内置 DAC</b>，播不了采样音频 ——
+      只能 PWM 或外接 I2S，两者都要 CPU 现算波形。
+      而这恰好是好事：音序数据 <b>${B.total_bytes} B</b>，
+      同样内容存 16bit PCM 要 <b>${(B.as_pcm_bytes/1024).toFixed(0)} KB</b>。</p>
+    <div class="cmp">
+      <div><div class="lbl">音效条数</div><div class="big">${names.length}</div></div>
+      <div class="good"><div class="lbl">音序数据</div>
+        <div class="big">${B.total_bytes} B</div></div>
+      <div class="bad"><div class="lbl">若存 PCM</div>
+        <div class="big">${(B.as_pcm_bytes/1024).toFixed(0)} KB</div></div>
+      <div><div class="lbl">省</div>
+        <div class="big">${Math.round(B.as_pcm_bytes/B.total_bytes)}&times;</div></div>
+      <div><div class="lbl">采样率</div><div class="big">${S.sr}</div></div>
+      <div><div class="lbl">每音字节</div>
+        <div class="big">${S.bytesPerNote}</div></div>
+    </div>
+  </div>
+
+  <div class="gp-sec">
+    <h2>CPU 预算　<span class="sub">不是瓶颈</span></h2>
+    <p class="gp-note">算清这个之后才敢照 GB APU 的真实结构做<b>四个通道</b>，
+      而不是砍成一两个。瓶颈从来不在合成，在中断延迟与 DMA 缓冲。</p>
+    <div class="tbl-scroll"><table>
+      <tr><th>采样率</th><th>每样本周期</th><th>4 通道占用</th><th>可行</th></tr>
+      ${[8000,16000,22050,44100].map(sr=>{
+        const cyc = Math.floor(160e6/sr), pct = 120/cyc*100;
+        return `<tr${sr===S.sr?' style="font-weight:600"':''}>
+          <td>${sr} Hz${sr===S.sr?" ← 采用":""}</td><td>${cyc}</td>
+          <td>${pct.toFixed(2)}%</td>
+          <td class="${pct<15?"ok":"warn"}">${pct<15?"✓":"⚠️"}</td></tr>`;
+      }).join("")}
+    </table></div>
+  </div>
+
+  <div class="gp-sec">
+    <h2>音效库　<span class="sub">可试听</span></h2>
+    <p class="gp-note">音量梯度与<b>触发频率成反比</b>：光标移动会被按几万次，
+      所以最轻；进化一个存档只有几次，所以最响。
+      直流偏移必须 &lt;0.01 —— 方波在占空比≠50% 时天生带直流
+      （12.5% 时是 −0.75），直流会让扬声器持续偏压发热并白吃动态余量。
+      <b>不能假设真机有耦合电容</b>，所以在合成侧去掉。</p>
+    <div id="sfx-list"></div>
+    <div class="formula" id="sfx-cmp"></div>
+  </div>
+
+  <div class="gp-sec">
+    <h2>占空比 = 音色</h2>
+    <p class="gp-note">同一个音高换占空比听起来像换了乐器 ——
+      这是 GB 音色最标志性的来源。但尖锐档（12.5%）归一化后 RMS 只有
+      0.378，<b>感知音量天生低</b>：闪光音效因此要靠提 vol 补，
+      而不能改占空比（改了就丢辨识度）。</p>
+    <div class="knobs" style="border:1px solid var(--line);padding:8px 10px">
+      <label>音高</label>
+      <input id="au-note" type="range" min="48" max="96" value="72">
+      <span class="fr" id="au-note-v" style="min-width:56px"></span>
+      ${S.duties.map((d,i)=>`<button class="au-duty" data-d="${i}">${
+        (d*100).toFixed(1).replace(".0","")}%</button>`).join("")}
+      <button class="au-duty" data-d="wave">波表</button>
+      <button class="au-duty" data-d="noise">噪声</button>
+    </div>
+    <div class="out" id="au-duty-out"></div>
+  </div>`;
+
+  renderSfxList(S, M);
+  initDutyDemo(S);
+};
+
+/* WebAudio 合成 —— 与 sim/audio.py 同一套公式 */
+let AUCTX = null;
+function auCtx(){
+  if(!AUCTX) AUCTX = new (window.AudioContext||window.webkitAudioContext)();
+  return AUCTX;
+}
+
+function squareJS(phase, duty){
+  // 去直流 + 归一化，与 sim/audio.py 的 square() 一致
+  const dc = 2*duty - 1, hi = 1-dc, lo = -1-dc;
+  const pk = Math.max(Math.abs(hi), Math.abs(lo));
+  return ((phase % 1) < duty ? hi : lo) / pk;
+}
+function envAt(e, tms){
+  if(e.es === 0) return e.e0;
+  return Math.max(0, Math.min(1, e.e0 + e.es * Math.floor(tms/e.ems)));
+}
+function midiHz(m){ return 440 * Math.pow(2, (m-69)/12); }
+
+function synth(tracks, S){
+  const sr = S.sr;
+  let totalMs = 0;
+  tracks.forEach(t => {
+    const d = t.notes.reduce((a,x)=>a+x.d, 0);
+    if(d > totalMs) totalMs = d;
+  });
+  const total = Math.floor(totalMs*sr/1000) + 1;
+  const buf = new Float32Array(total);
+
+  tracks.forEach(t => {
+    let phase = 0, cursor = 0, reg = 0x7FFF;
+    t.notes.forEach(nt => {
+      const ns = Math.floor(nt.d*sr/1000);
+      if(nt.m === -1){ cursor += ns; return; }
+      for(let i=0;i<ns && cursor+i<total;i++){
+        const tms = i*1000/sr;
+        const hz = midiHz(nt.m) * Math.pow(2, (nt.sw*tms)/12);
+        const amp = envAt(nt, tms) * nt.v;
+        let v;
+        if(t.kind === "noise"){
+          const bit = (reg ^ (reg>>1)) & 1;
+          reg >>= 1; reg |= bit<<14;
+          if(t.short) reg = (reg & ~(1<<6)) | (bit<<6);
+          v = (reg & 1) ? -1 : 1;
+        } else if(t.kind === "wave"){
+          v = S.wave[Math.floor((phase%1)*S.wave.length)]/7.5 - 1;
+        } else {
+          v = squareJS(phase, S.duties[nt.duty]);
+        }
+        buf[cursor+i] += v*amp;
+        phase += hz/sr;
+      }
+      cursor += ns;
+    });
+  });
+
+  // 只在越界时缩，不在未越界时放 —— 保留音效之间的相对音量
+  let peak = 0;
+  for(const v of buf) if(Math.abs(v) > peak) peak = Math.abs(v);
+  const limit = 1/S.master;
+  const g = S.master * (peak > limit ? limit/peak : 1);
+  for(let i=0;i<buf.length;i++) buf[i] *= g;
+  return buf;
+}
+
+function play(buf, sr){
+  const ctx = auCtx();
+  const ab = ctx.createBuffer(1, buf.length, sr);
+  ab.copyToChannel(buf, 0);
+  const src = ctx.createBufferSource();
+  src.buffer = ab; src.connect(ctx.destination); src.start();
+}
+
+function renderSfxList(S, M){
+  const names = Object.keys(S.sfx);
+  const maxRms = Math.max(...names.map(k => (M[k]||{}).rms || 0));
+  document.getElementById("sfx-list").innerHTML =
+    `<div class="qrow hdr"><span></span><span>音效</span><span>字节</span>
+      <span>时长</span><span>峰值</span><span>直流</span>
+      <span>音量（RMS）</span></div>` +
+    names.map(k => {
+      const m = M[k] || {}, dur = S.budget.durations_ms[k];
+      const dcOk = Math.abs(m.dc||0) < 0.01;
+      const w = maxRms ? (m.rms/maxRms*100) : 0;
+      return `<div class="qrow">
+        <button class="au-play" data-k="${k}" style="padding:3px 6px">▶</button>
+        <span>${k}</span>
+        <span>${S.budget.per_sfx[k]} B</span>
+        <span>${dur} ms</span>
+        <span class="${(m.peak||0)<=1?"ok":"warn"}">${(m.peak||0).toFixed(3)}</span>
+        <span class="${dcOk?"ok":"warn"}">${(m.dc||0)>=0?"+":""}${
+          (m.dc||0).toFixed(4)}${dcOk?"":" ✗"}</span>
+        <span class="win"><span class="wtrack">
+          <span class="wfill" style="left:0;width:${w}%"></span></span>
+          <span style="width:52px;text-align:right;
+            font-variant-numeric:tabular-nums">${(m.rms||0).toFixed(3)}</span>
+        </span></div>`;
+    }).join("");
+
+  // 逐条 JS 重算，与 Python 比对
+  let ok = 0, bad = [];
+  names.forEach(k => {
+    const buf = synth(S.sfx[k], S);
+    let pk = 0, sum = 0, sq = 0;
+    for(const v of buf){ if(Math.abs(v)>pk) pk=Math.abs(v); sum+=v; sq+=v*v; }
+    const dc = sum/buf.length, rms = Math.sqrt(sq/buf.length);
+    const m = S.metrics[k];
+    const agree = Math.abs(pk-m.peak)<0.002 && Math.abs(dc-m.dc)<0.002
+               && Math.abs(rms-m.rms)<0.002 && buf.length===m.n;
+    if(agree) ok++;
+    else bad.push(`${k}: JS ${pk.toFixed(3)}/${dc.toFixed(4)}/${rms.toFixed(3)}
+      vs PY ${m.peak}/${m.dc}/${m.rms}`);
+  });
+  document.getElementById("sfx-cmp").innerHTML = bad.length === 0
+    ? `<span class="ok">✓ JS 合成与 Python 逐条一致</span>
+       ${ok}/${names.length} 条（峰值 / 直流 / RMS / 样本数全对）
+       —— 说明这套公式换一门语言重写也能得到同样的声音，
+       固件的定点版本有了可比对的基准。`
+    : `<span class="warn">✗ ${bad.length} 条不一致</span><br>${bad.join("<br>")}`;
+
+  document.getElementById("sfx-list").addEventListener("click", e => {
+    const b = e.target.closest(".au-play"); if(!b) return;
+    play(synth(S.sfx[b.dataset.k], S), S.sr);
+  });
+}
+
+function initDutyDemo(S){
+  const nR = document.getElementById("au-note");
+  const NAMES = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+  const upd = () => {
+    const m = +nR.value;
+    document.getElementById("au-note-v").textContent =
+      `${NAMES[m%12]}${Math.floor(m/12)-1} ${midiHz(m).toFixed(0)}Hz`;
+  };
+  nR.addEventListener("input", upd); upd();
+
+  document.querySelectorAll(".au-duty").forEach(btn => {
+    btn.onclick = () => {
+      const m = +nR.value, d = btn.dataset.d;
+      const kind = (d === "wave" || d === "noise") ? d : "square";
+      const duty = (kind === "square") ? +d : 2;
+      const tracks = [{kind, short:false, notes:[{
+        m, d:420, duty, e0:1, es:-0.03, ems:16, sw:0, v:1}]}];
+      play(synth(tracks, S), S.sr);
+      // RMS 说明「为什么尖锐档听着轻」
+      const buf = synth(tracks, S);
+      let sq = 0; for(const v of buf) sq += v*v;
+      const rms = Math.sqrt(sq/buf.length);
+      const lbl = kind === "square"
+        ? `占空比 ${(S.duties[duty]*100).toFixed(1).replace(".0","")}%`
+        : (kind === "wave" ? "波表（三角）" : "LFSR 噪声");
+      document.getElementById("au-duty-out").innerHTML =
+        `${lbl}　RMS <b>${rms.toFixed(3)}</b>　
+         ${kind==="square" && duty===0
+           ? '<span class="warn">最尖锐，但感知音量最低</span>'
+           : (kind==="square" && duty===2
+              ? '<span class="ok">最圆，感知音量最高</span>' : "")}`;
+    };
+  });
 }
 
 

@@ -665,3 +665,79 @@
 [2026-09-03T16:46:35.095+08:00] called action Scroll result: undefined
 [2026-09-03T16:46:35.397+08:00] will call "afterInvokeAction" for interface with action name Scroll
 [2026-09-03T16:46:35.600+08:00] called "afterInvokeAction" for interface with action name Scroll
+[2026-09-03T17:36:04.386+08:00] will prepend locate param for field action.type=Tap param={"prompt":"标签栏里的「S13 音频」标签"} locatePlan={"type":"Locate","param":{"prompt":"标签栏里的「S13 音频」标签"},"thought":""} hasLocatedPixelBbox=false
+[2026-09-03T17:36:06.884+08:00] executing action Tap {
+  locate: {
+    center: [ 859, 243 ],
+    rect: { left: 823, top: 228, width: 73, height: 32 },
+    description: '标签栏里的「S13 音频」标签'
+  }
+} taskContext.element.center: 859,243
+[2026-09-03T17:36:06.885+08:00] will call "beforeInvokeAction" for interface with action name Tap
+[2026-09-03T17:36:06.885+08:00] called "beforeInvokeAction" for interface with action name Tap
+[2026-09-03T17:36:07.086+08:00] calling action Tap
+[2026-09-03T17:36:07.112+08:00] called action Tap result: undefined
+[2026-09-03T17:36:07.413+08:00] will call "afterInvokeAction" for interface with action name Tap
+[2026-09-03T17:36:07.616+08:00] called "afterInvokeAction" for interface with action name Tap
+[2026-09-03T17:37:05.580+08:00] will prepend locate param for field action.type=Scroll param={"prompt":"the main page content area"} locatePlan={"type":"Locate","param":{"prompt":"the main page content area"},"thought":""} hasLocatedPixelBbox=false
+[2026-09-03T17:37:09.237+08:00] executing action Scroll {
+  direction: 'down',
+  scrollType: 'singleAction',
+  distance: 520,
+  locate: {
+    center: [ 716, 370 ],
+    rect: { left: 101, top: 36, width: 1231, height: 670 },
+    description: 'the main page content area'
+  }
+} taskContext.element.center: 716,370
+[2026-09-03T17:37:09.237+08:00] will call "beforeInvokeAction" for interface with action name Scroll
+[2026-09-03T17:37:09.237+08:00] called "beforeInvokeAction" for interface with action name Scroll
+[2026-09-03T17:37:09.439+08:00] calling action Scroll
+[2026-09-03T17:37:09.949+08:00] called action Scroll result: undefined
+[2026-09-03T17:37:10.251+08:00] will call "afterInvokeAction" for interface with action name Scroll
+[2026-09-03T17:37:10.456+08:00] called "afterInvokeAction" for interface with action name Scroll
+[2026-09-03T17:37:14.561+08:00] will prepend locate param for field action.type=Scroll param={"prompt":"the main page content area"} locatePlan={"type":"Locate","param":{"prompt":"the main page content area"},"thought":""} hasLocatedPixelBbox=false
+[2026-09-03T17:37:17.708+08:00] executing action Scroll {
+  direction: 'down',
+  scrollType: 'singleAction',
+  distance: 360,
+  locate: {
+    center: [ 718, 354 ],
+    rect: { left: 101, top: 7, width: 1235, height: 695 },
+    description: 'the main page content area'
+  }
+} taskContext.element.center: 718,354
+[2026-09-03T17:37:17.708+08:00] will call "beforeInvokeAction" for interface with action name Scroll
+[2026-09-03T17:37:17.708+08:00] called "beforeInvokeAction" for interface with action name Scroll
+[2026-09-03T17:37:17.909+08:00] calling action Scroll
+[2026-09-03T17:37:18.415+08:00] called action Scroll result: undefined
+[2026-09-03T17:37:18.716+08:00] will call "afterInvokeAction" for interface with action name Scroll
+[2026-09-03T17:37:18.919+08:00] called "afterInvokeAction" for interface with action name Scroll
+[2026-09-03T17:38:09.324+08:00] will prepend locate param for field action.type=Tap param={"prompt":"the play button on the left side of the shiny row"} locatePlan={"type":"Locate","param":{"prompt":"the play button on the left side of the shiny row"},"thought":""} hasLocatedPixelBbox=false
+[2026-09-03T17:38:12.132+08:00] executing action Tap {
+  locate: {
+    center: [ 143, 287 ],
+    rect: { left: 122, top: 275, width: 44, height: 26 },
+    description: 'the play button on the left side of the shiny row'
+  }
+} taskContext.element.center: 143,287
+[2026-09-03T17:38:12.133+08:00] will call "beforeInvokeAction" for interface with action name Tap
+[2026-09-03T17:38:12.133+08:00] called "beforeInvokeAction" for interface with action name Tap
+[2026-09-03T17:38:12.335+08:00] calling action Tap
+[2026-09-03T17:38:13.394+08:00] called action Tap result: undefined
+[2026-09-03T17:38:13.695+08:00] will call "afterInvokeAction" for interface with action name Tap
+[2026-09-03T17:38:13.900+08:00] called "afterInvokeAction" for interface with action name Tap
+[2026-09-03T17:38:25.158+08:00] will prepend locate param for field action.type=Tap param={"prompt":"the \"12.5%\" button near the bottom controls"} locatePlan={"type":"Locate","param":{"prompt":"the \"12.5%\" button near the bottom controls"},"thought":""} hasLocatedPixelBbox=false
+[2026-09-03T17:38:27.929+08:00] executing action Tap {
+  locate: {
+    center: [ 409, 632 ],
+    rect: { left: 383, top: 621, width: 53, height: 24 },
+    description: 'the "12.5%" button near the bottom controls'
+  }
+} taskContext.element.center: 409,632
+[2026-09-03T17:38:27.929+08:00] will call "beforeInvokeAction" for interface with action name Tap
+[2026-09-03T17:38:27.929+08:00] called "beforeInvokeAction" for interface with action name Tap
+[2026-09-03T17:38:28.132+08:00] calling action Tap
+[2026-09-03T17:38:28.145+08:00] called action Tap result: undefined
+[2026-09-03T17:38:28.446+08:00] will call "afterInvokeAction" for interface with action name Tap
+[2026-09-03T17:38:28.651+08:00] called "afterInvokeAction" for interface with action name Tap

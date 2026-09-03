@@ -537,8 +537,49 @@ def load_systems2(repo: pathlib.Path, mons: list[dict]) -> dict:
         "results": [IN.apply_choice(i) for i in range(len(IN.STARTERS))],
     }
 
+    # ---- S13 音频 ----
+    # 导出**音序数据**而非 WAV：页面用 WebAudio 现场合成，
+    # 与固件同一份数据、同一套公式。塞 WAV 进 HTML 要 150 KB 且
+    # 验收不了「固件也能算出同样的声音」。
+    try:
+        import audio as AU                     # noqa: E402
+        sfx = {}
+        for name, fn in AU.SFX.items():
+            tracks = []
+            for t in fn():
+                tracks.append({
+                    "kind": t.kind, "short": t.noise_short,
+                    "notes": [{"m": x.midi, "d": x.dur_ms, "duty": x.duty,
+                               "e0": x.env.start, "es": x.env.step,
+                               "ems": x.env.step_ms,
+                               "sw": x.sweep, "v": x.vol}
+                              for x in t.notes],
+                })
+            sfx[name] = tracks
+        bud = AU.budget()
+        # 每条的实测峰值/直流/RMS —— 页面用 JS 重算后比对
+        metrics = {}
+        for name, fn in AU.SFX.items():
+            buf = AU.render(fn())
+            if not buf:
+                continue
+            pk = max(abs(v) for v in buf)
+            dc = sum(buf) / len(buf)
+            rms = (sum(v * v for v in buf) / len(buf)) ** 0.5
+            metrics[name] = {"peak": round(pk, 4), "dc": round(dc, 5),
+                             "rms": round(rms, 4), "n": len(buf)}
+        s13 = {
+            "sfx": sfx, "budget": bud, "metrics": metrics,
+            "sr": AU.SAMPLE_RATE, "duties": list(AU.DUTIES),
+            "master": AU.MASTER_VOL, "wave": AU.WAVE_TRIANGLE,
+            "bytesPerNote": AU.BYTES_PER_NOTE,
+        }
+    except ImportError as e:
+        print(f"  注：audio 导入失败（{e}）", file=sys.stderr)
+        s13 = {}
+
     return {"s4": s4, "s5": s5, "s6": s6, "s7": s7,
-            "s8": s8, "s9": s9, "s10": s10, "s11": s11}
+            "s8": s8, "s9": s9, "s10": s10, "s11": s11, "s13": s13}
 
 
 # 进化石反查：gen1.bin 只存「道具触发」，具体哪块石头要按物种查。
@@ -647,6 +688,15 @@ def main() -> int:
                       f"{x['ok']}：{x['why']}", file=sys.stderr)
         print(f"  S11 开场 {systems2['s11']['frames']} 帧　"
               f"音效帧 {[x['f'] for x in systems2['s11']['sounds']]}")
+        if systems2.get("s13"):
+            b = systems2["s13"]["budget"]
+            worst = max(systems2["s13"]["metrics"].items(),
+                        key=lambda kv: abs(kv[1]["dc"]))
+            print(f"  S13 音频 {len(systems2['s13']['sfx'])} 条音效　"
+                  f"{b['total_bytes']} B（PCM 要 {b['as_pcm_bytes']//1024} KB，"
+                  f"省 {b['as_pcm_bytes']//b['total_bytes']}×）")
+            print(f"      最大直流偏移 {worst[0]} {worst[1]['dc']:+.5f}"
+                  f"{' ✓' if abs(worst[1]['dc']) < 0.01 else ' ✗ 需去直流'}")
     if sensing:
         for name, d in sensing.items():
             w1, w4 = d["runs"]["1"], d["runs"]["4"]

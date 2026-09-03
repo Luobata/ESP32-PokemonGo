@@ -753,3 +753,107 @@
 [2026-09-03T16:46:42.002+08:00] screenshotBase64 end, cost: 25ms
 [2026-09-03T16:46:42.011+08:00] screenshotBase64 begin
 [2026-09-03T16:46:42.052+08:00] screenshotBase64 end, cost: 41ms
+[2026-09-03T17:35:56.930+08:00] screenshotBase64 begin
+[2026-09-03T17:35:56.933+08:00] Midscene - Added base-select appearance style for select elements because of forceChromeSelectRendering is enabled
+[2026-09-03T17:35:56.934+08:00] Midscene - Added base-select appearance style for select elements because of forceChromeSelectRendering is enabled
+[2026-09-03T17:35:56.998+08:00] screenshotBase64 end, cost: 68ms
+[2026-09-03T17:35:59.927+08:00] Midscene - Added base-select appearance style for select elements because of forceChromeSelectRendering is enabled
+[2026-09-03T17:35:59.941+08:00] evaluate function begin
+[2026-09-03T17:35:59.942+08:00] evaluate function end
+[2026-09-03T17:35:59.942+08:00] screenshotBase64 begin
+[2026-09-03T17:35:59.985+08:00] screenshotBase64 end, cost: 43ms
+[2026-09-03T17:36:04.338+08:00] screenshotBase64 begin
+[2026-09-03T17:36:04.363+08:00] screenshotBase64 end, cost: 25ms
+[2026-09-03T17:36:06.849+08:00] screenshotBase64 begin
+[2026-09-03T17:36:06.882+08:00] screenshotBase64 end, cost: 33ms
+[2026-09-03T17:36:07.087+08:00] mouse move to 859, 243
+[2026-09-03T17:36:07.091+08:00] mouse click 859, 243, left, 1
+[2026-09-03T17:36:07.413+08:00] waitForNavigation begin at moment afterInvokeAction with timeout: 5000 and actionName: Tap
+[2026-09-03T17:36:07.414+08:00] waitForNetworkIdle begin at moment afterInvokeAction with timeout: 2000 and concurrency: 2 and actionName: Tap
+[2026-09-03T17:36:07.429+08:00] waitForNavigation end
+[2026-09-03T17:36:07.615+08:00] waitForNetworkIdle end
+[2026-09-03T17:36:07.616+08:00] screenshotBase64 begin
+[2026-09-03T17:36:07.644+08:00] screenshotBase64 end, cost: 28ms
+[2026-09-03T17:36:13.512+08:00] screenshotBase64 begin
+[2026-09-03T17:36:13.527+08:00] screenshotBase64 end, cost: 15ms
+[2026-09-03T17:36:13.532+08:00] screenshotBase64 begin
+[2026-09-03T17:36:13.560+08:00] screenshotBase64 end, cost: 28ms
+[2026-09-03T17:36:59.919+08:00] Midscene - Added base-select appearance style for select elements because of forceChromeSelectRendering is enabled
+[2026-09-03T17:36:59.952+08:00] evaluate function begin
+[2026-09-03T17:36:59.953+08:00] evaluate function end
+[2026-09-03T17:36:59.953+08:00] screenshotBase64 begin
+[2026-09-03T17:36:59.977+08:00] screenshotBase64 end, cost: 24ms
+[2026-09-03T17:37:05.538+08:00] screenshotBase64 begin
+[2026-09-03T17:37:05.563+08:00] screenshotBase64 end, cost: 24ms
+[2026-09-03T17:37:09.192+08:00] screenshotBase64 begin
+[2026-09-03T17:37:09.229+08:00] screenshotBase64 end, cost: 37ms
+[2026-09-03T17:37:09.439+08:00] evaluate function begin
+[2026-09-03T17:37:09.441+08:00] evaluate function end
+[2026-09-03T17:37:09.441+08:00] mouse move to 716, 370
+[2026-09-03T17:37:09.443+08:00] mouse wheel 0, 520
+[2026-09-03T17:37:10.251+08:00] waitForNavigation begin at moment afterInvokeAction with timeout: 5000 and actionName: Scroll
+[2026-09-03T17:37:10.252+08:00] waitForNetworkIdle begin at moment afterInvokeAction with timeout: 2000 and concurrency: 2 and actionName: Scroll
+[2026-09-03T17:37:10.273+08:00] waitForNavigation end
+[2026-09-03T17:37:10.456+08:00] waitForNetworkIdle end
+[2026-09-03T17:37:10.456+08:00] screenshotBase64 begin
+[2026-09-03T17:37:10.477+08:00] screenshotBase64 end, cost: 21ms
+[2026-09-03T17:37:14.531+08:00] screenshotBase64 begin
+[2026-09-03T17:37:14.557+08:00] screenshotBase64 end, cost: 26ms
+[2026-09-03T17:37:17.687+08:00] screenshotBase64 begin
+[2026-09-03T17:37:17.706+08:00] screenshotBase64 end, cost: 19ms
+[2026-09-03T17:37:17.909+08:00] evaluate function begin
+[2026-09-03T17:37:17.910+08:00] evaluate function end
+[2026-09-03T17:37:17.910+08:00] mouse move to 718, 354
+[2026-09-03T17:37:17.910+08:00] mouse wheel 0, 360
+[2026-09-03T17:37:18.717+08:00] waitForNavigation begin at moment afterInvokeAction with timeout: 5000 and actionName: Scroll
+[2026-09-03T17:37:18.717+08:00] waitForNetworkIdle begin at moment afterInvokeAction with timeout: 2000 and concurrency: 2 and actionName: Scroll
+[2026-09-03T17:37:18.719+08:00] waitForNavigation end
+[2026-09-03T17:37:18.919+08:00] waitForNetworkIdle end
+[2026-09-03T17:37:18.919+08:00] screenshotBase64 begin
+[2026-09-03T17:37:18.940+08:00] screenshotBase64 end, cost: 21ms
+[2026-09-03T17:37:23.074+08:00] screenshotBase64 begin
+[2026-09-03T17:37:23.089+08:00] screenshotBase64 end, cost: 15ms
+[2026-09-03T17:37:23.102+08:00] screenshotBase64 begin
+[2026-09-03T17:37:23.140+08:00] screenshotBase64 end, cost: 38ms
+[2026-09-03T17:38:05.144+08:00] Midscene - Added base-select appearance style for select elements because of forceChromeSelectRendering is enabled
+[2026-09-03T17:38:05.175+08:00] evaluate function begin
+[2026-09-03T17:38:05.177+08:00] evaluate function end
+[2026-09-03T17:38:05.178+08:00] screenshotBase64 begin
+[2026-09-03T17:38:05.211+08:00] screenshotBase64 end, cost: 33ms
+[2026-09-03T17:38:09.247+08:00] screenshotBase64 begin
+[2026-09-03T17:38:09.278+08:00] screenshotBase64 end, cost: 31ms
+[2026-09-03T17:38:12.089+08:00] screenshotBase64 begin
+[2026-09-03T17:38:12.127+08:00] screenshotBase64 end, cost: 38ms
+[2026-09-03T17:38:12.336+08:00] mouse move to 143, 287
+[2026-09-03T17:38:12.338+08:00] mouse click 143, 287, left, 1
+[2026-09-03T17:38:13.695+08:00] waitForNavigation begin at moment afterInvokeAction with timeout: 5000 and actionName: Tap
+[2026-09-03T17:38:13.697+08:00] waitForNetworkIdle begin at moment afterInvokeAction with timeout: 2000 and concurrency: 2 and actionName: Tap
+[2026-09-03T17:38:13.707+08:00] waitForNavigation end
+[2026-09-03T17:38:13.900+08:00] waitForNetworkIdle end
+[2026-09-03T17:38:13.900+08:00] screenshotBase64 begin
+[2026-09-03T17:38:13.926+08:00] screenshotBase64 end, cost: 26ms
+[2026-09-03T17:38:16.975+08:00] screenshotBase64 begin
+[2026-09-03T17:38:17.014+08:00] screenshotBase64 end, cost: 39ms
+[2026-09-03T17:38:17.025+08:00] screenshotBase64 begin
+[2026-09-03T17:38:17.063+08:00] screenshotBase64 end, cost: 37ms
+[2026-09-03T17:38:21.240+08:00] Midscene - Added base-select appearance style for select elements because of forceChromeSelectRendering is enabled
+[2026-09-03T17:38:21.263+08:00] evaluate function begin
+[2026-09-03T17:38:21.264+08:00] evaluate function end
+[2026-09-03T17:38:21.264+08:00] screenshotBase64 begin
+[2026-09-03T17:38:21.316+08:00] screenshotBase64 end, cost: 52ms
+[2026-09-03T17:38:25.093+08:00] screenshotBase64 begin
+[2026-09-03T17:38:25.128+08:00] screenshotBase64 end, cost: 34ms
+[2026-09-03T17:38:27.887+08:00] screenshotBase64 begin
+[2026-09-03T17:38:27.926+08:00] screenshotBase64 end, cost: 39ms
+[2026-09-03T17:38:28.133+08:00] mouse move to 409, 632
+[2026-09-03T17:38:28.135+08:00] mouse click 409, 632, left, 1
+[2026-09-03T17:38:28.447+08:00] waitForNavigation begin at moment afterInvokeAction with timeout: 5000 and actionName: Tap
+[2026-09-03T17:38:28.449+08:00] waitForNetworkIdle begin at moment afterInvokeAction with timeout: 2000 and concurrency: 2 and actionName: Tap
+[2026-09-03T17:38:28.461+08:00] waitForNavigation end
+[2026-09-03T17:38:28.651+08:00] waitForNetworkIdle end
+[2026-09-03T17:38:28.651+08:00] screenshotBase64 begin
+[2026-09-03T17:38:28.671+08:00] screenshotBase64 end, cost: 20ms
+[2026-09-03T17:38:34.201+08:00] screenshotBase64 begin
+[2026-09-03T17:38:34.223+08:00] screenshotBase64 end, cost: 22ms
+[2026-09-03T17:38:34.233+08:00] screenshotBase64 begin
+[2026-09-03T17:38:34.270+08:00] screenshotBase64 end, cost: 37ms

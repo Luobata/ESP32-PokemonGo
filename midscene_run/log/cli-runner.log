@@ -64,3 +64,18 @@
 [2026-09-03T16:46:27.562+08:00] CLI invoked: midscene-web act --prompt 向下滚动约 300 像素，让那个深色的伙伴选择画布完整可见
 [2026-09-03T16:46:27.578+08:00] command: act, args: {"prompt":"向下滚动约 300 像素，让那个深色的伙伴选择画布完整可见"}
 [2026-09-03T16:46:42.052+08:00] command act completed, isError: false
+[2026-09-03T17:35:56.006+08:00] CLI invoked: midscene-web connect --url http://127.0.0.1:8765/index.html?v=5
+[2026-09-03T17:35:56.023+08:00] command: connect, args: {"web.url":"http://127.0.0.1:8765/index.html?v=5"}
+[2026-09-03T17:35:56.999+08:00] command connect completed, isError: false
+[2026-09-03T17:35:59.849+08:00] CLI invoked: midscene-web act --prompt 点击标签栏里的「S13 音频」标签
+[2026-09-03T17:35:59.866+08:00] command: act, args: {"prompt":"点击标签栏里的「S13 音频」标签"}
+[2026-09-03T17:36:13.560+08:00] command act completed, isError: false
+[2026-09-03T17:36:59.806+08:00] CLI invoked: midscene-web act --prompt 向下滚动到「音效库」标题，让下面那张列出所有音效的表格和它下方的说明文字都可见
+[2026-09-03T17:36:59.823+08:00] command: act, args: {"prompt":"向下滚动到「音效库」标题，让下面那张列出所有音效的表格和它下方的说明文字都可见"}
+[2026-09-03T17:37:23.140+08:00] command act completed, isError: false
+[2026-09-03T17:38:04.995+08:00] CLI invoked: midscene-web act --prompt 点击 shiny 那一行左边的播放按钮
+[2026-09-03T17:38:05.027+08:00] command: act, args: {"prompt":"点击 shiny 那一行左边的播放按钮"}
+[2026-09-03T17:38:17.063+08:00] command act completed, isError: false
+[2026-09-03T17:38:21.158+08:00] CLI invoked: midscene-web act --prompt 点击「12.5%」按钮
+[2026-09-03T17:38:21.177+08:00] command: act, args: {"prompt":"点击「12.5%」按钮"}
+[2026-09-03T17:38:34.271+08:00] command act completed, isError: false
