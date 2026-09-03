@@ -174,6 +174,19 @@ def classify_biome(aps: list, ble_count: int = 0) -> str:
         # 当成「在野外」—— 而实测它更可能是「在室内但这次扫描不好」。
         return BIOME_UNKNOWN
     if n <= 3:
+        # ⚠️ **死代码** —— 上面 MIN_APS_FOR_BIOME = 4 已经 return 了，
+        # 这个条件数学上不可能为真（穷举 n=0~8 验证过）。
+        # 于是野外 biome 从未被判出：三份真实数据 1061 次扫描里 0 次。
+        #
+        # 后果不小：S17 第 1 馆（野外驻留 1h）、第 5 馆（野外 8h）永久锁死，
+        # 而道馆是线性的 → 八个馆全部不可达。
+        # 同交通枢纽分支（要 ble_count > 10 但没人传）—— 第二个
+        # 「分支存在 ≠ 会执行」的实例。
+        #
+        # 不能简单把 MIN_APS_FOR_BIOME 调小：那道防护修的是
+        # 「纯办公环境 17% 扫描被判成野外」，拆了旧缺陷就回来。
+        # 修法需要真实户外采集数据定阈值，详见
+        # sim/orchestrate.py 顶部「野外 biome 判定」那段。
         return BIOME_WILD
 
     ent = sum(1 for a in aps if a.auth in ("wpa2-ent", "wpa3-ent", "wpa-ent"))

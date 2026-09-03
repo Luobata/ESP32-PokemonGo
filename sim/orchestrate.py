@@ -38,6 +38,7 @@ gameplay + sensing + naming 三个。
 
 from __future__ import annotations
 
+import random
 import sys
 from dataclasses import dataclass, field
 from typing import Optional
@@ -71,6 +72,42 @@ from systems import (                                   # noqa: E402
 #
 # 阈值太低（≤4）会把抖动算进来；太高（≥20）会漏掉真实的短途访问。
 VISIT_MIN_SCANS = 10
+
+# 野外 biome 判定 —— **未实装，阈值缺实测支撑**。
+#
+# ## 已确证的缺陷
+#
+# `gameplay.classify_biome` 里 `MIN_APS_FOR_BIOME = 4` 先返回 UNKNOWN，
+# 于是它后面的 `if n <= 3: return BIOME_WILD` **数学上不可达**
+# （穷举 AP 数 0~8 验证过：n<4 全 UNKNOWN，n>=4 走后续分支）。
+# 三份真实数据 1061 次扫描里野外出现 **0 次**。
+#
+# 后果：第 1 馆（小刚，野外驻留 1h）与第 5 馆（阿桔，野外 8h）永久锁死，
+# 而道馆是线性的 —— 第 1 馆打不了，八个馆全部不可达。
+# 这是第二个「分支存在 ≠ 会执行」的实例（第一个是交通枢纽要 BLE）。
+#
+# ## 为什么先不修
+#
+# 修法的思路是清楚的：那道 MIN_APS 防护不能拆（它修的是「办公室 17%
+# 扫描误判野外」），要区分「真在空旷处」与「室内但这次扫描不好」
+# 只能靠持续性 —— 与 biome_visits 的确认机制同源。
+#
+# 但**阈值没法凭空定**。我试过两版都不成立：
+#   · 连续 N 次 UNKNOWN → 判不出来。户外 AP 数在阈值 4 附近抖动
+#     （5→3→3→2→5→4→3），连续计数反复归零
+#   · 滑动窗口占比 → 参数只能靠调，而我是在拿合成数据的编造分布调参
+#
+# 缺的是**真实户外采集**：公园、街道、郊野的 AP 数分布到底是什么样。
+# 没有它，WILD_WINDOW / WILD_RATIO 这两个数就是估的 ——
+# 跟第 6 馆「商业区 4 次」那个被标为缺陷的估计值性质完全相同。
+#
+# ## 要做的事
+#
+# ① 用 tools/collector 采一份户外数据（公园/街道各半小时）
+# ② 看 AP 数分布与 family_ratio，定出「空旷」的判据
+# ③ 在 feed_scan 里按持续性实装，并验证真实办公/家数据不被误判成野外
+#
+# 在此之前 feed_scan 保持原行为：UNKNOWN 沿用上次结果。
 
 PHASE_BOOT = "boot"            # GB 启动动画
 PHASE_STORY = "story"          # 博士台词
@@ -279,6 +316,11 @@ def feed_scan(s: Session, scan: Scan) -> None:
     raw_biome = classify_biome(band.aps)
     # BIOME_UNKNOWN（AP 太少判不了）→ 沿用上次结果。
     # 这是 classify_biome 的契约：它宁可说「不知道」也不猜。
+    #
+    # ⚠️ 这一行同时也是「野外 biome 永不出现」的原因 ——
+    # classify_biome 的野外分支不可达（死代码），而真实户外的低 AP 扫描
+    # 全被这里吃成「沿用室内结果」。第 1、5 馆因此锁死。
+    # 修法与缺的实测数据见文件顶部 WILD_* 那段说明。
     biome = raw_biome or s.confirmed_biome or s.cand_biome
 
     # 三条轴：advance 只需要「过了多久」（S4）
@@ -620,12 +662,31 @@ def _evo_info(sid: int) -> dict:
 # ---------------------------------------------------------------------------
 
 def play_through(scans: list, choice: int = 3, auto_capture: bool = True,
-                 care_hours: tuple = (8, 13, 21)) -> Session:
+                 care_hours: tuple = (8, 13, 21),
+                 press_offset_ms: int = 600, press_jitter_ms: int = 0,
+                 seed: int = 42) -> Session:
     """喂一串真实扫描数据，跑完整局。
 
     这是**唯一一处**会让 18 个系统同时工作的地方 ——
     也就是系统之间的接缝唯一会被走到的地方。
+
+    ## press_offset_ms 为什么要能调
+
+    原先写死 600 —— 而指针周期正好 1200ms（`systems.POINTER_PERIOD_MS`），
+    600 是半周期，即三角波**顶点**，指针恒等于 200。窗口居中在 ~120，
+    于是除了开局窗口特别宽的头两次，之后 112 次投球全部未命中。
+
+    表现是「30 天 325 次遭遇只抓到 3 只、0 枚徽章」，看起来像玩法失衡，
+    实际是**测量方式**的问题：固定按键时机不代表玩家，它代表一个
+    每次都按在同一相位的机器人，而那个相位恰好是最差的。
+
+    所以：
+      · press_offset_ms  —— 按键时机（0~周期）。想测「完美玩家」传半窗口中心
+      · press_jitter_ms  —— 时机抖动，>0 时每次在 ±jitter 内随机偏移。
+                            这才接近真人：人会瞄准但手不稳。
+      · seed             —— 抖动的随机种子，保证可复现
     """
+    rng = random.Random(seed)
     s = Session()
     if scans:
         s.ts = scans[0].ts
@@ -638,7 +699,10 @@ def play_through(scans: list, choice: int = 3, auto_capture: bool = True,
 
         # 玩家行为：有遭遇就处理（模拟玩家掏出设备）
         if auto_capture and s.acc and s.acc.queue.items:
-            handle_encounter(s, 0, do_battle=True, press_offset_ms=600)
+            off = press_offset_ms
+            if press_jitter_ms:
+                off += rng.randint(-press_jitter_ms, press_jitter_ms)
+            handle_encounter(s, 0, do_battle=True, press_offset_ms=off)
             check_progress(s)
             # 够条件就挑战道馆
             r = challenge_gym(s)

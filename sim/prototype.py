@@ -50,6 +50,25 @@ def synthetic_scans(days: int, interval: int = 300) -> list[Scan]:
     """合成一份「家 → 通勤 → 公司 → 通勤 → 家」的日节律。
 
     这不能替代真实采集（AP 分布是编的），但足以验证养成曲线与遭遇频率。
+
+    ## AP 构成照实测数据调过，不是随手编的
+
+    早先版本的「家」只有 4 个同名 AP（ssid 全是 "HomeWiFi"），
+    结果 `classify_biome` 把它判成**商业区** —— family_ratio = 1.0
+    且无企业级加密，正好命中商业区分支。表现是 30 天跑下来
+    「商业区驻留 384 小时、野外 0 小时」，第 1 馆的「野外驻留 1 小时」
+    永远达不到，八个道馆全部不可达。
+
+    对照 data/raw/ 的实测（见 docs/02-sensing.md）：
+
+        场景    AP 数        family_ratio   判定
+        家      6~18 均12.6      0.22       住宅区 ✓
+        通勤    6~211 均57.7     0.56       住宅区/办公区
+        公司    20~65 均38.6     0.99       办公区 ✓
+
+    真实家庭环境的 AP 大半是**邻居家的**，SSID 各不相同 ——
+    所以 family_ratio 低。合成数据必须造出这批杂散 AP，
+    否则 biome 判定链路整个走不到正确分支。
     """
     rng = random.Random(42)
     scans: list[Scan] = []
@@ -63,16 +82,47 @@ def synthetic_scans(days: int, interval: int = 300) -> list[Scan]:
             for i in range(n)
         ]
 
-    home = make_aps("50:64:2b", 4, "wpa2", "HomeWiFi")
-    office = make_aps("00:74:9c", 12, "wpa2-ent", "Corp-Net")
+    # 邻居 SSID 的基名池 —— **每个必须是不同的基名**。
+    #
+    # `ssid_family()` 在 "-" 和 "_" 处切断取基名，所以 "NB-00"…"NB-09"
+    # 会全部归成 "nb" 一族 → family_ratio 0.83，家又被判成商业区。
+    # 第一版就栽在这里：造了 10 个"不同"的 SSID，实际是同一族。
+    # 真实住宅区的邻居 SSID 是无规律的品牌名/人名/型号。
+    _NB_NAMES = ("TP", "ChinaNet", "Xiaomi", "Huawei", "MERCURY", "Honor",
+                 "iPhone", "Redmi", "Tenda", "FAST", "Netcore", "asus",
+                 "linksys", "dlink", "zte")
+
+    def neighbors(prefix: str, n: int) -> list[AP]:
+        """邻居家的 AP —— 每个一个**独立基名**，这是压低 family_ratio 的关键。
+
+        真实住宅区扫到的大半是这种：信号弱（隔墙）、名字五花八门。
+        实测家里 12.6 个 AP、family_ratio 0.22。
+        """
+        return [
+            AP(bssid=f"{prefix}:{i:02x}:{i*11%256:02x}:{i*29%256:02x}",
+               ssid=f"{_NB_NAMES[i % len(_NB_NAMES)]}{i}",
+               rssi=-70 - rng.randint(0, 20),
+               channel=rng.choice([1, 6, 11]), auth="wpa2")
+            for i in range(n)
+        ]
+
+    # 家：自家 2 个（双频同名）+ 邻居 10 个 → 共 12 个，family_ratio ≈ 0.17
+    home = make_aps("50:64:2b", 2, "wpa2", "HomeWiFi") + neighbors("7c:ff:4d", 10)
+    # 公司：企业部署，同一 SSID 家族多变体 → family_ratio ≈ 0.93（实测特征）
+    office = (make_aps("00:74:9c", 14, "wpa2-ent", "Corp-Net")
+              + make_aps("00:74:9d", 4, "wpa2-ent", "Corp-Net-Guest")
+              + make_aps("00:74:9e", 2, "open", "Corp-Guest"))
 
     for d in range(days):
         for hour in range(24):
             for _ in range(3600 // interval):
                 if 9 <= hour < 10 or 19 <= hour < 20:
                     # 通勤：每次扫到一批完全不同的 AP（猎场）
-                    aps = make_aps(f"a4:83:{rng.randint(0,255):02x}",
-                                   rng.randint(3, 8), "wpa2", "")
+                    #
+                    # 户外/街边：AP 少且杂，判定会落到野外或住宅区 ——
+                    # 野外驻留是第 1、5 馆的门槛，必须有这一段。
+                    aps = neighbors(f"a4:83:{rng.randint(0,255):02x}",
+                                    rng.randint(2, 5))
                 elif 10 <= hour < 19:
                     aps = office
                 else:
