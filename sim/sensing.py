@@ -61,6 +61,38 @@ SMOOTH_WINDOW = 4
 # 驻留时这个值接近 0（AP 集合封闭），通勤时持续偏高。
 FRESH_RATIO_THRESHOLD = 0.25
 
+# AP 数低于此值时，距离判据不可信 —— 只信新鲜度。
+#
+# 实测公司环境（office.ndjson，77 次扫描）：**27% 的扫描只有 ≤4 个 AP**，
+# AP 数在 0~19 之间剧烈跳。很可能是 5GHz 为主的现代办公部署，
+# 2.4G 只剩零星几个 —— 正是 docs/01-constitution.md#11 预警的
+# 「5G-only 写字楼在设备眼中异常稀疏」。
+#
+# 这种情况下 top-8 指纹里任何一个 AP 掉线都是「巨变」：
+# 只有 2 个 AP 时掉 1 个，加权 Jaccard 距离直接到 0.5~1.0。
+# 于是静坐在办公室会被判成一直在移动（实测窗口 4 也有 11 次误判移动）。
+#
+# 防护策略：AP 太少时**放弃距离判据，只信新鲜度**。
+# 新鲜度看的是「有没有见过的 AP」，不受 AP 总数影响 ——
+# 真在移动时会持续见到新 BSSID，静坐时不会。
+MIN_APS_FOR_DISTANCE = 5
+
+# 新鲜度为 0 时否决距离判据。
+#
+# 实测公司数据（office.ndjson）加了 MIN_APS_FOR_DISTANCE 后仍有 15 次
+# 误判移动，逐条看下来**新鲜度全是 0.00** —— 一个新 BSSID 都没见到，
+# 人显然没动。距离飙高纯粹是 AP 数在 3~14 之间跳导致的
+# （8→3→4→12 这种，2.4G 覆盖不稳）。
+#
+# 「一个新 AP 都没见到」是比「指纹变了多少」更硬的证据：
+# 真在移动一定会撞见没见过的 BSSID，哪怕只有一个。
+# 所以新鲜度为 0 时直接否决距离，只有两条判据都指向移动才算移动。
+#
+# 代价：在一个**完全封闭**的环境里移动（比如同一栋楼里走动，
+# AP 集合固定）会检测不到。但那种场景下「移动」本身也没有玩法意义 ——
+# 猎场遭遇要的是「去了新地方」，而不是「换了个房间」。
+VETO_MOVE_WHEN_NO_FRESH = True
+
 RSSI_FLOOR = -100       # 权重曲线下界（dBm）
 RSSI_CEIL = -40         # 权重曲线上界（dBm）
 
@@ -398,7 +430,8 @@ class MotionState:
         而新鲜度不受平滑影响 —— 它看的是「有没有新东西」而非「变了多少」。
         两条判据取或：距离超阈值**或**持续见到新 AP，都算移动。
         """
-        raw = MOVING if (distance > threshold or fresh) else STAYING
+        # distance < 0 表示「本次距离不可信」（AP 太少），只看新鲜度
+        raw = MOVING if ((distance >= 0 and distance > threshold) or fresh) else STAYING
 
         if raw == self._pending:
             self._streak += 1
@@ -499,7 +532,19 @@ class SensingCore:
         is_fresh = (len(self.smooth) >= self.smooth.window
                     and fresh_ratio >= FRESH_RATIO_THRESHOLD)
 
-        state = self.motion.update(dist, fresh=is_fresh)
+        # AP 太少时距离判据不可信（见 MIN_APS_FOR_DISTANCE），
+        # 传 -1 让 MotionState 只依据新鲜度
+        reliable_dist = dist if len(cur_hashes) >= MIN_APS_FOR_DISTANCE else -1.0
+
+        # 新鲜度为 0 → 否决距离判据（见 VETO_MOVE_WHEN_NO_FRESH）。
+        # 但要等窗口填满才启用，否则开机头几次扫描 seen_hashes 还空着，
+        # fresh_ratio 恒为 1，这条永远不触发。
+        if (VETO_MOVE_WHEN_NO_FRESH
+                and len(self.smooth) >= self.smooth.window
+                and fresh_ratio == 0.0):
+            reliable_dist = -1.0
+
+        state = self.motion.update(reliable_dist, fresh=is_fresh)
 
         # 距离本身是否指向「静止」。迟滞机制下 state 切换有延迟，
         # 移动的第一帧 state 仍是 staying —— 只看 state 会把通勤第一帧
