@@ -84,10 +84,13 @@ class Gym:
     badge: str                  # 徽章（官方译名，颜色名）
     biome: str                  # 绑定的 biome —— 本项目的解锁条件
     level_cap: int              # 取得该徽章后可指挥的等级上限
-    dwell_hours: int            # 该 biome 累计驻留要求（小时）
+    dwell_hours: int            # 该 biome 累计驻留要求（小时）；0 = 不看驻留
     encounters: int             # 累计遭遇要求
     seen: int                   # 已见物种要求
     team: list = field(default_factory=list)    # [(species_id, level)]
+    # 该 biome 的**访问次数**要求；0 = 不看访问，只看驻留小时。
+    # 稀有 biome（商业区/交通枢纽）用这个，见 GYMS 上方的注释。
+    visits: int = 0
 
 
 # 等级上限：**取得第 N 枚徽章后**可指挥到多少级。
@@ -114,33 +117,58 @@ LEVEL_CAPS = (22, 30, 40, 50, 60, 70, 80, 100)
 # 火      → 商业区（商场供电密集）
 # 地面    → 野外（最终馆回到起点，形成闭环）
 
+# 门槛按**真实 biome 分布**定，不是每个 biome 平均分配。
+#
+# 全流程串联跑真实数据（1061 次扫描 / 19.9 小时）算出的分布：
+#
+#     办公区 70.3%（6.2h/天）   野外 14.5%（1.3h/天）
+#     住宅区 14.3%（1.3h/天）   商业区 0.8%（0.1h/天）
+#     交通枢纽 0%
+#
+# 上班族的一天里住宅区+办公区占 85%。原先按平均分配的门槛导致：
+#
+#     第 6 馆（交通枢纽 34h）→ 需 3400 天，**事实上不可达**
+#     第 7 馆（商业区 46h）  → 需 613 天
+#     第 5 馆（住宅区 24h）  → 需 19 天
+#
+# 这个缺陷只有把 18 个系统串起来跑真数据才会暴露 ——
+# 单看 S17 的代码它是自洽的。
+#
+# 修法有两层：
+#   ① 常见 biome（野外/住宅区/办公区）的小时数按各自速率重算
+#   ② **稀有 biome 改用「访问次数」而非「累计小时」** ——
+#      偶尔去一次商场/车站是正常的，在那儿累计几十小时不是。
+#      这不只是调数值，是换衡量方式。
 GYMS = [
     Gym(1, "小刚", "タケシ", "深灰市", "岩石", "灰色徽章",
-        "野外", LEVEL_CAPS[0], dwell_hours=2, encounters=20, seen=8,
+        "野外", LEVEL_CAPS[0], dwell_hours=1, encounters=20, seen=8,
         team=[(74, 12), (95, 14)]),        # 小拳石、大岩蛇
     Gym(2, "小霞", "カスミ", "华蓝市", "水", "蓝色徽章",
-        "野外", LEVEL_CAPS[1], dwell_hours=5, encounters=45, seen=15,
+        "住宅区", LEVEL_CAPS[1], dwell_hours=3, encounters=45, seen=15,
         team=[(120, 18), (121, 21)]),      # 海星星、宝石海星
     Gym(3, "马志士", "マチス", "枯叶市", "电", "橙色徽章",
-        "办公区", LEVEL_CAPS[2], dwell_hours=10, encounters=75, seen=24,
+        "办公区", LEVEL_CAPS[2], dwell_hours=18, encounters=75, seen=24,
         team=[(100, 21), (25, 18), (26, 24)]),   # 霹雳蛋、皮卡丘、雷丘
     Gym(4, "莉佳", "エリカ", "玉虹市", "草", "彩虹徽章",
-        "住宅区", LEVEL_CAPS[3], dwell_hours=16, encounters=110, seen=34,
+        "住宅区", LEVEL_CAPS[3], dwell_hours=6, encounters=110, seen=34,
         team=[(71, 29), (114, 24), (45, 29)]),    # 大食花、蔓藤怪、霸王花
     Gym(5, "阿桔", "キョウ", "浅红市", "毒", "粉红徽章",
-        "住宅区", LEVEL_CAPS[4], dwell_hours=24, encounters=150, seen=45,
+        "野外", LEVEL_CAPS[4], dwell_hours=8, encounters=150, seen=45,
         team=[(109, 37), (89, 39), (109, 37), (110, 43)]),
         # 瓦斯弹、臭臭泥、瓦斯弹、双弹瓦斯（原版真有两只瓦斯弹）
+    # 第 6、7 馆用**访问次数** —— 稀有 biome 不能按累计小时衡量
     Gym(6, "娜姿", "ナツメ", "金黄市", "超能", "金色徽章",
-        "交通枢纽", LEVEL_CAPS[5], dwell_hours=34, encounters=200, seen=58,
+        "交通枢纽", LEVEL_CAPS[5], dwell_hours=0, visits=8,
+        encounters=200, seen=58,
         team=[(64, 38), (122, 37), (49, 38), (65, 43)]),
         # 勇基拉、魔墙人偶、摩鲁蛾、胡地
     Gym(7, "夏伯", "カツラ", "红莲镇", "火", "深红徽章",
-        "商业区", LEVEL_CAPS[6], dwell_hours=46, encounters=260, seen=72,
+        "商业区", LEVEL_CAPS[6], dwell_hours=0, visits=12,
+        encounters=260, seen=72,
         team=[(58, 42), (77, 40), (78, 42), (59, 47)]),
         # 卡蒂狗、小火马、烈焰马、风速狗
     Gym(8, "坂木", "サカキ", "常青市", "地面", "绿色徽章",
-        "野外", LEVEL_CAPS[7], dwell_hours=60, encounters=340, seen=88,
+        "办公区", LEVEL_CAPS[7], dwell_hours=60, encounters=340, seen=88,
         team=[(111, 45), (51, 42), (31, 44), (34, 45), (112, 50)]),
         # 独角犀牛、三地鼠、尼多后、尼多王、钻角犀兽（常青道馆那场）
 ]
@@ -203,7 +231,8 @@ class GymCheck:
 
 
 def check_gym(gym: Gym, badges: int, biome_dwell: dict,
-              total_encounters: int, seen_count: int) -> GymCheck:
+              total_encounters: int, seen_count: int,
+              biome_visits: Optional[dict] = None) -> GymCheck:
     """能否挑战第 N 馆。
 
     四个条件：
@@ -225,15 +254,28 @@ def check_gym(gym: Gym, badges: int, biome_dwell: dict,
     if badges >= gym.order:
         return GymCheck(False, f"已取得{gym.badge}", {})
 
-    # ② biome 驻留（主条件）
+    # ② biome 条件（主条件）—— 驻留小时 或 访问次数，二选一
+    #
+    # 稀有 biome（商业区/交通枢纽）用访问次数：偶尔去一次商场是正常的，
+    # 在那儿累计几十小时不是。实测交通枢纽占 0%、商业区 0.8%，
+    # 按小时算门槛会变成事实上不可达（原设计第 6 馆需 3400 天）。
     got_h = biome_dwell.get(gym.biome, 0) / 3600.0
-    prog["dwell"] = (round(got_h, 1), gym.dwell_hours)
+    got_v = (biome_visits or {}).get(gym.biome, 0)
+    if gym.visits:
+        prog["visits"] = (got_v, gym.visits)
+    else:
+        prog["dwell"] = (round(got_h, 1), gym.dwell_hours)
     # ③ 累计遭遇
     prog["encounters"] = (total_encounters, gym.encounters)
     # ④ 已见物种
     prog["seen"] = (seen_count, gym.seen)
 
-    if got_h < gym.dwell_hours:
+    if gym.visits:
+        if got_v < gym.visits:
+            return GymCheck(False,
+                            f"去过{gym.biome}的次数不足（{got_v}/{gym.visits}）",
+                            prog)
+    elif got_h < gym.dwell_hours:
         return GymCheck(False,
                         f"{gym.biome}驻留不足（{got_h:.1f}/{gym.dwell_hours} 小时）",
                         prog)

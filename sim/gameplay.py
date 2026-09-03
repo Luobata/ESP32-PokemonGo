@@ -127,6 +127,22 @@ def ssid_family(ssid: str) -> str:
     return base.lower() or ssid.lower()
 
 
+# AP 少于这个数时**不做 biome 判定** —— 返回 BIOME_UNKNOWN，
+# 由调用方沿用上一次的结果。
+#
+# 实测依据：纯办公环境的 office.ndjson 里 **17% 的扫描被判成野外**，
+# 而那些扫描的 AP 数中位数只有 2（判对的那些是 8）。
+# 同一间办公室，偶尔只抓到两个 AP 就被按「AP 少 = 野外」判了。
+#
+# 这与感知层的 MIN_APS_FOR_DISTANCE = 5 是同一个问题：
+# **稀疏扫描不可信**。sensing.py 早就有这道防护，
+# 而 classify_biome 一直没有 —— 全流程串联跑真数据才暴露出来
+# （biome 访问计数被抖动刷到一天 103 次）。
+MIN_APS_FOR_BIOME = 4
+
+BIOME_UNKNOWN = ""          # 判不了 —— 调用方沿用上次结果
+
+
 def classify_biome(aps: list, ble_count: int = 0) -> str:
     """由聚合统计判定 biome。
 
@@ -153,8 +169,10 @@ def classify_biome(aps: list, ble_count: int = 0) -> str:
     因此办公区的 AP 密度阈值不能定太高（docs/03-spawning.md#33）。
     """
     n = len(aps)
-    if n == 0:
-        return BIOME_WILD
+    if n < MIN_APS_FOR_BIOME:
+        # 包括 n == 0。以前这里返回 BIOME_WILD，那等于把「扫不到东西」
+        # 当成「在野外」—— 而实测它更可能是「在室内但这次扫描不好」。
+        return BIOME_UNKNOWN
     if n <= 3:
         return BIOME_WILD
 
