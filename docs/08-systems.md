@@ -9,16 +9,24 @@
 
 | # | 系统 | 状态 | 依赖实测 | 文档 |
 |---|---|---|---|---|
-| S1 | 遭遇累积 | 设计完成 | ⏳ 遭遇频率 | [S1-encounter.md](systems/S1-encounter.md) |
-| S2 | 捕获判定 | 设计完成 | — | [S2-capture.md](systems/S2-capture.md) |
-| S3 | 自动战斗 | 设计完成 | — | [S3-battle.md](systems/S3-battle.md) |
-| S4 | 养成状态机 | 部分实现 | ⏳ RTC 精度 | [S4-nurture.md](systems/S4-nurture.md) |
-| S5 | 图鉴 | 设计完成 | — | [S5-dex.md](systems/S5-dex.md) |
-| S6 | 存档 | 设计完成 | ⏳ flash 磨损 | [S6-save.md](systems/S6-save.md) |
-| S7 | 进化 | 设计完成 | — | [S7-evolution.md](systems/S7-evolution.md) |
-| S8 | 闪光 | 设计完成 | — | [S8-shiny.md](systems/S8-shiny.md) |
-| S9 | 道具 | 设计完成 | — | [S9-items.md](systems/S9-items.md) |
-| S10 | 成绩与排行 | 设计完成 | — | [S10-records.md](systems/S10-records.md) |
+| S1 | 遭遇累积 | **✅ 已实现** | ⏳ 遭遇频率 | [S1-encounter.md](systems/S1-encounter.md) |
+| S2 | 捕获判定 | **✅ 已实现** | — | [S2-capture.md](systems/S2-capture.md) |
+| S3 | 自动战斗 | **✅ 已实现** | — | [S3-battle.md](systems/S3-battle.md) |
+| S4 | 养成状态机 | **✅ 已实现** | ⏳ RTC 精度 | [S4-nurture.md](systems/S4-nurture.md) |
+| S5 | 图鉴 | **✅ 已实现** | — | [S5-dex.md](systems/S5-dex.md) |
+| S6 | 存档 | **✅ 已实现** | ⏳ flash 磨损 | [S6-save.md](systems/S6-save.md) |
+| S7 | 进化 | ◐ 条件判定已实现 | — | [S7-evolution.md](systems/S7-evolution.md) |
+| S8 | 闪光 | **✅ 已实现** | — | [S8-shiny.md](systems/S8-shiny.md) |
+| S9 | 道具 | **✅ 已实现** | — | [S9-items.md](systems/S9-items.md) |
+| S10 | 成绩与排行 | **✅ 已实现** | — | [S10-records.md](systems/S10-records.md) |
+
+实现分布在三个模块：
+
+| 模块 | 系统 | 说明 |
+|---|---|---|
+| [`sim/systems.py`](../sim/systems.py) | S1 S2 S3 S8 | 共享遭遇队列，S1 生产、S2/S3 消费 |
+| [`sim/state.py`](../sim/state.py) | S5 S6 S9 S10 | 状态容器，S6 存档序列化其余三个 |
+| [`sim/gameplay.py`](../sim/gameplay.py) | S4 S7 | `PetState` 与进化条件 |
 
 ## UI 页面
 
@@ -68,15 +76,18 @@
 | 主宠状态 | 9 B | S4 |
 | 图鉴位图（已见/已捕/闪光已见/闪光已捕） | 76 B | S5 + S8 |
 | 道具 | 4 B | S9 |
-| 成绩与纪录 | 132 B | S10 |
+| 成绩与纪录 | 136 B | S10 |
 | 地点表（RTC RAM 镜像） | 512 B | 感知层 |
 | 遭遇队列 | 128 B | S1 |
 | biome 驻留累计（5 × u32） | 20 B | 感知层 → S7 |
 | 头部（魔数/版本/CRC） | 10 B | S6 |
-| **合计** | **约 891 B** | |
+| **合计** | **897 B**（实测） | |
 
-双 buffer = 1.8 KB，远小于 flash 页。**养成数据与成绩是唯一不可再生的**，
-CRC 必须有。字节级布局见 [S6-save.md](systems/S6-save.md)。
+**实测 897 字节**，与设计估值 891 只差 6 —— 差异来自成绩块（136 vs 估 132）
+与日索引字段。双 buffer = **1.75 KB**，远小于 flash 页。
+
+**养成数据与成绩是唯一不可再生的**，CRC 必须有。已验证主槽损坏能正确
+回退到备份槽（[`sim/state.py`](../sim/state.py) 的 `DualBufferSave`）。
 
 ### 三个已决的取舍
 
