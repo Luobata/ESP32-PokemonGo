@@ -419,21 +419,24 @@ class BattleRound:
     wild_hp: int
 
 
-def wild_level(rarity: int, pet_level: int) -> int:
-    """野怪等级 —— 跟着主宠等级走，稀有度决定高低。
+# 野怪的**绝对**等级带，按稀有度定。
+#
+# 早期版本让野怪等级跟着主宠走（pet_level + delta），实测发现那让
+# 练级完全失去意义：主宠 Lv40 打 ★★ 照样输，因为对手也涨到 Lv39。
+# 玩家的成长必须能兑现成战力，否则养成线与战斗线是脱钩的。
+#
+# 改成绝对等级带后，「打不过」变成一个**暂时**的状态 ——
+# 练到 Lv30 就能回头收拾 ★★★★ 了，这才是收集游戏该有的曲线。
+WILD_LEVEL_BAND = {1: 5, 2: 12, 3: 20, 4: 30, 5: 45}
 
-    **不能让野怪等级独立于主宠**：实测均匀采样 151 只时，Lv12 主宠会
-    遇到鸭嘴火兽这类终极形态（种族值 65/95/57/85/93），打 46 回合都赢不了。
-    原版靠「不同区域不同等级带」解决，本项目没有地图，改用稀有度：
 
-        ★     主宠等级 -3   常见杂鱼
-        ★★★   主宠等级 ±0
-        ★★★★★ 主宠等级 +5   真正的挑战
+def wild_level(rarity: int, pet_level: int = 0) -> int:
+    """野怪等级 —— 按稀有度的绝对等级带，不随主宠浮动。
 
-    这样「打不过」永远是有信息的信号（遇到稀有种），而不是随机劝退。
+    pet_level 参数保留但只用于兜底（避免野怪等级低到毫无威胁）。
     """
-    delta = {1: -3, 2: -1, 3: 0, 4: 2, 5: 5}.get(rarity, 0)
-    return max(2, pet_level + delta)
+    band = WILD_LEVEL_BAND.get(rarity, 12)
+    return max(2, band)
 
 
 @dataclass
@@ -442,6 +445,21 @@ class BattleResult:
     rounds: list[BattleRound] = field(default_factory=list)
     exp: int = 0
     wild_hp_ratio: int = 100      # 传给 S2 —— 打残了更好抓
+
+
+def effective_stat(base: int, level: int) -> int:
+    """种族值 + 等级 → 实际能力值。
+
+    **这一层不能省。** 实测发现：若直接用种族值，等级完全不影响胜负 ——
+    伤害公式里等级只出现在 (2*Lv/5+2) 这一项，双方一起涨就抵消了。
+    小火龙 Lv32 打 ★★ 档野怪照样输，"练级"变得毫无意义。
+
+    原版用的是完整的能力值公式（含个体值、努力值），这里取简化版：
+        实际值 = 种族值 × (1 + 等级/50)
+    Lv50 时翻倍，与原版量级接近。主宠因为持续升级而野怪等级跟着稀有度
+    浮动，于是等级差真的能转化成战力差。
+    """
+    return max(1, int(base * (1.0 + level / 50.0)))
 
 
 def auto_battle(pet_types: list[str], pet_stats: list[int], pet_level: int,
@@ -458,12 +476,16 @@ def auto_battle(pet_types: list[str], pet_stats: list[int], pet_level: int,
     stats 顺序与 gen1.bin 一致：[hp, attack, defense, special, speed]
     ability_factor 来自 PetState —— 消沉时 0.6，这是养成对战斗的影响。
     """
-    p_hp_max = pet_stats[0] * 2 + pet_level
-    w_hp_max = wild_stats[0] * 2 + wild_level
+    # 种族值 → 实际能力值（含等级成长，见 effective_stat）
+    ps = [effective_stat(v, pet_level) for v in pet_stats]
+    ws = [effective_stat(v, wild_level) for v in wild_stats]
+
+    p_hp_max = ps[0] * 2 + pet_level
+    w_hp_max = ws[0] * 2 + wild_level
     p_hp, w_hp = p_hp_max, w_hp_max
 
     # 速度决定先手
-    pet_first = pet_stats[4] >= wild_stats[4]
+    pet_first = ps[4] >= ws[4]
     rounds: list[BattleRound] = []
 
     def hit(atk_types, atk_stats, atk_lv, def_types, def_stats,
@@ -487,12 +509,12 @@ def auto_battle(pet_types: list[str], pet_stats: list[int], pet_level: int,
             if p_hp <= 0 or w_hp <= 0:
                 break
             if who == "pet":
-                dmg, mult, lbl = hit(pet_types, pet_stats, pet_level,
-                                     wild_types, wild_stats, ability_factor)
+                dmg, mult, lbl = hit(pet_types, ps, pet_level,
+                                     wild_types, ws, ability_factor)
                 w_hp = max(0, w_hp - dmg)
             else:
-                dmg, mult, lbl = hit(wild_types, wild_stats, wild_level,
-                                     pet_types, pet_stats, 1.0)
+                dmg, mult, lbl = hit(wild_types, ws, wild_level,
+                                     pet_types, ps, 1.0)
                 p_hp = max(0, p_hp - dmg)
             rounds.append(BattleRound(who, dmg, mult, lbl, p_hp, w_hp))
         if p_hp <= 0 or w_hp <= 0:

@@ -210,6 +210,90 @@ def load_sensing(repo: pathlib.Path) -> dict:
     return out
 
 
+def load_systems(repo: pathlib.Path, mons: list[dict]) -> dict:
+    """跑 S1/S2/S3 产出验收数据。
+
+    页面上要能**交互式**验收捕获判定（拖指针、换球、看窗口变化），
+    所以这里导出的是参数与查找表，而非固定结果 —— JS 侧重算一遍，
+    与 Python 实现对照。两边算出同一个数才算验收通过。
+    """
+    sys.path.insert(0, str(repo / "sim"))
+    try:
+        from systems import (  # noqa: E402
+            BALL_FACTOR, BALL_NAME_CN, BAR_WIDTH, BASE_SCALE, FLEE_CHANCE,
+            GEN1_OVERRIDES, POINTER_PERIOD_MS, QUEUE_CAP, STRENGTH_TIERS,
+            WINDOW_MAX, WINDOW_MIN, EncounterAccumulator, auto_battle,
+            effectiveness, species_pool, wild_level, window_width,
+        )
+        from sensing import SensingCore, load_ndjson  # noqa: E402
+        from gameplay import TYPES, PetState  # noqa: E402
+    except ImportError as e:
+        print(f"  注：systems 导入失败（{e}），跳过系统面板", file=sys.stderr)
+        return {}
+
+    stats_sum = {m["id"]: sum(m["st"]) for m in mons}
+
+    # ---- S1：用真实采集数据跑一遍 ----
+    raw = repo / "data" / "raw"
+    queue_rows: list[dict] = []
+    s1_stat = {}
+    if raw.is_dir():
+        scans = []
+        for f in sorted(raw.glob("*.ndjson")):
+            scans += load_ndjson(str(f))
+        scans.sort(key=lambda x: x.ts)
+        if scans:
+            core = SensingCore(only_24g=True)
+            acc = EncounterAccumulator(stats_sum=stats_sum)
+            pet = PetState(species_id=4, type_name="火", mood=78.0)
+            for sc in scans:
+                acc.feed(core.feed(sc), sc.only_24g(), pet)
+
+            pm = mons[3]      # 小火龙
+            for q in acc.queue.items:
+                m = mons[q.species_id - 1]
+                lv = wild_level(q.rarity, 12)
+                b = auto_battle(
+                    [pm["t1"]] + ([pm["t2"]] if pm["t2"] else []), pm["st"], 12,
+                    [m["t1"]] + ([m["t2"]] if m["t2"] else []), m["st"], lv,
+                    pet.ability_factor)
+                queue_rows.append({
+                    "id": q.species_id, "rarity": q.rarity,
+                    "shiny": q.is_shiny, "biome": q.enc.biome,
+                    "transient": q.enc.is_transient, "ts": q.enc.ts,
+                    "lv": lv, "won": b.won, "rounds": len(b.rounds),
+                    "hp": b.wild_hp_ratio, "exp": b.exp,
+                    "labels": [r.label for r in b.rounds if r.label][:3],
+                })
+            s1_stat = {"scans": len(scans), "hunt": acc.hunt_count,
+                       "base": acc.base_count, "dropped": acc.queue.dropped,
+                       "bytes": len(acc.queue.to_bytes()), "cap": QUEUE_CAP}
+
+    # ---- S3：相克表 ----
+    eff = {a: {b: effectiveness(a, [b]) for b in TYPES} for a in TYPES}
+
+    # ---- 物种池分档 ----
+    tiers = []
+    for r in range(1, 6):
+        pool = species_pool(r, stats_sum)
+        tiers.append({"rarity": r, "n": len(pool),
+                      "range": list(STRENGTH_TIERS[r - 1]),
+                      "sample": [mons[i - 1]["zh"] or mons[i - 1]["slug"]
+                                 for i in sorted(pool)[:5]]})
+
+    return {
+        "s1": {"stat": s1_stat, "queue": queue_rows},
+        "s2": {"barWidth": BAR_WIDTH, "period": POINTER_PERIOD_MS,
+               "baseScale": BASE_SCALE, "wmin": WINDOW_MIN, "wmax": WINDOW_MAX,
+               "balls": BALL_FACTOR, "ballNames": BALL_NAME_CN,
+               "flee": {str(k): v for k, v in FLEE_CHANCE.items()}},
+        "s3": {"eff": eff, "types": TYPES,
+               "gen1": [list(x) for x in GEN1_OVERRIDES],
+               "levelDelta": {str(r): wild_level(r, 12) - 12 for r in range(1, 6)}},
+        "tiers": tiers,
+    }
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="构建验收页面")
     ap.add_argument("--src", default="/tmp/gen1",
@@ -239,6 +323,7 @@ def main() -> int:
     mons = load_data(assets / "gen1.bin")
     palettes = load_palettes(assets / "palettes.bin")
     sensing = load_sensing(REPO)
+    systems = load_systems(REPO, mons)
     front, seg_meta, front_bytes = load_front(assets / "gen1_front.bin")
     back, back_size, back_bytes = load_back(assets / "gen1_back.bin")
 
@@ -258,6 +343,7 @@ def main() -> int:
         },
         "palettes": palettes,
         "sensing": sensing,
+        "systems": systems,
         "mons": mons,
         "front": {str(k): v for k, v in sorted(front.items())},
         "back": {str(k): v for k, v in sorted(back.items())},
@@ -277,6 +363,10 @@ def main() -> int:
     print(f"\n{out}  {out.stat().st_size/1024:.0f} KB")
     print(f"  {len(mons)} 只　front {len(front)}　back {len(back)}")
     print(f"  资产合计 {total/1024:.1f} KB（占 8MB 的 {total/8/1024/1024*100:.2f}%）")
+    if systems and systems.get("s1", {}).get("stat"):
+        st = systems["s1"]["stat"]
+        print(f"  系统 S1: {st['scans']} 次扫描 → 队列 {len(systems['s1']['queue'])} 条"
+              f"（猎场{st['hunt']} 基地{st['base']}）{st['bytes']} B")
     if sensing:
         for name, d in sensing.items():
             w1, w4 = d["runs"]["1"], d["runs"]["4"]

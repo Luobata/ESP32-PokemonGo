@@ -172,7 +172,41 @@ th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-
 .hist .track{flex:1;height:10px;background:var(--bg);border:1px solid var(--line)}
 .hist .fill{height:100%}
 
-/* ── 相克热力图 ── */
+/* ── S1-S3 玩法验收 ── */
+.gp-sec{margin-bottom:26px}
+.gp-sec h2{margin:0 0 4px}
+.gp-note{font-size:12px;color:var(--ink-soft);margin:0 0 12px;max-width:66ch}
+.qrow{display:grid;grid-template-columns:34px 1fr 62px 74px 46px 84px 1fr;
+  gap:8px;align-items:center;padding:6px 8px;border:1px solid var(--line);
+  border-bottom:0;background:var(--panel);font-size:11px}
+.qrow:last-child{border-bottom:1px solid var(--line)}
+.qrow.hdr{background:var(--bg);font-size:10px;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--ink-soft)}
+.qrow canvas{image-rendering:pixelated;display:block}
+.qrow .win{display:flex;align-items:center;gap:4px}
+.qrow .wtrack{flex:1;height:9px;background:var(--bg);border:1px solid var(--line);
+  position:relative}
+.qrow .wfill{position:absolute;top:0;height:100%;background:var(--ok);opacity:.55}
+.qrow .wfill2{position:absolute;top:0;height:100%;background:var(--accent);opacity:.4}
+.shiny{color:var(--accent);font-weight:700}
+
+/* 交互式捕获判定 */
+.cap{border:1px solid var(--line);background:var(--panel);padding:14px}
+.cap .bar{position:relative;height:30px;background:var(--bg);
+  border:1px solid var(--ink);margin:12px 0 6px;cursor:crosshair}
+.cap .zone{position:absolute;top:0;height:100%;background:var(--ok);opacity:.45}
+.cap .ptr{position:absolute;top:-6px;width:2px;height:42px;background:var(--accent)}
+.cap .ticks{display:flex;justify-content:space-between;font-size:9px;
+  color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.cap .knobs{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:12px}
+.cap .knobs label{font-size:10px;color:var(--ink-soft);letter-spacing:.05em}
+.cap .out{margin-top:12px;padding:10px;border:1px solid var(--line);
+  background:var(--bg);font-size:12px;line-height:1.8}
+.cap .out b{font-family:"Silkscreen",monospace}
+.formula{font-size:11px;color:var(--ink-soft);margin-top:8px;
+  font-variant-numeric:tabular-nums}
+
+/* 相克热力图 */
 .eff-scroll{overflow-x:auto}
 table.eff{border-collapse:collapse;font-size:9px}
 table.eff th,table.eff td{width:22px;height:22px;text-align:center;padding:0;
@@ -200,6 +234,7 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
   <button role="tab" data-p="sensing" aria-selected="false">感知层回放</button>
   <button role="tab" data-p="proto"   aria-selected="false">UI 页面原型</button>
   <button role="tab" data-p="pixels"  aria-selected="false">2bpp 像素</button>
+  <button role="tab" data-p="gameplay" aria-selected="false">S1-S3 玩法</button>
   <button role="tab" data-p="systems" aria-selected="false">系统与预算</button>
 </div>
 
@@ -275,6 +310,14 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
       <div class="hist" id="px-pal" style="margin-top:12px"></div>
     </div>
   </div>
+</div>
+
+<div class="panel" id="p-gameplay" hidden>
+  <p class="sub" style="margin:0 0 16px">
+    三个系统跑在<b>真实采集数据</b>上。捕获判定是<b>可交互的</b> ——
+    JS 重算一遍 Python 的公式，两边算出同一个数才算验收通过。
+    设计见 <b>docs/systems/S1~S3</b>。</p>
+  <div id="gp-body"></div>
 </div>
 
 <div class="panel" id="p-systems" hidden>
@@ -539,7 +582,7 @@ document.getElementById("shiny").onchange = e => {
 };
 
 /* ── tab 切换 ── */
-const PANELS = ["dex","sensing","proto","pixels","systems"];
+const PANELS = ["dex","sensing","proto","pixels","gameplay","systems"];
 let built = {dex:1};
 document.getElementById("tabs").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
@@ -928,6 +971,219 @@ BUILD.pixels = () => {
     pxRender();
   };
   pxRender();
+};
+
+
+/* ── S1-S3 玩法验收 ── */
+BUILD.gameplay = () => {
+  const G = D.systems;
+  const host = document.getElementById("gp-body");
+  if(!G || !G.s2){
+    host.innerHTML = `<p class="sub">systems 数据未打包。跑
+      <b>./tools/inspector/serve.sh --rebuild</b>。</p>`;
+    return;
+  }
+
+  const S1 = G.s1 || {}, st = S1.stat || {}, q = S1.queue || [];
+  const S2 = G.s2, S3 = G.s3;
+
+  host.innerHTML = `
+  <div class="gp-sec">
+    <h2>S1 遭遇累积</h2>
+    <p class="gp-note">环形队列容量 ${S2 && st.cap || 16}，满了丢<b>最旧的低稀有度</b>而非单纯最旧 ——
+      玩家一天可能遇 30 次只处理 10 次，单纯丢最旧会让攒到的稀有个体被常见个体挤掉。</p>
+    <div class="cmp">
+      <div><div class="lbl">真实扫描</div><div class="big">${st.scans ?? "—"}</div></div>
+      <div><div class="lbl">猎场</div><div class="big">${st.hunt ?? "—"}</div></div>
+      <div><div class="lbl">基地</div><div class="big">${st.base ?? "—"}</div></div>
+      <div><div class="lbl">队列</div><div class="big">${q.length}/${st.cap ?? 16}</div></div>
+      <div class="${(st.bytes ?? 0) <= 128 ? "good" : "bad"}">
+        <div class="lbl">序列化</div><div class="big">${st.bytes ?? "—"} B</div></div>
+    </div>
+    <div id="qlist"></div>
+  </div>
+
+  <div class="gp-sec">
+    <h2>S2 捕获判定　<span class="sub">可交互</span></h2>
+    <p class="gp-note">四个乘数对应四条玩家能动性：<b>catch_rate</b>（种族固有，改不了）×
+      <b>心情</b>（养成产出）× <b>球种</b>（探索产出）× <b>打残程度</b>（战斗产出）。
+      拖判定条可移动指针，看命中与否。</p>
+    <div class="cap">
+      <div class="knobs">
+        <label>目标</label>
+        <select id="cap-mon" style="font:12px monospace;padding:5px"></select>
+        <label>球</label><span id="cap-ball-n" style="font-size:12px"></span>
+        <button id="cap-ball">切换</button>
+        <label>心情</label><input id="cap-mood" type="range" min="0" max="100" value="78">
+        <span class="fr" id="cap-mood-v" style="min-width:38px"></span>
+        <label>野怪HP</label><input id="cap-hp" type="range" min="1" max="100" value="100">
+        <span class="fr" id="cap-hp-v" style="min-width:38px"></span>
+        <button id="cap-anim">▶ 指针</button>
+      </div>
+      <div class="bar" id="cap-bar">
+        <div class="zone" id="cap-zone"></div>
+        <div class="ptr" id="cap-ptr"></div>
+      </div>
+      <div class="ticks"><span>0</span><span>${S2.barWidth/2}</span><span>${S2.barWidth}px</span></div>
+      <div class="out" id="cap-out"></div>
+      <div class="formula" id="cap-formula"></div>
+    </div>
+  </div>
+
+  <div class="gp-sec">
+    <h2>稀有度 → 物种池</h2>
+    <p class="gp-note">原本 <code>roll_encounter</code> 均匀采样 151 只，于是 Lv12 初期主宠
+      会遇到超梦 —— 实测打 46 回合赢不了。改为<b>按种族值总和分五档</b>，
+      AP 稀有度决定物种池。这是 <b>03-spawning.md#31</b>「稀有度挂在 AP 属性上」的延伸。</p>
+    <div class="tbl-scroll"><table>
+      <tr><th>稀有度</th><th>种族值总和</th><th>只数</th><th>野怪等级</th><th>样本</th></tr>
+      ${(G.tiers||[]).map(t=>`<tr>
+        <td>${"★".repeat(t.rarity)+"☆".repeat(5-t.rarity)}</td>
+        <td>${t.range[0]} ~ ${t.range[1]>=9999?"∞":t.range[1]}</td>
+        <td>${t.n}</td>
+        <td>主宠 ${(S3.levelDelta||{})[t.rarity]>=0?"+":""}${(S3.levelDelta||{})[t.rarity] ?? "?"}</td>
+        <td style="color:var(--ink-soft)">${t.sample.join("、")}</td></tr>`).join("")}
+    </table></div>
+  </div>
+
+  <div class="gp-sec">
+    <h2>S3 自动战斗</h2>
+    <p class="gp-note">不做招式/PP/状态异常。张力来自三处：<b>属性相克可见</b>（「效果绝佳！」
+      让玩家看到自己属性选择的因果）、<b>HP 逐回合扣减</b>、
+      <b>削弱机制</b>（战后野怪 HP 降低使捕获窗口加宽，于是「先打再抓」成为真策略）。
+      完整相克表见「系统与预算」tab。</p>
+    <div class="cmp">
+      <div><div class="lbl">上表战斗</div><div class="big">${q.length}</div></div>
+      <div class="good"><div class="lbl">胜</div><div class="big">${q.filter(x=>x.won).length}</div></div>
+      <div><div class="lbl">败</div><div class="big">${q.filter(x=>!x.won).length}</div></div>
+      <div><div class="lbl">平均回合</div><div class="big">${
+        q.length ? Math.round(q.reduce((a,x)=>a+x.rounds,0)/q.length) : "—"}</div></div>
+    </div>
+  </div>`;
+
+  renderQueue(q);
+  initCapture(q);
+};
+
+function renderQueue(q){
+  const host = document.getElementById("qlist");
+  if(!q.length){ host.innerHTML = `<p class="sub">没有采集数据。</p>`; return; }
+  host.innerHTML =
+    `<div class="qrow hdr"><span></span><span>名字 / 属性</span><span>稀有</span>
+      <span>biome</span><span>Lv</span><span>战斗</span><span>捕获窗口（打残前→后）</span></div>` +
+    q.map((x,i)=>{
+      const m = D.mons[x.id-1];
+      const ty = m.t2 ? `${m.t1}/${m.t2}` : m.t1;
+      const w0 = winW(m.catch, moodBonus(78), "poke", 100);
+      const w1 = winW(m.catch, moodBonus(78), "poke", x.hp);
+      const B = D.systems.s2.barWidth;
+      return `<div class="qrow">
+        <canvas id="qc-${i}" width="${m.fsize}" height="${m.fsize}"
+          style="width:32px;height:32px"></canvas>
+        <span>${x.shiny?'<span class="shiny">✦</span> ':""}${m.zh||m.slug}
+          <span style="color:var(--ink-soft)"> ${ty}</span></span>
+        <span>${"★".repeat(x.rarity)+"☆".repeat(5-x.rarity)}</span>
+        <span style="color:var(--ink-soft)">${x.biome}</span>
+        <span>${x.lv}</span>
+        <span class="${x.won?"ok":"warn"}">${x.won?"胜":"败"} ${x.rounds}回</span>
+        <span class="win"><span class="wtrack">
+          <span class="wfill2" style="left:${(B-w1)/2/B*100}%;width:${w1/B*100}%"></span>
+          <span class="wfill" style="left:${(B-w0)/2/B*100}%;width:${w0/B*100}%"></span>
+        </span><span style="width:70px;text-align:right;font-variant-numeric:tabular-nums">
+          ${w0}→${w1}px</span></span>
+      </div>`;
+    }).join("");
+
+  q.forEach((x,i)=>{
+    const cv = document.getElementById("qc-"+i); if(!cv) return;
+    const m = D.mons[x.id-1], pal = palOf(x.id, x.shiny);
+    const ctx = cv.getContext("2d");
+    ctx.fillStyle = pal[3]; ctx.fillRect(0,0,m.fsize,m.fsize);
+    drawSprite(ctx, b64bytes(D.front[x.id]), m.fsize, 0,0,1, null, pal);
+  });
+}
+
+/* JS 重算 Python 的公式 —— 两边一致才算验收通过 */
+function moodBonus(mood){ return 1.0 + (mood - 50) / 100; }
+function winW(catchRate, mood, ball, hp){
+  const S = D.systems.s2;
+  const hpF = 1.0 + (100 - hp) / 100;
+  const w = catchRate * S.baseScale * mood * (S.balls[ball] ?? 1) * hpF;
+  return Math.max(S.wmin, Math.min(S.wmax, Math.round(w)));
+}
+function ptrPos(ms){
+  const S = D.systems.s2, P = S.period, B = S.barWidth;
+  const ph = ((ms % P) + P) % P, half = Math.floor(P/2);
+  return ph < half ? Math.floor(ph*B/half) : B - Math.floor((ph-half)*B/(P-half));
+}
+
+let capBall = "poke", capPtr = 0, capTimer = null, capT0 = 0;
+
+function initCapture(q){
+  const S = D.systems.s2;
+  const sel = document.getElementById("cap-mon");
+  const pool = q.length ? q.map(x=>x.id) : [1,4,25,113,143,150];
+  sel.innerHTML = pool.map(id=>{
+    const m = D.mons[id-1];
+    return `<option value="${id}">${m.zh||m.slug}　catch=${m.catch}</option>`;
+  }).join("");
+
+  const upd = () => {
+    const id = +sel.value, m = D.mons[id-1];
+    const mood = +document.getElementById("cap-mood").value;
+    const hp = +document.getElementById("cap-hp").value;
+    document.getElementById("cap-mood-v").textContent = mood;
+    document.getElementById("cap-hp-v").textContent = hp + "%";
+    document.getElementById("cap-ball-n").textContent = S.ballNames[capBall];
+
+    const w = winW(m.catch, moodBonus(mood), capBall, hp);
+    const start = Math.floor((S.barWidth - w)/2), end = start + w;
+    const bar = document.getElementById("cap-bar");
+    const px = bar.clientWidth / S.barWidth;
+
+    const z = document.getElementById("cap-zone");
+    z.style.left = (start*px) + "px"; z.style.width = (w*px) + "px";
+    document.getElementById("cap-ptr").style.left = (capPtr*px) + "px";
+
+    const hit = capPtr >= start && capPtr <= end;
+    const flee = S.flee[String(D.mons[id-1] && (q.find(x=>x.id===id)?.rarity ?? 2))] ?? 0.2;
+    document.getElementById("cap-out").innerHTML =
+      `指针 <b>${capPtr}</b> / 窗口 <b>[${start}, ${end}]</b> 宽 <b>${w}px</b>
+       （占条 <b>${Math.round(w/S.barWidth*100)}%</b>）<br>
+       结果：<b class="${hit?"ok":"warn"}">${hit?"命中 —— 捕获成功":"未命中"}</b>
+       ${hit?"":`　失败后逃跑概率 ${Math.round(flee*100)}%`}`;
+    document.getElementById("cap-formula").textContent =
+      `窗口 = ${m.catch}(catch) × ${S.baseScale}(BASE_SCALE) × `
+      + `${moodBonus(mood).toFixed(2)}(心情) × ${S.balls[capBall]}(${S.ballNames[capBall]}) × `
+      + `${(1+(100-hp)/100).toFixed(2)}(HP${hp}%) = ${w}px`;
+  };
+
+  sel.onchange = upd;
+  ["cap-mood","cap-hp"].forEach(i =>
+    document.getElementById(i).addEventListener("input", upd));
+  document.getElementById("cap-ball").onclick = () => {
+    const ks = Object.keys(S.balls);
+    capBall = ks[(ks.indexOf(capBall)+1) % ks.length];
+    upd();
+  };
+  document.getElementById("cap-bar").addEventListener("click", e => {
+    const r = e.currentTarget.getBoundingClientRect();
+    capPtr = Math.round((e.clientX - r.left) / r.width * S.barWidth);
+    clearInterval(capTimer); capTimer = null;
+    document.getElementById("cap-anim").textContent = "▶ 指针";
+    upd();
+  });
+  document.getElementById("cap-anim").onclick = e => {
+    if(capTimer){
+      clearInterval(capTimer); capTimer = null; e.target.textContent = "▶ 指针";
+    } else {
+      capT0 = Date.now(); e.target.textContent = "⏸ 指针";
+      capTimer = setInterval(() => {
+        capPtr = ptrPos(Date.now() - capT0); upd();
+      }, 40);
+    }
+  };
+  upd();
 };
 
 /* ④ 系统与预算 */
