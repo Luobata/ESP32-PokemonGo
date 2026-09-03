@@ -79,3 +79,21 @@
 [2026-09-03T17:38:21.158+08:00] CLI invoked: midscene-web act --prompt 点击「12.5%」按钮
 [2026-09-03T17:38:21.177+08:00] command: act, args: {"prompt":"点击「12.5%」按钮"}
 [2026-09-03T17:38:34.271+08:00] command act completed, isError: false
+[2026-09-03T18:41:26.520+08:00] CLI invoked: midscene-web connect --url http://127.0.0.1:8765/index.html?v=6
+[2026-09-03T18:41:26.537+08:00] command: connect, args: {"web.url":"http://127.0.0.1:8765/index.html?v=6"}
+[2026-09-03T18:41:27.026+08:00] command connect completed, isError: false
+[2026-09-03T18:41:29.541+08:00] CLI invoked: midscene-web act --prompt 点击「S8-S11 元系统」标签，然后向下滚动到深色的伙伴选择画布
+[2026-09-03T18:41:29.560+08:00] command: act, args: {"prompt":"点击「S8-S11 元系统」标签，然后向下滚动到深色的伙伴选择画布"}
+[2026-09-03T18:41:56.882+08:00] command act completed, isError: false
+[2026-09-03T18:42:32.299+08:00] CLI invoked: midscene-web act --prompt 向下滚动约 350 像素，让深色的伙伴选择画布完整可见（能看到三个精灵球和皮卡丘）
+[2026-09-03T18:42:32.315+08:00] command: act, args: {"prompt":"向下滚动约 350 像素，让深色的伙伴选择画布完整可见（能看到三个精灵球和皮卡丘）"}
+[2026-09-03T18:42:45.447+08:00] command act completed, isError: false
+[2026-09-03T18:44:17.619+08:00] CLI invoked: midscene-web connect --url http://127.0.0.1:8765/index.html?v=7
+[2026-09-03T18:44:17.640+08:00] command: connect, args: {"web.url":"http://127.0.0.1:8765/index.html?v=7"}
+[2026-09-03T18:44:18.132+08:00] command connect completed, isError: false
+[2026-09-03T18:44:20.357+08:00] CLI invoked: midscene-web act --prompt 点击「S8-S11 元系统」标签，滚动到深色伙伴选择画布，然后点击「C 预览」按钮
+[2026-09-03T18:44:20.373+08:00] command: act, args: {"prompt":"点击「S8-S11 元系统」标签，滚动到深色伙伴选择画布，然后点击「C 预览」按钮"}
+[2026-09-03T18:45:00.025+08:00] command act completed, isError: false
+[2026-09-03T18:45:33.614+08:00] CLI invoked: midscene-web act --prompt 向下滚动约 400 像素
+[2026-09-03T18:45:33.630+08:00] command: act, args: {"prompt":"向下滚动约 400 像素"}
+[2026-09-03T18:45:46.024+08:00] command act completed, isError: false

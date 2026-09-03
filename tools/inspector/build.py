@@ -578,8 +578,27 @@ def load_systems2(repo: pathlib.Path, mons: list[dict]) -> dict:
         print(f"  注：audio 导入失败（{e}）", file=sys.stderr)
         s13 = {}
 
+    # ---- 开场用的像素素材（精灵球 / 手指 / 星光）----
+    # 验收截图暴露画风打架：canvas 矢量圆没有台阶感，而周围一切都有。
+    # 改成与 sprite 同一套 2bpp 点阵路径。
+    try:
+        import pixelart as PA                  # noqa: E402
+        art = {
+            "ball": PA.poke_ball(24),
+            "ballOpen": PA.poke_ball(24, open_top=True),
+            "cursor": PA.CURSOR,
+            "stars": {str(sz): PA.star(sz) for sz in PA.STAR_SIZES},
+            "pal": {"ball": PA.BALL_PALETTE, "ballOpen": PA.BALL_OPEN_PALETTE,
+                    "cursor": PA.CURSOR_PALETTE, "star": PA.STAR_PALETTE},
+            "budget": PA.budget(),
+        }
+    except ImportError as e:
+        print(f"  注：pixelart 导入失败（{e}）", file=sys.stderr)
+        art = {}
+
     return {"s4": s4, "s5": s5, "s6": s6, "s7": s7,
-            "s8": s8, "s9": s9, "s10": s10, "s11": s11, "s13": s13}
+            "s8": s8, "s9": s9, "s10": s10, "s11": s11, "s13": s13,
+            "art": art}
 
 
 # 进化石反查：gen1.bin 只存「道具触发」，具体哪块石头要按物种查。
