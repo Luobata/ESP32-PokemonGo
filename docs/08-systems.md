@@ -27,6 +27,7 @@
 | S16 | 开场剧情 | **✅ 已实现** | — | [S16-opening.md](systems/S16-opening.md) |
 | S17 | 道馆与四天王 | **✅ 已实现** | — | [S17-gyms.md](systems/S17-gyms.md) |
 | S18 | 自动存档 | **✅ 已实现** | — | [S18-autosave.md](systems/S18-autosave.md) |
+| S19 | 全流程编排 | **✅ 已实现** | — | [S19-orchestration.md](systems/S19-orchestration.md) |
 
 实现分布在三个模块：
 
@@ -45,6 +46,7 @@
 | [`sim/opening.py`](../sim/opening.py) | S16 | 大木博士台词 |
 | [`sim/gyms.py`](../sim/gyms.py) | S17 | 八馆 + 四天王 + 赤红 |
 | [`sim/autosave.py`](../sim/autosave.py) | S18 | 分级自动存档 |
+| [`sim/orchestrate.py`](../sim/orchestrate.py) | S19 | **唯一让 19 个系统同时工作的入口** |
 
 ## UI 页面
 
