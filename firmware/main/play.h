@@ -15,3 +15,9 @@
 void play_collect_enter(void);
 void play_collect_exit(void);
 void play_collect_key(bsp_btn_t btn, bsp_btn_ev_t ev);
+
+// P1 待机页（play_idle.c）—— roadmap 的 F8「最小可玩闭环」。
+// 主宠 back sprite + 呼吸动效 + 三条轴 + 三键提示。
+void play_idle_enter(void);
+void play_idle_exit(void);
+void play_idle_key(bsp_btn_t btn, bsp_btn_ev_t ev);

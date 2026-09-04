@@ -44,9 +44,14 @@ SHIM = r"""
 #include <stdint.h>
 #include <zlib.h>
 uint32_t esp_rom_crc32_le(uint32_t crc, const uint8_t *buf, uint32_t len) {
-    /* ESP ROM 的约定：传 ~0 进来、结果取反出去，等于标准 CRC-32。
-       zlib.crc32 内部已经做了这层，所以这里要反过来抵消。 */
-    return ~crc32(~crc, buf, len);
+    /* ESP32-C3 的 ROM crc32_le **就是标准 CRC-32**（真机打表确认：
+       rom(0, "aa:bb:cc:dd:ee:ff") = 0xD9CF27A9 = zlib.crc32 的值）。
+       所以 shim 直通 zlib 即可。
+
+       ⚠️ 这个 shim 必须与真机逐位等价。之前写成 ~crc32(~c) 时
+       host 全绿而真机全错 —— host 模拟错了，两处错误互相抵消。
+       **不要拿 shim 的行为去反推硬件该怎么调**，那是循环论证。 */
+    return crc32(crc, buf, len);
 }
 """
 

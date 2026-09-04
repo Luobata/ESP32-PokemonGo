@@ -49,9 +49,19 @@ uint32_t sens_hash_bssid(const uint8_t b[6])
     snprintf(s, sizeof(s), "%02x:%02x:%02x:%02x:%02x:%02x",
              b[0], b[1], b[2], b[3], b[4], b[5]);
 
-    // esp_rom_crc32_le 的约定：传 ~0 作初值、结果再取反，
-    // 才等于标准 CRC-32（zlib 那个）。直接传 0 会得到另一个数。
-    return ~esp_rom_crc32_le(~0U, (const uint8_t *)s, 17);
+    // **直接调用即可 —— ESP32-C3 的 ROM crc32_le 就是标准 CRC-32。**
+    //
+    // esp_rom_crc.h 的注释写着「要在函数前后各加一个 ~」，那句话
+    // 有歧义，我照它猜了两次都错。真机打表才给出答案：
+    //
+    //     rom(0)  = 0xD9CF27A9   ← 正是 zlib.crc32("aa:bb:...")
+    //     rom(~0) = 0xEFDF29EB
+    //
+    // 教训不是「文档不可信」，是**host 模拟不能用来反推硬件语义**：
+    // 我用 zlib 写了个 shim 去模拟 ROM，然后拿 shim 的行为推 ROM 该怎么调 ——
+    // 循环论证。两次改动都让 host 全绿而真机全错。
+    // 自检里的 ROM 探针留着，换芯片/换 IDF 版本时重跑一次就知道。
+    return esp_rom_crc32_le(0U, (const uint8_t *)s, 17);
 }
 
 uint16_t sens_rssi_weight(int8_t rssi)
@@ -90,7 +100,9 @@ static void take_top(const uint32_t *h, const uint32_t *w, uint8_t m,
                      sens_sig_t *out)
 {
     memset(out, 0, sizeof(*out));
-    bool used[64] = {false};
+    // static + 手动清零：栈预算紧（见 smooth_current 的说明）
+    static bool used[64];
+    memset(used, 0, sizeof(used));
     for (uint8_t k = 0; k < SENS_TOP_N; k++) {
         int best = -1;
         for (uint8_t j = 0; j < m; j++) {
@@ -110,11 +122,12 @@ void sens_sig_from_aps(const sens_ap_t *aps, uint8_t n, sens_sig_t *out)
     memset(out, 0, sizeof(*out));
     if (!aps || !n) return;
 
-    uint32_t h[64];
-    int8_t r[64];
+    // 同样 static —— 64×(4+1+4) = 576 B，加上调用链里的其他帧
+    // 仍然吃紧。单线程前提见 smooth_current 的说明。
+    static uint32_t h[64];
+    static int8_t r[64];
+    static uint32_t w[64];
     uint8_t m = dedup(aps, n, h, r, 64);
-
-    uint32_t w[64];
     for (uint8_t i = 0; i < m; i++) w[i] = sens_rssi_weight(r[i]);
     take_top(h, w, m, out);
 }
@@ -165,8 +178,8 @@ static void smooth_push(sens_core_t *c, const sens_ap_t *aps, uint8_t n)
     sens_frame_t *f = &c->win[slot];
     memset(f, 0, sizeof(*f));
 
-    uint32_t h[64];
-    int8_t r[64];
+    static uint32_t h[64];
+    static int8_t r[64];
     uint8_t m = dedup(aps, n, h, r, 64);
     if (m > SENS_FRAME_APS) m = SENS_FRAME_APS;
     for (uint8_t i = 0; i < m; i++) {
@@ -184,10 +197,17 @@ static void smooth_current(const sens_core_t *c, sens_sig_t *out)
     memset(out, 0, sizeof(*out));
     if (!c->win_n) return;
 
-    // 聚合窗口内所有 AP 的出现次数与权重和
-    uint32_t hs[SENS_FRAME_APS * SENS_SMOOTH_WINDOW];
-    uint32_t cnt[SENS_FRAME_APS * SENS_SMOOTH_WINDOW];
-    uint32_t wsum[SENS_FRAME_APS * SENS_SMOOTH_WINDOW];
+    // 聚合窗口内所有 AP 的出现次数与权重和。
+    //
+    // ⚠️ 这三个数组共 1.9KB，**必须 static** —— 放栈上会溢出。
+    // main 任务栈默认只有 3584 B，而 sens_core_t 本身就 2.6KB
+    // （含 1KB 布隆）。实测栈上分配直接 Guru Meditation。
+    //
+    // static 的前提是感知层单线程调用：sens_feed 只在采集任务里跑，
+    // 不会重入。若将来要多任务，这里得改成调用方传缓冲。
+    static uint32_t hs[SENS_FRAME_APS * SENS_SMOOTH_WINDOW];
+    static uint32_t cnt[SENS_FRAME_APS * SENS_SMOOTH_WINDOW];
+    static uint32_t wsum[SENS_FRAME_APS * SENS_SMOOTH_WINDOW];
     uint8_t m = 0;
     const uint8_t cap = SENS_FRAME_APS * SENS_SMOOTH_WINDOW;
 
@@ -371,8 +391,8 @@ void sens_feed(sens_core_t *c, uint32_t ts,
     // ⚠️ 分母是**去重后的全部 AP**，不是 top-8 截断后的 frame.n。
     // 我第一版用了 frame.n，分母偏小让 fresh_ratio 虚高，
     // 结果 821 次扫描被误判成 moving（PC 侧全是 staying）。
-    uint32_t dh[64];
-    int8_t dr[64];
+    static uint32_t dh[64];
+    static int8_t dr[64];
     uint8_t dn = dedup(aps, n, dh, dr, 64);
     uint8_t fresh_n = 0;
     for (uint8_t i = 0; i < dn; i++) {
@@ -486,6 +506,19 @@ bool sens_selftest(void)
 {
     bool ok = true;
 
+    // ROM crc32 语义打表 —— 文档的 "init = ~init" 有歧义，
+    // 两种解读在 host 上（用 zlib 模拟）都能自圆其说，
+    // 只有真机能给出答案。留着这几行，换芯片/换 IDF 时重跑。
+    {
+        const char *probe = "aa:bb:cc:dd:ee:ff";   // zlib 期望 0xD9CF27A9
+        ESP_LOGI(TAG_ST, "ROM 探针: rom(0)=0x%08X ~=0x%08X | "
+                         "rom(~0)=0x%08X ~=0x%08X",
+                 (unsigned)esp_rom_crc32_le(0U, (const uint8_t *)probe, 17),
+                 (unsigned)~esp_rom_crc32_le(0U, (const uint8_t *)probe, 17),
+                 (unsigned)esp_rom_crc32_le(~0U, (const uint8_t *)probe, 17),
+                 (unsigned)~esp_rom_crc32_le(~0U, (const uint8_t *)probe, 17));
+    }
+
     // ① 哈希 —— 值来自 PC 侧 zlib.crc32(bssid.encode())
     static const struct { uint8_t b[6]; uint32_t want; } HV[] = {
         {{0xaa,0xbb,0xcc,0xdd,0xee,0xff}, 0xD9CF27A9},
@@ -546,8 +579,9 @@ bool sens_selftest(void)
         ok = false;
     }
 
-    // ④ 布隆过滤器 —— 加进去要查得到，没加的多数查不到
-    sens_core_t c;
+    // ④ 布隆过滤器 —— 加进去要查得到，没加的多数查不到。
+    // static：sens_core_t 有 2.6KB（含 1KB 布隆），栈上放不下。
+    static sens_core_t c;
     sens_init(&c);
     bloom_add(&c, 0x12345678);
     if (!bloom_has(&c, 0x12345678)) {

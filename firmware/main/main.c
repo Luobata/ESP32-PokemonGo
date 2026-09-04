@@ -14,6 +14,7 @@
 #include "play.h"
 #include "assets.h"
 #include "sensing.h"
+#include "render.h"
 #include "ui_pixel.h"
 #include "lvgl.h"
 #include "esp_log.h"
@@ -23,6 +24,7 @@ static const char *TAG = "main";
 
 static const demo_entry_t DEMOS[] = {
     // 第一项是我们的玩法 —— 菜单默认选中它，省一次按键。
+    { "Idle",    play_idle_enter,    play_idle_exit,    play_idle_key    },
     { "Collect", play_collect_enter, play_collect_exit, play_collect_key },
     // 保留三个上游 demo：Button 用来标定 ADC 分压（换硬件时要）、
     // Battery 看电量、Wi-Fi 是扫描对照组。其余删掉以省 flash 与编译时间。
@@ -120,6 +122,7 @@ void app_main(void) {
     // 放在最前面：资产错了后面全是错的，早报早知道。
     if (assets_init()) assets_selftest();
     sens_selftest();
+    if (render_init()) render_selftest();
 
     // 屏幕是本 demo 的 UI 载体,失败就没有菜单可言 —— 打清楚日志后退出,
     // 不做"串口菜单"降级(那会让本文件复杂一倍,违背参考示例的初衷)。
