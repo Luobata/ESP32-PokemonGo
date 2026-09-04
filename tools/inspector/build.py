@@ -604,30 +604,49 @@ def load_systems2(repo: pathlib.Path, mons: list[dict]) -> dict:
                 "party": len(pt.party), "box": len(pt.box),
             })
 
-        # 仓库满时的替换策略 —— 三种情况各造一个样本
-        def _full(dup: bool):
+        # 同物种相遇时留哪只 —— 仓库改 151 格后这才是关键规则。
+        #
+        # 旧面板展示的是「仓库满时替换谁」，那个场景现在不存在了
+        # （按物种号索引，永远有位置）。改成展示 better() 的三条判据。
+        def _dup_case(label: str, old_kw: dict, new_kw: dict) -> dict:
             p2 = PT.Party()
-            for i in range(PT.PARTY_MAX):
+            for _ in range(PT.PARTY_MAX):
                 p2.receive(PT.Mon(species_id=1, level=50))
-            for i in range(PT.BOX_MAX):
-                p2.receive(PT.Mon(species_id=19 if dup else i + 20,
-                                  level=10 + i))
-            ok, note, vic = p2.receive(PT.Mon(species_id=150, level=70))
-            return {"dup": dup, "ok": ok, "note": note,
-                    "victim": ({"id": vic.species_id, "lv": vic.level}
-                               if vic else None)}
+            p2.receive(PT.Mon(species_id=25, **old_kw))
+            before = p2.box[25]
+            ok, note, vic = p2.receive(PT.Mon(species_id=25, **new_kw))
+            kept = p2.box[25]
+            return {
+                "case": label, "ok": ok, "note": note,
+                "old": {"lv": before.level, "shiny": before.shiny},
+                "new": {"lv": new_kw.get("level", 5),
+                        "shiny": new_kw.get("shiny", False)},
+                "kept": {"lv": kept.level, "shiny": kept.shiny},
+            }
+
+        dup_cases = [
+            _dup_case("新的等级更高", {"level": 10}, {"level": 30}),
+            _dup_case("新的等级更低", {"level": 30}, {"level": 5}),
+            _dup_case("新的是闪光（低级）", {"level": 40},
+                      {"level": 5, "shiny": True}),
+            _dup_case("旧的是闪光", {"level": 5, "shiny": True},
+                      {"level": 50}),
+        ]
 
         s14 = {
-            "partyMax": PT.PARTY_MAX, "boxMax": PT.BOX_MAX,
+            "partyMax": PT.PARTY_MAX, "boxSpecies": PT.BOX_SPECIES,
+            "boxCols": PT.BOX_COLS, "boxRows": PT.BOX_ROWS,
+            "boxPages": PT.BOX_PAGES,
             "monBytes": PT.MON_BYTES, "bytes": PT.SERIALIZED_BYTES,
             "log": demo_log,
             "party": [{"id": m.species_id, "lv": m.level, "hp": m.hp,
                        "shiny": m.shiny, "inti": m.intimacy}
                       for m in pt.party],
             "box": [{"id": m.species_id, "lv": m.level, "hp": m.hp,
-                     "shiny": m.shiny} for m in pt.box],
+                     "shiny": m.shiny}
+                    for m in (pt.box[k] for k in sorted(pt.box))],
             "dups": pt.duplicates(),
-            "fullCases": [_full(True), _full(False)],
+            "dupCases": dup_cases,
             # 三键菜单随上下文变 —— 不给无效选项
             "menus": {
                 "party_first": PT.PartyBrowser(view=PT.VIEW_PARTY,
@@ -965,7 +984,7 @@ def main() -> int:
         if systems2.get("s14"):
             q = systems2["s14"]
             print(f"  S14 队伍 {len(q['party'])}/{q['partyMax']}　"
-                  f"仓库 {len(q['box'])}/{q['boxMax']}　{q['bytes']} B　"
+                  f"仓库 {len(q['box'])}/{q['boxSpecies']}　{q['bytes']} B　"
                   f"重复物种 {len(q['dups'])} 种")
         if systems2.get("s15"):
             g = systems2["s15"]

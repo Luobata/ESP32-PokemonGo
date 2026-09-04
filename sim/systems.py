@@ -1011,12 +1011,28 @@ def resolve_capture(qe: "QueuedEncounter", cap: "CaptureResult",
     if not ok:
         # 收容失败 —— 只记「已见」，不记「已捕获」。
         # 图鉴不能记下一只实际不在手上的宝可梦。
+        #
+        # 仓库改成 151 格后这条**几乎走不到**（位置按物种号定，永远有位置），
+        # 但保留它：deposit 在「仓库里的更好」时仍会失败，
+        # 而且这道防线的语义是对的。
         dex.mark_seen(qe.species_id, shiny=qe.is_shiny)
         return out
 
-    out.where = "队伍" if mon in party.party else "仓库"
+    # 落在哪里。注意第三种情况：**抓到了但放走了**
+    # （仓库那格已有更好的同种，见 Party.receive）——
+    # 此时 mon 既不在队伍也不在仓库，`victim is mon` 是它的标志。
+    if victim is mon:
+        out.where = "放走"
+    elif mon in party.party:
+        out.where = "队伍"
+    else:
+        out.where = "仓库"
 
     # ② 收容成功才点亮已捕获
+    #
+    # 「放走了」也算捕获过 —— 玩家确实抓到了它，而且仓库里此刻
+    # 就有一只同种（更好的那只）。图鉴记的是「拥有过这个物种」，
+    # 不是「拥有这一只个体」。
     out.dex_new = not dex.is_caught(qe.species_id)
     dex.mark_caught(qe.species_id, shiny=qe.is_shiny)
     return out
@@ -1147,8 +1163,8 @@ def charset() -> set:
         out |= set(s)
     # S7 进化检查 reason
     out |= set("这只不会进化")
-    # S14 收容位置 where
-    out |= set("队伍") | set("仓库")
+    # S14 收容位置 where —— 「放走」是仓库改 151 格后的新状态
+    out |= set("队伍") | set("仓库") | set("放走")
     # S20 招式名 —— 从 assets/moves.bin 的字符串池取，**不硬编码一份**。
     #
     # 战斗日志与 P3 会显示招名（「电击」「电光一闪」），96 个汉字。

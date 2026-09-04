@@ -25,3 +25,4 @@ assets/*.txt
 
 # 验收页面产物（由 tools/inspector/build.py 生成，含 200KB 内嵌资产）
 tools/inspector/index.html
+.omc/

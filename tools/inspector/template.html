@@ -1489,7 +1489,7 @@ function initS14(q){
     if(view === 0){
       const a = [];
       if(cursor > 0) a.push("设为主宠");
-      if(party.length > 1 && box.length < q.boxMax) a.push("存入仓库");
+      if(party.length > 1) a.push("存入仓库");   // 仓库按物种号索引，永远有位置
       return a.concat(["查看详情","取名","返回"]);
     }
     const a = [];
@@ -1519,7 +1519,7 @@ function initS14(q){
             color:var(--ink-soft)">/${q.partyMax}</span></div></div>
         <div><div class="lbl">仓库</div>
           <div class="big">${box.length}<span style="font-size:11px;
-            color:var(--ink-soft)">/${q.boxMax}</span></div></div>
+            color:var(--ink-soft)">/${q.boxSpecies}</span></div></div>
         <div><div class="lbl">主宠</div>
           <div class="big" style="font-size:13px">${
             party.length?nm(party[0].id):"—"}</div></div>
@@ -1545,10 +1545,15 @@ function initS14(q){
         <b>主宠就是 party[0]</b> —— 不设独立的 pet_species 字段。
         「换主宠」等于「移到队首」，一个操作解决两件事，
         且不会出现「主宠与队伍不一致」这种状态（那是必然的 bug 来源）。
-        <br>仓库上限 ${q.boxMax} 是<b>三键 UI 的约束</b>不是存储的约束：
-        每只 ${q.monBytes} B，${q.boxMax} 只才 ${q.boxMax*q.monBytes} B，
-        8MB 里是零头；但 B 键循环浏览 ${q.boxMax} 只平均要按
-        ${Math.floor(q.boxMax/2)} 次，再多就得做分页而那要第四个键。
+        <br><b>仓库 = ${q.boxSpecies} 格，按物种号索引</b>（第 i 格就是
+        species_id = i+1），每个物种至多一只 —— <b>永远不会满</b>。
+        初版是 30 个线性槽位，实测 30 天里 <b>225 次成功捕获全部作废</b>
+        （仓库满、队伍满、新抓的又不是重复物种，球扣了却只得到「收容失败」）。
+        <br>按物种号索引后它与 <b>P6 图鉴是同一个东西</b>：
+        同样 ${q.boxCols}×${q.boxRows} 网格 ${q.boxPages} 页，导航现成，
+        不需要第四个键。定位平均 ${Math.floor(q.boxPages/2)+Math.floor(q.boxCols*q.boxRows/2)}
+        次按键，与旧的 30 只线性列表（15 次）持平，而容量翻了 5 倍。
+        存储 ${q.boxSpecies}×${q.monBytes} = ${q.boxSpecies*q.monBytes} B。
       </div>`;
 
     lst.forEach((m,i) => {
@@ -1597,11 +1602,13 @@ function initS14(q){
   render();
 
   // 收容日志 + 仓库满的策略，附在下方
-  const full = q.fullCases.map(c => `<tr>
-    <td>${c.dup?"有重复物种":"全不重复"}</td>
-    <td class="${c.ok?"ok":"warn"}">${c.ok?"收容成功":"拒绝"}</td>
-    <td>${c.note||"—"}</td>
-    <td>${c.victim?`#${c.victim.id} Lv${c.victim.lv}`:"—"}</td></tr>`).join("");
+  const sh = m => m.shiny ? "✦" : "";
+  const full = q.dupCases.map(c => `<tr>
+    <td>${c.case}</td>
+    <td>Lv${c.old.lv}${sh(c.old)}</td>
+    <td>Lv${c.new.lv}${sh(c.new)}</td>
+    <td class="ok">Lv${c.kept.lv}${sh(c.kept)}</td>
+    <td style="color:var(--ink-soft)">${c.note||"—"}</td></tr>`).join("");
   host.insertAdjacentHTML("beforeend", `
     <h3 style="margin:18px 0 6px;font-size:12px">收容日志　<span class="sub">断层接上了</span></h3>
     <p class="gp-note">优先进队伍（未满时），否则进仓库 —— 刚抓到的应该能立刻用，
@@ -1616,12 +1623,14 @@ function initS14(q){
         <td class="${l.ok?"ok":"warn"}">${l.ok?l.where:"失败"}</td>
         <td>${l.party}</td><td>${l.box}</td></tr>`).join("")}
     </table></div>
-    <h3 style="margin:18px 0 6px;font-size:12px">仓库满了怎么办</h3>
-    <p class="gp-note"><b>不做「放生」</b> —— 玩家不该被逼着删自己养的东西。
-      改成替换掉<b>重复物种里等级最低的那只</b>；若没有重复物种则拒绝捕获，
-      让玩家自己去整理。重复个体是唯一「明确可牺牲」的对象。</p>
+    <h3 style="margin:18px 0 6px;font-size:12px">抓到同种时留哪只</h3>
+    <p class="gp-note">仓库按物种号索引，<b>「满了」这个状态不存在</b>。
+      同物种相遇时自动留更好的那只，不需要玩家做删除决策 ——
+      而「不该逼玩家删自己养的东西」正是初版的取向。
+      <br>判据顺序 <b>闪光 &gt; 等级 &gt; 经验</b>：等级可再生（练几天就回来），
+      闪光不可再生（1/512 的概率，丢了就是丢了）。</p>
     <div class="tbl-scroll"><table>
-      <tr><th>仓库状况</th><th>结果</th><th>说明</th><th>被替换</th></tr>
+      <tr><th>情况</th><th>仓库里的</th><th>新抓的</th><th>留下</th><th>说明</th></tr>
       ${full}
     </table></div>`);
 }
