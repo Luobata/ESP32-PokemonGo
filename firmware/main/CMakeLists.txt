@@ -3,6 +3,7 @@ idf_component_register(
          "ui_pixel.c"
          "ui_pixel_math.c"
          "assets.c"
+         "sensing.c"
          "play_collect.c"
          "demo_button.c"
          "demo_battery.c"
