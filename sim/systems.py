@@ -618,15 +618,33 @@ def _load_moves() -> dict:
     return _MOVES_CACHE
 
 
+STRUGGLE_MOVE_ID = 165      # 挣扎 —— 无招可用时的兜底，与原版同名同规则
+
+
 def known_moves(species_id: int, level: int) -> list:
     """这只在这个等级学会了哪些招 —— 现算，不存。
 
-    返回招式 dict 列表。空列表表示没有数据（资产缺失或该物种无升级招），
-    调用方要能处理。
+    返回招式 dict 列表。
+
+    ## 一招都不会时退回「挣扎」
+
+    实测有 **4 只到 Lv50 仍一招不会**：#11/#14 铁甲蛹、#63 凯西、#132 百变怪。
+    它们在原版确实只会变化招（变硬 / 瞬间移动 / 变身），
+    而本项目只收伤害招（见模块顶部第 ① 条），于是它们的招式列表是空的。
+
+    原版对这种处境有现成规则：**无招可用时只能挣扎**。挣扎本身就在
+    招式表里（id=165，一般系 50 威力必中），拿它兜底既准确又不用特例 ——
+    比留空字符串好：空招名会让战斗日志显示「用了（空）」，
+    而玩家看到「挣扎」立刻明白发生了什么。
     """
     db = _load_moves()
     rows = db["learn"].get(species_id, [])
-    return [db["moves"][slot] for lv, slot in rows if lv <= level]
+    out = [db["moves"][slot] for lv, slot in rows if lv <= level]
+    if not out:
+        for m in db["moves"]:
+            if m["id"] == STRUGGLE_MOVE_ID:
+                return [m]
+    return out
 
 
 def move_weight(move: dict, atk_types: list, def_types: list) -> int:
