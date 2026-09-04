@@ -1,7 +1,31 @@
 # 交接与待办
 
 > 这份文档是**重启会话后的入口**。读它就能接着干，不用回溯对话。
-> 最后更新：2026-09-03（对应提交 `bdb8754`）
+> 最后更新：2026-09-05（对应提交 `07c758a`）
+
+## 零、真机进度速览（新）
+
+设备 **FoloToy AI Passport** 已到手，固件跑起来了。
+
+    F1 屏幕+三键     ✓  上游 BSP
+    F2 sprite 渲染   ✓  2bpp 最近邻放大，色号 3 透明
+    F3 中文点阵      ✓  650 字形，ASCII 半宽（解掉 P1-③ 的规格冲突）
+    F4 WiFi+NDJSON   ✓  零转换喂进 sim/，19 个系统完整跑通
+    F5 sensing 移植  ~  67/1061 不符，实际影响判定 2%（已量化）
+    F8 P1 待机页     ✓  代码上机，**视觉效果未人工确认**
+
+    F6 深睡+RTC      ✗  长跑在测漂移，深睡未做
+    F7 存档双 buffer ✗
+    F9 P2/P3/P4      ✗  ← 下一步，且要把扫描提成独立 task
+
+开机自动进 Collect 页并开始采集（不用按键）。长按 OK 退回菜单。
+
+    tools/device/fw.sh build|flash|backup|restore
+    python3 tools/device/monitor.py --info
+    python3 tools/device/collect.py --seconds 300 --out data/raw/x.ndjson
+    python3 tools/pipeline/verify_sensing.py        # F5 对账，不用烧板子
+
+详见 [09-device.md](09-device.md)、[../firmware/README.md](../firmware/README.md)。
 
 ## 一、这是什么项目
 
