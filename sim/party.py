@@ -40,7 +40,7 @@ from typing import Optional
 
 PARTY_MAX = 6            # 与原版一致
 BOX_MAX = 30             # 三键 UI 的约束，见模块 docstring
-MON_BYTES = 8
+MON_BYTES = 12           # 8 → 12：加了 u32 exp，见 Mon 的 docstring
 
 
 # ---------------------------------------------------------------------------
@@ -49,16 +49,29 @@ MON_BYTES = 8
 
 @dataclass
 class Mon:
-    """一只具体的宝可梦。8 字节。
+    """一只具体的宝可梦。**12 字节**。
 
     与 `PetState`（S4 养成的三条轴）的分工：
-      · Mon 是**持久身份** —— 物种、等级、亲密度，进了仓库也不变
+      · Mon 是**持久身份** —— 物种、等级、经验、亲密度，进了仓库也不变
       · PetState 是**当前状态** —— 饱食/心情/体能，只有队首那只在跑
 
     为什么不给每只都存三条轴：那意味着仓库里 30 只都在衰减，
     玩家一周不上线回来发现全体消沉 —— 惩罚性的，且违反
     「Tamagotchi 只养一只」的核心体验。
     仓库里的宝可梦**状态冻结**，这是刻意的。
+
+    ## 8 → 12 字节：为什么加 exp 而不是即时结算
+
+    原先没有 exp 字段，等级也从不增长（见 S20 的说明）。补上时有三条路：
+    不存 exp 即时判等级、复用 explore_value、加字段。选了加字段：
+
+      · 即时结算丢掉「差一点升级」的进度感，且经验曲线只能很平缓
+      · explore_value 已被 S7 进化条件占用（探索值 ≥ evolve_level×2），
+        两个语义挤一个字段会互相干扰 —— 打怪也能凑进化条件
+
+    u32 而非 u16：`5n³/2` 曲线在 Lv50 要 156250 exp，u16 上限 65535
+    只够到 Lv36。u16 会让后期经验**静默溢出回绕**，那比多 2 字节糟得多。
+    队伍+仓库从 290 B 涨到 434 B，在 8MB flash 里仍是零头。
     """
 
     species_id: int
@@ -68,21 +81,24 @@ class Mon:
     explore_value: int = 0
     nickname_idx: int = 0xFF
     shiny: bool = False
+    exp: int = 0                  # 累计经验（u32），见 systems.exp_to_level
     # 原版没有性别（Gen 2 才有），这里也不做 —— flags 留位给未来
 
     def to_bytes(self) -> bytes:
         flags = 1 if self.shiny else 0
-        return struct.pack("<BBBBHBB", self.species_id, self.level,
+        return struct.pack("<BBBBHBBI", self.species_id, self.level,
                            min(self.hp, 255), min(self.intimacy, 255),
                            min(self.explore_value, 65535),
-                           self.nickname_idx & 0xFF, flags)
+                           self.nickname_idx & 0xFF, flags,
+                           min(self.exp, 0xFFFFFFFF))
 
     @classmethod
     def from_bytes(cls, b: bytes) -> "Mon":
-        sid, lv, hp, inti, expl, nick, flags = struct.unpack("<BBBBHBB", b[:8])
+        sid, lv, hp, inti, expl, nick, flags, exp = struct.unpack(
+            "<BBBBHBBI", b[:12])
         return cls(species_id=sid, level=lv, hp=hp, intimacy=inti,
                    explore_value=expl, nickname_idx=nick,
-                   shiny=bool(flags & 1))
+                   shiny=bool(flags & 1), exp=exp)
 
     @property
     def is_fainted(self) -> bool:
@@ -160,6 +176,19 @@ class Party:
 
         if victim_i is None:
             # 没有重复物种 —— 拒绝，让玩家自己去整理
+            #
+            # ⚠️ 实测这条在长线上会变成主要的挫败源：30 天跑下来
+            # **225 次成功捕获全部作废**（仓库 30 满、队伍 6 满、
+            # 且新抓的都不是重复物种）。球扣了、指针也按中了，
+            # 只得到一句「抓到了但收容失败」。
+            #
+            # 三键设备上玩家不会频繁翻仓库，所以「自己去整理」这个
+            # 假设不成立 —— 等他想起来时已经白费两百次。
+            #
+            # 这是 S14 的设计缺口，要定策略（自动放生最低级的？
+            # 满了就不再触发捕获？P1 挂持续提示？），不是一行能修的。
+            # 在定下来之前至少别让玩家白扣球 —— 见 orchestrate 的
+            # handle_encounter：满仓时应当在投球**之前**就拦住。
             return False, REASON_BOX_FULL, None
 
         self.box[victim_i] = mon
@@ -223,9 +252,9 @@ class Party:
     # -- 序列化 -------------------------------------------------------------
 
     def to_bytes(self) -> bytes:
-        """定长布局：1 + 1 + 6×8 + 30×8 = 290 字节。
+        """定长布局：1 + 1 + 6×12 + 30×12 = 434 字节。
 
-        定长而非变长：变长省不了多少（最多 288 B），
+        定长而非变长：变长省不了多少（最多 432 B），
         但会让固件侧的读写变成两次遍历，且掉电时半写状态更难恢复。
         """
         out = bytearray(struct.pack("<BB", len(self.party), len(self.box)))
@@ -253,7 +282,7 @@ class Party:
                     for i in range(nb)]
 
 
-SERIALIZED_BYTES = 2 + (PARTY_MAX + BOX_MAX) * MON_BYTES        # 290
+SERIALIZED_BYTES = 2 + (PARTY_MAX + BOX_MAX) * MON_BYTES        # 434
 
 
 # ---------------------------------------------------------------------------

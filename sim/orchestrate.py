@@ -56,9 +56,11 @@ from party import Mon, Party                            # noqa: E402
 from sensing import SensingCore, Scan                   # noqa: E402
 from state import DailyCounters, Dex, DualBufferSave, Inventory, Records, SaveData  # noqa: E402
 from systems import (                                   # noqa: E402
-    BALL_NAME_CN, CaptureResult, EncounterAccumulator, attempt_capture,
-    auto_battle, check_evolution, consume_ball, do_evolve, feed_pet,
-    grant_berry, pointer_position, resolve_capture, wild_level, window_width,
+    BALL_NAME_CN, EXP_ON_CAPTURE, EXP_ON_CARE, EXP_ON_MOTION,
+    CaptureResult, EncounterAccumulator, attempt_capture,
+    auto_battle, check_evolution, consume_ball, do_evolve, exp_progress,
+    exp_to_level, feed_pet, grant_berry, pointer_position, resolve_capture,
+    wild_level, window_width,
 )
 
 # ---------------------------------------------------------------------------
@@ -343,6 +345,7 @@ def feed_scan(s: Session, scan: Scan) -> None:
         s.pet.advance(scan.ts, motion_events=1 if moving else 0)
         if moving:
             s.pet.on_motion_event()
+            grant_exp(s, EXP_ON_MOTION, "探索")
 
     # 浆果：驻留时按时间产出（S9）
     if res.state == "staying":
@@ -442,10 +445,13 @@ def handle_encounter(s: Session, index: int = 0, do_battle: bool = True,
                         s.pet.ability_factor)
         qe.hp_ratio = b.wild_hp_ratio
         out["battle"] = {"won": b.won, "rounds": len(b.rounds),
-                         "wild_hp": b.wild_hp_ratio}
+                         "wild_hp": b.wild_hp_ratio, "exp": b.exp}
         s.say("battle",
               f"战斗 {len(b.rounds)} 回合 → {'胜' if b.won else '败'}"
-              f"，野怪 HP {b.wild_hp_ratio}%")
+              f"，野怪 HP {b.wild_hp_ratio}%（+{b.exp} exp）")
+        # b.exp 原先算好了却没人接收 —— 与 on_motion_event 同一形状的缺陷。
+        # 败也给经验（打了就有长进），只是比胜少 20。
+        grant_exp(s, b.exp, "战斗" + ("胜利" if b.won else ""))
         s.fire("battle")
 
     # 投球：**先扣球再判定**（S9）—— 投出去的球无论命中都消耗掉了
@@ -473,6 +479,7 @@ def handle_encounter(s: Session, index: int = 0, do_battle: bool = True,
         s.say("capture",
               f"捕获 #{qe.species_id} Lv{lv} → {o.where}"
               f"{'（图鉴首次）' if o.dex_new else ''}")
+        grant_exp(s, EXP_ON_CAPTURE, "捕获")
         s.fire("capture")                    # 立即存
     elif cap.caught and not o.stored:
         s.say("capture", f"抓到了但收容失败：{o.store_note}")
@@ -507,10 +514,47 @@ def care(s: Session, action: str = "feed") -> dict:
         s.day.cared = True
         s.say("care", f"{action} → 饱食{s.pet.satiety:.0f} "
                       f"心情{s.pet.mood:.0f} 体能{s.pet.stamina:.0f}")
+        grant_exp(s, EXP_ON_CARE, "照料")
         s.fire("care")
     else:
         s.say("care", why)
     return {"ok": ok, "why": why}
+
+
+def grant_exp(s: Session, amount: int, why: str) -> dict:
+    """给主宠加经验，必要时升级。**升级的唯一入口。**
+
+    只给队首（主宠）—— 仓库里的宝可梦状态冻结，与 S14 让三条轴
+    只跟队首走是同一条取向：这台设备养的是一只，不是六只。
+
+    等级上限取 `gyms.level_cap(badges)`：徽章真的限制成长，
+    而不只是一个显示用的数字。原版那套「没徽章的宝可梦不听话」
+    在三键设备上没法表达（要额外的提示与失败反馈），简化成硬上限。
+
+    返回 {"gained", "level_up", "from", "to"} —— 给 UI 画升级动画用。
+    """
+    leader = s.party.leader
+    if not leader or amount <= 0:
+        return {"gained": 0, "level_up": False}
+
+    cap = GY.level_cap(s.badges)
+    before = leader.level
+    leader.exp += amount
+    after = exp_to_level(leader.exp, cap)
+
+    out = {"gained": amount, "level_up": after > before,
+           "from": before, "to": after, "why": why}
+    if after > before:
+        leader.level = after
+        got, need = exp_progress(leader.exp, after)
+        s.say("level", f"升级！Lv{before} → Lv{after}（{why}）",
+              frm=before, to=after, exp=leader.exp)
+        s.fire("level_up")
+        # 撞到徽章上限时说清楚 —— 否则玩家只看到经验涨而等级不动
+        if after >= cap:
+            s.say("level", f"已达当前等级上限 Lv{cap}"
+                           f"（需要第 {s.badges + 1} 枚徽章）")
+    return out
 
 
 def check_progress(s: Session) -> dict:
