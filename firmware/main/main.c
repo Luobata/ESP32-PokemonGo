@@ -134,17 +134,38 @@ void app_main(void) {
     }
     bsp_display_backlight(100);
 
-    // 其余外设单项失败不阻塞:菜单里标 [FAIL],其他项照常可测。
-    s_ok[0] = true;                                   // Display 已确认可用
-    s_ok[1] = (bsp_button_init(on_key, NULL) == ESP_OK);
-    s_ok[2] = (bsp_audio_init() == ESP_OK);
-    s_ok[3] = (bsp_battery_init() == ESP_OK);
-    s_ok[4] = true;                                    // 页面内按需初始化并显示错误
-    s_ok[5] = true;
-    s_ok[6] = true;
+    // 外设初始化。单项失败不阻塞 —— 菜单里标 [FAIL]，其他项照常可用。
+    //
+    // ⚠️ 这里曾经写到 s_ok[6]，而 s_ok 是 [DEMO_COUNT] = [4] ——
+    // **越界写 2 字节**。上游有 7 个 demo，我把 DEMOS 表砍到 4 项时
+    // 忘了跟着改。没炸只是运气（那两字节后面恰好不是活跃数据）。
+    // 现在按 DEMO_COUNT 循环，改表时不会再漏。
+    bool btn_ok = (bsp_button_init(on_key, NULL) == ESP_OK);
+    bool audio_ok = (bsp_audio_init() == ESP_OK);
+    bool batt_ok = (bsp_battery_init() == ESP_OK);
+    for (size_t i = 0; i < DEMO_COUNT; i++) s_ok[i] = true;
 
-    if (bsp_lvgl_lock(1000)) { enter_menu(); bsp_lvgl_unlock(); }
+    // 开机直接进第一项（Idle）而不是停在菜单。
+    //
+    // 理由是实测的：长跑与采集都要设备自己跑起来，而每次烧写后
+    // 设备回到菜单，没人按键就一晚上收不到数据。
+    // 长按 OK 仍可退回菜单 —— 只是默认状态反过来了。
+    // 进哪一项：现在是 Collect（索引 1）。
+    //
+    // 本该是 Idle（P1 主页面，产品形态就该开机即主页），
+    // 但**采集还没做成后台任务** —— 它绑在 Collect 页的 lv_timer 上，
+    // 离开那一页就停。而长跑（时钟漂移、续航）需要设备自己采一整夜。
+    //
+    // 正确的做法是把扫描提成独立 task，P1 只管显示 ——
+    // 那是 F9 的活（S1 遭遇累积要接扫描）。在那之前先让开机进 Collect，
+    // 至少数据不会因为没人按键而丢。
+    #define BOOT_DEMO 1
+    if (bsp_lvgl_lock(1000)) {
+        s_active = BOOT_DEMO;
+        DEMOS[BOOT_DEMO].enter();
+        bsp_lvgl_unlock();
+    }
 
-    ESP_LOGI(TAG, "就绪:Display=%d Button=%d Audio=%d Battery=%d",
-             s_ok[0], s_ok[1], s_ok[2], s_ok[3]);
+    ESP_LOGI(TAG, "就绪:Display=1 Button=%d Audio=%d Battery=%d → 进入 %s",
+             btn_ok, audio_ok, batt_ok, DEMOS[BOOT_DEMO].name);
 }

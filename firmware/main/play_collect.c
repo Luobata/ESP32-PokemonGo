@@ -228,7 +228,7 @@ static void ui_refresh(void)
                               (double)s_ap_total / (double)s_scan_count,
                               bsp_battery_soc());
     } else {
-        lv_label_set_text(s_last, "OK: start/stop\nlogs -> serial");
+        lv_label_set_text(s_last, "auto-started\nOK: stop\nlogs -> serial");
     }
 }
 
@@ -270,8 +270,15 @@ void play_collect_enter(void)
 
     s_scan_count = 0;
     s_ap_total = 0;
-    s_state = ST_IDLE;
     s_done_flag = false;
+
+    // **进页面即开始采集**，不用再按一次 OK。
+    //
+    // 理由是实测出来的：长跑（tools/device/soak.py）要人守着按键，
+    // 而每次烧写后设备都回到菜单 —— 一晚上的数据可能因为没人按而全丢。
+    // OK 键仍然能停/继续，只是默认状态反过来了。
+    s_state = ST_RUNNING;
+    s_next_scan_us = 0;          // 立刻扫第一次
 
     if (!s_wifi_started) {
         esp_err_t err = wifi_bring_up();
