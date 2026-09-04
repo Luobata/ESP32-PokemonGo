@@ -442,13 +442,25 @@ def handle_encounter(s: Session, index: int = 0, do_battle: bool = True,
         wild_stats = _base_stats(qe.species_id)
         b = auto_battle([s.pet.type_name], pet_stats, leader.level,
                         [_type_of(qe.species_id)], wild_stats, lv,
-                        s.pet.ability_factor)
+                        s.pet.ability_factor,
+                        pet_species=leader.species_id,
+                        wild_species=qe.species_id,
+                        # 战斗要可回放：种子由「这次遭遇」决定而非全局随机源，
+                        # 同一份扫描数据重跑得到同一场战斗（同 spawn_seed 取向）
+                        seed=(qe.species_id << 16) ^ (s.ts & 0xFFFF))
         qe.hp_ratio = b.wild_hp_ratio
+        # 主宠用的最后一招 —— 给日志与 P3 的「效果绝佳」提示用
+        pm = [r for r in b.rounds if r.attacker == "pet" and r.move]
+        mv_note = f"，{pm[-1].move}" if pm else ""
         out["battle"] = {"won": b.won, "rounds": len(b.rounds),
-                         "wild_hp": b.wild_hp_ratio, "exp": b.exp}
+                         "wild_hp": b.wild_hp_ratio, "exp": b.exp,
+                         "moves": [r.move for r in pm]}
         s.say("battle",
               f"战斗 {len(b.rounds)} 回合 → {'胜' if b.won else '败'}"
-              f"，野怪 HP {b.wild_hp_ratio}%（+{b.exp} exp）")
+              f"，野怪 HP {b.wild_hp_ratio}%（+{b.exp} exp{mv_note}）",
+              won=b.won, rounds=len(b.rounds), exp=b.exp,
+              wild_hp=b.wild_hp_ratio,
+              moves=[r.move for r in pm])
         # b.exp 原先算好了却没人接收 —— 与 on_motion_event 同一形状的缺陷。
         # 败也给经验（打了就有长进），只是比胜少 20。
         grant_exp(s, b.exp, "战斗" + ("胜利" if b.won else ""))

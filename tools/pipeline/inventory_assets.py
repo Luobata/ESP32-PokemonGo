@@ -12,6 +12,10 @@
 假定了格式正确（magic 不对就抛异常）。清点需要的是**独立重解**：
 按 convert_*.py 写死的头部布局硬解，然后拿解出来的数字与文档对账。
 
+同理，各段的格式常量在本文件里**独立写死**而不是 import
+convert_*.py —— import 过去只能验证「自己和自己一致」，
+写死才能在两边漂移时报出来。
+
 零第三方依赖。
 """
 
@@ -121,6 +125,192 @@ def audit_gen1(g: dict) -> dict:
         "pal_hi_nonzero": [m["id"] for m in mons if m["pal_hi"]],
         "reserved_dirty": [m["id"] for m in mons if m["reserved_nonzero"]],
         "evolving": sum(1 for m in mons if m["evolve_to"]),
+    }
+
+
+# ---------------------------------------------------------------------------
+# moves.bin —— 四段：招式表 / 物种索引 / 学习表 / 字符串池
+# ---------------------------------------------------------------------------
+
+# 与 convert_moves.py 一致。这里**独立写死**而不是 import ——
+# 清点的价值就在于用另一套代码重解，import 过去等于只验证了自己和自己一致。
+MOVE_HEADER_FMT = "<4sHHHHHH"
+MOVE_REC_FMT = "<HHBBBBBB2s"
+MOVE_SPECIES_FMT = "<HBB"
+MOVE_LEARN_FMT = "<BB"
+DAMAGE_CLASS_CN = {0: "物理", 1: "特殊"}
+ACC_ALWAYS_HIT = 255
+
+
+def parse_moves(path: str) -> dict:
+    d = open(path, "rb").read()
+    hsz = struct.calcsize(MOVE_HEADER_FMT)
+    magic, ver, rsz, mcnt, scnt, lcnt, poolsz = struct.unpack(
+        MOVE_HEADER_FMT, d[:hsz])
+
+    msz = struct.calcsize(MOVE_REC_FMT)
+    ssz = struct.calcsize(MOVE_SPECIES_FMT)
+    lsz = struct.calcsize(MOVE_LEARN_FMT)
+
+    # 头部声明的定长与本文件独立写死的 struct 不一致时**提前退出**。
+    # 这正是 convert_gen1.py 那次「注释写 28、实际 32」的场景：
+    # 继续往下解会在某条记录上抛 struct.error，给出的是一行栈回溯 ——
+    # 而真正该说的是「头部说 N 字节，实际布局是 M 字节，照头部写固件会错位」。
+    # 错位是本格式最危险的缺陷（读出来全是合法数值，不崩只是全错），
+    # 所以它必须得到最清楚的一句话，而不是最晦涩的一句。
+    if rsz != msz:
+        return {
+            "file": os.path.basename(path), "bytes": len(d),
+            "magic": magic.decode("ascii", "replace"), "version": ver,
+            "move_rec_size": rsz, "move_rec_expected": msz,
+            "move_count": mcnt, "species_count": scnt,
+            "learn_count_declared": lcnt, "learn_count_actual": -1,
+            "pool_declared": poolsz, "pool_actual": -1,
+            "header_bytes": hsz,
+            "species_rec_size": ssz, "learn_rec_size": lsz,
+            "moves": [], "species": [], "trailing_bytes": -1,
+            "aborted": f"头部声明记录 {rsz} B，实际布局 {msz} B —— 不再往下解析",
+        }
+
+    p = hsz
+    mrecs = d[p:p + mcnt * rsz]
+    p += mcnt * rsz
+    srecs = d[p:p + scnt * ssz]
+    p += scnt * ssz
+    lrecs = d[p:p + lcnt * lsz]
+    p += lcnt * lsz
+    pool = d[p:p + poolsz]
+    consumed = p + poolsz
+
+    moves = []
+    for i in range(mcnt):
+        o = i * rsz
+        (mid, zo, zl, ty, pw, ac, pp, dc, rv) = struct.unpack(
+            MOVE_REC_FMT, mrecs[o:o + rsz])
+        moves.append({
+            "slot": i, "move_id": mid,
+            "zh": pool[zo:zo + zl].decode("utf-8", "replace") if zl else "",
+            "zh_off": zo, "zh_len": zl,
+            "type": ty, "power": pw, "accuracy": ac, "pp": pp,
+            "damage_class": dc,
+            "reserved_nonzero": rv != b"\x00" * 2,
+        })
+
+    species = []
+    for i in range(scnt):
+        o = i * ssz
+        (loff, lcount, rv) = struct.unpack(MOVE_SPECIES_FMT, srecs[o:o + ssz])
+        entries = []
+        for k in range(lcount):
+            q = (loff + k) * lsz
+            if q + lsz > len(lrecs):
+                break
+            lv, slot = struct.unpack(MOVE_LEARN_FMT, lrecs[q:q + lsz])
+            entries.append((lv, slot))
+        species.append({
+            "id": i + 1, "learn_offset": loff, "learn_count": lcount,
+            "entries": entries, "reserved_nonzero": rv != 0,
+            "truncated": len(entries) != lcount,
+        })
+
+    return {
+        "file": os.path.basename(path), "bytes": len(d),
+        "magic": magic.decode("ascii", "replace"), "version": ver,
+        "move_rec_size": rsz, "move_rec_expected": msz,
+        "move_count": mcnt, "species_count": scnt,
+        "learn_count_declared": lcnt,
+        "learn_count_actual": len(lrecs) // lsz,
+        "pool_declared": poolsz, "pool_actual": len(pool),
+        "header_bytes": hsz,
+        "species_rec_size": ssz, "learn_rec_size": lsz,
+        "moves": moves, "species": species,
+        "trailing_bytes": len(d) - consumed,
+    }
+
+
+def audit_moves(mv: dict) -> dict:
+    if mv.get("aborted"):
+        # 解析已中止，没有记录可审。返回全空，让断言区只报那一条根因，
+        # 不要再叠加几十条由错位派生出来的假问题。
+        return {"aborted": mv["aborted"]}
+
+    moves, species = mv["moves"], mv["species"]
+
+    ids = [m["move_id"] for m in moves]
+    dup_id = [i for i, n in collections.Counter(ids).items() if n > 1]
+    # 段① 必须按 move_id 升序 —— 否则「已知 move_id 二分查记录」不成立
+    sorted_ok = ids == sorted(ids)
+
+    bad_type = [m["move_id"] for m in moves if m["type"] >= len(GEN1_TYPES_CN)]
+    bad_dc = [m["move_id"] for m in moves if m["damage_class"] not in DAMAGE_CLASS_CN]
+    # 只收伤害招，威力为 0 说明混进了变化招
+    zero_power = [m["move_id"] for m in moves if m["power"] == 0]
+    zero_pp = [m["move_id"] for m in moves if m["pp"] == 0]
+    # 命中 0 会被固件读成永不命中；必中招约定用 255
+    bad_acc = [m["move_id"] for m in moves
+               if not (1 <= m["accuracy"] <= 100 or m["accuracy"] == ACC_ALWAYS_HIT)]
+    zh_missing = [m["move_id"] for m in moves if not m["zh"]]
+    zh_chars: set = set()
+    for m in moves:
+        zh_chars |= set(m["zh"])
+
+    # 字符串池完整性：每条记录的 (off, len) 必须落在池内，
+    # 且解码不能产生替换字符（U+FFFD 说明偏移把多字节汉字切断了）
+    pool_oob = [m["move_id"] for m in moves
+                if m["zh_off"] + m["zh_len"] > mv["pool_actual"]]
+    pool_garbled = [m["move_id"] for m in moves if "�" in m["zh"]]
+
+    # 学习表：slot 必须落在段①范围内，等级必须升序
+    n = len(moves)
+    bad_slot, unsorted_lv, bad_level = [], [], []
+    covered = 0
+    total_entries = 0
+    for s in species:
+        if s["entries"]:
+            covered += 1
+        total_entries += len(s["entries"])
+        lvs = [lv for lv, _ in s["entries"]]
+        if lvs != sorted(lvs):
+            unsorted_lv.append(s["id"])
+        for lv, slot in s["entries"]:
+            if not 0 <= slot < n:
+                bad_slot.append((s["id"], slot))
+            if not 1 <= lv <= 100:
+                bad_level.append((s["id"], lv))
+
+    # 段③ 是否被完整引用 —— 没有任何物种指向的区间说明有空洞
+    referenced = set()
+    for s in species:
+        for k in range(s["learn_count"]):
+            referenced.add(s["learn_offset"] + k)
+    orphan = mv["learn_count_actual"] - len(referenced)
+
+    return {
+        "duplicate_move_id": dup_id,
+        "move_ids_sorted": sorted_ok,
+        "bad_type": bad_type, "bad_damage_class": bad_dc,
+        "zero_power": zero_power, "zero_pp": zero_pp, "bad_accuracy": bad_acc,
+        "always_hit": [m["move_id"] for m in moves
+                       if m["accuracy"] == ACC_ALWAYS_HIT],
+        "zh_missing": zh_missing,
+        "zh_char_count": len(zh_chars), "zh_chars": "".join(sorted(zh_chars)),
+        "pool_out_of_bounds": pool_oob, "pool_garbled": pool_garbled,
+        "species_covered": covered,
+        "species_empty": [s["id"] for s in species if not s["entries"]],
+        "learn_entries_walked": total_entries,
+        "bad_slot": bad_slot, "unsorted_levels": unsorted_lv,
+        "bad_level": bad_level,
+        "truncated_species": [s["id"] for s in species if s["truncated"]],
+        "orphan_learn_entries": orphan,
+        "reserved_dirty": [m["move_id"] for m in moves if m["reserved_nonzero"]],
+        "type_dist": dict(collections.Counter(
+            GEN1_TYPES_CN[m["type"]] if m["type"] < len(GEN1_TYPES_CN)
+            else f"?{m['type']}" for m in moves)),
+        "dc_dist": dict(collections.Counter(
+            DAMAGE_CLASS_CN.get(m["damage_class"], f"?{m['damage_class']}")
+            for m in moves)),
+        "power_range": (min((m["power"] for m in moves), default=0),
+                        max((m["power"] for m in moves), default=0)),
     }
 
 
@@ -603,6 +793,10 @@ def main() -> int:
     r["palettes"] = parse_palettes(os.path.join(A, "palettes.bin"))
     r["font"] = parse_font(os.path.join(A, "font16.bin"))
     r["eye"] = parse_eye(os.path.join(A, "eye_regions.json"))
+    moves_path = os.path.join(A, "moves.bin")
+    if os.path.exists(moves_path):
+        r["moves"] = parse_moves(moves_path)
+        r["moves_audit"] = audit_moves(r["moves"])
     r["content"] = content_check(os.path.join(A, "gen1_front.bin"),
                                  os.path.join(A, "gen1_back.bin"))
 
@@ -707,6 +901,43 @@ def main() -> int:
     print(f"  _meta 声明 {ey['meta_counts_declared']}"
           f"　与实测一致={ey['meta_matches']}")
 
+    mv, mva = r.get("moves"), r.get("moves_audit")
+    if mv and mv.get("aborted"):
+        print(f"\n== moves.bin ==  {mv['bytes']} B  magic={mv['magic']}"
+              f" v{mv['version']}")
+        print(f"  ❌ {mv['aborted']}")
+    elif mv:
+        print(f"\n== moves.bin ==  {mv['bytes']} B  magic={mv['magic']}"
+              f" v{mv['version']}")
+        print(f"  段① {mv['move_count']} 招 × {mv['move_rec_size']} B"
+              f"  (struct 实测 {mv['move_rec_expected']} B)"
+              f"  move_id 升序={mva['move_ids_sorted']}"
+              f"  重复 {mva['duplicate_move_id']}")
+        print(f"  段② {mv['species_count']} 只 × {mv['species_rec_size']} B"
+              f"　段③ {mv['learn_count_declared']} 条 × {mv['learn_rec_size']} B"
+              f"（实测 {mv['learn_count_actual']}）")
+        print(f"  段④ 池 {mv['pool_actual']} B（头声明 {mv['pool_declared']}）"
+              f"　尾部余 {mv['trailing_bytes']} B")
+        print(f"  威力区间 {mva['power_range']}　必中招 {mva['always_hit']}")
+        print(f"  属性分布 {mva['type_dist']}")
+        print(f"  物理/特殊 {mva['dc_dist']}")
+        print(f"  学习表覆盖 {mva['species_covered']}/{mv['species_count']} 只"
+              f"　走表 {mva['learn_entries_walked']} 条"
+              f"　孤儿条目 {mva['orphan_learn_entries']}")
+        if mva["species_empty"]:
+            print(f"  无伤害招的物种 {mva['species_empty']}")
+        print(f"  中文名缺失 {len(mva['zh_missing'])}"
+              f"　用字 {mva['zh_char_count']} 个")
+
+        # 招式名要上屏，所以必须进字库。字库重建是下一步，
+        # 这里只报差集，不算断言失败 —— 否则本轮永远过不了。
+        have = set(ft["chars"])
+        need = set(mva["zh_chars"])
+        miss = sorted(need - have)
+        print(f"  招式名用字进字库：{len(need)-len(miss)}/{len(need)}"
+              + (f"　**缺 {len(miss)} 字**：{''.join(miss)}" if miss else " ✓"))
+        r["moves_audit"]["font_missing"] = "".join(miss)
+
     print(f"\n== 字库交叉验证 ==")
     for label, v in cc["per_source"].items():
         flag = "❌" if v["missing"] else "✅"
@@ -762,12 +993,89 @@ def main() -> int:
     if not ft["charset_txt_matches_bin"]:
         fails.append("font16_charset.txt 与 font16.bin 不一致 —— 需重跑 convert_font.py")
 
+    # ---- moves.bin ----
+    #
+    # 这里查的都是「结构合法但内容错」那一类。特别是 slot 越界与等级乱序：
+    # 二者都不会让解析抛异常，但会让固件在战斗时读到别的招 ——
+    # 而读出来的仍是一条合法招式记录，玩家只会觉得「这只怎么会用火焰喷射」。
+    if mv:
+        if mv["magic"] != "MOVE":
+            fails.append(f"moves.bin magic={mv['magic']}，应为 MOVE")
+        if mv["move_rec_size"] != mv["move_rec_expected"]:
+            fails.append(f"moves.bin 定长不符：头声明 {mv['move_rec_size']} B，"
+                         f"struct 实测 {mv['move_rec_expected']} B"
+                         f"（照头部写固件会整体错位）")
+    if mv and not mv.get("aborted"):
+        if mv["learn_count_declared"] != mv["learn_count_actual"]:
+            fails.append(f"moves.bin 学习表条数不符：头声明 "
+                         f"{mv['learn_count_declared']}，实测 {mv['learn_count_actual']}")
+        if mv["pool_declared"] != mv["pool_actual"]:
+            fails.append(f"moves.bin 字符串池不符：头声明 {mv['pool_declared']}，"
+                         f"实测 {mv['pool_actual']}")
+        if mv["trailing_bytes"] != 0:
+            fails.append(f"moves.bin 尾部多余 {mv['trailing_bytes']} B")
+        if mv["species_count"] != 151:
+            fails.append(f"moves.bin 物种索引 {mv['species_count']} 条，应为 151")
+        if not mva["move_ids_sorted"]:
+            fails.append("moves.bin 段① move_id 非升序")
+        if mva["duplicate_move_id"]:
+            fails.append(f"moves.bin move_id 重复：{mva['duplicate_move_id']}")
+        if mva["bad_type"]:
+            fails.append(f"moves.bin {len(mva['bad_type'])} 招属性越界"
+                         f"（应 0~14）：{mva['bad_type'][:10]}")
+        if mva["bad_damage_class"]:
+            fails.append(f"moves.bin {len(mva['bad_damage_class'])} 招"
+                         f"物理/特殊标记非法：{mva['bad_damage_class'][:10]}")
+        if mva["zero_power"]:
+            fails.append(f"moves.bin {len(mva['zero_power'])} 招威力为 0"
+                         f"（只该收伤害招）：{mva['zero_power'][:10]}")
+        if mva["zero_pp"]:
+            fails.append(f"moves.bin {len(mva['zero_pp'])} 招 PP 为 0："
+                         f"{mva['zero_pp'][:10]}")
+        if mva["bad_accuracy"]:
+            fails.append(f"moves.bin {len(mva['bad_accuracy'])} 招命中非法"
+                         f"（应 1~100 或 255 必中）：{mva['bad_accuracy'][:10]}")
+        if mva["zh_missing"]:
+            fails.append(f"moves.bin {len(mva['zh_missing'])} 招缺中文名："
+                         f"{mva['zh_missing'][:10]}")
+        if mva["pool_out_of_bounds"]:
+            fails.append(f"moves.bin {len(mva['pool_out_of_bounds'])} 招"
+                         f"名字偏移越出字符串池：{mva['pool_out_of_bounds'][:10]}")
+        if mva["pool_garbled"]:
+            fails.append(f"moves.bin {len(mva['pool_garbled'])} 招名字解码出乱码"
+                         f"（偏移把汉字切断了）：{mva['pool_garbled'][:10]}")
+        if mva["bad_slot"]:
+            fails.append(f"moves.bin 学习表 slot 越界 {mva['bad_slot'][:10]}"
+                         f"（会读到别的招）")
+        if mva["unsorted_levels"]:
+            fails.append(f"moves.bin {len(mva['unsorted_levels'])} 只的学习表"
+                         f"未按等级升序：{mva['unsorted_levels'][:10]}"
+                         f"（固件靠升序扫到 Lv>N 为止）")
+        if mva["bad_level"]:
+            fails.append(f"moves.bin 学习等级越界（应 1~100）："
+                         f"{mva['bad_level'][:10]}")
+        if mva["truncated_species"]:
+            fails.append(f"moves.bin {len(mva['truncated_species'])} 只的学习表"
+                         f"区间超出段③：{mva['truncated_species'][:10]}")
+        if mva["orphan_learn_entries"]:
+            fails.append(f"moves.bin 段③ 有 {mva['orphan_learn_entries']} 条"
+                         f"无人引用的孤儿条目")
+        if mva["reserved_dirty"]:
+            fails.append(f"moves.bin {len(mva['reserved_dirty'])} 招 reserved 非零")
+
     if fails:
         print("\n❌ 断言失败：")
         for f in fails:
             print(f"   · {f}")
         return 1
-    print("\n✅ 全部断言通过（字库覆盖、无空白字形、sprite 齐全、定长自洽）")
+    print("\n✅ 全部断言通过（字库覆盖、无空白字形、sprite 齐全、定长自洽"
+          + ("、招式表自洽" if mv else "") + "）")
+    if mv and mva.get("font_missing"):
+        # 不是断言失败：字库重建是招式入库之后的下一步。
+        # 但必须显眼 —— 否则真机上招式名会整片空白，且要打到那一屏才发现。
+        print(f"⚠️  但招式名还缺 {len(mva['font_missing'])} 个字未进字库："
+              f"{mva['font_missing']}")
+        print(f"   → 下一步跑 convert_font.py 把招式名收进 font16.bin")
     return 0
 
 

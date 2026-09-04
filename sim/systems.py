@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from gameplay import (
-    Encounter, PetState, classify_biome, roll_encounter, spawn_seed,
+    TYPES, Encounter, PetState, classify_biome, roll_encounter, spawn_seed,
 )
 
 # ---------------------------------------------------------------------------
@@ -417,6 +417,8 @@ class BattleRound:
     label: str
     pet_hp: int
     wild_hp: int
+    move: str = ""         # 用了哪招（S20）。空 = 没有招式数据，按属性算
+    missed: bool = False   # 未命中（招式命中率判定）
 
 
 # 野怪的**绝对**等级带，按稀有度定。
@@ -533,6 +535,136 @@ EXP_ON_CARE = 30            # 每次照料（喂食/玩耍/休息）
 EXP_ON_MOTION = 8           # 每次移动量事件
 
 
+# ---------------------------------------------------------------------------
+# 招式（S20）—— 读 assets/moves.bin，按等级现算可用招
+#
+# ## 三条设计决策，都为了不推翻 S3
+#
+# S3 明确写了「不做招式表/PP/状态异常」，理由是三键设备上战斗不接受输入、
+# 玩家决策发生在按 B 之前。招式在这里**不改变那条** —— 战斗仍然全自动，
+# 玩家不选招，AI 选。变的只是伤害计算里「攻击方属性」换成「招式属性」：
+# 一只电系可以打出一般系的电光一闪，属性相克因此有了层次。
+#
+#   ① **只收伤害招**。初代 165 招里约三分之一是 power=null 的变化招
+#      （growl 降攻、agility 提速、thunder-wave 麻痹）。自动战斗里
+#      它们要么需要额外的临时状态，要么在 8 回合内看不出效果。
+#      moves.bin 只存 99 条伤害招。
+#
+#   ② **不存每只的招式列表**。按等级现算「这只现在学会了哪些」——
+#      Mon 因此不用再加 4 字节，存档布局不动。代价是玩家无法保留
+#      低级招式（原版可以），但自动战斗里那本来就不是玩家的决策点。
+#
+#   ③ **AI 加权随机而非总选最优**。总选最优会让同一组合每次结果相同，
+#      野怪显得像机器；纯随机又让属性相克失去意义。
+#      按「威力 × 相克倍率 × 本属性加成」加权，高伤害招更可能被选中。
+# ---------------------------------------------------------------------------
+
+STAB = 150                  # 本属性加成 ×1.5（初代原版就是这个数）
+ACC_ALWAYS_HIT = 255        # moves.bin 里 255 表示必中（swift 电光）
+
+_MOVES_CACHE: dict = {}     # {"moves": [...], "learn": {sid: [(lv, slot)]}}
+
+
+def _load_moves() -> dict:
+    """读 assets/moves.bin。格式见 tools/pipeline/convert_moves.py 顶部。
+
+    读不到时返回空表 —— 调用方会退回「按攻击方属性算」的旧行为，
+    这让招式成为**增强**而不是硬依赖（PC 侧跑回归测试时可能没有资产）。
+    """
+    if _MOVES_CACHE:
+        return _MOVES_CACHE
+    import pathlib
+    p = pathlib.Path(__file__).resolve().parent.parent / "assets" / "moves.bin"
+    if not p.exists():
+        return {"moves": [], "learn": {}}
+    d = p.read_bytes()
+    magic, ver, rsz, mcnt, scnt, lcnt, poolsz = struct.unpack("<4sHHHHHH",
+                                                              d[:16])
+    if magic != b"MOVE":
+        return {"moves": [], "learn": {}}
+    o = 16
+    mrec = d[o:o + mcnt * rsz]; o += mcnt * rsz
+    srec = d[o:o + scnt * 4];   o += scnt * 4
+    lrec = d[o:o + lcnt * 2];   o += lcnt * 2
+    pool = d[o:o + poolsz]
+
+    moves = []
+    for i in range(mcnt):
+        mid, zo, zl, ty, pw, ac, pp, dc, _rv = struct.unpack(
+            "<HHBBBBBB2s", mrec[i * rsz:(i + 1) * rsz])
+        moves.append({
+            "id": mid,
+            "zh": pool[zo:zo + zl].decode("utf-8", "replace") if zl else "",
+            "type": TYPES[ty] if ty < len(TYPES) else "一般",
+            "power": pw, "acc": ac, "pp": pp,
+            "special": dc == 1,          # 0=物理 1=特殊
+        })
+
+    learn: dict = {}
+    for i in range(scnt):
+        loff, lc, _rv = struct.unpack("<HBB", srec[i * 4:(i + 1) * 4])
+        rows = []
+        for k in range(lc):
+            q = (loff + k) * 2
+            if q + 2 > len(lrec):
+                break
+            lv, slot = struct.unpack("<BB", lrec[q:q + 2])
+            if slot < len(moves):
+                rows.append((lv, slot))
+        learn[i + 1] = rows
+
+    _MOVES_CACHE["moves"] = moves
+    _MOVES_CACHE["learn"] = learn
+    return _MOVES_CACHE
+
+
+def known_moves(species_id: int, level: int) -> list:
+    """这只在这个等级学会了哪些招 —— 现算，不存。
+
+    返回招式 dict 列表。空列表表示没有数据（资产缺失或该物种无升级招），
+    调用方要能处理。
+    """
+    db = _load_moves()
+    rows = db["learn"].get(species_id, [])
+    return [db["moves"][slot] for lv, slot in rows if lv <= level]
+
+
+def move_weight(move: dict, atk_types: list, def_types: list) -> int:
+    """选招权重 = 威力 × 相克倍率 × 本属性加成。
+
+    倍率为 0（幽灵打超能，初代那条著名 bug）时权重为 0 ——
+    AI 不会选一个必定打不中的招，除非它没有别的选择。
+    """
+    mult = effectiveness(move["type"], def_types)
+    w = move["power"] * mult // 100
+    if move["type"] in atk_types:
+        w = w * STAB // 100
+    return max(0, w)
+
+
+def pick_move(moves: list, atk_types: list, def_types: list,
+              rng) -> Optional[dict]:
+    """AI 选招 —— 按权重随机，偏好高伤害。
+
+    rng 由调用方传入（战斗要可回放，所以不用全局随机源）。
+
+    全部权重为 0 时（比如一只只会一般系招的宝可梦打幽灵）
+    退回等概率随机 —— 总得出一招，哪怕打不中。
+    """
+    if not moves:
+        return None
+    ws = [move_weight(m, atk_types, def_types) for m in moves]
+    total = sum(ws)
+    if total <= 0:
+        return moves[rng.randrange(len(moves))]
+    r = rng.randrange(total)
+    for m, w in zip(moves, ws):
+        r -= w
+        if r < 0:
+            return m
+    return moves[-1]
+
+
 def effective_stat(base: int, level: int) -> int:
     """种族值 + 等级 → 实际能力值。
 
@@ -551,17 +683,33 @@ def effective_stat(base: int, level: int) -> int:
 def auto_battle(pet_types: list[str], pet_stats: list[int], pet_level: int,
                 wild_types: list[str], wild_stats: list[int], wild_level: int,
                 ability_factor: float = 1.0,
-                max_rounds: int = 12) -> BattleResult:
-    """自动结算战斗（S3）。
+                max_rounds: int = 12,
+                pet_species: int = 0, wild_species: int = 0,
+                seed: int = 0) -> BattleResult:
+    """自动结算战斗（S3 + S20 招式）。
 
-    不做招式/PP/状态异常。张力来自三处（docs/systems/S3-battle.md）：
+    **仍然不接受输入** —— 玩家的决策发生在按 B 之前（打不打、带谁出门），
+    不发生在回合里。S20 加的招式没有推翻这条：招式由 AI 选，
+    改变的只是伤害计算里「攻击方属性」换成「招式属性」。
+
+    张力仍来自三处（docs/systems/S3-battle.md）：
       · 属性相克可见 —— 「效果绝佳！」让玩家看到自己属性选择的因果
       · HP 逐回合扣减 —— 配合 shake_sequence()，不是瞬间结算
       · 削弱机制 —— 战后野怪 HP 降低使捕获窗口加宽
 
+    传 pet_species / wild_species 才启用招式（要查学习表）。
+    不传则退回按攻击方属性算 —— 让招式是**增强**而非硬依赖，
+    没有 assets/moves.bin 时旧行为仍然成立。
+
     stats 顺序与 gen1.bin 一致：[hp, attack, defense, special, speed]
     ability_factor 来自 PetState —— 消沉时 0.6，这是养成对战斗的影响。
+
+    seed 让战斗可回放 —— AI 选招与命中判定都走这个随机源，
+    同一组输入永远得到同一场战斗（与 spawn_seed 的确定性取向一致）。
     """
+    import random as _random
+    rng = _random.Random(seed)
+
     # 种族值 → 实际能力值（含等级成长，见 effective_stat）
     ps = [effective_stat(v, pet_level) for v in pet_stats]
     ws = [effective_stat(v, wild_level) for v in wild_stats]
@@ -570,24 +718,55 @@ def auto_battle(pet_types: list[str], pet_stats: list[int], pet_level: int,
     w_hp_max = ws[0] * 2 + wild_level
     p_hp, w_hp = p_hp_max, w_hp_max
 
+    # 各自会哪些招（现算，见 known_moves）
+    p_moves = known_moves(pet_species, pet_level) if pet_species else []
+    w_moves = known_moves(wild_species, wild_level) if wild_species else []
+
     # 速度决定先手
     pet_first = ps[4] >= ws[4]
     rounds: list[BattleRound] = []
 
     def hit(atk_types, atk_stats, atk_lv, def_types, def_stats,
-            factor: float) -> tuple[int, int, str]:
-        # 初代伤害公式的简化版：不含随机数与暴击，保证可回放
-        atk = max(1, int(atk_stats[1] * factor))
-        dfn = max(1, def_stats[2])
-        mult = max((effectiveness(t, def_types) for t in atk_types), default=100)
-        # 初代原式：((2*Lv/5+2) * Atk * Power / Def) / 50 + 2，Power 取 40。
+            factor: float, moves: list) -> tuple:
+        """一次攻击 → (伤害, 倍率, 标签, 招名, 是否未命中)。"""
+        mv = pick_move(moves, atk_types, def_types, rng) if moves else None
+
+        if mv:
+            # 命中判定 —— 255 表示必中（swift 电光）
+            if mv["acc"] != ACC_ALWAYS_HIT and rng.randrange(100) >= mv["acc"]:
+                return 0, 100, "", mv["zh"], True
+            power = mv["power"]
+            atk_type = mv["type"]
+            # 初代分物理/特殊：物理用 attack/defense，特殊用 special 双向。
+            # 这是招式带来的**新层次** —— 同样种族值，特攻高的用特殊招更疼。
+            if mv["special"]:
+                atk = max(1, int(atk_stats[3] * factor))
+                dfn = max(1, def_stats[3])
+            else:
+                atk = max(1, int(atk_stats[1] * factor))
+                dfn = max(1, def_stats[2])
+            mult = effectiveness(atk_type, def_types)
+            # 本属性加成算进**伤害**，但不算进 mult ——
+            # mult 要用于「效果绝佳」标签，混进 STAB 会让电系打一般系
+            # 显示成 ×150「效果绝佳」，而那是错的（相克其实是 ×100）。
+            stab = STAB if atk_type in atk_types else 100
+        else:
+            # 没有招式数据 —— 旧行为：按攻击方属性、固定威力 40
+            power = 40
+            atk = max(1, int(atk_stats[1] * factor))
+            dfn = max(1, def_stats[2])
+            mult = max((effectiveness(t, def_types) for t in atk_types),
+                       default=100)
+            stab = 100
+
+        # 初代原式：((2*Lv/5+2) * Atk * Power / Def) / 50 + 2。
         # 但原式的分母 50 配合的是原版等级成长曲线，而本项目主宠等级偏低、
         # 野怪种族值可能很高（实测 Lv12 打 Lv10 鸭嘴火兽只有 3 伤害/回合，
         # 要 46 回合）。分母压到 25 让战斗落在 4~8 回合 ——
         # 符合「30 秒会话」的预算，也让 HP 条的逐步扣减看得出变化。
-        base = (2 * atk_lv // 5 + 2) * atk * 40 // dfn // 25 + 2
-        dmg = max(1, base * mult // 100) if mult else 0
-        return dmg, mult, eff_label(mult)
+        base = (2 * atk_lv // 5 + 2) * atk * power // dfn // 25 + 2
+        dmg = max(1, base * mult // 100 * stab // 100) if mult else 0
+        return dmg, mult, eff_label(mult), (mv["zh"] if mv else ""), False
 
     for _ in range(max_rounds):
         order = ["pet", "wild"] if pet_first else ["wild", "pet"]
@@ -595,14 +774,17 @@ def auto_battle(pet_types: list[str], pet_stats: list[int], pet_level: int,
             if p_hp <= 0 or w_hp <= 0:
                 break
             if who == "pet":
-                dmg, mult, lbl = hit(pet_types, ps, pet_level,
-                                     wild_types, ws, ability_factor)
+                dmg, mult, lbl, mv, miss = hit(
+                    pet_types, ps, pet_level, wild_types, ws,
+                    ability_factor, p_moves)
                 w_hp = max(0, w_hp - dmg)
             else:
-                dmg, mult, lbl = hit(wild_types, ws, wild_level,
-                                     pet_types, ps, 1.0)
+                dmg, mult, lbl, mv, miss = hit(
+                    wild_types, ws, wild_level, pet_types, ps,
+                    1.0, w_moves)
                 p_hp = max(0, p_hp - dmg)
-            rounds.append(BattleRound(who, dmg, mult, lbl, p_hp, w_hp))
+            rounds.append(BattleRound(who, dmg, mult, lbl, p_hp, w_hp,
+                                      move=mv, missed=miss))
         if p_hp <= 0 or w_hp <= 0:
             break
 
@@ -949,4 +1131,14 @@ def charset() -> set:
     out |= set("这只不会进化")
     # S14 收容位置 where
     out |= set("队伍") | set("仓库")
+    # S20 招式名 —— 从 assets/moves.bin 的字符串池取，**不硬编码一份**。
+    #
+    # 战斗日志与 P3 会显示招名（「电击」「电光一闪」），96 个汉字。
+    # 从产物读而非在这里列表：招式表变了字库自动跟上，
+    # 不会重演「文案有三份副本必然漂移」那种事。
+    #
+    # moves.bin 不存在时安静跳过 —— 招式是增强而非硬依赖
+    # （见 _load_moves 的说明），字库不该因为缺资产就构建失败。
+    for m in _load_moves().get("moves", []):
+        out |= set(m["zh"])
     return out
