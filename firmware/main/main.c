@@ -12,6 +12,7 @@
 #include "bsp_pins.h"      // 错误日志里要打印 BSP_LCD_* 引脚号
 #include "demo.h"
 #include "play.h"
+#include "assets.h"
 #include "ui_pixel.h"
 #include "lvgl.h"
 #include "esp_log.h"
@@ -113,6 +114,10 @@ void app_main(void) {
 
     bsp_i2c_init();
     bsp_i2c_scan();
+
+    // 资产自检 —— 数字要与 PC 侧 inventory_assets.py 对得上。
+    // 放在最前面：资产错了后面全是错的，早报早知道。
+    if (assets_init()) assets_selftest();
 
     // 屏幕是本 demo 的 UI 载体,失败就没有菜单可言 —— 打清楚日志后退出,
     // 不做"串口菜单"降级(那会让本文件复杂一倍,违背参考示例的初衷)。

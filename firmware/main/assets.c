@@ -1,0 +1,299 @@
+// main/assets.c —— 读嵌进固件的资产。
+//
+// 六个 .bin 用 CMake 的 EMBED_FILES 直接嵌进 app 分区（158.8 KB，
+// 占 3MB 分区的 5%），不另开数据分区 —— 那样要多一套分区表与
+// 烧写步骤，而 158 KB 完全放得下。
+//
+// ## 这是「PC 参考实现 → 固件」的第一次真移植
+//
+// 格式定义在 tools/pipeline/convert_*.py，PC 侧的读取实现在
+// sim/systems.py 与 tools/inspector/build.py。三处必须一致 ——
+// 而「一致」不能靠人记，所以：
+//
+//   · 每个 parse 函数都校验 magic 与定长自洽，不对就整表置空
+//   · assets_selftest() 把关键数字打到串口，与 PC 侧
+//     `python3 tools/pipeline/inventory_assets.py` 的输出对账
+//
+// 上一轮踩过的坑：convert_gen1.py 的注释把记录长度写成 28（实际 32），
+// 照那个数写固件会让第 2 条记录起整体错位 4 字节 —— 而错位后读出的
+// 仍是合法数值（种族值、属性 id 都在 0~255 内），不崩，只是全错。
+// 所以这里的每个 REC_SIZE 都从**文件头读**，不写死。
+
+#include <string.h>
+
+#include "esp_log.h"
+
+#include "assets.h"
+
+static const char *TAG = "assets";
+
+// EMBED_FILES 生成的符号。命名规则：_binary_<文件名，点换下划线>_start/end
+extern const uint8_t gen1_bin_start[] asm("_binary_gen1_bin_start");
+extern const uint8_t gen1_bin_end[] asm("_binary_gen1_bin_end");
+extern const uint8_t front_bin_start[] asm("_binary_gen1_front_bin_start");
+extern const uint8_t front_bin_end[] asm("_binary_gen1_front_bin_end");
+extern const uint8_t back_bin_start[] asm("_binary_gen1_back_bin_start");
+extern const uint8_t back_bin_end[] asm("_binary_gen1_back_bin_end");
+extern const uint8_t pal_bin_start[] asm("_binary_palettes_bin_start");
+extern const uint8_t pal_bin_end[] asm("_binary_palettes_bin_end");
+extern const uint8_t font_bin_start[] asm("_binary_font16_bin_start");
+extern const uint8_t font_bin_end[] asm("_binary_font16_bin_end");
+extern const uint8_t moves_bin_start[] asm("_binary_moves_bin_start");
+extern const uint8_t moves_bin_end[] asm("_binary_moves_bin_end");
+
+// 小端读取。资产全是小端（convert_*.py 用 struct "<"），
+// 而 C3 也是小端，理论上可以直接强转指针 —— **但不要那么做**：
+// 记录不保证 2/4 字节对齐（gen1 记录 32 字节但字段错位排列），
+// 未对齐访问在 RISC-V 上是异常而非静默慢速。
+static inline uint16_t rd16(const uint8_t *p) { return (uint16_t)(p[0] | (p[1] << 8)); }
+static inline uint32_t rd32(const uint8_t *p)
+{
+    return (uint32_t)p[0] | ((uint32_t)p[1] << 8) |
+           ((uint32_t)p[2] << 16) | ((uint32_t)p[3] << 24);
+}
+
+// ---------------------------------------------------------------------------
+// gen1.bin —— 151 只物种数据
+// ---------------------------------------------------------------------------
+
+static struct {
+    const uint8_t *recs;
+    const uint8_t *pool;
+    uint16_t rec_size;
+    uint32_t count;
+    bool ok;
+} s_gen1;
+
+static bool parse_gen1(void)
+{
+    const uint8_t *d = gen1_bin_start;
+    size_t len = (size_t)(gen1_bin_end - gen1_bin_start);
+    if (len < 16 || memcmp(d, "GEN1", 4) != 0) return false;
+
+    uint16_t rsz = rd16(d + 6);
+    uint32_t cnt = rd32(d + 8);
+    uint32_t pool_sz = rd32(d + 12);
+    // 自洽校验：头部声明的三段长度加起来必须正好等于文件长度。
+    // 不校验的后果是越界读 —— 而 flash 上越界读不会崩，
+    // 只会读到隔壁资产的字节当成种族值。
+    if (16u + cnt * rsz + pool_sz != len) {
+        ESP_LOGE(TAG, "gen1.bin 长度不自洽: 16+%u*%u+%u != %u",
+                 (unsigned)cnt, rsz, (unsigned)pool_sz, (unsigned)len);
+        return false;
+    }
+    s_gen1.recs = d + 16;
+    s_gen1.pool = d + 16 + cnt * rsz;
+    s_gen1.rec_size = rsz;
+    s_gen1.count = cnt;
+    s_gen1.ok = true;
+    return true;
+}
+
+bool assets_species(uint16_t id, species_t *out)
+{
+    if (!s_gen1.ok || id < 1 || id > s_gen1.count || !out) return false;
+    const uint8_t *r = s_gen1.recs + (uint32_t)(id - 1) * s_gen1.rec_size;
+
+    // 字段偏移见 tools/pipeline/convert_gen1.py 顶部的 off/size 表。
+    // **记录长度 32 字节**（那份注释一度写成 28，照抄会整体错位）。
+    out->id = id;
+    out->type1 = r[3];
+    out->type2 = r[4];
+    out->biome_mask = r[5];
+    out->catch_rate = r[6];
+    out->evolve_trigger = r[7];
+    out->evolve_to = r[8];
+    out->evolve_level = r[9];
+    out->hp = r[10];
+    out->attack = r[11];
+    out->defense = r[12];
+    out->special = r[13];
+    out->speed = r[14];
+    out->flags = r[15];
+    out->palette = r[23] & 0x0F;
+
+    uint16_t zo = rd16(r + 20);
+    uint8_t zl = r[22];
+    out->name_zh = (const char *)(s_gen1.pool + zo);
+    out->name_zh_len = zl;
+    return true;
+}
+
+uint32_t assets_species_count(void) { return s_gen1.ok ? s_gen1.count : 0; }
+
+// ---------------------------------------------------------------------------
+// moves.bin —— 99 个伤害招 + 151 只的升级学习表
+// ---------------------------------------------------------------------------
+
+static struct {
+    const uint8_t *moves;
+    const uint8_t *species;
+    const uint8_t *learn;
+    const uint8_t *pool;
+    uint16_t rec_size;
+    uint16_t move_count;
+    uint16_t species_count;
+    uint16_t learn_count;
+    bool ok;
+} s_mv;
+
+static bool parse_moves(void)
+{
+    const uint8_t *d = moves_bin_start;
+    size_t len = (size_t)(moves_bin_end - moves_bin_start);
+    if (len < 16 || memcmp(d, "MOVE", 4) != 0) return false;
+
+    uint16_t rsz = rd16(d + 6);
+    uint16_t mcnt = rd16(d + 8);
+    uint16_t scnt = rd16(d + 10);
+    uint16_t lcnt = rd16(d + 12);
+    uint16_t psz = rd16(d + 14);
+    size_t need = 16u + (size_t)mcnt * rsz + (size_t)scnt * 4 +
+                  (size_t)lcnt * 2 + psz;
+    if (need != len) {
+        ESP_LOGE(TAG, "moves.bin 长度不自洽: %u != %u",
+                 (unsigned)need, (unsigned)len);
+        return false;
+    }
+    s_mv.moves = d + 16;
+    s_mv.species = s_mv.moves + (size_t)mcnt * rsz;
+    s_mv.learn = s_mv.species + (size_t)scnt * 4;
+    s_mv.pool = s_mv.learn + (size_t)lcnt * 2;
+    s_mv.rec_size = rsz;
+    s_mv.move_count = mcnt;
+    s_mv.species_count = scnt;
+    s_mv.learn_count = lcnt;
+    s_mv.ok = true;
+    return true;
+}
+
+static void fill_move(uint16_t slot, move_t *out)
+{
+    const uint8_t *m = s_mv.moves + (size_t)slot * s_mv.rec_size;
+    out->id = rd16(m);
+    out->type = m[5];
+    out->power = m[6];
+    out->accuracy = m[7];
+    out->pp = m[8];
+    out->special = (m[9] == 1);
+    out->name_zh = (const char *)(s_mv.pool + rd16(m + 2));
+    out->name_zh_len = m[4];
+}
+
+int assets_known_moves(uint16_t species_id, uint8_t level,
+                       move_t *out, int max_out)
+{
+    if (!s_mv.ok || species_id < 1 || species_id > s_mv.species_count) return 0;
+
+    const uint8_t *s = s_mv.species + (size_t)(species_id - 1) * 4;
+    uint16_t loff = rd16(s);
+    uint8_t lcnt = s[2];
+
+    int n = 0;
+    for (uint8_t k = 0; k < lcnt && n < max_out; k++) {
+        uint32_t idx = (uint32_t)loff + k;
+        if (idx >= s_mv.learn_count) break;
+        const uint8_t *e = s_mv.learn + idx * 2;
+        if (e[0] > level) continue;            // 还没学会
+        uint8_t slot = e[1];
+        if (slot >= s_mv.move_count) continue;
+        fill_move(slot, &out[n++]);
+    }
+
+    // 一招都不会 → 退回「挣扎」。
+    // 实测有 4 只到 Lv50 仍一招不会（#11/#14 铁甲蛹、#63 凯西、#132 百变怪）
+    // —— 它们在原版只会变化招，而本项目只收伤害招。
+    // 原版对这种处境有现成规则，与 sim/systems.py 的 known_moves 一致。
+    if (n == 0 && max_out > 0) {
+        for (uint16_t i = 0; i < s_mv.move_count; i++) {
+            const uint8_t *m = s_mv.moves + (size_t)i * s_mv.rec_size;
+            if (rd16(m) == MOVE_ID_STRUGGLE) {
+                fill_move(i, &out[0]);
+                return 1;
+            }
+        }
+    }
+    return n;
+}
+
+uint16_t assets_move_count(void) { return s_mv.ok ? s_mv.move_count : 0; }
+
+// ---------------------------------------------------------------------------
+// sprite / 调色板 / 字库 —— 先只做长度校验与取指针，
+// 渲染留到 UI 那步（现在没有页面消费它们，提前写就是没验证过的代码）
+// ---------------------------------------------------------------------------
+
+static struct { const uint8_t *d; size_t len; uint16_t count; bool ok; } s_back;
+
+static bool parse_back(void)
+{
+    const uint8_t *d = back_bin_start;
+    size_t len = (size_t)(back_bin_end - back_bin_start);
+    if (len < 16 || memcmp(d, "BACK", 4) != 0) return false;
+    uint16_t w = rd16(d + 6), h = rd16(d + 8), per = rd16(d + 10);
+    uint32_t cnt = rd32(d + 12);
+    if (16u + cnt * per != len || w != 32 || h != 32) {
+        ESP_LOGE(TAG, "back.bin 不自洽: %ux%u per=%u cnt=%u len=%u",
+                 w, h, per, (unsigned)cnt, (unsigned)len);
+        return false;
+    }
+    s_back.d = d + 16;
+    s_back.len = len;
+    s_back.count = (uint16_t)cnt;
+    s_back.ok = true;
+    return true;
+}
+
+const uint8_t *assets_back_sprite(uint16_t id)
+{
+    if (!s_back.ok || id < 1 || id > s_back.count) return NULL;
+    return s_back.d + (size_t)(id - 1) * BACK_SPRITE_BYTES;
+}
+
+// ---------------------------------------------------------------------------
+
+bool assets_init(void)
+{
+    bool ok = true;
+    ok &= parse_gen1();
+    ok &= parse_moves();
+    ok &= parse_back();
+    if (!ok) ESP_LOGE(TAG, "资产解析失败 —— 游戏逻辑不可用");
+    return ok;
+}
+
+void assets_selftest(void)
+{
+    // 这些数字要与 PC 侧对得上：
+    //   python3 tools/pipeline/inventory_assets.py
+    // 对不上就是格式漂移了 —— 那是最难查的一类 bug，
+    // 因为长度、magic 都对，只有内容错位。
+    ESP_LOGI(TAG, "gen1 %u 只 · moves %u 招 · back %u 张",
+             (unsigned)assets_species_count(),
+             (unsigned)assets_move_count(),
+             (unsigned)(s_back.ok ? s_back.count : 0));
+
+    species_t sp;
+    if (assets_species(25, &sp)) {
+        ESP_LOGI(TAG, "#025 种族值 %u/%u/%u/%u/%u  catch=%u  → 期望 35/55/40/50/90 catch=190",
+                 sp.hp, sp.attack, sp.defense, sp.special, sp.speed,
+                 sp.catch_rate);
+    } else {
+        ESP_LOGE(TAG, "#025 读取失败");
+    }
+
+    move_t mv[8];
+    int n = assets_known_moves(25, 43, mv, 8);
+    ESP_LOGI(TAG, "皮卡丘 Lv43 会 %d 招 → 期望 4（电击/电光一闪/高速星星/打雷）", n);
+    for (int i = 0; i < n; i++) {
+        ESP_LOGI(TAG, "  %.*s  威力%u 命中%u PP%u %s",
+                 mv[i].name_zh_len, mv[i].name_zh,
+                 mv[i].power, mv[i].accuracy, mv[i].pp,
+                 mv[i].special ? "特殊" : "物理");
+    }
+
+    // 无招物种的兜底 —— 凯西只会变化招，应当退回「挣扎」
+    n = assets_known_moves(63, 20, mv, 8);
+    ESP_LOGI(TAG, "凯西 Lv20 → %d 招（期望 1，挣扎）%.*s", n,
+             n ? mv[0].name_zh_len : 0, n ? mv[0].name_zh : "");
+}
