@@ -4,6 +4,7 @@ idf_component_register(
          "ui_pixel_math.c"
          "assets.c"
          "sensing.c"
+         "nurture.c"
          "screen.c"
          "render.c"
          "play_idle.c"

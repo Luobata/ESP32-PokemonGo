@@ -39,9 +39,11 @@
 #include <string.h>
 
 #include "esp_log.h"
+#include "esp_timer.h"
 #include "lvgl.h"    // 只用 lv_timer 与空屏对象，绘制全走 screen.c
 
 #include "assets.h"
+#include "nurture.h"
 #include "bsp_battery.h"
 #include "bsp_display.h"
 #include "play.h"
@@ -74,16 +76,17 @@ static uint8_t s_breath_i;
 // 24 + (180 - 24 - 96) / 2 = 54。页面文档只说「居中」，这里把它算出来。
 #define SPRITE_Y 54
 
-// 主宠状态。真正的 S4 养成还没移植（PC 侧在 sim/gameplay.py），
-// 这里先用固定值把页面画出来 —— F8 的验收标准是「屏幕上出现
-// 主宠与三条轴」，接 S4 是 F9 的事。
+// 主宠。三条轴与亲密度走 nurture.c（S4 的 C 移植，与
+// sim/gameplay.py 逐拍对账过，见 tools/pipeline/verify_nurture.py）。
+//
+// 物种与等级仍是固定值 —— 那要等 S14 队伍与 S18 存档接进来。
 static struct {
     uint16_t species;
     uint8_t level;
-    uint8_t satiety, mood, stamina, progress;
-    uint8_t intimacy;
     uint8_t pending;
-} s_pet = {25, 12, 62, 84, 95, 70, 78, 3};
+} s_pet = {25, 12, 3};
+
+static nurture_t s_nurt;
 
 extern const uint8_t pal_bin_start[] asm("_binary_palettes_bin_start");
 
@@ -142,7 +145,7 @@ static void draw_band(int band_y, int8_t breath)
 
     // 亲密度。♥ 不在字库（PingFang 没这个字形，见 convert_font.py），
     // 所以用「亲」字 + 数字，等 pixelart 的 HEART 点阵接进来再换。
-    snprintf(buf, sizeof(buf), "亲%u", s_pet.intimacy);
+    snprintf(buf, sizeof(buf), "亲%u", nurture_pct(s_nurt.intimacy));
     int w = render_text_width(buf);
     render_text(SCR_W - 8 - w, Y(4), buf, ink);
 
@@ -164,9 +167,21 @@ static void draw_band(int band_y, int8_t breath)
     }
 
     // -- 三条轴 + 行程 -------------------------------------------------
+    //
+    // 前三条来自 nurture.c，真的会随时间衰减。
+    //
+    // 第四条「今日行程」还是固定值 —— 它的数据源是 S1 的移动量累积
+    // （docs/04-gameplay.md#48：加权 Jaccard 距离攒成抽象刻度），
+    // 而 sensing.c 现在只在 Collect 页的 lv_timer 里跑，P1 拿不到。
+    // 要接它得先把 WiFi 扫描挪成独立任务 + 加一个跨页面的游戏状态模块，
+    // 那是 F9 的范围。这里先标出来，不假装它是活的。
     static const char *AXIS[4] = {"饱食", "心情", "体能", "今日行程"};
-    const uint8_t VAL[4] = {s_pet.satiety, s_pet.mood,
-                            s_pet.stamina, s_pet.progress};
+    const uint8_t VAL[4] = {
+        nurture_pct(s_nurt.satiety),
+        nurture_pct(s_nurt.mood),
+        nurture_pct(s_nurt.stamina),
+        70,                          // TODO(F9): 接 S1 的移动量累积
+    };
     for (int i = 0; i < 4; i++) {
         int y = 180 + i * 24;
         render_text(8, Y(y), AXIS[i], ink);
@@ -221,8 +236,46 @@ static void draw_sprite_bands(int8_t breath)
 static void tick(lv_timer_t *t)
 {
     (void)t;
+
+    // 养成结算。每拍都调 —— nurture_tick 内部按**实际经过的时长**算，
+    // 所以 tick 被 WiFi 扫描挤掉几拍也不会算少（余数会累积，
+    // 见 nurture.c 里那段量子余数的说明）。
+    //
+    // is_night 先写死 false —— 判夜要 RTC 的墙钟时间，
+    // 而现在只有开机微秒数。等 S10 日切接进来一起做。
+    nurture_tick(&s_nurt, esp_timer_get_time(), 0, false);
+
     s_breath_i = (uint8_t)((s_breath_i + 1) % BREATH_FRAMES);
     draw_sprite_bands(BREATH[s_breath_i]);
+
+    // 三条轴每 8 拍（2 秒）重画一次。**不必每拍画** ——
+    // 衰减速率是 4/小时，2 秒内变化 0.002，屏幕上一格都不动。
+    // 而重画要填 75KB 像素，白烧电。
+    //
+    // 四条轴占 y=180~266，跨第 2 条带（160~239）与第 3 条带（240~319）。
+    static uint8_t n;
+    if (++n >= 8) {
+        n = 0;
+        draw_band(BAND_H * 2, BREATH[s_breath_i]);
+        draw_band(BAND_H * 3, BREATH[s_breath_i]);
+    }
+
+    // 每 2 分钟打一行三条轴 —— **长跑观测用**。
+    //
+    // 为什么不用截图观测：截图靠开机 1 秒后那次自动触发，
+    // 而要再截一张就得复位，复位就 nurture_init 了 ——
+    // 把要测的状态本身清掉。日志没这个问题，设备自己跑就行。
+    //
+    // 2 分钟的间隔够看出变化：饱食 4/小时 = 0.13/2分钟，
+    // 一小时后累计 4 格，用 tools/device/decay.py 拟合斜率。
+    static uint16_t log_n;
+    if (++log_n >= 480) {                // 480 × 250ms = 2 分钟
+        log_n = 0;
+        ESP_LOGI(TAG, "@@AXES %lld %u %u %u %u",
+                 (long long)esp_timer_get_time(),
+                 nurture_pct(s_nurt.satiety), nurture_pct(s_nurt.mood),
+                 nurture_pct(s_nurt.stamina), nurture_pct(s_nurt.intimacy));
+    }
 }
 
 void play_idle_enter(void)
@@ -237,6 +290,7 @@ void play_idle_enter(void)
     lv_screen_load(s_scr);
 
     s_breath_i = 0;
+    nurture_init(&s_nurt);
     screen_set_redraw(redraw_for_dump);
     draw_all(0);
     s_tick = lv_timer_create(tick, 250, NULL);   // 4 fps
@@ -275,11 +329,10 @@ void play_idle_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 
     switch (btn) {
     case BSP_BTN_UP:                       // A 照料
-        s_pet.satiety = (uint8_t)(s_pet.satiety + 30 > 100 ? 100
-                                                           : s_pet.satiety + 30);
-        s_pet.mood = (uint8_t)(s_pet.mood + 5 > 100 ? 100 : s_pet.mood + 5);
+        nurture_feed(&s_nurt);
         draw_all(BREATH[s_breath_i]);
-        ESP_LOGI(TAG, "照料 → 饱食 %u 心情 %u", s_pet.satiety, s_pet.mood);
+        ESP_LOGI(TAG, "照料 → 饱食 %u 心情 %u",
+                 nurture_pct(s_nurt.satiety), nurture_pct(s_nurt.mood));
         break;
     case BSP_BTN_DOWN:                     // B 图鉴
         ESP_LOGI(TAG, "图鉴（P6 未实现）");
