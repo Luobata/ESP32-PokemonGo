@@ -76,11 +76,15 @@ void world_feed(void);
 const enc_queue_t *world_queue(void);
 const dex_t *world_dex(void);
 
-// 取走队列里的第 index 条（P2 选中或丢弃）。加锁。
+// 按下标取走（P2 的丢弃 —— 那一刻下标是准的）。加锁。
 bool world_take_encounter(uint8_t index, encounter_t *out);
 
-// 把一条遭遇的战斗结果写回队列（P3 打完但没抓，HP 要留着）。
-void world_update_hp(uint8_t index, uint8_t hp_ratio);
+// **按 uid 取走** —— 跨页面（P4 捕获成功/逃跑）必须用这个。
+// 返回 false 表示那条已被后台淘汰，正常情况，调用方不用报错。
+bool world_take_uid(uint16_t uid, encounter_t *out);
+
+// 把战斗结果写回队列（P3 打完但没抓，HP 要留着给 P4 算窗口）。
+void world_update_hp_uid(uint16_t uid, uint8_t hp_ratio);
 
 // 图鉴登记。加锁。
 void world_mark_seen(uint16_t sid, bool shiny);

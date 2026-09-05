@@ -133,12 +133,43 @@ uint16_t enc_pick_species(const uint8_t bssid[6], uint32_t ts, uint8_t rarity)
 // 队列
 // ---------------------------------------------------------------------------
 
-void enc_queue_init(enc_queue_t *q) { memset(q, 0, sizeof(*q)); }
+void enc_queue_init(enc_queue_t *q)
+{
+    memset(q, 0, sizeof(*q));
+    q->next_uid = 1;          // 0 留作「无效/未选中」
+}
+
+encounter_t *enc_queue_find(enc_queue_t *q, uint16_t uid)
+{
+    if (!uid) return NULL;
+    for (uint8_t i = 0; i < q->count; i++) {
+        if (q->items[i].uid == uid) return &q->items[i];
+    }
+    return NULL;
+}
+
+bool enc_queue_take_uid(enc_queue_t *q, uint16_t uid, encounter_t *out)
+{
+    if (!uid) return false;
+    for (uint8_t i = 0; i < q->count; i++) {
+        if (q->items[i].uid != uid) continue;
+        return enc_queue_take(q, i, out);
+    }
+    return false;             // 已被后台淘汰 —— 正常，不是错误
+}
 
 bool enc_queue_push(enc_queue_t *q, const encounter_t *e)
 {
+    // 发号在入队时做，调用方不用管 uid。
+    // 回绕：u16 到 65535 后回到 1 —— 一天几十条，回绕要几年，
+    // 且真回绕了最坏是「跨页面选中的那条找不到」，会被当成已淘汰处理。
+    if (q->next_uid == 0) q->next_uid = 1;
+    uint16_t uid = q->next_uid++;
+
     if (q->count < ENC_QUEUE_CAP) {
-        q->items[q->count++] = *e;
+        q->items[q->count] = *e;
+        q->items[q->count].uid = uid;
+        q->count++;
         return false;
     }
 
@@ -171,6 +202,7 @@ bool enc_queue_push(enc_queue_t *q, const encounter_t *e)
         if (q->items[i].rarity != min_r) continue;
         for (uint8_t k = i; k + 1 < q->count; k++) q->items[k] = q->items[k + 1];
         q->items[q->count - 1] = *e;
+        q->items[q->count - 1].uid = uid;
         return true;
     }
     return true;
@@ -271,7 +303,82 @@ bool enc_selftest(void)
         ok = false;
     }
 
+    // ①b **uid 在淘汰后仍然认得出同一条** —— 这条是真机抓出来的。
+    //
+    // 玩家在 P3/P4 期间后台还在塞遭遇，队列满了淘汰会让下标整体左移。
+    // 用下标认的后果实测是：打的是 #64，抓到的是 #23，
+    // 而且连打三轮只有第一轮真的捕获（另两轮 take 落到别的条目上）。
+    //
+    // 被观察的那条必须是**最高稀有度**，否则它自己先被淘汰掉，
+    // 后面的断言根本不会执行（第一版就是这样，用 ★3 观察、灌 ★4，
+    // 它第 17 条进来时就被挤走了 —— 退化版本照样"通过"）。
+    enc_queue_init(&q);
+    e.rarity = 5; e.species_id = 111; e.ts = 1;
+    enc_queue_push(&q, &e);
+    uint16_t watched = q.items[0].uid;
+    uint8_t idx_before = 0;                    // 它现在在 0 号位
+
+    // 灌 ★1，触发淘汰。★5 不会被挤掉，但**它前面的位置会变**吗？
+    // 不会 —— 淘汰的是它后面的。所以还要制造一次「它左边的被挤掉」：
+    // 先塞几条 ★1 占住 0..n，再让它们被挤掉。
+    enc_queue_init(&q);
+    for (int i = 0; i < 3; i++) {              // 先放 3 条 ★1
+        e.rarity = 1; e.species_id = (uint16_t)(50 + i); e.ts = (uint32_t)(i);
+        enc_queue_push(&q, &e);
+    }
+    e.rarity = 5; e.species_id = 111; e.ts = 100;   // ★5 在 3 号位
+    enc_queue_push(&q, &e);
+    watched = q.items[3].uid;
+    idx_before = 3;
+
+    for (int i = 0; i < ENC_QUEUE_CAP + 6; i++) {   // 灌到淘汰
+        e.rarity = 2; e.species_id = (uint16_t)(20 + i); e.ts = (uint32_t)(200 + i);
+        enc_queue_push(&q, &e);
+    }
+
+    encounter_t *found = enc_queue_find(&q, watched);
+    if (!found) {
+        printf("encounter: ★5 被挤掉了 —— 淘汰规则错了\n");
+        ok = false;
+    } else {
+        if (found->species_id != 111) {
+            printf("encounter: uid %u 找到的是 #%u，不是 #111 —— 张冠李戴\n",
+                   watched, found->species_id);
+            ok = false;
+        }
+        // 下标确实变了才说明这个用例有意义
+        uint8_t idx_now = (uint8_t)(found - q.items);
+        if (idx_now == idx_before) {
+            printf("encounter: 下标没变（%u）—— 这个用例没测到东西\n", idx_now);
+            ok = false;
+        }
+        encounter_t taken;
+        if (!enc_queue_take_uid(&q, watched, &taken) ||
+            taken.species_id != 111) {
+            printf("encounter: take_uid 取到的不是 #111\n");
+            ok = false;
+        }
+    }
+
+    // 取一个不存在的 uid 应当安静地失败，不能误伤别人
+    uint8_t before_n = q.count;
+    if (enc_queue_take_uid(&q, 60000, NULL)) {
+        printf("encounter: 不存在的 uid 竟然取成功了\n");
+        ok = false;
+    }
+    if (q.count != before_n) {
+        printf("encounter: 取失败却改了队列长度\n");
+        ok = false;
+    }
+
     // ② 取走
+    enc_queue_init(&q);
+    e.rarity = 5; e.species_id = 150; e.ts = 1;
+    enc_queue_push(&q, &e);
+    for (int i = 0; i < 3; i++) {
+        e.rarity = 1; e.species_id = (uint16_t)(10 + i); e.ts = (uint32_t)(2 + i);
+        enc_queue_push(&q, &e);
+    }
     encounter_t got;
     uint8_t before = q.count;
     if (!enc_queue_take(&q, 0, &got) || q.count != before - 1) {
@@ -311,7 +418,8 @@ bool enc_selftest(void)
     }
 
     if (ok) {
-        printf("encounter: 自检 全部通过（淘汰规则 · 取走 · 图鉴位图 · 边界）\n");
+        printf("encounter: 自检 全部通过"
+               "（淘汰规则 · uid 稳定 · 取走 · 图鉴位图 · 边界）\n");
     }
     return ok;
 }

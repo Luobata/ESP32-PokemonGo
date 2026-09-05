@@ -191,7 +191,7 @@ static void on_select(void)
 
     nav_ctx_t *c = nav_ctx();
     c->enc = q->items[s_sel];
-    c->queue_index = s_sel;
+    c->uid = q->items[s_sel].uid;
     c->valid = true;
     c->battled = false;
     c->battle_won = false;

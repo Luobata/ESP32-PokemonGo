@@ -251,7 +251,7 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         if (s_last.caught) {
             s_caught = true;
             world_mark_caught(c->enc.species_id, c->enc.is_shiny);
-            world_take_encounter(c->queue_index, NULL);
+            world_take_uid(c->uid, NULL);
             ESP_LOGI(TAG, "捕获成功 #%u%s", c->enc.species_id,
                      c->enc.is_shiny ? " 闪光!" : "");
         } else {
@@ -259,7 +259,7 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
             world_mark_seen(c->enc.species_id, c->enc.is_shiny);
             if (s_last.fled) {
                 s_fled = true;
-                world_take_encounter(c->queue_index, NULL);
+                world_take_uid(c->uid, NULL);
                 ESP_LOGI(TAG, "跑掉了 #%u", c->enc.species_id);
             }
         }

@@ -174,10 +174,23 @@ bool world_take_encounter(uint8_t index, encounter_t *out)
     return ok;
 }
 
-void world_update_hp(uint8_t index, uint8_t hp_ratio)
+bool world_take_uid(uint16_t uid, encounter_t *out)
+{
+    bool ok = false;
+    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        ok = enc_queue_take_uid(&s_queue, uid, out);
+        s_w.pending = s_queue.count;
+        s_dirty = true;
+        xSemaphoreGive(s_lock);
+    }
+    return ok;
+}
+
+void world_update_hp_uid(uint16_t uid, uint8_t hp_ratio)
 {
     if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
-        if (index < s_queue.count) s_queue.items[index].hp_ratio = hp_ratio;
+        encounter_t *e = enc_queue_find(&s_queue, uid);
+        if (e) e->hp_ratio = hp_ratio;
         xSemaphoreGive(s_lock);
     }
 }

@@ -208,7 +208,7 @@ static void tick(lv_timer_t *t)
     c->battle_won = s_res.won;
     // 打残的程度写回队列 —— **这是「先打再抓」成为真策略的落点**
     c->enc.hp_ratio = s_res.wild_hp_ratio;
-    world_update_hp(c->queue_index, s_res.wild_hp_ratio);
+    world_update_hp_uid(c->uid, s_res.wild_hp_ratio);
 
     ESP_LOGI(TAG, "战斗结束：%s %u 回合，野怪剩 %u%%",
              s_res.won ? "胜" : "败", s_res.round_count, s_res.wild_hp_ratio);
