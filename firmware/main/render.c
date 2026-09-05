@@ -31,6 +31,7 @@
 #include "esp_log.h"
 
 #include "render.h"
+#include "screen.h"
 
 static const char *TAG = "render";
 
@@ -136,7 +137,7 @@ int render_text_width(const char *s)
 }
 
 // 画一个字形到 canvas。1bpp → 前景色，0 位不画（透明）。
-static void draw_glyph(lv_obj_t *canvas, int gi, int x, int y, lv_color_t fg)
+static void draw_glyph(int gi, int x, int y, uint16_t fg)
 {
     const uint8_t *g = s_font.glyphs + (size_t)gi * s_font.per;
     uint8_t row_bytes = (uint8_t)((s_font.size + 7) / 8);
@@ -144,13 +145,13 @@ static void draw_glyph(lv_obj_t *canvas, int gi, int x, int y, lv_color_t fg)
     for (uint16_t r = 0; r < s_font.size; r++) {
         for (uint16_t c = 0; c < s_font.size; c++) {
             if (g[r * row_bytes + c / 8] >> (7 - c % 8) & 1) {
-                lv_canvas_set_px(canvas, x + c, y + r, fg, LV_OPA_COVER);
+                screen_px(x + c, y + r, fg);
             }
         }
     }
 }
 
-int render_text(lv_obj_t *canvas, int x, int y, const char *s, lv_color_t fg)
+int render_text(int x, int y, const char *s, uint16_t fg)
 {
     if (!s_font.ok || !s) return x;
     while (*s) {
@@ -162,7 +163,7 @@ int render_text(lv_obj_t *canvas, int x, int y, const char *s, lv_color_t fg)
             // 16 格里（A 在 x=2~11），直接画会让相邻字符间距过大。
             // 左移 (16-8)/2 = 4 让墨迹落在 8px 步进的中间。
             int dx = (cp < 0x80) ? -(int)(s_font.size / 4) : 0;
-            draw_glyph(canvas, gi, x + dx, y, fg);
+            draw_glyph(gi, x + dx, y, fg);
         }
         x += render_char_advance(cp);
     }
@@ -177,9 +178,9 @@ int render_text(lv_obj_t *canvas, int x, int y, const char *s, lv_color_t fg)
 // 「最亮当透明，不画背景」）。
 // ---------------------------------------------------------------------------
 
-void render_sprite_2bpp(lv_obj_t *canvas, int x, int y,
+void render_sprite_2bpp(int x, int y,
                         const uint8_t *data, int size, int scale,
-                        const lv_color_t *palette)
+                        const uint16_t *palette)
 {
     if (!data || size <= 0 || scale <= 0) return;
     int row_bytes = (size * 2 + 7) / 8;
@@ -194,9 +195,8 @@ void render_sprite_2bpp(lv_obj_t *canvas, int x, int y,
             // 而硬边缘正是像素风的一部分（同 sim/effects.py 的 render）。
             for (int dy = 0; dy < scale; dy++) {
                 for (int dx = 0; dx < scale; dx++) {
-                    lv_canvas_set_px(canvas, x + sx * scale + dx,
-                                     y + sy * scale + dy,
-                                     palette[shade], LV_OPA_COVER);
+                    screen_px(x + sx * scale + dx, y + sy * scale + dy,
+                              palette[shade]);
                 }
             }
         }

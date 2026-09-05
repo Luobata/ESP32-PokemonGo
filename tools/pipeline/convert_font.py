@@ -181,7 +181,16 @@ def collect_charset(gen1_json: str) -> tuple[set, dict]:
     # A/B/C 与 [] 不在这里 —— 它们由 strings.charset() 收（键名来自
     # KEYS 的字典键，见那边的说明）。
     # — 是 progress_summary 的空占位（四天王/冠军未定时显示）。
-    ui_chars |= set("0123456789/×★☆%·—")
+    # **整段 ASCII 可见字符**（0x20~0x7E），不是挑着收。
+    #
+    # 原先只收了数字与 A/B/C（三键提示用的），结果 P1 状态栏写
+    # 「皮卡丘 Lv12」时 L 和 v 画不出来 —— render_text 跳过没有的字形，
+    # 而 render_text_width 照算宽度，屏幕上留下一段莫名的空隙。
+    #
+    # 挑着收省不下多少：全部 95 个 ASCII 才 2.6 KB，
+    # 而每次撞上「某个字母没有」都要重跑管线、重烧固件、再看一次屏幕。
+    ui_chars |= {chr(c) for c in range(0x20, 0x7F)}
+    ui_chars |= set("×★☆·—")
     chars |= ui_chars
     stat["ui"] = len(ui_chars)
     stat["overlap"] = len(name_chars & ui_chars) if stat["names"] else 0

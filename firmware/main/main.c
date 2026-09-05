@@ -159,7 +159,7 @@ void app_main(void) {
     // 正确的做法是把扫描提成独立 task，P1 只管显示 ——
     // 那是 F9 的活（S1 遭遇累积要接扫描）。在那之前先让开机进 Collect，
     // 至少数据不会因为没人按键而丢。
-    #define BOOT_DEMO 1
+    #define BOOT_DEMO 0
     if (bsp_lvgl_lock(1000)) {
         s_active = BOOT_DEMO;
         DEMOS[BOOT_DEMO].enter();
