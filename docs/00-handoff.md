@@ -16,10 +16,12 @@
     F10 截图通道     ✓  固件吐帧缓冲，PC 存 PNG —— 渲染问题自己看
 
     F9-① 后台扫描   ✓  world.c 独立任务，页面只读快照；开机进 P1
+    F9-② 玩法闭环   ✓  **P1→P2→P3→P4→P6 跑通**，截图见 docs/screens/
+    F11 按键注入    ✓  dbg.c + walk.py，整条链路能自动走一遍
 
     F6 深睡+RTC      ✗  漂移实测 +137ppm（52 分钟基线，还在噪声里）
-    F7 存档双 buffer ✗
-    F9-② P2/P3/P4    ✗  ← 下一步（S1/S2/S3 移植 + 三个页面）
+    F7 存档双 buffer ✗  ← 下一步（现在关机全丢）
+    F9-③ 动效       ✗  呼吸已有，抖动/闪白/转场未接
 
 开机进 P1 待机页。长按 OK 退回菜单，长按 B 手动截图。
 **扫描是后台常驻的** —— 不再依赖设备停在某一页（F9-① 之前必须守着
@@ -28,8 +30,15 @@ Collect 页，一晚上的数据可能因为没人按键而全丢）。
     tools/device/fw.sh build|flash|backup|restore
     python3 tools/device/screenshot.py --out /tmp/x.png --wait   # 看屏幕
     python3 tools/device/decay.py --minutes 150                  # 测衰减速率
-    python3 tools/pipeline/verify_sensing.py     # F5 对账，不用烧板子
-    python3 tools/pipeline/verify_nurture.py     # S4 对账，同上
+    python3 tools/pipeline/verify_battle.py      # S2·S3 对账（791 组）
+    python3 tools/pipeline/verify_encounter.py   # S1·S5·S8 对账（961 组）
+    python3 tools/pipeline/verify_nurture.py     # S4 对账（3201 拍）
+    python3 tools/pipeline/verify_sensing.py     # F5 对账 —— **已知 67 处不符**
+                                                 # （实际影响判定 2%，非回归）
+
+**验证链路：`walk.py` 走一遍并逐页截图，不用请人按键。**
+
+    python3 tools/device/walk.py --keys c,A,b,a,a
 
 **渲染改动的收尾动作是截图，不是看日志** —— 这条踩过三次：
 汉字全渲成空心方框（页面根本没调 render_text）、
