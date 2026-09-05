@@ -19,6 +19,7 @@
 
 #include <string.h>
 
+#include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_ops.h"
 #include "esp_log.h"
 
@@ -59,29 +60,68 @@ void screen_px(int x, int y, uint16_t rgb565)
     s_band[y * SCREEN_W + x] = rgb565;
 }
 
+// 只有一块 s_band，而 **esp_lcd_panel_draw_bitmap 是异步的** ——
+// 它把传输排进 SPI 队列（trans_queue_depth=10）就返回，DMA 在后台读。
+// 四条带连着画的话：
+//   带 0 排队 → 立刻回来 → 带 1 重填 s_band → 带 0 的 DMA 读到带 1 的像素
+//
+// 实测表现正是用户报的：颜色错乱（紫/绿混杂）、底部闪烁
+// （最后一条带最容易撞上，因为它排队后没有下一条带来「顶」它）。
+//
+// ## 为什么不注册 on_color_trans_done 回调
+//
+// 试过，直接把设备打进看门狗复位循环 —— **那个回调已经被
+// esp_lvgl_port 占了**（esp_lvgl_port_disp.c:124 的
+// lvgl_port_flush_io_ready_callback）。我一注册就把 LVGL 的顶掉，
+// 它的 flush 永远等不到完成通知，整个 UI 卡死。
+// 一个 panel_io 只有一个回调槽，而这块面板是与 LVGL 共用的。
+//
+// ## 为什么不开双缓冲
+//
+// 再要 37.5KB DRAM。而下面这招零内存开销。
+//
+// ## 用一次 tx_param 逼出同步点
+//
+// 读 esp_lcd_panel_io_spi.c 发现：**任何 polling 传输之前，
+// 驱动会先把队列里所有在途传输收干净**（panel_io_spi_rx_param 与
+// tx_param 都有那段 `for (num_trans_inflight) get_trans_result`）。
+// 所以发一条最便宜的命令就等于「等前面画完」。
+//
+// 用 NOP（0x00）—— ST7789 收到它什么都不做，代价是几微秒的 SPI 时钟。
+static void wait_dma_done(void)
+{
+    esp_lcd_panel_io_handle_t io = bsp_display_io();
+    if (io) esp_lcd_panel_io_tx_param(io, 0x00, NULL, 0);   // NOP
+}
+
 void screen_push_band(int band_y)
 {
     esp_lcd_panel_handle_t panel = bsp_display_panel();
     if (!panel) return;
 
-    // dump 模式：在字节交换**之前**吐出去 —— 输出的是逻辑颜色
-    // （小端 RGB565），PC 侧解码不用猜硬件字节序。
-    if (s_dumping) {
-        screen_emit_band(band_y);
-    }
-
     // 小端 → 大端。ST7789 走 SPI 要大端 RGB565，
     // 而 C 里的 uint16_t 在 RISC-V 上是小端。
     //
-    // 原地交换：交换后这块缓冲就不能再当逻辑颜色读了，
-    // 但下一帧会重新填，无所谓。
+    // 原地交换：交换后这块缓冲就不能再当逻辑颜色读了 ——
+    // 所以截图要在交换**之后**做（见下面那段）。
     for (int i = 0; i < SCREEN_W * SCREEN_BAND_H; i++) {
         uint16_t v = s_band[i];
         s_band[i] = (uint16_t)((v >> 8) | (v << 8));
     }
 
+    // dump 模式：吐**交换之后**的字节，也就是屏幕真正收到的东西。
+    //
+    // 第一版在交换前吐，理由是「输出逻辑颜色，PC 侧不用猜字节序」——
+    // 那正好让截图**看不见字节序类的错误**。屏幕紫的时候截图还是绿的，
+    // 我据此以为渲染没问题，用户看到的才是真相。
+    // 观测手段必须能看见故障，否则它只是在确认我的预期。
+    if (s_dumping) screen_emit_band(band_y);
+
     esp_lcd_panel_draw_bitmap(panel, 0, band_y, SCREEN_W,
                               band_y + SCREEN_BAND_H, s_band);
+
+    // **画完就等** —— 下一次调用会立刻重填 s_band。
+    wait_dma_done();
 }
 
 // ---------------------------------------------------------------------------
@@ -131,7 +171,7 @@ void screen_dump(void)
         ESP_LOGW(TAG, "没注册重画回调 —— 页面要调 screen_set_redraw()");
         return;
     }
-    printf("\n@@SHOT %d %d rgb565le %d\n", SCREEN_W, SCREEN_H, SCREEN_BAND_H);
+    printf("\n@@SHOT %d %d rgb565be %d\n", SCREEN_W, SCREEN_H, SCREEN_BAND_H);
     fflush(stdout);
 
     // 让页面重画一遍。每条带在 push 时会被 emit 出去。

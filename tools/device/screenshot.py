@@ -103,9 +103,13 @@ def parse(blob: bytes):
     if not m:
         return None
     w, h, fmt, band_h = int(m.group(1)), int(m.group(2)), m.group(3), int(m.group(4))
-    if fmt != b"rgb565le":
+    # 固件吐的是**交换之后**的字节，也就是屏幕真正收到的大端 RGB565。
+    # 早期版本吐交换前的小端 —— 那让截图看不见字节序类的错误
+    # （屏幕紫的时候截图还是绿的）。两种都认，老图还能解。
+    if fmt not in (b"rgb565be", b"rgb565le"):
         print(f"未知格式 {fmt!r}", file=sys.stderr)
         return None
+    big_endian = (fmt == b"rgb565be")
 
     body = blob[m.end():]
     end = body.find(b"@@SHOTEND")
@@ -145,7 +149,8 @@ def parse(blob: bytes):
             if i + 1 >= len(data):
                 row += b"\x00\x00\x00"
                 continue
-            v = data[i] | (data[i + 1] << 8)      # 小端
+            v = ((data[i] << 8) | data[i + 1]) if big_endian \
+                else (data[i] | (data[i + 1] << 8))
             row += bytes(rgb565_to_rgb888(v))
         rows.append(bytes(row))
     return w, h, rows, len(bands)

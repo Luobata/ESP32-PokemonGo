@@ -18,6 +18,7 @@
 #include "world.h"
 #include "encounter.h"
 #include "nav.h"
+#include "screen.h"
 #include "dbg.h"
 #include "render.h"
 #include "ui_pixel.h"
@@ -155,6 +156,7 @@ void app_main(void) {
         return;
     }
     bsp_display_backlight(100);
+
 
     // 外设初始化。单项失败不阻塞 —— 菜单里标 [FAIL]，其他项照常可用。
     //
