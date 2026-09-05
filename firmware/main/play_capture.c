@@ -62,7 +62,6 @@ static const char *TAG = "p4";
 #define MSG_Y 248
 #define BAR_BAND (BAR_Y / BAND_H)     // 判定条所在的带号
 
-static lv_obj_t *s_scr;
 static lv_timer_t *s_tick;
 
 static cap_ball_t s_ball;
@@ -196,11 +195,6 @@ static void tick(lv_timer_t *t)
 
 void play_capture_enter(void)
 {
-    s_scr = lv_obj_create(NULL);
-    lv_obj_set_style_bg_color(s_scr, lv_color_hex(0x9bbc0f), 0);
-    lv_obj_set_style_pad_all(s_scr, 0, 0);
-    lv_obj_set_style_border_width(s_scr, 0, 0);
-    lv_screen_load(s_scr);
 
     s_ball = CAP_BALL_POKE;
     s_t0 = esp_timer_get_time();
@@ -223,7 +217,6 @@ void play_capture_enter(void)
 void play_capture_exit(void)
 {
     if (s_tick) { lv_timer_delete(s_tick); s_tick = NULL; }
-    if (s_scr) { lv_obj_delete(s_scr); s_scr = NULL; }
 }
 
 void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)

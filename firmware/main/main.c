@@ -185,6 +185,8 @@ void app_main(void) {
     // 现在扫描是 world.c 的后台任务，谁在前台都不影响采集，
     // 开机终于能进真正的主页面。
     if (bsp_lvgl_lock(1000)) {
+        // 唯一的那张 LVGL 屏 —— 五个玩法页共用，切页时不再新建。
+        screen_own_display();
         s_in_game = true;
         nav_start();                  // → P1 待机
         bsp_lvgl_unlock();

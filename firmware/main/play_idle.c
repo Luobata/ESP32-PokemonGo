@@ -75,7 +75,6 @@ static const int8_t BREATH[] = {0, 0, -1, -2, -2, -2, -1, 0};
 #define C_MID   RGB_HEX(0x306230)   // 中间调
 #define C_LIGHT RGB_HEX(0x8bac0f)   // 亮调
 
-static lv_obj_t *s_scr;
 static lv_timer_t *s_tick;
 static uint8_t s_breath_i;
 
@@ -239,13 +238,6 @@ static void redraw_for_dump(void)
     draw_all(BREATH[s_breath_i]);
 }
 
-// lv_timer 回调签名的包装
-static void screen_dump_timer_cb(lv_timer_t *t)
-{
-    (void)t;
-    screen_dump();
-}
-
 // 呼吸只影响精灵所在的带。精灵占 y=54~150（含向上浮动 6px），
 // 落在第 0 条带（0~79）与第 1 条带（80~159）——
 // 页面文档说「状态栏与三条轴是静态的，不参与逐帧重绘」。
@@ -303,14 +295,9 @@ static void tick(lv_timer_t *t)
 
 void play_idle_enter(void)
 {
-    // 空屏 + 一张横带画布。不用 ui_pixel_screen_create ——
-    // 那会加一个 LVGL 标题栏，而我们整页自己画。
-    s_scr = lv_obj_create(NULL);
-    lv_obj_set_style_bg_color(s_scr, lv_color_hex(C_BG), 0);
-    lv_obj_set_style_pad_all(s_scr, 0, 0);
-    lv_obj_set_style_border_width(s_scr, 0, 0);
-
-    lv_screen_load(s_scr);
+    // **不建屏**。LVGL 那张空屏由 screen_own_display() 建一次，
+    // 五个页面共用 —— 每页新建/载入会让 LVGL 刷一遍它自己的空背景，
+    // 那正是切页时闪的那一下（见 screen.h）。
 
     s_breath_i = 0;
     world_snapshot(&s_w);          // 先取一份，别用零值画第一帧
@@ -335,9 +322,13 @@ void play_idle_enter(void)
 
 void play_idle_exit(void)
 {
-    // 先停定时器再删屏 —— 反过来 tick 会访问野指针（上游 AGENTS.md）
+    // 停定时器。**不删屏** —— 那张 LVGL 空屏是五页共用的
+    // （screen_own_display 建的），删了下一页就没得载。
+    //
+    // 顺序仍然重要：tick 会调 draw_all() 碰帧缓冲，
+    // 离开页面前必须先停掉（上游 AGENTS.md 那条的实质是
+    // 「别让回调在它依赖的东西之后还活着」）。
     if (s_tick) { lv_timer_delete(s_tick); s_tick = NULL; }
-    if (s_scr) { lv_obj_delete(s_scr); s_scr = NULL; }
 }
 
 void play_idle_key(bsp_btn_t btn, bsp_btn_ev_t ev)

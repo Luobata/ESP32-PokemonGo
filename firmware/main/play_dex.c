@@ -52,7 +52,6 @@ static const char *TAG = "p6";
 #define GRID_X 6
 #define GRID_Y 34
 
-static lv_obj_t *s_scr;
 static uint8_t s_page;
 
 static void hline_at(int y)
@@ -127,11 +126,6 @@ static void redraw_for_dump(void) { draw_all(); }
 
 void play_dex_enter(void)
 {
-    s_scr = lv_obj_create(NULL);
-    lv_obj_set_style_bg_color(s_scr, lv_color_hex(0x9bbc0f), 0);
-    lv_obj_set_style_pad_all(s_scr, 0, 0);
-    lv_obj_set_style_border_width(s_scr, 0, 0);
-    lv_screen_load(s_scr);
 
     s_page = 0;
     screen_set_redraw(redraw_for_dump);
@@ -148,7 +142,6 @@ void play_dex_enter(void)
 
 void play_dex_exit(void)
 {
-    if (s_scr) { lv_obj_delete(s_scr); s_scr = NULL; }
 }
 
 void play_dex_key(bsp_btn_t btn, bsp_btn_ev_t ev)

@@ -58,7 +58,6 @@ static const char *TAG = "p3";
 #define PET_BAR_Y 192
 #define MSG_Y 216
 
-static lv_obj_t *s_scr;
 static lv_timer_t *s_tick;
 
 static battle_result_t s_res;
@@ -218,11 +217,6 @@ static void tick(lv_timer_t *t)
 
 void play_battle_enter(void)
 {
-    s_scr = lv_obj_create(NULL);
-    lv_obj_set_style_bg_color(s_scr, lv_color_hex(0x9bbc0f), 0);
-    lv_obj_set_style_pad_all(s_scr, 0, 0);
-    lv_obj_set_style_border_width(s_scr, 0, 0);
-    lv_screen_load(s_scr);
 
     memset(&s_res, 0, sizeof(s_res));
     s_play_i = 0;
@@ -256,7 +250,6 @@ void play_battle_exit(void)
 {
     // 先停定时器再删屏 —— 反过来 tick 会访问野指针（上游 AGENTS.md）
     if (s_tick) { lv_timer_delete(s_tick); s_tick = NULL; }
-    if (s_scr) { lv_obj_delete(s_scr); s_scr = NULL; }
 }
 
 void play_battle_key(bsp_btn_t btn, bsp_btn_ev_t ev)

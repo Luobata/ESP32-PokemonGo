@@ -26,6 +26,16 @@ typedef void (*screen_redraw_cb_t)(void);
                                  ((b) >> 3)))
 #define RGB_HEX(h) RGB(((h) >> 16) & 0xFF, ((h) >> 8) & 0xFF, (h) & 0xFF)
 
+// 让 LVGL 闭嘴：建一张空屏并载入，之后**再也不动它**。
+//
+// 我们整页自己画（screen_push_band 直接推面板），LVGL 只是个
+// 定时器与按键的宿主。但每页 lv_obj_create + lv_screen_load
+// 会让 LVGL 把新屏标脏、按 240×20 的块刷一遍**它自己的空背景** ——
+// 那就是切页时闪的那一下。
+//
+// 五个页面共用这一张，切页时不再新建/销毁，LVGL 就没有理由重刷。
+void screen_own_display(void);
+
 // 当前横带的缓冲。直接写它比逐像素函数快得多 —— 画 sprite 时用。
 uint16_t *screen_band(void);
 

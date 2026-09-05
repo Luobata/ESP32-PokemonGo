@@ -23,6 +23,8 @@
 #include "esp_lcd_panel_ops.h"
 #include "esp_log.h"
 
+#include "lvgl.h"
+
 #include "bsp_display.h"
 #include "screen.h"
 
@@ -46,6 +48,22 @@ static uint16_t s_band[SCREEN_W * SCREEN_BAND_H];
 // 换来零常驻内存。
 static screen_redraw_cb_t s_redraw;
 static bool s_dumping;
+
+// 唯一的那张 LVGL 屏。**只建一次**，之后页面切换不碰它 ——
+// 见 screen.h 里那段「让 LVGL 闭嘴」。
+static lv_obj_t *s_lv_scr;
+
+void screen_own_display(void)
+{
+    if (s_lv_scr) return;
+    s_lv_scr = lv_obj_create(NULL);
+    lv_obj_set_style_pad_all(s_lv_scr, 0, 0);
+    lv_obj_set_style_border_width(s_lv_scr, 0, 0);
+    // 背景设成与页面同色 —— 万一 LVGL 因为别的原因刷了一次，
+    // 刷出来的也是 GB 绿而不是刺眼的白/黑。
+    lv_obj_set_style_bg_color(s_lv_scr, lv_color_hex(0x9bbc0f), 0);
+    lv_screen_load(s_lv_scr);
+}
 
 uint16_t *screen_band(void) { return s_band; }
 

@@ -60,7 +60,6 @@ static const char *TAG = "p2";
 #define ROW_H 24
 #define VISIBLE_ROWS 8
 
-static lv_obj_t *s_scr;
 static uint8_t s_sel;          // 选中第几条
 static uint8_t s_top;          // 滚动窗口的第一条
 
@@ -159,11 +158,6 @@ static void redraw_for_dump(void) { draw_all(); }
 
 void play_enc_enter(void)
 {
-    s_scr = lv_obj_create(NULL);
-    lv_obj_set_style_bg_color(s_scr, lv_color_hex(0x9bbc0f), 0);
-    lv_obj_set_style_pad_all(s_scr, 0, 0);
-    lv_obj_set_style_border_width(s_scr, 0, 0);
-    lv_screen_load(s_scr);
 
     s_sel = 0;
     s_top = 0;
@@ -179,14 +173,8 @@ void play_enc_enter(void)
 
 void play_enc_exit(void)
 {
-    // 这一页没有常驻定时器（无动效），只有一次性的截图定时器。
-    // 它 repeat_count=1 会自己删 —— 但**页面可能在它触发前就退出**，
-    // 那时它还挂在 LVGL 上并持有已删除屏幕的引用。
-    // lv_obj_delete 会连带删掉屏幕上的对象，而这个定时器不属于屏幕，
-    // 所以它仍会触发 —— 触发时调 screen_dump()，
-    // 那个函数只读 s_redraw 回调，而回调指向的是本文件的静态函数，
-    // 不碰已删除的 LVGL 对象。安全。
-    if (s_scr) { lv_obj_delete(s_scr); s_scr = NULL; }
+    // 这一页没有定时器（无动效，页面文档：它的作用是「看清」），
+    // 也不用删屏（那张 LVGL 空屏五页共用）。所以这里什么都不做。
 }
 
 // A 双击 = 选中进战斗。
