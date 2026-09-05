@@ -59,3 +59,22 @@ uint16_t assets_move_count(void);
 
 // back sprite 的 2bpp 数据（256 字节）。id 越界返回 NULL。
 const uint8_t *assets_back_sprite(uint16_t id);
+
+// ---------------------------------------------------------------------------
+// UI 点阵素材（ui.bin）—— 精灵球、光标、心形、星星
+//
+// 这些是 sim/pixelart.py 算法生成的，不是外部素材：
+//   · 光标 —— 字库里没有 ▸（PingFang 不含该字形），必须用点阵
+//   · 心形 —— 同上，♥ 也不在
+//   · 精灵球 —— P4 捕获页的主角，之前只有文字「精灵球 ×12」
+// 全套 506 字节。
+//
+// 按**名字**查而不是下标：素材个位数，线性查找的常数远小于
+// 「下标改了忘同步」的代价。名字见 tools/pipeline/convert_ui.py 的 collect()。
+typedef struct {
+    const uint8_t *data;      // 2bpp，与 sprite 同格式
+    uint8_t w, h;
+} ui_art_t;
+
+// 找一个素材。找不到返回 false（调用方要判 —— 名字拼错是编译期查不出的）。
+bool assets_ui(const char *name, ui_art_t *out);

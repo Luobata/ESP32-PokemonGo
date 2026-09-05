@@ -6,6 +6,8 @@ idf_component_register(
          "sensing.c"
          "nurture.c"
          "world.c"
+         "battle.c"
+         "capture.c"
          "screen.c"
          "render.c"
          "play_idle.c"
@@ -26,4 +28,5 @@ idf_component_register(
                 "${CMAKE_CURRENT_LIST_DIR}/../../assets/palettes.bin"
                 "${CMAKE_CURRENT_LIST_DIR}/../../assets/font16.bin"
                 "${CMAKE_CURRENT_LIST_DIR}/../../assets/moves.bin"
+                "${CMAKE_CURRENT_LIST_DIR}/../../assets/ui.bin"
 )

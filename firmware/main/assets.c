@@ -34,6 +34,8 @@ extern const uint8_t front_bin_start[] asm("_binary_gen1_front_bin_start");
 extern const uint8_t front_bin_end[] asm("_binary_gen1_front_bin_end");
 extern const uint8_t back_bin_start[] asm("_binary_gen1_back_bin_start");
 extern const uint8_t back_bin_end[] asm("_binary_gen1_back_bin_end");
+extern const uint8_t ui_bin_start[] asm("_binary_ui_bin_start");
+extern const uint8_t ui_bin_end[] asm("_binary_ui_bin_end");
 extern const uint8_t pal_bin_start[] asm("_binary_palettes_bin_start");
 extern const uint8_t pal_bin_end[] asm("_binary_palettes_bin_end");
 extern const uint8_t font_bin_start[] asm("_binary_font16_bin_start");
@@ -251,6 +253,51 @@ const uint8_t *assets_back_sprite(uint16_t id)
 }
 
 // ---------------------------------------------------------------------------
+// UI 点阵素材 —— 格式见 tools/pipeline/convert_ui.py
+// ---------------------------------------------------------------------------
+
+#define UI_NAME_LEN 16
+#define UI_ENTRY_SIZE 26          // 16 名字 + w + h + off(4) + len(2) + pad(2)
+
+static struct { const uint8_t *tab, *blob; uint16_t count; bool ok; } s_ui;
+
+static bool parse_ui(void)
+{
+    const uint8_t *d = ui_bin_start;
+    size_t len = (size_t)(ui_bin_end - ui_bin_start);
+    if (len < 8 || memcmp(d, "UIA1", 4) != 0) return false;
+    uint16_t cnt = rd16(d + 6);
+    size_t need = 8 + (size_t)cnt * UI_ENTRY_SIZE;
+    if (len < need) {
+        ESP_LOGE(TAG, "ui.bin 截断: %u 条目要 %u B，只有 %u",
+                 cnt, (unsigned)need, (unsigned)len);
+        return false;
+    }
+    s_ui.tab = d + 8;
+    s_ui.blob = d + need;
+    s_ui.count = cnt;
+    s_ui.ok = true;
+    return true;
+}
+
+bool assets_ui(const char *name, ui_art_t *out)
+{
+    if (!s_ui.ok || !name || !out) return false;
+    for (uint16_t i = 0; i < s_ui.count; i++) {
+        const uint8_t *e = s_ui.tab + (size_t)i * UI_ENTRY_SIZE;
+        // 名字定长 16 且尾部补零 —— strncmp 到 16 字节就够，
+        // 不用 strcmp（表里的名字不保证以 \0 结尾时 strcmp 会越界读）
+        if (strncmp((const char *)e, name, UI_NAME_LEN) != 0) continue;
+        out->w = e[UI_NAME_LEN];
+        out->h = e[UI_NAME_LEN + 1];
+        uint32_t off = rd32(e + UI_NAME_LEN + 2);
+        out->data = s_ui.blob + off;
+        return true;
+    }
+    return false;
+}
+
+// ---------------------------------------------------------------------------
 
 bool assets_init(void)
 {
@@ -258,6 +305,7 @@ bool assets_init(void)
     ok &= parse_gen1();
     ok &= parse_moves();
     ok &= parse_back();
+    ok &= parse_ui();
     if (!ok) ESP_LOGE(TAG, "资产解析失败 —— 游戏逻辑不可用");
     return ok;
 }
@@ -272,6 +320,27 @@ void assets_selftest(void)
              (unsigned)assets_species_count(),
              (unsigned)assets_move_count(),
              (unsigned)(s_back.ok ? s_back.count : 0));
+
+    // UI 素材：**逐个查名字**，而不是只报个总数。
+    // 名字是字符串键，拼错在编译期查不出来 —— 只有查一遍才知道。
+    // 尺寸也一起验：506 字节的东西错一个字节就全歪了。
+    static const struct { const char *n; uint8_t w, h; } UI_EXPECT[] = {
+        {"ball_24", 24, 24}, {"ball_open", 24, 24}, {"cursor", 5, 9},
+        {"heart", 7, 6}, {"star_5", 5, 5}, {"star_7", 7, 7},
+    };
+    int ui_ok = 0;
+    for (size_t i = 0; i < sizeof(UI_EXPECT) / sizeof(UI_EXPECT[0]); i++) {
+        ui_art_t a;
+        if (!assets_ui(UI_EXPECT[i].n, &a)) {
+            ESP_LOGE(TAG, "UI 素材缺失: %s", UI_EXPECT[i].n);
+        } else if (a.w != UI_EXPECT[i].w || a.h != UI_EXPECT[i].h) {
+            ESP_LOGE(TAG, "UI %s 尺寸 %ux%u ≠ 期望 %ux%u", UI_EXPECT[i].n,
+                     a.w, a.h, UI_EXPECT[i].w, UI_EXPECT[i].h);
+        } else {
+            ui_ok++;
+        }
+    }
+    ESP_LOGI(TAG, "UI 素材 %d/6（精灵球·光标·心形·星星）", ui_ok);
 
     species_t sp;
     if (assets_species(25, &sp)) {
