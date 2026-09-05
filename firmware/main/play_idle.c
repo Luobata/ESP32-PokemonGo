@@ -49,7 +49,7 @@
 #include "lvgl.h"    // 只用 lv_timer 与空屏对象，绘制全走 screen.c
 
 #include "assets.h"
-#include "nurture.h"
+#include "world.h"
 #include "bsp_battery.h"
 #include "bsp_display.h"
 #include "play.h"
@@ -92,7 +92,9 @@ static struct {
     uint8_t pending;
 } s_pet = {25, 12, 3};
 
-static nurture_t s_nurt;
+// 世界快照。每次重画前刷一次 —— **一帧之内不再变**，
+// 否则同一帧里四条轴可能读到不同时刻的值（后台任务随时在改）。
+static world_t s_w;
 
 extern const uint8_t pal_bin_start[] asm("_binary_palettes_bin_start");
 
@@ -151,7 +153,7 @@ static void draw_band(int band_y, int8_t breath)
 
     // 亲密度。♥ 不在字库（PingFang 没这个字形，见 convert_font.py），
     // 所以用「亲」字 + 数字，等 pixelart 的 HEART 点阵接进来再换。
-    snprintf(buf, sizeof(buf), "亲%u", nurture_pct(s_nurt.intimacy));
+    snprintf(buf, sizeof(buf), "亲%u", nurture_pct(s_w.pet.intimacy));
     int w = render_text_width(buf);
     render_text(SCR_W - 8 - w, Y(4), buf, ink);
 
@@ -176,17 +178,16 @@ static void draw_band(int band_y, int8_t breath)
     //
     // 前三条来自 nurture.c，真的会随时间衰减。
     //
-    // 第四条「今日行程」还是固定值 —— 它的数据源是 S1 的移动量累积
-    // （docs/04-gameplay.md#48：加权 Jaccard 距离攒成抽象刻度），
-    // 而 sensing.c 现在只在 Collect 页的 lv_timer 里跑，P1 拿不到。
-    // 要接它得先把 WiFi 扫描挪成独立任务 + 加一个跨页面的游戏状态模块，
-    // 那是 F9 的范围。这里先标出来，不假装它是活的。
+    // 第四条「今日行程」来自 S1 的移动量累积
+    // （docs/04-gameplay.md#48：加权 Jaccard 距离攒成抽象刻度）。
+    // 满格标定见 world.c 的 PROGRESS_FULL_Q10 —— 那个 20 是用
+    // data/raw 的三份实测算出来的，不是拍脑袋。
     static const char *AXIS[4] = {"饱食", "心情", "体能", "今日行程"};
     const uint8_t VAL[4] = {
-        nurture_pct(s_nurt.satiety),
-        nurture_pct(s_nurt.mood),
-        nurture_pct(s_nurt.stamina),
-        70,                          // TODO(F9): 接 S1 的移动量累积
+        nurture_pct(s_w.pet.satiety),
+        nurture_pct(s_w.pet.mood),
+        nurture_pct(s_w.pet.stamina),
+        s_w.progress,                // S1 的移动量累积（F9-① 接上了）
     };
     for (int i = 0; i < 4; i++) {
         int y = 180 + i * 24;
@@ -208,7 +209,7 @@ static void draw_band(int band_y, int8_t breath)
     // 上下两半会不同步 —— 屏幕上是撕裂的字。
     // 160 让它完整落在带 2 内，与三条轴同频重画。
     static const char *MOOD[4] = {"愉快", "平静", "低落", "消沉"};
-    const char *mood_s = MOOD[nurture_mood(&s_nurt)];
+    const char *mood_s = MOOD[nurture_mood(&s_w.pet)];
     render_text(SCR_W - 8 - render_text_width(mood_s), Y(160), mood_s, ink);
 
     // -- 三键提示 ------------------------------------------------------
@@ -224,8 +225,8 @@ static void draw_band(int band_y, int8_t breath)
     //
     // 闪烁用呼吸相位的后半段，不另起定时器 —— 多一个定时器就多一份
     // 与 exit 的竞态（上游 AGENTS.md：先停定时器再删屏）。
-    if (s_pet.pending && s_breath_i < BREATH_FRAMES / 2) {
-        snprintf(buf, sizeof(buf), "%u", s_pet.pending);
+    if (s_w.pending && s_breath_i < BREATH_FRAMES / 2) {
+        snprintf(buf, sizeof(buf), "%u", s_w.pending);
         render_text(hx + 4, Y(298), buf, ink);
     }
 
@@ -269,13 +270,10 @@ static void tick(lv_timer_t *t)
 {
     (void)t;
 
-    // 养成结算。每拍都调 —— nurture_tick 内部按**实际经过的时长**算，
-    // 所以 tick 被 WiFi 扫描挤掉几拍也不会算少（余数会累积，
-    // 见 nurture.c 里那段量子余数的说明）。
-    //
-    // is_night 先写死 false —— 判夜要 RTC 的墙钟时间，
-    // 而现在只有开机微秒数。等 S10 日切接进来一起做。
-    nurture_tick(&s_nurt, esp_timer_get_time(), 0, false);
+    // 刷快照。**养成结算不在这里** —— 它挪进了 world 任务，
+    // 因为页面不在前台时 lv_timer 根本不跑，宠物的时间不该因此停住。
+    // 这里只是把后台算好的值取一份出来画。
+    world_snapshot(&s_w);
 
     s_breath_i = (uint8_t)((s_breath_i + 1) % BREATH_FRAMES);
 
@@ -309,8 +307,8 @@ static void tick(lv_timer_t *t)
         log_n = 0;
         ESP_LOGI(TAG, "@@AXES %lld %u %u %u %u",
                  (long long)esp_timer_get_time(),
-                 nurture_pct(s_nurt.satiety), nurture_pct(s_nurt.mood),
-                 nurture_pct(s_nurt.stamina), nurture_pct(s_nurt.intimacy));
+                 nurture_pct(s_w.pet.satiety), nurture_pct(s_w.pet.mood),
+                 nurture_pct(s_w.pet.stamina), nurture_pct(s_w.pet.intimacy));
     }
 }
 
@@ -326,7 +324,7 @@ void play_idle_enter(void)
     lv_screen_load(s_scr);
 
     s_breath_i = 0;
-    nurture_init(&s_nurt);
+    world_snapshot(&s_w);          // 先取一份，别用零值画第一帧
     screen_set_redraw(redraw_for_dump);
     draw_all(0);
     s_tick = lv_timer_create(tick, 250, NULL);   // 4 fps
@@ -365,16 +363,19 @@ void play_idle_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 
     switch (btn) {
     case BSP_BTN_UP:                       // A 照料
-        nurture_feed(&s_nurt);
+        // 走 world 而不是自己改 —— **状态的唯一所有者是 world**，
+        // 页面直接改快照的话，下一次 world_snapshot 就把它覆盖了。
+        world_feed();
+        world_snapshot(&s_w);
         draw_all(BREATH[s_breath_i]);
         ESP_LOGI(TAG, "照料 → 饱食 %u 心情 %u",
-                 nurture_pct(s_nurt.satiety), nurture_pct(s_nurt.mood));
+                 nurture_pct(s_w.pet.satiety), nurture_pct(s_w.pet.mood));
         break;
     case BSP_BTN_DOWN:                     // B 图鉴
         ESP_LOGI(TAG, "图鉴（P6 未实现）");
         break;
     case BSP_BTN_OK:                       // C 遭遇
-        ESP_LOGI(TAG, "遭遇 %u 条待处理（P2 未实现）", s_pet.pending);
+        ESP_LOGI(TAG, "遭遇 %u 条待处理（P2 未实现）", s_w.pending);
         break;
     default:
         break;

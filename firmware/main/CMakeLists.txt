@@ -5,6 +5,7 @@ idf_component_register(
          "assets.c"
          "sensing.c"
          "nurture.c"
+         "world.c"
          "screen.c"
          "render.c"
          "play_idle.c"

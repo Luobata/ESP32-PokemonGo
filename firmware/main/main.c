@@ -15,6 +15,7 @@
 #include "assets.h"
 #include "sensing.h"
 #include "nurture.h"
+#include "world.h"
 #include "render.h"
 #include "ui_pixel.h"
 #include "lvgl.h"
@@ -142,25 +143,26 @@ void app_main(void) {
     // **越界写 2 字节**。上游有 7 个 demo，我把 DEMOS 表砍到 4 项时
     // 忘了跟着改。没炸只是运气（那两字节后面恰好不是活跃数据）。
     // 现在按 DEMO_COUNT 循环，改表时不会再漏。
+    // 后台世界：WiFi 扫描 + 感知 + 养成结算。**在页面之前起** ——
+    // 页面进来就要 world_snapshot()，而且 world 是 WiFi 的唯一所有者
+    // （Collect 页原本自己 bring_up，两个所有者会争同一个射频）。
+    bool world_ok = world_start();
+
     bool btn_ok = (bsp_button_init(on_key, NULL) == ESP_OK);
     bool audio_ok = (bsp_audio_init() == ESP_OK);
     bool batt_ok = (bsp_battery_init() == ESP_OK);
     for (size_t i = 0; i < DEMO_COUNT; i++) s_ok[i] = true;
 
-    // 开机直接进第一项（Idle）而不是停在菜单。
+    // 开机直接进第一项（P1 Idle）而不是停在菜单。
     //
-    // 理由是实测的：长跑与采集都要设备自己跑起来，而每次烧写后
-    // 设备回到菜单，没人按键就一晚上收不到数据。
+    // 理由是实测的：每次烧写后设备回到菜单，没人按键就什么都不发生。
     // 长按 OK 仍可退回菜单 —— 只是默认状态反过来了。
-    // 进哪一项：现在是 Collect（索引 1）。
     //
-    // 本该是 Idle（P1 主页面，产品形态就该开机即主页），
-    // 但**采集还没做成后台任务** —— 它绑在 Collect 页的 lv_timer 上，
-    // 离开那一页就停。而长跑（时钟漂移、续航）需要设备自己采一整夜。
-    //
-    // 正确的做法是把扫描提成独立 task，P1 只管显示 ——
-    // 那是 F9 的活（S1 遭遇累积要接扫描）。在那之前先让开机进 Collect，
-    // 至少数据不会因为没人按键而丢。
+    // **进 Idle 而不是 Collect** —— 这是 F9-① 换来的。
+    // 在那之前扫描绑在 Collect 页的 lv_timer 上，离开那页就停，
+    // 所以开机只能进 Collect，否则一晚上的采集数据会因为没人按键而全丢。
+    // 现在扫描是 world.c 的后台任务，谁在前台都不影响采集，
+    // 开机终于能进真正的主页面。
     #define BOOT_DEMO 0
     if (bsp_lvgl_lock(1000)) {
         s_active = BOOT_DEMO;
@@ -168,6 +170,6 @@ void app_main(void) {
         bsp_lvgl_unlock();
     }
 
-    ESP_LOGI(TAG, "就绪:Display=1 Button=%d Audio=%d Battery=%d → 进入 %s",
-             btn_ok, audio_ok, batt_ok, DEMOS[BOOT_DEMO].name);
+    ESP_LOGI(TAG, "就绪:Display=1 Button=%d Audio=%d Battery=%d World=%d → 进入 %s",
+             btn_ok, audio_ok, batt_ok, world_ok, DEMOS[BOOT_DEMO].name);
 }
