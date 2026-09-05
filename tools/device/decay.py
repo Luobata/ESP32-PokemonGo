@@ -47,16 +47,30 @@ RE_AXES = re.compile(r"@@AXES (\d+) (\d+) (\d+) (\d+) (\d+)")
 EXPECT = {"饱食": -4.0, "心情": -3.0, "体能": +6.0}
 
 
-def fit_slope(xs: list[float], ys: list[float]) -> float:
-    """最小二乘斜率。不引 numpy —— 项目惯例是零依赖。"""
+def fit_slope(xs: list[float], ys: list[float]) -> tuple[float, float]:
+    """最小二乘斜率 + 标准误。不引 numpy —— 项目惯例是零依赖。
+
+    标准误来自**量化噪声**：日志里的轴是取整后的百分比，
+    真值与它相差均匀分布在 ±0.5 内，标准差 1/√12 ≈ 0.289。
+    斜率的标准误 = 0.289 / √Σ(x-x̄)²。
+
+    为什么必须算这个：跨度短的时候轴只变化几个整数格，
+    斜率的不确定度能到 ±0.3/小时。心情的期望速率是 3.0，
+    ±0.3 就是 ±10% —— 用固定的「偏差 10%」判定，
+    心情永远会红，而它其实完全正常（实测 1.0σ）。
+    **判据必须随测量精度缩放，不能是我随手定的常数。**
+    """
     n = len(xs)
-    if n < 2:
-        return 0.0
+    if n < 3:
+        return 0.0, float("inf")
     mx = sum(xs) / n
     my = sum(ys) / n
-    num = sum((x - mx) * (y - my) for x, y in zip(xs, ys))
-    den = sum((x - mx) ** 2 for x in xs)
-    return num / den if den else 0.0
+    sxx = sum((x - mx) ** 2 for x in xs)
+    if sxx == 0:
+        return 0.0, float("inf")
+    slope = sum((x - mx) * (y - my) for x, y in zip(xs, ys)) / sxx
+    se = (1.0 / 12 ** 0.5) / sxx ** 0.5
+    return slope, se
 
 
 def report(rows: list[dict]) -> int:
@@ -72,19 +86,21 @@ def report(rows: list[dict]) -> int:
     ok = True
     for key, want in EXPECT.items():
         ys = [float(r[key]) for r in rows]
-        got = fit_slope(h, ys)
-        # 百分比取整会让短跨度的拟合很粗糙 —— 跨度不足 0.5 小时时
-        # 一格的量化误差就能占 20%，这时只报数不判定。
-        if span < 0.5:
-            print(f"  {key}  实测 {got:+.2f}/小时  期望 {want:+.1f}"
-                  f"　（跨度不足 30 分钟，量化误差太大，不判定）")
-            continue
-        dev = abs(got - want) / abs(want) * 100
-        mark = "✅" if dev <= 10 else "❌"
-        if dev > 10:
+        got, se = fit_slope(h, ys)
+
+        # 判据是 **2σ**，不是固定百分比。σ 来自量化噪声，
+        # 会随跨度变长自动收紧 —— 跑得越久，能发现的偏差越小。
+        # 固定百分比在短跨度下必然误报（心情速率最小，
+        # 38 分钟只累积 1.9 个整数格，10% 的阈值它永远过不了）。
+        z = abs(got - want) / se if se > 0 else float("inf")
+        mark = "✅" if z < 2 else "❌"
+        if z >= 2:
             ok = False
-        print(f"  {key}  实测 {got:+.2f}/小时  期望 {want:+.1f}"
-              f"  偏差 {dev:.0f}%  {mark}")
+        # 顺带报「这个跨度最多能分辨多大的偏差」，让读者知道结论的分量
+        resolve = 2 * se / abs(want) * 100
+        print(f"  {key}  实测 {got:+.2f}±{se:.2f}/小时  期望 {want:+.1f}"
+              f"  {z:.1f}σ  {mark}"
+              f"　（此跨度只能分辨 >{resolve:.0f}% 的偏差）")
 
     # 主机时钟 vs 设备时钟 —— 顺带把时钟漂移也测了
     #
@@ -106,11 +122,16 @@ def report(rows: list[dict]) -> int:
                   f"{'漂移可信' if abs(ppm) > jitter * 2 else '还在噪声里，跑久一点'}")
             print("    参考：外置晶振 ±20ppm，内部 RC 可能到 ±50000ppm")
 
-    if span < 0.5:
-        print("\n⚠️  跨度不足 30 分钟，结论不可靠 —— 再跑久一点")
+    # 跨度太短就不下结论 —— 但门槛不再是「30 分钟」这个拍脑袋的数字，
+    # 而是「2σ 判据还能不能分辨出有意义的偏差」。
+    # 分辨力差于 25% 时，就算全绿也只是说明「没测出问题」，
+    # 不是「速率是对的」。
+    if span < 0.25:
+        print("\n⚠️  跨度不足 15 分钟，轴还没动几格 —— 再跑久一点")
         return 0
-    print("\n✅ 三条轴的实测速率与 S4 常量一致" if ok else
-          "\n❌ 实测速率偏离 S4 常量 —— 检查 esp_timer 走时或 tick 是否被饿死")
+    print("\n✅ 三条轴的实测速率与 S4 常量一致（2σ 内）" if ok else
+          "\n❌ 实测速率偏离 S4 常量 2σ 以上 —— "
+          "检查 esp_timer 走时或 tick 是否被饿死")
     return 0 if ok else 1
 
 
