@@ -16,6 +16,7 @@
 #include "sensing.h"
 #include "nurture.h"
 #include "world.h"
+#include "encounter.h"
 #include "render.h"
 #include "ui_pixel.h"
 #include "lvgl.h"
@@ -125,6 +126,7 @@ void app_main(void) {
     if (assets_init()) assets_selftest();
     sens_selftest();
     nurture_selftest();
+    enc_selftest();
     if (render_init()) render_selftest();
 
     // 屏幕是本 demo 的 UI 载体,失败就没有菜单可言 —— 打清楚日志后退出,

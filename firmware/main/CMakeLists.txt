@@ -8,6 +8,7 @@ idf_component_register(
          "world.c"
          "battle.c"
          "capture.c"
+         "encounter.c"
          "screen.c"
          "render.c"
          "play_idle.c"

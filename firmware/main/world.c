@@ -23,6 +23,7 @@
 // 代价是快照可能比最新扫描晚一拍 —— 对显示完全无所谓。
 
 #include <inttypes.h>
+#include <stdint.h>
 #include <string.h>
 
 #include "esp_event.h"
@@ -61,6 +62,7 @@ static bool s_wifi_ok;
 // 扫描结果。**static** —— 64 × 76 字节放栈上必炸（见文件头）。
 static wifi_ap_record_t s_recs[MAX_APS];
 static sens_ap_t s_aps[MAX_APS];
+static uint16_t s_last_n;   // 最近一次扫到几个，spawn_one 要用
 
 // 移动量累积，Q10。今日行程由它映射。
 static uint32_t s_motion_q10;
@@ -68,6 +70,33 @@ static uint32_t s_motion_q10;
 // 感知核心。**static** —— sens_core_t 有 2.6KB，放栈上会炸
 // （这正是当年 Guru Meditation 的原因，见 sensing.c 顶部）。
 static sens_core_t s_core;
+
+// 遭遇队列（128 B）与图鉴（76 B）。这两个是玩法的真状态，
+// 存档时要落盘（S18，还没接）。
+static enc_queue_t s_queue;
+static dex_t s_dex;
+
+// 猎场遭遇的移动量闸门，Q10。攒够 HUNT_COST 出一只。
+//
+// 没有闸门的话一趟通勤能刷出几十只 —— 实测 26 分钟通勤累计移动量 9.3，
+// 而每次扫描只要在移动就产出一只的话是 16 只。用移动量做闸门
+// 让「走得多遇得多」成立，同时密度可控（sim/systems.py:36 记的同一件事）。
+#define HUNT_COST_Q10 1024        // 1.0 移动量 = 一只
+static uint32_t s_hunt_pool;
+
+// 基地遭遇：按**时间**排程，不看移动量。
+//
+// 这条不能省：窝在家里一整天移动量近乎 0，若只有猎场路径就毫无产出，
+// 而「设备永远不会没东西可看」是 docs/02-sensing.md#20 要保证的事。
+#define BASE_INTERVAL_S (4 * 3600)
+
+// **初值必须是「不可能的桶号」而不是 0**。
+// sim 那边用 -1；这里是无符号，用 UINT32_MAX 达到同一效果。
+//
+// 写成 0 的话开机头 4 小时（ts/14400 == 0）第一次基地遭遇会被抑制 ——
+// 与 sim 的行为正好相反（那边第一次扫描必定出一只）。
+// 而表现只是「开机后要等 4 小时才有第一只」，很容易当成设计如此。
+static uint32_t s_last_base_bucket = UINT32_MAX;
 
 uint8_t world_progress_from_motion(uint32_t motion_q10)
 {
@@ -85,6 +114,44 @@ void world_snapshot(world_t *out)
         // 拿不到锁就给上一次的值 —— **不能返回半个结构**。
         // 50ms 拿不到锁说明扫描任务卡住了，那时旧值比撕裂的新值有用。
         memcpy(out, &s_w, sizeof(*out));
+    }
+}
+
+const enc_queue_t *world_queue(void) { return &s_queue; }
+const dex_t *world_dex(void) { return &s_dex; }
+
+bool world_take_encounter(uint8_t index, encounter_t *out)
+{
+    bool ok = false;
+    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        ok = enc_queue_take(&s_queue, index, out);
+        s_w.pending = s_queue.count;
+        xSemaphoreGive(s_lock);
+    }
+    return ok;
+}
+
+void world_update_hp(uint8_t index, uint8_t hp_ratio)
+{
+    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        if (index < s_queue.count) s_queue.items[index].hp_ratio = hp_ratio;
+        xSemaphoreGive(s_lock);
+    }
+}
+
+void world_mark_seen(uint16_t sid, bool shiny)
+{
+    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        dex_mark_seen(&s_dex, sid, shiny);
+        xSemaphoreGive(s_lock);
+    }
+}
+
+void world_mark_caught(uint16_t sid, bool shiny)
+{
+    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        dex_mark_caught(&s_dex, sid, shiny);
+        xSemaphoreGive(s_lock);
     }
 }
 
@@ -197,6 +264,41 @@ static void emit_ndjson(uint16_t n)
     fflush(stdout);
 }
 
+// 生成一条遭遇并入队。
+//
+// 选哪个 AP：用 `ts % n` 挑，与 sim 的 `aps[result.ts % len(aps)]` 一致。
+// 看着随意，但它是**确定性**的 —— 同一时刻同一批 AP 永远挑同一个，
+// 这是整套确定性刷新的一环（见 encounter.c 顶部）。
+static void spawn_one(uint32_t ts, bool transient, uint8_t *made)
+{
+    if (s_last_n == 0) return;
+    uint16_t idx = (uint16_t)(ts % s_last_n);
+    const wifi_ap_record_t *ap = &s_recs[idx];
+
+    uint8_t rarity = enc_rarity_from_ap(ap->rssi, (uint8_t)ap->authmode,
+                                        ap->ssid[0] != 0, transient);
+
+    encounter_t e;
+    memset(&e, 0, sizeof(e));
+    e.ts = ts;
+    e.rarity = rarity;
+    e.species_id = enc_pick_species(ap->bssid, ts, rarity);
+    e.is_shiny = enc_roll_shiny(ap->bssid, ts, rarity);
+    e.is_transient = transient;
+    e.hp_ratio = 100;
+    e.biome = 0;                  // TODO: classify_biome 还没移植
+
+    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        enc_queue_push(&s_queue, &e);
+        xSemaphoreGive(s_lock);
+    }
+    (*made)++;
+
+    ESP_LOGI(TAG, "遭遇 #%u ★%u%s（%s）队列 %u",
+             e.species_id, e.rarity, e.is_shiny ? " 闪光!" : "",
+             transient ? "猎场" : "基地", s_queue.count);
+}
+
 // 一次扫描 + 喂给 sensing + 更新状态。
 static void scan_once(void)
 {
@@ -208,6 +310,7 @@ static void scan_once(void)
     uint16_t n = MAX_APS;
     if (esp_wifi_scan_get_ap_records(&n, s_recs) != ESP_OK) return;
     if (n == 0) return;
+    s_last_n = (n < MAX_APS) ? n : MAX_APS;
 
     for (uint16_t i = 0; i < n && i < MAX_APS; i++) {
         memcpy(s_aps[i].bssid, s_recs[i].bssid, 6);
@@ -221,6 +324,36 @@ static void scan_once(void)
     sens_feed(&s_core, ts, s_aps, (uint8_t)n, &r);
 
     if (r.state == SENS_MOVING) s_motion_q10 += r.distance;
+
+    // ---- 遭遇生成（S1）----------------------------------------------
+    //
+    // 两条路径，缺一不可（docs/04-gameplay.md#411）：
+    //   猎场 —— 移动中 + 有瞬现 AP，移动量做闸门，密集
+    //   基地 —— 驻留时按时间排程，稀少但**永不断流**
+    //
+    // 只做猎场的话窝在家里一整天毫无产出；只做基地的话出门没有回报。
+    uint8_t made = 0;
+
+    if (r.state == SENS_MOVING && r.transient_aps > 0) {
+        s_hunt_pool += r.distance;
+        // while 而不是 if —— 一次扫描的移动量可能够出好几只
+        while (s_hunt_pool >= HUNT_COST_Q10 && made < 4) {
+            s_hunt_pool -= HUNT_COST_Q10;
+            spawn_one(ts, true, &made);
+        }
+    }
+
+    uint32_t bucket = ts / BASE_INTERVAL_S;
+    if (bucket != s_last_base_bucket) {
+        s_last_base_bucket = bucket;
+        spawn_one(ts, false, &made);
+    }
+
+    if (made && s_lock &&
+        xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        s_w.pending = s_queue.count;
+        xSemaphoreGive(s_lock);
+    }
 
     if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
         s_w.state = r.state;

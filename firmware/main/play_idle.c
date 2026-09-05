@@ -334,7 +334,11 @@ void play_idle_enter(void)
     // 渲染类问题必须看屏幕，而拍照要人在场。自动截图让这个环节
     // 完全自助：烧写 → 等 10 秒 → screenshot.py 收图 → 我自己判断。
     // 一次性的（lv_timer_create 后立刻 set_repeat_count 1）。
-    lv_timer_t *shot = lv_timer_create(screen_dump_timer_cb, 1000, NULL);
+    // **5 秒而不是 1 秒**：第一次扫描在开机约 3 秒完成，
+    // 而遭遇是扫描的产物 —— 1 秒时截图，队列还是空的，
+    // 角标画不出来而我会以为角标坏了（第一版就误判了一轮）。
+    // 5 秒让第一批遭遇先落进队列。
+    lv_timer_t *shot = lv_timer_create(screen_dump_timer_cb, 5000, NULL);
     lv_timer_set_repeat_count(shot, 1);
 
     ESP_LOGI(TAG, "P1：#%u Lv%u  提示行 %d px  横带 %dx%d×%d 条",

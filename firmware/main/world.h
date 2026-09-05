@@ -30,6 +30,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "encounter.h"
 #include "nurture.h"
 #include "sensing.h"
 
@@ -40,11 +41,7 @@ typedef struct {
     // 今日行程 0~100。S1 的移动量累积映射来的 —— 见 world.c。
     uint8_t progress;
 
-    // 待处理遭遇数。**F9-② 之前恒为 0** —— S1 的遭遇生成还没移植，
-    // 所以 P1 的角标现在是不可达代码。留着字段是因为角标的绘制逻辑
-    // 已经写好并且能测（把这里改成非零就能看到它闪），
-    // 而不是等 S1 好了再回来加。
-    uint8_t pending;
+    uint8_t pending;               // 待处理遭遇数（= queue.count）
     sens_state_t state;            // 移动 / 驻留
     uint16_t place_id;
     uint8_t biome;
@@ -71,6 +68,23 @@ void world_snapshot(world_t *out);
 // 照料。**由按键触发，走 world 而不是页面自己改** ——
 // 状态的唯一所有者是 world，页面只读。
 void world_feed(void);
+
+// 遭遇队列与图鉴。**返回指针而不是拷贝** —— 队列 128 字节、
+// 图鉴 76 字节，每帧拷一遍不划算，而页面只读不写。
+//
+// 写操作走下面几个函数，它们内部加锁。
+const enc_queue_t *world_queue(void);
+const dex_t *world_dex(void);
+
+// 取走队列里的第 index 条（P2 选中或丢弃）。加锁。
+bool world_take_encounter(uint8_t index, encounter_t *out);
+
+// 把一条遭遇的战斗结果写回队列（P3 打完但没抓，HP 要留着）。
+void world_update_hp(uint8_t index, uint8_t hp_ratio);
+
+// 图鉴登记。加锁。
+void world_mark_seen(uint16_t sid, bool shiny);
+void world_mark_caught(uint16_t sid, bool shiny);
 
 // 与 PC 侧对账用：把移动量累积映射成 0~100 的今日行程。
 // 单独暴露是为了能在宿主上测（见 tools/pipeline/verify_world.py）。
