@@ -264,3 +264,20 @@ bool render_selftest(void)
              ok ? "全部通过" : "**失败**", (unsigned)s_font.count);
     return ok;
 }
+
+// ---------------------------------------------------------------------------
+// 动效
+// ---------------------------------------------------------------------------
+
+int render_shake_dx(int i, int frames, int amplitude)
+{
+    if (i < 0 || i >= frames) return 0;
+    // 与 sim/effects.py 的 shake_sequence 同：偶数帧 +a，奇数帧 -a
+    return (i % 2 == 0) ? amplitude : -amplitude;
+}
+
+bool render_flash_on(int i, int frames)
+{
+    if (i < 0 || i >= frames) return false;
+    return (i % 2) == 0;
+}

@@ -72,6 +72,14 @@ static bool s_thrown;
 static bool s_caught;
 static bool s_fled;
 
+// 捕获成功的闪白。**这是整局最值得给反馈的一瞬间** ——
+// 页面文档把捕获称作「各系统的汇聚点」，四个乘数在这里结算。
+//
+// 闪的是 sprite（用全亮调色板画它），不是整屏 ——
+// 整屏闪在 GB 绿背景上会很刺眼，而且要重画四条带。
+#define FLASH_FRAMES 6
+static uint8_t s_flash_i = FLASH_FRAMES;
+
 static void hline_at(int y)
 {
     for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_MID);
@@ -141,6 +149,13 @@ static void draw_band(int band_y)
     if (spr && has) {
         uint16_t pal[4];
         assets_palette(sp.palette, pal);
+        // 捕获成功的闪白帧：三档前景全画成最亮色。
+        //
+        // **不用色号 3** —— 那是透明，闪出来是背景色不是白
+        // （与 sprite 内部高光那次同源：色号 3 在我们这里永远是透明）。
+        if (render_flash_on(s_flash_i, FLASH_FRAMES)) {
+            pal[0] = pal[1] = pal[2] = RGB_HEX(0xf8f8f8);
+        }
         render_sprite_2bpp((SCR_W - 64) / 2, Y(SPRITE_Y), spr, 32, 2, pal);
     }
 
@@ -187,6 +202,15 @@ static void redraw_for_dump(void) { draw_all(); }
 static void tick(lv_timer_t *t)
 {
     (void)t;
+
+    // 捕获成功的闪白 —— 只重画 sprite 那两条带
+    if (s_flash_i < FLASH_FRAMES) {
+        s_flash_i++;
+        draw_band(0);
+        draw_band(BAND_H);
+        return;
+    }
+
     if (s_caught || s_fled) return;
     // **只重画判定条那一带** —— 指针在动，别的都是静态的。
     // 全屏重画 150KB/帧跑不动 1.2 秒的往复。
@@ -199,6 +223,7 @@ void play_capture_enter(void)
     s_ball = CAP_BALL_POKE;
     s_t0 = esp_timer_get_time();
     s_thrown = s_caught = s_fled = false;
+    s_flash_i = FLASH_FRAMES;
     memset(&s_last, 0, sizeof(s_last));
 
     screen_set_redraw(redraw_for_dump);
@@ -250,6 +275,7 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 
         if (s_last.caught) {
             s_caught = true;
+            s_flash_i = 0;              // 开始闪
             world_mark_caught(c->enc.species_id, c->enc.is_shiny);
             world_take_uid(c->uid, NULL);
             ESP_LOGI(TAG, "捕获成功 #%u%s", c->enc.species_id,

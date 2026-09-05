@@ -41,3 +41,26 @@ void render_sprite_2bpp(int x, int y,
 void render_sprite_2bpp_wh(int x, int y,
                            const uint8_t *data, int w, int h, int scale,
                            const uint16_t *palette);
+
+// ---------------------------------------------------------------------------
+// 动效（S15 / sim/effects.py）
+//
+// 全是**整数序列**，逐值抄自 PC 侧 —— 那边的 shake_sequence 等函数
+// 本来就没有浮点，为的就是能原样移植。
+//
+// 用法是「页面按帧取一个变换，画的时候套上去」，
+// 而不是引一套动画框架 —— 三键设备上动效就这么几种，
+// 框架的抽象成本比直接写高。
+// ---------------------------------------------------------------------------
+
+// 受击抖动：左右各 amplitude 像素，交替 frames 帧。
+// 返回第 i 帧的 x 偏移。i 超出范围返回 0（动效结束 = 不偏移）。
+int render_shake_dx(int i, int frames, int amplitude);
+
+// 闪白：偶数帧把三档前景全映射到最亮（色号 2），奇数帧原样。
+// 返回 true 表示这一帧该用「全白调色板」。
+//
+// **不是映射到色号 3** —— 那是透明，闪出来是背景色而不是白。
+// sim 那边 shade_map 的 (3,3,3,3) 是在它自己的渲染约定下写的，
+// 直接抄过来会闪成透明（踩过 sprite 内部高光那一次同源的坑）。
+bool render_flash_on(int i, int frames);

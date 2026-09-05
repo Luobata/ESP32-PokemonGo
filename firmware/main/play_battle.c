@@ -65,6 +65,15 @@ static uint8_t s_play_i;         // 播到第几回合
 static bool s_playing;
 static bool s_done;
 
+// 受击抖动。**挨打的那一方抖**，不是攻击方 ——
+// 页面文档把「HP 逐回合扣减 + shake」列为三处张力之一。
+//
+// 每回合播放时先抖 SHAKE_FRAMES 帧再停，所以 tick 要比回合快：
+// 回合 600ms，抖动 4 帧 × 60ms = 240ms，剩下 360ms 静止让人看清数字。
+#define SHAKE_FRAMES 4
+#define SHAKE_AMP 3
+static uint8_t s_shake_i = SHAKE_FRAMES;   // >= FRAMES 表示不抖
+
 // 主宠。等级与物种还是固定值（S14 队伍没移植）——
 // 与 P1 同一份假设，接上队伍时两处一起改。
 #define PET_SPECIES 25
@@ -139,7 +148,13 @@ static void draw_band(int band_y)
     if (spr && has_wild) {
         uint16_t pal[4];
         assets_palette(wild_sp.palette, pal);
-        render_sprite_2bpp((SCR_W - 64) / 2, Y(52), spr, 32, 2, pal);
+        // 野怪挨打时抖它，主宠挨打时不抖野怪
+        int dx = 0;
+        if (s_play_i > 0 && s_play_i <= s_res.round_count &&
+            s_res.rounds[s_play_i - 1].by_pet) {
+            dx = render_shake_dx(s_shake_i, SHAKE_FRAMES, SHAKE_AMP);
+        }
+        render_sprite_2bpp((SCR_W - 64) / 2 + dx, Y(52), spr, 32, 2, pal);
     }
 
     // -- 主宠 ------------------------------------------------------------
@@ -194,8 +209,23 @@ static void tick(lv_timer_t *t)
     (void)t;
     if (!s_playing) return;
 
+    // 抖动阶段：只重画野怪那两条带，不整屏 —— 60ms 一帧整屏画不完
+    // （四条带 30.7ms，加上文字渲染会掉帧）。
+    if (s_shake_i < SHAKE_FRAMES) {
+        s_shake_i++;
+        draw_band(0);
+        draw_band(BAND_H);
+        return;
+    }
+
+    // 回合间隔：抖完还要停一会儿让人看清 —— 用 tick 计数凑够 600ms
+    static uint8_t hold;
+    if (++hold < 6) return;      // 6 × 60ms = 360ms
+    hold = 0;
+
     if (s_play_i < s_res.round_count) {
         s_play_i++;
+        s_shake_i = 0;           // 新回合，重新抖
         draw_all();
         return;
     }
@@ -222,6 +252,7 @@ void play_battle_enter(void)
     s_play_i = 0;
     s_playing = false;
     s_done = false;
+    s_shake_i = SHAKE_FRAMES;
 
     // 进来先不打 —— 玩家可以直接 A 捕获（不打就抓，窗口窄但省时间）
     // 或 B 开打。这正是页面文档说的「战斗页是决策点不是走廊」。
@@ -239,7 +270,9 @@ void play_battle_enter(void)
 
     screen_set_redraw(redraw_for_dump);
     draw_all();
-    s_tick = lv_timer_create(tick, 600, NULL);   // 每 600ms 播一回合
+    // 60ms 一拍：抖动要这个频率才顺，回合节奏靠 tick 里数拍子凑
+    // （抖 4 拍 + 停 6 拍 = 600ms/回合）。
+    s_tick = lv_timer_create(tick, 60, NULL);
 
     // **不做自动截图** —— P1 那个是在只有一页时加的，
     // 现在有了 dbg.c 的按键注入，截图由 walk.py 显式发 's' 触发。
