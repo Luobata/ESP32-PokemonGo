@@ -139,17 +139,74 @@ def _hsv_to_rgb(h: float, s: float, v: float) -> tuple[int, int, int]:
     return (round((rf + m) * 255), round((gf + m) * 255), round((bf + m) * 255))
 
 
+def fill_interior_white(px: list[list[int]]) -> int:
+    """把 sprite **内部**的色号 3 改成色号 2。返回改了多少个像素。
+
+    ## 为什么要这一步
+
+    初代 sprite 是四色：黑描边 / 深色 / 浅色 / **白**。
+    那个白既是画布背景，也是宝可梦身上的高光（皮卡丘的耳朵内侧、
+    杰尼龟的眼睛反光）—— 原版画在白底屏幕上，两者本来就该一样。
+
+    而我们把色号 3 当透明（这是对的，外围必须透出页面背景），
+    于是**身体内部的高光也变透明了**，屏幕上漏出 GB 绿。
+    实测 151 只**全部**中招，平均每只 59 个像素，最多 254 个（#124）。
+
+    ## 为什么合并到色号 2 而不是加掩码
+
+    加 1bpp 掩码能保住第四阶（内部白仍画成白），但要 128 字节/只
+    × 151 = 19 KB，且渲染要多一层查表。
+
+    实测对比过：内部白的区域**小而零散**（就是那些高光点），
+    并进最浅的实色后杰尼龟几乎看不出差别，皮卡丘的耳朵内侧
+    正确地填上了。为一档几乎看不见的色阶花 19 KB 不值。
+
+    ## 洪泛从四边开始
+
+    「内部」的定义是**与画布边界不连通**。不能用「被非透明像素包围」
+    这种局部判断 —— 那对凹形轮廓（比如尾巴与身体之间的缺口）会误判。
+    """
+    h, w = len(px), len(px[0])
+    outside = [[False] * w for _ in range(h)]
+    stack = [(0, x) for x in range(w)] + [(h - 1, x) for x in range(w)] \
+        + [(y, 0) for y in range(h)] + [(y, w - 1) for y in range(h)]
+    while stack:
+        y, x = stack.pop()
+        if not (0 <= y < h and 0 <= x < w):
+            continue
+        if outside[y][x] or px[y][x] != 3:
+            continue
+        outside[y][x] = True
+        stack += [(y + 1, x), (y - 1, x), (y, x + 1), (y, x - 1)]
+
+    n = 0
+    for y in range(h):
+        for x in range(w):
+            if px[y][x] == 3 and not outside[y][x]:
+                px[y][x] = 2
+                n += 1
+    return n
+
+
 def indices_to_2bpp(indices: list[list[int]], remap: list[int]) -> bytearray:
     """原始 PNG 索引 → 重排后的 2bpp 位图。
 
     这条路径**零有损** —— 只是重新编号并打包位，不做量化。
     对比灰阶路径（彩色→灰度→4级量化）质量更高。
+
+    重排之后会跑一遍 fill_interior_white：把身体内部的白改成
+    最浅的实色，否则那些高光在设备上会透出背景色（见那个函数的说明）。
     """
+    # 先重排成色号矩阵，跑完内部填充再打包 ——
+    # 打包成位之后就没法做洪泛了（要按像素访问邻居）
+    px = [[remap[idx] & 3 for idx in row] for row in indices]
+    fill_interior_white(px)
+
     out = bytearray()
-    for row in indices:
+    for row in px:
         acc = bits = 0
-        for idx in row:
-            acc = (acc << 2) | (remap[idx] & 3)
+        for v in row:
+            acc = (acc << 2) | v
             bits += 2
             if bits == 8:
                 out.append(acc)
