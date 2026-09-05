@@ -96,6 +96,77 @@ ES8311 codec 已初始化，`sim/audio.py` 的四通道 APU + 11 条音效
 
 S17 道馆（八馆 + 四天王 + 赤红）、S10 成绩、S12 昵称、P5/P7/P8 三页。
 
+## 三点五、下一步怎么开工（新会话照做）
+
+按这个顺序。每一项都写了**改哪里、怎么验、别踩什么**。
+
+### 第 1 步：接经验与升级（P0-①）
+
+改动点：
+- `firmware/main/world.h` 的 `world_t` 加 `uint32_t exp; uint8_t level;`
+- `world.c` 加 `world_grant_exp(uint16_t amount)` —— 加经验、按
+  `exp_to_level` 算等级、升级时打日志；**加锁**（与 world_feed 同款）
+- `play_battle.c` 播完战斗时调它（现在只显示 `经验 +N` 没人收）
+- 删掉三处写死的 12：`play_battle.c:80` 的 `PET_LEVEL`、
+  `world.c:140` 的 `sv->level`、`play_idle.c` 的 `s_pet.level`
+- `save_t` 已经有 `exp`/`level` 字段，只是一直写 0 —— 改成存真值，
+  **`SAVE_VERSION` 要 +1**（字段语义变了，旧档该丢弃）
+
+曲线在 PC 侧已校准：`sim/systems.py` 的 `exp_for_level(n) = 5n³/2`、
+`exp_to_level(exp, cap)`。四个来源 `EXP_ON_CAPTURE/CARE/MOTION` = 60/30/8。
+
+验证：
+```bash
+# 先加进 verify_battle.py：exp_for_level / exp_to_level 逐值对账
+python3 tools/pipeline/verify_battle.py
+# 真机：连打几场看等级涨
+python3 tools/device/walk.py --keys e,c,A,b,a,a
+```
+
+**别踩**：`exp_to_level` 有个 `cap` 参数（徽章限制等级上限）。
+现在没有徽章，传 `LEVEL_MAX` 即可 —— 但别把参数删掉，S17 要用。
+
+### 第 2 步：S14 队伍与仓库（P0-②）
+
+现在抓到的怪只进图鉴位图，**不能用**。收集缺了下半场。
+
+改动点：
+- 新增 `firmware/main/party.c/h`，移植 `sim/party.py`
+- 队伍 6 只 + 仓库按物种 id 索引（**不是列表**，见那边的
+  `box: dict` 与 `better()` 的取舍：同种只留 shiny > level > exp 的那只）
+- `save_t` 加队伍区 —— sim 侧序列化是 1886 B，
+  加上现有 332 B 约 2.2 KB，NVS 24 KB 装得下
+- `play_capture.c` 捕获成功时除了 `dex_mark_caught` 还要 `party_receive`
+
+验证：新增 `tools/pipeline/verify_party.py`，对账
+「捕获 200 只后队伍与仓库的内容」—— sim 那边这条改过一轮
+（列表→字典），有现成的期望值。
+
+**别踩**：`receive()` 现在永不失败（仓库无上限，同种替换）。
+早期版本会「仓库满了」拒收，实测浪费 225 次捕获。
+
+### 第 3 步：P3 用 front sprite
+
+野怪现在背对玩家。front 是**分尺寸档图集**（40/56/72 三档，
+每档定长，段头记 `尺寸/单张字节/数量` 后跟 `(id, 位图)` 序列 ——
+见 `tools/pipeline/convert_gen1.py` 的 `build_front_atlas`）。
+
+`assets.c` 现在只解了定长的 back，要加分段寻址：
+`species_t.flags` 的 bit2-3 存着尺寸档位。
+
+验证：`walk.py` 截图看野怪是不是面朝玩家 + 尺寸变大。
+
+### 第 4 步：S13 音频
+
+ES8311 已初始化（启动日志有 `bsp_audio: ES8311 就绪`），一声没发过。
+`sim/audio.py` 的四通道 APU + 11 条音效在验收平台上能听
+（`tools/inspector/serve.sh` 有 WebAudio 现场合成）。
+
+最值的三处：捕获成功、升级、闪光遇到。
+
+**别踩**：音频要占 I2S DMA，而 WiFi 扫描也吃内存 ——
+先测一次并发（扫描时放音效），别等接完才发现打架。
+
 ## 四、工程质量现状
 
 **对账脚本**（`tools/pipeline/verify_*.py`，主机跑，不用烧板子）

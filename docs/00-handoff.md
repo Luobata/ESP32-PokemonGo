@@ -1,10 +1,37 @@
 # 交接与待办
 
 > 这份文档是**重启会话后的入口**。读它就能接着干，不用回溯对话。
-> 最后更新：2026-09-05（对应提交 `51485ce`）
+> 最后更新：2026-09-05（对应提交 `dde345e`）
 
-> **完整的系统清点与待办见 [STATUS.md](STATUS.md)** ——
-> 那份按 S1~S19 逐个列了「PC 侧有 / 固件有 / 真机验过」三态。
+## 新会话从这里开始
+
+按顺序读三样，十分钟内能上手：
+
+1. **[STATUS.md](STATUS.md)** —— 19 个系统的三态清点 + 八个页面缺什么
+   + **「三点五、下一步怎么开工」** 那节直接照做（改哪里/怎么验/别踩什么）
+2. 本文的**第零节**（下面）—— 真机怎么烧、怎么截图、怎么走链路
+3. **[STATUS.md 第五节](STATUS.md#五这一轮踩过的坑都已加守护)** ——
+   五个坑的共同点是「观测覆盖不到」，别再犯同类
+
+一条命令确认环境还活着：
+
+```bash
+python3 tools/pipeline/inventory_assets.py && \
+  python3 tools/pipeline/verify_battle.py && \
+  python3 tools/pipeline/verify_encounter.py && \
+  python3 tools/pipeline/verify_nurture.py
+```
+
+四个全绿 = PC 侧没坏。
+（对账脚本要编译 C，用**系统 python3**；pyenv 的 3.12 缺 lzma
+装不了 IDF 工具链 —— `source tools/device/idf-env.sh` 已固化这个选择。）
+
+真机则跑
+`python3 tools/device/walk.py --keys e,c,A,b,a,a`，
+它会造一条遭遇、走完「列表→战斗→捕获」并逐页截图。
+
+**下一件事是接经验与升级**（STATUS 的第 1 步）——
+战斗算出了 exp 但没人接收，打赢没有长期回报。
 
 ## 零、真机进度速览（新）
 
