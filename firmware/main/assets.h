@@ -78,3 +78,10 @@ typedef struct {
 
 // 找一个素材。找不到返回 false（调用方要判 —— 名字拼错是编译期查不出的）。
 bool assets_ui(const char *name, ui_art_t *out);
+
+// 取一套 sprite 调色板（RGB565，4 色）。set_idx 来自 species_t.palette。
+//
+// **提到这里而不是各页自己读** —— P1/P3/P4 都要画 sprite，
+// 三份拷贝里只要有一份把偏移算错（头 12 字节 + 每组 8 字节），
+// 那一页的颜色就是错的，而另外两页正常 —— 极难注意到。
+void assets_palette(uint8_t set_idx, uint16_t out[4]);

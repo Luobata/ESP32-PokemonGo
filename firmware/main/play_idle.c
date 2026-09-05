@@ -49,6 +49,7 @@
 #include "lvgl.h"    // 只用 lv_timer 与空屏对象，绘制全走 screen.c
 
 #include "assets.h"
+#include "nav.h"
 #include "world.h"
 #include "bsp_battery.h"
 #include "bsp_display.h"
@@ -95,18 +96,6 @@ static struct {
 // 世界快照。每次重画前刷一次 —— **一帧之内不再变**，
 // 否则同一帧里四条轴可能读到不同时刻的值（后台任务随时在改）。
 static world_t s_w;
-
-extern const uint8_t pal_bin_start[] asm("_binary_palettes_bin_start");
-
-static void load_palette(uint8_t set_idx, uint16_t out[4])
-{
-    // palettes.bin 存的就是 RGB565 小端，与我们的帧缓冲同格式 ——
-    // 直接拷即可，不用拆成 RGB 再合回去。
-    const uint8_t *p = pal_bin_start + 12 + (size_t)set_idx * 4 * 2;
-    for (int i = 0; i < 4; i++) {
-        out[i] = (uint16_t)(p[i * 2] | (p[i * 2 + 1] << 8));
-    }
-}
 
 // 画一条横线（分隔线）
 static void hline(int y, int x0, int x1, uint16_t c)
@@ -163,7 +152,7 @@ static void draw_band(int band_y, int8_t breath)
     const uint8_t *spr = assets_back_sprite(s_pet.species);
     if (spr) {
         uint16_t pal[4];
-        load_palette(sp.palette, pal);
+        assets_palette(sp.palette, pal);
         // 32×32 @scale3 = 96px，水平垂直都居中。呼吸只改 y。
         //
         // 垂直位置 = 分隔线(24) 与第一条轴(180) 之间居中：
@@ -334,12 +323,9 @@ void play_idle_enter(void)
     // 渲染类问题必须看屏幕，而拍照要人在场。自动截图让这个环节
     // 完全自助：烧写 → 等 10 秒 → screenshot.py 收图 → 我自己判断。
     // 一次性的（lv_timer_create 后立刻 set_repeat_count 1）。
-    // **5 秒而不是 1 秒**：第一次扫描在开机约 3 秒完成，
-    // 而遭遇是扫描的产物 —— 1 秒时截图，队列还是空的，
-    // 角标画不出来而我会以为角标坏了（第一版就误判了一轮）。
-    // 5 秒让第一批遭遇先落进队列。
-    lv_timer_t *shot = lv_timer_create(screen_dump_timer_cb, 5000, NULL);
-    lv_timer_set_repeat_count(shot, 1);
+    // **不做自动截图** —— P1 那个是在只有一页时加的，
+    // 现在有了 dbg.c 的按键注入，截图由 walk.py 显式发 's' 触发。
+    // 页面自己再截一张只会与之交错，让 PC 侧收到半张（踩过一次）。
 
     ESP_LOGI(TAG, "P1：#%u Lv%u  提示行 %d px  横带 %dx%d×%d 条",
              s_pet.species, s_pet.level,
@@ -376,10 +362,10 @@ void play_idle_key(bsp_btn_t btn, bsp_btn_ev_t ev)
                  nurture_pct(s_w.pet.satiety), nurture_pct(s_w.pet.mood));
         break;
     case BSP_BTN_DOWN:                     // B 图鉴
-        ESP_LOGI(TAG, "图鉴（P6 未实现）");
+        nav_go(PAGE_DEX);
         break;
     case BSP_BTN_OK:                       // C 遭遇
-        ESP_LOGI(TAG, "遭遇 %u 条待处理（P2 未实现）", s_w.pending);
+        nav_go(PAGE_ENCOUNTER);
         break;
     default:
         break;

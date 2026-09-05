@@ -17,6 +17,8 @@
 #include "nurture.h"
 #include "world.h"
 #include "encounter.h"
+#include "nav.h"
+#include "dbg.h"
 #include "render.h"
 #include "ui_pixel.h"
 #include "lvgl.h"
@@ -46,6 +48,10 @@ static lv_obj_t *s_rows[DEMO_COUNT];
 static lv_obj_t *s_mascot;
 static int  s_sel;                 // 当前选中项
 static int  s_active = -1;         // 当前所在演示页;-1 = 在菜单
+
+// 在玩法里（nav 管的那五页）还是在 demo 菜单里。
+// 两套分发并存：玩法是链式的，demo 是菜单式的（见 nav.h 的说明）。
+static bool s_in_game;
 
 static void menu_refresh(void) {
     for (size_t i = 0; i < DEMO_COUNT; i++) {
@@ -87,7 +93,17 @@ static void on_key(bsp_btn_t btn, bsp_btn_ev_t ev, void *user) {
     (void)user;
     if (!bsp_lvgl_lock(500)) return;
 
-    if (s_active >= 0) {
+    if (s_in_game) {
+        // 玩法页走 nav（P1↔P2↔P3↔P4↔P6 链式跳转），
+        // 长按 OK 才退回上游 demo 菜单。
+        if (btn == BSP_BTN_OK && ev == BSP_BTN_LONG) {
+            s_in_game = false;
+            nav_exit_current();
+            enter_menu();
+        } else {
+            nav_key(btn, ev);
+        }
+    } else if (s_active >= 0) {
         if (btn == BSP_BTN_OK && ev == BSP_BTN_LONG) {     // 统一返回
             DEMOS[s_active].exit();
             enter_menu();
@@ -99,6 +115,7 @@ static void on_key(bsp_btn_t btn, bsp_btn_ev_t ev, void *user) {
         if (btn == BSP_BTN_DOWN) { s_sel = (s_sel + 1) % DEMO_COUNT;              menu_refresh(); }
         if (btn == BSP_BTN_OK && s_ok[s_sel]) {
             s_active = s_sel;
+            s_in_game = false;
             ui_pixel_mascot_jump(s_mascot);
             lv_obj_delete(s_menu_scr);
             s_menu_scr = NULL;
@@ -165,13 +182,17 @@ void app_main(void) {
     // 所以开机只能进 Collect，否则一晚上的采集数据会因为没人按键而全丢。
     // 现在扫描是 world.c 的后台任务，谁在前台都不影响采集，
     // 开机终于能进真正的主页面。
-    #define BOOT_DEMO 0
     if (bsp_lvgl_lock(1000)) {
-        s_active = BOOT_DEMO;
-        DEMOS[BOOT_DEMO].enter();
+        s_in_game = true;
+        nav_start();                  // → P1 待机
         bsp_lvgl_unlock();
     }
 
-    ESP_LOGI(TAG, "就绪:Display=1 Button=%d Audio=%d Battery=%d World=%d → 进入 %s",
-             btn_ok, audio_ok, batt_ok, world_ok, DEMOS[BOOT_DEMO].name);
+    // 串口注入按键 —— 让整条链路能自动走一遍并逐页截图。
+    // 与截图通道是同一思路的两半：那个解决「看不见屏幕」，
+    // 这个解决「按不了键」。
+    dbg_start();
+
+    ESP_LOGI(TAG, "就绪:Display=1 Button=%d Audio=%d Battery=%d World=%d → 进入玩法",
+             btn_ok, audio_ok, batt_ok, world_ok);
 }

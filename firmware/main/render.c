@@ -178,15 +178,15 @@ int render_text(int x, int y, const char *s, uint16_t fg)
 // 「最亮当透明，不画背景」）。
 // ---------------------------------------------------------------------------
 
-void render_sprite_2bpp(int x, int y,
-                        const uint8_t *data, int size, int scale,
-                        const uint16_t *palette)
+void render_sprite_2bpp_wh(int x, int y,
+                           const uint8_t *data, int w, int h, int scale,
+                           const uint16_t *palette)
 {
-    if (!data || size <= 0 || scale <= 0) return;
-    int row_bytes = (size * 2 + 7) / 8;
+    if (!data || w <= 0 || h <= 0 || scale <= 0) return;
+    int row_bytes = (w * 2 + 7) / 8;
 
-    for (int sy = 0; sy < size; sy++) {
-        for (int sx = 0; sx < size; sx++) {
+    for (int sy = 0; sy < h; sy++) {
+        for (int sx = 0; sx < w; sx++) {
             uint8_t b = data[sy * row_bytes + (sx * 2) / 8];
             uint8_t shade = (b >> (6 - (sx * 2) % 8)) & 3;
             if (shade == 3) continue;         // 3 = 透明
@@ -201,6 +201,14 @@ void render_sprite_2bpp(int x, int y,
             }
         }
     }
+}
+
+// 正方形是长方形的特例 —— 只留一份实现，避免两处改一处忘。
+void render_sprite_2bpp(int x, int y,
+                        const uint8_t *data, int size, int scale,
+                        const uint16_t *palette)
+{
+    render_sprite_2bpp_wh(x, y, data, size, size, scale, palette);
 }
 
 // ---------------------------------------------------------------------------

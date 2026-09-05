@@ -34,6 +34,7 @@ extern const uint8_t front_bin_start[] asm("_binary_gen1_front_bin_start");
 extern const uint8_t front_bin_end[] asm("_binary_gen1_front_bin_end");
 extern const uint8_t back_bin_start[] asm("_binary_gen1_back_bin_start");
 extern const uint8_t back_bin_end[] asm("_binary_gen1_back_bin_end");
+extern const uint8_t pal_bin_start[] asm("_binary_palettes_bin_start");
 extern const uint8_t ui_bin_start[] asm("_binary_ui_bin_start");
 extern const uint8_t ui_bin_end[] asm("_binary_ui_bin_end");
 extern const uint8_t pal_bin_start[] asm("_binary_palettes_bin_start");
@@ -295,6 +296,16 @@ bool assets_ui(const char *name, ui_art_t *out)
         return true;
     }
     return false;
+}
+
+void assets_palette(uint8_t set_idx, uint16_t out[4])
+{
+    // palettes.bin 存的就是 RGB565 小端，与帧缓冲同格式 —— 直接拷。
+    // 布局：12 字节头 + 每组 4 色 × 2 字节。
+    const uint8_t *p = pal_bin_start + 12 + (size_t)set_idx * 4 * 2;
+    for (int i = 0; i < 4; i++) {
+        out[i] = (uint16_t)(p[i * 2] | (p[i * 2 + 1] << 8));
+    }
 }
 
 // ---------------------------------------------------------------------------

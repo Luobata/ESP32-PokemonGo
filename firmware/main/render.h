@@ -27,8 +27,17 @@ int render_text_width(const char *s);
 // 单个码点的步进宽度。ASCII 8，汉字 16。
 uint8_t render_char_advance(uint16_t cp);
 
-// 画 2bpp sprite。color 3 = 透明（与 sim/effects.py 约定一致）。
+// 画 2bpp sprite（正方形）。color 3 = 透明（与 sim/effects.py 约定一致）。
 // palette 是 4 个颜色，按色号索引。
 void render_sprite_2bpp(int x, int y,
                         const uint8_t *data, int size, int scale,
                         const uint16_t *palette);
+
+// 长方形版本 —— UI 点阵素材不是正方形（光标 5×9、心形 7×6）。
+//
+// 正方形版是它的特例（w == h）。**行字节数按 w 算**：
+// 2bpp 每行 ceil(w/4) 字节，用 h 或用固定值都会错位 ——
+// 错位的表现是图案斜着糊开，而不是报错。
+void render_sprite_2bpp_wh(int x, int y,
+                           const uint8_t *data, int w, int h, int scale,
+                           const uint16_t *palette);
