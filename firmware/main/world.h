@@ -86,6 +86,17 @@ void world_update_hp(uint8_t index, uint8_t hp_ratio);
 void world_mark_seen(uint16_t sid, bool shiny);
 void world_mark_caught(uint16_t sid, bool shiny);
 
+// 调试用：立刻造一条遭遇。
+//
+// 真实遭遇要么等基地排程（4 小时一次），要么带着设备走动
+// （猎场路径要移动量）。验证玩法链路时两个都等不起 ——
+// 而「等 4 小时才能测一次捕获」会让存档这类改动根本没法验。
+bool world_debug_spawn(void);
+
+// 调试用：立刻存档。正常路径是捕获时立刻存 + 每 5 分钟节流存，
+// 而验证「拔电不丢」时不想等那 5 分钟。
+void world_debug_save(void);
+
 // 与 PC 侧对账用：把移动量累积映射成 0~100 的今日行程。
 // 单独暴露是为了能在宿主上测（见 tools/pipeline/verify_world.py）。
 uint8_t world_progress_from_motion(uint32_t motion_units);

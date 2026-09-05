@@ -35,6 +35,7 @@
 #include "bsp_display.h"
 #include "dbg.h"
 #include "nav.h"
+#include "world.h"
 #include "screen.h"
 
 static const char *TAG = "dbg";
@@ -58,6 +59,12 @@ static void dispatch(char c)
     case 'C': btn = BSP_BTN_OK;   ev = BSP_BTN_DOUBLE; break;
     case 's':                       // 截图，不经过按键
         if (bsp_lvgl_lock(2000)) { screen_dump(); bsp_lvgl_unlock(); }
+        return;
+    case 'e':                       // 造一条遭遇（不然要等 4 小时排程）
+        world_debug_spawn();
+        return;
+    case 'w':                       // 立刻存档（验证掉电不丢）
+        world_debug_save();
         return;
     default:
         return;
@@ -93,5 +100,5 @@ void dbg_start(void)
     setvbuf(stdin, NULL, _IONBF, 0);
 
     xTaskCreate(dbg_task, "dbg", 3072, NULL, 3, NULL);
-    ESP_LOGI(TAG, "按键注入已开：a/b/c 单击 A/B/C 双击 s 截图");
+    ESP_LOGI(TAG, "按键注入已开：a/b/c 单击 A/B/C 双击 s 截图 e 造遭遇 w 存档");
 }

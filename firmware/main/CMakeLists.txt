@@ -9,6 +9,7 @@ idf_component_register(
          "battle.c"
          "capture.c"
          "encounter.c"
+         "save.c"
          "nav.c"
          "dbg.c"
          "play_enc.c"

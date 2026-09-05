@@ -37,6 +37,7 @@
 
 #include "bsp_battery.h"
 
+#include "save.h"
 #include "world.h"
 
 static const char *TAG = "world";
@@ -117,6 +118,47 @@ void world_snapshot(world_t *out)
     }
 }
 
+// 存档节流。
+//
+// **不是每次变化都写 flash** —— 遭遇每 30 秒可能产生一条，
+// 图鉴每次捕获变一次，而 flash 擦写有寿命（典型 10 万次）。
+// 每 5 分钟一次 + 关键事件立刻写，是寿命与「丢多少」的折中：
+// 最坏情况丢 5 分钟的三条轴推进（衰减 4/小时 → 0.33 格），看不出来。
+//
+// **捕获与图鉴变化立刻写** —— 那是玩家真正在乎的东西，
+// 丢一只刚抓到的怪比丢 5 分钟衰减严重得多。
+#define SAVE_INTERVAL_US (5 * 60 * 1000000LL)
+static int64_t s_last_save_us;
+static bool s_dirty;
+
+static void collect_save(save_t *sv)
+{
+    memset(sv, 0, sizeof(*sv));
+    sv->version = SAVE_VERSION;
+    sv->pet = s_w.pet;
+    sv->species = 25;          // TODO(S14): 接队伍后从队伍取
+    sv->level = 12;
+    sv->exp = 0;
+    sv->queue = s_queue;
+    sv->dex = s_dex;
+    sv->motion_q10 = s_motion_q10;
+    sv->scans = s_w.scans;
+    sv->last_uptime_us = esp_timer_get_time();
+}
+
+// 立刻存。**调用方要持锁**（这个函数读 s_w/s_queue/s_dex）。
+static void save_now_locked(const char *why)
+{
+    save_t sv;
+    collect_save(&sv);
+    if (save_write(&sv)) {
+        s_last_save_us = esp_timer_get_time();
+        s_dirty = false;
+        ESP_LOGI(TAG, "已存档（%s）：图鉴 %u 队列 %u", why,
+                 dex_count_caught(&s_dex), s_queue.count);
+    }
+}
+
 const enc_queue_t *world_queue(void) { return &s_queue; }
 const dex_t *world_dex(void) { return &s_dex; }
 
@@ -126,6 +168,7 @@ bool world_take_encounter(uint8_t index, encounter_t *out)
     if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
         ok = enc_queue_take(&s_queue, index, out);
         s_w.pending = s_queue.count;
+        s_dirty = true;
         xSemaphoreGive(s_lock);
     }
     return ok;
@@ -151,6 +194,8 @@ void world_mark_caught(uint16_t sid, bool shiny)
 {
     if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
         dex_mark_caught(&s_dex, sid, shiny);
+        // 抓到一只是玩家真正在乎的事 —— **立刻落盘**，不等节流。
+        save_now_locked("捕获");
         xSemaphoreGive(s_lock);
     }
 }
@@ -388,11 +433,44 @@ static void world_task(void *arg)
         if (s_wifi_ok && now >= next_scan) {
             scan_once();
             next_scan = esp_timer_get_time() + SCAN_INTERVAL_MS * 1000LL;
+            s_dirty = true;            // 扫描推进了三条轴与可能的遭遇
+        }
+
+        // 节流存档 —— 见 SAVE_INTERVAL_US 上方的说明
+        if (s_dirty && now - s_last_save_us >= SAVE_INTERVAL_US) {
+            if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(200)) == pdTRUE) {
+                save_now_locked("定时");
+                xSemaphoreGive(s_lock);
+            }
         }
 
         // 1 秒一轮。养成结算需要这个频率（nurture 按时长算，
         // 频率只影响响应粒度不影响正确性），扫描自己看时间。
         vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+
+bool world_debug_spawn(void)
+{
+    if (s_last_n == 0) {
+        ESP_LOGW(TAG, "还没扫到 AP —— 等第一次扫描完成");
+        return false;
+    }
+    uint8_t made = 0;
+    spawn_one((uint32_t)(esp_timer_get_time() / 1000000), true, &made);
+    if (made && s_lock &&
+        xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        s_w.pending = s_queue.count;
+        xSemaphoreGive(s_lock);
+    }
+    return made > 0;
+}
+
+void world_debug_save(void)
+{
+    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(200)) == pdTRUE) {
+        save_now_locked("手动");
+        xSemaphoreGive(s_lock);
     }
 }
 
@@ -408,7 +486,38 @@ bool world_start(void)
 
     memset(&s_w, 0, sizeof(s_w));
     nurture_init(&s_w.pet);
+    enc_queue_init(&s_queue);
+    dex_init(&s_dex);
     sens_init(&s_core);
+
+    // 读档。没有存档就用刚才那份初始状态（新游戏）。
+    //
+    // **不恢复 nurture 的 last_us** —— 它是上次开机的微秒数，
+    // 而本次开机从 0 重新计。直接沿用会让 dt 变成巨大的负数，
+    // nurture_tick 里 `dt <= 0` 会挡住，但那等于「时间不流动」。
+    // 置 -1 让它下一拍重新起算（与首次开机同）。
+    // 代价是**关机期间不衰减** —— 那要墙钟时间，S10 日切一起做。
+    // **先初始化 NVS 再读档** —— 这条依赖搞反过一次：
+    // nvs_flash_init 当时藏在 wifi_bring_up 里，而那个在读档之后，
+    // 结果每次开机都是「新游戏」而存档其实写成功了。
+    save_init();
+
+    save_t sv;
+    if (save_read(&sv)) {
+        s_w.pet = sv.pet;
+        s_w.pet.last_us = -1;
+        s_queue = sv.queue;
+        s_dex = sv.dex;
+        s_motion_q10 = sv.motion_q10;
+        s_w.scans = sv.scans;
+        s_w.pending = s_queue.count;
+        s_w.progress = world_progress_from_motion(s_motion_q10);
+        ESP_LOGI(TAG, "读档：图鉴 %u/%u 队列 %u 行程 %u%%",
+                 dex_count_caught(&s_dex), DEX_SPECIES,
+                 s_queue.count, s_w.progress);
+    } else {
+        ESP_LOGI(TAG, "没有存档 —— 新游戏");
+    }
 
     esp_err_t err = wifi_bring_up();
     s_wifi_ok = (err == ESP_OK);
