@@ -34,8 +34,29 @@ idf() {
   "$@"
 }
 
+# 字库跟着固件源码走。
+#
+# convert_font.py 会扫 firmware/main/*.c 的字符串字面量 ——
+# 所以**加一句中文日志就可能引入新字**，忘了重跑的话
+# inventory_assets.py 报「字库缺 N 字」，而那与本次改动看着毫无关系。
+# 实测两轮各被绊了一次（save.c 的日志、encounter.c 的自检文案）。
+#
+# 让构建自己管这件事：每次 build 前跑一遍。
+# 代价是 2 秒（PIL 渲 800 个字形），换掉一类「本可以不发生」的失败。
+# 没装 PIL 时跳过并提示 —— 字库产物已入库，只有改文案才需要重生成。
+regen_font() {
+  if python3 -c "import PIL" 2>/dev/null; then
+    python3 "$REPO/tools/pipeline/convert_font.py" >/dev/null 2>&1 \
+      && echo "字库已同步（扫 firmware/main/*.c 的中文）" \
+      || echo "⚠️  字库生成失败 —— 手动跑 convert_font.py 看原因" >&2
+  else
+    echo "（没装 PIL，跳过字库同步；改了中文文案的话要手动跑）" >&2
+  fi
+}
+
 case "$cmd" in
 build)
+  regen_font
   idf idf.py build
   ;;
 
@@ -48,6 +69,7 @@ backup)
   ;;
 
 flash)
+  regen_font
   # 硬门禁：没有任何备份就拒绝烧写
   if ! ls "$BACKUP_DIR"/flash-*.bin >/dev/null 2>&1; then
     echo "✗ 没有找到设备备份，拒绝烧写。" >&2
