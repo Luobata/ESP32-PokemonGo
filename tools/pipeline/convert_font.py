@@ -107,6 +107,34 @@ def _names_from_bin(path: str) -> set:
     return out
 
 
+def _firmware_chars(repo: str) -> tuple[set, int]:
+    """扫固件源码里字符串字面量中的汉字。
+
+    只扫 firmware/main/*.c —— 页面文案都在那里。
+    跳过注释行（注释里的汉字不上屏，收了纯属浪费）。
+
+    **宁可多收不可少收**：ESP_LOGI 的字面量也会被收进来，
+    那些其实只走串口不上屏。多收的成本是 32 字节/字，
+    而少收一个字的成本是「真机上一片文字变空白」+ 重跑管线 + 重烧。
+    """
+    import glob
+    import re
+
+    chars: set = set()
+    n = 0
+    pat = re.compile(r'"((?:[^"\\]|\\.)*)"')
+    for path in sorted(glob.glob(os.path.join(repo, "firmware", "main", "*.c"))):
+        n += 1
+        with open(path, encoding="utf-8") as f:
+            for line in f:
+                st = line.lstrip()
+                if st.startswith("//") or st.startswith("*"):
+                    continue
+                for lit in pat.findall(line):
+                    chars |= {c for c in lit if "\u4e00" <= c <= "\u9fff"}
+    return chars, n
+
+
 def collect_charset(gen1_json: str) -> tuple[set, dict]:
     """收集需要的字符集。返回 (字符集, 分类统计)。"""
     chars: set = set()
@@ -169,6 +197,21 @@ def collect_charset(gen1_json: str) -> tuple[set, dict]:
         print("   → 这些系统的文案在真机上会渲染成空白", file=sys.stderr)
     stat["src"] = " + ".join(f"sim/{m}.py" for m in ok) or "缺失"
     stat["missing_src"] = failed
+
+    # **固件页面里硬写的汉字也要收**。
+    #
+    # 上面那张 SOURCES 表只覆盖 sim/ —— 而页面是用 C 写的，
+    # 里面的「我方」「对方」「效果绝佳」这些字面量 sim 那边根本没有。
+    # 实测漏掉的后果：P3 战斗页显示「方 紧束 没打中」，
+    # 「对」字渲染成空白（render_text 静默跳过缺字）。
+    #
+    # 与其每加一句文案就记得来登记，不如**直接扫源码**：
+    # 页面文件里所有字符串字面量中的汉字全收。
+    # 多收几个字的代价是 32 字节/字，而漏一个字要重跑管线 + 重烧固件。
+    fw_chars, fw_files = _firmware_chars(repo)
+    if fw_chars:
+        ui_chars |= fw_chars
+        stat["fw"] = f"{len(fw_chars)} 字 / {fw_files} 个固件源文件"
     # 数字与常用符号 —— 屏幕上到处都是
     #
     # 三个符号刻意**不收**，因为 PingFang 没有它们的字形（收了就是空白字形）：

@@ -634,6 +634,33 @@ def collect_display_chars(gen1: dict) -> dict:
     except Exception:
         pass
 
+    # **固件页面里硬写的汉字** —— 第四类来源，前三类都在 sim/。
+    #
+    # 页面是 C 写的，「我方」「对方」「效果绝佳」这些字面量 sim 那边没有。
+    # 实测漏掉的表现：P3 显示「方 紧束 没打中」，「对」是空白 ——
+    # 而字数、大小、码点升序全部正常，只有做差集才现形。
+    #
+    # 这里**自己扫源码**而不是读 convert_font.py 的 _firmware_chars，
+    # 与这个文件的既有取向一致：独立枚举才能查出「那边漏了」。
+    import glob as _glob
+    import re as _re
+    fw: set = set()
+    fw_pat = _re.compile(r'"((?:[^"\\]|\\.)*)"')
+    fw_dir = os.path.join(REPO, "firmware", "main")
+    for path in sorted(_glob.glob(os.path.join(fw_dir, "*.c"))):
+        try:
+            with open(path, encoding="utf-8") as f:
+                for line in f:
+                    st = line.lstrip()
+                    if st.startswith("//") or st.startswith("*"):
+                        continue
+                    for lit in fw_pat.findall(line):
+                        fw |= {c for c in lit if "\u4e00" <= c <= "\u9fff"}
+        except OSError:
+            pass
+    if fw:
+        sources["固件页面字面量 (firmware/main/*.c)"] = fw
+
     return sources
 
 
