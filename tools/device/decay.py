@@ -87,13 +87,23 @@ def report(rows: list[dict]) -> int:
               f"  偏差 {dev:.0f}%  {mark}")
 
     # 主机时钟 vs 设备时钟 —— 顺带把时钟漂移也测了
+    #
+    # **只算首尾，不算逐段** —— 主机侧的时间戳是「读到这一行的时刻」，
+    # 受串口缓冲与 GIL 调度影响，单段抖动能到 ±1 秒。
+    # 在 2 分钟的段上那就是 ±8000ppm 的假象（实测见过 +5103 / -2859
+    # 交替出现，而设备侧的间隔稳定在 120.445s 分毫不差）。
+    # 拉长基线抖动就摊薄了：跑 2 小时，±1 秒只剩 ±140ppm。
     if all("host_s" in r for r in rows) and len(rows) >= 2:
         dev_el = (rows[-1]["dev_us"] - rows[0]["dev_us"]) / 1e6
         host_el = rows[-1]["host_s"] - rows[0]["host_s"]
         if host_el > 0:
             ppm = (dev_el / host_el - 1) * 1e6
+            # 采样抖动的量级：假设单次读取误差 ±1 秒
+            jitter = 2.0 / host_el * 1e6
             print(f"\n  时钟漂移 {ppm:+.0f} ppm"
                   f"（一天差 {abs(ppm) * 86400 / 1e6:.0f} 秒）")
+            print(f"    采样抖动约 ±{jitter:.0f} ppm —— "
+                  f"{'漂移可信' if abs(ppm) > jitter * 2 else '还在噪声里，跑久一点'}")
             print("    参考：外置晶振 ±20ppm，内部 RC 可能到 ±50000ppm")
 
     if span < 0.5:

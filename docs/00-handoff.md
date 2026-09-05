@@ -1,7 +1,7 @@
 # 交接与待办
 
 > 这份文档是**重启会话后的入口**。读它就能接着干，不用回溯对话。
-> 最后更新：2026-09-05（对应提交 `07c758a`）
+> 最后更新：2026-09-05（对应提交 `086d443`）
 
 ## 零、真机进度速览（新）
 
@@ -9,21 +9,29 @@
 
     F1 屏幕+三键     ✓  上游 BSP
     F2 sprite 渲染   ✓  2bpp 最近邻放大，色号 3 透明
-    F3 中文点阵      ✓  650 字形，ASCII 半宽（解掉 P1-③ 的规格冲突）
+    F3 中文点阵      ✓  **727 字形**，整段 ASCII 0x20~0x7E + 汉字
     F4 WiFi+NDJSON   ✓  零转换喂进 sim/，19 个系统完整跑通
     F5 sensing 移植  ~  67/1061 不符，实际影响判定 2%（已量化）
-    F8 P1 待机页     ✓  代码上机，**视觉效果未人工确认**
+    F8 P1 待机页     ✓  **截图逐项核对过**，S4 三条轴已接真实衰减
+    F10 截图通道     ✓  固件吐帧缓冲，PC 存 PNG —— 渲染问题自己看
 
-    F6 深睡+RTC      ✗  长跑在测漂移，深睡未做
+    F6 深睡+RTC      ✗  衰减速率实测在跑（decay.py），深睡未做
     F7 存档双 buffer ✗
     F9 P2/P3/P4      ✗  ← 下一步，且要把扫描提成独立 task
 
-开机自动进 Collect 页并开始采集（不用按键）。长按 OK 退回菜单。
+开机进 P1 待机页。长按 OK 退回菜单，长按 B 手动截图。
 
     tools/device/fw.sh build|flash|backup|restore
-    python3 tools/device/monitor.py --info
-    python3 tools/device/collect.py --seconds 300 --out data/raw/x.ndjson
-    python3 tools/pipeline/verify_sensing.py        # F5 对账，不用烧板子
+    python3 tools/device/screenshot.py --out /tmp/x.png --wait   # 看屏幕
+    python3 tools/device/decay.py --minutes 150                  # 测衰减速率
+    python3 tools/pipeline/verify_sensing.py     # F5 对账，不用烧板子
+    python3 tools/pipeline/verify_nurture.py     # S4 对账，同上
+
+**渲染改动的收尾动作是截图，不是看日志** —— 这条踩过三次：
+汉字全渲成空心方框（页面根本没调 render_text）、
+整屏颜色错乱（漏了 ST7789 的大端字节序）、
+「Lv12」少了 Lv（字库没收 L 和 v，而宽度照算，留下一段空隙）。
+三次的共同点是**每一层自检都通过**。
 
 详见 [09-device.md](09-device.md)、[../firmware/README.md](../firmware/README.md)。
 
