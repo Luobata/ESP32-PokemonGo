@@ -168,7 +168,7 @@ static void draw_band(int band_y)
     if (spr && has_wild) {
         uint16_t pal[4];
         assets_palette(wild_sp.palette, pal);
-        // 野怪挨打且命中时抖它；没打中时目标保持静止。
+        // 野怪挨打且命中时抖它；落空时目标保持静止。
         int dx = 0;
         if (s_play_i > 0 && s_play_i <= s_res.round_count &&
             s_res.rounds[s_play_i - 1].by_pet &&
@@ -205,12 +205,23 @@ static void draw_band(int band_y)
     // -- 回合文字 --------------------------------------------------------
     if (!s_done && s_play_i > 0 && s_play_i <= s_res.round_count) {
         const battle_round_t *r = &s_res.rounds[s_play_i - 1];
-        const char *who = r->by_pet ? "我方" : "对方";
-        if (r->missed) {
-            snprintf(buf, sizeof(buf), "%s %.*s 没打中",
-                     who, r->move_zh_len, r->move_zh ? r->move_zh : "");
+        // GSC 风格：用物种名而不是「我方/对方」，野怪加「野生」前缀。
+        // 用「野生」不用「野生的」：5 字物种名 + 「野生的」+ miss 模板
+        // = 240px > 232px 上限（blocker 已发，safe_fallback=A）。
+        char who[32];
+        if (r->by_pet && has_pet) {
+            snprintf(who, sizeof(who), "%.*s",
+                     pet_sp.name_zh_len, pet_sp.name_zh);
+        } else if (!r->by_pet && has_wild) {
+            snprintf(who, sizeof(who), "野生%.*s",
+                     wild_sp.name_zh_len, wild_sp.name_zh);
         } else {
-            snprintf(buf, sizeof(buf), "%s %.*s", who,
+            who[0] = '\0';
+        }
+        if (r->missed) {
+            snprintf(buf, sizeof(buf), "%s的攻击落空了！", who);
+        } else {
+            snprintf(buf, sizeof(buf), "%s使用了%.*s！", who,
                      r->move_zh_len, r->move_zh ? r->move_zh : "");
         }
         render_text(8, Y(MSG_Y), buf, C_INK);
@@ -270,7 +281,7 @@ static void tick(lv_timer_t *t)
     }
 
     // 回合间隔：抖完还要停一会儿让人看清。未命中不抖，但仍完整
-    // 保留 600ms，让「没打中」不会因为省掉四帧抖动而一闪而过。
+    // 保留 600ms，让「落空了」不会因为省掉四帧抖动而一闪而过。
     static uint8_t hold;
     uint8_t hold_ticks = 6;      // 命中：4 帧抖动 + 6 帧停留 = 600ms
     if (s_play_i > 0 && s_play_i <= s_res.round_count &&
@@ -282,7 +293,7 @@ static void tick(lv_timer_t *t)
 
     if (s_play_i < s_res.round_count) {
         s_play_i++;
-        // 未命中已由回合记录给出：显示「没打中」，但目标不应受击抖动。
+        // 未命中已由回合记录给出：显示「落空了」，但目标不应受击抖动。
         s_shake_i = s_res.rounds[s_play_i - 1].missed ? SHAKE_FRAMES : 0;
         draw_all();
         return;
