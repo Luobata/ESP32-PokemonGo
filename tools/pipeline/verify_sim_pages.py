@@ -144,6 +144,20 @@ def main() -> int:
        "P3 shake 序列与 effects.shake_sequence 不符")
     ck(sp["battle"]["flash"] == E.flash_sequence(6),
        "P3 flash 序列与 effects.flash_sequence 不符")
+    # expDemo（十七派活）：exp_progress 只读对账 + 数值合理性
+    ex = sp["battle"].get("expDemo") or {}
+    if ex:
+        import systems as _S
+        ck(0 <= ex["expCur"] <= ex["need"], f"expDemo expCur={ex['expCur']} 越界 [0,{ex['need']}]")
+        ck(0 <= ex["postCur"] <= ex["postNeed"],
+           f"expDemo postCur={ex['postCur']} 越界 [0,{ex['postNeed']}]")
+        c, n = _S.exp_progress(_S.exp_for_level(ex["level"] + 1) - ex["gain"], ex["level"])
+        ck((ex["expCur"], ex["need"]) == (c, n),
+           f"expDemo 战前进度与 exp_progress 重算不符：{(ex['expCur'], ex['need'])} vs {(c, n)}")
+        ck(ex["levelUp"] == (ex["postLevel"] > ex["level"]),
+           "expDemo levelUp 与 postLevel>level 矛盾")
+    else:
+        ck(False, "battle.expDemo 缺失（十七派活起为必导字段）")
     n_rounds = sum(len(s["rounds"]) for s in sp["battle"]["scenarios"])
     print(f"  P3 战斗    两剧本 {n_rounds} 回合逐字段一致"
           f"（win 必胜 / lose 必败）+ shake/flash 序列一致")

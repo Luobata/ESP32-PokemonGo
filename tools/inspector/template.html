@@ -3646,7 +3646,7 @@ function dexCount(){ try{ return ASSETS.sys2.s5.caught; }catch(e){ return 0; } }
 /* ---- P3 公共 ---- */
 function p3Cur(){
   const sc=SP.battle.scenarios.find(x=>x.label===st.P3.sc);
-  const tl=[]; if(sc) for(const r of sc.rounds) for(let f=0;f<8;f++) tl.push({r,ph:f});
+  const tl=P3_timeline(st.P3.sc);      // 与滑杆/帧计数同一时间线（含 EXP 动画段）
   return {sc,tl,it:tl[Math.min(st.P3.fi,Math.max(0,tl.length-1))]||null}; }
 function p3Shake(r,ph){ // 挨打的一方抖（与固件同语义）；未命中不抖
   if(ph>=6 || r.missed) return [0,0];
@@ -3930,13 +3930,42 @@ function gscHpBar(x0,y0,pct,side){
   // 标签 tile 是黑底白字（0=底/线黑，2=字形白 —— 实测 png 值；GSC 截图同形）
   const pal={'0':'#000000','2':'#f8f8f8','3':'#f8f8f8','1':col};
   const seq=[];
-  if(side!=='pet') seq.push(0,1);        // 敌方带 HP: 标签；我方 x124 起 112px 放不下标签（偏离原作，报告注明）
+  seq.push(0,1);   // HP: 标签两侧都画（asm DrawBattleHPBar 无条件写 $60$61；十七派活③补齐）
   let rem=e;
   for(let i=0;i<6;i++){ if(rem>=8){seq.push(10);rem-=8;} else {seq.push(2+rem);rem=0;} }
   let x=x0;
   for(const ti of seq){ tileDraw(GSC_GFX.hpbar.f[ti],x,y0,pal,2); x+=16; }
   if(side==='pet') tileDraw(GSC_GFX.hudE.f[0],x,y0,{'1':'#000000'},2);  // 楔形端帽
   else tileDraw(GSC_GFX.hpbar.f[11],x,y0,pal,2);                        // 方端帽
+}
+/* GSC EXP 条 —— 与 HP 条同族 tile（core.asm PlaceExpBar:7831 用 $62 空/$6a 满/$54+e 部分，
+   与 HP 条共享图元），填充色 exp_bar.pal 0x247F=#218eff（test 量化值）。
+   8 tiles=64px 满、无标签无端帽（asm hlcoord 17,11, c=$8）。 */
+function gscExpBar(x0,y0,px,flash){
+  const pal={'0':'#000000','2':'#f8f8f8','3':'#f8f8f8','1':flash?'#ffffff':'#218eff'};
+  let rem=Math.max(0,Math.min(64,Math.round(px))), x=x0;
+  for(let i=0;i<8;i++){ let ti; if(rem>=8){ti=10;rem-=8;} else {ti=2+rem;rem=0;}
+    tileDraw(GSC_GFX.hpbar.f[ti],x,y0,pal,2); x+=16; }
+}
+/* EXP 动画帧序列 —— 照 core.asm AnimateExpBar:7436 .LoopBarAnimation 的节奏：
+   逐 px 填充，每个 px 显示 d 帧、每 2px dec d（3→1，先慢后快）；
+   跨级（AnimateExpBar .LoopLevels）：填满 64 → 闪白数帧 → 清 0 → 下一级续填。
+   帧 = {px: 显示像素数 | 'flash', lvl: 是否升级文案帧} */
+function expFrames(demo){
+  const f=[]; const push=(px,lvl)=>f.push({px,lvl:!!lvl});
+  const pre=Math.round(demo.expCur/demo.need*64);
+  const post=Math.round(demo.postCur/demo.postNeed*64);
+  const fill=(from,to)=>{ let d=3;
+    for(let px=from+1;px<=to;px++){ for(let i=0;i<d;i++) push(px);
+      if(px%2===0) d=Math.max(1,d-1); } };
+  for(let i=0;i<4;i++) push(pre);                    // 战前停一拍（获得经验文案）
+  if(demo.levelUp){ fill(pre,64);
+    for(let i=0;i<4;i++) push('flash');              // AnimateEndOfExpBar 闪白
+    for(let i=0;i<6;i++) push(0,true);               // 清 0 + 升级文案帧
+    fill(0,post); }
+  else fill(pre,post);
+  for(let i=0;i<3;i++) push(post);                   // 收尾停一拍
+  return f;
 }
 function gfxDraw(key,f,cx,cy,pal,ph){ // 真图元绘制：调色板随相位循环（GSC 手法）
   const g=GSC_GFX[key]; if(!g) return;
@@ -4207,14 +4236,20 @@ function p3G(){ // G 金银：GSC 原作布局（engine/battle/core.asm 坐标 �
         条 112px（无 HP: 标签 —— 124 起放不下 144px，偏离原作，报告注明），
         数字行右对齐 236 与消息窗右缘同栅格 —— 第十六派活：Lv 与数字同行重叠修复。── */
   text('皮卡丘 Lv'+sc.playerLevel, 120, 150, t.ink);
-  gscHpBar(124, 170, petHpPct(sc,r), 'pet');         // 112px：x124..236
+  // HP: 标签补回（十七派活③，用户授权按比例调；实测无需缩放 ——
+  // 标签 x92 起的 144px 满配放得下：皮卡丘 back 墨迹右缘 x72，标签不压墨迹）
+  gscHpBar(92, 170, petHpPct(sc,r), 'pet');          // 144px：x92..236
   const hpNum=Math.max(0,r.petHp)+'/'+sc.petMax;    // GSC DrawPlayerHP：我方显数字
   text(hpNum, 236-textW(hpNum), 190, t.ink);
-  // EXP 条（GSC hlcoord 10,11；expbar 前 48px 轨道 ×2=96 + expend 端帽 16 = 112px）。
-  // EXP 百分比不在 payload —— 只画轨道不填（数值缺口，报告列明）
-  tileDraw(GSC_GFX.expbar.f[0].map(rw=>rw.slice(0,48)), 124, 210,
-           {'1':'#000000','2':'#f7d77b'}, 2);
-  tileDraw(GSC_GFX.expend.f[0], 236-16, 210, {'2':'#734900'}, 2);
+  // EXP 条（十七派活）：exp_progress 只读导出（expDemo），PlaceExpBar 同族 tile、
+  // 8 tiles ×2 = 128px @ x108..236。动画帧（it.exp）走 asm 节奏：逐 px → 满格闪白翻 0 → 升级
+  const exd=SP.battle.expDemo||{};
+  if(exd.need){
+    const flash = it.exp && it.exp.px==='flash';
+    const px = it.exp ? (flash?64:it.exp.px)
+              : Math.round((exd.expCur||0)/(exd.need||1)*64);   // 战前静态进度
+    gscExpBar(108, 210, px, flash);
+  }
 
   // 我方 sprite + 平台（实心椭圆，标注）
   if(big) sprNN(25,'back',16+pdx+fxo.pet,112,96);
@@ -4226,12 +4261,17 @@ function p3G(){ // G 金银：GSC 原作布局（engine/battle/core.asm 坐标 �
 
   /* ── 消息窗（两行，strings.py BATTLE_LINES：L1=谁 L2=做了什么）── */
   const mvShow = st.P3.fxDemo || r.move;
-  text(r.attacker==='pet'?'皮卡丘':'野生的'+nameOf(m), 14, 255, t.ink);
-  text(r.missed?'的攻击落空了！':'使用了'+(mvShow||'攻击')+'！', 14, 272, t.ink);
-  if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,232-textW(d),255,t.redT); }
-  if(tl[st.P3.fi+1]===undefined){
-    text(sc.won?'胜':'败',14,255,t.ink);
-    text('经验 +'+sc.exp,14,272,t.goldT); }
+  if(it.exp){                                    // EXP 动画帧段独占消息窗（asm 同序：先获得后升级）
+    text('皮卡丘', 14, 255, t.ink);
+    text(it.exp.lvl?'升到了 Lv'+(exd.postLevel||'')+'！':'经验 +'+(exd.gain||0),
+         14, 272, it.exp.lvl?t.ink:t.goldT); }
+  else{
+    text(r.attacker==='pet'?'皮卡丘':'野生的'+nameOf(m), 14, 255, t.ink);
+    text(r.missed?'的攻击落空了！':'使用了'+(mvShow||'攻击')+'！', 14, 272, t.ink);
+    if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,232-textW(d),255,t.redT); }
+    if(tl[st.P3.fi+1]===undefined){
+      text(sc.won?'胜':'败',14,255,t.ink);
+      text('经验 +'+sc.exp,14,272,t.goldT); } }
   gscBox(4,250,232,63,t.blue);
   text('▸',14,289,t.ink); hintAt(289,t.ink,t.blueT,30);
 }
@@ -4336,8 +4376,14 @@ const st={ page:'P0', P0:{box:0,fi:0,done:false,skipped:false},
            P5:{sel:0,axes:SP.care.axes,applied:null}, P6:{pg:0}, P7:{}, P8:{} };
 function P3_timeline(sc){
   const s=SP.battle.scenarios.find(x=>x.label===sc);
+  if(!s) return [];
   const tl=[];
   for(const r of s.rounds) for(let f=0;f<8;f++) tl.push({r,ph:f});
+  // 胜利后追加 EXP 动画帧段（core.asm AnimateExpBar 的 web 复刻）——
+  // 滑杆帧数与渲染必须同源，此前两处各建一份出现过 24≠48 的滑杆失真
+  if(s.won&&SP.battle.expDemo){
+    const last=s.rounds[s.rounds.length-1];
+    for(const fr of expFrames(SP.battle.expDemo)) tl.push({r:last,ph:7,exp:fr}); }
   return tl;
 }
 const PAGES={

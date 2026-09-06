@@ -1009,8 +1009,25 @@ def sim_pages_payload() -> dict:
                         "label": r.label, "missed": r.missed,
                         "petHp": r.pet_hp, "wildHp": r.wild_hp}
                        for r in res.rounds]})
+    # ---- P3 经验条（十七派活）：exp_progress 只读导出 ----
+    # demo 初值选成 win 剧本的 exp 增量恰好跨级 —— 演示 GSC 满格翻 0 升级那一帧。
+    # 全部数值 sim 现算（exp_for_level/exp_progress/exp_to_level），初值只是
+    # 与剧本 seed 同性质的演示常量。
+    win_sc = scenarios[0]                     # win 在前
+    gain = win_sc["exp"]
+    plv = win_sc["playerLevel"]
+    exp0 = S.exp_for_level(plv + 1) - gain    # 战后正好压在升级线上
+    cur0, need0 = S.exp_progress(exp0, plv)
+    exp1 = exp0 + gain
+    lvl1 = S.exp_to_level(exp1)
+    cur1, need1 = S.exp_progress(exp1, lvl1)
+    exp_demo = {
+        "level": plv, "expCur": cur0, "need": need0, "gain": gain,
+        "postLevel": lvl1, "postCur": cur1, "postNeed": need1,
+        "levelUp": lvl1 > plv,
+    }
     import dataclasses
-    battle = {"scenarios": scenarios,
+    battle = {"scenarios": scenarios, "expDemo": exp_demo,
               "shake": [dataclasses.asdict(t) for t in E.shake_sequence(6)],
               "flash": E.flash_sequence(6)}
 
