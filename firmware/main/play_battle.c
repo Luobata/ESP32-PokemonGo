@@ -202,12 +202,13 @@ static void draw_band(int band_y)
     }
     draw_bar(80, Y(PET_BAR_Y), 152, 10, p_hp, s_res.pet_hp_max);
 
-    // -- 回合文字 --------------------------------------------------------
+    // -- 回合文字（两行：GSC 消息窗形态）--------------------------------
+    // 第一行 MSG_Y：谁（野怪加「野生」前缀）+ 效果提示
+    // 第二行 MSG_DETAIL_Y：做了什么 + 伤害数字
+    // 单行最坏 256px 超 232px 上限（野生多刺菊石兽 + 尖刺加农炮），
+    // 拆两行后最坏 144px（「使用了尖刺加农炮！」）。
     if (!s_done && s_play_i > 0 && s_play_i <= s_res.round_count) {
         const battle_round_t *r = &s_res.rounds[s_play_i - 1];
-        // GSC 风格：用物种名而不是「我方/对方」，野怪加「野生」前缀。
-        // 用「野生」不用「野生的」：5 字物种名 + 「野生的」+ miss 模板
-        // = 240px > 232px 上限（blocker 已发，safe_fallback=A）。
         char who[32];
         if (r->by_pet && has_pet) {
             snprintf(who, sizeof(who), "%.*s",
@@ -218,18 +219,24 @@ static void draw_band(int band_y)
         } else {
             who[0] = '\0';
         }
-        if (r->missed) {
-            snprintf(buf, sizeof(buf), "%s的攻击落空了！", who);
+        // 第一行：谁 + 效果提示（100 倍率不显示，
+        // 每回合都弹「效果一般」会把「效果绝佳」的分量冲掉）
+        const char *lbl = battle_eff_label(r->mult);
+        if (lbl) {
+            snprintf(buf, sizeof(buf), "%s %s", who, lbl);
         } else {
-            snprintf(buf, sizeof(buf), "%s使用了%.*s！", who,
-                     r->move_zh_len, r->move_zh ? r->move_zh : "");
+            snprintf(buf, sizeof(buf), "%s", who);
         }
         render_text(8, Y(MSG_Y), buf, C_INK);
 
-        // 效果提示 —— **100 倍率不显示**（页面文档：只在有反差时说话，
-        // 每回合都弹「效果一般」会把「效果绝佳」的分量冲掉）
-        const char *lbl = battle_eff_label(r->mult);
-        if (lbl) render_text(8, Y(MSG_DETAIL_Y), lbl, C_INK);
+        // 第二行：做了什么 + 伤害
+        if (r->missed) {
+            snprintf(buf, sizeof(buf), "的攻击落空了！");
+        } else {
+            snprintf(buf, sizeof(buf), "使用了%.*s！",
+                     r->move_zh_len, r->move_zh ? r->move_zh : "");
+        }
+        render_text(8, Y(MSG_DETAIL_Y), buf, C_INK);
         if (!r->missed && r->damage > 0) {
             snprintf(buf, sizeof(buf), "-%u HP", r->damage);
             render_text(SCR_W - 8 - render_text_width(buf), Y(MSG_DETAIL_Y),

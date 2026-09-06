@@ -3902,7 +3902,17 @@ const PAL_FX={
  fire:['#ff0000','#ffae00','#f8f8f8'], water:['#0057d6','#218eff','#a8d8f8'],
  grass:['#007e1e','#00be00','#8ae05a'], poison:['#7a1e8a','#c060d8','#e8b0f0'],
  psychic:['#c040a0','#ff8ad8','#ffd8f0'], ghost:['#5a4a8a','#9078c8','#c8b8f0'],
- ice:['#2a7a9a','#68c8e8','#c8f0ff'], gray:['#555','#999','#ddd']};
+ ice:['#2a7a9a','#68c8e8','#c8f0ff'], gray:['#555','#999','#ddd'], hud:['#000000','#734900','#000000']}; // hud=深框色
+function gfxDrawAt(key,f,x0,y0,pal,ph){ // 左上锚定版（HUD 布局用，坐标=图元左上角）
+  const g=GSC_GFX[key]; if(!g) return;
+  const fr=g.f[Math.min(f,g.f.length-1)]; const sc=2;
+  const P=PAL_FX[pal]||PAL_FX.gray;
+  for(let y=0;y<fr.length;y++) for(let x=0;x<fr[y].length;x++){
+    const c=fr[y][x]; if(c==='.') continue;
+    ctx.fillStyle=P[(+c-1+(ph>>1))%P.length];
+    ctx.fillRect(x0+x*sc, y0+y*sc, sc, sc);
+  }
+}
 function gfxDraw(key,f,cx,cy,pal,ph){ // 真图元绘制：调色板随相位循环（GSC 手法）
   const g=GSC_GFX[key]; if(!g) return;
   const fr=g.f[Math.min(f,g.f.length-1)]; const sc=2;
@@ -4017,6 +4027,12 @@ function hitGfxDraw(defC, ph){          // 命中图元：星→屑两段，调�
     const c=g[y][x]; if(c==='.') continue;
     ctx.fillStyle=cyc[(ph+ (c==='2'?1:0))%3];
     ctx.fillRect(Math.round(defC.x-half+x*sc), Math.round(defC.y-half+y*sc), sc, sc);
+  }
+}
+function ellipse(cx,cy,rx,ry,c){ // 实心椭圆（GSC 平台近似；旧版点环上下半不接=「飘着的弧线」）
+  for(let dy=-ry; dy<=ry; dy++){
+    const w=Math.round(rx*Math.sqrt(Math.max(0,1-(dy*dy)/(ry*ry))));
+    if(w>0){ ctx.fillStyle=c; ctx.fillRect(cx-w, cy+dy, w*2, 1); }
   }
 }
 function fxRects(r, petRect, wildRect){
@@ -4151,39 +4167,36 @@ function p3G(){ // G 金银：GSC 原作布局（engine/battle/core.asm 坐标 �
   const fxo = fxOffsets(fxSpec(r), r, ph, petRect, wildRect);
 
   /* ── 敌方 HUD（GSC core.asm DrawEnemyHUD：hlcoord 1,0 框 4×11 tiles
-        = px(8,0)-(88,32)；名字在框首行，条图形 32px，无 HP 数字、无 EXP）── */
+        = px(8,0)-(88,32)；名字在框首行，条图元 32px，无 HP 数字、无 EXP）── */
   text('野生的'+nameOf(m)+' Lv'+sc.wildLevel, 12, 2, t.ink);
-  gfxDraw('hudE', 0, 12+32, 22, 'gray', ph);            // 32×8 图元 ×2 = 64 宽
-  const ew0=12+26, ewd=28;                              // 条轨道（图元量得 cols13..27 ×2）
+  gfxDrawAt('hudE', 0, 12, 16, 'hud', ph);           // 32×8 图元 ×2 = 64×16 @ (12,16)
+  // 轨道（hudE png 实测：条槽 rows5-6、cols13..27 → ×2 = (26,10) 起 w28 h4，相对图元）
   ctx.fillStyle=hp3(wildHpPct(sc,r));
-  ctx.fillRect(ew0, 32, Math.round(ewd*wildHpPct(sc,r)/100), 4);
+  ctx.fillRect(12+26, 16+10, Math.round(28*wildHpPct(sc,r)/100), 4);
 
-  // 敌方 sprite + 平台（GSC 平台属背景 tilemap 无独立 png —— 几何椭圆近似，标注）
+  // 敌方 sprite + 平台（GSC 平台属背景 tilemap 无独立 png —— 实心椭圆近似，标注）
   spr(sc.wildSid,'front',wildX+wdx+fxo.wild,150-wpx,2);
-  ctx.fillStyle=t.dim;
-  for(let k=0;k<40;k++){ const a=k/40*Math.PI;
-    ctx.fillRect(Math.round(186-46*Math.cos(a)), Math.round(100+7*Math.sin(a)), 3,2); }
+  ellipse(186, 100, 44, 6, t.dim);
 
   /* ── 我方 HUD（GSC core.asm：hlcoord 9,7 框 5×11 = px(72,56)-(152,88)；
-        名字 (80,56)、HP 行 (80,72) 带 cur/max 数字、EXP 行 (80,88)）── */
-  text('皮卡丘 Lv'+sc.playerLevel, 96, 150, t.ink);
-  gfxDraw('hudP', 0, 96+48, 168, 'gray', ph);           // 48×8 图元 ×2 = 96 宽
-  const pw0=96+32, pwd=42;                              // 条轨道（cols16..37 ×2）
+        名字 (80,56)、HP 行 (80,72) 带 cur/max 数字、EXP 行 (80,88)）。
+        x120 起 —— x96 会压到 96px 主宠（右缘 x112），第十六派活③。── */
+  text('皮卡丘 Lv'+sc.playerLevel, 120, 150, t.ink);
+  gfxDrawAt('hudP', 0, 120, 166, 'hud', ph);         // 48×8 图元 ×2 = 96×16 @ (120,166)
+  // 轨道（hudP png 实测：条槽 rows5-6、cols16..37 → ×2 = (32,10) 起 w42 h4）
   ctx.fillStyle=hp3(petHpPct(sc,r));
-  ctx.fillRect(pw0, 178, Math.round(pwd*petHpPct(sc,r)/100), 4);
-  const hpNum=Math.max(0,r.petHp)+'/'+sc.petMax;        // GSC DrawPlayerHP：我方显数字
+  ctx.fillRect(120+32, 166+10, Math.round(42*petHpPct(sc,r)/100), 4);
+  const hpNum=Math.max(0,r.petHp)+'/'+sc.petMax;    // GSC DrawPlayerHP：我方显数字
   text(hpNum, 232-textW(hpNum), 150, t.ink);
   // EXP 条（GSC hlcoord 10,11；expbar 72×8 图元 ×2 = 144）。EXP 百分比不在 payload
-  // —— 只画图元轨道不填（数值缺口，报告列明），expbarend 作右端帽
-  gfxDraw('expbar', 0, 92+72, 190, 'gray', ph);
-  gfxDraw('expend', 0, 92+144-8, 190, 'gray', ph);
+  // —— 只画图元轨道不填（数值缺口，报告列明），expend 作右端帽
+  gfxDrawAt('expbar', 0, 88, 186, 'hud', ph);
+  gfxDrawAt('expend', 0, 88+144, 186, 'hud', ph);
 
-  // 我方 sprite + 平台（几何椭圆，标注）
+  // 我方 sprite + 平台（实心椭圆，标注）
   if(big) sprNN(25,'back',16+pdx+fxo.pet,112,96);
   else    sprNN(25,'back',24+pdx+fxo.pet,160,48);
-  ctx.fillStyle=t.dim;
-  for(let k=0;k<44;k++){ const a=k/44*Math.PI;
-    ctx.fillRect(Math.round(64-52*Math.cos(a)), Math.round(214+8*Math.sin(a)), 3,2); }
+  ellipse(64, 214, 50, 7, t.dim);
 
   // 招式动画（第二段）：特效层叠在 sprite 之上
   fxOverlay(fxSpec(r), r, ph, petRect, wildRect, sc.wildSid);

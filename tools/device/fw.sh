@@ -23,6 +23,23 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO="$(cd "$HERE/../.." && pwd)"
 FW="$REPO/firmware"
 BACKUP_DIR="$REPO/.device-backup"
+
+# 端口自动探测：usbmodem 编号会变（11301 → 1101），硬编码必踩坑。
+# 优先 pyserial（monitor.py 同款逻辑），退路 glob，最后硬编码兜底。
+if [ -z "${ESPPORT:-}" ]; then
+  ESPPORT=$(python3 -c "
+from serial.tools import list_ports
+for p in list_ports.comports():
+    if p.vid == 0x303A:
+        print(p.device)
+        break
+" 2>/dev/null || true)
+fi
+if [ -z "${ESPPORT:-}" ]; then
+  for p in /dev/cu.usbmodem*; do
+    [ -e "$p" ] && ESPPORT="$p" && break
+  done
+fi
 PORT="${ESPPORT:-/dev/cu.usbmodem11301}"
 
 cmd="${1:-build}"

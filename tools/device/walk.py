@@ -20,9 +20,9 @@ P1→P2→P3→P4→P6 要按十几次键，而每验证一次改动就得走一
     A/B/C  双击
     s      截图（不经过按键）
 
-默认路径 `c A b a s`：
+默认路径 `c a b a a`：
     c  P1 按 C     → P2 遭遇列表
-    A  P2 A 双击   → P3 战斗（单击是移动光标）
+    a  P2 A 单击   → P3 战斗（选中遭遇；双击被忽略，P2 只认单击）
     b  P3 按 B     → 开打
     a  P3 按 A     → P4 捕获
     a  P4 按 A     → 投球
@@ -44,7 +44,7 @@ RE_SHOT = re.compile(rb"@@SHOT (\d+) (\d+) (\S+) (\d+)")
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="走一遍玩法链路并逐页截图")
-    ap.add_argument("--keys", default="c,A,b,a,a",
+    ap.add_argument("--keys", default="c,a,b,a,a",
                     help="逗号分隔的按键序列")
     ap.add_argument("--out", default="/tmp/walk")
     ap.add_argument("--port", default="")

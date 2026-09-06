@@ -998,9 +998,11 @@ def sim_pages_payload() -> dict:
         scenarios.append({
             "label": label, "playerLevel": plv, "wildLevel": wlv,
             "wildSid": wild_sid,
-            # HP 上限（= 种族值 HP 档）—— 页面画血条按 cur/max，与固件
-            # battle draw_bar 同语义。sim 没导这个的话 JS 只能拿比值猜。
-            "petMax": pst[0], "wildMax": wst[0],
+            # HP 上限 —— auto_battle 同一行代码：effective_stat(base, lv)*2 + lv。
+            # 旧值 pst[0] 是种族值 HP 档（量纲不同），配实战 petHp 出过
+            # 「86/35」这种 cur>max（第十六派活①，躺了两轮被数字显示揭出来）。
+            "petMax": S.effective_stat(pst[0], plv) * 2 + plv,
+            "wildMax": S.effective_stat(wst[0], wlv) * 2 + wlv,
             "won": res.won, "exp": res.exp,
             "rounds": [{"attacker": r.attacker, "move": r.move,
                         "damage": r.damage, "mult": r.mult,
