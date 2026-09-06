@@ -2,6 +2,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Kanto Asset Inspector</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>/*KANTO16CSS*/</style>
 <style>
 :root{
   --dmg-0:#0f380f; --dmg-1:#306230; --dmg-2:#8bac0f; --dmg-3:#9bbc0f;
@@ -28,7 +29,7 @@ h1,h2,h3,.px{font-family:"Silkscreen","IBM Plex Mono",monospace;font-weight:700}
 
 .wrap{max-width:1240px;margin:0 auto;padding:28px 20px 80px}
 header{border-bottom:2px solid var(--ink);padding-bottom:18px;margin-bottom:26px}
-h1{font-size:26px;margin:0 0 6px;letter-spacing:.02em;text-wrap:balance}
+h1{font-size:24px;margin:0 0 6px;letter-spacing:.02em;text-wrap:balance}
 .sub{color:var(--ink-soft);font-size:13px}
 .sub b{color:var(--ink)}
 
@@ -37,7 +38,7 @@ h1{font-size:26px;margin:0 0 6px;letter-spacing:.02em;text-wrap:balance}
 .stat{flex:1 1 120px;padding:10px 14px;border-right:1px solid var(--line)}
 .stat:last-child{border-right:0}
 .stat .k{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-soft)}
-.stat .v{font-family:"Silkscreen",monospace;font-size:17px;font-variant-numeric:tabular-nums}
+.stat .v{font-family:"Silkscreen",monospace;font-size:16px;font-variant-numeric:tabular-nums}
 
 .cols{display:grid;grid-template-columns:288px 1fr;gap:24px;align-items:start}
 @media(max-width:880px){.cols{grid-template-columns:1fr}}
@@ -58,7 +59,7 @@ h1{font-size:26px;margin:0 0 6px;letter-spacing:.02em;text-wrap:balance}
   font-family:"Silkscreen",monospace}
 
 .readout{margin-top:14px;font-size:12px;line-height:1.75}
-.readout .nm{font-family:"Silkscreen",monospace;font-size:15px;display:block;margin-bottom:4px}
+.readout .nm{font-family:"Silkscreen",monospace;font-size:16px;display:block;margin-bottom:4px}
 .readout dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:8px 0 0}
 .readout dt{color:var(--ink-soft);font-size:11px}
 .readout dd{margin:0;font-variant-numeric:tabular-nums}
@@ -120,6 +121,16 @@ th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-
 .tabs button[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 .panel[hidden]{display:none}
+/* ── 模拟器侧栏控件统一视觉（第十派活）──
+   这些按钮原先无任何样式表背景 → 回退 UA 默认（随浏览器/系统主题漂移，
+   用户环境里出现绿底/黄底）。侧栏是工具 UI：一律绑 inspector 主题变量，
+   与 G/base 方向无关。 */
+#p-sim button{font:600 12px/1.3 "IBM Plex Mono",monospace;padding:6px 8px;
+  border:1px solid var(--line);background:var(--panel);color:var(--ink);
+  cursor:pointer;text-align:left;letter-spacing:.02em}
+#p-sim button:hover:not(:disabled){border-color:var(--ink)}
+#p-sim button:disabled{opacity:.45;cursor:not-allowed}
+#p-sim .sim-key{font-size:16px;text-align:center}
 
 /* ── 逐帧步进 ── */
 .stepper{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;
@@ -471,6 +482,10 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
       最近邻放大 —— 对比的是<b>尺寸取舍</b>，不是 GSC 图本身。</div>
     <h3 style="margin-top:10px">招式动画（G）</h3>
     <div id="sim-movefx"></div>
+    <div style="display:flex;gap:4px;margin-top:2px">
+      <span style="font-size:10px;color:var(--ink-soft);align-self:center">闪避幅度</span>
+      <div id="sim-dodge" style="flex:1"></div>
+    </div>
     <div class="notes" style="font-size:11px;margin-top:4px">
       剧本 4 招（撞击/电击/落石/绑紧）按回合 <code>move</code> 字段自动派发；
       按钮可强制预览任一动画（<b>只换表现，不改任何 sim 数值</b>）。
@@ -3394,6 +3409,18 @@ const W=240, H=320, BAND=80, SC=2;
 // 现状基线 = 真机实测色（固件 RGB_HEX(0x9bbc0f/0x0f380f/0x306230/0x8bac0f)
 // 经 RGB565 量化后的上屏值）—— 模拟器要对的就是设备，不是另立一套灰白。
 const INK='#083808', MID='#316131', BG='#9cbe08', LGT='#8cae08';
+/* Kanto16：font16.bin 点阵字体（build 时内嵌 data URI）。加载成功后模拟器文字
+   与固件**字形+字宽+ASCII 左移规则**逐项一致（render.c：ASCII dx=-4、半宽推进）。
+   字符不在字库的（▸/★ 等固件用素材不用字体）自动走宿主字体，不留空白。 */
+let KANTO=false, KSET=null;
+try{
+  if(ASSETS.kantoChars){
+    KSET=new Set(ASSETS.kantoChars);
+    document.fonts.load('16px Kanto16').then(rs=>{
+      if(rs&&rs.length){ KANTO=true; draw(); syncFrame(); }
+    }).catch(()=>{});
+  }
+}catch(e){}
 const el = id => document.getElementById(id);
 const ACTS=['feed','play','rest'], ACT_ZH={feed:'喂食',play:'玩耍',rest:'休息'};
 
@@ -3409,9 +3436,21 @@ function bands(){
   ctx.setLineDash([]);
 }
 function text(str,x,y,ink){
-  ctx.font='13px "PingFang SC",monospace'; ctx.textBaseline='top';
-  ctx.fillStyle=ink||INK;
-  let cx=x; for(const ch of str){ ctx.fillText(ch,cx,y); cx += ch.charCodeAt(0)>0xFF?16:8; }
+  let cx=x;
+  for(const ch of str){
+    const full=ch.charCodeAt(0)>0xFF;
+    if(KANTO && KSET.has(ch)){
+      ctx.font='16px Kanto16'; ctx.textBaseline='alphabetic';
+      // 固件 render.c：字形居中 16 格，ASCII 左移 4 落进 8px 步进
+      ctx.fillStyle=ink||INK;
+      ctx.fillText(ch, full?cx:cx-4, y+16);
+    } else {
+      ctx.font='13px "PingFang SC",monospace'; ctx.textBaseline='top';
+      ctx.fillStyle=ink||INK;
+      ctx.fillText(ch,cx,y);
+    }
+    cx += full?16:8;
+  }
   return cx;
 }
 function textW(str){ let w=0; for(const ch of str) w += ch.charCodeAt(0)>0xFF?16:8; return w; }
@@ -3518,7 +3557,7 @@ function sprC(id,view,cx,cy,scale,sil){ // 光学居中：墨迹中心对准 (cx
   const bb=inkBBox(id,view); if(!bb) return;
   const dx=cx-(bb.x0+bb.x1+1)/2*scale, dy=cy-(bb.y0+bb.y1+1)/2*scale;
   if(sil) sprSil(id,view,dx,dy,scale,sil); else spr(id,view,dx,dy,scale); }
-let DIR='base', P3SKEL='std', P3GSZ='96';
+let DIR='base', P3SKEL='std', P3GSZ='96', DODGE_PX=12;
 const COVERED={P1:1,P3:1,P6:1};
 function curDir(){ return COVERED[st.page]?DIRS[DIR]:DIRS.base; }
 function T(){ return curDir().pal; }
@@ -3549,11 +3588,20 @@ function sprSil(id,view,x,y,scale,c){ // 剪影：非透明像素全部同一色
   drawSprite(ctx,b64bytes(src),size,Math.round(x),Math.round(y),scale,null,[c,c,c,c]); }
 function hintAt(y,inkC,keyC,x0){ // 提示行（可选给 [A]/[B]/[C] 键帽上色）
   const h=SP.hints[st.page]; const line=typeof h==='string'?h:((h&&h.line)||'');
-  ctx.font='13px "PingFang SC",monospace'; ctx.textBaseline='top';
   let cx=x0||8; const parts=line.split(/(\[[ABC]\])/g);
   for(const p of parts){ if(!p) continue;
     ctx.fillStyle=(keyC&&/^\[[ABC]\]$/.test(p))?keyC:(inkC||T().ink);
-    for(const ch of p){ ctx.fillText(ch,cx,y); cx+=ch.charCodeAt(0)>0xFF?16:8; } } }
+    for(const ch of p){
+      const full=ch.charCodeAt(0)>0xFF;
+      if(KANTO && KSET.has(ch)){
+        ctx.font='16px Kanto16'; ctx.textBaseline='alphabetic';
+        ctx.fillText(ch, full?cx:cx-4, y+16);
+      } else {
+        ctx.font='13px "PingFang SC",monospace'; ctx.textBaseline='top';
+        ctx.fillText(ch,cx,y);
+      }
+      cx+=full?16:8;
+    } } }
 function barD(x,y,w,h,pct,o){ // 方向条：边框 + 填充 + 轨道；o={fill,track,low,danger,border}
   const t=T(); const op=o||{};
   frame(x,y,w,h,op.border||t.ink,1);
@@ -3920,7 +3968,7 @@ function fxOffsets(fx, r, ph, petRect, wildRect){
     off[atkIsPet?'pet':'wild'] += Math.round(fx.dash*tri) * (atkIsPet?1:-1);
   }
   if(r.missed){                                       // 闪避：被击方横移躲开（GSC "attack missed!" 配套）
-    off[atkIsPet?'wild':'pet'] += Math.round(12*tri) * (atkIsPet?1:-1);
+    off[atkIsPet?'wild':'pet'] += Math.round(DODGE_PX*tri) * (atkIsPet?1:-1);
   }
   return off;
 }
@@ -3976,19 +4024,19 @@ function p3G(){ // G 金银：C 的战斗构图 + GSC 实值底/HP + 主宠尺�
   fieldFill();
   // 招式动画（第一段）：攻击方突进位移 —— 必须在画 sprite 前算
   const big = P3GSZ==='96';
-  const petRect = big?{x:4,y:140,s:96}:{x:24,y:188,s:48};
-  const wildRect = {x:W-8-wpx, y:150-wpx, s:wpx};
+  const petRect = big?{x:16,y:140,s:96}:{x:24,y:188,s:48};   // x16：留 12px 闪避余量（x4 时 dodge 出画布）
+  const wildRect = {x:W-20-wpx, y:150-wpx, s:wpx};
   const fxo = fxOffsets(fxSpec(r), r, ph, petRect, wildRect);
   // GSC 原作 sprite 背后是干净底 —— 棋盘舞台纹已撤（Hub 验收意见，浅底上刺眼）
   gscBox(4,8,132,44,t.red);                          // 野怪牌：左缘 x4 与消息窗对齐（栅格 M=4）
   const nm=nameOf(m)+' Lv'+sc.wildLevel; text(nm,12,15,t.ink);
   barD(12,37,116,8,wildHpPct(sc,r),{fill:hp3(wildHpPct(sc,r)),track:t.hpT});
-  spr(sc.wildSid,'front',W-8-wpx+wdx+fxo.wild,150-wpx,2);
+  spr(sc.wildSid,'front',W-20-wpx+wdx+fxo.wild,150-wpx,2); // W-20：被闪避 +12 时右缘 232 不出画布（与主宠 x16 对称）
   if(big){                                           // 96 = 48×2：体量不减，真机要跨带渲染
-    sprNN(25,'back',4+pdx+fxo.pet,140,96);
-    gscBox(104,182,132,48,t.red);                    // 牌右移避开 96px 主宠
-    text('皮卡丘 Lv'+sc.playerLevel,112,188,t.ink);
-    barD(112,214,116,8,petHpPct(sc,r),{fill:hp3(petHpPct(sc,r)),track:t.hpT});
+    sprNN(25,'back',16+pdx+fxo.pet,140,96);
+    gscBox(120,182,116,48,t.red);                    // 牌右移贴齐 236（栅格 4×29），避开 96px 主宠 x16..112
+    text('皮卡丘 Lv'+sc.playerLevel,128,188,t.ink);
+    barD(128,214,100,8,petHpPct(sc,r),{fill:hp3(petHpPct(sc,r)),track:t.hpT});
   } else {                                           // 48 = GSC 原生 @1x：不碰 80px 横带，小 25%
     sprNN(25,'back',24+pdx+fxo.pet,188,48);
     gscBox(92,182,144,48,t.red);                     // 右缘 92+144=236 与消息窗齐（栅格）
@@ -4477,6 +4525,18 @@ const szEl=el('sim-p3gsz');
     try{ history.replaceState(null,'','#sim=P3&d=G&z='+P3GSZ); }catch(e){} };
   szEl.appendChild(b);
 });
+const dgEl=el('sim-dodge');
+[['12','12px（出画布 8px）'],['8','8px（出画布 4px）'],['4','4px（完全不出画布）']].forEach(([k,lab])=>{
+  const b=document.createElement('button');
+  b.textContent=lab; b.dataset.g=k;
+  b.style.cssText='display:inline-block;width:auto;margin:0 2px;padding:4px 6px;font-size:11px';
+  b.onclick=()=>{ DODGE_PX=+k; syncDodgeUI(); draw(); };
+  dgEl.appendChild(b);
+});
+function syncDodgeUI(){ document.querySelectorAll('#sim-dodge button').forEach(b=>{
+  const on=+b.dataset.g===DODGE_PX;
+  b.style.fontWeight=on?'700':'400'; b.style.borderColor=on?'#c83c30':''; }); }
+syncDodgeUI();
 const fxEl=el('sim-movefx');
 [['','跟剧本（按 move 派发）'],...Object.keys(MOVE_FX).filter(k=>k!=='*').map(k=>[k,k+' 预览'])].forEach(([k,lab])=>{
   const b=document.createElement('button');

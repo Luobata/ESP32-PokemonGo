@@ -1152,10 +1152,29 @@ def main() -> int:
     tpl = (HERE / "template.html").read_text(encoding="utf-8")
     if "ASSETS_JSON" not in tpl:
         print("错误：template.html 里找不到 ASSETS_JSON 占位符", file=sys.stderr)
+
+    # Kanto16 点阵字体（第十一派活）：font16.bin → 位图 TTF → data URI @font-face。
+    # fontTools 缺失时降级（模板占位符替换为空，web 回退 Silkscreen/PingFang），
+    # 不阻塞构建与门禁 —— 依赖说明见 make_font.py 头注。
+    kanto_css = ""
+    kanto_chars = ""
+    try:
+        sys.path.insert(0, str(HERE))
+        from make_font import build_kanto16, read_font16
+        kanto_css, kmeta = build_kanto16()
+        _, _glyphs = read_font16()
+        kanto_chars = "".join(chr(cp) for cp in sorted(_glyphs))
+        payload["kantoChars"] = kanto_chars
+        print(f"  Kanto16：{kmeta['chars']} 字形 {kmeta['bytes']}B → data URI 内嵌")
+    except ImportError as e:
+        print(f"  ⚠️ Kanto16 跳过（fontTools 缺失，web 用回退字体）：{e}", file=sys.stderr)
+    except Exception as e:
+        print(f"  ⚠️ Kanto16 生成失败（web 用回退字体）：{e}", file=sys.stderr)
         return 1
 
-    html = tpl.replace("ASSETS_JSON",
-                       json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
+    html = tpl.replace("/*KANTO16CSS*/", kanto_css).replace(
+        "ASSETS_JSON",
+        json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
     out = pathlib.Path(args.out)
     out.write_text(html, encoding="utf-8")
 
