@@ -530,7 +530,7 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
 </div>
 
 <div class="sim-cant" style="margin-top:16px;border:2px solid var(--accent);padding:10px 14px">
-  <b style="color:var(--accent)">门禁全绿 ≠ 全部验过 —— 本模拟器验不了的五类</b>
+  <b style="color:var(--accent)">门禁全绿 ≠ 全部验过 —— 本模拟器验不了的六类</b>
   <span class="sub">（浏览器原理上测不到，各有替代守护，别因为这里绿了就跳过真机）</span>
   <table style="min-width:560px;margin-top:8px">
     <tr><th>验不了的</th><th>为什么 web 验不了</th><th>由什么守护</th></tr>
@@ -549,6 +549,16 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
     <tr><td><b>⑤ 真实 WiFi 扫描产出遭遇</b></td>
         <td>P2 队列在此是<b>确定性生成样本</b>（种子固定），不是实机扫描</td>
         <td>真机走链路实测 + verify_encounter.py 对 roll_encounter 逐值对账</td></tr>
+    <tr><td><b>⑥ 取材正确性（画了 ≠ 画对了）</b></td>
+        <td>渲染成功不等于取对了素材 —— 第十六派活实锤：把 pokecrystal 的
+            <b>装饰性 tile 当 HP 条本体</b>提取，渲染「成功」且像素断言全绿
+            （碎块也是墨），视觉才看出来。任何自动检查都发现不了这类错，
+            因为渲染管线本身没坏</td>
+        <td><b>只能靠比对上游</b>：图元必须能指出 pokecrystal 的源文件
+            + 引擎装载/摆位代码（如 font_battle_extra.png + DrawBattleHPBar）；
+            对照图的参照物必须<b>不经被验渲染管线</b>（原始 png 直贴）。
+            同理还有「接没接」类（hpColor→hp3 三段变色没接，黄段从不出现，
+            数据层看不出来）—— 改完呈现要问「哪一帧能看到差异」</td></tr>
   </table>
 </div>
 
@@ -3536,10 +3546,15 @@ function gscBox(x,y,w,h,c){ // GSC 菜单框占位：外框四角让 1px 的「�
   ctx.fillRect(x+4,y+4,w-8,1); ctx.fillRect(x+4,y+h-5,w-8,1);
   ctx.fillRect(x+4,y+5,1,h-10); ctx.fillRect(x+w-5,y+5,1,h-10);
 }
-function hp3(pct){ // GSC 三段 HP 实值：>50 绿 0x05E0 / 20~50 黄 0xFD60 / ≤20 红 0xF800
-  // 阈值出处 Bulbapedia HP 条目：「between one-fifth and half … yellow」，
-  // 且 Gen II 恰好 50% 也显黄 —— 与 pct>50 的边界一致。
-  return pct>50?T().hpG:(pct>20?T().hpY:T().hpR); }
+function hp3(pct){ // GSC 三段 HP 实值：绿 0x05E0 / 黄 0xFD60 / 红 0xF800
+  // 阈值出处 pokecrystal home/tilemap.asm:220 GetHPPal：像素 e=cur/max*48，
+  // e>=24 绿 / e>=10 黄 / 否则红 —— 即 pct>50 绿 / 21~50 黄 / <21 红
+  // （gscHpBar 的 e>=24/e>=10 与此同源；之前估的 50/20 已按 asm 修正为 50/21）
+  // 回退链：base/A/C 是 DEVG 灰阶板（固件 draw_bar 本就 C_INK/C_MID 灰，无段色）
+  // → 全部退化 ink；B 缺 hpY → 黄段用 gold。undefined 直接给 fillStyle 会静默不画
+  const t=T();
+  const G=t.hpG||t.green||t.ink, Y=t.hpY||t.gold||G, R=t.hpR||t.red||t.ink;
+  return pct>50?G:(pct>21?Y:R); }
 /* ---- 居中原语（第五派活：统一「光学居中」规则，修一次原语好过逐页调坐标）----
    1) sprite 一律按墨迹 bbox 居中（位图四周的透明边不算数 ——
       同 32px 位图有的墨迹 28px 有的 19px，按盒子居中必然看着歪）；
@@ -3628,7 +3643,6 @@ function uiO(name,dx,dy,scale,palOv){ // ui.bin 素材，可带调色板覆盖�
   ctx.drawImage(uiCacheO[k],dx,dy); }
 const MONO_HEART=['#083808','#8cae08','#316131'];   // A/C 心形单色化（描边/高光/主体→绿系三档）
 const LOWT=(SP.care.pet&&SP.care.pet.low)||25;      // 低轴阈值（sim LOW_THRESHOLD 导出）
-function hpColor(pct){ return pct<LOWT?T().red:T().green; }
 
 /* ---- 图鉴状态（sys2.s5 的 sim 样本位图，非 JS 造数）---- */
 let _dex=null;
@@ -3786,7 +3800,7 @@ const R3={
    const nm=nameOf(m)+' Lv'+sc.wildLevel;
    frame(108,2,124,34,t.ink,1);                       // 野怪牌
    text(nm,224-textW(nm),6,t.ink);
-   barD(116,24,108,8,wildHpPct(sc,r),{fill:hpColor(wildHpPct(sc,r)),track:t.track});
+   barD(116,24,108,8,wildHpPct(sc,r),{fill:hp3(wildHpPct(sc,r)),track:t.track});
    dither(140,52,92,110,t.track,t.field);             // 战斗舞台底纹（GBC 式衬底）
    spr(sc.wildSid,'front',W-8-m.fsize+wdx,88+(64-m.fsize)/2,1);
    const gs=W-8-m.fsize;
@@ -3796,7 +3810,7 @@ const R3={
    dither(2,232,76,4,t.track,t.field);
    frame(72,162,160,40,t.ink,1);                      // 主宠牌
    text('皮卡丘 Lv'+sc.playerLevel,78,166,t.ink);
-   barD(78,186,148,8,petHpPct(sc,r),{fill:hpColor(petHpPct(sc,r)),track:t.track});
+   barD(78,186,148,8,petHpPct(sc,r),{fill:hp3(petHpPct(sc,r)),track:t.track});
    text(p3Msg(r,sc),8,244,t.ink);
    if(r.label) text(r.label,8,262,t.gold);            // 效果提示=金
    if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,W-8-textW(d),262,t.red); }
@@ -3846,7 +3860,7 @@ function p3Alt(){ // 「打破骨架」：pokered 战斗构图 —— 无全屏�
   if(DIR==='C') barD(16,36,112,8,wildHpPct(sc,r),{fill:t.ink,track:t.track});
   else barD(16,36,112,8,wildHpPct(sc,r),
     DIR==='base'?{fill:t.dim,track:t.track}
-    :DIR==='B'?{fill:hpColor(wildHpPct(sc,r)),track:t.track}
+    :DIR==='B'?{fill:hp3(wildHpPct(sc,r)),track:t.track}
     :{fill:t.ink,track:t.track});
   // 野怪 front @2x 右置 + 土丘
   spr(sc.wildSid,'front',W-8-wpx+wdx,150-wpx,2);
@@ -3864,7 +3878,7 @@ function p3Alt(){ // 「打破骨架」：pokered 战斗构图 —— 无全屏�
   if(DIR==='C') barD(100,212,122,8,petHpPct(sc,r),{fill:t.ink,track:t.track});
   else barD(100,212,122,8,petHpPct(sc,r),
     DIR==='base'?{fill:t.dim,track:t.track}
-    :DIR==='B'?{fill:hpColor(petHpPct(sc,r)),track:t.track}
+    :DIR==='B'?{fill:hp3(petHpPct(sc,r)),track:t.track}
     :{fill:t.ink,track:t.track});
   // 消息窗占底：回合文本 + 动作行收进窗内（骨架的「底部提示行」不再是全屏横线+左对齐行）
   if(DIR==='C') box2(4,248,232,64,t.ink); else frame(4,250,232,62,t.ink,1);
@@ -4218,7 +4232,9 @@ function p3G(){ // G 金银：GSC 原作布局（engine/battle/core.asm 坐标 �
   const wbb=inkBBox(sc.wildSid,'front');
   const wildX = wbb ? 186-(wbb.x0+wbb.x1+1) : 168;
   const wildRect = {x:wildX, y:150-wpx, s:wpx};
-  const fxo = fxOffsets(fxSpec(r), r, ph, petRect, wildRect);
+  // 十八派活②：EXP 动画帧（it.exp）不再派发上一招特效 —— 战斗已结束，
+  // tint/charge 等残留会把 sprite 染色（曾把升级帧的两只都染绿）
+  const fxo = it.exp ? {pet:0,wild:0} : fxOffsets(fxSpec(r), r, ph, petRect, wildRect);
 
   /* ── 敌方 HUD（GSC core.asm DrawEnemyHUD：hlcoord 1,0；条 hlcoord 2,2 =
         HP: 标签 + 6 条 tile + 端帽，敌侧无数字无 EXP）。
@@ -4257,7 +4273,7 @@ function p3G(){ // G 金银：GSC 原作布局（engine/battle/core.asm 坐标 �
   ellipse(64, 214, 50, 7, t.dim);
 
   // 招式动画（第二段）：特效层叠在 sprite 之上
-  fxOverlay(fxSpec(r), r, ph, petRect, wildRect, sc.wildSid);
+  if(!it.exp) fxOverlay(fxSpec(r), r, ph, petRect, wildRect, sc.wildSid);
 
   /* ── 消息窗（两行，strings.py BATTLE_LINES：L1=谁 L2=做了什么）── */
   const mvShow = st.P3.fxDemo || r.move;
