@@ -29,8 +29,14 @@ typedef enum {
     PAGE_BATTLE,        // P3 战斗
     PAGE_CAPTURE,       // P4 捕获
     PAGE_DEX,           // P6 图鉴
+    PAGE_OPENING,       // P0 开场（只在首次冷启动进入）
+    PAGE_CARE,          // P5 照料
     PAGE_COUNT,
 } page_id_t;
+
+#define NAV_NOTE_NONE     0
+#define NAV_NOTE_CAUGHT   1
+#define NAV_NOTE_EVOLVED  2
 
 // 切页。在 LVGL 任务里调（按键回调已经持锁，直接调即可）。
 void nav_go(page_id_t p);
@@ -64,6 +70,10 @@ typedef struct {
     // P3 打完留下的：给 P4 用
     bool battled;
     bool battle_won;
+
+    // 完成页留下的摘要类型。来源页在短暂停留期显示，随后由自己的
+    // LVGL timer 自动导航；新完成事件覆盖旧值。
+    uint8_t done_note;
 } nav_ctx_t;
 
 nav_ctx_t *nav_ctx(void);

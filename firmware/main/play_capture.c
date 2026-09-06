@@ -28,12 +28,14 @@
 #include "lvgl.h"
 
 #include "assets.h"
+#include "battle.h"
 #include "capture.h"
 #include "nav.h"
 #include "nurture.h"
 #include "play.h"
 #include "render.h"
 #include "screen.h"
+#include "sfx.h"
 #include "world.h"
 
 static const char *TAG = "p4";
@@ -50,7 +52,7 @@ static const char *TAG = "p4";
 // 布局（不跨带边界）
 //   y=4    捕获                          带 0
 //   y=32   [ 野怪 sprite 64px 居中 ]      带 0~1
-//   y=176  精灵球点阵 + 球名 ×数量        带 2
+//   y=176  当前球种点阵 + 球名 ×数量        带 2
 //   y=208  判定条（窗口 + 指针）          带 2  ← 只有这一带每帧重画
 //   y=248  结果文案                       带 3
 //   y=292  ───────────────────
@@ -61,16 +63,29 @@ static const char *TAG = "p4";
 #define BAR_X ((SCR_W - CAP_BAR_WIDTH) / 2)
 #define MSG_Y 248
 #define BAR_BAND (BAR_Y / BAND_H)     // 判定条所在的带号
+#define CAPTURE_TICK_MS 40
+#define HOLD_TICKS 25                 // 25 × 40ms = 1.0s
+
+SCREEN_ASSERT_WITHIN_BAND(capture_ball, BALL_Y, 24);
+SCREEN_ASSERT_WITHIN_BAND(capture_message, MSG_Y, 16);
 
 static lv_timer_t *s_tick;
 
 static cap_ball_t s_ball;
+static const char *const BALL_ART[CAP_BALL_COUNT] = {
+    [CAP_BALL_POKE] = "ball_24",
+    [CAP_BALL_GREAT] = "ball_great",
+    [CAP_BALL_ULTRA] = "ball_ultra",
+};
 static uint8_t s_balls[CAP_BALL_COUNT] = {12, 3, 1};   // TODO(S9): 接道具系统
 static int64_t s_t0;
 static cap_result_t s_last;
 static bool s_thrown;
 static bool s_caught;
 static bool s_fled;
+static bool s_no_ball;
+static bool s_hold_active;
+static uint8_t s_hold;
 
 // 捕获成功的闪白。**这是整局最值得给反馈的一瞬间** ——
 // 页面文档把捕获称作「各系统的汇聚点」，四个乘数在这里结算。
@@ -159,10 +174,9 @@ static void draw_band(int band_y)
         render_sprite_2bpp((SCR_W - 64) / 2, Y(SPRITE_Y), spr, 32, 2, pal);
     }
 
-    // 精灵球点阵 + 球名数量 —— **页面文档记的缺口就是这个**：
-    // 「P4 捕获页根本没画球，只有文字『精灵球 ×12』」
+    // 按球种选择对应点阵，B 换球后图案、球名和数量同步变化。
     ui_art_t ball;
-    if (assets_ui(s_ball == CAP_BALL_POKE ? "ball_24" : "ball_24", &ball)) {
+    if (assets_ui(BALL_ART[s_ball], &ball)) {
         static const uint16_t PAL[4] = {
             RGB_HEX(0x0f380f), RGB_HEX(0xd05030),
             RGB_HEX(0xf8f8f8), 0,
@@ -177,16 +191,23 @@ static void draw_band(int band_y)
     if (band_y == BAR_BAND * BAND_H) draw_bar_band(band_y);
 
     // 结果
-    if (s_caught) {
+    if (s_hold_active && c->done_note == NAV_NOTE_CAUGHT) {
+        render_text(8, Y(MSG_Y), "已捕获", C_INK);
+        render_text(96, Y(MSG_Y), "图鉴 +1", C_MID);
+    } else if (s_caught) {
         render_text(8, Y(MSG_Y), "捕获成功", C_INK);
     } else if (s_fled) {
         render_text(8, Y(MSG_Y), "跑掉了", C_INK);
+    } else if (s_no_ball) {
+        render_text(8, Y(MSG_Y), "没有球了", C_INK);
     } else if (s_thrown) {
         render_text(8, Y(MSG_Y), s_last.caught ? "命中" : "未命中", C_INK);
     }
 
     hline_at(Y(292));
-    render_text(8, Y(298), "[A]投球 [B]换球 [C]取消", C_INK);
+    if (!s_hold_active) {
+        render_text(8, Y(298), "[A]投球 [B]换球 [C]取消", C_INK);
+    }
 
     #undef Y
     screen_push_band(band_y);
@@ -201,13 +222,22 @@ static void redraw_for_dump(void) { draw_all(); }
 
 static void tick(lv_timer_t *t)
 {
-    (void)t;
-
     // 捕获成功的闪白 —— 只重画 sprite 那两条带
     if (s_flash_i < FLASH_FRAMES) {
         s_flash_i++;
         draw_band(0);
         draw_band(BAND_H);
+    }
+
+    if (s_hold_active) {
+        if (++s_hold < HOLD_TICKS) return;
+
+        // 先清状态和 timer 指针，再从唯一出口切页；exit 不会重复删除。
+        s_hold_active = false;
+        s_hold = 0;
+        s_tick = NULL;
+        lv_timer_delete(t);
+        nav_go(PAGE_ENCOUNTER);
         return;
     }
 
@@ -222,13 +252,16 @@ void play_capture_enter(void)
 
     s_ball = CAP_BALL_POKE;
     s_t0 = esp_timer_get_time();
-    s_thrown = s_caught = s_fled = false;
+    s_thrown = s_caught = s_fled = s_no_ball = false;
+    s_hold_active = false;
+    s_hold = 0;
+    nav_ctx()->done_note = NAV_NOTE_NONE;
     s_flash_i = FLASH_FRAMES;
     memset(&s_last, 0, sizeof(s_last));
 
     screen_set_redraw(redraw_for_dump);
     draw_all();
-    s_tick = lv_timer_create(tick, 40, NULL);    // 25fps，指针要跟手
+    s_tick = lv_timer_create(tick, CAPTURE_TICK_MS, NULL); // 25fps，指针要跟手
 
     // **不做自动截图** —— P1 那个是在只有一页时加的，
     // 现在有了 dbg.c 的按键注入，截图由 walk.py 显式发 's' 触发。
@@ -242,10 +275,14 @@ void play_capture_enter(void)
 void play_capture_exit(void)
 {
     if (s_tick) { lv_timer_delete(s_tick); s_tick = NULL; }
+    s_hold_active = false;
+    s_hold = 0;
 }
 
 void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
+    // 停留期任何页面按键都只加速同一条 timer 导航路径。
+    if (s_hold_active) { s_hold = HOLD_TICKS - 1; return; }
     if (btn == BSP_BTN_DOWN && ev == BSP_BTN_LONG) { screen_dump(); return; }
     if (ev != BSP_BTN_CLICK) return;
 
@@ -256,8 +293,11 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         if (s_caught || s_fled) { nav_go(PAGE_ENCOUNTER); return; }
         if (s_balls[s_ball] == 0) {
             ESP_LOGI(TAG, "没有球了");
+            s_no_ball = true;
+            draw_band((MSG_Y / BAND_H) * BAND_H);
             return;
         }
+        s_no_ball = false;
         s_balls[s_ball]--;
         uint32_t elapsed = (uint32_t)((esp_timer_get_time() - s_t0) / 1000);
         species_t sp;
@@ -274,12 +314,24 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         s_thrown = true;
 
         if (s_last.caught) {
-            s_caught = true;
-            s_flash_i = 0;              // 开始闪
-            world_mark_caught(c->enc.species_id, c->enc.is_shiny);
-            world_take_uid(c->uid, NULL);
-            ESP_LOGI(TAG, "捕获成功 #%u%s", c->enc.species_id,
-                     c->enc.is_shiny ? " 闪光!" : "");
+            mon_t mon = {
+                .species_id = c->enc.species_id,
+                .level = battle_wild_level(c->enc.rarity),
+                .hp = c->enc.hp_ratio ? c->enc.hp_ratio : 1,
+                .nickname_idx = 0xFF,
+                .flags = c->enc.is_shiny ? 1u : 0u,
+            };
+            if (world_capture_uid(c->uid, &mon)) {
+                s_caught = true;
+                s_flash_i = 0;          // 开始闪
+                s_hold_active = true;
+                s_hold = 0;
+                c->done_note = NAV_NOTE_CAUGHT;
+                sfx_play(SFX_CAUGHT);
+                if (c->enc.is_shiny) sfx_play(SFX_SHINY);
+                ESP_LOGI(TAG, "捕获成功 #%u%s", c->enc.species_id,
+                         c->enc.is_shiny ? " 闪光!" : "");
+            }
         } else {
             // 没抓到也算见过 —— S5 的 seen 位图，承载「遇到了但跑了」
             world_mark_seen(c->enc.species_id, c->enc.is_shiny);
@@ -297,6 +349,7 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         if (s_caught || s_fled) break;
         s_ball = (cap_ball_t)((s_ball + 1) % CAP_BALL_COUNT);
         s_thrown = false;
+        s_no_ball = false;
         draw_all();
         break;
 

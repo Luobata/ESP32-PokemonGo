@@ -45,12 +45,13 @@ KEY_HINT_MAX_ACTION = 2
 # ---------------------------------------------------------------------------
 
 KEYS = {
+    "P0": {"A": "继续", "C": "跳过"},
     "P1": {"A": "照料", "B": "图鉴", "C": "遭遇"},
-    "P2": {"A": "选中", "B": "返回", "C": "丢弃"},
+    "P2": {"A": "选中", "B": "下条", "C": "返回"},  # B 长按丢弃
     "P3": {"A": "捕获", "B": "战斗", "C": "逃跑"},
     "P4": {"A": "投球", "B": "换球", "C": "取消"},
     "P5": {"A": "执行", "B": "切换", "C": "返回"},
-    "P6": {"A": "详情", "B": "翻页", "C": "返回"},
+    "P6": {"A": "上页", "B": "下页", "C": "返回"},
     "P7": {"A": "切榜", "B": "翻页", "C": "返回"},
     "P8": {"A": "确认", "B": "下个", "C": "上个"},     # 取名页（S12）
     "INTRO": {"A": "确认", "B": "移动", "C": "预览"},   # 伙伴选择（S11）
@@ -106,12 +107,14 @@ PAGES = {
         "fled": "跑掉了",
         "no_ball": "没有球了",
         "berry": "浆果",
+        "done_summary": ["已捕获", "图鉴 +1"],
     },
     "P5": {
         "title": "照料",
         "actions": ["喂食", "玩耍", "休息", "取名", "查看详情"],
         "labels": ["等级", "属性", "亲密度", "探索值", "进化"],
         "can_evolve": "可以进化了",
+        "evolved": "进化了",
         "reunion": "好久不见",        # 长时间离线后的重逢
     },
     "P6": {
@@ -256,14 +259,23 @@ def text_px_fixed(s: str) -> int:
     return GLYPH * len(s)
 
 
-def check_key_hints() -> list[str]:
+def check_key_hints() -> tuple[list[str], list[str]]:
     """三键提示是否放得下 —— 动作词 ≤2 字，且整行放得下。
 
-    按**两个**宽度模型校验：text_px（半宽假设，页面文档用的）与
-    text_px_fixed（字库实际的定长）。后者超宽只报 ⚠️ 而不算失败 ——
-    它是已知的规格待决项（见 text_px_fixed 的说明），不是文案的错。
+    返回 (fails, warns)。按**两个**宽度模型校验：text_px（半宽假设，
+    页面文档用的）与 text_px_fixed（字库实际的定长）。
+
+    **后者超宽只是 warns，不算 fails** —— 它是已知的规格待决项
+    （见 text_px_fixed 的说明），不是文案的错。而且渲染器实际按
+    「字符类型决定步进」（render.c，真机验过：ASCII 8px 步进只切
+    右侧空白），定长模型是**已经放弃的假设**，拿它当失败判据会让
+    文档生成在干净树上也挂掉（发生过：gen_pages 因此一直 exit 1，
+    docs/pages 停更，P2 文档落后于 KEYS 的键位改动）。
+
+    真失败只有两种：动作词 >2 字、text_px 超宽 —— 这些仍会让
+    gen_pages 拒绝生成。
     """
-    bad = []
+    bad, warns = [], []
     for page, keys in KEYS.items():
         for k, action in keys.items():
             if len(action) > KEY_HINT_MAX_ACTION:
@@ -275,13 +287,15 @@ def check_key_hints() -> list[str]:
         budget = USABLE_W - (24 if page == "P1" else 0)
         if px > budget:
             bad.append(f"{page} 提示行 {px}px > {budget}px：「{line}」")
-        # 字库实际格式下的宽度 —— 规格待决，只提示
+        # 字库实际格式下的宽度 —— 规格待决，只提示不判失败
         pxf = text_px_fixed(line)
         if pxf > budget:
-            bad.append(f"⚠️ {page} 按字库定长 16px/字算 {pxf}px > {budget}px"
-                       f"（溢出 {pxf - budget}px）—— 半宽模型算 {px}px。"
-                       f"font16.bin 无 advance 字段，见 text_px_fixed()")
-    return bad
+            warns.append(f"⚠️ {page} 按字库定长 16px/字算 {pxf}px > "
+                         f"{budget}px（溢出 {pxf - budget}px）—— 半宽模型算"
+                         f" {px}px。font16.bin 无 advance 字段，见 "
+                         f"text_px_fixed()（渲染器已按字符类型步进，"
+                         f"此模型仅记录格式事实）")
+    return bad, warns
 
 
 def check_line_widths() -> list[str]:
@@ -298,7 +312,8 @@ def check_line_widths() -> list[str]:
 
 def audit() -> dict:
     """全量排版审计 —— CI 与验收平台都跑这个。"""
-    kb, lb = check_key_hints(), check_line_widths()
+    kf, kw = check_key_hints()
+    lb = check_line_widths()
     widest = max(all_strings(), key=text_px)
     hints = {p: text_px(" ".join(f"[{k}]{a}" for k, a in ks.items()))
              for p, ks in KEYS.items()}
@@ -309,7 +324,9 @@ def audit() -> dict:
         "widest": widest,
         "widest_px": text_px(widest),
         "hint_px": hints,
-        "key_violations": kb,
+        "key_violations": kf,
+        # ⚠️ 提示单独放 —— 调用方（gen_pages）应打印但不因此拒生成
+        "key_warnings": kw,
         "line_violations": lb,
-        "ok": not kb and not lb,
+        "ok": not kf and not lb,
     }

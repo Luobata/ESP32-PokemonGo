@@ -19,7 +19,8 @@
 // ## 互斥锁的粒度
 //
 // 只锁快照的拷贝，不锁扫描本身。扫描要 1.4 秒，锁那么久页面会卡；
-// 而拷一个 world_t 是几十字节的 memcpy，微秒级。
+// 常规快照只是几十字节 memcpy，存档快照也只是内存中的 2.3 KiB 编码。
+// NVS 写入在锁外串行执行，因此临界区保持在微秒级。
 // 代价是快照可能比最新扫描晚一拍 —— 对显示完全无所谓。
 
 #include <inttypes.h>
@@ -37,6 +38,9 @@
 
 #include "bsp_battery.h"
 
+#include "assets.h"
+#include "evolution.h"
+#include "exp.h"
 #include "save.h"
 #include "world.h"
 
@@ -58,6 +62,7 @@ static const char *TAG = "world";
 
 static world_t s_w;
 static SemaphoreHandle_t s_lock;
+static SemaphoreHandle_t s_save_lock;
 static bool s_wifi_ok;
 
 // 扫描结果。**static** —— 64 × 76 字节放栈上必炸（见文件头）。
@@ -76,6 +81,10 @@ static sens_core_t s_core;
 // 存档时要落盘（S18，还没接）。
 static enc_queue_t s_queue;
 static dex_t s_dex;
+static party_t s_party;
+
+// save_t 含 1886 B 队伍区，不能放进 4 KiB 的 world task 栈。
+static save_t s_save_buf;
 
 // 猎场遭遇的移动量闸门，Q10。攒够 HUNT_COST 出一只。
 //
@@ -107,15 +116,14 @@ uint8_t world_progress_from_motion(uint32_t motion_q10)
 
 void world_snapshot(world_t *out)
 {
-    if (!out) return;
-    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(50)) == pdTRUE) {
-        memcpy(out, &s_w, sizeof(*out));
-        xSemaphoreGive(s_lock);
-    } else {
-        // 拿不到锁就给上一次的值 —— **不能返回半个结构**。
-        // 50ms 拿不到锁说明扫描任务卡住了，那时旧值比撕裂的新值有用。
-        memcpy(out, &s_w, sizeof(*out));
-    }
+    if (!out || !s_lock) return;
+
+    // 接口没有错误返回值，所以超时后偷读 s_w 无法给出一致性保证。
+    // NVS 已移出状态锁，临界区只剩内存操作；这里等待短临界区完成，
+    // 比维护一份容易漏同步的影子副本更小也更可靠。
+    if (xSemaphoreTake(s_lock, portMAX_DELAY) != pdTRUE) return;
+    memcpy(out, &s_w, sizeof(*out));
+    xSemaphoreGive(s_lock);
 }
 
 // 存档节流。
@@ -131,14 +139,42 @@ void world_snapshot(world_t *out)
 static int64_t s_last_save_us;
 static bool s_dirty;
 
-static void collect_save(save_t *sv)
+static void init_default_party(void)
 {
+    party_init(&s_party);
+    mon_t starter = {
+        .species_id = 25,
+        .level = exp_to_level(0, LEVEL_MAX),
+        .hp = 100,
+        .nickname_idx = 0xFF,
+    };
+    party_receive(&s_party, &starter);
+}
+
+static void sync_leader_locked(void)
+{
+    if (s_party.party_count == 0) return;
+    mon_t *leader = &s_party.party[0];
+    leader->level = s_w.level;
+    leader->exp = s_w.exp;
+    leader->intimacy = nurture_pct(s_w.pet.intimacy);
+    leader->explore_value = s_w.explore_value;
+    s_w.species = leader->species_id;
+}
+
+static void collect_save_locked(save_t *sv)
+{
+    sync_leader_locked();
     memset(sv, 0, sizeof(*sv));
     sv->version = SAVE_VERSION;
     sv->pet = s_w.pet;
-    sv->species = 25;          // TODO(S14): 接队伍后从队伍取
-    sv->level = 12;
-    sv->exp = 0;
+    const mon_t *leader = party_leader(&s_party);
+    if (leader) {
+        sv->species = leader->species_id;
+        sv->level = leader->level;
+        sv->exp = leader->exp;
+    }
+    party_serialize(&s_party, sv->party);
     sv->queue = s_queue;
     sv->dex = s_dex;
     sv->motion_q10 = s_motion_q10;
@@ -146,21 +182,75 @@ static void collect_save(save_t *sv)
     sv->last_uptime_us = esp_timer_get_time();
 }
 
-// 立刻存。**调用方要持锁**（这个函数读 s_w/s_queue/s_dex）。
-static void save_now_locked(const char *why)
+// 状态锁内只生成不可变快照，真正的 NVS 写入在锁外。
+// 独立的保存锁保证两个任务不会复用 s_save_buf，也不会让旧快照后写覆盖新快照。
+static bool save_now(const char *why)
 {
-    save_t sv;
-    collect_save(&sv);
-    if (save_write(&sv)) {
-        s_last_save_us = esp_timer_get_time();
-        s_dirty = false;
-        ESP_LOGI(TAG, "已存档（%s）：图鉴 %u 队列 %u", why,
-                 dex_count_caught(&s_dex), s_queue.count);
+    if (!s_lock || !s_save_lock) return false;
+    if (xSemaphoreTake(s_save_lock, portMAX_DELAY) != pdTRUE) return false;
+
+    xSemaphoreTake(s_lock, portMAX_DELAY);
+    collect_save_locked(&s_save_buf);
+    uint16_t caught = dex_count_caught(&s_dex);
+    uint8_t queue_count = s_queue.count;
+    // 这份快照已覆盖当前改动。写入期间的新改动会重新把 dirty 置 true。
+    s_dirty = false;
+    xSemaphoreGive(s_lock);
+
+    bool ok = save_write(&s_save_buf);       // 慢操作：绝不持有 s_lock
+    int64_t saved_at = esp_timer_get_time();
+
+    xSemaphoreTake(s_lock, portMAX_DELAY);
+    if (ok) {
+        s_last_save_us = saved_at;
+    } else {
+        // 快照没有落盘，保留重试凭证；不覆盖写入期间产生的 dirty=true。
+        s_dirty = true;
     }
+    xSemaphoreGive(s_lock);
+
+    if (ok) {
+        ESP_LOGI(TAG, "已存档（%s）：图鉴 %u 队列 %u", why,
+                 caught, queue_count);
+    }
+    xSemaphoreGive(s_save_lock);
+    return ok;
 }
 
 const enc_queue_t *world_queue(void) { return &s_queue; }
 const dex_t *world_dex(void) { return &s_dex; }
+
+bool world_capture_uid(uint16_t uid, const mon_t *mon)
+{
+    if (!mon || mon->species_id < 1 || mon->species_id > BOX_SPECIES) {
+        return false;
+    }
+
+    bool committed = false;
+    uint8_t party_count = 0;
+    uint16_t total = 0;
+    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        encounter_t *e = enc_queue_find(&s_queue, uid);
+        if (e && e->species_id == mon->species_id &&
+            party_receive(&s_party, mon) && enc_queue_take_uid(&s_queue, uid, NULL)) {
+            dex_mark_caught(&s_dex, mon->species_id, (mon->flags & 1u) != 0);
+            s_w.pending = s_queue.count;
+            s_dirty = true;
+            party_count = s_party.party_count;
+            total = party_total(&s_party);
+            committed = true;
+        }
+        xSemaphoreGive(s_lock);
+    }
+
+    if (committed) {
+        ESP_LOGI(TAG, "@@PARTY receive #%u party=%u total=%u",
+                 mon->species_id, party_count, total);
+        // 收容、图鉴和出队已一起进入快照，只做一次关键事件落盘。
+        save_now("捕获");
+    }
+    return committed;
+}
 
 bool world_take_encounter(uint8_t index, encounter_t *out)
 {
@@ -195,6 +285,21 @@ void world_update_hp_uid(uint16_t uid, uint8_t hp_ratio)
     }
 }
 
+bool world_mark_exp_granted_uid(uint16_t uid)
+{
+    bool marked = false;
+    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        encounter_t *e = enc_queue_find(&s_queue, uid);
+        if (e && !e->exp_granted) {
+            e->exp_granted = true;
+            s_dirty = true;
+            marked = true;
+        }
+        xSemaphoreGive(s_lock);
+    }
+    return marked;
+}
+
 void world_mark_seen(uint16_t sid, bool shiny)
 {
     if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
@@ -203,22 +308,103 @@ void world_mark_seen(uint16_t sid, bool shiny)
     }
 }
 
-void world_mark_caught(uint16_t sid, bool shiny)
-{
-    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
-        dex_mark_caught(&s_dex, sid, shiny);
-        // 抓到一只是玩家真正在乎的事 —— **立刻落盘**，不等节流。
-        save_now_locked("捕获");
-        xSemaphoreGive(s_lock);
-    }
-}
-
 void world_feed(void)
 {
     if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
         nurture_feed(&s_w.pet);
+        s_dirty = true;
         xSemaphoreGive(s_lock);
     }
+}
+
+void world_play(void)
+{
+    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        nurture_play(&s_w.pet);
+        s_dirty = true;
+        xSemaphoreGive(s_lock);
+    }
+}
+
+void world_rest(void)
+{
+    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        nurture_rest(&s_w.pet);
+        s_dirty = true;
+        xSemaphoreGive(s_lock);
+    }
+}
+
+void world_grant_exp(uint16_t amount)
+{
+    if (amount == 0) return;
+
+    uint8_t old_level = 0;
+    uint8_t new_level = 0;
+    uint32_t new_exp = 0;
+    bool granted = false;
+    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        old_level = s_w.level;
+        s_w.exp += amount;
+        s_w.level = exp_to_level(s_w.exp, LEVEL_MAX);
+        sync_leader_locked();
+        s_dirty = true;
+        new_level = s_w.level;
+        new_exp = s_w.exp;
+        granted = true;
+        xSemaphoreGive(s_lock);
+    }
+
+    if (!granted) return;
+    if (new_level != old_level) {
+        ESP_LOGI(TAG, "level up: %u -> %u (exp +%u = %" PRIu32 ")",
+                 old_level, new_level, amount, new_exp);
+    }
+
+    // 经验是战斗的长期回报，结算后立刻落盘，不能等 5 分钟节流。
+    save_now("experience");
+}
+
+bool world_evolve_leader(uint16_t expected_species, uint16_t evolve_to)
+{
+    if (expected_species < 1 || expected_species > BOX_SPECIES ||
+        evolve_to < 1 || evolve_to > BOX_SPECIES) return false;
+
+    bool committed = false;
+    uint8_t intimacy = 0;
+    uint16_t explore = 0;
+    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        mon_t *leader = s_party.party_count ? &s_party.party[0] : NULL;
+        species_t sp;
+        evo_check_t check;
+        intimacy = nurture_pct(s_w.pet.intimacy);
+        explore = s_w.explore_value;
+        if (leader && leader->species_id == expected_species &&
+            assets_species(expected_species, &sp) && sp.evolve_to == evolve_to) {
+            evo_check(intimacy, explore, sp.evolve_trigger,
+                      sp.evolve_to, sp.evolve_level, &check);
+            if (check.can) {
+                leader->species_id = (uint8_t)evolve_to;
+                leader->intimacy = intimacy;
+                leader->explore_value = explore;
+                s_w.species = evolve_to;
+                int32_t happier = s_w.pet.mood + 15 * NURT_Q;
+                s_w.pet.mood = happier > NURT_MAX ? NURT_MAX : happier;
+                dex_mark_caught(&s_dex, evolve_to, (leader->flags & 1u) != 0);
+                s_dirty = true;
+                committed = true;
+            }
+        }
+        xSemaphoreGive(s_lock);
+    }
+
+    if (!committed) return false;
+    ESP_LOGI(TAG, "@@EVOLVE from=%u to=%u intimacy=%u explore=%u",
+             expected_species, evolve_to, intimacy, explore);
+    if (!save_now("进化")) {
+        ESP_LOGE(TAG, "进化存档失败");
+    }
+    return true;
 }
 
 static esp_err_t wifi_bring_up(void)
@@ -381,8 +567,6 @@ static void scan_once(void)
     uint32_t ts = (uint32_t)(esp_timer_get_time() / 1000000);
     sens_feed(&s_core, ts, s_aps, (uint8_t)n, &r);
 
-    if (r.state == SENS_MOVING) s_motion_q10 += r.distance;
-
     // ---- 遭遇生成（S1）----------------------------------------------
     //
     // 两条路径，缺一不可（docs/04-gameplay.md#411）：
@@ -414,11 +598,19 @@ static void scan_once(void)
     }
 
     if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        if (r.state == SENS_MOVING) {
+            s_motion_q10 += r.distance;
+            if (s_w.explore_value < UINT16_MAX) s_w.explore_value++;
+            int32_t happier = s_w.pet.mood + 2 * NURT_Q;
+            s_w.pet.mood = happier > NURT_MAX ? NURT_MAX : happier;
+            sync_leader_locked();
+        }
         s_w.state = r.state;
         s_w.place_id = r.place_id;
         s_w.progress = world_progress_from_motion(s_motion_q10);
         s_w.scans++;
         s_w.last_ap_count = (uint8_t)n;
+        s_dirty = true;
         xSemaphoreGive(s_lock);
     }
 
@@ -446,16 +638,15 @@ static void world_task(void *arg)
         if (s_wifi_ok && now >= next_scan) {
             scan_once();
             next_scan = esp_timer_get_time() + SCAN_INTERVAL_MS * 1000LL;
-            s_dirty = true;            // 扫描推进了三条轴与可能的遭遇
         }
 
         // 节流存档 —— 见 SAVE_INTERVAL_US 上方的说明
-        if (s_dirty && now - s_last_save_us >= SAVE_INTERVAL_US) {
-            if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(200)) == pdTRUE) {
-                save_now_locked("定时");
-                xSemaphoreGive(s_lock);
-            }
+        bool save_due = false;
+        if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+            save_due = s_dirty && now - s_last_save_us >= SAVE_INTERVAL_US;
+            xSemaphoreGive(s_lock);
         }
+        if (save_due) save_now("定时");
 
         // 1 秒一轮。养成结算需要这个频率（nurture 按时长算，
         // 频率只影响响应粒度不影响正确性），扫描自己看时间。
@@ -481,11 +672,42 @@ bool world_debug_spawn(void)
 
 void world_debug_save(void)
 {
-    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(200)) == pdTRUE) {
-        save_now_locked("手动");
+    save_now("手动");
+}
+
+#ifdef CONFIG_POKEWALK_DEBUG_KEYS
+bool world_debug_evolution_ready(void)
+{
+    bool ready = false;
+    uint8_t need_intimacy = 0;
+    uint16_t need_explore = 0;
+    if (s_lock && xSemaphoreTake(s_lock, pdMS_TO_TICKS(100)) == pdTRUE) {
+        mon_t *leader = s_party.party_count ? &s_party.party[0] : NULL;
+        species_t sp;
+        evo_check_t check;
+        if (leader && assets_species(leader->species_id, &sp)) {
+            evo_check(0, 0, sp.evolve_trigger, sp.evolve_to,
+                      sp.evolve_level, &check);
+            if (sp.evolve_to && sp.evolve_to <= BOX_SPECIES &&
+                sp.evolve_trigger != EVO_TRIGGER_NONE) {
+                need_intimacy = check.need_intimacy;
+                need_explore = check.need_explore;
+                s_w.pet.intimacy = need_intimacy * NURT_Q;
+                s_w.explore_value = need_explore;
+                sync_leader_locked();
+                s_dirty = true;
+                ready = true;
+            }
+        }
         xSemaphoreGive(s_lock);
     }
+    if (ready) {
+        ESP_LOGI(TAG, "@@EVOLVE_READY intimacy=%u explore=%u",
+                 need_intimacy, need_explore);
+    }
+    return ready;
 }
+#endif
 
 bool world_wifi_ready(void) { return s_wifi_ok; }
 
@@ -496,9 +718,17 @@ bool world_start(void)
         ESP_LOGE(TAG, "互斥锁创建失败");
         return false;
     }
+    s_save_lock = xSemaphoreCreateMutex();
+    if (!s_save_lock) {
+        ESP_LOGE(TAG, "save mutex create failed");
+        return false;
+    }
 
     memset(&s_w, 0, sizeof(s_w));
     nurture_init(&s_w.pet);
+    init_default_party();
+    s_w.species = party_leader(&s_party)->species_id;
+    s_w.level = exp_to_level(s_w.exp, LEVEL_MAX);
     enc_queue_init(&s_queue);
     dex_init(&s_dex);
     sens_init(&s_core);
@@ -515,19 +745,29 @@ bool world_start(void)
     // 结果每次开机都是「新游戏」而存档其实写成功了。
     save_init();
 
-    save_t sv;
-    if (save_read(&sv)) {
-        s_w.pet = sv.pet;
+    if (save_read(&s_save_buf)) {
+        s_w.pet = s_save_buf.pet;
         s_w.pet.last_us = -1;
-        s_queue = sv.queue;
-        s_dex = sv.dex;
-        s_motion_q10 = sv.motion_q10;
-        s_w.scans = sv.scans;
+        if (!party_deserialize(&s_party, s_save_buf.party,
+                               sizeof(s_save_buf.party)) ||
+            !party_leader(&s_party) || party_leader(&s_party)->species_id == 0) {
+            init_default_party();
+        }
+        const mon_t *leader = party_leader(&s_party);
+        s_w.species = leader->species_id;
+        s_w.exp = leader->exp;
+        s_w.level = leader->level;
+        s_w.explore_value = leader->explore_value;
+        s_queue = s_save_buf.queue;
+        s_dex = s_save_buf.dex;
+        s_motion_q10 = s_save_buf.motion_q10;
+        s_w.scans = s_save_buf.scans;
         s_w.pending = s_queue.count;
         s_w.progress = world_progress_from_motion(s_motion_q10);
-        ESP_LOGI(TAG, "读档：图鉴 %u/%u 队列 %u 行程 %u%%",
+        ESP_LOGI(TAG, "读档：图鉴 %u/%u 队列 %u 行程 %u%% party %u total %u",
                  dex_count_caught(&s_dex), DEX_SPECIES,
-                 s_queue.count, s_w.progress);
+                 s_queue.count, s_w.progress, s_party.party_count,
+                 party_total(&s_party));
     } else {
         ESP_LOGI(TAG, "没有存档 —— 新游戏");
     }

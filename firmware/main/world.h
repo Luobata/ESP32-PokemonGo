@@ -32,11 +32,16 @@
 
 #include "encounter.h"
 #include "nurture.h"
+#include "party.h"
 #include "sensing.h"
 
 // 页面看到的世界。**这是个值拷贝**，拿到后随便读，不用加锁。
 typedef struct {
     nurture_t pet;                 // 三条轴 + 亲密度
+    uint16_t species;              // 主宠 = 队伍首位
+    uint32_t exp;                  // 主宠累计经验
+    uint8_t level;                 // 由累计经验换算出的等级
+    uint16_t explore_value;        // 主宠探索值；移动状态的每次扫描 +1
 
     // 今日行程 0~100。S1 的移动量累积映射来的 —— 见 world.c。
     uint8_t progress;
@@ -62,12 +67,28 @@ bool world_start(void);
 // WiFi 是否可用。Collect 页用它判断该不该自己起 —— 见 world_start。
 bool world_wifi_ready(void);
 
-// 取一份一致的快照。任何线程都能调。
+// 取一份一致的快照。任何 FreeRTOS 任务都能调，不要求持 LVGL 锁；
+// 本函数不碰 LVGL，并会在内部短暂等待 world 自己的状态锁。
+// LVGL 锁只保护界面对象，不能替代这里对跨任务游戏状态的同步。
+// 不可从 ISR 调用（互斥量可能阻塞）。
 void world_snapshot(world_t *out);
 
 // 照料。**由按键触发，走 world 而不是页面自己改** ——
 // 状态的唯一所有者是 world，页面只读。
 void world_feed(void);
+void world_play(void);
+void world_rest(void);
+
+// 发放主宠经验并立即存档。战斗页只调用一次，状态与持久化由 world 管。
+void world_grant_exp(uint16_t amount);
+
+// 原子完成队首进化并立即存档。会在锁内重新核对物种进化目标与两条
+// 进度线；expected_species 防止页面快照过期后把另一只误进化。
+bool world_evolve_leader(uint16_t expected_species, uint16_t evolve_to);
+
+// 一次提交捕获：收容、点亮图鉴、按 uid 出队在同一个临界区完成，
+// 随后立即把包含三者的完整状态存档。无效/已淘汰 uid 返回 false。
+bool world_capture_uid(uint16_t uid, const mon_t *mon);
 
 // 遭遇队列与图鉴。**返回指针而不是拷贝** —— 队列 128 字节、
 // 图鉴 76 字节，每帧拷一遍不划算，而页面只读不写。
@@ -86,9 +107,11 @@ bool world_take_uid(uint16_t uid, encounter_t *out);
 // 把战斗结果写回队列（P3 打完但没抓，HP 要留着给 P4 算窗口）。
 void world_update_hp_uid(uint16_t uid, uint8_t hp_ratio);
 
+// 首次结算时标记该遭遇已领取经验。返回 false 表示已领取或已被淘汰。
+bool world_mark_exp_granted_uid(uint16_t uid);
+
 // 图鉴登记。加锁。
 void world_mark_seen(uint16_t sid, bool shiny);
-void world_mark_caught(uint16_t sid, bool shiny);
 
 // 调试用：立刻造一条遭遇。
 //
@@ -100,6 +123,12 @@ bool world_debug_spawn(void);
 // 调试用：立刻存档。正常路径是捕获时立刻存 + 每 5 分钟节流存，
 // 而验证「拔电不丢」时不想等那 5 分钟。
 void world_debug_save(void);
+
+// 调试用：把队首两条进化进度设到当前物种的门槛，不执行进化。
+// 仅供 CONFIG_POKEWALK_DEBUG_KEYS 的串口验收入口调用。
+#ifdef CONFIG_POKEWALK_DEBUG_KEYS
+bool world_debug_evolution_ready(void);
+#endif
 
 // 与 PC 侧对账用：把移动量累积映射成 0~100 的今日行程。
 // 单独暴露是为了能在宿主上测（见 tools/pipeline/verify_world.py）。

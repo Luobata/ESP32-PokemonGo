@@ -32,6 +32,7 @@
 #include "play.h"
 #include "render.h"
 #include "screen.h"
+#include "sfx.h"
 #include "world.h"
 
 static const char *TAG = "p3";
@@ -46,17 +47,36 @@ static const char *TAG = "p3";
 #define C_LIGHT RGB_HEX(0x8bac0f)
 
 // 布局（不跨横带边界 y=80/160/240）
-//   y=4    野怪名 Lv20        ★★★☆☆      带 0
-//   y=28   野怪 HP 条                      带 0
-//   y=48   [ 野怪 front sprite 居中 ]      带 0~1
-//   y=168  主宠名 Lv12                     带 2
-//   y=192  主宠 HP 条                      带 2
-//   y=216  回合文字（招名 + 效果）          带 2
+//   y=4    ★★★☆☆            野怪名 Lv20    带 0
+//   y=28                       野怪 HP 条    带 0
+//   y=88                    [野怪 front]    带 1
+//   y=168  [主宠 back] 主宠名 Lv12          带 2
+//   y=192              主宠 HP 条           带 2
+//   y=244  回合文字（招名）                 带 3
+//   y=268  效果 / 伤害 / 经验 / 虚弱提示    带 3
 //   y=292  ────────────────────
 //   y=298  [A]捕获 [B]战斗 [C]逃跑          带 3
+#define WILD_NAME_Y 4
 #define WILD_BAR_Y 28
+#define WILD_SPRITE_BOX_Y 88
+#define WILD_SPRITE_BOX_H 64
+#define PET_SPRITE_Y 168
+#define PET_NAME_Y 168
 #define PET_BAR_Y 192
-#define MSG_Y 216
+#define MSG_Y 244
+#define MSG_DETAIL_Y 268
+
+SCREEN_ASSERT_WITHIN_BAND(battle_wild_name, WILD_NAME_Y, 16);
+SCREEN_ASSERT_WITHIN_BAND(battle_wild_bar, WILD_BAR_Y, 10);
+SCREEN_ASSERT_WITHIN_BAND(battle_wild_sprite_box,
+                          WILD_SPRITE_BOX_Y, WILD_SPRITE_BOX_H);
+SCREEN_ASSERT_WITHIN_BAND(battle_pet_sprite, PET_SPRITE_Y, 64);
+SCREEN_ASSERT_WITHIN_BAND(battle_pet_name, PET_NAME_Y, 16);
+SCREEN_ASSERT_WITHIN_BAND(battle_pet_bar, PET_BAR_Y, 10);
+SCREEN_ASSERT_WITHIN_BAND(battle_round_message, MSG_Y, 16);
+SCREEN_ASSERT_WITHIN_BAND(battle_effect, MSG_DETAIL_Y, 16);
+SCREEN_ASSERT_WITHIN_BAND(battle_exp, MSG_DETAIL_Y, 16);
+SCREEN_ASSERT_WITHIN_BAND(battle_weak, MSG_DETAIL_Y, 16);
 
 static lv_timer_t *s_tick;
 
@@ -74,10 +94,8 @@ static bool s_done;
 #define SHAKE_AMP 3
 static uint8_t s_shake_i = SHAKE_FRAMES;   // >= FRAMES 表示不抖
 
-// 主宠。等级与物种还是固定值（S14 队伍没移植）——
-// 与 P1 同一份假设，接上队伍时两处一起改。
-#define PET_SPECIES 25
-#define PET_LEVEL 12
+static uint16_t s_pet_species;
+static uint8_t s_pet_level;
 
 static void hline_at(int y)
 {
@@ -105,7 +123,7 @@ static void draw_band(int band_y)
     char buf[64];
     species_t wild_sp, pet_sp;
     bool has_wild = assets_species(c->enc.species_id, &wild_sp);
-    bool has_pet = assets_species(PET_SPECIES, &pet_sp);
+    bool has_pet = assets_species(s_pet_species, &pet_sp);
 
     uint8_t wlv = battle_wild_level(c->enc.rarity);
 
@@ -123,9 +141,10 @@ static void draw_band(int band_y)
     } else {
         snprintf(buf, sizeof(buf), "#%03u Lv%u", c->enc.species_id, wlv);
     }
-    render_text(8, Y(4), buf, C_INK);
+    render_text(SCR_W - 8 - render_text_width(buf), Y(WILD_NAME_Y),
+                buf, C_INK);
 
-    // 稀有度星，右上
+    // 稀有度星，留在野怪状态行左侧，避免与右上的名字和 sprite 混淆。
     {
         char st[32];
         int n = 0;
@@ -134,39 +153,56 @@ static void draw_band(int band_y)
             n += 3;
         }
         st[n] = '\0';
-        render_text(SCR_W - 8 - render_text_width(st), Y(4), st, C_INK);
+        render_text(8, Y(WILD_NAME_Y), st, C_INK);
     }
-    draw_bar(8, Y(WILD_BAR_Y), SCR_W - 16, 10, w_hp, s_res.wild_hp_max);
+    draw_bar(120, Y(WILD_BAR_Y), 112, 10, w_hp, s_res.wild_hp_max);
 
-    // -- 野怪 sprite（用 back 凑合）--------------------------------------
-    //
-    // 本该用 front（面朝玩家）—— 但 front 是分尺寸档的图集
-    // （40/56/72 三档，见 convert_gen1.py），assets.c 现在只解了 back。
-    // 先用 back @scale2 把页面跑通，front 的读取留到第 4 步。
-    // **标出来而不是假装它对**：屏幕上野怪会背对玩家，那是暂时的。
-    const uint8_t *spr = assets_back_sprite(c->enc.species_id);
+    // -- 野怪 front sprite -----------------------------------------------
+    uint8_t sprite_size = 0;
+    const uint8_t *spr = assets_front_sprite(c->enc.species_id, &sprite_size);
+    if (!spr) {
+        // 资产损坏或缺号时保留可玩的页面，不因一张图崩溃。
+        spr = assets_back_sprite(c->enc.species_id);
+        sprite_size = spr ? 32 : 0;
+    }
     if (spr && has_wild) {
         uint16_t pal[4];
         assets_palette(wild_sp.palette, pal);
-        // 野怪挨打时抖它，主宠挨打时不抖野怪
+        // 野怪挨打且命中时抖它；没打中时目标保持静止。
         int dx = 0;
         if (s_play_i > 0 && s_play_i <= s_res.round_count &&
-            s_res.rounds[s_play_i - 1].by_pet) {
+            s_res.rounds[s_play_i - 1].by_pet &&
+            !s_res.rounds[s_play_i - 1].missed) {
             dx = render_shake_dx(s_shake_i, SHAKE_FRAMES, SHAKE_AMP);
         }
-        render_sprite_2bpp((SCR_W - 64) / 2 + dx, Y(52), spr, 32, 2, pal);
+        int sprite_y = WILD_SPRITE_BOX_Y +
+                       (WILD_SPRITE_BOX_H - sprite_size) / 2;
+        render_sprite_2bpp(SCR_W - 8 - sprite_size + dx, Y(sprite_y),
+                           spr, sprite_size, 1, pal);
     }
 
     // -- 主宠 ------------------------------------------------------------
+    const uint8_t *pet_spr = assets_back_sprite(s_pet_species);
+    if (pet_spr && has_pet) {
+        uint16_t pal[4];
+        assets_palette(pet_sp.palette, pal);
+        int dx = 0;
+        if (s_play_i > 0 && s_play_i <= s_res.round_count &&
+            !s_res.rounds[s_play_i - 1].by_pet &&
+            !s_res.rounds[s_play_i - 1].missed) {
+            dx = render_shake_dx(s_shake_i, SHAKE_FRAMES, SHAKE_AMP);
+        }
+        render_sprite_2bpp(8 + dx, Y(PET_SPRITE_Y), pet_spr, 32, 2, pal);
+    }
     if (has_pet) {
         snprintf(buf, sizeof(buf), "%.*s Lv%u",
-                 pet_sp.name_zh_len, pet_sp.name_zh, PET_LEVEL);
-        render_text(8, Y(168), buf, C_INK);
+                 pet_sp.name_zh_len, pet_sp.name_zh, s_pet_level);
+        render_text(80, Y(PET_NAME_Y), buf, C_INK);
     }
-    draw_bar(8, Y(PET_BAR_Y), SCR_W - 16, 10, p_hp, s_res.pet_hp_max);
+    draw_bar(80, Y(PET_BAR_Y), 152, 10, p_hp, s_res.pet_hp_max);
 
     // -- 回合文字 --------------------------------------------------------
-    if (s_play_i > 0 && s_play_i <= s_res.round_count) {
+    if (!s_done && s_play_i > 0 && s_play_i <= s_res.round_count) {
         const battle_round_t *r = &s_res.rounds[s_play_i - 1];
         const char *who = r->by_pet ? "我方" : "对方";
         if (r->missed) {
@@ -181,17 +217,25 @@ static void draw_band(int band_y)
         // 效果提示 —— **100 倍率不显示**（页面文档：只在有反差时说话，
         // 每回合都弹「效果一般」会把「效果绝佳」的分量冲掉）
         const char *lbl = battle_eff_label(r->mult);
-        if (lbl) render_text(8, Y(MSG_Y + 22), lbl, C_INK);
+        if (lbl) render_text(8, Y(MSG_DETAIL_Y), lbl, C_INK);
+        if (!r->missed && r->damage > 0) {
+            snprintf(buf, sizeof(buf), "-%u HP", r->damage);
+            render_text(SCR_W - 8 - render_text_width(buf), Y(MSG_DETAIL_Y),
+                        buf, C_INK);
+        }
     } else if (s_done) {
         render_text(8, Y(MSG_Y), s_res.won ? "胜" : "败", C_INK);
         snprintf(buf, sizeof(buf), "经验 +%u", s_res.exp);
-        render_text(8, Y(MSG_Y + 22), buf, C_MID);
-        if (s_res.won) render_text(96, Y(MSG_Y + 22), "看起来虚弱了", C_MID);
+        render_text(8, Y(MSG_DETAIL_Y), buf, C_MID);
+        if (s_res.won) render_text(96, Y(MSG_DETAIL_Y), "看起来虚弱了", C_MID);
     }
 
     // -- 三键 --------------------------------------------------------------
     hline_at(Y(292));
-    render_text(8, Y(298), "[A]捕获 [B]战斗 [C]逃跑", C_INK);
+    render_text(8, Y(298),
+                s_done ? "[A]捕获 [B]— [C]逃跑"
+                       : "[A]捕获 [B]战斗 [C]逃跑",
+                C_INK);
 
     #undef Y
     screen_push_band(band_y);
@@ -209,23 +253,29 @@ static void tick(lv_timer_t *t)
     (void)t;
     if (!s_playing) return;
 
-    // 抖动阶段：只重画野怪那两条带，不整屏 —— 60ms 一帧整屏画不完
-    // （四条带 30.7ms，加上文字渲染会掉帧）。
+    // 抖动阶段只重画挨打 sprite 所在的单条带；HP 和文字不移动。
     if (s_shake_i < SHAKE_FRAMES) {
         s_shake_i++;
-        draw_band(0);
-        draw_band(BAND_H);
+        const battle_round_t *r = &s_res.rounds[s_play_i - 1];
+        draw_band(r->by_pet ? BAND_H : BAND_H * 2);
         return;
     }
 
-    // 回合间隔：抖完还要停一会儿让人看清 —— 用 tick 计数凑够 600ms
+    // 回合间隔：抖完还要停一会儿让人看清。未命中不抖，但仍完整
+    // 保留 600ms，让「没打中」不会因为省掉四帧抖动而一闪而过。
     static uint8_t hold;
-    if (++hold < 6) return;      // 6 × 60ms = 360ms
+    uint8_t hold_ticks = 6;      // 命中：4 帧抖动 + 6 帧停留 = 600ms
+    if (s_play_i > 0 && s_play_i <= s_res.round_count &&
+        s_res.rounds[s_play_i - 1].missed) {
+        hold_ticks += SHAKE_FRAMES;
+    }
+    if (++hold < hold_ticks) return;
     hold = 0;
 
     if (s_play_i < s_res.round_count) {
         s_play_i++;
-        s_shake_i = 0;           // 新回合，重新抖
+        // 未命中已由回合记录给出：显示「没打中」，但目标不应受击抖动。
+        s_shake_i = s_res.rounds[s_play_i - 1].missed ? SHAKE_FRAMES : 0;
         draw_all();
         return;
     }
@@ -239,6 +289,20 @@ static void tick(lv_timer_t *t)
     // 打残的程度写回队列 —— **这是「先打再抓」成为真策略的落点**
     c->enc.hp_ratio = s_res.wild_hp_ratio;
     world_update_hp_uid(c->uid, s_res.wild_hp_ratio);
+    if (!c->enc.exp_granted && world_mark_exp_granted_uid(c->uid)) {
+        c->enc.exp_granted = true;
+        world_grant_exp(s_res.exp);
+    } else {
+        // 同一条遭遇可以重进战斗，但经验只能领取一次。
+        s_res.exp = 0;
+    }
+
+    uint8_t level_before = s_pet_level;
+    world_t w;
+    world_snapshot(&w);
+    s_pet_species = w.species;
+    s_pet_level = w.level;
+    if (w.level > level_before) sfx_play(SFX_LEVEL_UP);
 
     ESP_LOGI(TAG, "战斗结束：%s %u 回合，野怪剩 %u%%",
              s_res.won ? "胜" : "败", s_res.round_count, s_res.wild_hp_ratio);
@@ -254,6 +318,11 @@ void play_battle_enter(void)
     s_done = false;
     s_shake_i = SHAKE_FRAMES;
 
+    world_t w;
+    world_snapshot(&w);
+    s_pet_species = w.species;
+    s_pet_level = w.level;
+
     // 进来先不打 —— 玩家可以直接 A 捕获（不打就抓，窗口窄但省时间）
     // 或 B 开打。这正是页面文档说的「战斗页是决策点不是走廊」。
     const nav_ctx_t *c = nav_ctx();
@@ -261,7 +330,7 @@ void play_battle_enter(void)
     if (assets_species(c->enc.species_id, &sp)) {
         uint8_t wlv = battle_wild_level(c->enc.rarity);
         // 先算一遍只为拿到 HP 上限（画满血条用），不播放
-        battle_run(PET_SPECIES, PET_LEVEL, c->enc.species_id, wlv,
+        battle_run(s_pet_species, s_pet_level, c->enc.species_id, wlv,
                    1024, c->enc.ts ? c->enc.ts : 1, &s_res);
         uint8_t saved_rounds = s_res.round_count;
         (void)saved_rounds;

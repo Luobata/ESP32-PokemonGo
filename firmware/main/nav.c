@@ -29,6 +29,10 @@ static const page_t PAGES[PAGE_COUNT] = {
                         play_capture_key},
     [PAGE_DEX]       = {"P6 图鉴", play_dex_enter, play_dex_exit,
                         play_dex_key},
+    [PAGE_OPENING]   = {"P0 开场", play_opening_enter, play_opening_exit,
+                        play_opening_key},
+    [PAGE_CARE]      = {"P5 照料", play_care_enter, play_care_exit,
+                        play_care_key},
 };
 
 static page_id_t s_cur = PAGE_IDLE;
