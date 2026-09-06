@@ -153,13 +153,9 @@ th{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-
 .cmp .bad .big{color:var(--accent)}
 .cmp .good .big{color:var(--ok)}
 
-/* ── UI 原型 ── */
-.protos{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:18px}
-.proto{border:1px solid var(--line);background:var(--panel);padding:12px}
-.proto h3{margin:0 0 4px;font-size:12px}
-.proto .keys{font-size:10px;color:var(--ink-soft);margin-bottom:8px}
-.proto canvas{width:100%;max-width:240px;image-rendering:pixelated;
-  border:1px solid var(--shell-dk);display:block;margin:0 auto;background:#9bbc0f}
+/* ── UI 原型已删除（2026-09-06）：全套是固件前的假数据示意图，P3 构图反了误导用户，
+   且无门禁守护；真实页面以「🎮 页面模拟器」为准（sim/ 现算 + verify_sim_pages）── */
+
 
 /* ── 试玩后台 ── */
 /* 三栏：时间线 | 该步状态 | 该跑法总览。
@@ -270,7 +266,6 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
 <div class="tabs" role="tablist" id="tabs">
   <button role="tab" data-p="dex"     aria-selected="true">图鉴 / 动效</button>
   <button role="tab" data-p="sensing" aria-selected="false">感知层回放</button>
-  <button role="tab" data-p="proto"   aria-selected="false">UI 页面原型</button>
   <button role="tab" data-p="pixels"  aria-selected="false">2bpp 像素</button>
   <button role="tab" data-p="gameplay" aria-selected="false">S1-S3 玩法</button>
   <button role="tab" data-p="nurture" aria-selected="false">S4-S7 养成</button>
@@ -330,14 +325,7 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
   <div id="sens-body"></div>
 </div>
 
-<div class="panel" id="p-proto" hidden>
-  <p class="sub" style="margin:0 0 14px">
-    240×320 真实尺寸，用真实 sprite 与中文名绘制。三键分配见每页标题下。
-    详细设计见 <b>docs/08-systems.md</b>。</p>
-  <div class="protos" id="proto-body"></div>
-</div>
 
-<div class="panel" id="p-pixels" hidden>
   <div class="stepper">
     <label>编号</label><input id="px-id" type="number" min="1" max="151" value="25" style="width:64px">
     <label>视图</label>
@@ -773,7 +761,7 @@ document.getElementById("shiny").onchange = e => {
 };
 
 /* ── tab 切换 ── */
-const PANELS = ["dex","sensing","proto","pixels","gameplay","nurture","meta","audio","anim","systems","play","sim"];
+const PANELS = ["dex","sensing","pixels","gameplay","nurture","meta","audio","anim","systems","play","sim"];
 let built = {dex:1};
 document.getElementById("tabs").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
@@ -925,47 +913,8 @@ function drawState(cv, d){
   });
 }
 
-/* ② UI 页面原型 */
-const PAGES = [
-  {id:"P1", nm:"待机", keys:"A 照料 / B 图鉴 / C 遭遇", draw:drawP1},
-  {id:"P2", nm:"遭遇列表", keys:"A 选中 / B 返回 / C 丢弃", draw:drawP2},
-  {id:"P3", nm:"遭遇 · 战斗", keys:"A 捕获 / B 战斗 / C 逃跑", draw:drawP3},
-  {id:"P4", nm:"捕获", keys:"A 投球 / B 换球 / C 取消", draw:drawP4},
-  {id:"P5", nm:"照料", keys:"A 执行 / B 切换 / C 返回", draw:drawP5},
-  {id:"P6", nm:"图鉴", keys:"A 详情 / B 翻页 / C 返回", draw:drawP6},
-  {id:"P7", nm:"成绩", keys:"A 切榜 / B 翻页 / C 返回", draw:drawP7},
-];
-
-BUILD.proto = () => {
-  document.getElementById("proto-body").innerHTML = PAGES.map(p =>
-    `<div class="proto"><h3>${p.id} ${p.nm}</h3>
-     <div class="keys">${p.keys}</div>
-     <canvas id="pg-${p.id}" width="240" height="320"></canvas></div>`).join("");
-  PAGES.forEach(p => {
-    const cv = document.getElementById("pg-"+p.id);
-    const ctx = cv.getContext("2d");
-    ctx.fillStyle = "#9bbc0f"; ctx.fillRect(0,0,240,320);
-    p.draw(ctx);
-  });
-};
-
-const INK = "#0f380f", DIM = "#306230", MID = "#8bac0f";
-function fr(ctx,x,y,w,h){ ctx.strokeStyle=INK; ctx.lineWidth=1;
-  ctx.strokeRect(x+.5,y+.5,w-1,h-1); }
-function txt(ctx,t,x,y,sz,col){ ctx.fillStyle=col||INK;
-  ctx.font=`${sz||12}px "IBM Plex Mono",monospace`; ctx.fillText(t,x,y); }
-function bar(ctx,x,y,w,h,pct,col){
-  ctx.fillStyle="#ffffff60"; ctx.fillRect(x,y,w,h);
-  ctx.fillStyle=col||DIM; ctx.fillRect(x,y,Math.round(w*pct),h);
-  fr(ctx,x,y,w,h);
-}
-function keybar(ctx,a,b,c){
-  ctx.fillStyle=INK; ctx.fillRect(0,292,240,28);
-  ctx.fillStyle="#9bbc0f"; ctx.font='11px "IBM Plex Mono",monospace';
-  ctx.fillText(`A ${a}`, 8, 310);
-  ctx.fillText(`B ${b}`, 88, 310);
-  ctx.fillText(`C ${c}`, 166, 310);
-}
+/* ② UI 页面原型（已删除，理由见上方 CSS 处注释）。
+   只保留 sprAt —— 页面模拟器 P0/P4 的 sprite 绘制还用它。 */
 function sprAt(ctx,id,view,cx,cy,scale){
   const m = D.mons[id-1]; if(!m) return;
   const size = view==="back" ? D.meta.backSize : m.fsize;
@@ -976,115 +925,6 @@ function sprAt(ctx,id,view,cx,cy,scale){
     scale, null, palOf(id,false));
 }
 
-function drawP1(ctx){
-  const m = D.mons[3];      // 小火龙
-  txt(ctx, `${nameOf(m)} Lv12`, 8, 17, 13); txt(ctx,"♥ 78", 195, 17, 12, DIM);
-  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,24); ctx.lineTo(240,24); ctx.stroke();
-  sprAt(ctx, 4, "back", 120, 120, 3);
-  txt(ctx,"饱食",8,214,11,DIM); bar(ctx,44,205,180,10,0.62);
-  txt(ctx,"心情",8,232,11,DIM); bar(ctx,44,223,180,10,0.84);
-  txt(ctx,"体能",8,250,11,DIM); bar(ctx,44,241,180,10,0.95);
-  txt(ctx,"今日行程",8,272,11,DIM); bar(ctx,72,263,152,10,0.7,INK);
-  keybar(ctx,"照料","图鉴","遭遇3");
-}
-function drawP2(ctx){
-  txt(ctx,"刚才路上遇到  3",8,17,13);
-  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,24); ctx.lineTo(240,24); ctx.stroke();
-  [[19,"住宅区","23:14",2],[16,"野外","23:22",3],[41,"交通枢纽","23:31",4]]
-  .forEach(([id,bi,tm,ra],i)=>{
-    const y = 34 + i*74;
-    if(i===0){ txt(ctx,"▸",4,y+26,14); }
-    sprAt(ctx,id,"front",34,y+24,1);
-    const m = D.mons[id-1];
-    txt(ctx,nameOf(m),62,y+18,13);
-    txt(ctx,"★".repeat(ra)+"☆".repeat(5-ra),62,y+34,10,DIM);
-    txt(ctx,`${bi}  ${tm}`,62,y+50,10,DIM);
-  });
-  keybar(ctx,"选中","返回","丢弃");
-}
-function drawP3(ctx){
-  const w = D.mons[18];
-  txt(ctx,`${nameOf(w)} Lv8`,8,17,13);
-  txt(ctx,"★★☆☆☆",165,17,11,DIM);
-  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,24); ctx.lineTo(240,24); ctx.stroke();
-  sprAt(ctx,19,"front",88,110,2);
-  sprAt(ctx,4,"back",180,180,1);
-  txt(ctx,"小火龙 HP",8,244,11,DIM); bar(ctx,80,235,144,10,0.72);
-  txt(ctx,"效果绝佳！",8,266,12);
-  keybar(ctx,"捕获","战斗","逃跑");
-}
-function drawP4(ctx){
-  const w = D.mons[18];
-  txt(ctx,`捕获 ${nameOf(w)}`,8,17,13);
-  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,24); ctx.lineTo(240,24); ctx.stroke();
-  sprAt(ctx,19,"front",120,96,2);
-  txt(ctx,"球",8,182,11,DIM); txt(ctx,"精灵球 ×12",34,182,13);
-  txt(ctx,"[B] 切换",165,182,10,DIM);
-  // 判定条：绿区 = 窗口
-  const x=20,y=225,w2=200,h=18;
-  ctx.fillStyle="#ffffff70"; ctx.fillRect(x,y,w2,h);
-  ctx.fillStyle=DIM; ctx.fillRect(x+72,y,56,h);
-  fr(ctx,x,y,w2,h);
-  ctx.fillStyle=INK; ctx.beginPath();
-  ctx.moveTo(x+96,y-5); ctx.lineTo(x+90,y-13); ctx.lineTo(x+102,y-13); ctx.fill();
-  txt(ctx,"命中绿区，越宽越好抓",20,262,10,DIM);
-  keybar(ctx,"投球","换球","取消");
-}
-function drawP5(ctx){
-  const m = D.mons[3];
-  txt(ctx,`${nameOf(m)} Lv12`,8,17,13);
-  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,24); ctx.lineTo(240,24); ctx.stroke();
-  sprAt(ctx,4,"back",120,104,3);
-  ["喂食   浆果 ×5","玩耍","休息","查看详情"].forEach((t,i)=>{
-    const y=210+i*24;
-    if(i===0) txt(ctx,"▸",8,y,13);
-    txt(ctx,t,24,y,13, i===0?INK:DIM);
-  });
-  keybar(ctx,"执行","切换","返回");
-}
-function drawP6(ctx){
-  txt(ctx,"图鉴 47/151",8,17,13);
-  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,24); ctx.lineTo(240,24); ctx.stroke();
-  for(let r=0;r<4;r++) for(let c=0;c<5;c++){
-    const id = 1 + r*5 + c;
-    const cx = 28 + c*46, cy = 56 + r*54;
-    const owned = (id*7)%3 !== 0;
-    const m = D.mons[id-1];
-    if(m && D.front[id]){
-      const size = m.fsize;
-      drawSprite(ctx, b64bytes(D.front[id]), size,
-        Math.round(cx-size/2), Math.round(cy-size/2), 1,
-        owned ? null : [0,0,0,3],            // 未捕获 = 全暗剪影
-        owned ? palOf(id,false) : ["#306230","#306230","#306230","#9bbc0f"]);
-    }
-    if(r===3&&c===0) txt(ctx,"▸",2,cy+4,12);
-  }
-  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,262); ctx.lineTo(240,262); ctx.stroke();
-  const sel = D.mons[24];
-  txt(ctx,`#025 ${nameOf(sel)}`,8,280,13);
-  txt(ctx,"电　住宅区",130,280,11,DIM);
-  keybar(ctx,"详情","翻页","返回");
-}
-function drawP7(ctx){
-  txt(ctx,"成绩",8,17,13); txt(ctx,"第 12 天",180,17,11,DIM);
-  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,24); ctx.lineTo(240,24); ctx.stroke();
-  txt(ctx,"个人纪录",8,46,12);
-  [["单日遭遇最多","38","09-01"],["单日移动量","24","08-29"],
-   ["连续照料","12 天",""],["连续出门","7 天",""],
-   ["最稀有捕获","★★★★☆",""],["闪光捕获","1 只",""]]
-  .forEach(([k,v,d],i)=>{
-    const y=70+i*26;
-    txt(ctx,k,8,y,11,DIM); txt(ctx,v,140,y,12);
-    if(d) txt(ctx,d,190,y,9,DIM);
-  });
-  ctx.strokeStyle=MID; ctx.beginPath(); ctx.moveTo(0,232); ctx.lineTo(240,232); ctx.stroke();
-  txt(ctx,"biome 分布",8,250,11,DIM);
-  [["住宅区",.62],["野外",.2],["办公区",.12],["商业区",.06]].forEach(([k,v],i)=>{
-    txt(ctx,k,8,268+i*0,9,DIM);
-    bar(ctx,58+i*46,258,40,8,v);
-  });
-  keybar(ctx,"切榜","翻页","返回");
-}
 
 /* ③ 2bpp 像素检查器 */
 function pxRender(){
@@ -3758,8 +3598,10 @@ const R3={
    if(r.label) text(r.label,8,268,t.ink);
    if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,W-8-textW(d),268,t.ink); }
    if(tl[st.P3.fi+1]===undefined){
-     text(sc.won?'胜利！':'败…',8,244,t.ink);
-     text('经验 +'+sc.exp,8,268,t.dim); }
+     // 文案与 play_battle.c 逐字一致：胜/败 + 经验 +N +（胜时）看起来虚弱了
+     text(sc.won?'胜':'败',8,244,t.ink);
+     text('经验 +'+sc.exp,8,268,t.dim);
+     if(sc.won) text('看起来虚弱了',96,268,t.dim); }
    hlineS(292,t.dim); hintAt(298,t.ink); },
  A(){ const t=DIRS.A.pal; const {sc,tl,it}=p3Cur();
    if(!sc||!tl.length){ text('（无回合）',80,150); return; }
