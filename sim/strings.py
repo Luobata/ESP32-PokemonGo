@@ -65,6 +65,41 @@ KEYS = {
 KEYS_LABELS = sorted({k for page in KEYS.values() for k in page})
 
 # ---------------------------------------------------------------------------
+# 战斗解说（P3）—— 模板，不是成品句
+#
+# 用户要求「不要说『我方』，用宝可梦的名字，像解说一样」。
+# GSC 原作是 `<USER> used <MOVE>!`（pokecrystal 的 used_move_text.asm
+# 与 common_2.asm:738），敌方带 `Enemy` 前缀（battle.asm:51）；
+# 中文侧对应「野生的」。
+#
+# **这里只登记模板里的固定字**，物种名与招式名来自 gen1.bin / moves.bin
+# 的名字池，那两个池子已经被 convert_font.py 单独收进字库。
+#
+# ## 为什么要单独列一个字集
+#
+# 「使」这个字曾经**两头都不在**：不在 charset()，也不在 font16.bin。
+# 而「攻」侥幸在字库里，靠的是 battle.c:165 的一句**注释**「一次攻击」
+# 被 convert_font.py 的固件源码扫描捞到 —— 有人整理注释删掉那行，
+# 字就没了，且要等固件上屏才会暴露成空白方框。
+#
+# 兜底不是来源。上屏的字要在这里登记。
+# ---------------------------------------------------------------------------
+
+BATTLE_LINES = {
+    "used": "{who}使用了{move}！",       # 皮卡丘使用了电击！
+    "wild_prefix": "野生的",              # 野生的小拉达使用了撞击！
+    "missed": "{who}的攻击没有命中！",
+}
+
+# 占位符本身不上屏，别收进字库（每字形 32 字节）。
+# 不用 re —— 这个文件保持零 import。
+BATTLE_LINES_CHARS = "".join(
+    ch for s in BATTLE_LINES.values() for ch in s
+    if ch not in "{}" and not ch.isascii()
+) + "！"
+
+
+# ---------------------------------------------------------------------------
 # 逐页文案
 # ---------------------------------------------------------------------------
 
@@ -202,7 +237,8 @@ def charset() -> set[str]:
         out |= set(s)
     # 三键提示行：键名（KEYS 的字典键）+ 方括号 + 分隔空格
     out |= set(KEYS_LABELS) | set("[] ")
-    return out
+    # 战斗解说的模板字（P3）—— 见 BATTLE_LINES 的说明
+    out |= set(BATTLE_LINES_CHARS)
     return out
 
 

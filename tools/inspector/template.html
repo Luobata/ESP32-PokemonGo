@@ -3717,7 +3717,7 @@ const R1={
    text(pv,W-8-textW(pv),4,t.ink);
    hlineS(24,t.dim);
    sprC(P.sid,'back',120,102,3);   // 光学居中：墨迹中心对 (120,102)（原 72,54 按盒子居中，视觉偏）
-   if(P.mood) text(P.mood,W-8-textW(P.mood),160,P.despondent?t.redT:t.greenT);
+   if(P.mood) text(P.mood,W-8-textW(P.mood),150,P.despondent?t.redT:t.greenT); // 150：Kanto16 到 166；回退 PingFang(非库字) 到 170 —— 都让开数据窗框顶 171
    gscBox(4,171,232,84,t.blue);   // 框高收贴内容：实测内容墨迹 180..246 → y171 起上下各 9
    const nx=SP.care.axisNames;
    for(let i=0;i<4;i++){ text(nx[i],12,180+18*i,t.ink);
@@ -4025,13 +4025,18 @@ function p3G(){ // G 金银：C 的战斗构图 + GSC 实值底/HP + 主宠尺�
   // 招式动画（第一段）：攻击方突进位移 —— 必须在画 sprite 前算
   const big = P3GSZ==='96';
   const petRect = big?{x:16,y:140,s:96}:{x:24,y:188,s:48};   // x16：留 12px 闪避余量（x4 时 dodge 出画布）
-  const wildRect = {x:W-20-wpx, y:150-wpx, s:wpx};
+  // ③ 光学对称：主宠墨迹中心 ~60（左），镜像位 = 240-60 = 180（右）。
+  //    野怪位图墨迹偏心（同 40px 位图墨迹中心漂移），按盒右对齐必然看着飘 ——
+  //    与 GSC 的对角构图（牌左上/怪右上 ↔ 怪左下/牌右下）配合按墨迹居中。
+  const wbb=inkBBox(sc.wildSid,'front');
+  const wildX = wbb ? 180-(wbb.x0+wbb.x1+1) : W-20-wpx;
+  const wildRect = {x:wildX, y:150-wpx, s:wpx};
   const fxo = fxOffsets(fxSpec(r), r, ph, petRect, wildRect);
   // GSC 原作 sprite 背后是干净底 —— 棋盘舞台纹已撤（Hub 验收意见，浅底上刺眼）
   gscBox(4,8,132,44,t.red);                          // 野怪牌：左缘 x4 与消息窗对齐（栅格 M=4）
   const nm=nameOf(m)+' Lv'+sc.wildLevel; text(nm,12,15,t.ink);
   barD(12,37,116,8,wildHpPct(sc,r),{fill:hp3(wildHpPct(sc,r)),track:t.hpT});
-  spr(sc.wildSid,'front',W-20-wpx+wdx+fxo.wild,150-wpx,2); // W-20：被闪避 +12 时右缘 232 不出画布（与主宠 x16 对称）
+  spr(sc.wildSid,'front',wildX+wdx+fxo.wild,150-wpx,2);   // wildX=光学居中基位（dodge +12 后右缘仍 ≤238）
   if(big){                                           // 96 = 48×2：体量不减，真机要跨带渲染
     sprNN(25,'back',16+pdx+fxo.pet,140,96);
     gscBox(120,182,116,48,t.red);                    // 牌右移贴齐 236（栅格 4×29），避开 96px 主宠 x16..112
@@ -4046,14 +4051,18 @@ function p3G(){ // G 金银：C 的战斗构图 + GSC 实值底/HP + 主宠尺�
   // 招式动画（第二段）：特效层叠在 sprite 之上（电光/命中环/落石/缠绕/闪屏）
   fxOverlay(fxSpec(r), r, ph, petRect, wildRect, sc.wildSid);
   gscBox(4,250,232,63,t.blue);                       // 消息窗：顶收 250 高 63 → 内容 258..304.5 上下 8/7.5
-  // miss 文案照 GSC 出处直译（base 方向仍用固件词「没打中」保持一致）
-  text(r.missed ? (r.attacker==='pet'?'我方':'对方')+'的攻击没有命中！' : p3Msg(r,sc), 14,258,t.ink);
-  if(r.label) text(r.label,14,276,t.goldT);
-  if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,W-16-textW(d),276,t.redT); }
+  // ①② 解说文案照 GSC 出处：_ActorNameText "<USER>@" + "used @!"，
+  //    敌方前缀 battle.asm "Enemy @"→中文惯例「野生的」；miss 同步用名字。
+  // ① 三行按 16px 点阵字高重排（255/272/289，pitch17 —— 旧 258/276/294 按
+  //    13px 字体算，换点阵字后 hint 行墨迹压到内框线外）。
+  const nmA = r.attacker==='pet' ? '皮卡丘' : '野生的'+nameOf(m);
+  text(r.missed ? nmA+'的攻击没有命中！' : nmA+'使用了'+(r.move||'攻击')+'！', 14,255,t.ink);
+  if(r.label) text(r.label,14,272,t.goldT);
+  if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,W-16-textW(d),272,t.redT); }
   if(tl[st.P3.fi+1]===undefined){
-    text(sc.won?'胜':'败',14,258,t.ink);
-    text('经验 +'+sc.exp,14,276,t.goldT); }
-  text('▸',14,294,t.ink); hintAt(294,t.ink,t.blueT,30);
+    text(sc.won?'胜':'败',14,255,t.ink);
+    text('经验 +'+sc.exp,14,272,t.goldT); }
+  text('▸',14,289,t.ink); hintAt(289,t.ink,t.blueT,30);
 }
 
 /* ---- P6 三方向 + 现状 ---- */
