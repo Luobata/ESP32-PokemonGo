@@ -429,6 +429,30 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
 </div>
 
 <div class="panel" id="p-sim" hidden>
+<!-- 用户验收清单（第七派活）：打开即可按深链逐项走完，不用问任何人 -->
+<div style="border:2px solid var(--accent);padding:12px 14px;margin-bottom:16px">
+  <b style="color:var(--accent)">📋 用户验收清单</b>
+  <span class="sub">—— 逐项点深链看；G=设计稿（画面右下角有水印），base=与真机固件一致</span>
+  <ol style="margin:8px 0 6px;padding-left:22px;font-size:12.5px;line-height:1.9">
+    <li><a href="#sim=P3&d=G&z=96" onclick="this.blur()">P3 战斗 · G 定稿（96px 主宠）</a>
+      —— 消息行与主宠的净空在这里看；<b>◀ ▶ 逐帧</b>看招式动画（撞击/电击/落石/绑紧按回合自动派发），
+      右栏「招式动画」按钮可强制预览</li>
+    <li><a href="#sim=P1&d=G" onclick="this.blur()">P1 待机 · G 定稿</a>
+      —— 主宠光学居中、四轴数据窗、心情/亲密度</li>
+    <li><a href="#sim=P6&d=G" onclick="this.blur()">P6 图鉴 · G 定稿（无边框版）</a>
+      —— caught 彩 / seen 剪影 / unseen 淡编号，B 键翻页</li>
+    <li><a href="#sim=P3&d=base" onclick="this.blur()">P3 · base</a> 与
+      <a href="#sim=P4" onclick="this.blur()">P0/P2/P4/P5</a>
+      —— base 方向 = 现有固件的逐像素对照（美术方向按钮全部切 base 即是）</li>
+    <li>「📐 量化当前画面」随时量单色占比 —— 对比 test 报的 85~96% 基线</li>
+  </ol>
+  <div style="font-size:11.5px;line-height:1.8;color:var(--ink-soft)">
+    <b>还没做的（如实）</b>：GSC sprite 未进模拟器（暂用初代官方彩放大）；
+    99 招动画只做 5 个（形状已定型：加一招=注册表一行）；圆角框是 web 近似非 GSC 图元；
+    P4 球计数 ×N 与目标物种待 payload；黄/红 HP 段在现有样本中不出现（阈值 50/20 有出处）；
+    P7/P8 固件本身未实现；四色 *T 文字加深档是 web 调整非 GSC 原值。
+  </div>
+</div>
 <div class="cols">
   <div style="min-width:190px">
     <h3>页面（按键驱动）</h3>
@@ -3449,16 +3473,20 @@ const DIRS = {
    pal:DEVG,
    note:'pokered 菜单版式移植：双线框 / 反白标题签 / ▸ 光标 / 纯色留白 —— 版式取原作，配色守 DMG 绿（斜纹已撤）'},
  G:{label:'G 金银（底/HP 实值）', spritePal:null,
-   // 底色与 HP 四色已是 test 探源实值：底 #ffff84（GSC luma 241）；
-   // HP 槽/绿/黄/红 = RGB565 0xF6AF/0x05E0/0xFD60/0xF800，web 侧按位复制展开成 888。
-   // 红蓝框与 green/gold 语义色仍是占位（等 test 的界面图元量化值）。
-   // 第六派活实测（WCAG 对 #ffff84）：B 时期占位值在浅黄底上
-   //   gold #c8a028 = 2.34（连图形级 3.0 都不到）、green #58a850 = 2.79 —— 均不可用；
-   //   red 4.80 / blue 4.99 通过。过渡值仍占位：gold→#8f6a10 (4.69)、green→#2e7a38 (5.03)。
-   pal:{field:'#ffff84', ink:'#202020', dim:'#686868', track:'#a8a8a8',
-        red:'#c83c30', green:'#2e7a38', blue:'#3868c8', gold:'#8f6a10',
-        hpT:'#f7d77b', hpG:'#00ba00', hpY:'#ffae00', hpR:'#ff0000'},
-   note:'金银方向：GSC 实值底色 + HP 三段（0x05E0/0xFD60/0xF800，阈值 50/20 有 Bulbapedia 出处）+ 圆角菜单框；红蓝框色仍占位；sprite 暂用初代官方彩，GSC sprite 等 test 取源。⚠ 设计稿：框/居中/无边框图鉴固件均未实现（D22 web 定稿在前），base 方向才与固件一致'},
+   // 第七派活：全部换成 test 探源的 GSC 实值（出处见报告补记7）——
+   //   底 0xFFF0 / 主文字 0x0000 / 次级文字 0x7240 / HP·EXP 槽 0xF6AF /
+   //   red 0xF800 / green 0x05E0 / blue 0x247F / gold 0xFD60（=HP 黄段，GSC 本就复用）
+   // 文字规则：GSC 的彩色从不作米白底文字（0xFD60 属于深色 HP 槽），实测作文字
+   //   gold 1.76 / green 2.38 / blue 3.12 / red 3.79 全不达 AA ——
+   //   所以彩色作「图形/填充」用原值，作「文字」一律加深档（*T，保色相，全部 ≥4.5），
+   //   这是 web 侧调整非 GSC 原值；0xEEB2 备选更浅（更差），弃用。
+   // 注：green 展开 test 报 #00be00、位复制展开为 #00ba00（G=46 vs 47 的进位差，
+   //   Δ4/255 不可见）—— 统一采用契约值 #00be00。
+   pal:{field:'#ffff84', ink:'#000000', dim:'#734900', track:'#a8a8a8',
+        red:'#ff0000', green:'#00be00', blue:'#218eff', gold:'#ffae00',
+        redT:'#cc0000', greenT:'#007e1e', blueT:'#0057d6', goldT:'#8a5e00',
+        hpT:'#f7d77b', hpG:'#00be00', hpY:'#ffae00', hpR:'#ff0000'},
+   note:'金银方向：全部界面色为 GSC 实值（底/文字/HP 槽/四彩色，出处见报告补记7）；彩色作文字用加深档（GSC 彩色从不作米白底文字，实测 gold 1.76 不可读）；sprite 暂用初代官方彩，GSC sprite 等 test 取源。⚠ 设计稿：框/居中/无边框图鉴固件均未实现（D22 web 定稿在前），base 方向才与固件一致'},
 };
 function gscBox(x,y,w,h,c){ // GSC 菜单框占位：外框四角让 1px 的「圆角」 + 内线
   ctx.fillStyle=c;
@@ -3641,14 +3669,14 @@ const R1={
    text(pv,W-8-textW(pv),4,t.ink);
    hlineS(24,t.dim);
    sprC(P.sid,'back',120,102,3);   // 光学居中：墨迹中心对 (120,102)（原 72,54 按盒子居中，视觉偏）
-   if(P.mood) text(P.mood,W-8-textW(P.mood),160,P.despondent?t.red:t.green);
+   if(P.mood) text(P.mood,W-8-textW(P.mood),160,P.despondent?t.redT:t.greenT);
    gscBox(4,171,232,84,t.blue);   // 框高收贴内容：实测内容墨迹 180..246 → y171 起上下各 9
    const nx=SP.care.axisNames;
    for(let i=0;i<4;i++){ text(nx[i],12,180+18*i,t.ink);
      barD(52,182+18*i,172,8,SP.care.axes[i],
           {fill:hp3(SP.care.axes[i]),track:t.track,border:t.ink}); }
    gscBox(8,268,224,36,t.blue);
-   text('▸',16,280,t.ink); hintAt(280,t.ink,t.blue,32); },
+   text('▸',16,280,t.ink); hintAt(280,t.ink,t.blueT,32); },
 };
 
 /* ---- P3 三方向 + 现状 + 打破骨架 ---- */
@@ -3916,12 +3944,12 @@ function p3G(){ // G 金银：C 的战斗构图 + GSC 实值底/HP + 主宠尺�
   fxOverlay(fxSpec(r), r, ph, petRect, wildRect);
   gscBox(4,250,232,63,t.blue);                       // 消息窗：顶收 250 高 63 → 内容 258..304.5 上下 8/7.5
   text(p3Msg(r,sc),14,258,t.ink);
-  if(r.label) text(r.label,14,276,t.gold);
-  if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,W-16-textW(d),276,t.red); }
+  if(r.label) text(r.label,14,276,t.goldT);
+  if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,W-16-textW(d),276,t.redT); }
   if(tl[st.P3.fi+1]===undefined){
     text(sc.won?'胜':'败',14,258,t.ink);
-    text('经验 +'+sc.exp,14,276,t.gold); }
-  text('▸',14,294,t.ink); hintAt(294,t.ink,t.blue,30);
+    text('经验 +'+sc.exp,14,276,t.goldT); }
+  text('▸',14,294,t.ink); hintAt(294,t.ink,t.blueT,30);
 }
 
 /* ---- P6 三方向 + 现状 ---- */
@@ -3979,7 +4007,7 @@ const R6={
  G(){ const t=DIRS.G.pal;
    fieldFill();
    text('图鉴',8,4,t.ink);
-   const ct=dexCount()+'/151'; text(ct,W-8-textW(ct),4,t.gold);
+   const ct=dexCount()+'/151'; text(ct,W-8-textW(ct),4,t.goldT);
    hlineS(26,t.dim);
    /* 无框版（第五派活，用户定「图鉴可以没有边框」）：
       分隔靠留白 + 对齐 —— 格 40×52、步进 48×58（横向 8px 留白），
@@ -3998,7 +4026,7 @@ const R6={
        text(no,cx+(CW-textW(no))/2,cy+38,t.ink); } }
    for(let i=0;i<SP.dex.pages;i++){ ctx.fillStyle=i===st.P6.pg?t.blue:t.track; ctx.fillRect(8+i*14,272,8,8); }
    const pg=(st.P6.pg+1)+'/'+SP.dex.pages; text(pg,W-8-textW(pg),270,t.dim);
-   hlineS(292,t.dim); hintAt(298,t.ink,t.blue); },
+   hlineS(292,t.dim); hintAt(298,t.ink,t.blueT); },
  C(){ const t=DIRS.C.pal;
    fieldFill();
    box2(2,2,236,268,t.ink);                            // 全幅双线框
@@ -4310,10 +4338,11 @@ function legend(){
   const d=DIRS[DIR]; const t=d.pal;
   let entries;
   if(DIR==='G'){
-    // 第三项 = 占位标记：虚线框 + ⚠占位 —— 用户没看到 note 就当定稿过，标记必须跟着色块走
-    entries=[['field','画面基底','✓GSC 实值'],['ink','一级字/描边',''],['dim','二级字/分隔',''],['track','轨道/空槽',''],
-      ['hpT','HP 槽 0xF6AF','✓实值'],['hpG','HP>50 绿 0x05E0','✓实值'],['hpY','HP 20~50 黄 0xFD60','✓实值'],['hpR','HP≤20 红 0xF800','✓实值'],
-      ['red','危险/牌框','⚠占位'],['green','良好','⚠占位'],['blue','焦点/消息框','⚠占位'],['gold','稀有（浅底过渡值 4.69）','⚠占位']];
+    // 全部实值（第七派活，test 探源出处见报告补记7）；*T = 文字加深档（web 调整非原值）
+    entries=[['field','画面基底 0xFFF0','✓实值'],['ink','主文字 0x0000','✓实值'],['dim','次级文字 0x7240','✓实值'],
+      ['hpT','HP·EXP 槽 0xF6AF','✓实值'],['hpG','HP>50 绿 0x05E0','✓实值'],['hpY','HP 20~50 黄 0xFD60','✓实值'],['hpR','HP≤20 红 0xF800','✓实值'],
+      ['red','危险/牌框 hp_bar','✓实值'],['green','良好 hp_bar','✓实值'],['blue','焦点/框 exp_bar 0x247F','✓实值'],['gold','填充用 0xFD60','✓实值（图形）'],
+      ['redT','危险文字','⚠加深档'],['greenT','良好文字','⚠加深档'],['blueT','键帽/焦点文字','⚠加深档'],['goldT','稀有/经验文字','⚠加深档']];
   } else if(DIR==='B'){
     entries=[['ink','一级字/描边'],['dim','二级字/分隔'],['track','轨道/空槽/底纹'],['field','画面基底'],
       ['red','危险/注意'],['green','良好/正向'],['blue','焦点/选中'],['gold','稀有/奖励']];
@@ -4324,7 +4353,7 @@ function legend(){
   }
   el('dir-legend').innerHTML =
     '<div style="font-size:11px;margin:4px 0 2px;color:var(--ink-soft)">色板 · RGB565 量化精确值'
-    +(DIR==='G'?' · 底/HP 四色为 test 探源实值，<b style="color:var(--warn)">框色四项仍占位（等 test）</b>；<b>G=设计稿·固件未实现</b>':'')
+    +(DIR==='G'?' · 全部 GSC 实值（test 探源）；<b style="color:var(--warn)">*T 四项为浅底文字加深档（web 调整非原值）</b>；<b>G=设计稿·固件未实现</b>':'')
     +' · sprite 层：官方彩'+(DIR==='G'?'（初代；GSC sprite 等 test 取源）':'')+'</div>'
     +entries.map(([role,lab,ph])=>{
        const c=t[role];
@@ -4418,6 +4447,17 @@ el('sim-measure').onclick=()=>{
   const m=location.hash.match(/^#sim=(P\d)(?:&d=(A|B|C|G))?(&k=alt)?(?:&z=(48|96))?/);
   if(m){ if(m[2]) DIR=m[2]; if(m[3]) P3SKEL='alt'; if(m[4]) P3GSZ=m[4]; }
 }
+// 验收清单的深链是页内锚点（不重载页面）—— hashchange 时重放状态。
+// go()/按钮的 history.replaceState 不触发本事件，不会自激。
+window.addEventListener('hashchange', ()=>{
+  const m=location.hash.match(/^#sim=(P\d)(?:&d=(A|B|C|G))?(&k=alt)?(?:&z=(48|96))?/);
+  if(!m) return;
+  if(m[2]&&DIRS[m[2]]) DIR=m[2];
+  P3SKEL=m[3]?'alt':'std';
+  if(m[4]) P3GSZ=m[4];
+  if(PAGES[m[1]]) go(m[1]);
+  syncDirUI(); draw();
+});
 syncDirUI();
 go((location.hash.match(/^#sim=(P\d)/)||[])[1] || 'P0');
 } catch(err){
