@@ -169,6 +169,7 @@ bool enc_queue_push(enc_queue_t *q, const encounter_t *e)
     if (q->count < ENC_QUEUE_CAP) {
         q->items[q->count] = *e;
         q->items[q->count].uid = uid;
+        q->items[q->count].exp_granted = false;
         q->count++;
         return false;
     }
@@ -203,6 +204,7 @@ bool enc_queue_push(enc_queue_t *q, const encounter_t *e)
         for (uint8_t k = i; k + 1 < q->count; k++) q->items[k] = q->items[k + 1];
         q->items[q->count - 1] = *e;
         q->items[q->count - 1].uid = uid;
+        q->items[q->count - 1].exp_granted = false;
         return true;
     }
     return true;

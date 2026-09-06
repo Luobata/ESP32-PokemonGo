@@ -31,10 +31,11 @@
 
 #include "encounter.h"
 #include "nurture.h"
+#include "party.h"
 
 // 存档版本。**加字段时必须 +1** —— load 会拒绝不认识的版本，
 // 那比读到错位的字段好（错位不报错，只是数值离谱）。
-#define SAVE_VERSION 1
+#define SAVE_VERSION 5
 
 typedef struct {
     uint16_t version;
@@ -42,11 +43,13 @@ typedef struct {
     // 养成（S4）
     nurture_t pet;
 
-    // 主宠身份。物种与等级现在还是固定值，但存档里留好位置 ——
-    // 接 S14 队伍时不用改格式。
+    // 主宠身份的兼容镜像；权威值来自下面队伍区的队首。
     uint16_t species;
     uint8_t level;
     uint32_t exp;
+
+    // 队伍 6 格 + 按物种索引的仓库 151 格，布局由 party.c 统一编解码。
+    uint8_t party[PARTY_BYTES];
 
     // 遭遇队列（S1）与图鉴（S5/S8）
     enc_queue_t queue;
@@ -61,6 +64,10 @@ typedef struct {
     // 所以只能知道「上次跑了多久」，不知道中间隔了多久。
     // 这正是 S4 的 on_reunion（「好久不见」）现在接不上的原因。
     int64_t last_uptime_us;
+
+    // S16 开场只播一次。save.c 同时用独立的单调 NVS 键保存它，避免
+    // world 生成整块快照时把这个页面侧字段清零。
+    bool opening_seen;
 } save_t;
 
 // 初始化 NVS。**在任何 save_read/write 之前调**。
@@ -80,3 +87,7 @@ bool save_erase(void);
 
 // 有没有存档 —— 开机时用它决定走「继续」还是「新游戏」。
 bool save_exists(void);
+
+// 开场标记只从 false 变 true；独立键让页面无需写整块世界存档。
+bool save_opening_seen(void);
+bool save_mark_opening_seen(void);

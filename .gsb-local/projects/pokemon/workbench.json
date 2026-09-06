@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "projectName": "pokemon",
+  "name": "pokemon",
+  "profile": "user:template-093af84e93",
+  "session": "pokemon",
+  "permission": "full-access",
+  "watchdog": true,
+  "rebuild": true,
+  "templateOrigin": {
+    "id": "template-093af84e93",
+    "version": 1
+  },
+  "roles": [
+    {
+      "id": "hub",
+      "name": "Hub",
+      "type": "orchestrator",
+      "description": "目标澄清、任务拆解、分发、冲突处理与最终汇总"
+    },
+    {
+      "id": "cep-coder",
+      "name": "cep-coder",
+      "type": "specialist",
+      "description": "自定义协作角色"
+    },
+    {
+      "id": "web-coder",
+      "name": "web-coder",
+      "type": "specialist",
+      "description": "自定义协作角色"
+    },
+    {
+      "id": "test",
+      "name": "Test",
+      "type": "reviewer",
+      "description": "测试设计、缺陷复现、回归验证与覆盖评估"
+    }
+  ]
+}

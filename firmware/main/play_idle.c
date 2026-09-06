@@ -29,9 +29,9 @@
 //     y=54   [ back sprite 96×96 居中 ]      呼吸          带 0~1
 //     y=160  ...............................愉快           带 2
 //     y=180  饱食   ████████░░                              带 2
-//     y=204  心情   ██████░░░░                              带 2
-//     y=228  体能   █████████░                              带 2
-//     y=252  今日行程 ███░░░░░                              带 3
+//     y=202  心情   ██████░░░░                              带 2
+//     y=224  体能   █████████░                              带 2
+//     y=246  今日行程 ███░░░░░                              带 3
 //     y=292  ──────────────────────────────
 //     y=298  [A]照料 [B]图鉴 [C]遭遇 3        184px + 角标  带 3
 //
@@ -82,15 +82,29 @@ static uint8_t s_breath_i;
 // 24 + (180 - 24 - 96) / 2 = 54。页面文档只说「居中」，这里把它算出来。
 #define SPRITE_Y 54
 
-// 主宠。三条轴与亲密度走 nurture.c（S4 的 C 移植，与
-// sim/gameplay.py 逐拍对账过，见 tools/pipeline/verify_nurture.py）。
-//
-// 物种与等级仍是固定值 —— 那要等 S14 队伍与 S18 存档接进来。
-static struct {
-    uint16_t species;
-    uint8_t level;
-    uint8_t pending;
-} s_pet = {25, 12, 3};
+// 四条轴用 22px 行距：前三条完整收进带 2，行程完整落在带 3。
+// 旧的 24px 行距让体能条 y=231..240 跨过 240 边界；带 2/3 的刷新
+// 频率不同，所以用户会看到上下两部分先后出现。
+#define AXIS_Y0 180
+#define AXIS_STEP 22
+#define AXIS_Y(i) (AXIS_Y0 + (i) * AXIS_STEP)
+#define TEXT_H 16
+#define BAR_OFFSET_Y 3
+#define BAR_H 10
+
+// 只对本页要求单带刷新的元素做编译期检查。精灵有意跨带，且它所在的
+// 带 0/1 始终同频刷新，因此不应纳入这个守护。
+SCREEN_ASSERT_WITHIN_BAND(idle_mood, 160, TEXT_H);
+SCREEN_ASSERT_WITHIN_BAND(idle_satiety_label, AXIS_Y(0), TEXT_H);
+SCREEN_ASSERT_WITHIN_BAND(idle_satiety_bar, AXIS_Y(0) + BAR_OFFSET_Y, BAR_H);
+SCREEN_ASSERT_WITHIN_BAND(idle_mood_label, AXIS_Y(1), TEXT_H);
+SCREEN_ASSERT_WITHIN_BAND(idle_mood_bar, AXIS_Y(1) + BAR_OFFSET_Y, BAR_H);
+SCREEN_ASSERT_WITHIN_BAND(idle_stamina_label, AXIS_Y(2), TEXT_H);
+SCREEN_ASSERT_WITHIN_BAND(idle_stamina_bar, AXIS_Y(2) + BAR_OFFSET_Y, BAR_H);
+SCREEN_ASSERT_WITHIN_BAND(idle_progress_label, AXIS_Y(3), TEXT_H);
+SCREEN_ASSERT_WITHIN_BAND(idle_progress_bar, AXIS_Y(3) + BAR_OFFSET_Y, BAR_H);
+SCREEN_ASSERT_WITHIN_BAND(idle_footer_rule, 292, 1);
+SCREEN_ASSERT_WITHIN_BAND(idle_footer_text, 298, TEXT_H);
 
 // 世界快照。每次重画前刷一次 —— **一帧之内不再变**，
 // 否则同一帧里四条轴可能读到不同时刻的值（后台任务随时在改）。
@@ -131,11 +145,11 @@ static void draw_band(int band_y, int8_t breath)
     species_t sp;
 
     // -- 状态栏 --------------------------------------------------------
-    if (assets_species(s_pet.species, &sp)) {
+    if (assets_species(s_w.species, &sp)) {
         snprintf(buf, sizeof(buf), "%.*s Lv%u",
-                 sp.name_zh_len, sp.name_zh, s_pet.level);
+                 sp.name_zh_len, sp.name_zh, s_w.level);
     } else {
-        snprintf(buf, sizeof(buf), "#%03u Lv%u", s_pet.species, s_pet.level);
+        snprintf(buf, sizeof(buf), "#%03u Lv%u", s_w.species, s_w.level);
     }
     render_text(8, Y(4), buf, ink);
 
@@ -148,7 +162,7 @@ static void draw_band(int band_y, int8_t breath)
     hline(Y(24), 0, SCR_W, mid);
 
     // -- 精灵 ----------------------------------------------------------
-    const uint8_t *spr = assets_back_sprite(s_pet.species);
+    const uint8_t *spr = assets_back_sprite(s_w.species);
     if (spr) {
         uint16_t pal[4];
         assets_palette(sp.palette, pal);
@@ -178,11 +192,11 @@ static void draw_band(int band_y, int8_t breath)
         s_w.progress,                // S1 的移动量累积（F9-① 接上了）
     };
     for (int i = 0; i < 4; i++) {
-        int y = 180 + i * 24;
+        int y = AXIS_Y(i);
         render_text(8, Y(y), AXIS[i], ink);
         // 前三条标签 2 字 = 32px，第四条 4 字 = 64px
         int lx = (i == 3) ? 80 : 48;
-        draw_bar(lx, Y(y + 3), SCR_W - lx - 8, 10, VAL[i]);
+        draw_bar(lx, Y(y + BAR_OFFSET_Y), SCR_W - lx - 8, BAR_H, VAL[i]);
     }
 
     // -- 心情文案 --------------------------------------------------------
@@ -315,7 +329,7 @@ void play_idle_enter(void)
     // 页面自己再截一张只会与之交错，让 PC 侧收到半张（踩过一次）。
 
     ESP_LOGI(TAG, "P1：#%u Lv%u  提示行 %d px  横带 %dx%d×%d 条",
-             s_pet.species, s_pet.level,
+             s_w.species, s_w.level,
              render_text_width("[A]照料 [B]图鉴 [C]遭遇"),
              SCR_W, BAND_H, SCR_H / BAND_H);
 }
@@ -344,13 +358,7 @@ void play_idle_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 
     switch (btn) {
     case BSP_BTN_UP:                       // A 照料
-        // 走 world 而不是自己改 —— **状态的唯一所有者是 world**，
-        // 页面直接改快照的话，下一次 world_snapshot 就把它覆盖了。
-        world_feed();
-        world_snapshot(&s_w);
-        draw_all(BREATH[s_breath_i]);
-        ESP_LOGI(TAG, "照料 → 饱食 %u 心情 %u",
-                 nurture_pct(s_w.pet.satiety), nurture_pct(s_w.pet.mood));
+        nav_go(PAGE_CARE);
         break;
     case BSP_BTN_DOWN:                     // B 图鉴
         nav_go(PAGE_DEX);

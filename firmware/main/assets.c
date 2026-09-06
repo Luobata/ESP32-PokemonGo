@@ -253,6 +253,84 @@ const uint8_t *assets_back_sprite(uint16_t id)
     return s_back.d + (size_t)(id - 1) * BACK_SPRITE_BYTES;
 }
 
+#define FRONT_MAX_SEGMENTS 3
+#define FRONT_SEG_BYTES 12
+
+typedef struct {
+    const uint8_t *records;
+    uint16_t size;
+    uint16_t per;
+    uint32_t count;
+} front_segment_t;
+
+static struct {
+    front_segment_t segments[FRONT_MAX_SEGMENTS];
+    uint16_t count;
+    bool ok;
+} s_front;
+
+static bool parse_front(void)
+{
+    const uint8_t *d = front_bin_start;
+    size_t len = (size_t)(front_bin_end - front_bin_start);
+    if (len < 8 || memcmp(d, "FRNT", 4) != 0 || rd16(d + 4) != 1) {
+        return false;
+    }
+
+    uint16_t segments = rd16(d + 6);
+    size_t table_bytes = (size_t)segments * FRONT_SEG_BYTES;
+    if (segments == 0 || segments > FRONT_MAX_SEGMENTS ||
+        8u + table_bytes > len) {
+        return false;
+    }
+
+    const uint8_t *blob = d + 8 + table_bytes;
+    size_t blob_len = len - (8 + table_bytes);
+    for (uint16_t i = 0; i < segments; i++) {
+        const uint8_t *e = d + 8 + (size_t)i * FRONT_SEG_BYTES;
+        uint16_t size = rd16(e);
+        uint16_t per = rd16(e + 2);
+        uint32_t count = rd32(e + 4);
+        uint32_t off = rd32(e + 8);
+        size_t records_len = (size_t)count * (2u + per);
+
+        if (size == 0 || per != ((uint32_t)size * size + 3u) / 4u ||
+            off > blob_len || records_len > blob_len - off) {
+            ESP_LOGE(TAG, "front.bin segment %u invalid", i);
+            return false;
+        }
+        s_front.segments[i] = (front_segment_t){
+            .records = blob + off,
+            .size = size,
+            .per = per,
+            .count = count,
+        };
+    }
+
+    s_front.count = segments;
+    s_front.ok = true;
+    return true;
+}
+
+const uint8_t *assets_front_sprite(uint16_t id, uint8_t *size)
+{
+    if (size) *size = 0;
+    species_t sp;
+    if (!size || !s_front.ok || !assets_species(id, &sp)) return NULL;
+
+    uint8_t tier = (sp.flags >> 2) & 3u;
+    if (tier >= s_front.count) return NULL;
+    const front_segment_t *seg = &s_front.segments[tier];
+    for (uint32_t i = 0; i < seg->count; i++) {
+        const uint8_t *record = seg->records + (size_t)i * (2u + seg->per);
+        if (rd16(record) == id) {
+            *size = (uint8_t)seg->size;
+            return record + 2;
+        }
+    }
+    return NULL;
+}
+
 // ---------------------------------------------------------------------------
 // UI 点阵素材 —— 格式见 tools/pipeline/convert_ui.py
 // ---------------------------------------------------------------------------
@@ -316,6 +394,7 @@ bool assets_init(void)
     ok &= parse_gen1();
     ok &= parse_moves();
     ok &= parse_back();
+    ok &= parse_front();
     ok &= parse_ui();
     if (!ok) ESP_LOGE(TAG, "资产解析失败 —— 游戏逻辑不可用");
     return ok;

@@ -36,6 +36,7 @@ bool save_init(void)
 
 #define NS "pokewalk"      // NVS 命名空间
 #define KEY "state"        // 整个 save_t 当一个 blob 存
+#define KEY_OPENING "opening"
 
 // 整块存而不是逐字段存 kv。
 //
@@ -43,7 +44,7 @@ bool save_init(void)
 // 但那样**一次存档要 8 次 nvs_set + 8 次可能失败的点**，
 // 而且字段加减时要同步维护键名表。
 //
-// 整块 292 字节，NVS 的 blob 上限是 508000 字节 —— 绰绰有余。
+// 整块约 2.2 KiB，NVS 的 blob 上限是 508000 字节 —— 绰绰有余。
 // 原子性也更好：要么整块新的，要么整块旧的，不会出现
 // 「图鉴是新的而队列是旧的」这种半更新状态。
 
@@ -57,6 +58,11 @@ bool save_write(const save_t *s)
     }
 
     e = nvs_set_blob(h, KEY, s, sizeof(*s));
+    // opening_seen 是单调标记。world 的快照不拥有它，传 false 时绝不
+    // 擦掉已经写入的 true；显式传 true 的调用方则一并持久化。
+    if (e == ESP_OK && s->opening_seen) {
+        e = nvs_set_u8(h, KEY_OPENING, 1);
+    }
     if (e == ESP_OK) {
         // **commit 不能省** —— nvs_set_blob 只写进缓存，
         // 不 commit 的话拔电就丢了，而函数返回值是成功的。
@@ -78,6 +84,8 @@ bool save_read(save_t *out)
 
     size_t len = sizeof(*out);
     esp_err_t e = nvs_get_blob(h, KEY, out, &len);
+    uint8_t opening_seen = 0;
+    if (e == ESP_OK) (void)nvs_get_u8(h, KEY_OPENING, &opening_seen);
     nvs_close(h);
 
     if (e != ESP_OK) return false;
@@ -97,6 +105,32 @@ bool save_read(save_t *out)
                  out->version, SAVE_VERSION);
         return false;
     }
+    out->opening_seen = opening_seen != 0;
+    return true;
+}
+
+bool save_opening_seen(void)
+{
+    nvs_handle_t h;
+    if (nvs_open(NS, NVS_READONLY, &h) != ESP_OK) return false;
+    uint8_t seen = 0;
+    esp_err_t e = nvs_get_u8(h, KEY_OPENING, &seen);
+    nvs_close(h);
+    return e == ESP_OK && seen != 0;
+}
+
+bool save_mark_opening_seen(void)
+{
+    nvs_handle_t h;
+    esp_err_t e = nvs_open(NS, NVS_READWRITE, &h);
+    if (e != ESP_OK) return false;
+    e = nvs_set_u8(h, KEY_OPENING, 1);
+    if (e == ESP_OK) e = nvs_commit(h);
+    nvs_close(h);
+    if (e != ESP_OK) {
+        ESP_LOGE(TAG, "开场标记写入失败: %s", esp_err_to_name(e));
+        return false;
+    }
     return true;
 }
 
@@ -114,8 +148,11 @@ bool save_erase(void)
 {
     nvs_handle_t h;
     if (nvs_open(NS, NVS_READWRITE, &h) != ESP_OK) return false;
-    esp_err_t e = nvs_erase_key(h, KEY);
-    if (e == ESP_OK || e == ESP_ERR_NVS_NOT_FOUND) e = nvs_commit(h);
+    esp_err_t state_e = nvs_erase_key(h, KEY);
+    esp_err_t opening_e = nvs_erase_key(h, KEY_OPENING);
+    bool state_ok = state_e == ESP_OK || state_e == ESP_ERR_NVS_NOT_FOUND;
+    bool opening_ok = opening_e == ESP_OK || opening_e == ESP_ERR_NVS_NOT_FOUND;
+    esp_err_t e = (state_ok && opening_ok) ? nvs_commit(h) : ESP_FAIL;
     nvs_close(h);
     return e == ESP_OK;
 }

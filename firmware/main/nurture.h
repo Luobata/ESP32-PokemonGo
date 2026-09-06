@@ -47,6 +47,8 @@
 #define NURT_FEED_MOOD     (5 * NURT_Q)
 #define NURT_PLAY_MOOD     (15 * NURT_Q)
 #define NURT_PLAY_STAMINA  (5 * NURT_Q)
+#define NURT_PLAY_INTIMACY (1 * NURT_Q)
+#define NURT_REST_STAMINA  (48 * NURT_Q)
 
 typedef struct {
     int32_t satiety;      // Q10，0~NURT_MAX
@@ -78,6 +80,7 @@ void nurture_tick(nurture_t *n, int64_t now_us, int motion_events,
 
 void nurture_feed(nurture_t *n);
 void nurture_play(nurture_t *n);
+void nurture_rest(nurture_t *n);
 
 // 三条轴取整成 0~100 —— 上屏用。
 uint8_t nurture_pct(int32_t q);

@@ -17,6 +17,17 @@
 #define SCREEN_BAND_H 80
 #define SCREEN_BANDS (SCREEN_H / SCREEN_BAND_H)
 
+// Opt-in guard for elements that must be wholly contained in one band.
+// Some sprites intentionally span bands, so checking every clipped pixel would
+// be noisy. Constant layout coordinates can use this at file scope instead:
+// violations fail the build and the normal rendering path pays no runtime cost.
+#define SCREEN_ELEMENT_FITS_BAND(y, h) \
+    ((h) > 0 && (y) >= 0 && (y) + (h) <= SCREEN_H && \
+     (y) / SCREEN_BAND_H == ((y) + (h) - 1) / SCREEN_BAND_H)
+#define SCREEN_ASSERT_WITHIN_BAND(name, y, h) \
+    _Static_assert(SCREEN_ELEMENT_FITS_BAND((y), (h)), \
+                   #name " crosses a screen band boundary")
+
 // 页面重画回调。截图时用 —— 见 screen_dump 的说明。
 typedef void (*screen_redraw_cb_t)(void);
 

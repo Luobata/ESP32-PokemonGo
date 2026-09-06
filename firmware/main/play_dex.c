@@ -111,7 +111,7 @@ static void draw_band(int band_y)
     render_text(SCR_W - 8 - render_text_width(buf), Y(268), buf, C_MID);
 
     hline_at(Y(292));
-    render_text(8, Y(298), "[A]详情 [B]翻页 [C]返回", C_INK);
+    render_text(8, Y(298), "[A]上页 [B]下页 [C]返回", C_INK);
 
     #undef Y
     screen_push_band(band_y);
@@ -150,11 +150,14 @@ void play_dex_key(bsp_btn_t btn, bsp_btn_ev_t ev)
     if (ev != BSP_BTN_CLICK) return;
 
     switch (btn) {
-    case BSP_BTN_UP:                       // A 详情（P7 未实现）
-        ESP_LOGI(TAG, "详情页未实现");
+    case BSP_BTN_UP: {                     // A 上一页
+        uint8_t pages = (DEX_SPECIES + PER_PAGE - 1) / PER_PAGE;
+        s_page = s_page ? (uint8_t)(s_page - 1) : (uint8_t)(pages - 1);
+        draw_all();
         break;
+    }
 
-    case BSP_BTN_DOWN: {                   // B 翻页
+    case BSP_BTN_DOWN: {                   // B 下一页
         uint8_t pages = (DEX_SPECIES + PER_PAGE - 1) / PER_PAGE;
         s_page = (uint8_t)((s_page + 1) % pages);
         draw_all();

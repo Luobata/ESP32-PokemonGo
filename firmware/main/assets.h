@@ -60,6 +60,10 @@ uint16_t assets_move_count(void);
 // back sprite 的 2bpp 数据（256 字节）。id 越界返回 NULL。
 const uint8_t *assets_back_sprite(uint16_t id);
 
+// front sprite 按物种尺寸档返回 2bpp 数据，并把原始边长写入 size。
+// 图集损坏、物种缺失或 id 越界时返回 NULL，size 写 0。
+const uint8_t *assets_front_sprite(uint16_t id, uint8_t *size);
+
 // ---------------------------------------------------------------------------
 // UI 点阵素材（ui.bin）—— 精灵球、光标、心形、星星
 //

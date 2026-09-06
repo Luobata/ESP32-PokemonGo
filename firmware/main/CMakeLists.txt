@@ -5,12 +5,20 @@ idf_component_register(
          "assets.c"
          "sensing.c"
          "nurture.c"
+         "exp.c"
+         "evolution.c"
+         "party.c"
          "world.c"
          "battle.c"
          "capture.c"
          "encounter.c"
          "save.c"
+         "opening.c"
+         "transition.c"
          "nav.c"
+         "audio.c"
+         "sfx.c"
+         "play_opening.c"
          "dbg.c"
          "play_enc.c"
          "play_battle.c"
@@ -19,6 +27,7 @@ idf_component_register(
          "screen.c"
          "render.c"
          "play_idle.c"
+         "play_care.c"
          "play_collect.c"
          "demo_button.c"
          "demo_battery.c"
@@ -38,3 +47,10 @@ idf_component_register(
                 "${CMAKE_CURRENT_LIST_DIR}/../../assets/moves.bin"
                 "${CMAKE_CURRENT_LIST_DIR}/../../assets/ui.bin"
 )
+
+# 开发机默认保留串口验收入口；发布构建可用
+# `-DCONFIG_POKEWALK_DEBUG_KEYS=OFF` 编译掉状态注入命令。
+option(CONFIG_POKEWALK_DEBUG_KEYS "Enable PokeWalk debug key injection" ON)
+if(CONFIG_POKEWALK_DEBUG_KEYS)
+    target_compile_definitions(${COMPONENT_LIB} PRIVATE CONFIG_POKEWALK_DEBUG_KEYS=1)
+endif()

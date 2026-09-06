@@ -103,6 +103,12 @@ void nurture_play(nurture_t *n)
 {
     n->mood = clamp_axis((int64_t)n->mood + NURT_PLAY_MOOD);
     n->stamina = clamp_axis((int64_t)n->stamina - NURT_PLAY_STAMINA);
+    n->intimacy = clamp_axis((int64_t)n->intimacy + NURT_PLAY_INTIMACY);
+}
+
+void nurture_rest(nurture_t *n)
+{
+    n->stamina = clamp_axis((int64_t)n->stamina + NURT_REST_STAMINA);
 }
 
 uint8_t nurture_pct(int32_t q)
@@ -232,6 +238,48 @@ bool nurture_selftest(void)
         ok = false;
     }
 
+    // ⑧ 三个主动照料动作与 sim/gameplay.py 一致，含副作用。
+    nurture_init(&n);
+    n.satiety = 50 * NURT_Q;
+    n.mood = 40 * NURT_Q;
+    n.stamina = 60 * NURT_Q;
+    n.intimacy = 10 * NURT_Q;
+    nurture_feed(&n);
+    if (n.satiety != 80 * NURT_Q || n.mood != 45 * NURT_Q ||
+        n.stamina != 60 * NURT_Q || n.intimacy != 10 * NURT_Q) {
+        printf("nurture: 喂食结果不符 %u/%u/%u/%u\n",
+               nurture_pct(n.satiety), nurture_pct(n.mood),
+               nurture_pct(n.stamina), nurture_pct(n.intimacy));
+        ok = false;
+    }
+
+    nurture_init(&n);
+    n.mood = 40 * NURT_Q;
+    n.stamina = 60 * NURT_Q;
+    n.intimacy = 10 * NURT_Q;
+    nurture_play(&n);
+    if (n.mood != 55 * NURT_Q || n.stamina != 55 * NURT_Q ||
+        n.intimacy != 11 * NURT_Q) {
+        printf("nurture: 玩耍结果不符 %u/%u/%u\n",
+               nurture_pct(n.mood), nurture_pct(n.stamina),
+               nurture_pct(n.intimacy));
+        ok = false;
+    }
+
+    nurture_init(&n);
+    n.stamina = 30 * NURT_Q;
+    nurture_rest(&n);
+    if (n.stamina != 78 * NURT_Q) {
+        printf("nurture: 休息结果不符 %u\n", nurture_pct(n.stamina));
+        ok = false;
+    }
+    n.stamina = 80 * NURT_Q;
+    nurture_rest(&n);
+    if (n.stamina != NURT_MAX) {
+        printf("nurture: 休息应封顶，得到 %u\n", nurture_pct(n.stamina));
+        ok = false;
+    }
+
     // 通过时也要出声 —— 静默通过与「根本没跑」在日志上没法区分。
     // 其余三个自检（assets / sensing / render）都打一行，这里对齐。
     //
@@ -240,7 +288,7 @@ bool nurture_selftest(void)
     // 也不伪造 "I (123)" 的 ESP 日志前缀 —— 那会让日志过滤器误判。
     if (ok) {
         printf("nurture: 自检 全部通过"
-               "（首拍 · 整点 · 幂等 · 高频等价 · 触底 · 分档 · 封顶）\n");
+               "（首拍 · 整点 · 幂等 · 高频等价 · 触底 · 分档 · 封顶 · 照料）\n");
     }
     return ok;
 }

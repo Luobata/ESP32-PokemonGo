@@ -18,6 +18,7 @@
 #include "world.h"
 #include "encounter.h"
 #include "nav.h"
+#include "save.h"
 #include "screen.h"
 #include "dbg.h"
 #include "render.h"
@@ -174,7 +175,8 @@ void app_main(void) {
     bool batt_ok = (bsp_battery_init() == ESP_OK);
     for (size_t i = 0; i < DEMO_COUNT; i++) s_ok[i] = true;
 
-    // 开机直接进第一项（P1 Idle）而不是停在菜单。
+    // 开机直接进玩法而不是停在菜单。首次冷启动先播 P0 开场；完成或
+    // 跳过后写入单调标记，以后复位直接进 P1。
     //
     // 理由是实测的：每次烧写后设备回到菜单，没人按键就什么都不发生。
     // 长按 OK 仍可退回菜单 —— 只是默认状态反过来了。
@@ -188,7 +190,7 @@ void app_main(void) {
         // 唯一的那张 LVGL 屏 —— 五个玩法页共用，切页时不再新建。
         screen_own_display();
         s_in_game = true;
-        nav_start();                  // → P1 待机
+        nav_go(save_opening_seen() ? PAGE_IDLE : PAGE_OPENING);
         bsp_lvgl_unlock();
     }
 

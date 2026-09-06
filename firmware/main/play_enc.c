@@ -29,10 +29,12 @@
 #include "lvgl.h"
 
 #include "assets.h"
+#include "battle.h"
 #include "nav.h"
 #include "play.h"
 #include "render.h"
 #include "screen.h"
+#include "transition.h"
 #include "world.h"
 
 static const char *TAG = "p2";
@@ -45,6 +47,7 @@ static const char *TAG = "p2";
 #define C_INK   RGB_HEX(0x0f380f)
 #define C_MID   RGB_HEX(0x306230)
 #define C_LIGHT RGB_HEX(0x8bac0f)
+#define C_BLACK RGB_HEX(0x000000)
 
 // 布局。**每个元素都不跨横带边界**（边界在 y=80/160/240）——
 // 跨界会被两条带各画一半，刷新频率不同就撕裂（P1 栽过一次）。
@@ -55,13 +58,24 @@ static const char *TAG = "p2";
 //   …每条 24px，最多 8 条到 y=200            带 0~2
 //   y=264  稀有度越高越难捕获        提示      带 3
 //   y=292  ──────────────────────
-//   y=298  [A]选中 [B]返回 [C]丢弃            带 3
+//   y=298  [A]选中 [B]下条 [C]返回            带 3
 #define ROW0_Y 32
 #define ROW_H 24
 #define VISIBLE_ROWS 8
 
 static uint8_t s_sel;          // 选中第几条
 static uint8_t s_top;          // 滚动窗口的第一条
+
+// P2 → P3 遭遇转场。100ms 一拍推进 6 个原始 60fps 帧，实际时长与
+// trans_frames() 一致；LVGL timer 只重画屏幕，不阻塞独立的 world 任务。
+#define TRANS_TICK_MS 100
+#define TRANS_FRAME_STEP 6
+static lv_timer_t *s_trans_tick;
+static trans_id_t s_trans_id;
+static uint16_t s_trans_frame;
+static uint16_t s_trans_q;
+static bool s_trans_flash_black;
+static bool s_trans_finish_hold;
 
 static void draw_stars(int x, int y, uint8_t rarity, uint16_t fg)
 {
@@ -83,6 +97,26 @@ static void draw_stars(int x, int y, uint8_t rarity, uint16_t fg)
 static void hline_at(int y)
 {
     for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_MID);
+}
+
+static void overlay_transition(int band_y)
+{
+    uint16_t *band = screen_band();
+    uint8_t gy0 = (uint8_t)(band_y / TRANS_TILE);
+    uint8_t gy1 = (uint8_t)((band_y + BAND_H) / TRANS_TILE);
+
+    for (uint8_t gy = gy0; gy < gy1; gy++) {
+        int y0 = gy * TRANS_TILE - band_y;
+        for (uint8_t gx = 0; gx < TRANS_GRID_W; gx++) {
+            if (!trans_tile_covered(s_trans_id, s_trans_q, gx, gy)) continue;
+            int x0 = gx * TRANS_TILE;
+            for (int dy = 0; dy < TRANS_TILE; dy++) {
+                for (int dx = 0; dx < TRANS_TILE; dx++) {
+                    band[(y0 + dy) * SCR_W + x0 + dx] = C_BLACK;
+                }
+            }
+        }
+    }
 }
 
 static void draw_band(int band_y)
@@ -143,7 +177,13 @@ static void draw_band(int band_y)
     // -- 提示与三键 ------------------------------------------------------
     render_text(8, Y(264), "稀有度越高越难捕获", C_MID);
     hline_at(Y(292));
-    render_text(8, Y(298), "[A]选中 [B]返回 [C]丢弃", C_INK);
+    render_text(8, Y(298), "[A]选中 [B]下条 [C]返回", C_INK);
+
+    if (s_trans_flash_black) {
+        screen_band_clear(C_BLACK);
+    } else if (s_trans_q) {
+        overlay_transition(band_y);
+    }
 
     #undef Y
     screen_push_band(band_y);
@@ -156,11 +196,92 @@ static void draw_all(void)
 
 static void redraw_for_dump(void) { draw_all(); }
 
+static uint16_t covered_tiles(void)
+{
+    uint16_t n = 0;
+    for (uint8_t gy = 0; gy < TRANS_GRID_H; gy++) {
+        for (uint8_t gx = 0; gx < TRANS_GRID_W; gx++) {
+            if (trans_tile_covered(s_trans_id, s_trans_q, gx, gy)) n++;
+        }
+    }
+    return n;
+}
+
+static void transition_tick(lv_timer_t *timer)
+{
+    if (s_trans_finish_hold) {
+        s_trans_tick = NULL;
+        lv_timer_delete(timer);
+        s_trans_flash_black = false;
+        s_trans_q = 0;
+        s_trans_finish_hold = false;
+        s_trans_frame = 0;
+        // 先清状态再切页；play_enc_exit 不会重复删除当前 timer。
+        nav_go(PAGE_BATTLE);
+        return;
+    }
+
+    uint16_t total = trans_frames(s_trans_id);
+    uint16_t next = (uint16_t)(s_trans_frame + TRANS_FRAME_STEP);
+    s_trans_frame = next < total ? next : total;
+
+    uint16_t geom_start = trans_has_flash(s_trans_id) ? TRANS_FLASH_FRAMES : 0;
+    if (s_trans_frame <= geom_start) {
+        s_trans_q = 0;
+        // Circle 系的 72 帧闪屏压成 6 帧一档，仍保持 1.2 秒总时长。
+        s_trans_flash_black = (((s_trans_frame - 1) / TRANS_FRAME_STEP) & 1u) == 0;
+    } else {
+        s_trans_flash_black = false;
+        s_trans_q = (uint16_t)((uint32_t)(s_trans_frame - geom_start) * 1000u /
+                               (total - geom_start));
+    }
+
+    draw_all();
+    ESP_LOGI(TAG, "@@TRANS id=%u frame=%u/%u q=%u tiles=%u/%u flash=%u",
+             (unsigned)s_trans_id, s_trans_frame, total, s_trans_q,
+             covered_tiles(), TRANS_GRID_W * TRANS_GRID_H,
+             s_trans_flash_black ? 1u : 0u);
+
+    // 满黑保留一拍再进 P3，避免最后一帧被新页面同一回调立刻覆盖。
+    if (s_trans_frame == total) s_trans_finish_hold = true;
+}
+
+static void start_transition(void)
+{
+    const nav_ctx_t *c = nav_ctx();
+    world_t w;
+    world_snapshot(&w);
+
+    uint8_t idx;
+    uint8_t wild_level = battle_wild_level(c->enc.rarity);
+    // biome 顺序与 sensing 的 dwell_by_biome 一致：0 野外、4 交通枢纽。
+    bool open_biome = c->enc.biome == 0 || c->enc.biome == 4;
+    s_trans_id = trans_pick(false, wild_level, w.level, open_biome, &idx);
+    s_trans_frame = 0;
+    s_trans_q = 0;
+    s_trans_flash_black = false;
+    s_trans_finish_hold = false;
+    s_trans_tick = lv_timer_create(transition_tick, TRANS_TICK_MS, NULL);
+    if (!s_trans_tick) {
+        ESP_LOGE(TAG, "转场 timer 创建失败，直接进入战斗");
+        nav_go(PAGE_BATTLE);
+        return;
+    }
+
+    ESP_LOGI(TAG, "@@TRANS start id=%u idx=%u wild=%u pet=%u open=%u frames=%u",
+             (unsigned)s_trans_id, idx, wild_level, w.level,
+             open_biome ? 1u : 0u, trans_frames(s_trans_id));
+}
+
 void play_enc_enter(void)
 {
-
     s_sel = 0;
     s_top = 0;
+    s_trans_tick = NULL;
+    s_trans_frame = 0;
+    s_trans_q = 0;
+    s_trans_flash_black = false;
+    s_trans_finish_hold = false;
     screen_set_redraw(redraw_for_dump);
     draw_all();
 
@@ -173,17 +294,13 @@ void play_enc_enter(void)
 
 void play_enc_exit(void)
 {
-    // 这一页没有定时器（无动效，页面文档：它的作用是「看清」），
-    // 也不用删屏（那张 LVGL 空屏五页共用）。所以这里什么都不做。
+    if (s_trans_tick) { lv_timer_delete(s_trans_tick); s_trans_tick = NULL; }
+    s_trans_flash_black = false;
+    s_trans_q = 0;
+    s_trans_finish_hold = false;
 }
 
-// A 双击 = 选中进战斗。
-//
-// 三键不够用，所以按 docs/09-device.md 那条「靠双击/长按扩展」：
-// **A 单击移动光标、A 双击确认**。
-// 页面文档只写了「A 选中」没说光标怎么动，而 S1 文档说
-// 「队列容量 16 正好是 P2 一屏两页的量」—— 预期有滚动，
-// 那就必须有移动键。
+// A 单击 = 选中进战斗。主流程不依赖提示行没有说明的双击手势。
 static void on_select(void)
 {
     const enc_queue_t *q = world_queue();
@@ -195,23 +312,51 @@ static void on_select(void)
     c->valid = true;
     c->battled = false;
     c->battle_won = false;
-    nav_go(PAGE_BATTLE);
+    start_transition();
+}
+
+// 丢弃会不可逆地移除遭遇，放在 B 长按，避免和主流程三键争抢单击语义。
+// C 长按由 main.c 全局用于退出玩法，不能作为页面手势；截图仍可走 dbg 的 s。
+static void discard_selected(void)
+{
+    const enc_queue_t *q = world_queue();
+    if (q->count == 0) return;
+
+    encounter_t dropped;
+    if (world_take_encounter(s_sel, &dropped)) {
+        ESP_LOGI(TAG, "丢弃 #%u ★%u", dropped.species_id,
+                 dropped.rarity);
+    }
+
+    // 队列变短了，选中项与滚动窗口都可能越界。
+    const enc_queue_t *nq = world_queue();
+    if (s_sel >= nq->count && s_sel) s_sel--;
+    if (s_top > s_sel) s_top = s_sel;
+    draw_all();
 }
 
 void play_enc_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
-    if (btn == BSP_BTN_DOWN && ev == BSP_BTN_LONG) { screen_dump(); return; }
+    // 转场期间冻结菜单输入；调试截图仍由 dbg.c 的 s 命令处理。
+    if (s_trans_tick) return;
 
-    // A 双击 = 确认选中（单击是移动光标，见 on_select 上方）
-    if (btn == BSP_BTN_UP && ev == BSP_BTN_DOUBLE) { on_select(); return; }
+    // 破坏性操作使用长按保护，不占用提示行里的三种主操作。
+    if (btn == BSP_BTN_DOWN && ev == BSP_BTN_LONG) {
+        discard_selected();
+        return;
+    }
 
     if (ev != BSP_BTN_CLICK) return;
 
     const enc_queue_t *q = world_queue();
 
     switch (btn) {
-    case BSP_BTN_UP:                       // A 单击 = 下移一条
-        if (q->count == 0) { nav_go(PAGE_IDLE); return; }
+    case BSP_BTN_UP:                       // A 选中
+        on_select();
+        break;
+
+    case BSP_BTN_DOWN:                     // B 下移一条
+        if (q->count == 0) break;
         s_sel = (uint8_t)((s_sel + 1) % q->count);
         // 滚动窗口跟着选中项走
         if (s_sel < s_top) s_top = s_sel;
@@ -221,24 +366,8 @@ void play_enc_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         draw_all();
         break;
 
-    case BSP_BTN_DOWN:                     // B 返回
+    case BSP_BTN_OK:                       // C 返回
         nav_go(PAGE_IDLE);
-        break;
-
-    case BSP_BTN_OK:                       // C 丢弃
-        if (q->count == 0) break;
-        {
-            encounter_t dropped;
-            if (world_take_encounter(s_sel, &dropped)) {
-                ESP_LOGI(TAG, "丢弃 #%u ★%u", dropped.species_id,
-                         dropped.rarity);
-            }
-            // 队列变短了，选中项与滚动窗口都可能越界
-            const enc_queue_t *nq = world_queue();
-            if (s_sel >= nq->count && s_sel) s_sel--;
-            if (s_top > s_sel) s_top = s_sel;
-        }
-        draw_all();
         break;
 
     default:

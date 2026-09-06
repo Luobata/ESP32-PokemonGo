@@ -36,6 +36,7 @@ typedef struct {
     uint8_t hp_ratio;         // 100 = 满血；打过之后降低，S2 用它算窗口
     bool is_shiny;
     bool is_transient;        // 猎场遭遇（瞬现 AP）还是基地遭遇
+    bool exp_granted;         // 这条遭遇的战斗经验是否已经领取
 } encounter_t;
 
 typedef struct {

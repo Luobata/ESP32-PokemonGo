@@ -7,6 +7,11 @@
 
 #include "bsp_button.h"
 
+// P0 开场页（S11/S16）—— 仅首次冷启动进入，大木博士 7 框台词。
+void play_opening_enter(void);
+void play_opening_exit(void);
+void play_opening_key(bsp_btn_t btn, bsp_btn_ev_t ev);
+
 // WiFi 指纹采集器（play_collect.c）。
 //
 // 先做采集而不是游戏，因为两件事卡在缺数据上：
@@ -21,6 +26,11 @@ void play_collect_key(bsp_btn_t btn, bsp_btn_ev_t ev);
 void play_idle_enter(void);
 void play_idle_exit(void);
 void play_idle_key(bsp_btn_t btn, bsp_btn_ev_t ev);
+
+// P5 照料页（play_care.c）—— 喂食 / 玩耍 / 休息三级线性菜单。
+void play_care_enter(void);
+void play_care_exit(void);
+void play_care_key(bsp_btn_t btn, bsp_btn_ev_t ev);
 
 // P2 遭遇列表（play_enc.c）—— 队列的出口。
 // 遭遇是后台攒的，这一页让玩家先扫一眼稀有度再决定处理顺序。
