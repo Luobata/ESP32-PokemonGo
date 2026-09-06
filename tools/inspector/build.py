@@ -973,19 +973,22 @@ def sim_pages_payload() -> dict:
     # ---- P3 战斗：两个确定性剧本（auto_battle 现算）----
     mons25 = None
     scenarios = []
-    for label, wild_sid, plv, wlv, seed in (
-            ("win", 19, 12, 5, 7),        # 皮卡丘 Lv12 vs 小拉达 Lv5（稳赢）
-            ("lose", 95, 5, 20, 11),      # Lv5 vs 大岩蛇 Lv20（电系无效）
+    for label, wild_sid, plv, wlv, seed, pst, wst in (
+            # 皮卡丘 Lv12 vs 小拉达 Lv5（稳赢）/ Lv5 vs 大岩蛇 Lv20（电系无效）
+            ("win", 19, 12, 5, 7, [35, 55, 40, 50, 90], [30, 56, 35, 25, 72]),
+            ("lose", 95, 5, 20, 11, [35, 55, 40, 50, 90], [35, 45, 160, 30, 70]),
     ):
         res = S.auto_battle(
-            pet_types=["电"], pet_stats=[35, 55, 40, 50, 90], pet_level=plv,
+            pet_types=["电"], pet_stats=pst, pet_level=plv,
             wild_types=["一般"] if wild_sid == 19 else ["岩石", "地面"],
-            wild_stats=[30, 56, 35, 25, 72] if wild_sid == 19
-            else [35, 45, 160, 30, 70],
+            wild_stats=wst,
             wild_level=wlv, pet_species=25, wild_species=wild_sid, seed=seed)
         scenarios.append({
             "label": label, "playerLevel": plv, "wildLevel": wlv,
             "wildSid": wild_sid,
+            # HP 上限（= 种族值 HP 档）—— 页面画血条按 cur/max，与固件
+            # battle draw_bar 同语义。sim 没导这个的话 JS 只能拿比值猜。
+            "petMax": pst[0], "wildMax": wst[0],
             "won": res.won, "exp": res.exp,
             "rounds": [{"attacker": r.attacker, "move": r.move,
                         "damage": r.damage, "mult": r.mult,
@@ -1063,7 +1066,13 @@ def sim_pages_payload() -> dict:
         fn2()
         actions[name] = {"before": base_axes, "after": axes(p2)}
     care = {"axes": base_axes, "axisNames": ["饱食", "心情", "体能", "亲密"],
-            "actions": actions}
+            "actions": actions,
+            # P1 顶部信息同样 sim 现算：mood_label 与固件 nurture_mood 同语义、
+            # LOW_THRESHOLD 是「低轴标红」的展示阈值（B 方向用）。
+            # sid/level 是与 P3 剧本一致的展示用主角（皮卡丘 Lv12）。
+            "pet": {"sid": 25, "level": 12, "mood": pet.mood_label,
+                    "despondent": pet.is_despondent,
+                    "low": G.LOW_THRESHOLD}}
 
     # ---- P6 图鉴网格：导航几何来自 party（仓库=图鉴同一网格）----
     dex = {"cols": PT.BOX_COLS, "rows": PT.BOX_ROWS,
