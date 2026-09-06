@@ -32,3 +32,6 @@ firmware/build/
 firmware/sdkconfig
 firmware/sdkconfig.old
 firmware/managed_components/
+
+# 浏览器自动化的运行日志与报告（每次跑都变，不是源码）
+midscene_run/
