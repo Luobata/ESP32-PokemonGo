@@ -3449,7 +3449,7 @@ const DIRS = {
    pal:{field:'#ffff84', ink:'#202020', dim:'#686868', track:'#a8a8a8',
         red:'#c83c30', green:'#58a850', blue:'#3868c8', gold:'#c8a028',
         hpT:'#f7d77b', hpG:'#00ba00', hpY:'#ffae00', hpR:'#ff0000'},
-   note:'金银方向：GSC 实值底色 + HP 三段（0x05E0/0xFD60/0xF800，阈值 50/20 有 Bulbapedia 出处）+ 圆角菜单框；红蓝框色仍占位；sprite 暂用初代官方彩，GSC sprite 等 test 取源'},
+   note:'金银方向：GSC 实值底色 + HP 三段（0x05E0/0xFD60/0xF800，阈值 50/20 有 Bulbapedia 出处）+ 圆角菜单框；红蓝框色仍占位；sprite 暂用初代官方彩，GSC sprite 等 test 取源。⚠ 设计稿：框/居中/无边框图鉴固件均未实现（D22 web 定稿在前），base 方向才与固件一致'},
 };
 function gscBox(x,y,w,h,c){ // GSC 菜单框占位：外框四角让 1px 的「圆角」 + 内线
   ctx.fillStyle=c;
@@ -3462,6 +3462,25 @@ function hp3(pct){ // GSC 三段 HP 实值：>50 绿 0x05E0 / 20~50 黄 0xFD60 /
   // 阈值出处 Bulbapedia HP 条目：「between one-fifth and half … yellow」，
   // 且 Gen II 恰好 50% 也显黄 —— 与 pct>50 的边界一致。
   return pct>50?T().hpG:(pct>20?T().hpY:T().hpR); }
+/* ---- 居中原语（第五派活：统一「光学居中」规则，修一次原语好过逐页调坐标）----
+   1) sprite 一律按墨迹 bbox 居中（位图四周的透明边不算数 ——
+      同 32px 位图有的墨迹 28px 有的 19px，按盒子居中必然看着歪）；
+   2) 框内内容上下留白相等 —— 框高收贴内容（gscBox 高度由内容决定）；
+   3) 文字与条同行时基线对齐由实测 padding 校正，不靠目测。        */
+function inkBBox(id,view){ // 数据级非透明像素 bbox（无画布/抗锯齿干扰）
+  const m=D.mons[id-1]; if(!m) return null;
+  const size=view==='back'?D.meta.backSize:m.fsize;
+  const src=view==='back'?D.back[id]:D.front[id]; if(!src) return null;
+  const bytes=b64bytes(src); const rb=(size*2+7)>>3;
+  let x0=1e9,y0=1e9,x1=-1,y1=-1;
+  for(let y=0;y<size;y++) for(let x=0;x<size;x++){
+    const b=bytes[y*rb+((x*2)>>3)]; const v=(b>>(6-((x*2)&7)))&3;
+    if(v!==3){ if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; } }
+  return {x0,y0,x1,y1,w:x1-x0+1,h:y1-y0+1}; }
+function sprC(id,view,cx,cy,scale,sil){ // 光学居中：墨迹中心对准 (cx,cy)
+  const bb=inkBBox(id,view); if(!bb) return;
+  const dx=cx-(bb.x0+bb.x1+1)/2*scale, dy=cy-(bb.y0+bb.y1+1)/2*scale;
+  if(sil) sprSil(id,view,dx,dy,scale,sil); else spr(id,view,dx,dy,scale); }
 let DIR='base', P3SKEL='std', P3GSZ='96';
 const COVERED={P1:1,P3:1,P6:1};
 function curDir(){ return COVERED[st.page]?DIRS[DIR]:DIRS.base; }
@@ -3612,9 +3631,9 @@ const R1={
    const ha=SP.ui.heart; uiO('heart',W-8-textW(pv)-(ha?ha.w+6:20),3,1);
    text(pv,W-8-textW(pv),4,t.ink);
    hlineS(24,t.dim);
-   spr(P.sid,'back',72,54,3);
+   sprC(P.sid,'back',120,102,3);   // 光学居中：墨迹中心对 (120,102)（原 72,54 按盒子居中，视觉偏）
    if(P.mood) text(P.mood,W-8-textW(P.mood),160,P.despondent?t.red:t.green);
-   gscBox(4,172,232,84,t.blue);                       // GSC 圆角框数据窗（框色占位）
+   gscBox(4,171,232,84,t.blue);   // 框高收贴内容：实测内容墨迹 180..246 → y171 起上下各 9
    const nx=SP.care.axisNames;
    for(let i=0;i<4;i++){ text(nx[i],12,180+18*i,t.ink);
      barD(52,182+18*i,172,8,SP.care.axes[i],
@@ -3786,9 +3805,9 @@ function p3G(){ // G 金银：C 的战斗构图 + GSC 实值底/HP + 主宠尺�
   const m=D.mons[sc.wildSid-1]; const wpx=m.fsize*2;
   fieldFill();
   // GSC 原作 sprite 背后是干净底 —— 棋盘舞台纹已撤（Hub 验收意见，浅底上刺眼）
-  gscBox(8,8,134,50,t.red);                          // 野怪牌（GSC 红框，占位）
-  const nm=nameOf(m)+' Lv'+sc.wildLevel; text(nm,16,14,t.ink);
-  barD(16,36,112,8,wildHpPct(sc,r),{fill:hp3(wildHpPct(sc,r)),track:t.hpT});
+  gscBox(8,8,134,44,t.red);                          // 野怪牌：框高收贴内容（内容+1 后上下各 8）
+  const nm=nameOf(m)+' Lv'+sc.wildLevel; text(nm,16,15,t.ink);
+  barD(16,37,112,8,wildHpPct(sc,r),{fill:hp3(wildHpPct(sc,r)),track:t.hpT});
   spr(sc.wildSid,'front',W-8-wpx+wdx,150-wpx,2);
   if(P3GSZ==='96'){                                  // 96 = 48×2：体量不减，真机要跨带渲染
     sprNN(25,'back',4+pdx,140,96);
@@ -3801,7 +3820,7 @@ function p3G(){ // G 金银：C 的战斗构图 + GSC 实值底/HP + 主宠尺�
     text('皮卡丘 Lv'+sc.playerLevel,100,190,t.ink);
     barD(100,212,122,8,petHpPct(sc,r),{fill:hp3(petHpPct(sc,r)),track:t.hpT});
   }
-  gscBox(4,248,232,64,t.blue);                       // 消息窗（GSC 蓝框，占位）
+  gscBox(4,250,232,63,t.blue);                       // 消息窗：顶收 250 高 63 → 内容 258..304.5 上下 8/7.5
   text(p3Msg(r,sc),14,258,t.ink);
   if(r.label) text(r.label,14,276,t.gold);
   if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,W-16-textW(d),276,t.red); }
@@ -3868,19 +3887,21 @@ const R6={
    text('图鉴',8,4,t.ink);
    const ct=dexCount()+'/151'; text(ct,W-8-textW(ct),4,t.gold);
    hlineS(26,t.dim);
-   p6Cells((sid,cx,cy)=>{ const stt=dexState(sid);
-     if(stt==='unseen'){ ctx.fillStyle=t.track; ctx.fillRect(cx,cy,44,54);
-       text(String(sid).padStart(3,'0'),cx+4,cy+38,t.ink); }
-     else if(stt==='seen'){
-       gscBox(cx,cy,44,54,t.dim);                     // 见过 = 中性框 + 剪影
-       sprSil(sid,'back',cx+6,cy+2,1,t.dim);
-       ctx.fillStyle=t.track; ctx.fillRect(cx+1,cy+42,42,11);
-       text(String(sid).padStart(3,'0'),cx+6,cy+43,t.ink); }
-     else{ gscBox(cx,cy,44,54,t.blue);                // 已收 = 彩框 + 官方彩 sprite
-       spr(sid,'back',cx+6,cy+2,1);
-       if(stt==='shiny') uiO('star_5',cx+28,cy+1,1);
-       ctx.fillStyle=t.track; ctx.fillRect(cx+1,cy+42,42,11);
-       text(String(sid).padStart(3,'0'),cx+6,cy+43,t.ink); } });
+   /* 无框版（第五派活，用户定「图鉴可以没有边框」）：
+      分隔靠留白 + 对齐 —— 格 40×52、步进 48×58（横向 8px 留白），
+      不再画框/灰条（修前蓝框 7.7% + 灰条 10.3% 像素，装饰比信息还重）。
+      sprite 光学居中于编号上方区（sprC），编号统一基线 y=cy+38 落浅底。 */
+   const CW=40, SX=48, SY=58, GX=4;   // 5×48-8=232，左右各 4px —— GX=8 会右缘贴边
+   for(let i=0;i<SP.dex.perPage;i++){ const sid=st.P6.pg*SP.dex.perPage+i+1; if(sid>151) break;
+     const cx=GX+(i%SP.dex.cols)*SX, cy=34+((i/SP.dex.cols)|0)*SY;
+     const stt=dexState(sid), no=String(sid).padStart(3,'0');
+     if(stt==='unseen'){ text(no,cx+(CW-textW(no))/2,cy+38,t.track); }
+     else if(stt==='seen'){                              // 见过 = 剪影 + 淡编号
+       sprC(sid,'back',cx+CW/2,cy+18,1,t.dim);
+       text(no,cx+(CW-textW(no))/2,cy+38,t.dim); }
+     else{ sprC(sid,'back',cx+CW/2,cy+18,1);             // 已收 = 官方彩 + ink 编号
+       if(stt==='shiny') uiO('star_5',cx+CW-9,cy,1);
+       text(no,cx+(CW-textW(no))/2,cy+38,t.ink); } }
    for(let i=0;i<SP.dex.pages;i++){ ctx.fillStyle=i===st.P6.pg?t.blue:t.track; ctx.fillRect(8+i*14,272,8,8); }
    const pg=(st.P6.pg+1)+'/'+SP.dex.pages; text(pg,W-8-textW(pg),270,t.dim);
    hlineS(292,t.dim); hintAt(298,t.ink,t.blue); },
@@ -4111,7 +4132,16 @@ function syncFrame(){
   el('sim-fcount').textContent=`帧 ${p.fi+1}/${n}`;
   el('sim-frameinfo').textContent=p.info();
 }
-function draw(){ cls(); PAGES[st.page].render(); bands(); }
+function draw(){ cls(); PAGES[st.page].render(); bands();
+  /* G 方向 = 设计稿（固件未实现）。proto tab 与 P4 坐标两次「假图被当真值」之后，
+     截图必须自带这个标记 —— 否则单看 PNG 分不清是定稿还是模拟器画错。
+     画布坐标右下角，半透明底不遮内容；base 方向不加（它与固件逐像素一致）。 */
+  if(DIR==='G'&&COVERED[st.page]){
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.fillStyle='rgba(32,32,32,.62)'; ctx.fillRect(480-176,640-19,172,13);
+    ctx.fillStyle='#f0f0f0'; ctx.font='9px monospace'; ctx.textBaseline='top';
+    ctx.fillText('GSC 设计稿 · 固件未实现',480-172,640-16);
+    ctx.setTransform(SC,0,0,SC,0,0); } }
 function step(d){ PAGES[st.page].fi+=d; syncFrame(); draw(); }
 el('sim-fprev').onclick=()=>step(-1);
 el('sim-fnext').onclick=()=>step(1);
@@ -4199,7 +4229,7 @@ function legend(){
   }
   el('dir-legend').innerHTML =
     '<div style="font-size:11px;margin:4px 0 2px;color:var(--ink-soft)">色板 · RGB565 量化精确值'
-    +(DIR==='G'?' · 底/HP 四色为 test 探源实值，<b style="color:var(--warn)">框色四项仍占位（等 test）</b>':'')
+    +(DIR==='G'?' · 底/HP 四色为 test 探源实值，<b style="color:var(--warn)">框色四项仍占位（等 test）</b>；<b>G=设计稿·固件未实现</b>':'')
     +' · sprite 层：官方彩'+(DIR==='G'?'（初代；GSC sprite 等 test 取源）':'')+'</div>'
     +entries.map(([role])=>{
        const c=t[role];
@@ -4275,6 +4305,7 @@ el('sim-measure').onclick=()=>{
   const lines=sorted.map(([c,n])=>'#'+(+c).toString(16).padStart(6,'0')+'  '+(100*n/tot).toFixed(1)+'%');
   el('sim-measure-out').textContent =
     PAGES[st.page].label+' · '+DIRS[DIR].label
+    +(DIR==='G'&&COVERED[st.page]?' · 设计稿·固件未实现':'')
     +(st.page==='P3'?' · '+(P3SKEL==='alt'?'打破骨架':'通用骨架'):'')
     +(st.page==='P3'&&DIR==='G'?' · 主宠 '+P3GSZ+'px':'')+'\n'
     +'单色最大 '+lines[0]+'\n'+lines.join('  \n');
