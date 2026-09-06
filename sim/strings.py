@@ -88,7 +88,9 @@ KEYS_LABELS = sorted({k for page in KEYS.values() for k in page})
 BATTLE_LINES = {
     "used": "{who}使用了{move}！",       # 皮卡丘使用了电击！
     "wild_prefix": "野生的",              # 野生的小拉达使用了撞击！
-    "missed": "{who}的攻击没有命中！",
+    # 「{who}的攻击没有命中！」直译自 GSC，但中文里
+    # 「野生的大岩蛇的攻击…」两个「的」读着累赘。用户选了这个说法。
+    "missed": "{who}的攻击落空了！",
 }
 
 # 占位符本身不上屏，别收进字库（每字形 32 字节）。
