@@ -445,6 +445,12 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
       GSC back 原生 48：48@1x 不碰 80px 横带（改动最小，小 25%）；
       96@2x 保持体量（真机需跨带渲染架构）。素材暂用初代 32px back
       最近邻放大 —— 对比的是<b>尺寸取舍</b>，不是 GSC 图本身。</div>
+    <h3 style="margin-top:10px">招式动画（G）</h3>
+    <div id="sim-movefx"></div>
+    <div class="notes" style="font-size:11px;margin-top:4px">
+      剧本 4 招（撞击/电击/落石/绑紧）按回合 <code>move</code> 字段自动派发；
+      按钮可强制预览任一动画（<b>只换表现，不改任何 sim 数值</b>）。
+      加新招动画 = MOVE_FX 注册表加一行 —— 成本量级见报告。</div>
     <div class="notes" style="font-size:12px;margin-top:8px">
       <p><b>键盘</b>：A / B / C 键；<b>双击</b>＝300ms 内两次；
       <b>长按</b>＝按住 500ms（日志会标注）。</p>
@@ -3446,8 +3452,11 @@ const DIRS = {
    // 底色与 HP 四色已是 test 探源实值：底 #ffff84（GSC luma 241）；
    // HP 槽/绿/黄/红 = RGB565 0xF6AF/0x05E0/0xFD60/0xF800，web 侧按位复制展开成 888。
    // 红蓝框与 green/gold 语义色仍是占位（等 test 的界面图元量化值）。
+   // 第六派活实测（WCAG 对 #ffff84）：B 时期占位值在浅黄底上
+   //   gold #c8a028 = 2.34（连图形级 3.0 都不到）、green #58a850 = 2.79 —— 均不可用；
+   //   red 4.80 / blue 4.99 通过。过渡值仍占位：gold→#8f6a10 (4.69)、green→#2e7a38 (5.03)。
    pal:{field:'#ffff84', ink:'#202020', dim:'#686868', track:'#a8a8a8',
-        red:'#c83c30', green:'#58a850', blue:'#3868c8', gold:'#c8a028',
+        red:'#c83c30', green:'#2e7a38', blue:'#3868c8', gold:'#8f6a10',
         hpT:'#f7d77b', hpG:'#00ba00', hpY:'#ffae00', hpR:'#ff0000'},
    note:'金银方向：GSC 实值底色 + HP 三段（0x05E0/0xFD60/0xF800，阈值 50/20 有 Bulbapedia 出处）+ 圆角菜单框；红蓝框色仍占位；sprite 暂用初代官方彩，GSC sprite 等 test 取源。⚠ 设计稿：框/居中/无边框图鉴固件均未实现（D22 web 定稿在前），base 方向才与固件一致'},
 };
@@ -3798,28 +3807,113 @@ function sprNN(id,view,x,y,dest){ // 任意目标尺寸（最近邻）：尺寸�
   const g=off.getContext('2d');
   drawSprite(g,b64bytes(src),size,0,0,1,null,curDir().spritePal||palOf(id,false));
   ctx.drawImage(off,Math.round(x),Math.round(y),dest,dest); }
+/* ── 招式动画注册表（第六派活：用户定「每招单独做」）───────────────────
+   形状：**一条目 = 一招**。加第 100 个招式动画 = 在 MOVE_FX 加一行数据，
+   不碰布局、解释器、剧本接线。解释器只认这 6 个可组合原语：
+     dash 突进 / burst 命中冲击环 / tint 闪屏 / bolt 之字电光 /
+     rocks 落石 / bind 缠绕。
+   数值边界：用哪招、谁打的、miss 没 miss、伤害多少，全来自 sim 导出的
+   回合字段（attacker/move/missed/damage）—— 动画只消费，不产生数值。
+   未登记招式走 '*' 默认（仍有动画，不是空白）。 */
+const MOVE_FX = {
+  '撞击': {dash:20, burst:1},          // 突进 + 命中环
+  '电击': {tint:1, bolt:1},            // 金闪屏 + 之字电光
+  '落石': {rocks:3},                   // 三石错峰落顶
+  '绑紧': {bind:1},                    // 三道缠绕收紧
+  '火花': {ember:1},                   // 【加招实测】只改两处：本行 + 解释器一个 ember 分支
+  '*':    {dash:12, burst:1},          // 默认：小突进 + 小命中环
+};
+/* 演示钩子：st.P3.fxDemo 强制预览某招（不改数值，只换表现）。
+   剧本实际派发按 r.move —— 演示与实战走同一条解释路径。 */
+function fxSpec(r){
+  return MOVE_FX[st.P3.fxDemo || r.move] || MOVE_FX['*'];
+}
+/* 解释器：ph 为回合内 8 相位（与 shake 同源节奏）。两段式 ——
+   fxOffsets 在画 sprite 前取位移；fxOverlay 在画完 sprite 后叠特效。 */
+function fxRects(r, petRect, wildRect){
+  const atkIsPet = r.attacker==='pet';
+  return { atkIsPet, def: atkIsPet?wildRect:petRect };
+}
+function fxOffsets(fx, r, ph, petRect, wildRect){
+  const off = {pet:0, wild:0};
+  const atkIsPet = r.attacker==='pet';
+  const tri = ph<4 ? ph/3 : Math.max(0,(7-ph)/3);     // 0→1→0
+  if(fx.dash && !r.missed){
+    off[atkIsPet?'pet':'wild'] += Math.round(fx.dash*tri) * (atkIsPet?1:-1);
+  }
+  return off;
+}
+function fxOverlay(fx, r, ph, petRect, wildRect){
+  const {atkIsPet, def} = fxRects(r, petRect, wildRect);
+  const defC = {x:def.x+def.s/2, y:def.y+def.s/2};
+  if(fx.tint && (ph===1||ph===3)){                    // 电击闪屏：金调两次
+    ctx.fillStyle='rgba(255,174,0,.30)'; ctx.fillRect(0,0,W,H);
+  }
+  if(fx.bolt && ph>=2 && ph<=4 && !r.missed){         // 之字电光：顶→受击者
+    ctx.strokeStyle=T().hpY; ctx.lineWidth=2; ctx.beginPath();
+    let bx=defC.x+10, by=0; ctx.moveTo(bx,by);
+    while(by<defC.y-6){ by+=12; bx+=(((by/12)%2)?1:-1)*10; ctx.lineTo(bx,by); }
+    ctx.lineTo(defC.x,defC.y); ctx.stroke();
+    ctx.strokeStyle='#ffffff'; ctx.lineWidth=1; ctx.stroke();
+  }
+  if(fx.burst && ph>=3 && ph<=6 && !r.missed){        // 命中环：半径随相位扩
+    const rad=(ph-3)*6+5;
+    ctx.fillStyle=T().red;
+    for(let k=0;k<8;k++){ const a=k*Math.PI/4;
+      ctx.fillRect(defC.x+Math.cos(a)*rad-1, defC.y+Math.sin(a)*rad-1, 3,3); }
+  }
+  if(fx.rocks){                                      // 落石：错峰从顶落到受击者头上
+    for(let i=0;i<fx.rocks;i++){
+      const drop=(ph-i)/5; if(drop<0||drop>1) continue;
+      const rx=defC.x-8+i*9, ry=(def.y-14)*drop;
+      ctx.fillStyle=T().dim; ctx.fillRect(rx,ry-6,7,6); ctx.fillRect(rx+1,ry-7,4,1);
+      if(drop>=1){ ctx.fillStyle=T().track;           // 落地尘
+        ctx.fillRect(rx-3,def.y-3,5,2); ctx.fillRect(rx+6,def.y-3,5,2); }
+    }
+  }
+  if(fx.ember){                                      // 【加招实测】火花：攻击者侧火星上飘
+    const atkR = atkIsPet?petRect:wildRect;
+    for(let i=0;i<5;i++){
+      const up=(ph+i*2)%8/8, ox=Math.round(Math.sin((i+ph)*1.3)*8);
+      ctx.fillStyle=i%2?T().hpY:T().hpR;
+      ctx.fillRect(atkR.x+atkR.s-16+ox, atkR.y+22-Math.round(up*34), 3,3);
+    }
+  }
+  if(fx.bind && ph>=3){                              // 缠绕：三道横箍间距收紧
+    const gap = ph>=6?5:(ph>=5?8:12);
+    ctx.fillStyle=T().gold;
+    for(let k=-1;k<=1;k++) ctx.fillRect(def.x-2, defC.y+k*gap, def.s+4, 2);
+  }
+}
 function p3G(){ // G 金银：C 的战斗构图 + GSC 实值底/HP + 主宠尺寸可切（48@1x / 96@2x）
   const t=DIRS.G.pal; const {sc,tl,it}=p3Cur();
   if(!sc||!tl.length){ text('（无回合）',80,150); return; }
   const r=it.r, ph=it.ph; const [wdx,pdx]=p3Shake(r,ph);
   const m=D.mons[sc.wildSid-1]; const wpx=m.fsize*2;
   fieldFill();
+  // 招式动画（第一段）：攻击方突进位移 —— 必须在画 sprite 前算
+  const big = P3GSZ==='96';
+  const petRect = big?{x:4,y:140,s:96}:{x:16,y:188,s:48};
+  const wildRect = {x:W-8-wpx, y:150-wpx, s:wpx};
+  const fxo = fxOffsets(fxSpec(r), r, ph, petRect, wildRect);
   // GSC 原作 sprite 背后是干净底 —— 棋盘舞台纹已撤（Hub 验收意见，浅底上刺眼）
   gscBox(8,8,134,44,t.red);                          // 野怪牌：框高收贴内容（内容+1 后上下各 8）
   const nm=nameOf(m)+' Lv'+sc.wildLevel; text(nm,16,15,t.ink);
   barD(16,37,112,8,wildHpPct(sc,r),{fill:hp3(wildHpPct(sc,r)),track:t.hpT});
-  spr(sc.wildSid,'front',W-8-wpx+wdx,150-wpx,2);
-  if(P3GSZ==='96'){                                  // 96 = 48×2：体量不减，真机要跨带渲染
-    sprNN(25,'back',4+pdx,140,96);
+  spr(sc.wildSid,'front',W-8-wpx+wdx+fxo.wild,150-wpx,2);
+  if(big){                                           // 96 = 48×2：体量不减，真机要跨带渲染
+    sprNN(25,'back',4+pdx+fxo.pet,140,96);
     gscBox(104,182,132,48,t.red);                    // 牌右移避开 96px 主宠
     text('皮卡丘 Lv'+sc.playerLevel,112,188,t.ink);
     barD(112,214,116,8,petHpPct(sc,r),{fill:hp3(petHpPct(sc,r)),track:t.hpT});
   } else {                                           // 48 = GSC 原生 @1x：不碰 80px 横带，小 25%
-    sprNN(25,'back',16+pdx,188,48);
+    sprNN(25,'back',16+pdx+fxo.pet,188,48);
     gscBox(90,182,142,48,t.red);
     text('皮卡丘 Lv'+sc.playerLevel,100,190,t.ink);
     barD(100,212,122,8,petHpPct(sc,r),{fill:hp3(petHpPct(sc,r)),track:t.hpT});
   }
+  // 招式动画（第二段）：特效层叠在 sprite 之上（电光/命中环/落石/缠绕/闪屏）
+  fxOverlay(fxSpec(r), r, ph, petRect, wildRect);
   gscBox(4,250,232,63,t.blue);                       // 消息窗：顶收 250 高 63 → 内容 258..304.5 上下 8/7.5
   text(p3Msg(r,sc),14,258,t.ink);
   if(r.label) text(r.label,14,276,t.gold);
@@ -3926,7 +4020,7 @@ const R6={
 /* ---- 每页状态机 ---- */
 const st={ page:'P0', P0:{box:0,fi:0,done:false,skipped:false},
            P1:{}, P2:{cur:0,entries:SP.encounter.entries.slice()},
-           P3:{sc:'win',fi:0,rarity:0}, P4:{ball:0,t:0,thrown:null},
+           P3:{sc:'win',fi:0,rarity:0,fxDemo:null}, P4:{ball:0,t:0,thrown:null},
            P5:{sel:0,axes:SP.care.axes,applied:null}, P6:{pg:0}, P7:{}, P8:{} };
 function P3_timeline(sc){
   const s=SP.battle.scenarios.find(x=>x.label===sc);
@@ -4015,7 +4109,7 @@ const PAGES={
    info(){
      const tl=P3_timeline(st.P3.sc); if(!tl.length) return '（无回合）';
      const {r,ph}=tl[Math.min(st.P3.fi,tl.length-1)];
-     return `${st.P3.sc} 剧本 · 回合 ${r.attacker==='pet'?'皮卡丘':'野怪'}用「${r.move||'攻击'}」${r.label||''} −${r.damage} · 段内帧 ${ph}/8${r.missed?' · 未命中':''} · 骨架${P3SKEL==='alt'?'打破':'通用'}（${DIRS[DIR].label}）${DIR==='G'?' · 主宠 '+P3GSZ+'px':''}`; },
+     return `${st.P3.sc} 剧本 · 回合 ${r.attacker==='pet'?'皮卡丘':'野怪'}用「${r.move||'攻击'}」${r.label||''} −${r.damage} · 段内帧 ${ph}/8${r.missed?' · 未命中':''} · 骨架${P3SKEL==='alt'?'打破':'通用'}（${DIRS[DIR].label}）${DIR==='G'?' · 主宠 '+P3GSZ+'px · 动画 '+(st.P3.fxDemo?st.P3.fxDemo+'（预览）':(MOVE_FX[r.move]?'按 move 派发 '+r.move:'默认')):''}`; },
    render(){ if(DIR==='G'){ p3G(); }                   // G 恒用战斗构图（骨架开关对其无效）
      else if(P3SKEL==='alt') p3Alt(); else (R3[DIR]||R3.base)(); }},
  P4:{label:'P4 捕获', enter(){ st.P4.thrown=null; },
@@ -4216,9 +4310,10 @@ function legend(){
   const d=DIRS[DIR]; const t=d.pal;
   let entries;
   if(DIR==='G'){
-    entries=[['field','画面基底（GSC 实值）'],['ink','一级字/描边'],['dim','二级字/分隔'],['track','轨道/空槽'],
-      ['hpT','HP 槽（0xF6AF）'],['hpG','HP>50 绿（0x05E0）'],['hpY','HP 20~50 黄（0xFD60）'],['hpR','HP≤20 红（0xF800）'],
-      ['red','危险/牌框（占位）'],['green','良好（占位）'],['blue','焦点/消息框（占位）'],['gold','稀有（占位）']];
+    // 第三项 = 占位标记：虚线框 + ⚠占位 —— 用户没看到 note 就当定稿过，标记必须跟着色块走
+    entries=[['field','画面基底','✓GSC 实值'],['ink','一级字/描边',''],['dim','二级字/分隔',''],['track','轨道/空槽',''],
+      ['hpT','HP 槽 0xF6AF','✓实值'],['hpG','HP>50 绿 0x05E0','✓实值'],['hpY','HP 20~50 黄 0xFD60','✓实值'],['hpR','HP≤20 红 0xF800','✓实值'],
+      ['red','危险/牌框','⚠占位'],['green','良好','⚠占位'],['blue','焦点/消息框','⚠占位'],['gold','稀有（浅底过渡值 4.69）','⚠占位']];
   } else if(DIR==='B'){
     entries=[['ink','一级字/描边'],['dim','二级字/分隔'],['track','轨道/空槽/底纹'],['field','画面基底'],
       ['red','危险/注意'],['green','良好/正向'],['blue','焦点/选中'],['gold','稀有/奖励']];
@@ -4231,11 +4326,11 @@ function legend(){
     '<div style="font-size:11px;margin:4px 0 2px;color:var(--ink-soft)">色板 · RGB565 量化精确值'
     +(DIR==='G'?' · 底/HP 四色为 test 探源实值，<b style="color:var(--warn)">框色四项仍占位（等 test）</b>；<b>G=设计稿·固件未实现</b>':'')
     +' · sprite 层：官方彩'+(DIR==='G'?'（初代；GSC sprite 等 test 取源）':'')+'</div>'
-    +entries.map(([role])=>{
+    +entries.map(([role,lab,ph])=>{
        const c=t[role];
        return `<span style="display:inline-block;margin:2px 4px 2px 0;font-size:11px">`
-         +`<i style="display:inline-block;width:10px;height:10px;background:${c};border:1px solid #888;vertical-align:-1px;margin-right:3px"></i>`
-         +`${role} <code style="font-size:10px">${c}</code></span>`; }).join('');
+         +`<i style="display:inline-block;width:10px;height:10px;background:${c};border:1px ${ph&&ph.includes('占位')?'dashed':'solid'} #888;vertical-align:-1px;margin-right:3px"></i>`
+         +`${role} <code style="font-size:10px">${c}</code>${ph?` <b style="color:var(--warn)">${ph}</b>`:''}</span>`; }).join('');
 }
 function dirNote(){
   const parts=[DIRS[DIR].label+'：'+DIRS[DIR].note];
@@ -4293,6 +4388,14 @@ const szEl=el('sim-p3gsz');
   b.onclick=()=>{ P3GSZ=k; if(st.page==='P3') syncFrame(); syncDirUI(); draw();
     try{ history.replaceState(null,'','#sim=P3&d=G&z='+P3GSZ); }catch(e){} };
   szEl.appendChild(b);
+});
+const fxEl=el('sim-movefx');
+[['','跟剧本（按 move 派发）'],...Object.keys(MOVE_FX).filter(k=>k!=='*').map(k=>[k,k+' 预览'])].forEach(([k,lab])=>{
+  const b=document.createElement('button');
+  b.textContent=lab; b.dataset.f=k;
+  b.style.cssText='display:block;width:100%;margin:3px 0;padding:6px 8px;text-align:left;font-size:12px';
+  b.onclick=()=>{ st.P3.fxDemo=k||null; if(st.page==='P3') syncFrame(); draw(); };
+  fxEl.appendChild(b);
 });
 el('sim-measure').onclick=()=>{
   const im=ctx.getImageData(0,0,cv.width,cv.height).data;
