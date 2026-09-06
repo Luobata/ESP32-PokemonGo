@@ -118,6 +118,27 @@ def main() -> int:
         ck(sc["exp"] == res.exp, f"P3 {label} exp 与重算不符")
         ck(sc["won"] == (label == "win"),
            f"P3 剧本标签说谎：{label} 的 won={sc['won']}")
+        # ---- 数值合理性（第十六派活补漏：petMax=pst[0] 量纲错躺了很多轮，
+        # cur>max 在 web 侧被 Math.min 钳住根本看不见 —— 这里从 payload 侧拦）。
+        # HP 公式唯一真源：sim/systems.py auto_battle 的
+        # effective_stat(base, lv)*2 + lv（别再自己编）。
+        pst = [35, 55, 40, 50, 90]
+        wst = [30, 56, 35, 25, 72] if wild_sid == 19 else [35, 45, 160, 30, 70]
+        ck(sc["petMax"] == S.effective_stat(pst[0], plv) * 2 + plv,
+           f"P3 {label} petMax={sc['petMax']} 与 HP 公式"
+           f" effective_stat*2+lv={S.effective_stat(pst[0], plv) * 2 + plv} 不符（量纲错？）")
+        ck(sc["wildMax"] == S.effective_stat(wst[0], wlv) * 2 + wlv,
+           f"P3 {label} wildMax={sc['wildMax']} 与 HP 公式不符（量纲错？）")
+        prev_pet = prev_wild = None
+        for i, rd in enumerate(sc["rounds"]):
+            ck(0 <= rd["petHp"] <= sc["petMax"],
+               f"P3 {label} 回合{i+1} petHp={rd['petHp']} 越界 [0,{sc['petMax']}]")
+            ck(0 <= rd["wildHp"] <= sc["wildMax"],
+               f"P3 {label} 回合{i+1} wildHp={rd['wildHp']} 越界 [0,{sc['wildMax']}]")
+            if prev_pet is not None:
+                ck(rd["petHp"] <= prev_pet and rd["wildHp"] <= prev_wild,
+                   f"P3 {label} 回合{i+1} HP 回升（无治疗系统，只应不增）")
+            prev_pet, prev_wild = rd["petHp"], rd["wildHp"]
     shake = [t.offset_x for t in E.shake_sequence(6)]
     ck([t["offset_x"] for t in sp["battle"]["shake"]] == shake,
        "P3 shake 序列与 effects.shake_sequence 不符")
