@@ -154,10 +154,20 @@ static void draw_band(int band_y, int8_t breath)
     render_text(8, Y(4), buf, ink);
 
     // 亲密度。♥ 不在字库（PingFang 没这个字形，见 convert_font.py），
-    // 所以用「亲」字 + 数字，等 pixelart 的 HEART 点阵接进来再换。
-    snprintf(buf, sizeof(buf), "亲%u", nurture_pct(s_w.pet.intimacy));
+    // 用 ui.bin 的点阵心形 + 数字。颜色走调用侧调色板 —— 素材只存
+    // 2bpp 色号，换色不改素材（接线与素材解耦）。
+    snprintf(buf, sizeof(buf), "%u", nurture_pct(s_w.pet.intimacy));
     int w = render_text_width(buf);
     render_text(SCR_W - 8 - w, Y(4), buf, ink);
+    ui_art_t heart;
+    if (assets_ui("heart", &heart)) {
+        static const uint16_t HEART_PAL[4] = {
+            RGB_HEX(0x0f380f), RGB_HEX(0xe04858), RGB_HEX(0xf8a0a8), 0,
+        };
+        // 心形 7×6 在 16px 字行里垂直居中：y = 4 + (16-6)/2 = 9
+        render_sprite_2bpp_wh(SCR_W - 8 - w - 2 - heart.w, Y(9),
+                              heart.data, heart.w, heart.h, 1, HEART_PAL);
+    }
 
     hline(Y(24), 0, SCR_W, mid);
 

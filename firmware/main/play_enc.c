@@ -170,8 +170,24 @@ static void draw_band(int band_y)
         // 稀有度星 —— 右对齐到 x=200，名字最长 5 字（80px）不会撞
         draw_stars(112, Y(y), e->rarity, C_INK);
 
-        // 闪光标记
-        if (e->is_shiny) render_text(200, Y(y), "闪", C_INK);
+        // 闪光标记：star_7 + star_5 一大一小两颗星，替掉原来的「闪」字。
+        // 星星是 ui.bin 的 2bpp 点阵；颜色走调用侧调色板，与素材解耦。
+        // 行内垂直居中：24px 行高，7px 星 offset 8、5px 星 offset 9。
+        if (e->is_shiny) {
+            static const uint16_t STAR_PAL[4] = {
+                RGB_HEX(0x0f380f), RGB_HEX(0xfff0a0), RGB_HEX(0xffffff), 0,
+            };
+            ui_art_t s7, s5;
+            if (assets_ui("star_7", &s7)) {
+                render_sprite_2bpp_wh(200, Y(y + (ROW_H - s7.h) / 2),
+                                      s7.data, s7.w, s7.h, 1, STAR_PAL);
+                if (assets_ui("star_5", &s5)) {
+                    render_sprite_2bpp_wh(200 + s7.w + 2,
+                                          Y(y + (ROW_H - s5.h) / 2),
+                                          s5.data, s5.w, s5.h, 1, STAR_PAL);
+                }
+            }
+        }
     }
 
     // -- 提示与三键 ------------------------------------------------------

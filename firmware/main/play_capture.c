@@ -159,8 +159,17 @@ static void draw_band(int band_y)
         render_text(SCR_W - 8 - render_text_width(buf), Y(4), buf, C_INK);
     }
 
-    // 野怪 sprite
-    const uint8_t *spr = assets_back_sprite(c->enc.species_id);
+    // 野怪 sprite —— front（与 P3 一致）。front 按物种分三档尺寸
+    // （40/48/56），在 64px 盒子里居中；资产损坏退回 back，
+    // 不让一张图搞崩页面。
+    // **核对要看代码不能只看截图**：Gen1 的 back 在低分辨率下看着
+    // 也像正面（Hub 契约里记过的坑）。
+    uint8_t sprite_size = 0;
+    const uint8_t *spr = assets_front_sprite(c->enc.species_id, &sprite_size);
+    if (!spr) {
+        spr = assets_back_sprite(c->enc.species_id);
+        sprite_size = spr ? 32 : 0;
+    }
     if (spr && has) {
         uint16_t pal[4];
         assets_palette(sp.palette, pal);
@@ -171,12 +180,17 @@ static void draw_band(int band_y)
         if (render_flash_on(s_flash_i, FLASH_FRAMES)) {
             pal[0] = pal[1] = pal[2] = RGB_HEX(0xf8f8f8);
         }
-        render_sprite_2bpp((SCR_W - 64) / 2, Y(SPRITE_Y), spr, 32, 2, pal);
+        int sprite_y = SPRITE_Y + (64 - sprite_size) / 2;
+        render_sprite_2bpp((SCR_W - sprite_size) / 2, Y(sprite_y),
+                           spr, sprite_size, 1, pal);
     }
 
     // 按球种选择对应点阵，B 换球后图案、球名和数量同步变化。
+    // 捕获成功：换 ball_open（盖子上移那一帧）—— 两态同名族素材，
+    // 换位图不改调用方（接线与素材解耦）。
     ui_art_t ball;
-    if (assets_ui(BALL_ART[s_ball], &ball)) {
+    const char *ball_name = s_caught ? "ball_open" : BALL_ART[s_ball];
+    if (assets_ui(ball_name, &ball)) {
         static const uint16_t PAL[4] = {
             RGB_HEX(0x0f380f), RGB_HEX(0xd05030),
             RGB_HEX(0xf8f8f8), 0,
