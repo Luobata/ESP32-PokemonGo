@@ -16,7 +16,7 @@
 
     10 套 × 4 色 × RGB565(2B) = 80 字节
 
-每只记录里存 4bit 索引即可。这是整个项目里性价比最高的一处改动。
+每只记录里存 8bit 索引即可（上限 256 套；GSC 有 135 套，4 位装不下）。这是整个项目里性价比最高的一处改动。
 
 ## 索引必须按亮度重排
 
@@ -222,6 +222,8 @@ def main() -> int:
     p.add_argument("--out", default="assets")
     p.add_argument("--count", type=int, default=151)
     p.add_argument("--show", type=int, default=0, help="打印第 N 号的调色板细节")
+    p.add_argument("--gen2", action="store_true",
+                   help="输出 palettes2.bin（GSC 水晶，不覆盖初代 palettes.bin）")
     args = p.parse_args()
 
     front_dir = os.path.join(args.src, "front")
@@ -268,16 +270,17 @@ def main() -> int:
         for rgb in pl:
             body += struct.pack("<H", rgb565(rgb))
 
-    # 每只一字节：低 4bit 是配色索引（10 套够用），高 4bit 预留
+    # 每只一字节：8bit 配色索引（上限 256 套；GSC 有 135 套，4 位装不下）
     mon_idx = bytearray(args.count)
     for i, pidx in per_mon.items():
-        mon_idx[i - 1] = pidx & 0x0F
+        mon_idx[i - 1] = pidx & 0xFF
 
     header = struct.pack("<4sHHHH", MAGIC, VERSION, n_normal, 4, args.count)
     blob = header + bytes(body) + bytes(mon_idx)
 
     os.makedirs(args.out, exist_ok=True)
-    out_path = os.path.join(args.out, "palettes.bin")
+    out_name = "palettes2.bin" if args.gen2 else "palettes.bin"
+    out_path = os.path.join(args.out, out_name)
     with open(out_path, "wb") as f:
         f.write(blob)
 

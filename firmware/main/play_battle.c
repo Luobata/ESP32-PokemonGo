@@ -70,7 +70,12 @@ SCREEN_ASSERT_WITHIN_BAND(battle_wild_name, WILD_NAME_Y, 16);
 SCREEN_ASSERT_WITHIN_BAND(battle_wild_bar, WILD_BAR_Y, 10);
 SCREEN_ASSERT_WITHIN_BAND(battle_wild_sprite_box,
                           WILD_SPRITE_BOX_Y, WILD_SPRITE_BOX_H);
-SCREEN_ASSERT_WITHIN_BAND(battle_pet_sprite, PET_SPRITE_Y, 64);
+// 主宠 96px @2x（48×2）—— 用户已定。当前 back sprite 是 32×32（gen1），
+// 临时用 32×3=96 顶上；GSC back（48×48）接入后改 48×2=96，画质更好。
+// 96 > 80 带高，跨带 2/3 —— 用 SCREEN_ASSERT_ALLOW_CROSS_BAND 显式声明，
+// 且 shake tick 必须重画带 2+3（见 tick 里的注释）。
+#define PET_SPRITE_DISPLAY 96
+SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_pet_sprite, PET_SPRITE_Y, PET_SPRITE_DISPLAY);
 SCREEN_ASSERT_WITHIN_BAND(battle_pet_name, PET_NAME_Y, 16);
 SCREEN_ASSERT_WITHIN_BAND(battle_pet_bar, PET_BAR_Y, 10);
 SCREEN_ASSERT_WITHIN_BAND(battle_round_message, MSG_Y, 16);
@@ -192,7 +197,8 @@ static void draw_band(int band_y)
             !s_res.rounds[s_play_i - 1].missed) {
             dx = render_shake_dx(s_shake_i, SHAKE_FRAMES, SHAKE_AMP);
         }
-        render_sprite_2bpp(8 + dx, Y(PET_SPRITE_Y), pet_spr, 32, 2, pal);
+        // 32×3=96px（临时）；GSC back 48×48 接入后改 render_sprite_2bpp(..., 48, 2, pal)
+        render_sprite_2bpp(8 + dx, Y(PET_SPRITE_Y), pet_spr, 32, 3, pal);
     }
     if (has_pet) {
         snprintf(buf, sizeof(buf), "%.*s Lv%u",
@@ -253,11 +259,18 @@ static void tick(lv_timer_t *t)
     (void)t;
     if (!s_playing) return;
 
-    // 抖动阶段只重画挨打 sprite 所在的单条带；HP 和文字不移动。
+    // 抖动阶段只重画挨打 sprite 所在的带；HP 和文字不移动。
+    // 主宠 96px 跨带 2/3（y=168..263），只重画带 2 会让上半抖、下半不动
+    // = 撕裂（BUG-1）。所以主宠挨打时带 2+3 都要重画。
     if (s_shake_i < SHAKE_FRAMES) {
         s_shake_i++;
         const battle_round_t *r = &s_res.rounds[s_play_i - 1];
-        draw_band(r->by_pet ? BAND_H : BAND_H * 2);
+        if (r->by_pet) {
+            draw_band(BAND_H);               // 野怪在带 1（y=88..151）
+        } else {
+            draw_band(BAND_H * 2);           // 主宠上半（y=168..239）
+            draw_band(BAND_H * 3);           // 主宠下半（y=240..263）
+        }
         return;
     }
 

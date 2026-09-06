@@ -28,6 +28,16 @@
     _Static_assert(SCREEN_ELEMENT_FITS_BAND((y), (h)), \
                    #name " crosses a screen band boundary")
 
+// 显式声明：此元素**允许**跨横带边界（与 SCREEN_ASSERT_WITHIN_BAND 二选一）。
+// 约束：高度 ≤ 2×带高（最多跨一条边界），且在屏幕内。
+// 跨带元素的渲染本身没问题（screen_px 越界静默裁剪），
+// 但**动画重绘时必须重画所有涉及的带**，否则两半不同帧 = 撕裂（BUG-1）。
+// 用这个宏的地方必须在 tick/动画回调里重画全部跨带。
+#define SCREEN_ASSERT_ALLOW_CROSS_BAND(name, y, h) \
+    _Static_assert((h) > 0 && (h) <= SCREEN_BAND_H * 2 && \
+                   (y) >= 0 && (y) + (h) <= SCREEN_H, \
+                   #name " cross-band: h must be <= 2*band_h and on-screen")
+
 // 页面重画回调。截图时用 —— 见 screen_dump 的说明。
 typedef void (*screen_redraw_cb_t)(void);
 

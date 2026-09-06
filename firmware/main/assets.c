@@ -113,7 +113,10 @@ bool assets_species(uint16_t id, species_t *out)
     out->special = r[13];
     out->speed = r[14];
     out->flags = r[15];
-    out->palette = r[23] & 0x0F;
+    // 调色板索引 8 位（上限 256 套）。原来只取低 4 位（& 0x0F），
+    // 上限 16 套；GSC 有 135 套，4 位装不下。高 4 位经全仓 grep 确认
+    // 无其他字段占用（convert_gen1.py 的 off/size 表标注「高 4 位预留」）。
+    out->palette = r[23];
 
     uint16_t zo = rd16(r + 20);
     uint8_t zl = r[22];

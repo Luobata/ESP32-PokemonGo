@@ -358,6 +358,54 @@ def rb_learnset(mon: dict) -> list[tuple[int, str]]:
     return sorted(set(out))
 
 
+GEN2_SPRITES = ("https://raw.githubusercontent.com/PokeAPI/sprites/master"
+                "/sprites/pokemon/versions/generation-ii/crystal")
+
+
+def fetch_gen2_sprites(args) -> int:
+    """只拉 GSC crystal sprite（colortype=3 彩色索引图），跳过数据/招式/进化。
+
+    与 gen1 的差异：
+      · URL 是 generation-ii/crystal，没有 gray/ 子目录（GSC 本来就彩色）
+      · back 是 48×48（gen1 是 32×32）
+      · 不拉 gen1.json / moves —— 151 只物种数据不变，已有缓存
+    """
+    front_dir = os.path.join(args.out, "front")
+    back_dir = os.path.join(args.out, "back")
+    for d in (front_dir, back_dir):
+        os.makedirs(d, exist_ok=True)
+
+    n = args.count
+    ids = list(range(1, n + 1))
+    print(f"拉取 GSC crystal sprite（{n} 只，并发 {args.jobs}）...")
+
+    def get_sprite(i: int) -> tuple[bool, bool]:
+        f = fetch_binary(f"{GEN2_SPRITES}/{i}.png",
+                         os.path.join(front_dir, f"{i:03d}.png"))
+        b = fetch_binary(f"{GEN2_SPRITES}/back/{i}.png",
+                         os.path.join(back_dir, f"{i:03d}.png"))
+        return f, b
+
+    nf = nb = 0
+    with ThreadPoolExecutor(max_workers=args.jobs) as ex:
+        for k, (f, b) in enumerate(ex.map(get_sprite, ids), 1):
+            nf += f
+            nb += b
+            if k % 25 == 0:
+                print(f"  ...{k}/{n}")
+    print(f"  front {nf}/{n}　back {nb}/{n}")
+
+    if nf < n or nb < n:
+        print(f"⚠️  有 sprite 缺失（front {n - nf}，back {n - nb}）",
+              file=sys.stderr)
+        return 1
+
+    print(f"\n下一步：")
+    print(f"  python3 tools/pipeline/convert_gen1.py --src {args.out} --gen2")
+    print(f"  python3 tools/pipeline/convert_palettes.py --src {args.out} --gen2")
+    return 0
+
+
 def main() -> int:
     p = argparse.ArgumentParser(description="拉取初代 151 只的数据与 sprite")
     p.add_argument("--out", default="/tmp/gen1", help="输出目录")
@@ -373,7 +421,12 @@ def main() -> int:
     p.add_argument("--count", type=int, default=GEN1_COUNT, help="拉前 N 只")
     p.add_argument("--no-moves", dest="moves", action="store_false", default=True,
                    help="跳过招式（招式约 165 个请求，已有缓存时很快）")
+    p.add_argument("--gen2", action="store_true",
+                   help="只拉二代水晶 sprite（跳过数据/招式/进化）")
     args = p.parse_args()
+
+    if args.gen2:
+        return fetch_gen2_sprites(args)
 
     cache = os.path.join(args.out, "cache")
     front_dir = os.path.join(args.out, "front")

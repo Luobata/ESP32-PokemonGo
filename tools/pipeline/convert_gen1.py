@@ -148,7 +148,7 @@ TRIGGER_ID = {
 #   18   2     weight           hg
 #   20   2     zh_offset        中文名在字符串池的偏移
 #   22   1     zh_len           中文名 UTF-8 字节数（3 字节/汉字）
-#   23   1     palette_index    配色索引（低 4 位，10 套；高 4 位预留）
+#   23   1     palette_index    配色索引（8 位，上限 256 套；GSC 有 135 套）
 #   24   8     reserved         预留：招式表偏移、图鉴描述偏移
 # ---------------------------------------------------------------------------
 
@@ -248,7 +248,7 @@ def build_data(mons: list[dict],
             flags,
             min(m.get("height", 0), 65535), min(m.get("weight", 0), 65535),
             zoff, min(zlen, 255),
-            (palette_of or {}).get(m["id"], 0) & 0x0F,
+            (palette_of or {}).get(m["id"], 0) & 0xFF,
             b"\x00" * 8,
         )
 
@@ -341,9 +341,10 @@ def build_front_atlas(src_dir: str, ids: list[int]) -> tuple[bytes, dict[int, in
     return bytes(out), tier_of, failed
 
 
-def build_back_atlas(src_dir: str, ids: list[int]) -> tuple[bytes, int, list[str]]:
-    """back 图集：151 只全部 32×32，定长，可直接按 id 索引。"""
-    per = (BACK_SIZE * BACK_SIZE * 2 + 7) // 8
+def build_back_atlas(src_dir: str, ids: list[int],
+                     back_size: int = BACK_SIZE) -> tuple[bytes, int, list[str]]:
+    """back 图集：全部 back_size×back_size，定长，可直接按 id 索引。"""
+    per = (back_size * back_size * 2 + 7) // 8
     blobs: list[bytearray] = []
     failed: list[str] = []
 
@@ -351,8 +352,8 @@ def build_back_atlas(src_dir: str, ids: list[int]) -> tuple[bytes, int, list[str
         path = os.path.join(src_dir, f"{i:03d}.png")
         try:
             w, h = png_native_size(path)
-            if (w, h) != (BACK_SIZE, BACK_SIZE):
-                raise ValueError(f"意外尺寸 {w}×{h}（预期 {BACK_SIZE}²）")
+            if (w, h) != (back_size, back_size):
+                raise ValueError(f"意外尺寸 {w}×{h}（预期 {back_size}²）")
             blob, _ = to_2bpp_native(path)
             if len(blob) != per:
                 raise ValueError(f"长度 {len(blob)} != {per}")
@@ -362,7 +363,7 @@ def build_back_atlas(src_dir: str, ids: list[int]) -> tuple[bytes, int, list[str
             blobs.append(bytearray(per))     # 占位保持 id 对齐
 
     header = struct.pack("<4sHHHHI", b"BACK", VERSION,
-                         BACK_SIZE, BACK_SIZE, per, len(blobs))
+                         back_size, back_size, per, len(blobs))
     return header + b"".join(bytes(b) for b in blobs), per, failed
 
 
@@ -393,25 +394,40 @@ def main() -> int:
                    help="背面尺寸（原版 32×32）")
     p.add_argument("--preview", type=int, default=-1,
                    help="以 ASCII 预览第 N 号（1~151）的 front 与 back")
+    p.add_argument("--gen2", action="store_true",
+                   help="二代水晶：back 48×48，输出 gen2_*.bin，跳过 gen1.bin")
     args = p.parse_args()
 
-    json_path = os.path.join(args.src, "gen1.json")
-    if not os.path.exists(json_path):
-        print(f"错误：找不到 {json_path}。先跑 fetch_gen1.py", file=sys.stderr)
-        return 1
-
-    with open(json_path, encoding="utf-8") as f:
-        mons = json.load(f)
-
-    print(f"读取 {len(mons)} 只")
     os.makedirs(args.out, exist_ok=True)
+
+    if args.gen2:
+        # GSC 模式：不需要 gen1.json（151 只物种数据不变），只转 sprite。
+        # back 是 48×48（gen1 是 32×32），输出 gen2_*.bin 不覆盖初代产物。
+        ids = list(range(1, 152))
+        back_size = 48
+        prefix = "gen2"
+        mons = []
+        print(f"GSC 模式：{len(ids)} 只，back {back_size}×{back_size}")
+    else:
+        json_path = os.path.join(args.src, "gen1.json")
+        if not os.path.exists(json_path):
+            print(f"错误：找不到 {json_path}。先跑 fetch_gen1.py", file=sys.stderr)
+            return 1
+
+        with open(json_path, encoding="utf-8") as f:
+            mons = json.load(f)
+
+        print(f"读取 {len(mons)} 只")
+        ids = [m["id"] for m in sorted(mons, key=lambda m: m["id"])]
+        back_size = BACK_SIZE
+        prefix = "gen1"
 
     # 数据表在 sprite 之后才建 —— 它需要 sprite 的尺寸档与配色索引。
     # 这里只定路径。
-    data_path = os.path.join(args.out, "gen1.bin")
+    data_path = os.path.join(args.out, f"{prefix}.bin")
 
     # ---- 精灵图（原生尺寸，不缩放）----
-    ids = [m["id"] for m in sorted(mons, key=lambda m: m["id"])]
+    # ids 已在上面的 gen2/gen1 分支里设好
 
     front_src = os.path.join(args.src, "front")
     back_src = os.path.join(args.src, "back")
@@ -421,7 +437,7 @@ def main() -> int:
 
     if os.path.isdir(front_src):
         fblob, tier_of, ffail = build_front_atlas(front_src, ids)
-        fpath = os.path.join(args.out, "gen1_front.bin")
+        fpath = os.path.join(args.out, f"{prefix}_front.bin")
         with open(fpath, "wb") as f:
             f.write(fblob)
         total_sprite += len(fblob)
@@ -441,13 +457,13 @@ def main() -> int:
         print(f"\n⚠️  跳过 front：{front_src} 不存在")
 
     if os.path.isdir(back_src):
-        bblob, bper, bfail = build_back_atlas(back_src, ids)
-        bpath = os.path.join(args.out, "gen1_back.bin")
+        bblob, bper, bfail = build_back_atlas(back_src, ids, back_size)
+        bpath = os.path.join(args.out, f"{prefix}_back.bin")
         with open(bpath, "wb") as f:
             f.write(bblob)
         total_sprite += len(bblob)
         print(f"\n{bpath}")
-        print(f"  {len(ids)} 张 @ {BACK_SIZE}×{BACK_SIZE}  单张 {bper} B")
+        print(f"  {len(ids)} 张 @ {back_size}×{back_size}  单张 {bper} B")
         print(f"  合计 {len(bblob)/1024:.1f} KB")
         if bfail:
             print(f"  ⚠️  {len(bfail)} 张失败：{bfail[:3]}")
@@ -456,72 +472,83 @@ def main() -> int:
 
     # 数据表要带上 sprite 尺寸档，所以放在 sprite 之后重建
     # 配色索引 —— 与 convert_palettes.py 用同一套排序规则
-    palette_of: dict[int, int] = {}
-    try:
-        from convert_palettes import sorted_palette
-        from convert_sprites import read_png_full
-        uniq: dict[tuple, int] = {}
-        for m in mons:
-            fp = os.path.join(front_src, f"{m['id']:03d}.png")
-            if not os.path.exists(fp):
-                continue
-            _w, _h, _rows, pal, _idx = read_png_full(fp)
-            if not pal:
-                continue
-            key = tuple(sorted_palette(pal)[0])
-            if key not in uniq:
-                uniq[key] = len(uniq)
-            palette_of[m["id"]] = uniq[key]
-    except Exception as e:
-        print(f"  注：配色索引提取失败（{type(e).__name__}），全部记 0", file=sys.stderr)
+    if not args.gen2:
+        palette_of: dict[int, int] = {}
+        try:
+            from convert_palettes import sorted_palette
+            from convert_sprites import read_png_full
+            uniq: dict[tuple, int] = {}
+            for m in mons:
+                fp = os.path.join(front_src, f"{m['id']:03d}.png")
+                if not os.path.exists(fp):
+                    continue
+                _w, _h, _rows, pal, _idx = read_png_full(fp)
+                if not pal:
+                    continue
+                key = tuple(sorted_palette(pal)[0])
+                if key not in uniq:
+                    uniq[key] = len(uniq)
+                palette_of[m["id"]] = uniq[key]
+        except Exception as e:
+            print(f"  注：配色索引提取失败（{type(e).__name__}），全部记 0",
+                  file=sys.stderr)
 
-    blob, st = build_data(mons, tier_of, palette_of)
-    with open(data_path, "wb") as f:
-        f.write(blob)
+        blob, st = build_data(mons, tier_of, palette_of)
+        with open(data_path, "wb") as f:
+            f.write(blob)
 
-    print(f"\n{data_path}")
-    print(f"  记录      {st['records']:>7} B  ({st['count']} × {RECORD_SIZE})")
-    print(f"  字符串池  {st['pool']:>7} B  （slug + 中文名）")
-    print(f"  合计      {st['total']:>7} B = {st['total']/1024:.1f} KB")
-    if st["retconned"]:
-        print(f"  属性已还原为初代：{', '.join(st['retconned'])}")
-    if palette_of:
-        print(f"  配色索引  {len(set(palette_of.values()))} 套")
+        print(f"\n{data_path}")
+        print(f"  记录      {st['records']:>7} B  ({st['count']} × {RECORD_SIZE})")
+        print(f"  字符串池  {st['pool']:>7} B  （slug + 中文名）")
+        print(f"  合计      {st['total']:>7} B = {st['total']/1024:.1f} KB")
+        if st["retconned"]:
+            print(f"  属性已还原为初代：{', '.join(st['retconned'])}")
+        if palette_of:
+            print(f"  配色索引  {len(set(palette_of.values()))} 套")
 
     if 1 <= args.preview <= len(ids):
-        m = next(x for x in mons if x["id"] == args.preview)
+        slug = ""
+        if not args.gen2:
+            m = next(x for x in mons if x["id"] == args.preview)
+            slug = m["slug"]
         fp = os.path.join(front_src, f"{args.preview:03d}.png")
         bp = os.path.join(back_src, f"{args.preview:03d}.png")
         for path, label in ((fp, "front"), (bp, "back")):
             if os.path.exists(path):
                 w, _ = png_native_size(path)
                 bmp, _ = to_2bpp_native(path)
-                preview_raw(bmp, w, f"#{args.preview} {m['slug']} ({label} {w}×{w})")
+                preview_raw(bmp, w,
+                            f"#{args.preview} {slug} ({label} {w}×{w})")
 
-    print(f"\n总计 {(st['total'] + total_sprite)/1024:.1f} KB"
-          f"　占 8MB flash 的 {(st['total']+total_sprite)/(8*1024*1024)*100:.2f}%")
+    if not args.gen2:
+        print(f"\n总计 {(st['total'] + total_sprite)/1024:.1f} KB"
+              f"　占 8MB flash 的 "
+              f"{(st['total']+total_sprite)/(8*1024*1024)*100:.2f}%")
 
-    # 分布核对
-    import collections
-    bd: collections.Counter = collections.Counter()
-    for m in mons:
-        bm = biome_mask(m.get("habitat", ""), gen1_types(m))
-        for i, b in enumerate(BIOMES):
-            if bm & (1 << i):
-                bd[b] += 1
-    print("\nbiome 分布（一只可属多个）")
-    for b, n in bd.most_common():
-        print(f"  {b:<14}{n:>5}")
+        # 分布核对
+        import collections
+        bd: collections.Counter = collections.Counter()
+        for m in mons:
+            bm = biome_mask(m.get("habitat", ""), gen1_types(m))
+            for i, b in enumerate(BIOMES):
+                if bm & (1 << i):
+                    bd[b] += 1
+        print("\nbiome 分布（一只可属多个）")
+        for b, n in bd.most_common():
+            print(f"  {b:<14}{n:>5}")
 
-    td: collections.Counter = collections.Counter()
-    for m in mons:
-        t = gen1_types(m)
-        if t:
-            td[t[0]] += 1
-    print("\n初代主属性分布")
-    for t, n in td.most_common():
-        bad = "" if t in TYPE_ID else "  ⚠️"
-        print(f"  {t:<14}{n:>5}{bad}")
+        td: collections.Counter = collections.Counter()
+        for m in mons:
+            t = gen1_types(m)
+            if t:
+                td[t[0]] += 1
+        print("\n初代主属性分布")
+        for t, n in td.most_common():
+            bad = "" if t in TYPE_ID else "  ⚠️"
+            print(f"  {t:<14}{n:>5}{bad}")
+    else:
+        print(f"\nGSC sprite 合计 {total_sprite/1024:.1f} KB"
+              f"　占 8MB flash 的 {total_sprite/(8*1024*1024)*100:.2f}%")
 
     return 0
 
