@@ -260,11 +260,14 @@ def main() -> int:
                     if depth == 0:
                         break
             served = json.loads(html[j:k + 1])
-            ck(served == json.loads(json.dumps(sp, ensure_ascii=False,
-                                               default=str)),
+            fresh = served == json.loads(json.dumps(sp, ensure_ascii=False,
+                                                    default=str))
+            ck(fresh,
                "index.html 注入的 simPages 与现算 payload 不一致"
                "（build 过期或被手改）—— 重新跑 build.py")
-            print("  新鲜度     index.html 注入值 == 现算 payload")
+            # 打印要跟着判定走：ck 只记录不拦截，无条件打 ✓ 会骗读日志的人
+            print("  新鲜度     " + ("index.html 注入值 == 现算 payload"
+                                    if fresh else "✗ 不一致（见下）"))
 
     if FAILS:
         print(f"\n❌ {len(FAILS)} 处不符：")

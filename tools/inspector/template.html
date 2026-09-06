@@ -442,6 +442,12 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
   <div style="min-width:190px">
     <h3>页面（按键驱动）</h3>
     <div id="sim-pages"></div>
+    <h3 style="margin-top:12px">美术方向</h3>
+    <div id="sim-dirs"></div>
+    <div id="dir-note" class="notes" style="font-size:12px;margin-top:6px;min-height:40px"></div>
+    <div id="dir-legend"></div>
+    <h3 style="margin-top:10px">P3 骨架</h3>
+    <div id="sim-p3skel"></div>
     <div class="notes" style="font-size:12px;margin-top:8px">
       <p><b>键盘</b>：A / B / C 键；<b>双击</b>＝300ms 内两次；
       <b>长按</b>＝按住 500ms（日志会标注）。</p>
@@ -474,7 +480,9 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
     <div id="sim-frameinfo" class="notes" style="font-size:13px;margin-top:6px;min-height:38px"></div>
     <h3 style="margin-top:10px">剧本</h3>
     <div id="sim-scenarios"></div>
-    <div class="notes" style="font-size:12px;margin-top:8px" id="sim-src">数据源：sim/（build 时导出）</div>
+    <div style="margin-top:8px"><button id="sim-measure">📐 量化当前画面</button></div>
+    <div id="sim-measure-out" class="notes" style="font-size:12px;margin-top:6px;white-space:pre-wrap;min-height:20px">单色面积 / 用色分布 —— 对比「背景 85~96% 单色」的现状基线</div>
+    <div class="notes" style="font-size:12px;margin-top:8px" id="sim-src">数据源：sim/（build 时导出）。美术方向只改呈现（颜色/坐标/层次），不改任何数值来源。</div>
   </div>
 </div>
 
@@ -540,6 +548,10 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
 
 <script>
 const D = ASSETS_JSON;
+// 页面模拟器等面板按名引用 ASSETS —— 曾经漏了这句定义，
+// 整个 sim IIFE 在第一行 ReferenceError 死掉（页面按钮/画布全无）。
+// 门禁只对账 payload JSON，不执行 JS，所以这道伤一直绿着。
+const ASSETS = D;
 // DMG 绿作为 fallback；有调色板时用官方配色（彩色屏）
 const SHADES = ["#0f380f","#306230","#8bac0f","#9bbc0f"];
 function palOf(id, shiny){
@@ -3500,7 +3512,9 @@ try {
 const cv = document.getElementById('sim-canvas');
 const ctx = cv.getContext('2d');
 const W=240, H=320, BAND=80, SC=2;
-const INK='#181818', MID='#686868', BG='#f0f0f0';
+// 现状基线 = 真机实测色（固件 RGB_HEX(0x9bbc0f/0x0f380f/0x306230/0x8bac0f)
+// 经 RGB565 量化后的上屏值）—— 模拟器要对的就是设备，不是另立一套灰白。
+const INK='#083808', MID='#316131', BG='#9cbe08';
 const el = id => document.getElementById(id);
 const ACTS=['feed','play','rest'], ACT_ZH={feed:'喂食',play:'玩耍',rest:'休息'};
 
@@ -3547,16 +3561,404 @@ function uiC(name,scale){
   uiCache[k]=c; return c;
 }
 function ui(name,dx,dy,scale){ const c=uiC(name,scale); if(c) ctx.drawImage(c,dx,dy); }
-function bar(x,y,w,h,pct,fg){
+function bar(x,y,w,h,pct,fg,track){
   ctx.strokeStyle=INK; ctx.strokeRect(x+.5,y+.5,w,h);
-  ctx.fillStyle=fg||'#c83c30';
+  if(track){ ctx.fillStyle=track; ctx.fillRect(x+1,y+1,w-2,h-2); }
+  ctx.fillStyle=fg||MID;
   ctx.fillRect(x+1,y+1,Math.round((w-2)*Math.max(0,Math.min(100,pct))/100),h-2);
 }
+
+/* =====================================================================
+   美术方向（第六轮「画风不协调」对比 · 契约 pokemon-web-coder）
+   数值不变：所有渲染仍读 SP / ASSETS.sys2 的导出值，JS 不算任何数。
+   方向只改呈现 —— 颜色、坐标、层次。色值一律取 RGB565 量化精确值
+   （设计稿 #9bbc0f 上屏变 #9cbe08，这里直接写量化后的值）。
+   ===================================================================== */
+const GRAY4 = ['#202020','#686868','#a8a8a8','#f0f0f0'];   // sprite 的 2bpp 四档索引（数据格式，非显示色）
+const DEVG = {field:'#9cbe08', ink:'#083808', dim:'#316131', track:'#8cae08'};
+// ↑ 真机 DMG 绿四档（固件 RGB_HEX 量化后）。Hub 第二次更正：
+//   sprite 上屏一律官方彩（palettes.bin 着色）——「四阶灰」是数据格式，
+//   不是显示色；基底也不换主题，A/B/C 全部在绿系里做。
+const DIRS = {
+ base:{label:'现状（真机）', spritePal:null,
+   pal:DEVG,
+   note:'GB 绿单底 + 官方彩 sprite —— 与固件 RGB 常量（量化后）一致，即 test 实测 85~96% 单色的那版'},
+ A:{label:'A 守四色', spritePal:null,
+   pal:DEVG,
+   note:'DMG 绿四档用足层次：C_LIGHT 从「进度条空槽」扩展到分隔/底纹/次级信息（更正 1），纯构图不加色'},
+ B:{label:'B 双层彩色', spritePal:null,
+   pal:{field:'#9cbe08', ink:'#083808', dim:'#316131', track:'#8cae08',
+        red:'#c83c30', green:'#58a850', blue:'#3868c8', gold:'#c8a028'},
+   note:'底仍 DMG 绿、sprite 官方彩不动；UI 框架层加 4 彩色（红绿蓝金，锚定既有素材色系）'},
+ C:{label:'C 原机版式', spritePal:null,
+   pal:DEVG,
+   note:'pokered 菜单版式移植：双线框 / 反白标题签 / ▸ 光标 / 纯色留白 —— 版式取原作，配色守 DMG 绿（斜纹已撤）'},
+};
+let DIR='base', P3SKEL='std';
+const COVERED={P1:1,P3:1,P6:1};
+function curDir(){ return COVERED[st.page]?DIRS[DIR]:DIRS.base; }
+function T(){ return curDir().pal; }
+function fieldFill(){ // 方向自带底色；现状沿用 cls() 的真机绿
+  if(DIR==='base') return;
+  ctx.fillStyle=T().field; ctx.fillRect(0,0,W,H); }
+
+/* ---- 方向版式原语 ---- */
+function hlineS(y,c){ ctx.fillStyle=c||T().dim; ctx.fillRect(0,y,W,1); }
+function band(y,h,c){ ctx.fillStyle=c; ctx.fillRect(0,y,W,h); }
+function frame(x,y,w,h,c,t){ t=t||1; ctx.fillStyle=c;
+  ctx.fillRect(x,y,w,t); ctx.fillRect(x,y+h-t,w,t);
+  ctx.fillRect(x,y,t,h); ctx.fillRect(x+w-t,y,t,h); }
+function box2(x,y,w,h,c){ frame(x,y,w,h,c,2); frame(x+4,y+4,w-8,h-8,c,1); } // pokered 双线框
+function dither(x,y,w,h,a,b){ // 2px 棋盘纹（GB 底纹）
+  for(let yy=y>>1; yy<(y+h)>>1; yy++) for(let xx=x>>1; xx<(x+w)>>1; xx++){
+    ctx.fillStyle=(xx+yy)&1?a:b; ctx.fillRect(xx*2,yy*2,2,2); } }
+function spr(id,view,x,y,scale){ // 带方向调色板的 sprite（现状=官方彩，A/B/C=四阶灰）
+  const m=D.mons[id-1]; if(!m) return;
+  const size=view==='back'?D.meta.backSize:m.fsize;
+  const src=view==='back'?D.back[id]:D.front[id]; if(!src) return;
+  drawSprite(ctx,b64bytes(src),size,Math.round(x),Math.round(y),scale,null,
+             curDir().spritePal||palOf(id,false)); }
+function sprSil(id,view,x,y,scale,c){ // 剪影：非透明像素全部同一色
+  const m=D.mons[id-1]; if(!m) return;
+  const size=view==='back'?D.meta.backSize:m.fsize;
+  const src=view==='back'?D.back[id]:D.front[id]; if(!src) return;
+  drawSprite(ctx,b64bytes(src),size,Math.round(x),Math.round(y),scale,null,[c,c,c,c]); }
+function hintAt(y,inkC,keyC,x0){ // 提示行（可选给 [A]/[B]/[C] 键帽上色）
+  const h=SP.hints[st.page]; const line=typeof h==='string'?h:((h&&h.line)||'');
+  ctx.font='13px "PingFang SC",monospace'; ctx.textBaseline='top';
+  let cx=x0||8; const parts=line.split(/(\[[ABC]\])/g);
+  for(const p of parts){ if(!p) continue;
+    ctx.fillStyle=(keyC&&/^\[[ABC]\]$/.test(p))?keyC:(inkC||T().ink);
+    for(const ch of p){ ctx.fillText(ch,cx,y); cx+=ch.charCodeAt(0)>0xFF?16:8; } } }
+function barD(x,y,w,h,pct,o){ // 方向条：边框 + 填充 + 轨道；o={fill,track,low,danger,border}
+  const t=T(); const op=o||{};
+  frame(x,y,w,h,op.border||t.ink,1);
+  if(op.track){ ctx.fillStyle=op.track; ctx.fillRect(x+1,y+1,w-2,h-2); }
+  let fill=op.fill||t.ink;
+  if(op.low!=null && pct<op.low) fill=op.danger||fill;
+  ctx.fillStyle=fill;
+  ctx.fillRect(x+1,y+1,Math.round((w-2)*Math.max(0,Math.min(100,pct))/100),h-2); }
+const uiCacheO={};
+function uiO(name,dx,dy,scale,palOv){ // ui.bin 素材，可带调色板覆盖（如素材单色化）
+  const a=SP.ui[name]; if(!a) return;
+  const k=name+'@'+scale+'@'+(palOv?palOv.join(''):'');
+  if(!uiCacheO[k]){
+    const c=document.createElement('canvas'); c.width=a.w*scale; c.height=a.h*scale;
+    const g=c.getContext('2d'); const P=palOv||a.palette; const rb=(a.w+3)>>2;
+    for(let y2=0;y2<a.h;y2++) for(let x0=0;x0<a.w;x0+=4){
+      const b=a.bytes[y2*rb+(x0>>2)];
+      for(let kk=0;kk<4;kk++){ const x=x0+kk; if(x>=a.w) break;
+        const v=(b>>(6-kk*2))&3; if(v===3) continue;
+        g.fillStyle=P[v]; g.fillRect(x*scale,y2*scale,scale,scale); } }
+    uiCacheO[k]=c; }
+  ctx.drawImage(uiCacheO[k],dx,dy); }
+const MONO_HEART=['#083808','#8cae08','#316131'];   // A/C 心形单色化（描边/高光/主体→绿系三档）
+const LOWT=(SP.care.pet&&SP.care.pet.low)||25;      // 低轴阈值（sim LOW_THRESHOLD 导出）
+function hpColor(pct){ return pct<LOWT?T().red:T().green; }
+
+/* ---- 图鉴状态（sys2.s5 的 sim 样本位图，非 JS 造数）---- */
+let _dex=null;
+function dexState(sid){
+  if(_dex===null){
+    try{ const b=ASSETS.sys2.s5.bits;
+      _dex={seen:b64bytes(b.seen), caught:b64bytes(b.caught), shiny:b64bytes(b.shiny_caught)}; }
+    catch(e){ _dex=false; } }
+  if(!_dex) return 'unseen';
+  // 位序照 state.py 的 _get：LSB-first（1 << ((sid-1) & 7)）
+  const i=sid-1, bit=a=>(a[i>>3]>>(i&7))&1;
+  return bit(_dex.caught)?(bit(_dex.shiny)?'shiny':'caught'):(bit(_dex.seen)?'seen':'unseen'); }
+function dexCount(){ try{ return ASSETS.sys2.s5.caught; }catch(e){ return 0; } }
+
+/* ---- P3 公共 ---- */
+function p3Cur(){
+  const sc=SP.battle.scenarios.find(x=>x.label===st.P3.sc);
+  const tl=[]; if(sc) for(const r of sc.rounds) for(let f=0;f<8;f++) tl.push({r,ph:f});
+  return {sc,tl,it:tl[Math.min(st.P3.fi,Math.max(0,tl.length-1))]||null}; }
+function p3Shake(r,ph){ // 挨打的一方抖（与固件同语义）；未命中不抖
+  if(ph>=6 || r.missed) return [0,0];
+  const s=SP.battle.shake[ph];
+  const ox=(s&&s.ox)?s.ox:0;
+  return r.attacker==='pet'?[ox,0]:[0,ox]; }
+function p3Msg(r,sc){ // 回合文本（文案拼装，数值全来自导出回合）
+  if(!r) return '';
+  return (r.attacker==='pet'?'我方':'对方')+' '+(r.move||'攻击')+(r.missed?' 没打中':''); }
+
+/* ---- P1 三方向 + 现状 ---- */
+function petInfo(){ return SP.care.pet||{sid:25,level:12,mood:'',despondent:false}; }
+const R1={
+ base(){ const t=T(); const P=petInfo();
+   text(nameOf(D.mons[P.sid-1])+' Lv'+P.level,8,4,t.ink);
+   const pv='亲'+SP.care.axes[3]; text(pv,W-8-textW(pv),4,t.ink);
+   hlineS(24,t.dim);
+   spr(P.sid,'back',72,54,3);
+   if(P.mood) text(P.mood,W-8-textW(P.mood),160,t.ink);
+   const nx=SP.care.axisNames;
+   for(let i=0;i<4;i++){ text(nx[i],8,180+22*i,t.ink);
+     bar(48,183+22*i,184,10,SP.care.axes[i],t.dim,t.track); }
+   hlineS(292,t.dim); hintAt(298,t.ink); },
+ A(){ const t=DIRS.A.pal; const P=petInfo();
+   fieldFill();
+   band(0,22,t.ink);
+   text(nameOf(D.mons[P.sid-1])+' Lv'+P.level,8,3,t.field);
+   const pv='亲'+SP.care.axes[3]; text(pv,W-8-textW(pv),3,t.field);
+   dither(44,32,152,108,t.track,t.field);            // 舞台底纹 —— 次亮档从此上场
+   spr(P.sid,'back',72,54,3);
+   if(P.mood) text(P.mood,W-8-textW(P.mood),160,t.dim);
+   const nx=SP.care.axisNames;
+   for(let i=0;i<4;i++){ text(nx[i],8,180+22*i,t.dim);
+     barD(48,183+22*i,184,10,SP.care.axes[i],{fill:t.ink,track:t.track}); }
+   band(288,32,t.ink); hintAt(296,t.field); },
+ B(){ const t=DIRS.B.pal; const P=petInfo();
+   fieldFill();
+   text(nameOf(D.mons[P.sid-1])+' Lv'+P.level,8,4,t.ink);
+   const pv=String(SP.care.axes[3]);
+   const ha=SP.ui.heart; uiO('heart',W-8-textW(pv)-(ha?ha.w+6:20),3,1);   // 心形=红系（素材原色）
+   text(pv,W-8-textW(pv),4,t.ink);
+   hlineS(24,t.dim);
+   dither(44,32,152,108,t.track,t.field);            // 舞台底纹（层次，不加色）
+   spr(P.sid,'back',72,54,3);
+   dither(64,148,112,4,t.track,t.field);             // 落脚阴影
+   if(P.mood) text(P.mood,W-8-textW(P.mood),160,P.despondent?t.red:t.green);
+   const nx=SP.care.axisNames;
+   for(let i=0;i<4;i++){ text(nx[i],8,180+22*i,t.dim);
+     barD(48,183+22*i,184,10,SP.care.axes[i],
+          {fill:t.green,track:t.track,low:LOWT,danger:t.red}); }
+   hlineS(292,t.dim); hintAt(298,t.ink,t.blue); },
+ C(){ const t=DIRS.C.pal; const P=petInfo();
+   fieldFill();
+   // C 的留白：不放舞台纹理 —— 原作用纯色留白+边框，让 sprite 自己撑画面
+   spr(P.sid,'back',72,44,3);
+   if(P.mood) text(P.mood,W-8-textW(P.mood),158,t.dim);
+   box2(6,168,228,92,t.ink);                          // 双线框数据窗
+   const nx=SP.care.axisNames;
+   for(let i=0;i<4;i++){ text(nx[i],16,180+22*i,t.dim);
+     barD(56,183+22*i,166,10,SP.care.axes[i],{fill:t.ink,track:t.track}); }
+   ctx.fillStyle=t.ink; ctx.fillRect(14,158,116,20);  // 反白标题签（压在框线上）
+   text(nameOf(D.mons[P.sid-1])+' Lv'+P.level,20,160,t.field);
+   box2(8,268,224,36,t.ink);
+   text('▸',16,280,t.ink); hintAt(280,t.ink,null,32); },
+};
+
+/* ---- P3 三方向 + 现状 + 打破骨架 ---- */
+function wildHpPct(sc,r){ return sc.wildMax?Math.max(0,Math.min(100,r.wildHp*100/sc.wildMax)):0; }
+function petHpPct(sc,r){ return sc.petMax?Math.max(0,Math.min(100,r.petHp*100/sc.petMax)):0; }
+const R3={
+ base(){ const t=T(); const {sc,tl,it}=p3Cur();
+   if(!sc||!tl.length){ text('（无回合）',80,150); return; }
+   const r=it.r, ph=it.ph; const [wdx,pdx]=p3Shake(r,ph);
+   const m=D.mons[sc.wildSid-1];
+   if(st.P3.rarity) text('★'.repeat(st.P3.rarity),8,4,t.ink);
+   const nm=nameOf(m)+' Lv'+sc.wildLevel; text(nm,W-8-textW(nm),4,t.ink);
+   bar(120,28,112,10,wildHpPct(sc,r),t.dim,t.track);
+   spr(sc.wildSid,'front',W-8-m.fsize+wdx,88+(64-m.fsize)/2,1);
+   spr(25,'back',8+pdx,168,2);
+   text('皮卡丘 Lv'+sc.playerLevel,80,168,t.ink);
+   bar(80,192,152,10,petHpPct(sc,r),t.dim,t.track);
+   text(p3Msg(r,sc),8,244,t.ink);
+   if(r.label) text(r.label,8,268,t.ink);
+   if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,W-8-textW(d),268,t.ink); }
+   if(tl[st.P3.fi+1]===undefined){
+     text(sc.won?'胜利！':'败…',8,244,t.ink);
+     text('经验 +'+sc.exp,8,268,t.dim); }
+   hlineS(292,t.dim); hintAt(298,t.ink); },
+ A(){ const t=DIRS.A.pal; const {sc,tl,it}=p3Cur();
+   if(!sc||!tl.length){ text('（无回合）',80,150); return; }
+   const r=it.r, ph=it.ph; const [wdx,pdx]=p3Shake(r,ph);
+   const m=D.mons[sc.wildSid-1];
+   fieldFill();
+   band(0,36,t.ink);
+   if(st.P3.rarity) text('★'.repeat(st.P3.rarity),8,4,t.field);
+   const nm=nameOf(m)+' Lv'+sc.wildLevel; text(nm,W-8-textW(nm),4,t.field);
+   frame(120,22,112,8,t.field,1);                    // 反白带上的血条
+   ctx.fillStyle=t.field; ctx.fillRect(121,24,Math.round(110*wildHpPct(sc,r)/100),4);
+   dither(140,52,92,110,t.track,t.field);             // 野怪舞台
+   spr(sc.wildSid,'front',W-8-m.fsize+wdx,88+(64-m.fsize)/2,1);
+   dither(4,160,72,72,t.track,t.field);              // 主宠舞台（止于 y232，不压消息面板）
+   spr(25,'back',8+pdx,168,2);
+   text('皮卡丘 Lv'+sc.playerLevel,80,168,t.ink);
+   barD(80,192,152,10,petHpPct(sc,r),{fill:t.ink,track:t.track});
+   frame(4,238,232,42,t.ink);                         // 消息面板
+   text(p3Msg(r,sc),10,244,t.ink);
+   if(r.label) text(r.label,10,264,t.dim);
+   if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,W-8-textW(d),264,t.dim); }
+   if(tl[st.P3.fi+1]===undefined){
+     text(sc.won?'胜利！':'败…',10,244,t.ink);
+     text('经验 +'+sc.exp,10,264,t.dim); }
+   band(284,36,t.ink); hintAt(296,t.field); },
+ B(){ const t=DIRS.B.pal; const {sc,tl,it}=p3Cur();
+   if(!sc||!tl.length){ text('（无回合）',80,150); return; }
+   const r=it.r, ph=it.ph; const [wdx,pdx]=p3Shake(r,ph);
+   const m=D.mons[sc.wildSid-1];
+   fieldFill();
+   if(st.P3.rarity) text('★'.repeat(st.P3.rarity),8,4,t.gold);   // 稀有度=金
+   const nm=nameOf(m)+' Lv'+sc.wildLevel;
+   frame(108,2,124,34,t.ink,1);                       // 野怪牌
+   text(nm,224-textW(nm),6,t.ink);
+   barD(116,24,108,8,wildHpPct(sc,r),{fill:hpColor(wildHpPct(sc,r)),track:t.track});
+   dither(140,52,92,110,t.track,t.field);             // 战斗舞台底纹（GBC 式衬底）
+   spr(sc.wildSid,'front',W-8-m.fsize+wdx,88+(64-m.fsize)/2,1);
+   const gs=W-8-m.fsize;
+   dither(gs-8,88+(64-m.fsize)/2+m.fsize,m.fsize+16,4,t.track,t.field);   // 落脚
+   dither(4,160,72,72,t.track,t.field);              // 主宠舞台（止于 y232，不压消息区）
+   spr(25,'back',8+pdx,168,2);
+   dither(2,232,76,4,t.track,t.field);
+   frame(72,162,160,40,t.ink,1);                      // 主宠牌
+   text('皮卡丘 Lv'+sc.playerLevel,78,166,t.ink);
+   barD(78,186,148,8,petHpPct(sc,r),{fill:hpColor(petHpPct(sc,r)),track:t.track});
+   text(p3Msg(r,sc),8,244,t.ink);
+   if(r.label) text(r.label,8,262,t.gold);            // 效果提示=金
+   if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,W-8-textW(d),262,t.red); }
+   if(tl[st.P3.fi+1]===undefined){
+     text(sc.won?'胜利！':'败…',8,244,t.ink);
+     text('经验 +'+sc.exp,8,262,t.gold); }
+   hlineS(292,t.dim); hintAt(298,t.ink,t.blue); },
+ C(){ const t=DIRS.C.pal; const {sc,tl,it}=p3Cur();
+   if(!sc||!tl.length){ text('（无回合）',80,150); return; }
+   const r=it.r, ph=it.ph; const [wdx,pdx]=p3Shake(r,ph);
+   const m=D.mons[sc.wildSid-1];
+   fieldFill();
+   if(st.P3.rarity) text('★'.repeat(st.P3.rarity),8,4,t.ink);
+   box2(100,2,132,44,t.ink);                          // 双线框野怪牌
+   const nm=nameOf(m)+' Lv'+sc.wildLevel; text(nm,224-textW(nm),8,t.ink);
+   barD(108,30,116,8,wildHpPct(sc,r),{fill:t.ink,track:t.track});
+   // C 撤斜纹：双线框牌 + 消息窗撑结构，野怪/主宠纯色留白
+   spr(sc.wildSid,'front',W-8-m.fsize+wdx,88+(64-m.fsize)/2,1);
+   spr(25,'back',8+pdx,168,2);
+   box2(68,158,164,48,t.ink);                         // 双线框主宠牌
+   text('皮卡丘 Lv'+sc.playerLevel,76,164,t.ink);
+   barD(76,188,148,8,petHpPct(sc,r),{fill:t.ink,track:t.track});
+   box2(4,232,232,68,t.ink);                          // 消息窗（提示行收进窗内）
+   text(p3Msg(r,sc),14,240,t.ink);
+   if(r.label) text(r.label,14,258,t.dim);
+   if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,W-16-textW(d),258,t.dim); }
+   if(tl[st.P3.fi+1]===undefined){
+     text(sc.won?'胜利！':'败…',14,240,t.ink);
+     text('经验 +'+sc.exp,14,258,t.dim); }
+   text('▸',14,282,t.ink); hintAt(282,t.ink,null,30); },
+};
+function p3Alt(){ // 「打破骨架」：pokered 战斗构图 —— 无全屏标题行、无 Y292 分隔+提示行
+  const t=T(); const {sc,tl,it}=p3Cur();
+  if(!sc||!tl.length){ text('（无回合）',80,150); return; }
+  const r=it.r, ph=it.ph; const [wdx,pdx]=p3Shake(r,ph);
+  const m=D.mons[sc.wildSid-1];
+  fieldFill();
+  const wpx=m.fsize*2;
+  // 战斗舞台衬底：A/B 棋盘纹、C 斜纹（GBC 战斗本来就有质感衬底；现状保持真机平铺）
+  const wy0=Math.max(44,142-wpx);
+  if(DIR==='A'||DIR==='B'){ dither(W-16-wpx,wy0,wpx+16,142-wy0,t.track,t.field);
+    dither(6,166,84,76,t.track,t.field); }
+  // C 打破版同撤斜纹：构图（牌+土丘+消息窗）已足够，底留给 sprite
+  // 野怪牌（左上）—— 顶替全屏标题行
+  if(DIR==='C') box2(8,8,134,50,t.ink); else frame(8,8,130,46,t.ink,1);
+  const nm=nameOf(m)+' Lv'+sc.wildLevel; text(nm,16,14,t.ink);
+  if(DIR==='C') barD(16,36,112,8,wildHpPct(sc,r),{fill:t.ink,track:t.track});
+  else barD(16,36,112,8,wildHpPct(sc,r),
+    DIR==='base'?{fill:t.dim,track:t.track}
+    :DIR==='B'?{fill:hpColor(wildHpPct(sc,r)),track:t.track}
+    :{fill:t.ink,track:t.track});
+  // 野怪 front @2x 右置 + 土丘
+  spr(sc.wildSid,'front',W-8-wpx+wdx,150-wpx,2);
+  const gcm=(DIR==='base')?[t.dim,t.field]:[t.track,t.field];
+  const wcx=W-8-wpx/2;
+  dither(wcx-wpx/2-8,152,wpx+16,4,gcm[0],gcm[1]);
+  dither(wcx-wpx/2-20,156,wpx+40,4,gcm[0],gcm[1]);
+  dither(wcx-wpx/2-32,160,wpx+64,4,gcm[0],gcm[1]);
+  // 主宠 back @2x 左下 + 土丘
+  spr(25,'back',16+pdx,172,2);
+  dither(8,238,80,4,gcm[0],gcm[1]); dither(20,242,56,4,gcm[0],gcm[1]);
+  // 主宠牌（右）
+  if(DIR==='C') box2(90,182,142,48,t.ink); else frame(92,184,138,42,t.ink,1);
+  text('皮卡丘 Lv'+sc.playerLevel,100,190,t.ink);
+  if(DIR==='C') barD(100,212,122,8,petHpPct(sc,r),{fill:t.ink,track:t.track});
+  else barD(100,212,122,8,petHpPct(sc,r),
+    DIR==='base'?{fill:t.dim,track:t.track}
+    :DIR==='B'?{fill:hpColor(petHpPct(sc,r)),track:t.track}
+    :{fill:t.ink,track:t.track});
+  // 消息窗占底：回合文本 + 动作行收进窗内（骨架的「底部提示行」不再是全屏横线+左对齐行）
+  if(DIR==='C') box2(4,248,232,64,t.ink); else frame(4,250,232,62,t.ink,1);
+  text(p3Msg(r,sc),14,258,t.ink);
+  if(r.label) text(r.label,14,276,DIR==='B'?t.gold:t.dim);
+  if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,W-16-textW(d),276,DIR==='B'?t.red:t.dim); }
+  if(tl[st.P3.fi+1]===undefined){
+    text(sc.won?'胜利！':'败…',14,258,t.ink);
+    text('经验 +'+sc.exp,14,276,DIR==='B'?t.gold:t.dim); }
+  text('▸',14,294,t.ink); hintAt(294,t.ink,DIR==='B'?t.blue:null,30);
+}
+
+/* ---- P6 三方向 + 现状 ---- */
+function p6Cells(fn){ for(let i=0;i<SP.dex.perPage;i++){
+    const sid=st.P6.pg*SP.dex.perPage+i+1; if(sid>151) break;
+    fn(sid, 6+(i%SP.dex.cols)*46, 34+((i/SP.dex.cols)|0)*56); } }
+const R6={
+ base(){ const t=T();
+   text('图鉴',8,4,t.ink);
+   const ct=dexCount()+'/151'; text(ct,W-8-textW(ct),4,t.ink);
+   hlineS(26,t.dim);
+   p6Cells((sid,cx,cy)=>{ const stt=dexState(sid);
+     if(stt==='caught') spr(sid,'back',cx+4,cy,1);
+     else if(stt==='seen') sprSil(sid,'back',cx+4,cy,1,t.dim);
+     text(String(sid).padStart(3,'0'),cx+4,cy+34,stt==='caught'?t.ink:t.dim); });
+   const pg=(st.P6.pg+1)+'/'+SP.dex.pages; text(pg,W-8-textW(pg),268,t.dim);
+   hlineS(292,t.dim); hintAt(298,t.ink); },
+ A(){ const t=DIRS.A.pal;
+   fieldFill();
+   band(0,24,t.ink);
+   text('图鉴',8,4,t.field);
+   const ct=dexCount()+'/151'; text(ct,W-8-textW(ct),4,t.field);
+   p6Cells((sid,cx,cy)=>{ const stt=dexState(sid);
+     if(stt==='unseen'){ ctx.fillStyle=t.track; ctx.fillRect(cx,cy,44,54);
+       text(String(sid).padStart(3,'0'),cx+4,cy+38,t.ink); }
+     else{ frame(cx,cy,44,54,stt==='caught'?t.ink:t.track,1);
+       if(stt==='seen') sprSil(sid,'back',cx+6,cy+2,1,t.dim);
+       else spr(sid,'back',cx+6,cy+2,1);
+       text(String(sid).padStart(3,'0'),cx+6,cy+38,stt==='caught'?t.ink:t.dim); } });
+   for(let i=0;i<SP.dex.pages;i++){ ctx.fillStyle=i===st.P6.pg?t.ink:t.track; ctx.fillRect(8+i*14,272,8,8); }
+   const pg=(st.P6.pg+1)+'/'+SP.dex.pages; text(pg,W-8-textW(pg),270,t.dim);
+   band(288,32,t.ink); hintAt(296,t.field); },
+ B(){ const t=DIRS.B.pal;
+   fieldFill();
+   text('图鉴',8,4,t.ink);
+   const ct=dexCount()+'/151'; text(ct,W-8-textW(ct),4,t.gold);   // 收集进度=金
+   hlineS(26,t.dim);
+   p6Cells((sid,cx,cy)=>{ const stt=dexState(sid);
+     if(stt==='unseen'){ ctx.fillStyle=t.track; ctx.fillRect(cx,cy,44,54);
+       text(String(sid).padStart(3,'0'),cx+4,cy+38,t.ink); }
+     else if(stt==='seen'){
+       ctx.strokeStyle=t.dim; ctx.setLineDash([3,2]);
+       ctx.strokeRect(cx+.5,cy+.5,43,53); ctx.setLineDash([]);
+       sprSil(sid,'back',cx+6,cy+2,1,t.dim);
+       ctx.fillStyle=t.track; ctx.fillRect(cx+1,cy+42,42,11);
+       text(String(sid).padStart(3,'0'),cx+6,cy+43,t.ink); }
+     else{ frame(cx,cy,44,54,t.ink,1);
+       spr(sid,'back',cx+6,cy+2,1);
+       if(stt==='shiny') uiO('star_5',cx+28,cy+1,1);               // 闪光已收=金星（素材接线）
+       ctx.fillStyle=t.track; ctx.fillRect(cx+1,cy+42,42,11);      // 名牌条（GBC 式标签底）
+       text(String(sid).padStart(3,'0'),cx+6,cy+43,t.ink); } });
+   for(let i=0;i<SP.dex.pages;i++){ ctx.fillStyle=i===st.P6.pg?t.blue:t.track; ctx.fillRect(8+i*14,272,8,8); }
+   const pg=(st.P6.pg+1)+'/'+SP.dex.pages; text(pg,W-8-textW(pg),270,t.dim);
+   hlineS(292,t.dim); hintAt(298,t.ink,t.blue); },
+ C(){ const t=DIRS.C.pal;
+   fieldFill();
+   box2(2,2,236,268,t.ink);                            // 全幅双线框
+   ctx.fillStyle=t.ink; ctx.fillRect(12,2,112,18);     // 反白标题签
+   text('图鉴 '+dexCount()+'/151',18,3,t.field);
+   for(let i=0;i<SP.dex.perPage;i++){ const sid=st.P6.pg*SP.dex.perPage+i+1; if(sid>151) break;
+     const x=12+(i%SP.dex.cols)*44, y=32+((i/SP.dex.cols)|0)*54;
+     const stt=dexState(sid);
+     if(stt==='unseen'){ /* 未开格=纯空（撤斜纹），只留淡编号 */
+       text(String(sid).padStart(3,'0'),x+5,y+34,t.dim); }
+     else{ if(stt==='seen') sprSil(sid,'back',x+5,y+2,1,t.dim);
+           else spr(sid,'back',x+5,y+2,1);
+       text(String(sid).padStart(3,'0'),x+5,y+34,stt==='caught'?t.ink:t.dim); } }
+   const pg=(st.P6.pg+1)+'/'+SP.dex.pages; text(pg,226-textW(pg),252,t.dim);
+   box2(8,276,224,34,t.ink);
+   text('▸',16,286,t.ink); hintAt(286,t.ink,null,32); },
+};
 
 /* ---- 每页状态机 ---- */
 const st={ page:'P0', P0:{box:0,fi:0,done:false,skipped:false},
            P1:{}, P2:{cur:0,entries:SP.encounter.entries.slice()},
-           P3:{sc:'win',fi:0}, P4:{ball:0,t:0,thrown:null},
+           P3:{sc:'win',fi:0,rarity:0}, P4:{ball:0,t:0,thrown:null},
            P5:{sel:0,axes:SP.care.axes,applied:null}, P6:{pg:0}, P7:{}, P8:{} };
 function P3_timeline(sc){
   const s=SP.battle.scenarios.find(x=>x.label===sc);
@@ -3597,31 +3999,24 @@ const PAGES={
  P1:{label:'P1 待机', enter(){},
    n(){return 1;}, get fi(){return 0;}, set fi(v){},
    key(k){ if(k==='A') go('P5'); else if(k==='B') go('P6'); else if(k==='C') go('P2'); },
-   info(){ return '轴值（gameplay 现算）：'+SP.care.axes.join('/'); },
-   render(){
-     sprAt(ctx,25,'back',120,104,2);
-     const nm=SP.care.axisNames;
-     for(let i=0;i<4;i++){
-       text(nm[i],10,26+i*26);
-       bar(64,28+i*26,150,14,st.P1.axes?SP.care.axes[i]:0);
-     }
-     ui('heart',196,22,1); text(String(SP.care.axes[3]),214,26,MID);
-     hintRow('P1');
-   }},
+   info(){ return '轴值（gameplay 现算）：'+SP.care.axes.join('/')
+     +' · 方向：'+DIRS[DIR].label; },
+   render(){ (R1[DIR]||R1.base)(); }},
  P2:{label:'P2 遭遇', enter(){},
    n(){return 1;}, get fi(){return 0;}, set fi(v){},
    key(k,mod){
      const s=st.P2; if(!s.entries.length) return;
      if(k==='B'&&mod==='长按'){ s.entries.splice(s.cur,1); s.cur=Math.max(0,Math.min(s.cur,s.entries.length-1)); return; }
      if(k==='B') s.cur=(s.cur+1)%s.entries.length;
-     else if(k==='A'){ st.P3.sc = s.entries[s.cur].level>=15?'lose':'win'; st.P3.fi=0; go('P3'); }
+     else if(k==='A'){ st.P3.sc = s.entries[s.cur].level>=15?'lose':'win'; st.P3.fi=0;
+       st.P3.rarity = s.entries[s.cur].rarity; go('P3'); }
      else if(k==='C') go('P1');
    },
    info(){ const s=st.P2; return `队列 ${s.entries.length} 条（样本字段与 QueuedEncounter 同构）· 光标 ${s.cur}`; },
    render(){
      const s=st.P2; text('遭遇队列',12,10);
      s.entries.slice(0,9).forEach((e,i)=>{
-       const y=36+i*24; if(i===s.cur) text('▸',6,y,'#c83c30');
+       const y=36+i*24; if(i===s.cur) text('▸',6,y,INK);   // 真机用 cursor 素材（深色）
        const m=D.mons[e.sid-1];
        text('★'.repeat(e.rarity),22,y,MID);
        text(nameOf(m),70,y);
@@ -3638,24 +4033,8 @@ const PAGES={
    info(){
      const tl=P3_timeline(st.P3.sc); if(!tl.length) return '（无回合）';
      const {r,ph}=tl[Math.min(st.P3.fi,tl.length-1)];
-     return `${st.P3.sc} 剧本 · 回合 ${r.attacker==='pet'?'皮卡丘':'野怪'}用「${r.move||'攻击'}」${r.label||''} −${r.damage} · 段内帧 ${ph}/8${r.missed?' · 未命中':''}`; },
-   render(){
-     const sc=SP.battle.scenarios.find(x=>x.label===st.P3.sc);
-     const tl=P3_timeline(st.P3.sc); if(!tl.length){text('（无回合）',80,150);return;}
-     const {r,ph}=tl[Math.min(st.P3.fi,tl.length-1)];
-     const ox=(ph<6 && SP.battle.shake[ph] && SP.battle.shake[ph].ox)?SP.battle.shake[ph].ox:0;
-     sprAt(ctx,25,'back',66+ox,150,2);
-     sprAt(ctx,sc.wildSid,'front',176,64,2);
-     if(r.attacker==='wild'&&ph<6&&ph%2===1){ ctx.fillStyle='rgba(255,255,255,.65)'; ctx.fillRect(20,90,110,130); }
-     text('皮卡丘 Lv'+sc.playerLevel,10,10);
-     bar(90,14,120,10,r.petHp);
-     const m=D.mons[sc.wildSid-1];
-     text(nameOf(m)+' Lv'+sc.wildLevel,10,40);
-     bar(90,44,120,10,r.wildHp);
-     text(`${r.attacker==='pet'?'皮卡丘':'野怪'} ${r.move||'攻击'} ${r.label||''} −${r.damage}${r.missed?'（未命中）':''}`,8,250);
-     if(tl[st.P3.fi+1]===undefined) text(sc.won?`胜利！经验 +${sc.exp}`:'败…',90,275,'#c83c30');
-     hintRow('P3');
-   }},
+     return `${st.P3.sc} 剧本 · 回合 ${r.attacker==='pet'?'皮卡丘':'野怪'}用「${r.move||'攻击'}」${r.label||''} −${r.damage} · 段内帧 ${ph}/8${r.missed?' · 未命中':''} · 骨架${P3SKEL==='alt'?'打破':'通用'}（${DIRS[DIR].label}）`; },
+   render(){ if(P3SKEL==='alt') p3Alt(); else (R3[DIR]||R3.base)(); }},
  P4:{label:'P4 捕获', enter(){ st.P4.thrown=null; },
    n(){ return SP.capture.periodMs; },
    get fi(){return st.P4.t;}, set fi(v){st.P4.t=v;},
@@ -3687,7 +4066,7 @@ const PAGES={
      const bn=['ball_24','ball_great','ball_ultra'][s.ball];
      ui(bn,8,244,1);
      text(['精灵球','超级球','高级球'][s.ball],8,272,MID);
-     if(s.thrown) text(s.thrown,120,282,s.hit?'#c83c30':MID);
+     if(s.thrown) text(s.thrown,120,282,INK);
      if(s.thrown&&s.hit&&b.caught) ui('ball_open',40,244,1);
      hintRow('P4');
    }},
@@ -3707,7 +4086,7 @@ const PAGES={
    render(){
      const s=st.P5; text('照料',12,10);
      ACTS.forEach((a,i)=>{
-       const y=40+i*26; if(i===s.sel) text('▸',8,y,'#c83c30');
+       const y=40+i*26; if(i===s.sel) text('▸',8,y,INK);   // 真机用 cursor 素材（深色）
        text(ACT_ZH[a],26,y);
      });
      const nm=SP.care.axisNames, cur=s.applied?SP.care.actions[s.applied].after:SP.care.axes;
@@ -3721,18 +4100,8 @@ const PAGES={
      else if(k==='A') s.pg=(s.pg+SP.dex.pages-1)%SP.dex.pages;
      else if(k==='C') go('P1');
    },
-   info(){ return `页 ${st.P6.pg+1}/${SP.dex.pages} · 网格几何与翻页语义照 party.PartyBrowser；seen/caught 位图浏览 sim 无模块（部分实现）`; },
-   render(){
-     const s=st.P6; text(`图鉴 页${s.pg+1}/${SP.dex.pages}`,12,10);
-     for(let i=0;i<SP.dex.perPage;i++){
-       const sid=s.pg*SP.dex.perPage+i+1; if(sid>151) break;
-       const cx=12+(i%SP.dex.cols)*46, cy=36+Math.floor(i/SP.dex.cols)*58;
-       sprAt(ctx,sid,'front',cx+14,cy+14,0.5);
-       const m=D.mons[sid-1];
-       text(String(sid),cx+4,cy+32,MID);
-     }
-     hintRow('P6');
-   }},
+   info(){ return `页 ${st.P6.pg+1}/${SP.dex.pages} · 网格几何与翻页语义照 party.PartyBrowser · 收集状态 = sys2.s5 的 sim 图鉴样本（caught ${dexCount()}/151） · A=上页 B=下页`; },
+   render(){ (R6[DIR]||R6.base)(); }},
  P7:{label:'P7 成绩（未实现）', enter(){}, n(){return 1;}, get fi(){return 0;}, set fi(v){},
    key(){}, info(){return SP.stubs.P7;},
    render(){ text('未实现',96,140,MID); text(SP.stubs.P7,72,166,MID); hintRow('P7'); }},
@@ -3743,7 +4112,9 @@ const PAGES={
 function go(p){
   if(!PAGES[p]) return;
   st.page=p; PAGES[p].enter(); syncFrame(); draw();
-  try{ history.replaceState(null,'','#sim='+p); }catch(e){}
+  try{ history.replaceState(null,'','#sim='+p
+    +(DIR!=='base'?'&d='+DIR:'')
+    +((p==='P3'&&P3SKEL==='alt')?'&k=alt':'')); }catch(e){}
   document.querySelectorAll('#sim-pages button').forEach(b=>{
     const on = b.dataset.p===p;
     b.style.fontWeight = on?'700':'400';
@@ -3826,11 +4197,89 @@ SP.battle.scenarios.forEach(s=>{
   const b=document.createElement('button');
   b.textContent=`${s.label}（${s.won?'胜':'败'} · ${s.rounds.length} 回合）`;
   b.style.margin='2px';
-  b.onclick=()=>{ st.P3.sc=s.label; st.P3.fi=0; go('P3'); };
+  b.onclick=()=>{ st.P3.sc=s.label; st.P3.fi=0; st.P3.rarity=0; go('P3'); };
   scs.appendChild(b);
 });
 
-go((location.hash.match(/^#sim=(P\d)$/)||[])[1] || 'P0');
+/* ---- 美术方向 / P3 骨架 / 量化 按钮 ---- */
+function legend(){
+  const d=DIRS[DIR]; const t=d.pal;
+  const entries = DIR==='B'
+    ? [['ink','一级字/描边'],['dim','二级字/分隔'],['track','轨道/空槽/底纹'],['field','画面基底'],
+       ['red','危险/注意'],['green','良好/正向'],['blue','焦点/选中'],['gold','稀有/奖励']]
+    : DIR==='base'
+    ? [['field','底色（GB 绿）'],['ink','前景'],['dim','中间调'],['track','亮调']]
+    : [['ink','一级字/描边'],['dim','二级字/分隔'],['track','底纹/轨道/空槽'],['field','画面基底']];
+  el('dir-legend').innerHTML =
+    '<div style="font-size:11px;margin:4px 0 2px;color:var(--ink-soft)">色板 · RGB565 量化精确值'
+    +(d.spritePal?' · sprite 层：DMG 四阶灰（同坡道）':' · sprite 层：官方彩')+'</div>'
+    +entries.map(([role])=>{
+       const c=t[role];
+       return `<span style="display:inline-block;margin:2px 4px 2px 0;font-size:11px">`
+         +`<i style="display:inline-block;width:10px;height:10px;background:${c};border:1px solid #888;vertical-align:-1px;margin-right:3px"></i>`
+         +`${role} <code style="font-size:10px">${c}</code></span>`; }).join('');
+}
+function dirNote(){
+  const parts=[DIRS[DIR].label+'：'+DIRS[DIR].note];
+  if(DIR!=='base' && !COVERED[st.page])
+    parts.push('⚠ 本方向本轮只覆盖 P1/P3/P6，当前页按现状渲染');
+  if(st.page==='P3')
+    parts.push(P3SKEL==='alt'
+      ?'骨架「打破」：pokered 战斗构图 —— 无全屏标题行、无底部通栏分隔，动作行收进消息窗'
+      :'骨架「通用」：标题 Y4 + 分隔线 + 提示行 Y298（与其余六页同构）');
+  el('dir-note').innerHTML=parts.map(p=>'· '+p).join('<br>');
+}
+function syncDirUI(){
+  document.querySelectorAll('#sim-dirs button').forEach(b=>{
+    const on=b.dataset.d===DIR;
+    b.style.fontWeight=on?'700':'400';
+    b.style.borderColor=on?'#c83c30':'';
+  });
+  document.querySelectorAll('#sim-p3skel button').forEach(b=>{
+    const on=b.dataset.k===P3SKEL;
+    b.style.fontWeight=on?'700':'400';
+    b.style.borderColor=on?'#c83c30':'';
+  });
+  legend(); dirNote();
+}
+const dirsEl=el('sim-dirs');
+Object.entries(DIRS).forEach(([k,d])=>{
+  const b=document.createElement('button');
+  b.textContent=d.label; b.dataset.d=k;
+  b.style.cssText='display:block;width:100%;margin:3px 0;padding:6px 8px;text-align:left;font-size:12px';
+  b.onclick=()=>{ DIR=k; syncDirUI(); syncFrame(); draw(); };
+  dirsEl.appendChild(b);
+});
+const skEl=el('sim-p3skel');
+[['std','通用（现状七页同构）'],['alt','打破（pokered 战斗构图）']].forEach(([k,lab])=>{
+  const b=document.createElement('button');
+  b.textContent=lab; b.dataset.k=k;
+  b.style.cssText='display:block;width:100%;margin:3px 0;padding:6px 8px;text-align:left;font-size:12px';
+  b.onclick=()=>{ P3SKEL=k; if(st.page==='P3') syncFrame(); syncDirUI(); draw();
+    try{ history.replaceState(null,'','#sim='+st.page+(DIR!=='base'?'&d='+DIR:'')+(P3SKEL==='alt'?'&k=alt':'')); }catch(e){} };
+  skEl.appendChild(b);
+});
+el('sim-measure').onclick=()=>{
+  const im=ctx.getImageData(0,0,cv.width,cv.height).data;
+  const cnt=Object.create(null); let tot=0;
+  for(let y=0;y<cv.height;y+=4) for(let x=0;x<cv.width;x+=4){
+    const o=(y*cv.width+x)*4;
+    const k=(im[o]<<16)|(im[o+1]<<8)|im[o+2];
+    cnt[k]=(cnt[k]||0)+1; tot++; }
+  const sorted=Object.entries(cnt).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const lines=sorted.map(([c,n])=>'#'+(+c).toString(16).padStart(6,'0')+'  '+(100*n/tot).toFixed(1)+'%');
+  el('sim-measure-out').textContent =
+    PAGES[st.page].label+' · '+DIRS[DIR].label
+    +(st.page==='P3'?' · '+(P3SKEL==='alt'?'打破骨架':'通用骨架'):'')+'\n'
+    +'单色最大 '+lines[0]+'\n'+lines.join('  \n');
+};
+
+{
+  const m=location.hash.match(/^#sim=(P\d)(?:&d=(A|B|C))?(&k=alt)?/);
+  if(m){ if(m[2]) DIR=m[2]; if(m[3]) P3SKEL='alt'; }
+}
+syncDirUI();
+go((location.hash.match(/^#sim=(P\d)/)||[])[1] || 'P0');
 } catch(err){
   const t = document.getElementById('sim-keylog');
   if(t) t.textContent = 'JS错误: ' + (err && err.message) + '\n' + (err && err.stack || '');
