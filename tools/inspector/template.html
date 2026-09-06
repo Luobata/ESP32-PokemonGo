@@ -279,6 +279,7 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
   <button role="tab" data-p="anim"    aria-selected="false">S15 转场动画</button>
   <button role="tab" data-p="systems" aria-selected="false">系统与预算</button>
   <button role="tab" data-p="play"    aria-selected="false">▶ 试玩</button>
+  <button role="tab" data-p="sim"    aria-selected="false">🎮 页面模拟器</button>
 </div>
 
 <div class="panel" id="p-dex">
@@ -436,6 +437,70 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
   </div>
 </div>
 
+<div class="panel" id="p-sim" hidden>
+<div class="cols">
+  <div style="min-width:190px">
+    <h3>页面（按键驱动）</h3>
+    <div id="sim-pages"></div>
+    <div class="notes" style="font-size:12px;margin-top:8px">
+      <p><b>键盘</b>：A / B / C 键；<b>双击</b>＝300ms 内两次；
+      <b>长按</b>＝按住 500ms（日志会标注）。</p>
+      <p><b>逐帧</b>：◀ ▶ 单帧步进，▶️ 自动播放（10fps）。
+      帧数据全部由 <code>sim/</code> 现算导出（build 时），
+      门禁 <code>verify_sim_pages.py</code> 对照。</p>
+      <p>画布为 240×320 ×2，横线是 <b>80px 带边界</b>（跨带＝撕裂缺陷源）。</p>
+    </div>
+  </div>
+  <div class="device">
+    <div class="screen-frame">
+      <canvas id="sim-canvas" width="480" height="640" style="image-rendering:pixelated;width:330px;height:440px"></canvas>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:6px">
+      <button class="sim-key" data-k="A" style="width:52px;height:40px;font-size:16px">A</button>
+      <button class="sim-key" data-k="B" style="width:52px;height:40px;font-size:16px">B</button>
+      <button class="sim-key" data-k="C" style="width:52px;height:40px;font-size:16px">C</button>
+      <div id="sim-keylog" style="font-size:13px;flex:1;min-width:120px">按键日志将显示在这里</div>
+    </div>
+  </div>
+  <div style="min-width:230px">
+    <h3>逐帧步进</h3>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button id="sim-fprev" style="width:44px">◀</button>
+      <button id="sim-fnext" style="width:44px">▶</button>
+      <button id="sim-fplay" style="width:64px">▶️ 播放</button>
+      <span id="sim-fcount" style="font-size:12px;align-self:center"></span>
+    </div>
+    <input id="sim-fslider" type="range" min="0" max="0" value="0" style="width:100%;margin-top:6px">
+    <div id="sim-frameinfo" class="notes" style="font-size:13px;margin-top:6px;min-height:38px"></div>
+    <h3 style="margin-top:10px">剧本</h3>
+    <div id="sim-scenarios"></div>
+    <div class="notes" style="font-size:12px;margin-top:8px" id="sim-src">数据源：sim/（build 时导出）</div>
+  </div>
+</div>
+
+<div class="sim-cant" style="margin-top:16px;border:2px solid var(--accent);padding:10px 14px">
+  <b style="color:var(--accent)">门禁全绿 ≠ 全部验过 —— 本模拟器验不了的五类</b>
+  <span class="sub">（浏览器原理上测不到，各有替代守护，别因为这里绿了就跳过真机）</span>
+  <table style="min-width:560px;margin-top:8px">
+    <tr><th>验不了的</th><th>为什么 web 验不了</th><th>由什么守护</th></tr>
+    <tr><td><b>① 音频时序 / 爆音</b></td>
+        <td>真机 I2S/DMA 时序；爆音判据是<b>麦克风回采 RMS</b>，不是欠载计数</td>
+        <td>verify_audio.py 对 sim 逐样本对账 + 真机回采 RMS 实测</td></tr>
+    <tr><td><b>② 横带分块刷新同步</b></td>
+        <td>web 一次画整屏，BUG-1 那类<b>跨带撕裂</b>原理上验不出（虚线只是示意边界）</td>
+        <td>verify_layout.py（无确定跨带违规）+ 固件 SCREEN_ASSERT_WITHIN_BAND</td></tr>
+    <tr><td><b>③ 堆 / DMA 余量与碎片</b></td>
+        <td>MALLOC_CAP_DMA 的<b>最大连续块</b>比总量重要，浏览器无从测</td>
+        <td>真机侧内存水位采集与最大连续块断言</td></tr>
+    <tr><td><b>④ NVS 掉电持久化</b></td>
+        <td>断电原子性 / 磨损只有真机能验</td>
+        <td>固件侧 NVS 写入→断电→重读测试</td></tr>
+    <tr><td><b>⑤ 真实 WiFi 扫描产出遭遇</b></td>
+        <td>P2 队列在此是<b>确定性生成样本</b>（种子固定），不是实机扫描</td>
+        <td>真机走链路实测 + verify_encounter.py 对 roll_encounter 逐值对账</td></tr>
+  </table>
+</div>
+
 <section class="notes">
   <h2>验收要点</h2>
 
@@ -469,6 +534,8 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
   余量按 8MB 片内 flash 计。固件本体（ESP-IDF + WiFi/BLE 栈）估 1200 KB，
   待 <code>idf.py size</code> 实测替换。</p>
 </section>
+</div>
+
 </div>
 
 <script>
@@ -694,7 +761,7 @@ document.getElementById("shiny").onchange = e => {
 };
 
 /* ── tab 切换 ── */
-const PANELS = ["dex","sensing","proto","pixels","gameplay","nurture","meta","audio","anim","systems","play"];
+const PANELS = ["dex","sensing","proto","pixels","gameplay","nurture","meta","audio","anim","systems","play","sim"];
 let built = {dex:1};
 document.getElementById("tabs").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
@@ -3416,4 +3483,359 @@ BUILD.systems = () => {
 
   syncCtrls(); renderGrid(); readout(); restart(); updStepper();
 })();
+
+/* =====================================================================
+   页面模拟器 —— 按键驱动的逐页逐帧模拟
+   数据全部来自 ASSETS.simPages（build 时由 sim/ 现算导出，
+   verify_sim_pages.py 门禁对照）。JS 不实现任何数值逻辑，
+   只做：播放/步进导出的帧、按 sim 文档语义响应按键。
+   ===================================================================== */
+(function(){
+const SP = ASSETS.simPages;
+window.addEventListener('error', ev=>{
+  const t = document.getElementById('sim-keylog');
+  if(t) t.textContent = 'JS错误: ' + ev.message + ' @' + (ev.lineno||'?');
+});
+try {
+const cv = document.getElementById('sim-canvas');
+const ctx = cv.getContext('2d');
+const W=240, H=320, BAND=80, SC=2;
+const INK='#181818', MID='#686868', BG='#f0f0f0';
+const el = id => document.getElementById(id);
+const ACTS=['feed','play','rest'], ACT_ZH={feed:'喂食',play:'玩耍',rest:'休息'};
+
+ctx.imageSmoothingEnabled=false;
+function cls(){
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.fillStyle=BG; ctx.fillRect(0,0,cv.width,cv.height);
+  ctx.setTransform(SC,0,0,SC,0,0);
+}
+function bands(){
+  ctx.strokeStyle='rgba(200,60,60,.45)'; ctx.setLineDash([4,3]); ctx.lineWidth=1;
+  for(let y=BAND;y<H;y+=BAND){ ctx.beginPath(); ctx.moveTo(0,y+.5); ctx.lineTo(W,y+.5); ctx.stroke(); }
+  ctx.setLineDash([]);
+}
+function text(str,x,y,ink){
+  ctx.font='13px "PingFang SC",monospace'; ctx.textBaseline='top';
+  ctx.fillStyle=ink||INK;
+  let cx=x; for(const ch of str){ ctx.fillText(ch,cx,y); cx += ch.charCodeAt(0)>0xFF?16:8; }
+  return cx;
+}
+function textW(str){ let w=0; for(const ch of str) w += ch.charCodeAt(0)>0xFF?16:8; return w; }
+function hintRow(p){
+  const h = SP.hints[p];
+  const line = typeof h === 'string' ? h : (h && h.line) || '';
+  text(line, (W-textW(line))/2, 304, MID);
+}
+/* ui.bin 素材 → 离屏 canvas（palette 已是 sprite 序，3=透明不画）*/
+const uiCache={};
+function uiC(name,scale){
+  const k=name+'@'+scale; if(uiCache[k]) return uiCache[k];
+  const a=SP.ui[name]; if(!a) return null;
+  const c=document.createElement('canvas');
+  c.width=a.w*scale; c.height=a.h*scale;
+  const g=c.getContext('2d');
+  const rb=(a.w+3)>>2;
+  for(let y=0;y<a.h;y++) for(let x0=0;x0<a.w;x0+=4){
+    const b=a.bytes[y*rb+(x0>>2)];
+    for(let kk=0;kk<4;kk++){
+      const x=x0+kk; if(x>=a.w) break;
+      const v=(b>>(6-kk*2))&3; if(v===3) continue;
+      g.fillStyle=a.palette[v]; g.fillRect(x*scale,y*scale,scale,scale);
+    }
+  }
+  uiCache[k]=c; return c;
+}
+function ui(name,dx,dy,scale){ const c=uiC(name,scale); if(c) ctx.drawImage(c,dx,dy); }
+function bar(x,y,w,h,pct,fg){
+  ctx.strokeStyle=INK; ctx.strokeRect(x+.5,y+.5,w,h);
+  ctx.fillStyle=fg||'#c83c30';
+  ctx.fillRect(x+1,y+1,Math.round((w-2)*Math.max(0,Math.min(100,pct))/100),h-2);
+}
+
+/* ---- 每页状态机 ---- */
+const st={ page:'P0', P0:{box:0,fi:0,done:false,skipped:false},
+           P1:{}, P2:{cur:0,entries:SP.encounter.entries.slice()},
+           P3:{sc:'win',fi:0}, P4:{ball:0,t:0,thrown:null},
+           P5:{sel:0,axes:SP.care.axes,applied:null}, P6:{pg:0}, P7:{}, P8:{} };
+function P3_timeline(sc){
+  const s=SP.battle.scenarios.find(x=>x.label===sc);
+  const tl=[];
+  for(const r of s.rounds) for(let f=0;f<8;f++) tl.push({r,ph:f});
+  return tl;
+}
+const PAGES={
+ P0:{label:'P0 开场', enter(){Object.assign(st.P0,{box:0,fi:0,done:false,skipped:false});},
+   n(){ const s=st.P0; return s.done?1:SP.opening.boxes[s.box].frames.length; },
+   get fi(){return st.P0.fi;}, set fi(v){st.P0.fi=v;},
+   key(k,mod){
+     const s=st.P0;
+     if(s.done){ if(k==='A'||k==='C') go('P1'); return; }
+     if(k==='C'){ s.done=true; s.skipped=true; return; }
+     if(k!=='A') return;
+     const last=SP.opening.boxes[s.box].frames.length-1;
+     if(s.fi<last){ s.fi=last; }             // 打字中 → 立即显示整框
+     else if(s.box>=6){ s.done=true; }        // 第 7 框打完 → 结束
+     else { s.box++; s.fi=0; }                // 打完 → 下一框
+   },
+   info(){ const s=st.P0; if(s.done) return '结束（'+(s.skipped?'跳过':'播完')+'）· A 进入 P1';
+     const b=SP.opening.boxes[s.box]; const t=b.frames[s.fi];
+     return `第 ${s.box+1}/7 框 · 打字 ${t[0]}/${b.fullLen} 字 · 帧 ${s.fi}/${b.frames.length-1}（${SP.opening.typeFramesPerChar} 帧/字）`; },
+   render(){
+     const s=st.P0;
+     if(s.done){ text('— 完 —',96,150); text(s.skipped?'已跳过':'剧情结束',84,170,MID); hintRow('P0'); return; }
+     const b=SP.opening.boxes[s.box];
+     if(b.showOak) ui('oak',(W-112)/2,8,1);
+     if(b.showMon) sprAt(ctx,b.showMon,'front',186,66,1);
+     ctx.strokeStyle=INK; ctx.strokeRect(4.5,191.5,W-9,104);
+     const typed=b.frames[s.fi][0]; let left=typed;
+     for(let i=0;i<b.lines.length && left>0;i++){
+       text(b.lines[i].slice(0,left),12,200+i*20); left-=b.lines[i].length;
+     }
+     hintRow('P0');
+   }},
+ P1:{label:'P1 待机', enter(){},
+   n(){return 1;}, get fi(){return 0;}, set fi(v){},
+   key(k){ if(k==='A') go('P5'); else if(k==='B') go('P6'); else if(k==='C') go('P2'); },
+   info(){ return '轴值（gameplay 现算）：'+SP.care.axes.join('/'); },
+   render(){
+     sprAt(ctx,25,'back',120,104,2);
+     const nm=SP.care.axisNames;
+     for(let i=0;i<4;i++){
+       text(nm[i],10,26+i*26);
+       bar(64,28+i*26,150,14,st.P1.axes?SP.care.axes[i]:0);
+     }
+     ui('heart',196,22,1); text(String(SP.care.axes[3]),214,26,MID);
+     hintRow('P1');
+   }},
+ P2:{label:'P2 遭遇', enter(){},
+   n(){return 1;}, get fi(){return 0;}, set fi(v){},
+   key(k,mod){
+     const s=st.P2; if(!s.entries.length) return;
+     if(k==='B'&&mod==='长按'){ s.entries.splice(s.cur,1); s.cur=Math.max(0,Math.min(s.cur,s.entries.length-1)); return; }
+     if(k==='B') s.cur=(s.cur+1)%s.entries.length;
+     else if(k==='A'){ st.P3.sc = s.entries[s.cur].level>=15?'lose':'win'; st.P3.fi=0; go('P3'); }
+     else if(k==='C') go('P1');
+   },
+   info(){ const s=st.P2; return `队列 ${s.entries.length} 条（样本字段与 QueuedEncounter 同构）· 光标 ${s.cur}`; },
+   render(){
+     const s=st.P2; text('遭遇队列',12,10);
+     s.entries.slice(0,9).forEach((e,i)=>{
+       const y=36+i*24; if(i===s.cur) text('▸',6,y,'#c83c30');
+       const m=D.mons[e.sid-1];
+       text('★'.repeat(e.rarity),22,y,MID);
+       text(nameOf(m),70,y);
+       text('Lv'+e.level,160,y,MID);
+       if(e.shiny) text('✨',196,y);
+     });
+     if(!s.entries.length) text('（空 · B 长按丢弃了全部）',40,80,MID);
+     hintRow('P2');
+   }},
+ P3:{label:'P3 战斗', enter(){},
+   n(){ return P3_timeline(st.P3.sc).length; },
+   get fi(){return st.P3.fi;}, set fi(v){st.P3.fi=v;},
+   key(k){ if(k==='A') go('P4'); else if(k==='C') go('P2'); else if(k==='B') st.P3.fi=0; },
+   info(){
+     const tl=P3_timeline(st.P3.sc); if(!tl.length) return '（无回合）';
+     const {r,ph}=tl[Math.min(st.P3.fi,tl.length-1)];
+     return `${st.P3.sc} 剧本 · 回合 ${r.attacker==='pet'?'皮卡丘':'野怪'}用「${r.move||'攻击'}」${r.label||''} −${r.damage} · 段内帧 ${ph}/8${r.missed?' · 未命中':''}`; },
+   render(){
+     const sc=SP.battle.scenarios.find(x=>x.label===st.P3.sc);
+     const tl=P3_timeline(st.P3.sc); if(!tl.length){text('（无回合）',80,150);return;}
+     const {r,ph}=tl[Math.min(st.P3.fi,tl.length-1)];
+     const ox=(ph<6 && SP.battle.shake[ph] && SP.battle.shake[ph].ox)?SP.battle.shake[ph].ox:0;
+     sprAt(ctx,25,'back',66+ox,150,2);
+     sprAt(ctx,sc.wildSid,'front',176,64,2);
+     if(r.attacker==='wild'&&ph<6&&ph%2===1){ ctx.fillStyle='rgba(255,255,255,.65)'; ctx.fillRect(20,90,110,130); }
+     text('皮卡丘 Lv'+sc.playerLevel,10,10);
+     bar(90,14,120,10,r.petHp);
+     const m=D.mons[sc.wildSid-1];
+     text(nameOf(m)+' Lv'+sc.wildLevel,10,40);
+     bar(90,44,120,10,r.wildHp);
+     text(`${r.attacker==='pet'?'皮卡丘':'野怪'} ${r.move||'攻击'} ${r.label||''} −${r.damage}${r.missed?'（未命中）':''}`,8,250);
+     if(tl[st.P3.fi+1]===undefined) text(sc.won?`胜利！经验 +${sc.exp}`:'败…',90,275,'#c83c30');
+     hintRow('P3');
+   }},
+ P4:{label:'P4 捕获', enter(){ st.P4.thrown=null; },
+   n(){ return SP.capture.periodMs; },
+   get fi(){return st.P4.t;}, set fi(v){st.P4.t=v;},
+   key(k){
+     const s=st.P4;
+     if(k==='B'){ s.ball=(s.ball+1)%SP.capture.balls.length; s.thrown=null; }
+     else if(k==='A'){
+       const b=SP.capture.balls[s.ball];
+       const pos=SP.capture.pointer[s.t%SP.capture.periodMs];
+       const hit=pos>=b.windowStart&&pos<=b.windowStart+b.window;
+       s.thrown=hit?(b.caught?'捕获成功！':'逃走了…'):'未命中';
+       s.hit=hit;
+     } else if(k==='C') go('P2');
+   },
+   info(){
+     const s=st.P4,b=SP.capture.balls[s.ball];
+     const pos=SP.capture.pointer[s.t%SP.capture.periodMs];
+     return `t=${s.t}ms · 指针 ${pos} · 窗口 ${b.windowStart}..${b.windowStart+b.window}（${b.ball} 球，宽 ${b.window}）${s.thrown?' · '+s.thrown:''}`; },
+   render(){
+     const s=st.P4,b=SP.capture.balls[s.ball];
+     const m=D.mons[19]; text(nameOf(m)+' Lv12',12,12);
+     sprAt(ctx,19,'front',170,80,2);
+     const bx=20,bw=200,by=250;
+     ctx.strokeStyle=INK; ctx.strokeRect(bx+.5,by+.5,bw,16);
+     const bstart=bx+bw*b.windowStart/100,bwpx=bw*b.window/100;
+     ctx.fillStyle='rgba(200,60,60,.35)'; ctx.fillRect(bstart,by+1,bwpx,14);
+     const pos=SP.capture.pointer[s.t%SP.capture.periodMs];
+     ctx.fillStyle=INK; ctx.fillRect(bx+bw*pos/100-1,by-4,3,24);
+     const bn=['ball_24','ball_great','ball_ultra'][s.ball];
+     ui(bn,8,244,1);
+     text(['精灵球','超级球','高级球'][s.ball],8,272,MID);
+     if(s.thrown) text(s.thrown,120,282,s.hit?'#c83c30':MID);
+     if(s.thrown&&s.hit&&b.caught) ui('ball_open',40,244,1);
+     hintRow('P4');
+   }},
+ P5:{label:'P5 照料', enter(){ st.P5.applied=null; },
+   n(){return 1;}, get fi(){return 0;}, set fi(v){},
+   key(k){
+     const s=st.P5;
+     if(k==='B') s.sel=(s.sel+1)%3;
+     else if(k==='A'){ const a=ACTS[s.sel]; s.applied=a; }
+     else if(k==='C') go('P1');
+   },
+   info(){
+     const s=st.P5;
+     if(!s.applied) return 'A 执行当前项（轴变化来自 gameplay 现算）';
+     const a=SP.care.actions[s.applied];
+     return `${ACT_ZH[s.applied]}：${a.before.join('/')} → ${a.after.join('/')}`; },
+   render(){
+     const s=st.P5; text('照料',12,10);
+     ACTS.forEach((a,i)=>{
+       const y=40+i*26; if(i===s.sel) text('▸',8,y,'#c83c30');
+       text(ACT_ZH[a],26,y);
+     });
+     const nm=SP.care.axisNames, cur=s.applied?SP.care.actions[s.applied].after:SP.care.axes;
+     for(let i=0;i<4;i++){ text(nm[i],110,40+i*26); bar(160,42+i*26,66,14,cur[i]); }
+     hintRow('P5');
+   }},
+ P6:{label:'P6 图鉴（部分）', enter(){},
+   n(){return 1;}, get fi(){return 0;}, set fi(v){},
+   key(k){ const s=st.P6;
+     if(k==='B') s.pg=(s.pg+1)%SP.dex.pages;
+     else if(k==='A') s.pg=(s.pg+SP.dex.pages-1)%SP.dex.pages;
+     else if(k==='C') go('P1');
+   },
+   info(){ return `页 ${st.P6.pg+1}/${SP.dex.pages} · 网格几何与翻页语义照 party.PartyBrowser；seen/caught 位图浏览 sim 无模块（部分实现）`; },
+   render(){
+     const s=st.P6; text(`图鉴 页${s.pg+1}/${SP.dex.pages}`,12,10);
+     for(let i=0;i<SP.dex.perPage;i++){
+       const sid=s.pg*SP.dex.perPage+i+1; if(sid>151) break;
+       const cx=12+(i%SP.dex.cols)*46, cy=36+Math.floor(i/SP.dex.cols)*58;
+       sprAt(ctx,sid,'front',cx+14,cy+14,0.5);
+       const m=D.mons[sid-1];
+       text(String(sid),cx+4,cy+32,MID);
+     }
+     hintRow('P6');
+   }},
+ P7:{label:'P7 成绩（未实现）', enter(){}, n(){return 1;}, get fi(){return 0;}, set fi(v){},
+   key(){}, info(){return SP.stubs.P7;},
+   render(){ text('未实现',96,140,MID); text(SP.stubs.P7,72,166,MID); hintRow('P7'); }},
+ P8:{label:'P8 取名（未实现）', enter(){}, n(){return 1;}, get fi(){return 0;}, set fi(v){},
+   key(){}, info(){return SP.stubs.P8;},
+   render(){ text('未实现',96,140,MID); text(SP.stubs.P8,72,166,MID); hintRow('P8'); }},
+};
+function go(p){
+  if(!PAGES[p]) return;
+  st.page=p; PAGES[p].enter(); syncFrame(); draw();
+  try{ history.replaceState(null,'','#sim='+p); }catch(e){}
+  document.querySelectorAll('#sim-pages button').forEach(b=>{
+    const on = b.dataset.p===p;
+    b.style.fontWeight = on?'700':'400';
+    b.style.borderColor = on?'#c83c30':'';
+  });
+}
+
+/* ---- 帧传输 ---- */
+let playing=false, timer=null;
+function syncFrame(){
+  const p=PAGES[st.page], n=Math.max(1,p.n);
+  if(p.fi>=n) p.fi=n-1; if(p.fi<0) p.fi=0;
+  el('sim-fslider').max=n-1; el('sim-fslider').value=p.fi;
+  el('sim-fcount').textContent=`帧 ${p.fi+1}/${n}`;
+  el('sim-frameinfo').textContent=p.info();
+}
+function draw(){ cls(); PAGES[st.page].render(); bands(); }
+function step(d){ PAGES[st.page].fi+=d; syncFrame(); draw(); }
+el('sim-fprev').onclick=()=>step(-1);
+el('sim-fnext').onclick=()=>step(1);
+el('sim-fslider').oninput=e=>{ PAGES[st.page].fi=+e.target.value; syncFrame(); draw(); };
+el('sim-fplay').onclick=()=>{
+  playing=!playing; el('sim-fplay').textContent=playing?'⏸ 暂停':'▶️ 播放';
+  clearInterval(timer);
+  if(playing) timer=setInterval(()=>{
+    const p=PAGES[st.page], n=Math.max(1,p.n);
+    p.fi=(p.fi+1)%n; syncFrame(); draw();
+  },100);
+};
+
+/* ---- 按键：单击/双击(<300ms)/长按(≥500ms) ---- */
+const keylog=[]; const lastUp={}; let longFired=null, longTimer=null;
+function log(s){ keylog.unshift(s); if(keylog.length>6) keylog.pop();
+  el('sim-keylog').innerHTML=keylog.join('<br>'); }
+function fire(k,mod){
+  log(mod?`[${mod}]${k} @${st.page}`:`${k} @${st.page}`);
+  PAGES[st.page].key(k,mod||'');
+  syncFrame(); draw();
+}
+function down(k){
+  if(longTimer) return;
+  longFired=null;
+  longTimer=setTimeout(()=>{ longFired=k; longTimer=null; fire(k,'长按'); },500);
+}
+function up(k){
+  if(longTimer){ clearTimeout(longTimer); longTimer=null; }
+  else if(longFired===k){ longFired=null; return; }
+  const now=Date.now();
+  if(lastUp[k] && now-lastUp[k]<300){ lastUp[k]=0; fire(k,'双击'); }
+  else { lastUp[k]=now; fire(k,''); }
+}
+document.querySelectorAll('.sim-key').forEach(b=>{
+  b.addEventListener('pointerdown',()=>down(b.dataset.k));
+  b.addEventListener('pointerup',()=>up(b.dataset.k));
+});
+window.addEventListener('keydown',e=>{
+  if(e.repeat) return;
+  const k=e.key.toUpperCase();
+  if(k==='A'||k==='B'||k==='C'){ if(el('p-sim') && !el('p-sim').hidden) down(k); }
+  else if(e.key==='ArrowLeft' && !el('p-sim').hidden) step(-1);
+  else if(e.key==='ArrowRight' && !el('p-sim').hidden) step(1);
+});
+window.addEventListener('keyup',e=>{
+  const k=e.key.toUpperCase();
+  if((k==='A'||k==='B'||k==='C') && !el('p-sim').hidden) up(k);
+});
+
+/* ---- 页面清单 & 剧本按钮 ---- */
+const list=el('sim-pages');
+Object.entries(PAGES).forEach(([p,def])=>{
+  const b=document.createElement('button');
+  b.textContent=def.label;
+  b.style.cssText='display:block;width:100%;margin:4px 0;padding:8px 10px;text-align:left;font-size:13px';
+  b.dataset.p=p;
+  b.onclick=()=>go(p);
+  list.appendChild(b);
+});
+const scs=el('sim-scenarios');
+SP.battle.scenarios.forEach(s=>{
+  const b=document.createElement('button');
+  b.textContent=`${s.label}（${s.won?'胜':'败'} · ${s.rounds.length} 回合）`;
+  b.style.margin='2px';
+  b.onclick=()=>{ st.P3.sc=s.label; st.P3.fi=0; go('P3'); };
+  scs.appendChild(b);
+});
+
+go((location.hash.match(/^#sim=(P\d)$/)||[])[1] || 'P0');
+} catch(err){
+  const t = document.getElementById('sim-keylog');
+  if(t) t.textContent = 'JS错误: ' + (err && err.message) + '\n' + (err && err.stack || '');
+  console.error(err);
+}
+})();
+
 </script>

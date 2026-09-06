@@ -889,6 +889,197 @@ def _stone_of(m: dict) -> str:
     return _STONES.get(m.get("evo", 0), "fire-stone")
 
 
+
+
+# ---------------------------------------------------------------------------
+# 页面模拟器数据（P0~P8 按键驱动逐帧模拟）
+#
+# 关键约束：**全部数值由 sim/ 现算导出**，不在 JS 里重实现 —— sim 是
+# 十二门禁的对账基准，web 若自己算会出现「web 好看、固件不同、门禁
+# 全绿」的三方不一致。web 只做两件事：播放/单帧步进导出的帧数据、
+# 按 sim 文档的按键语义在帧数据之间跳转。
+# 门禁 verify_sim_pages.py 会拿这里的产物与 sim 直算对照。
+# ---------------------------------------------------------------------------
+
+def _ui_assets() -> dict:
+    """ui.bin 的条目 + 各自调色板（调色板来自 pixelart 常量，
+    与固件写死的那份同源）。"""
+    import pixelart as pa
+    sys.path.insert(0, str(REPO / "tools" / "pipeline"))
+    import fetch_oak
+    path = REPO / "assets" / "ui.bin"
+    data = path.read_bytes()
+    _, ver, count = struct.unpack_from("<4sHH", data, 0)
+    fmt, esize = "<16sBBIHH", struct.calcsize("<16sBBIHH")
+    base = 8 + count * esize
+    pals = {
+        "ball_24": pa.BALL_PALETTE, "ball_open": pa.BALL_OPEN_PALETTE,
+        "ball_great": pa.BALL_GREAT_PALETTE,
+        "ball_ultra": pa.BALL_ULTRA_PALETTE,
+        "cursor": pa.MENU_CURSOR_PALETTE, "heart": pa.HEART_PALETTE,
+        "star_5": pa.STAR_PALETTE, "star_7": pa.STAR_PALETTE,
+        "oak": fetch_oak.OAK_PALETTE,
+    }
+    out = {}
+    for i in range(count):
+        name, w, h, off, ln, _ = struct.unpack_from(fmt, data, 8 + i * esize)
+        nm = name.rstrip(b"\0").decode()
+        # 调成 sprite 序（0=最暗 3=最亮）—— canvas 渲染统一按这个
+        pal = pals.get(nm, pa.BALL_PALETTE)
+        if nm == "oak":
+            sprite_pal = pal          # oak 已是 sprite 序
+        else:
+            sprite_pal = [pal[0], pal[2], pal[1], pal[3]]  # pixelart→sprite 序
+        out[nm] = {"w": w, "h": h,
+                   "bytes": list(data[base + off: base + off + ln]),
+                   "palette": sprite_pal}
+    return out
+
+
+def sim_pages_payload() -> dict:
+    sys.path.insert(0, str(REPO / "sim"))
+    import strings
+    import opening as OP
+    import systems as S
+    import gameplay as G
+    import effects as E
+    import party as PT
+
+    # ---- 提示行（KEYS 同源，不硬写）----
+    pages_keys = {p: dict(ks) for p, ks in strings.KEYS.items()}
+    hints = {}
+    for p, ks in strings.KEYS.items():
+        line = " ".join(f"[{k}]{a}" for k, a in ks.items())
+        hints[p] = {"line": line, "px": strings.text_px(line),
+                    "pxFixed": strings.text_px_fixed(line)}
+
+    # ---- P0 开场：逐帧状态（OpeningFlow 现算）----
+    boxes = []
+    for b, bo in enumerate(OP.SCRIPT):
+        fl = OP.OpeningFlow()
+        fl.box = b
+        frames = []
+        while fl.typing:
+            frames.append([fl.typed, fl.frame, 1 if fl.typing else 0])
+            fl.tick()
+        frames.append([fl.typed, fl.frame, 0])
+        boxes.append({"lines": list(bo.lines), "fullLen": fl.full_len,
+                      "showMon": bo.show_mon, "showOak": bo.show_oak,
+                      "pauseAfter": bo.pause_after, "frames": frames})
+    opening = {"boxes": boxes, "totalFrames": OP.total_frames(),
+               "typeFramesPerChar": OP.TYPE_FRAMES_PER_CHAR,
+               "boxAppearFrames": OP.BOX_APPEAR_FRAMES}
+
+    # ---- P3 战斗：两个确定性剧本（auto_battle 现算）----
+    mons25 = None
+    scenarios = []
+    for label, wild_sid, plv, wlv, seed in (
+            ("win", 19, 12, 5, 7),        # 皮卡丘 Lv12 vs 小拉达 Lv5（稳赢）
+            ("lose", 95, 5, 20, 11),      # Lv5 vs 大岩蛇 Lv20（电系无效）
+    ):
+        res = S.auto_battle(
+            pet_types=["电"], pet_stats=[35, 55, 40, 50, 90], pet_level=plv,
+            wild_types=["一般"] if wild_sid == 19 else ["岩石", "地面"],
+            wild_stats=[30, 56, 35, 25, 72] if wild_sid == 19
+            else [35, 45, 160, 30, 70],
+            wild_level=wlv, pet_species=25, wild_species=wild_sid, seed=seed)
+        scenarios.append({
+            "label": label, "playerLevel": plv, "wildLevel": wlv,
+            "wildSid": wild_sid,
+            "won": res.won, "exp": res.exp,
+            "rounds": [{"attacker": r.attacker, "move": r.move,
+                        "damage": r.damage, "mult": r.mult,
+                        "label": r.label, "missed": r.missed,
+                        "petHp": r.pet_hp, "wildHp": r.wild_hp}
+                       for r in res.rounds]})
+    import dataclasses
+    battle = {"scenarios": scenarios,
+              "shake": [dataclasses.asdict(t) for t in E.shake_sequence(6)],
+              "flash": E.flash_sequence(6)}
+
+    # ---- P2 遭遇队列（EncounterQueue 现算样本）----
+    # 拿几条真实遭遇：roll_encounter（S1 生成）→ wild_level/roll_shiny →
+    # 真 EncounterQueue.push —— JS 拿到的就是 sim 队列吐出来的顺序与淘汰
+    q = S.EncounterQueue()
+    APS = [("aa:bb:cc:dd:ee:01", "PokemonGo-Free", -55, "open"),
+           ("aa:bb:cc:dd:ee:02", "Starbucks-5G", -72, "wpa2"),
+           ("aa:bb:cc:dd:ee:03", "eduroam", -48, "wpa2-ent"),
+           ("aa:bb:cc:dd:ee:04", "", -80, "wpa2")]
+    queue_entries = []
+    for i, (bssid, ssid, rssi, auth) in enumerate(APS):
+        enc = S.roll_encounter(bssid, ssid, rssi, auth, ts=1000 + i,
+                               biome="野外", is_transient=(i == 3))
+        qe = S.QueuedEncounter(enc, hp_ratio=100,
+                               is_shiny=S.roll_shiny(bssid, 1000 + i, enc.rarity))
+        q.push(qe)
+        queue_entries.append({"sid": qe.species_id, "rarity": qe.rarity,
+                              "shiny": qe.is_shiny,
+                              "level": S.wild_level(qe.rarity),
+                              "hp": qe.hp_ratio})
+    encounter = {"entries": queue_entries, "generatedBySim": True,
+                 "note": "roll_encounter+wild_level+roll_shiny 现算，"
+                         "经真 EncounterQueue.push；"
+                         "sim 无按键级队列浏览模块，nav 语义按 KEYS"}
+
+    # ---- P4 捕获：窗口/指针/一次投球（S2 现算）----
+    pet = G.PetState()
+    import gameplay as G2
+    enc = G2.Encounter(species_id=19, rarity=2, ts=1234, type_name="一般",
+                       from_bssid_hash=0x1234, biome="野外", is_transient=False)
+    qe = S.QueuedEncounter(enc, hp_ratio=100)
+    balls = []
+    for ball in ("poke", "great", "ultra"):
+        w = S.window_width(45, pet.catch_window_bonus, ball, 100)
+        start = (S.BAR_WIDTH - w) // 2
+        hit_ms = None
+        for ms in range(S.POINTER_PERIOD_MS):
+            if start <= S.pointer_position(ms) <= start + w:
+                hit_ms = ms
+                break
+        r = S.attempt_capture(qe, 45, pet, ball, hit_ms or 0, rng_seed=3)
+        balls.append({"ball": ball, "window": w, "windowStart": start,
+                      "hitMs": hit_ms, "caught": r.caught, "fled": r.fled,
+                      "reason": r.reason})
+    pointer = [S.pointer_position(ms) for ms in range(S.POINTER_PERIOD_MS)]
+    capture = {"balls": balls,
+               "pointer": pointer, "periodMs": S.POINTER_PERIOD_MS,
+               "barWidth": S.BAR_WIDTH}
+
+    # ---- P1/P5 养成轴（gameplay 现算）----
+    pet = G.PetState()
+    pet.advance(7200)                     # 2h 衰减后的真实形态
+    def axes(p):
+        return [round(p.satiety), round(p.mood), round(p.stamina),
+                round(p.intimacy)]
+    base_axes = axes(pet)
+    actions = {}
+    for name, fn in (("feed", lambda: pet.feed()),
+                     ("play", lambda: pet.play()),
+                     ("rest", lambda: pet.rest())):
+        p2 = G.PetState()
+        p2.satiety, p2.mood = pet.satiety, pet.mood
+        p2.stamina, p2.intimacy = pet.stamina, pet.intimacy
+        fn2 = {"feed": p2.feed, "play": p2.play, "rest": p2.rest}[name]
+        fn2()
+        actions[name] = {"before": base_axes, "after": axes(p2)}
+    care = {"axes": base_axes, "axisNames": ["饱食", "心情", "体能", "亲密"],
+            "actions": actions}
+
+    # ---- P6 图鉴网格：导航几何来自 party（仓库=图鉴同一网格）----
+    dex = {"cols": PT.BOX_COLS, "rows": PT.BOX_ROWS,
+           "perPage": PT.BOX_PER_PAGE, "pages": PT.BOX_PAGES,
+           "status": "partial",
+           "note": "网格几何与翻页语义照 party.PartyBrowser（仓库与图鉴"
+                   "同构）；图鉴 seen/caught 位图浏览 sim 无对应模块，"
+                   "只演示导航"}
+
+    stubs = {"P7": "未实现（成绩页）", "P8": "未实现（取名页）"}
+    return {"keys": pages_keys, "hints": hints, "opening": opening,
+            "battle": battle, "encounter": encounter, "capture": capture,
+            "care": care, "dex": dex, "stubs": stubs,
+            "ui": _ui_assets()}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="构建验收页面")
     ap.add_argument("--src", default="/tmp/gen1",
@@ -946,6 +1137,7 @@ def main() -> int:
         "mons": mons,
         "front": {str(k): v for k, v in sorted(front.items())},
         "back": {str(k): v for k, v in sorted(back.items())},
+        "simPages": sim_pages_payload(),
     }
 
     tpl = (HERE / "template.html").read_text(encoding="utf-8")

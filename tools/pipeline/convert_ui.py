@@ -57,11 +57,17 @@ sys.path.insert(0, os.path.join(REPO, "sim"))
 def collect() -> list[tuple[str, list[list[int]]]]:
     """要打包的素材。**名字就是固件里的查找键**，改名要同步改固件。"""
     import pixelart as pa
+    import fetch_oak
 
     return [
         # 捕获页：合上与打开两态。P4 的「球飞出去→张开→收拢」靠这两张切
         ("ball_24", pa.poke_ball(24)),
         ("ball_open", pa.poke_ball(24, open_top=True)),
+        # 三种球的区分图（P4「换球」用）：形状同源，花纹区分——
+        # DMG 四灰下颜色不可见，超级球=双竖纹、高级球=上半厚横带。
+        # 调色板 BALL_GREAT/ULTRA_PALETTE 在 pixelart.py
+        ("ball_great", pa.poke_ball(24, kind="great")),
+        ("ball_ultra", pa.poke_ball(24, kind="ultra")),
         # 菜单光标 —— 替掉字库里不存在的 ▸
         ("cursor", pa.MENU_CURSOR),
         # 亲密度心形 —— 替掉 P1 现在的「亲」字
@@ -69,6 +75,10 @@ def collect() -> list[tuple[str, list[list[int]]]]:
         # 闪光星星，两个尺寸（S8 闪光判定用）
         ("star_5", pa.star(5)),
         ("star_7", pa.star(7)),
+        # 大木博士立绘 —— S16 开场。pret/pokered 反汇编真品（手绘版被
+        # 用户否决：与皮卡丘不同来源必然气质不同）。56×56 ×2 = 112×112。
+        # 走 convert_sprites 同一条管线；调色板 OAK_PALETTE 在 fetch_oak.py
+        ("oak", fetch_oak.oak_grid()),
     ]
 
 

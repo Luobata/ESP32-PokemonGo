@@ -33,12 +33,27 @@ CLEAR = 3        # 透明
 BALL_PALETTE = ["#101010", "#c83c30", "#f0f0f0", "#182838"]
 # 开球后的空球（灰）—— 用于「已经开过的球」
 BALL_OPEN_PALETTE = ["#101010", "#707070", "#c0c0c0", "#182838"]
+# 超级球（上半蓝）与高级球（上半黄）—— 形状同 poke_ball，
+# 花纹见 kind 参数；DMG 四灰下区分靠花纹，颜色给彩色屏的观感
+BALL_GREAT_PALETTE = ["#101010", "#3868c8", "#f0f0f0", "#182838"]
+BALL_ULTRA_PALETTE = ["#101010", "#c8a028", "#f0f0f0", "#182838"]
 
 
-def poke_ball(size: int = 24, open_top: bool = False) -> list[list[int]]:
+def poke_ball(size: int = 24, open_top: bool = False,
+               kind: str = "poke") -> list[list[int]]:
     """生成精灵球点阵。
 
     open_top=True 时上半盖打开（画成两片分离），用于「开球」瞬间。
+
+    kind 三档（P4「换球」的区分图）。**初代三球的差异在 DMG 四灰下
+    靠花纹不靠颜色** —— 屏幕本来就只有四档灰，红/蓝/黄的上半在
+    单色下全是同一档。所以：
+      "poke"   上半净色（原样，红只是调色板的事）
+      "great"  上半两条竖纹（左右 size×0.22 处，各两像素宽）
+      "ultra"  上半一条厚横带（rows size×0.2..0.37，MID 全换 INK，
+               与中央带构成 H 型观感）
+    花纹只改 MID 格（描边与透明边界不碰），形状/对称性与 poke 完全
+    同源 —— 三球是同一颗球的三件衣服，风格必然一致。
 
     参数是**比例**而非绝对像素，所以任何尺寸都成立：
       描边 1.6px、中央带 size/10、按钮半径 size×0.16
@@ -68,6 +83,20 @@ def poke_ball(size: int = 24, open_top: bool = False) -> list[list[int]]:
                 g[y][x] = MID                         # 上半（红）
             else:
                 g[y][x] = LIGHT                       # 下半（白）
+
+    if kind == "great":
+        # 超级球：上半两条竖纹（比例定位，任何尺寸成立）
+        for y in range(int(size * 0.17), int(size * 0.42)):
+            for xc in (int(c - size * 0.22), int(c + size * 0.22)):
+                for x in (xc, xc + 1):
+                    if 0 <= x < size and g[y][x] == MID:
+                        g[y][x] = INK
+    elif kind == "ultra":
+        # 高级球：上半厚横带 —— MID 全换 INK，描边不动
+        for y in range(int(size * 0.20), int(size * 0.37)):
+            for x in range(size):
+                if g[y][x] == MID:
+                    g[y][x] = INK
 
     if open_top:
         # 上半盖上移 3px 并留出缝隙 —— 「打开」的最小表达
@@ -186,6 +215,7 @@ HEART = [[CLEAR if ch == "." else (INK if ch == "0" else MID) for ch in row]
          for row in _H]
 HEART_W, HEART_H = len(HEART[0]), len(HEART)
 HEART_PALETTE = ["#101010", "#e04858", "#f8a0a8", "#182838"]
+
 
 
 # ---------------------------------------------------------------------------

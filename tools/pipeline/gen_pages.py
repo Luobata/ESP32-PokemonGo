@@ -149,6 +149,11 @@ def main() -> int:
         for v in audit["key_violations"] + audit["line_violations"]:
             print(f"  ✗ {v}", file=sys.stderr)
         return 1
+    # ⚠️ 是已知规格待决项（字库定长模型 vs 渲染器实际按字符类型步进），
+    # 打印保持可见但**不拒生成** —— 曾经把它算进失败，干净树上也 exit 1，
+    # docs/pages 因此停更、P2 文档落后于 KEYS 的键位改动
+    for w in audit.get("key_warnings", []):
+        print(f"  {w}")
 
     for page in META:
         fname = META[page][0]
