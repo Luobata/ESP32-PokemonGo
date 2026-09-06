@@ -38,10 +38,6 @@ static const char *TAG = "p6";
 #define SCR_W SCREEN_W
 #define SCR_H SCREEN_H
 
-#define C_BG    RGB_HEX(0x9bbc0f)
-#define C_INK   RGB_HEX(0x0f380f)
-#define C_MID   RGB_HEX(0x306230)
-
 // 网格：5 列 × 4 行 = 每页 20 只，151 只共 8 页。
 // 每格 44×56（sprite 32px @scale1 + 编号）。
 #define COLS 5

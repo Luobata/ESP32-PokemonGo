@@ -43,10 +43,6 @@ static const char *TAG = "p2";
 #define SCR_W SCREEN_W
 #define SCR_H SCREEN_H
 
-#define C_BG    RGB_HEX(0x9bbc0f)
-#define C_INK   RGB_HEX(0x0f380f)
-#define C_MID   RGB_HEX(0x306230)
-#define C_LIGHT RGB_HEX(0x8bac0f)
 #define C_BLACK RGB_HEX(0x000000)
 
 // 布局。**每个元素都不跨横带边界**（边界在 y=80/160/240）——
@@ -151,8 +147,8 @@ static void draw_band(int band_y)
             ui_art_t cur;
             if (assets_ui("cursor", &cur)) {
                 static const uint16_t PAL[4] = {
-                    RGB_HEX(0x0f380f), RGB_HEX(0x306230),
-                    RGB_HEX(0x8bac0f), 0,
+                    C_INK, C_MID,
+                    C_LIGHT, 0,
                 };
                 render_sprite_2bpp_wh(6, Y(y + 3), cur.data, cur.w, cur.h,
                                       1, PAL);
@@ -175,7 +171,7 @@ static void draw_band(int band_y)
         // 行内垂直居中：24px 行高，7px 星 offset 8、5px 星 offset 9。
         if (e->is_shiny) {
             static const uint16_t STAR_PAL[4] = {
-                RGB_HEX(0x0f380f), RGB_HEX(0xfff0a0), RGB_HEX(0xffffff), 0,
+                C_INK, RGB_HEX(0xfff0a0), RGB_HEX(0xffffff), 0,
             };
             ui_art_t s7, s5;
             if (assets_ui("star_7", &s7)) {

@@ -24,11 +24,6 @@ static const char *TAG = "p5";
 #define SCR_W SCREEN_W
 #define SCR_H SCREEN_H
 
-#define C_BG    RGB_HEX(0x9bbc0f)
-#define C_INK   RGB_HEX(0x0f380f)
-#define C_MID   RGB_HEX(0x306230)
-#define C_LIGHT RGB_HEX(0x8bac0f)
-
 #define BASE_ACTION_COUNT 3
 #define ACTION_COUNT 4
 #define EVOLUTION_ACTION 3

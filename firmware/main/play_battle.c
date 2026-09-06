@@ -41,11 +41,6 @@ static const char *TAG = "p3";
 #define SCR_W SCREEN_W
 #define SCR_H SCREEN_H
 
-#define C_BG    RGB_HEX(0x9bbc0f)
-#define C_INK   RGB_HEX(0x0f380f)
-#define C_MID   RGB_HEX(0x306230)
-#define C_LIGHT RGB_HEX(0x8bac0f)
-
 // 布局（不跨横带边界 y=80/160/240）
 //   y=4    ★★★☆☆            野怪名 Lv20    带 0
 //   y=28                       野怪 HP 条    带 0

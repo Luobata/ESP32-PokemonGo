@@ -47,6 +47,14 @@ typedef void (*screen_redraw_cb_t)(void);
                                  ((b) >> 3)))
 #define RGB_HEX(h) RGB(((h) >> 16) & 0xFF, ((h) >> 8) & 0xFF, (h) & 0xFF)
 
+// DMG 四色 —— 全固件 UI 配色的唯一来源。
+// 原来七个 play_*.c 各自 #define 了一遍，换配色要改七处还容易漏。
+// 现在只改这里。verify_layout.py 会扫 *.c 里是否有人写回字面量。
+#define C_BG    RGB_HEX(0x9bbc0f)   // 背景（GB 绿）
+#define C_INK   RGB_HEX(0x0f380f)   // 前景（最深）
+#define C_MID   RGB_HEX(0x306230)   // 中间调
+#define C_LIGHT RGB_HEX(0x8bac0f)   // 亮调
+
 // 让 LVGL 闭嘴：建一张空屏并载入，之后**再也不动它**。
 //
 // 我们整页自己画（screen_push_band 直接推面板），LVGL 只是个

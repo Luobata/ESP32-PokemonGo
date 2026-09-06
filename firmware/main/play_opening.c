@@ -20,10 +20,6 @@ static const char *TAG = "p0";
 #define SCR_W SCREEN_W
 #define SCR_H SCREEN_H
 
-#define C_BG    RGB_HEX(0x9bbc0f)
-#define C_INK   RGB_HEX(0x0f380f)
-#define C_MID   RGB_HEX(0x306230)
-
 // oak 是独立 UI 素材，不经过物种调色板。
 static const uint16_t OAK_PALETTE[4] = {
     0x2104, 0x6b4d, 0xef5d, 0xf79e,

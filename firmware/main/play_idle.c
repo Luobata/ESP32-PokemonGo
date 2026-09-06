@@ -69,12 +69,6 @@ static const char *TAG = "idle";
 static const int8_t BREATH[] = {0, 0, -1, -2, -2, -2, -1, 0};
 #define BREATH_FRAMES (sizeof(BREATH) / sizeof(BREATH[0]))
 
-// GB 风格配色（与 tools/inspector 的原型一致，那份是对着截图调的）
-#define C_BG    RGB_HEX(0x9bbc0f)   // 背景（GB 绿）
-#define C_INK   RGB_HEX(0x0f380f)   // 前景（最深）
-#define C_MID   RGB_HEX(0x306230)   // 中间调
-#define C_LIGHT RGB_HEX(0x8bac0f)   // 亮调
-
 static lv_timer_t *s_tick;
 static uint8_t s_breath_i;
 
@@ -162,7 +156,7 @@ static void draw_band(int band_y, int8_t breath)
     ui_art_t heart;
     if (assets_ui("heart", &heart)) {
         static const uint16_t HEART_PAL[4] = {
-            RGB_HEX(0x0f380f), RGB_HEX(0xe04858), RGB_HEX(0xf8a0a8), 0,
+            C_INK, RGB_HEX(0xe04858), RGB_HEX(0xf8a0a8), 0,
         };
         // 心形 7×6 在 16px 字行里垂直居中：y = 4 + (16-6)/2 = 9
         render_sprite_2bpp_wh(SCR_W - 8 - w - 2 - heart.w, Y(9),

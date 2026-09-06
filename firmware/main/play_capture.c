@@ -44,11 +44,6 @@ static const char *TAG = "p4";
 #define SCR_W SCREEN_W
 #define SCR_H SCREEN_H
 
-#define C_BG    RGB_HEX(0x9bbc0f)
-#define C_INK   RGB_HEX(0x0f380f)
-#define C_MID   RGB_HEX(0x306230)
-#define C_LIGHT RGB_HEX(0x8bac0f)
-
 // 布局（不跨带边界）
 //   y=4    捕获                          带 0
 //   y=32   [ 野怪 sprite 64px 居中 ]      带 0~1
@@ -192,7 +187,7 @@ static void draw_band(int band_y)
     const char *ball_name = s_caught ? "ball_open" : BALL_ART[s_ball];
     if (assets_ui(ball_name, &ball)) {
         static const uint16_t PAL[4] = {
-            RGB_HEX(0x0f380f), RGB_HEX(0xd05030),
+            C_INK, RGB_HEX(0xd05030),
             RGB_HEX(0xf8f8f8), 0,
         };
         render_sprite_2bpp_wh(8, Y(BALL_Y), ball.data, ball.w, ball.h, 1, PAL);

@@ -61,6 +61,29 @@ RE_BAR = re.compile(r'draw_bar\w*\s*\(\s*[^,]+,\s*Y\(([^;]+?)\)\s*,\s*[^,]+,\s*(
 RE_SPR = re.compile(r'render_sprite\w*\s*\(\s*[^,]+,\s*Y\(([^;]+?)\)\s*,.*?,\s*(\w+),\s*(\w+)')
 RE_BAND_OK = re.compile(r'//\s*band-ok:\s*(.+)')
 
+# 四色散开检查：DMG 配色的 RGB_HEX 字面量不应出现在任何 .c 里。
+# 唯一来源是 screen.h 的 C_BG/C_INK/C_MID/C_LIGHT。
+DMG_HEX = [
+    ("C_BG",    "0x9bbc0f"),
+    ("C_INK",   "0x0f380f"),
+    ("C_MID",   "0x306230"),
+    ("C_LIGHT", "0x8bac0f"),
+]
+
+
+def check_palette_scatter(main_dir: str) -> list[str]:
+    """检查 *.c 里是否有人写回 DMG 四色的 RGB_HEX 字面量。"""
+    violations = []
+    for p in sorted(pathlib.Path(main_dir).glob("*.c")):
+        for ln, line in enumerate(
+                p.read_text(errors='replace').split('\n'), 1):
+            for name, hexval in DMG_HEX:
+                if f"RGB_HEX({hexval})" in line:
+                    violations.append(
+                        f"  ✗ {p.name}:{ln} 发现 {name} 字面量 "
+                        f"RGB_HEX({hexval}) —— 应引用 screen.h 的 {name}")
+    return violations
+
 
 def read_band_h(main_dir: str) -> int:
     """从 screen.h 解析 SCREEN_BAND_H —— 单一事实源，不硬编码。"""
@@ -240,6 +263,17 @@ def main() -> int:
         return 1
     print(f"\n✅ 无确定跨带违规（豁免 {t_e} 处均已打印理由，"
           f"SKIP {t_s} 处已列明）")
+
+    # ── 四色散开检查 ──────────────────────────────────────────────
+    pv = check_palette_scatter(main_dir)
+    if pv:
+        print("\n── 四色散开检查 ──")
+        for v in pv:
+            print(v)
+        print(f"\n❌ {len(pv)} 处 DMG 四色字面量散开"
+              f"（应统一引用 screen.h 的 C_BG/C_INK/C_MID/C_LIGHT）")
+        return 1
+    print("✅ 四色散开检查：无字面量散开")
     return 0
 
 

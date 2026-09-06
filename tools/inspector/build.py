@@ -936,6 +936,18 @@ def _ui_assets() -> dict:
     return out
 
 
+def _move_types() -> dict:
+    """招式→属性（99 条，读 assets/moves.bin 经 sim/systems._load_moves）。
+    web 侧招式动画的属性兜底派发用 —— 数值全部现算，不手抄。"""
+    try:
+        sys.path.insert(0, str(HERE / ".." / "sim"))
+        from systems import _load_moves
+        return {m["zh"]: m["type"] for m in _load_moves()["moves"]}
+    except Exception as e:  # 读不到时空表 —— web 退回 '*' 默认动画
+        print(f"  ⚠️ moveTypes 跳过：{e}", file=sys.stderr)
+        return {}
+
+
 def sim_pages_payload() -> dict:
     sys.path.insert(0, str(REPO / "sim"))
     import strings
@@ -1147,6 +1159,7 @@ def main() -> int:
         "front": {str(k): v for k, v in sorted(front.items())},
         "back": {str(k): v for k, v in sorted(back.items())},
         "simPages": sim_pages_payload(),
+        "moveTypes": _move_types(),
     }
 
     tpl = (HERE / "template.html").read_text(encoding="utf-8")

@@ -487,9 +487,10 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
       <div id="sim-dodge" style="flex:1"></div>
     </div>
     <div class="notes" style="font-size:11px;margin-top:4px">
-      剧本 4 招（撞击/电击/落石/绑紧）按回合 <code>move</code> 字段自动派发；
-      按钮可强制预览任一动画（<b>只换表现，不改任何 sim 数值</b>）。
-      加新招动画 = MOVE_FX 注册表加一行 —— 成本量级见报告。</div>
+      动画按回合 <code>move</code> 字段自动派发：26 高频招各有专属
+      （真图元 = pokecrystal 提取），其余按 <b>属性兜底</b>（moves.bin 现算 15 属性）。
+      按钮可强制预览任一动画（<b>只换表现，不改任何 sim 数值</b>）；
+      加新招 = MOVE_FX 加一行。</div>
     <div class="notes" style="font-size:12px;margin-top:8px">
       <p><b>键盘</b>：A / B / C 键；<b>双击</b>＝300ms 内两次；
       <b>长按</b>＝按住 500ms（日志会标注）。</p>
@@ -3403,9 +3404,11 @@ window.addEventListener('error', ev=>{
   if(t) t.textContent = 'JS错误: ' + ev.message + ' @' + (ev.lineno||'?');
 });
 try {
-const cv = document.getElementById('sim-canvas');
-const ctx = cv.getContext('2d');
-const W=240, H=320, BAND=80, SC=2;
+const cv = document.getElementById('sim-canvas');          // 可见画布 480×640（×2 显示）
+const oc = document.createElement('canvas'); oc.width=240; oc.height=320;   // 真屏 1×
+const ctx = oc.getContext('2d');                              // 全部渲染在 1× —— 字体 1:1 光栅，
+const vctx = cv.getContext('2d');                             // 逐像素=固件；上屏统一最近邻 ×2
+const W=240, H=320, BAND=80, SC=1;
 // 现状基线 = 真机实测色（固件 RGB_HEX(0x9bbc0f/0x0f380f/0x306230/0x8bac0f)
 // 经 RGB565 量化后的上屏值）—— 模拟器要对的就是设备，不是另立一套灰白。
 const INK='#083808', MID='#316131', BG='#9cbe08', LGT='#8cae08';
@@ -3427,8 +3430,7 @@ const ACTS=['feed','play','rest'], ACT_ZH={feed:'喂食',play:'玩耍',rest:'休
 ctx.imageSmoothingEnabled=false;
 function cls(){
   ctx.setTransform(1,0,0,1,0,0);
-  ctx.fillStyle=BG; ctx.fillRect(0,0,cv.width,cv.height);
-  ctx.setTransform(SC,0,0,SC,0,0);
+  ctx.fillStyle=BG; ctx.fillRect(0,0,W,H);
 }
 function bands(){
   ctx.strokeStyle='rgba(200,60,60,.45)'; ctx.setLineDash([4,3]); ctx.lineWidth=1;
@@ -3892,18 +3894,79 @@ function sprNN(id,view,x,y,dest){ // 任意目标尺寸（最近邻）：尺寸�
    数值边界：用哪招、谁打的、miss 没 miss、伤害多少，全来自 sim 导出的
    回合字段（attacker/move/missed/damage）—— 动画只消费，不产生数值。
    未登记招式走 '*' 默认（仍有动画，不是空白）。 */
+const GSC_GFX={fire:{w:8,f:[['....2...','...222.2','.2.22222','22222222','22222222','.2222222','.2222222','..222222'],['.......2','......22','.....222','.....222','...22222','..222222','..222222','...22222'],['...22222','....2222','..2.2...','..2.2.2.','.22.222.','.222222.','22222222','22222222']]},water:{w:8,f:[['........','........','........','..2.2...','........','2...222.','..222222','.2222222'],['.2222222','22222222','22222222','22222222','22222222','22222222','.2222222','..22..22']]},leaf:{w:16,f:[['...1111.....1...','.1122221...11...','.1222221..1221..','12222221.12221..','12222221.122221.','1222221..122221.','1222211...112221','.1111.......1111'],['...............1','..1111........11','.122221......11.','12222221....121.','12222221...1221.','2222221...1221..','122211...1111...','1111....11......']]},bubble:{w:16,f:[['.....111111.....','...11....2211...','..1........221..','.1..........221.','.1...........21.','1............221','1............221','1............221','1............221','12...........221','12..........2221','.12........2221.','.122......22221.','..122222222221..','...1122222211...','.....111111.....']]},cut:{w:8,f:[['1111....','222211..','22222211','222211..','1111....','2211....','22221...','111.....'],['.....222','....2222','...22222','..22222.','.22222..','22222...','2222....','222.....']]},powder:{w:8,f:[['.1......','121...1.','.1...121','......1.','........','...1....','..121...','...1....'],['.1......','121...1.','.1...121','......1.','........','...1....','..121...','...1....']]},wave:{w:8,f:[['.......2','......22','.....222','.....222','.....222','....222.','....222.','....222.'],['....222.','........','........','........','........','........','........','.......2'],['.......2','......22','.....222','.....222','....222.','....222.','....222.','...222..']]}};
+/* 真图元 vs 几何近似（诚实标注）：
+   真图元 = pokecrystal gfx/battle_anims/ 逐像素提取（fire/water/leaf/bubble/cut/powder/wave）；
+   几何近似 = HIT_GFX 尖刺星、needle/lick/orb 投射物、风线、吸取粒子 —— 自绘。 */
+const PAL_FX={
+ fire:['#ff0000','#ffae00','#f8f8f8'], water:['#0057d6','#218eff','#a8d8f8'],
+ grass:['#007e1e','#00be00','#8ae05a'], poison:['#7a1e8a','#c060d8','#e8b0f0'],
+ psychic:['#c040a0','#ff8ad8','#ffd8f0'], ghost:['#5a4a8a','#9078c8','#c8b8f0'],
+ ice:['#2a7a9a','#68c8e8','#c8f0ff'], gray:['#555','#999','#ddd']};
+function gfxDraw(key,f,cx,cy,pal,ph){ // 真图元绘制：调色板随相位循环（GSC 手法）
+  const g=GSC_GFX[key]; if(!g) return;
+  const fr=g.f[Math.min(f,g.f.length-1)]; const sc=2;
+  const P=PAL_FX[pal]||PAL_FX.gray;
+  for(let y=0;y<fr.length;y++) for(let x=0;x<fr[y].length;x++){
+    const c=fr[y][x]; if(c==='.') continue;
+    const slot=+c-1; ctx.fillStyle=P[(slot+ (ph>>1))%P.length];  // 循环
+    ctx.fillRect(Math.round(cx-g.w*sc/2+x*sc), Math.round(cy-fr.length*sc/2+y*sc), sc, sc);
+  }
+}
 const MOVE_FX = {
-  '撞击': {dash:20, hit:1},            // 突进 + GFX_HIT 尖刺星（GSC 93 引用图元）
-  '电击': {charge:1, tint:1, bolt:1, hit:1},  // 蓄力闪白（调色板循环）+ 电光 + HIT
-  '落石': {rocks:3, hit:1},            // 三石错峰落顶 + 落点 HIT
-  '绑紧': {bind:1},                    // 三道缠绕收紧（rope）
-  '火花': {ember:1, hit:1},            // 火星上飘 + HIT
-  '*':    {dash:12, hit:1},            // 默认：小突进 + 小 HIT —— 新招上线前也有动画
+  // ── 第一批：26 高频招（/tmp/move_freq_full.txt，test 统计 80% 覆盖）──
+  '撞击': {dash:20, hit:1},                        // 几何：突进+HIT
+  '挣扎': {dash:8, tint:1, hit:1},                 // 几何：自体晃+闪
+  '抓':   {dash:12, slash:1, hit:1},               // 真图元 cut × 几何突进
+  '毒针': {projN:'needle', burstG:['powder','poison'], hit:1},  // 几何针 + 真图元毒粉
+  '电光一闪': {dash:26, wind:1, hit:1},            // 几何：急进+风线
+  '啄':   {dash:18, slash:1, hit:1},               // 真图元 cut 啄击
+  '电击': {charge:1, tint:1, bolt:1, hit:1},       // 几何：蓄力闪白+电光
+  '火花': {ember:1, burstG:['fire','fire'], hit:1},// 真图元 fire 爆焰+调色板循环
+  '起风': {wind:1, hit:1},                         // 几何：风线
+  '紧束': {bind:1},                                // 几何：缠绕收紧
+  '咬住': {dash:14, slash:1, hit:1},               // 真图元 cut 咬
+  '拍击': {dash:16, hit:1},
+  '泡沫': {burstG:['bubble','water'], hit:1},      // 真图元 bubble 整泡
+  '水枪': {proj:['water','water'], hit:1},         // 真图元 water 水弹
+  '藤鞭': {slash:1, bind:1, hit:1},                // 真图元 cut + 几何鞭缚
+  '必杀门牙': {slash:2, dash:10, hit:1},           // 真图元 cut ×2 大牙
+  '吸血': {drain:1, hit:1},                        // 几何：粒子倒流
+  '乱击': {multi:1, dash:10, hit:1},               // 几何：HIT×3
+  '角撞': {dash:22, hit:1},
+  '舌舔': {projN:'lick', hit:1},                   // 几何：舌
+  '落石': {rocks:3, hit:1},                        // 几何：落石（GSC rocks 32 宽未提取）
+  '连环巴掌': {multi:1, dash:12, hit:1},
+  '啄钻': {dash:24, slash:1, hit:1},
+  '飞叶快刀': {proj:['leaf','grass'], hit:1},      // 真图元 leaf 双叶
+  '念力': {rings:1, hit:1},                        // 真图元 wave 念力波+循环
+  '投球': {projN:'orb', hit:1},                    // 几何：球
+  '*':    {dash:12, hit:1},
+};
+/* ── 第二批：属性兜底 —— 招式不在 MOVE_FX 时按 moves.bin 的属性（payload moveTypes）
+   派发。15 条数据，同属性共性、异属性一眼区分。── */
+const TYPE_FX={
+ '一般':{dash:16,hit:1},
+ '火':{ember:1,burstG:['fire','fire'],hit:1},
+ '水':{proj:['water','water'],hit:1},
+ '草':{proj:['leaf','grass'],hit:1},
+ '电':{charge:1,bolt:1,hit:1},
+ '冰':{burstG:['bubble','ice'],hit:1},
+ '格斗':{dash:24,slash:1,hit:1},
+ '毒':{projN:'needle',burstG:['powder','poison'],hit:1},
+ '地面':{rocks:3,hit:1},
+ '飞行':{wind:1,dash:18,hit:1},
+ '超能':{rings:1,hit:1},
+ '虫':{drain:1,hit:1},
+ '岩石':{rocks:2,hit:1},
+ '幽灵':{tint:1,rings:1,hit:1},
+ '龙':{projN:'orb',tint:1,hit:1},
 };
 /* 演示钩子：st.P3.fxDemo 强制预览某招（不改数值，只换表现）。
    剧本实际派发按 r.move —— 演示与实战走同一条解释路径。 */
 function fxSpec(r){
-  return MOVE_FX[st.P3.fxDemo || r.move] || MOVE_FX['*'];
+  const key = st.P3.fxDemo || r.move;
+  return MOVE_FX[key] || TYPE_FX[(ASSETS.moveTypes||{})[key]] || MOVE_FX['*'];
 }
 /* 解释器：ph 为回合内 8 相位（与 shake 同源节奏）。两段式 ——
    fxOffsets 在画 sprite 前取位移；fxOverlay 在画完 sprite 后叠特效。 */
@@ -4001,6 +4064,53 @@ function fxOverlay(fx, r, ph, petRect, wildRect, wildId){
       if(drop>=1){ ctx.fillStyle=T().track;           // 落地尘
         ctx.fillRect(rx-3,def.y-3,5,2); ctx.fillRect(rx+6,def.y-3,5,2); }
     }
+  }
+  const atkR0 = atkIsPet?petRect:wildRect;
+  const atkC={x:atkR0.x+atkR0.s/2, y:atkR0.y+atkR0.s/2};
+  if(fx.proj && !r.missed){                          // 真图元飞行：攻击方→受击方
+    const t=Math.min(1,ph/3);
+    const px=atkC.x+(defC.x-atkC.x)*t, py=atkC.y+(defC.y-atkC.y)*t;
+    gfxDraw(fx.proj[0], ph>=3?1:0, px, py, fx.proj[1], ph);
+  }
+  if(fx.projN && !r.missed){                         // 几何投射物：针/舌/球
+    const t=Math.min(1,ph/3);
+    const px=atkC.x+(defC.x-atkC.x)*t, py=atkC.y+(defC.y-atkC.y)*t;
+    ctx.fillStyle=fx.projN==='needle'?PAL_FX.poison[1]:(fx.projN==='lick'?'#f090a8':'#999');
+    if(fx.projN==='needle'){ ctx.fillRect(px-2,py-6,4,12); ctx.fillRect(px-4,py-8,8,3); }
+    else if(fx.projN==='lick'){ ctx.fillRect(px-7,py-4,14,8); ctx.fillRect(px-4,py-8,8,4); }
+    else { ctx.fillRect(px-4,py-4,8,8); ctx.fillRect(px-6,py-2,12,4); ctx.fillRect(px-2,py-6,4,12); }
+  }
+  if(fx.burstG && !r.missed) gfxDraw(fx.burstG[0], Math.max(0,ph-3), defC.x, defC.y, fx.burstG[1], ph);
+  if(fx.slash && !r.missed && ph>=2 && ph<=4){       // 真图元 cut：斩击弧（数量=slash）
+    const P=PAL_FX.water;
+    for(let k=0;k<fx.slash;k++){
+      gfxDraw('cut', (ph+k)%2, defC.x-8+k*16, defC.y-6+((ph%2)?6:-6), 'ice', ph);
+    }
+  }
+  if(fx.drain && !r.missed && ph>=2){                // 吸取：粒子 从受击方流向攻击方
+    ctx.fillStyle=T().redT;
+    for(let k=0;k<4;k++){
+      const t=((ph-2)/4 + k*0.25)%1;
+      ctx.fillRect(Math.round(defC.x+(atkC.x-defC.x)*t)-2, Math.round(defC.y+(atkC.y-defC.y)*t)-2, 4,4);
+    }
+  }
+  if(fx.wind && !r.missed && ph>=1 && ph<=5){        // 风线：攻击方→受击方错层
+    ctx.fillStyle=T().dim;
+    for(let k=0;k<4;k++){
+      const ln=10+((ph*3+k*5)%16);
+      const y=atkC.y+(defC.y-atkC.y)*(0.2+k*0.2);
+      ctx.fillRect(atkC.x+8+k*6, y, ln, 2);
+    }
+  }
+  if(fx.rings && !r.missed){                         // 真图元 wave：念力波列推进+循环
+    for(let k=0;k<3;k++){
+      const t=Math.max(0,Math.min(1,(ph-1-k*0.6)/3));
+      const rx=atkC.x+(defC.x-atkC.x)*t;
+      gfxDraw('wave', (ph+k)%3, rx, defC.y, 'psychic', ph);
+    }
+  }
+  if(fx.multi && !r.missed && ph>=3){                // 多段：HIT 三连（乱击/连环巴掌）
+    for(let k=-1;k<=1;k++) hitGfxDraw({x:defC.x+k*10,y:defC.y+k*4}, ph);
   }
   if(fx.ember){                                      // 【加招实测】火花：攻击者侧火星上飘
     const atkR = atkIsPet?petRect:wildRect;
@@ -4368,15 +4478,17 @@ function syncFrame(){
   el('sim-frameinfo').textContent=p.info();
 }
 function draw(){ cls(); PAGES[st.page].render(); bands();
+  // 1× 离屏 → ×2 最近邻上屏：所有元素（含 Kanto16 字形）严格 2 倍像素，
+  // 无矢量 AA —— 与固件点阵同观感
+  vctx.imageSmoothingEnabled=false;
+  vctx.drawImage(oc,0,0);
   /* G 方向 = 设计稿（固件未实现）。proto tab 与 P4 坐标两次「假图被当真值」之后，
      截图必须自带这个标记 —— 否则单看 PNG 分不清是定稿还是模拟器画错。
-     画布坐标右下角，半透明底不遮内容；base 方向不加（它与固件逐像素一致）。 */
+     可见层右下角，半透明底不遮内容；base 方向不加（它与固件逐像素一致）。 */
   if(DIR==='G'&&COVERED[st.page]){
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.fillStyle='rgba(32,32,32,.62)'; ctx.fillRect(480-176,640-19,172,13);
-    ctx.fillStyle='#f0f0f0'; ctx.font='9px monospace'; ctx.textBaseline='top';
-    ctx.fillText('GSC 设计稿 · 固件未实现',480-172,640-16);
-    ctx.setTransform(SC,0,0,SC,0,0); } }
+    vctx.fillStyle='rgba(32,32,32,.62)'; vctx.fillRect(480-176,640-19,172,13);
+    vctx.fillStyle='#f0f0f0'; vctx.font='9px monospace'; vctx.textBaseline='top';
+    vctx.fillText('GSC 设计稿 · 固件未实现',480-172,640-16); } }
 function step(d){ PAGES[st.page].fi+=d; syncFrame(); draw(); }
 el('sim-fprev').onclick=()=>step(-1);
 el('sim-fnext').onclick=()=>step(1);
@@ -4550,7 +4662,7 @@ const fxEl=el('sim-movefx');
 [['','跟剧本（按 move 派发）'],...Object.keys(MOVE_FX).filter(k=>k!=='*').map(k=>[k,k+' 预览'])].forEach(([k,lab])=>{
   const b=document.createElement('button');
   b.textContent=lab; b.dataset.f=k;
-  b.style.cssText='display:block;width:100%;margin:3px 0;padding:6px 8px;text-align:left;font-size:12px';
+  b.style.cssText='display:inline-block;margin:2px;padding:4px 6px;font-size:11px';
   b.onclick=()=>{ st.P3.fxDemo=k||null; if(st.page==='P3') syncFrame(); draw(); };
   fxEl.appendChild(b);
 });
