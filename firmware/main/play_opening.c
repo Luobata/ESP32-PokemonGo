@@ -1,0 +1,305 @@
+// main/play_opening.c —— P0 大木博士开场。
+
+#include <stddef.h>
+#include <string.h>
+
+#include "esp_log.h"
+#include "lvgl.h"
+
+#include "assets.h"
+#include "nav.h"
+#include "opening.h"
+#include "play.h"
+#include "render.h"
+#include "save.h"
+#include "screen.h"
+
+static const char *TAG = "p0";
+
+#define BAND_H SCREEN_BAND_H
+#define SCR_W SCREEN_W
+#define SCR_H SCREEN_H
+
+#define C_BG    RGB_HEX(0x9bbc0f)
+#define C_INK   RGB_HEX(0x0f380f)
+#define C_MID   RGB_HEX(0x306230)
+
+// oak 是独立 UI 素材，不经过物种调色板。
+static const uint16_t OAK_PALETTE[4] = {
+    0x2104, 0x6b4d, 0xef5d, 0xf79e,
+};
+
+// 与 sim/opening.py 一致：240 宽、16px 汉字、左右各留 4px、最多 4 行。
+#define GLYPH        16
+#define MARGIN       4
+#define USABLE_W     (SCR_W - MARGIN * 2)
+#define TEXT_BOX_Y   164
+#define OAK_ZOOM_FRAMES 8
+#define TEXT_SLIDE_FRAMES OPENING_BOX_APPEAR_FRAMES
+#define OAK_BREATH_BOX 3
+#define OAK_BREATH_FRAMES 20
+
+// 第 4 行从 240 开始，让 16px 字形完整落在第 4 条横带；若按统一
+// 22px 行距放在 234，会跨 239/240 边界，两个半字可能在刷新时撕裂。
+static const uint16_t TEXT_LINE_Y[OPENING_LINES_PER_BOX] = {168, 190, 212, 240};
+
+static opening_t s_opening;
+static lv_timer_t *s_tick;
+static ui_art_t s_oak_art;
+static bool s_oak_ok;
+static uint8_t s_oak_zoom_frame;
+static uint8_t s_text_slide_frame;
+static uint8_t s_oak_breath_frame;
+
+static void hline_at(int y)
+{
+    for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_MID);
+}
+
+// 从 UTF-8 字符串复制前 n 个码点。台词最长 11 个汉字，64B 足够。
+static void utf8_prefix(char *out, size_t cap, const char *s, uint16_t n)
+{
+    size_t bytes = 0;
+    uint16_t chars = 0;
+    if (!out || cap == 0) return;
+    if (!s) { out[0] = '\0'; return; }
+
+    while (s[bytes] && chars < n) {
+        bytes++;
+        while (s[bytes] && ((uint8_t)s[bytes] & 0xc0) == 0x80) bytes++;
+        chars++;
+    }
+    if (bytes >= cap) bytes = cap - 1;
+    memcpy(out, s, bytes);
+    out[bytes] = '\0';
+}
+
+static uint16_t utf8_len(const char *s)
+{
+    uint16_t n = 0;
+    if (!s) return 0;
+    while (*s) {
+        if (((uint8_t)*s & 0xc0) != 0x80) n++;
+        s++;
+    }
+    return n;
+}
+
+static int text_slide_offset(void)
+{
+    if (s_text_slide_frame >= TEXT_SLIDE_FRAMES) return 0;
+    return (TEXT_SLIDE_FRAMES - s_text_slide_frame) * 4;
+}
+
+// 与 effects.breath_sequence(20, rise=1) 一致：基线 5 帧、上浮 10 帧、
+// 回到基线 5 帧。计数器只跑一轮，状态机仍然继续等玩家按 A。
+static int oak_breath_offset(void)
+{
+    return s_oak_breath_frame >= 6 && s_oak_breath_frame <= 15 ? -1 : 0;
+}
+
+// ui.bin 是 2bpp、高位像素在左，色号 3 透明。宽高始终取素材元数据
+// （当前 Oak 112×112），且 zoom 需要 1/8..8/8 分数缩放，所以不能复用
+// 只支持整数倍的 sprite helper。
+static void draw_ui_scaled_centered(int center_x, int center_y,
+                                    const ui_art_t *art,
+                                    int scale_num, int scale_den,
+                                    int offset_y, const uint16_t palette[4])
+{
+    if (!art || !art->data || art->w == 0 || art->h == 0 ||
+        scale_num <= 0 || scale_den <= 0) return;
+
+    int dw = art->w * scale_num / scale_den;
+    int dh = art->h * scale_num / scale_den;
+    if (dw < 1) dw = 1;
+    if (dh < 1) dh = 1;
+    int ox = center_x - dw / 2;
+    int oy = center_y - dh / 2 + offset_y;
+    int row_bytes = (art->w * 2 + 7) / 8;
+
+    for (int dy = 0; dy < dh; dy++) {
+        int sy = dy * art->h / dh;
+        for (int dx = 0; dx < dw; dx++) {
+            int sx = dx * art->w / dw;
+            uint8_t b = art->data[sy * row_bytes + (sx * 2) / 8];
+            uint8_t shade = (b >> (6 - (sx * 2) % 8)) & 3u;
+            if (shade != 3) screen_px(ox + dx, oy + dy, palette[shade]);
+        }
+    }
+}
+
+static void log_fx(void)
+{
+    ESP_LOGI(TAG,
+             "@@OPEN_FX box=%u frame=%u oak_zoom=%u/%u text_slide=%u/%u breath=%u/%u dy=%d",
+             s_opening.box, s_opening.frame,
+             s_oak_zoom_frame, OAK_ZOOM_FRAMES,
+             s_text_slide_frame, TEXT_SLIDE_FRAMES,
+             s_oak_breath_frame, OAK_BREATH_FRAMES,
+             oak_breath_offset());
+}
+
+static void draw_band(int band_y)
+{
+    screen_band_clear(C_BG);
+    #define Y(v) ((v) - band_y)
+
+    char buf[64];
+
+    render_text(8, Y(4), "大木博士", C_INK);
+    if (s_opening.box < OPENING_BOXES) {
+        buf[0] = (char)('1' + s_opening.box);
+        buf[1] = '/';
+        buf[2] = '7';
+        buf[3] = '\0';
+        render_text(SCR_W - 8 - render_text_width(buf), Y(4), buf, C_MID);
+    }
+    hline_at(Y(26));
+
+    uint8_t mon = opening_show_mon(&s_opening);
+    if (s_oak_ok && opening_show_oak(&s_opening)) {
+        int scale_num = s_opening.box == 0 ? s_oak_zoom_frame : OAK_ZOOM_FRAMES;
+        int center_x = mon ? SCR_W / 4 : SCR_W / 2;
+        draw_ui_scaled_centered(center_x, Y(94), &s_oak_art,
+                                scale_num, OAK_ZOOM_FRAMES,
+                                oak_breath_offset(), OAK_PALETTE);
+    }
+
+    species_t sp;
+    uint8_t sprite_size = 0;
+    const uint8_t *spr = mon ? assets_front_sprite(mon, &sprite_size) : NULL;
+    if (spr && assets_species(mon, &sp)) {
+        uint16_t pal[4];
+        assets_palette(sp.palette, pal);
+        int rendered = sprite_size * 2;
+        int y = 28 + (132 - rendered) / 2;
+        int x = SCR_W / 2 + (SCR_W / 2 - rendered) / 2;
+        render_sprite_2bpp(x, Y(y), spr,
+                           sprite_size, 2, pal);
+    }
+
+    // 文本框宽度严格为 232px。四行起点避免 16px 字形跨 80px 横带边界。
+    int text_offset = text_slide_offset();
+    hline_at(Y(TEXT_BOX_Y + text_offset));
+    hline_at(Y(272));
+    uint16_t left = s_opening.typed;
+    uint8_t lines = opening_line_count(&s_opening);
+    for (uint8_t i = 0; i < lines && left; i++) {
+        const char *line = opening_line(&s_opening, i);
+        uint16_t len = utf8_len(line);
+        uint16_t visible = left < len ? left : len;
+        utf8_prefix(buf, sizeof(buf), line, visible);
+        render_text(MARGIN, Y(TEXT_LINE_Y[i] + text_offset), buf, C_INK);
+        left = left > len ? (uint16_t)(left - len) : 0;
+    }
+
+    hline_at(Y(292));
+    render_text(8, Y(298), "[A]继续 [C]跳过", C_INK);
+
+    #undef Y
+    screen_push_band(band_y);
+}
+
+static void draw_all(void)
+{
+    for (int y = 0; y < SCR_H; y += BAND_H) draw_band(y);
+}
+
+static void draw_text_bands(void)
+{
+    draw_band(BAND_H * 2);
+    draw_band(BAND_H * 3);
+}
+
+static void draw_top_bands(void)
+{
+    draw_band(0);
+    draw_band(BAND_H);
+}
+
+static void redraw_for_dump(void) { draw_all(); }
+
+static void tick(lv_timer_t *t)
+{
+    (void)t;
+    uint16_t before = s_opening.typed;
+    opening_tick(&s_opening);
+
+    bool top_changed = false;
+    bool text_changed = s_opening.typed != before;
+    bool should_log = false;
+
+    if (s_oak_zoom_frame < OAK_ZOOM_FRAMES) {
+        s_oak_zoom_frame++;
+        top_changed = true;
+        should_log = true;
+    }
+    if (s_text_slide_frame < TEXT_SLIDE_FRAMES) {
+        s_text_slide_frame++;
+        text_changed = true;
+        if (s_text_slide_frame == 1 ||
+            s_text_slide_frame == TEXT_SLIDE_FRAMES) should_log = true;
+    }
+    if (s_opening.box == OAK_BREATH_BOX && !opening_typing(&s_opening) &&
+        s_oak_breath_frame < OAK_BREATH_FRAMES) {
+        s_oak_breath_frame++;
+        top_changed = true;
+        if (s_oak_breath_frame == 1 || s_oak_breath_frame == 6 ||
+            s_oak_breath_frame == 15 || s_oak_breath_frame == 16 ||
+            s_oak_breath_frame == OAK_BREATH_FRAMES) should_log = true;
+    }
+
+    if (top_changed) draw_top_bands();
+    if (text_changed) draw_text_bands();
+    if (should_log) log_fx();
+}
+
+void play_opening_enter(void)
+{
+    opening_init(&s_opening);
+    s_oak_ok = assets_ui("oak", &s_oak_art);
+    s_oak_zoom_frame = 1;
+    s_text_slide_frame = 0;
+    s_oak_breath_frame = 0;
+    screen_set_redraw(redraw_for_dump);
+    draw_all();
+    log_fx();
+    if (!s_oak_ok) ESP_LOGE(TAG, "oak UI asset missing or invalid");
+    // 407 帧 / 30fps = 13.6s，与 sim 的时长说明一致。
+    s_tick = lv_timer_create(tick, 1000 / 30, NULL);
+    ESP_LOGI(TAG, "P0：开场 %u 框 %u 帧，文本宽 %dpx",
+             OPENING_BOXES, opening_total_frames(), USABLE_W);
+}
+
+void play_opening_exit(void)
+{
+    if (s_tick) { lv_timer_delete(s_tick); s_tick = NULL; }
+}
+
+void play_opening_key(bsp_btn_t btn, bsp_btn_ev_t ev)
+{
+    if (btn == BSP_BTN_DOWN && ev == BSP_BTN_LONG) { screen_dump(); return; }
+    if (ev != BSP_BTN_CLICK) return;
+
+    char key = 0;
+    if (btn == BSP_BTN_UP) key = 'A';
+    if (btn == BSP_BTN_DOWN) key = 'B';
+    if (btn == BSP_BTN_OK) key = 'C';
+    if (!key) return;
+
+    uint8_t before_box = s_opening.box;
+    opening_press(&s_opening, key);
+    if (s_opening.done) {
+        if (!save_mark_opening_seen()) {
+            ESP_LOGE(TAG, "开场标记写入失败；本次继续进入 P1");
+        }
+        nav_go(PAGE_IDLE);
+        return;
+    }
+    if (s_opening.box != before_box) {
+        s_text_slide_frame = 0;
+        s_oak_breath_frame = 0;
+        log_fx();
+    }
+    draw_all();
+}
