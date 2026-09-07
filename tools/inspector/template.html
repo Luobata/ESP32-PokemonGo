@@ -3749,7 +3749,10 @@ function petHpPct(sc,r){ return sc.petMax?Math.max(0,Math.min(100,r.petHp*100/sc
 const R3={
  base(){ const t=T(); const {sc,tl,it}=p3Cur();
    if(!sc||!tl.length){ text('（无回合）',80,150); return; }
-   const r=it.r, ph=it.ph; const [wdx,pdx]=p3Shake(r,ph);
+   const r=it.r, ph=it.ph;
+  // 二十派活①：每招时长可变（it.n 帧），fx/shake 用 8 段归一相位 —— 动画变慢但节奏比例保持
+  const p8 = it.n? Math.min(7, Math.floor(ph/it.n*8)) : ph;
+  const [wdx,pdx]=p3Shake(r,p8);
    const m=D.mons[sc.wildSid-1];
    if(st.P3.rarity) text('★'.repeat(st.P3.rarity),8,4,t.ink);
    const nm=nameOf(m)+' Lv'+sc.wildLevel; text(nm,W-8-textW(nm),4,t.ink);
@@ -3769,7 +3772,10 @@ const R3={
    hlineS(292,t.dim); hintAt(298,t.ink); },
  A(){ const t=DIRS.A.pal; const {sc,tl,it}=p3Cur();
    if(!sc||!tl.length){ text('（无回合）',80,150); return; }
-   const r=it.r, ph=it.ph; const [wdx,pdx]=p3Shake(r,ph);
+   const r=it.r, ph=it.ph;
+  // 二十派活①：每招时长可变（it.n 帧），fx/shake 用 8 段归一相位 —— 动画变慢但节奏比例保持
+  const p8 = it.n? Math.min(7, Math.floor(ph/it.n*8)) : ph;
+  const [wdx,pdx]=p3Shake(r,p8);
    const m=D.mons[sc.wildSid-1];
    fieldFill();
    band(0,36,t.ink);
@@ -3793,7 +3799,10 @@ const R3={
    band(284,36,t.ink); hintAt(296,t.field); },
  B(){ const t=DIRS.B.pal; const {sc,tl,it}=p3Cur();
    if(!sc||!tl.length){ text('（无回合）',80,150); return; }
-   const r=it.r, ph=it.ph; const [wdx,pdx]=p3Shake(r,ph);
+   const r=it.r, ph=it.ph;
+  // 二十派活①：每招时长可变（it.n 帧），fx/shake 用 8 段归一相位 —— 动画变慢但节奏比例保持
+  const p8 = it.n? Math.min(7, Math.floor(ph/it.n*8)) : ph;
+  const [wdx,pdx]=p3Shake(r,p8);
    const m=D.mons[sc.wildSid-1];
    fieldFill();
    if(st.P3.rarity) text('★'.repeat(st.P3.rarity),8,4,t.gold);   // 稀有度=金
@@ -3820,7 +3829,10 @@ const R3={
    hlineS(292,t.dim); hintAt(298,t.ink,t.blue); },
  C(){ const t=DIRS.C.pal; const {sc,tl,it}=p3Cur();
    if(!sc||!tl.length){ text('（无回合）',80,150); return; }
-   const r=it.r, ph=it.ph; const [wdx,pdx]=p3Shake(r,ph);
+   const r=it.r, ph=it.ph;
+  // 二十派活①：每招时长可变（it.n 帧），fx/shake 用 8 段归一相位 —— 动画变慢但节奏比例保持
+  const p8 = it.n? Math.min(7, Math.floor(ph/it.n*8)) : ph;
+  const [wdx,pdx]=p3Shake(r,p8);
    const m=D.mons[sc.wildSid-1];
    fieldFill();
    if(st.P3.rarity) text('★'.repeat(st.P3.rarity),8,4,t.ink);
@@ -3845,7 +3857,10 @@ const R3={
 function p3Alt(){ // 「打破骨架」：pokered 战斗构图 —— 无全屏标题行、无 Y292 分隔+提示行
   const t=T(); const {sc,tl,it}=p3Cur();
   if(!sc||!tl.length){ text('（无回合）',80,150); return; }
-  const r=it.r, ph=it.ph; const [wdx,pdx]=p3Shake(r,ph);
+  const r=it.r, ph=it.ph;
+  // 二十派活①：每招时长可变（it.n 帧），fx/shake 用 8 段归一相位 —— 动画变慢但节奏比例保持
+  const p8 = it.n? Math.min(7, Math.floor(ph/it.n*8)) : ph;
+  const [wdx,pdx]=p3Shake(r,p8);
   const m=D.mons[sc.wildSid-1];
   fieldFill();
   const wpx=m.fsize*2;
@@ -4011,52 +4026,54 @@ function gfxDraw(key,f,cx,cy,pal,ph){ // 真图元绘制：调色板随相位循
 }
 const MOVE_FX = {
   // ── 第一批：26 高频招（/tmp/move_freq_full.txt，test 统计 80% 覆盖）──
-  '撞击': {dash:20, hit:1},                        // 几何：突进+HIT
-  '挣扎': {dash:8, tint:1, hit:1},                 // 几何：自体晃+闪
-  '抓':   {dash:12, slash:1, hit:1},               // 真图元 cut × 几何突进
-  '毒针': {projN:'needle', burstG:['powder','poison'], hit:1},  // 几何针 + 真图元毒粉
-  '电光一闪': {dash:26, wind:1, hit:1},            // 几何：急进+风线
-  '啄':   {dash:18, slash:1, hit:1},               // 真图元 cut 啄击
-  '电击': {charge:1, tint:1, boltG:1, hit:1},      // 蓄力闪白 + 真图元 lightning 主帧
-  '火花': {ember:1, burstG:['fire','fire'], hit:1},// 真图元 fire 爆焰+调色板循环
-  '起风': {wind:1, hit:1},                         // 几何：风线
-  '紧束': {bind:1},                                // 几何：缠绕收紧
-  '咬住': {dash:14, slash:1, hit:1},               // 真图元 cut 咬
-  '拍击': {dash:16, hit:1},
-  '泡沫': {burstG:['bubble','water'], hit:1},      // 真图元 bubble 整泡
-  '水枪': {proj:['water','water'], hit:1},         // 真图元 water 水弹
-  '藤鞭': {slash:1, bind:1, hit:1},                // 真图元 cut + 几何鞭缚
-  '必杀门牙': {slash:2, dash:10, hit:1},           // 真图元 cut ×2 大牙
-  '吸血': {drain:1, hit:1},                        // 几何：粒子倒流
-  '乱击': {multi:1, dash:10, hit:1},               // 几何：HIT×3
-  '角撞': {dash:22, hit:1},
-  '舌舔': {projN:'lick', hit:1},                   // 几何：舌
-  '落石': {rocksG:1, hit:1},                       // 真图元 rocks 三帧（小/碎/大）
-  '连环巴掌': {multi:1, dash:12, hit:1},
-  '啄钻': {dash:24, slash:1, hit:1},
-  '飞叶快刀': {proj:['leaf','grass'], hit:1},      // 真图元 leaf 双叶
-  '念力': {rings:1, hit:1},                        // 真图元 wave 念力波+循环
-  '投球': {projN:'orb', hit:1},                    // 几何：球
-  '*':    {dash:12, hit:1},
+  '撞击': {dur:3, dash:20, hit:1},  // 几何：突进+HIT  [wait:Tackle 12]
+  '挣扎': {dur:8, dash:8, tint:1, hit:1},  // 几何：自体晃+闪  [wait:Struggle 48]
+  '抓': {dur:8, dash:12, slash:1, hit:1},  // 真图元 cut × 几何突进  [wait:FurySwipes 44]
+  '毒针': {dur:5, projN:'needle', burstG:['powder','poison'], hit:1},  // 几何针 + 真图元毒粉  [wait:PoisonSting 32]
+  '电光一闪': {dur:6, dash:26, wind:1, hit:1},  // 几何：急进+风线  [wait:QuickAttack 36]
+  '啄': {dur:4, dash:18, slash:1, hit:1},  // 真图元 cut 啄击  [wait:Peck 24]
+  '电击': {dur:19, charge:1, tint:1, boltG:1, hit:1},  // 蓄力闪白 + 真图元 lightning 主帧  [wait:Thundershock 112]
+  '火花': {dur:9, ember:1, burstG:['fire','fire'], hit:1},  // 真图元 fire 爆焰+调色板循环  [wait:Ember 56]
+  '起风': {dur:3, wind:1, hit:1},  // 几何：风线  [wait:Gust ~10]
+  '紧束': {dur:29, bind:1},  // 几何：缠绕收紧  [wait:Bind 176]
+  '咬住': {dur:5, dash:14, slash:1, hit:1},  // 真图元 cut 咬  [wait:Bite 32]
+  '拍击': {dur:4, dash:16, hit:1},    // [wait:Slap 22]
+  '泡沫': {dur:29, burstG:['bubble','water'], hit:1},  // 真图元 bubble 整泡  [wait:Bubble 172]
+  '水枪': {dur:17, proj:['water','water'], hit:1},  // 真图元 water 水弹  [wait:WaterGun 104]
+  '藤鞭': {dur:3, slash:1, bind:1, hit:1},  // 真图元 cut + 几何鞭缚  [wait:VineWhip 12]
+  '必杀门牙': {dur:6, slash:2, dash:10, hit:1},  // 真图元 cut ×2 大牙  [wait:HyperFang 34]
+  '吸血': {dur:8, drain:1, hit:1},  // 几何：粒子倒流  [wait:Absorb 50]
+  '乱击': {dur:8, multi:1, dash:10, hit:1},  // 几何：HIT×3  [wait:FurySwipes 44]
+  '角撞': {dur:6, dash:22, hit:1},    // [wait:HornAttack 34]
+  '舌舔': {dur:6, projN:'lick', hit:1},  // 几何：舌  [wait:Lick 34]
+  '落石': {dur:17, rocksG:1, hit:1},  // 真图元 rocks 三帧（小/碎/大）  [wait:RockThrow 104]
+  '连环巴掌': {dur:10, multi:1, dash:12, hit:1},    // [wait:DoubleSlap 58]
+  '啄钻': {dur:6, dash:24, slash:1, hit:1},    // [wait:DrillPeck 34]
+  '飞叶快刀': {dur:16, proj:['leaf','grass'], hit:1},  // 真图元 leaf 双叶  [wait:RazorLeaf 96]
+  '念力': {dur:9, rings:1, hit:1},  // 真图元 wave 念力波+循环  [wait:Confusion 56]
+  '投球': {dur:8, projN:'orb', hit:1},  // 几何：球  [wait:~50]
+  '*': {dur:4, dash:12, hit:1},    // [wait:默认]
 };
 /* ── 第二批：属性兜底 —— 招式不在 MOVE_FX 时按 moves.bin 的属性（payload moveTypes）
    派发。15 条数据，同属性共性、异属性一眼区分。── */
+/* dur=asm anim_wait 总和/60fps→10fps（四舍五入，最少 3）。出处列在每行 // [wait:招名 总逻辑帧]。
+   例：电击 Thundershock 112 帧(1.87s)→19 帧；撞击 Tackle 12 帧(0.2s)→3 帧 —— 快慢对比即此。 */
 const TYPE_FX={
- '一般':{dash:16,hit:1},
- '火':{ember:1,burstG:['fire','fire'],hit:1},
- '水':{proj:['water','water'],hit:1},
- '草':{proj:['leaf','grass'],hit:1},
- '电':{charge:1,boltG:1,hit:1},
- '冰':{burstG:['bubble','ice'],hit:1},
- '格斗':{dash:24,slash:1,hit:1},
- '毒':{projN:'needle',burstG:['powder','poison'],hit:1},
- '地面':{rocksG:1,hit:1},
- '飞行':{wind:1,dash:18,hit:1},
- '超能':{rings:1,hit:1},
- '虫':{drain:1,hit:1},
- '岩石':{rocksG:1,hit:1},
- '幽灵':{tint:1,rings:1,hit:1},
- '龙':{projN:'orb',tint:1,hit:1},
+ '一般':{dur:4,dash:16,hit:1},
+ '火':{dur:9,ember:1,burstG:['fire','fire'],hit:1},
+ '水':{dur:17,proj:['water','water'],hit:1},
+ '草':{dur:16,proj:['leaf','grass'],hit:1},
+ '电':{dur:19,charge:1,boltG:1,hit:1},
+ '冰':{dur:29,burstG:['bubble','ice'],hit:1},
+ '格斗':{dur:8,dash:24,slash:1,hit:1},
+ '毒':{dur:5,projN:'needle',burstG:['powder','poison'],hit:1},
+ '地面':{dur:17,rocksG:1,hit:1},
+ '飞行':{dur:5,wind:1,dash:18,hit:1},
+ '超能':{dur:9,rings:1,hit:1},
+ '虫':{dur:8,drain:1,hit:1},
+ '岩石':{dur:17,rocksG:1,hit:1},
+ '幽灵':{dur:8,tint:1,rings:1,hit:1},
+ '龙':{dur:8,projN:'orb',tint:1,hit:1},
 };
 /* 演示钩子：st.P3.fxDemo 强制预览某招（不改数值，只换表现）。
    剧本实际派发按 r.move —— 演示与实战走同一条解释路径。 */
@@ -4121,6 +4138,18 @@ function ellipse(cx,cy,rx,ry,c){ // 实心椭圆（GSC 平台近似；旧版点�
     if(w>0){ ctx.fillStyle=c; ctx.fillRect(cx-w, cy+dy, w*2, 1); }
   }
 }
+/* ── GSC 战斗 fx 锚（二十派活③；集中定义 —— D28 将抽进 sim/layout.py，别散落）──
+   asm 出处 data/moves/animations.asm：anim_obj 绝对坐标@160×144。
+   命中带 (136,48-68)=受击方身体带；用户源点 (64,76-100)=攻击方口部。
+   横向 ×1.5（240/160）；纵向 320/144≈2.22 非等比 —— 双锚点仿射：
+   GSC y56(命中带中心)→受击方墨心、GSC y88(用户源)→攻击方墨心。
+   「从攻击方飞向受击方」的相对运动仍走 petRect/wildRect（自适应 96/48 主宠）。 */
+const GSC_A = {
+  hit:  {x:136, y:56},   // 受击方命中带中心
+  user: {x:64,  y:88},   // 攻击方源点
+  x: (gx)=>gx*1.5,
+  y: (gy, wildCy, petCy)=> wildCy + (gy-56)*(petCy-wildCy)/32,
+};
 function fxRects(r, petRect, wildRect){
   const atkIsPet = r.attacker==='pet';
   return { atkIsPet, def: atkIsPet?wildRect:petRect };
@@ -4138,6 +4167,7 @@ function fxOffsets(fx, r, ph, petRect, wildRect){
   return off;
 }
 function fxOverlay(fx, r, ph, petRect, wildRect, wildId){
+  const p8 = ph;   // 调用方传的是 8 段归一相位（二十派活①；形参名沿用 ph 兼容旧分支）
   const {atkIsPet, def} = fxRects(r, petRect, wildRect);
   const defC = {x:def.x+def.s/2, y:def.y+def.s/2};
   if(fx.tint && (ph===1||ph===3)){                    // 电击闪屏：金调两次
@@ -4151,14 +4181,19 @@ function fxOverlay(fx, r, ph, petRect, wildRect, wildId){
            atkIsPet?atkR.s/32:atkR.s/40, '#f0f0f0');   // 主宠 back@32源 / 野怪 front@40源
     ctx.globalAlpha = 1;
   }
-  if(fx.bolt && ph>=2 && ph<=4 && !r.missed){         // 之字电光：顶→受击者
-    ctx.strokeStyle=T().hpY; ctx.lineWidth=2; ctx.beginPath();
-    let bx=defC.x+10, by=0; ctx.moveTo(bx,by);
-    while(by<defC.y-6){ by+=12; bx+=(((by/12)%2)?1:-1)*10; ctx.lineTo(bx,by); }
-    ctx.lineTo(defC.x,defC.y); ctx.stroke();
-    ctx.strokeStyle='#ffffff'; ctx.lineWidth=1; ctx.stroke();
-  }
-  if(fx.rocks && !r.missed){                          // 落石（命中类：石头砸中才落，miss 不播）
+  if(fx.boltG && p8>=2 && !r.missed){         // 二十派活③ 电击改形（照 asm）：
+    // Thundershock = 目标处 CORE 球(PAL_GRAY)绕圈 + SPARKS 圆(PAL_YELLOW, lightning 图元)。
+    // GSC 没有「用户→目标电光束」—— 那是 Thunderbolt/Thunder 的形（诊断优先级 3）
+    const th=(p8-2)/6;                       // 段内进度 0..1
+    for(let k=0;k<4;k++){                    // SPARKS_CIRCLE：lightning 散点帧绕圈（4+4 帧循环）
+      const a=th*Math.PI*2+k*Math.PI/2;
+      gfxDrawAt('bolt', (Math.floor(th*8)%2)?4:3,
+                Math.round(defC.x+Math.cos(a)*20-12), Math.round(defC.y+Math.sin(a)*20-16),
+                'psychic', p8);
+    }
+    gfxDraw('bolt', 4, defC.x+Math.cos(th*Math.PI*2)*6, defC.y+Math.sin(th*Math.PI*2)*6,
+            'gray', p8);                     // CORE：explosion 近似（bolt 散点帧）灰，绕小圈
+  }  if(fx.rocks && !r.missed){                          // 落石（命中类：石头砸中才落，miss 不播）
     for(let i=0;i<fx.rocks;i++){
       const drop=(ph-i)/5; if(drop<0||drop>1) continue;
       const rx=defC.x-8+i*9, ry=(def.y-14)*drop;
@@ -4240,9 +4275,17 @@ function fxOverlay(fx, r, ph, petRect, wildRect, wildId){
 function p3G(){ // G 金银：GSC 原作布局（engine/battle/core.asm 坐标 ×1.5 换算到 240×320）
   const t=DIRS.G.pal; const {sc,tl,it}=p3Cur();
   if(!sc||!tl.length){ text('（无回合）',80,150); return; }
-  const r=it.r, ph=it.ph; const [wdx,pdx]=p3Shake(r,ph);
+  const r=it.r, ph=it.ph;
+  // 二十派活①：每招时长可变（it.n 帧），fx/shake 用 8 段归一相位 —— 动画变慢但节奏比例保持
+  const p8 = it.n? Math.min(7, Math.floor(ph/it.n*8)) : ph;
+  const [wdx,pdx]=p3Shake(r,p8);
   const m=D.mons[sc.wildSid-1]; const wpx=m.fsize*2;
   fieldFill();
+  // 二十派活②：落石 SHAKE_SCREEN_X（asm RockThrow 首行 bgeffect）—— 全屏横抖。
+  // 只包战斗内容（HUD 消息窗不抖），fx 结束段 5-7 抖幅渐衰
+  const fxsp = fxSpec(r)||{};
+  const gsx = (fxsp.rocksG||fxsp.rocks) && !r.missed && p8>=5
+            ? Math.round(Math.sin(p8*2.4)*6*(8-p8)/3) : 0;
   // 招式动画（第一段）：攻击方突进位移 —— 必须在画 sprite 前算
   const big = P3GSZ==='96';
   const petRect = big?{x:16,y:112,s:96}:{x:24,y:160,s:48};
@@ -4252,7 +4295,8 @@ function p3G(){ // G 金银：GSC 原作布局（engine/battle/core.asm 坐标 �
   const wildRect = {x:wildX, y:150-wpx, s:wpx};
   // 十八派活②：EXP 动画帧（it.exp）不再派发上一招特效 —— 战斗已结束，
   // tint/charge 等残留会把 sprite 染色（曾把升级帧的两只都染绿）
-  const fxo = it.exp ? {pet:0,wild:0} : fxOffsets(fxSpec(r), r, ph, petRect, wildRect);
+  const fxo = it.exp ? {pet:0,wild:0} : fxOffsets(fxSpec(r), r, p8, petRect, wildRect);
+  ctx.save(); if(gsx) ctx.translate(gsx,0);
 
   /* ── 敌方 HUD（GSC core.asm DrawEnemyHUD：hlcoord 1,0；条 hlcoord 2,2 =
         HP: 标签 + 6 条 tile + 端帽，敌侧无数字无 EXP）。
@@ -4296,7 +4340,8 @@ function p3G(){ // G 金银：GSC 原作布局（engine/battle/core.asm 坐标 �
     ellipse(64, Math.round(160+(pbb.y1+1)*1.5)+2, 50, 7, t.dim); }
 
   // 招式动画（第二段）：特效层叠在 sprite 之上
-  if(!it.exp) fxOverlay(fxSpec(r), r, ph, petRect, wildRect, sc.wildSid);
+  if(!it.exp) fxOverlay(fxSpec(r), r, p8, petRect, wildRect, sc.wildSid);
+  ctx.restore();                                    // 屏抖结束（消息窗不抖）
 
   /* ── 消息窗（两行，strings.py BATTLE_LINES：L1=谁 L2=做了什么）── */
   const mvShow = st.P3.fxDemo || r.move;
@@ -4417,12 +4462,18 @@ function P3_timeline(sc){
   const s=SP.battle.scenarios.find(x=>x.label===sc);
   if(!s) return [];
   const tl=[];
-  for(const r of s.rounds) for(let f=0;f<8;f++) tl.push({r,ph:f});
+  // 二十派活①：每招时长照 asm（MOVE_FX[..].dur = anim_wait 总和/60fps*10fps，
+  // 撞击 3 帧 vs 电击 19 帧 vs 泡沫 29 帧 —— 蓄力长命中短的对比出来）
+  for(const r of s.rounds){
+    const spec = fxSpec(r) || {};
+    const n = Math.max(3, spec.dur || 8);
+    for(let f=0;f<n;f++) tl.push({r, ph:f, n});
+  }
   // 胜利后追加 EXP 动画帧段（core.asm AnimateExpBar 的 web 复刻）——
   // 滑杆帧数与渲染必须同源，此前两处各建一份出现过 24≠48 的滑杆失真
   if(s.won&&SP.battle.expDemo){
     const last=s.rounds[s.rounds.length-1];
-    for(const fr of expFrames(SP.battle.expDemo)) tl.push({r:last,ph:7,exp:fr}); }
+    for(const fr of expFrames(SP.battle.expDemo)) tl.push({r:last,ph:7,n:8,exp:fr}); }
   return tl;
 }
 const PAGES={
@@ -4505,8 +4556,8 @@ const PAGES={
    key(k){ if(k==='A') go('P4'); else if(k==='C') go('P2'); else if(k==='B') st.P3.fi=0; },
    info(){
      const tl=P3_timeline(st.P3.sc); if(!tl.length) return '（无回合）';
-     const {r,ph}=tl[Math.min(st.P3.fi,tl.length-1)];
-     return `${st.P3.sc} 剧本 · 回合 ${r.attacker==='pet'?'皮卡丘':'野怪'}用「${r.move||'攻击'}」${r.label||''} −${r.damage} · 段内帧 ${ph}/8${r.missed?' · 未命中':''} · 骨架${P3SKEL==='alt'?'打破':'通用'}（${DIRS[DIR].label}）${DIR==='G'?' · 主宠 '+P3GSZ+'px · 动画 '+(st.P3.fxDemo?st.P3.fxDemo+'（预览）':(MOVE_FX[r.move]?'按 move 派发 '+r.move:'默认')):''}`; },
+     const {r,ph,n}=tl[Math.min(st.P3.fi,tl.length-1)];
+     return `${st.P3.sc} 剧本 · 回合 ${r.attacker==='pet'?'皮卡丘':'野怪'}用「${r.move||'攻击'}」${r.label||''} −${r.damage} · 段内帧 ${ph}/${n||8}${r.missed?' · 未命中':''} · 骨架${P3SKEL==='alt'?'打破':'通用'}（${DIRS[DIR].label}）${DIR==='G'?' · 主宠 '+P3GSZ+'px · 动画 '+(st.P3.fxDemo?st.P3.fxDemo+'（预览）':(MOVE_FX[r.move]?'按 move 派发 '+r.move:'默认')):''}`; },
    render(){ if(DIR==='G'){ p3G(); }                   // G 恒用战斗构图（骨架开关对其无效）
      else if(P3SKEL==='alt') p3Alt(); else (R3[DIR]||R3.base)(); }},
  P4:{label:'P4 捕获', enter(){ st.P4.thrown=null; },
