@@ -178,6 +178,33 @@ class Scan:
         )
 
 
+def dedup_hashes(scan: Scan) -> set[int]:
+    """一次扫描里**去重后的全部** AP 哈希（不截断 top-N）。
+
+    对应固件 `sensing.c` 的 `dedup()`：同一 BSSID 出现多次时取最强的那次，
+    但**不按信号强度截断**。`fresh_ratio` 与 `seen_hashes` 用这一份，
+    因为 docs/02-sensing.md:175 写的是「本次新 BSSID 数 / **本次 AP 数**」，
+    :261 又明确「新鲜度不受 AP 总数影响」—— top-8 截断恰恰会让它受影响。
+
+    与 `Signature.from_scan` 的两处刻意差异（都对齐 C 侧 `dedup`）：
+      · 不取 top-N   —— C 侧 `dn` 是全部去重结果
+      · 不滤零权重   —— C 侧 `dedup` 不看 `sens_rssi_weight`
+    （这份数据上零权重恰好一个都没有，所以第二条当前不影响数字，
+      但语义上要跟 C 一致，否则下一份数据就会分叉。）
+
+    C 侧 `dedup` 有 `cap=64`，这里没有：实测 only_24g 后最大 23 个 AP，
+    远未触及；真要触及说明数据形状变了，那时该一起改而不是悄悄截断。
+    """
+    best: dict[int, int] = {}
+    for ap in scan.aps:
+        if not ap.bssid:
+            continue
+        h = hash32(ap.bssid)
+        if h not in best or ap.rssi > best[h]:
+            best[h] = ap.rssi
+    return set(best)
+
+
 class Signature:
     """一次扫描的加权指纹：top-N 个 (哈希, 权重)。
 
@@ -502,8 +529,23 @@ class SensingCore:
 
         # 单帧指纹 —— 只用于 transient_aps（瞬现 AP 是猎场遭遇的原料，
         # 平滑会把它抹掉，见 docs/04-gameplay.md#411）
+        #
+        # ⚠️ 这里刻意分成**两个**集合，别看着相似就合并（D31）：
+        #
+        #   frame_hashes（top-8）  → transient / _prev_hashes
+        #   cur_hashes（去重全集） → fresh_ratio / seen_hashes
+        #
+        # 它们对应固件里两个不同的变量：`sensing.c` 的 transient_aps 用
+        # `frame`（top-8 单帧指纹），而 fresh_ratio 与 bloom_add 用
+        # `dn`（dedup 后的全部 AP）。
+        # 曾经这里只有一个 cur_hashes 担了两个语义，于是 fresh_ratio 跟着
+        # transient 一起被截断成 top-8 —— 违反 docs/02-sensing.md:175
+        # 「fresh_ratio = 本次新 BSSID 数 / **本次 AP 数**」与 :261
+        # 「新鲜度不受 AP 总数影响」。
+        # **把它们合并回一个变量会让 transient 从 0 处不符变成数百处。**
         frame_sig = Signature.from_scan(scan)
-        cur_hashes = set(frame_sig.weights.keys())
+        frame_hashes = set(frame_sig.weights.keys())
+        cur_hashes = dedup_hashes(scan)
 
         # 平滑指纹 —— 用于移动判定与地点匹配。
         # 单帧比对在真实稀疏环境下会被 AP 闪烁主导（实测静坐 20 分钟报出
@@ -533,7 +575,11 @@ class SensingCore:
                     and fresh_ratio >= FRESH_RATIO_THRESHOLD)
 
         # AP 太少时距离判据不可信（见 MIN_APS_FOR_DISTANCE），
-        # 传 -1 让 MotionState 只依据新鲜度
+        # 传 -1 让 MotionState 只依据新鲜度。
+        # 用**全集**计数：固件侧这条判的是 `dn >= SENS_MIN_APS_FOR_DIST`。
+        # 实测这份数据上两种口径的判定结果 0/1061 处不同（top-8 已 >=5 时全集必然也 >=5，
+        # 只有「全集 >=5 而 top-8 <5」才会分叉，那要求 3 个以上 AP 权重为零），
+        # 所以这一行改的是语义对齐，不影响本轮数字。
         reliable_dist = dist if len(cur_hashes) >= MIN_APS_FOR_DISTANCE else -1.0
 
         # 新鲜度为 0 → 否决距离判据（见 VETO_MOVE_WHEN_NO_FRESH）。
@@ -558,8 +604,11 @@ class SensingCore:
                 self.motion_accum -= self.motion_per_event
                 self.motion_events += 1
 
-        # 转瞬即逝的 AP —— 用单帧哈希，不用平滑（平滑会抹掉一次性出现的 AP）
-        transient = len(cur_hashes - self._prev_hashes) if self._prev_hashes else 0
+        # 转瞬即逝的 AP —— 用单帧 top-8 哈希，不用平滑（平滑会抹掉一次性出现的 AP），
+        # 也**不用全集**：固件 `sensing.c` 的 transient_aps 比的是
+        # `frame`（top-8 单帧指纹）。这里改用全集会让门禁的 trans 从 0 处不符
+        # 变成数百处（实测 457/1061）—— 那不是修好，是把一个对齐的量弄坏。
+        transient = len(frame_hashes - self._prev_hashes) if self._prev_hashes else 0
 
         # 地点识别只在驻留时做：移动中指纹一直在变，记下来毫无意义，
         # 只会把 8 个槽位迅速塞满并把真正的地点挤掉。
@@ -594,9 +643,12 @@ class SensingCore:
                 # S7 进化的 biome 驻留条件依赖这份数据
                 self.memory.add_dwell(place.biome, elapsed)
 
+        # seen_hashes 收**全集**（对齐 `sensing.c` 里 `bloom_add(c, dh[i])` 那一行，
+        # 记的是 dn 而不是 top-8）；_prev_hashes 收 **top-8**（对齐 C 侧 prev_frame）。
+        # 这两行取的是不同的集合，不是笔误。
         self.seen_hashes |= cur_hashes
         self._prev_sig = sig
-        self._prev_hashes = cur_hashes
+        self._prev_hashes = frame_hashes
         self._prev_ts = scan.ts
 
         return SensingResult(

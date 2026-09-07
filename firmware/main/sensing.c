@@ -95,7 +95,8 @@ static uint8_t dedup(const sens_ap_t *aps, uint8_t n,
 // 按权重降序取 top-N 填进 sig。选择排序 —— N=8，比快排常数小。
 //
 // ⚠️ 权重相同时的取舍会影响哪些入选。Python 的 sorted 是稳定排序
-// 保留原顺序；这里用严格大于 `>` 比较，同样保留先出现的。两边一致。
+// 保留原顺序；这里用严格大于 `>` 比较，同样保留先出现的。
+// 两边入选一致还要求输入顺序和权重并列关系一致；平滑窗口须按旧→新聚合。
 static void take_top(const uint32_t *h, const uint32_t *w, uint8_t m,
                      sens_sig_t *out)
 {
@@ -211,8 +212,12 @@ static void smooth_current(const sens_core_t *c, sens_sig_t *out)
     uint8_t m = 0;
     const uint8_t cap = SENS_FRAME_APS * SENS_SMOOTH_WINDOW;
 
+    // win_head 指向下次写入位置；未满时最旧帧在 0，满后在 win_head。
+    // 按旧→新遍历，使并列权重的 AP 保留与 Python deque 相同的首次出现顺序。
+    const uint8_t oldest = (c->win_head + SENS_SMOOTH_WINDOW - c->win_n) %
+                           SENS_SMOOTH_WINDOW;
     for (uint8_t k = 0; k < c->win_n; k++) {
-        const sens_frame_t *f = &c->win[k];
+        const sens_frame_t *f = &c->win[(oldest + k) % SENS_SMOOTH_WINDOW];
         for (uint8_t i = 0; i < f->n; i++) {
             uint8_t j = 0;
             for (; j < m; j++) if (hs[j] == f->hash[i]) break;
@@ -227,10 +232,10 @@ static void smooth_current(const sens_core_t *c, sens_sig_t *out)
 
     // weight = (cnt / win_n) × (wsum / cnt) = wsum / win_n
     //
-    // 代数上两式等价，但**运算顺序会改变整数舍入**。
-    // sim 侧写的是 (cnt/n) * (wsum/cnt)，浮点下等于 wsum/n；
-    // 这里直接用 wsum/win_n，一次除法反而更接近浮点结果 ——
-    // 分两次整数除会连丢两次余数。
+    // 代数上两式等价，但浮点与定点的舍入均可能改变权重的并列关系。
+    // sim 侧 (cnt/n) * (wsum/cnt) 是两步浮点运算，并非两步整数除；
+    // 浮点结果不保证与 wsum/n 逐位相等，细微差异也会影响 top-N 入选。
+    // 这里保留一次定点除法，避免额外截断；不能据此声称两端排序完全一致。
     uint32_t w[SENS_FRAME_APS * SENS_SMOOTH_WINDOW];
     for (uint8_t i = 0; i < m; i++) w[i] = wsum[i] / c->win_n;
 
