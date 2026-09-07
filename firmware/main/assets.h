@@ -57,7 +57,16 @@ int assets_known_moves(uint16_t species_id, uint8_t level,
                        move_t *out, int max_out);
 uint16_t assets_move_count(void);
 
-// back sprite 的 2bpp 数据（256 字节）。id 越界返回 NULL。
+typedef struct {
+    const uint8_t *data;      // 2bpp rows, ceil(w/4) bytes per row
+    uint8_t w, h;
+} sprite_asset_t;
+
+// Sized back view. Dimensions and record stride come from the BACK header.
+// Invalid assets/IDs return false and clear out. Supports 32x32 and 48x48.
+bool assets_back_sprite_info(uint16_t id, sprite_asset_t *out);
+
+// Legacy 32x32 view (256 bytes). Other sizes/invalid IDs return NULL.
 const uint8_t *assets_back_sprite(uint16_t id);
 
 // front sprite 按物种尺寸档返回 2bpp 数据，并把原始边长写入 size。

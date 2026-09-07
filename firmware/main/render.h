@@ -12,6 +12,48 @@
 // 不依赖 LVGL —— 直接写 screen.c 的横带缓冲。
 // 这让渲染层能在 host 上编译测试（同 sensing.c）。
 
+// UTF-8 解一个码点，返回消耗的字节数。
+//
+// 只处理 1/2/3 字节（BMP 内）——字库的码点索引是 u16，
+// 4 字节的补充平面本来就存不下。遇到非法序列跳 1 字节，
+// 避免死循环（那比显示错字符糟得多）。
+static inline uint8_t render_utf8_next(const char *s, uint16_t *cp)
+{
+    uint8_t c = (uint8_t)s[0];
+    if (c < 0x80) { *cp = c; return 1; }
+    if ((c & 0xE0) == 0xC0 && (s[1] & 0xC0) == 0x80) {
+        *cp = (uint16_t)(((c & 0x1F) << 6) | (s[1] & 0x3F));
+        return 2;
+    }
+    if ((c & 0xF0) == 0xE0 && (s[1] & 0xC0) == 0x80 && (s[2] & 0xC0) == 0x80) {
+        *cp = (uint16_t)(((c & 0x0F) << 12) | ((s[1] & 0x3F) << 6) |
+                         (s[2] & 0x3F));
+        return 3;
+    }
+    *cp = '?';
+    return 1;
+}
+
+// Pure layout helpers: host callers supply the font header's size.
+static inline uint8_t render_char_advance_sized(uint16_t cp, uint16_t font_size)
+{
+    return (cp < 0x80) ? (uint8_t)(font_size / 2) : (uint8_t)font_size;
+}
+
+static inline int render_text_width_sized(const char *s, uint16_t font_size)
+{
+    int w = 0;
+    while (*s) {
+        uint16_t cp;
+        s += render_utf8_next(s, &cp);
+        w += render_char_advance_sized(cp, font_size);
+    }
+    return w;
+}
+
+// Current initialized font size, or zero before initialization.
+uint16_t render_font_size(void);
+
 // 解析字库。失败时 render_text 静默不画 —— 调用方要看返回值。
 bool render_init(void);
 

@@ -95,45 +95,19 @@ static int glyph_index(uint16_t cp)
     return -1;
 }
 
-// UTF-8 解一个码点，返回消耗的字节数。
-//
-// 只处理 1/2/3 字节（BMP 内）——字库的码点索引是 u16，
-// 4 字节的补充平面本来就存不下。遇到非法序列跳 1 字节，
-// 避免死循环（那比显示错字符糟得多）。
-static uint8_t utf8_next(const char *s, uint16_t *cp)
+uint16_t render_font_size(void)
 {
-    uint8_t c = (uint8_t)s[0];
-    if (c < 0x80) { *cp = c; return 1; }
-    if ((c & 0xE0) == 0xC0 && (s[1] & 0xC0) == 0x80) {
-        *cp = (uint16_t)(((c & 0x1F) << 6) | (s[1] & 0x3F));
-        return 2;
-    }
-    if ((c & 0xF0) == 0xE0 && (s[1] & 0xC0) == 0x80 && (s[2] & 0xC0) == 0x80) {
-        *cp = (uint16_t)(((c & 0x0F) << 12) | ((s[1] & 0x3F) << 6) |
-                         (s[2] & 0x3F));
-        return 3;
-    }
-    *cp = '?';
-    return 1;
+    return s_font.size;
 }
 
 uint8_t render_char_advance(uint16_t cp)
 {
-    // 这一行就是 P1-③ 的解法：ASCII 半宽。
-    // 与 sim/strings.py 的 text_px() 保持一致 ——
-    // 页面文档的所有排版数字都基于它。
-    return (cp < 0x80) ? (uint8_t)(s_font.size / 2) : (uint8_t)s_font.size;
+    return render_char_advance_sized(cp, s_font.size);
 }
 
 int render_text_width(const char *s)
 {
-    int w = 0;
-    while (*s) {
-        uint16_t cp;
-        s += utf8_next(s, &cp);
-        w += render_char_advance(cp);
-    }
-    return w;
+    return render_text_width_sized(s, s_font.size);
 }
 
 // 画一个字形到 canvas。1bpp → 前景色，0 位不画（透明）。
@@ -156,7 +130,7 @@ int render_text(int x, int y, const char *s, uint16_t fg)
     if (!s_font.ok || !s) return x;
     while (*s) {
         uint16_t cp;
-        s += utf8_next(s, &cp);
+        s += render_utf8_next(s, &cp);
         int gi = glyph_index(cp);
         if (gi >= 0) {
             // ASCII 半宽时把字形**左移**再画 —— 字形墨迹居中在
@@ -239,7 +213,7 @@ bool render_selftest(void)
     };
     for (unsigned i = 0; i < sizeof(PROBE) / sizeof(PROBE[0]); i++) {
         uint16_t cp;
-        utf8_next(PROBE[i].s, &cp);
+        render_utf8_next(PROBE[i].s, &cp);
         if (glyph_index(cp) < 0) {
             ESP_LOGE(TAG, "字库缺「%s」(%s)", PROBE[i].s, PROBE[i].why);
             ok = false;

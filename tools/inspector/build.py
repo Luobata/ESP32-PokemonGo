@@ -35,6 +35,103 @@ TRIGGERS = {0: "升级", 1: "道具", 2: "交换", 255: ""}
 FRONT_SIZES = [40, 48, 56]
 
 
+def _scene_cli() -> pathlib.Path:
+    """编出 scene_cli 求值器，返回可执行路径。两条配方导出共用。
+
+    **失败即失败，不静默退回** —— 若这里 fallback 成「web 自己算」，
+    就等于悄悄退回分叉状态，而门禁与画面都看不出来。
+    """
+    src = REPO / "tools" / "pipeline" / "scene_cli.c"
+    inc = REPO / "firmware" / "main"
+    out = pathlib.Path(os.environ.get("TMPDIR", "/tmp")) / "scene_cli.build"
+    # 既有门禁（verify_battle.py:187）用裸 "cc"；这里同口径，
+    # 但显式回退 /usr/bin/cc —— 交互 shell 里 cc 可能被别名劫持。
+    r = None
+    for compiler in ("cc", "/usr/bin/cc"):
+        try:
+            r = subprocess.run([compiler, "-std=c11", "-O1", "-Wall", "-Wextra",
+                                "-Werror", "-I", str(inc), "-o", str(out), str(src)],
+                               capture_output=True, text=True)
+            if r.returncode == 0:
+                return out
+        except FileNotFoundError:
+            continue
+    raise RuntimeError("scene_cli.c 编译失败：" +
+                       (r.stderr[:400] if r else "找不到可用的 cc"))
+
+
+def _scene_p3_pet_hp(scenarios: list[dict]) -> dict:
+    """构建期用共享 C 配方求 P3 主宠 HP 条的绘制矩形（D77 第 2 步）。
+
+    ## 为什么在构建期而不是浏览器里
+
+    `docs/11-render-engine.md:36` 判定过：确定性演示时间线本来就在构建期
+    导出页面数据，所以同一条 C 只要能在构建期求值就够，**不必引入 WASM**。
+    任意交互输入才需要 WASM，那是第 5 步。本函数就是那条判定的落地。
+
+    ## 求值器
+
+    `tools/pipeline/scene_cli.c` —— 与固件 `play_battle.c` **include 同一个
+    `render_scene.h`**。web 因此零求解逻辑：只按 (剧本, 回合) 查矩形并填色。
+
+    ## 失败即失败，不静默退回
+
+    编译或求值失败直接 raise —— **若这里 fallback 成「web 自己算」，
+    就等于悄悄退回分叉状态，而门禁与画面都看不出来**。
+    """
+    out = _scene_cli()
+
+    frames: dict[str, list] = {}
+    for sc in scenarios:
+        args = [f"{rd['petHp']}/{sc['petMax']}" for rd in sc["rounds"]]
+        p = subprocess.run([str(out), "p3_pet_hp_batch", *args],
+                           capture_output=True, text=True)
+        if p.returncode != 0:
+            raise RuntimeError(f"scene_cli 求值失败：{p.stderr[:400]}")
+        frames[sc["label"]] = json.loads(p.stdout)["frames"]
+    return {"source": "firmware/main/render_scene.h via tools/pipeline/scene_cli.c",
+            "byScenario": frames}
+
+
+def _scene_p3_pet_name(scenarios: list[dict]) -> dict:
+    """构建期用共享 C 配方求 P3 主宠名牌的文本与位置（D91 第 4 步）。
+
+    ## 与 HP 条那条的区别
+
+    配方输出是**「文本 + 位置 + 颜色」而不是矩形** ——
+    `scene_text_fn` 签名 `(ctx, x, y, text, color)`，
+    且 text 指针只在 callback 内有效（`render_scene.h:24`）。
+    `scene_cli.c` 的 `emit_text_json` 同步拷进 stdout，符合该契约。
+
+    ## 截断由配方判定，web 零逻辑
+
+    D53 边界（五字名 + Lv100 超 120px → **只去空格，绝不缩名字**）
+    在 `scene_p3_pet_name_sized` 里，web 只拿最终字串。
+
+    ## font_size 为什么传 16
+
+    `render_char_advance_sized(cp, size)` 的规则是 `cp<0x80 ? size/2 : size`，
+    而 `assets/font16.bin` 是 16px 字库（`FNT1`，29968 字节）。
+    **这是 cep-coder 本轮把测宽与字库数据解耦的成果** ——
+    宿主侧传 16 即可，不必链接字库、不必假 `esp_log.h`
+    （我验证过「链接真 render.c」那条路也能跑，但它要三样脚手架，见报告）。
+    """
+    exe = _scene_cli()
+    # 物种名从 gen1.bin 取（与固件 assets_species() 同一数据源），不硬编码。
+    # 剧本主宠固定 25 号皮卡丘 —— 与 sim_pages_payload 里 auto_battle(
+    # pet_species=25) 同一常量。
+    pet = load_data(REPO / "assets" / "gen1.bin")[24]["zh"]
+    by: dict[str, dict] = {}
+    for sc in scenarios:
+        p = subprocess.run([str(exe), "p3_pet_name", pet, str(sc["playerLevel"])],
+                           capture_output=True, text=True)
+        if p.returncode != 0:
+            raise RuntimeError(f"scene_cli p3_pet_name 失败：{p.stderr[:400]}")
+        by[sc["label"]] = json.loads(p.stdout)["item"]
+    return {"source": "firmware/main/render_scene.h via tools/pipeline/scene_cli.c",
+            "fontSize": 16, "byScenario": by}
+
+
 def load_data(path: pathlib.Path) -> list[dict]:
     d = path.read_bytes()
     magic, ver, rsz, cnt, poolsz = struct.unpack("<4sHHII", d[:16])
@@ -1030,6 +1127,12 @@ def sim_pages_payload() -> dict:
     battle = {"scenarios": scenarios, "expDemo": exp_demo,
               "shake": [dataclasses.asdict(t) for t in E.shake_sequence(6)],
               "flash": E.flash_sequence(6)}
+    # ---- 共享渲染配方（D77 第 2 步）：P3 主宠 HP 条的绘制矩形 ----
+    # 构建期把 firmware/main/render_scene.h 的配方对每个剧本回合求值，
+    # web 只消费矩形、**零求解逻辑**（不再有 JS 百分比绘制）。
+    # 求值器是 tools/pipeline/scene_cli.c —— 与固件同一份 C 头。
+    battle["sceneP3PetHp"] = _scene_p3_pet_hp(scenarios)
+    battle["sceneP3PetName"] = _scene_p3_pet_name(scenarios)
 
     # ---- P2 遭遇队列（EncounterQueue 现算样本）----
     # 拿几条真实遭遇：roll_encounter（S1 生成）→ wild_level/roll_shiny →

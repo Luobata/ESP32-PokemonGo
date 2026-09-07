@@ -229,31 +229,53 @@ uint16_t assets_move_count(void) { return s_mv.ok ? s_mv.move_count : 0; }
 // 渲染留到 UI 那步（现在没有页面消费它们，提前写就是没验证过的代码）
 // ---------------------------------------------------------------------------
 
-static struct { const uint8_t *d; size_t len; uint16_t count; bool ok; } s_back;
+static struct {
+    const uint8_t *d;
+    uint16_t count, per;
+    uint8_t w, h;
+    bool ok;
+} s_back;
 
 static bool parse_back(void)
 {
     const uint8_t *d = back_bin_start;
     size_t len = (size_t)(back_bin_end - back_bin_start);
+    s_back.ok = false;
     if (len < 16 || memcmp(d, "BACK", 4) != 0) return false;
     uint16_t w = rd16(d + 6), h = rd16(d + 8), per = rd16(d + 10);
     uint32_t cnt = rd32(d + 12);
-    if (16u + cnt * per != len || w != 32 || h != 32) {
+    if (h != w || (w != 32 && w != 48) ||
+        per != (w + 3u) / 4u * h || cnt > UINT16_MAX ||
+        16u + (size_t)cnt * per != len) {
         ESP_LOGE(TAG, "back.bin 不自洽: %ux%u per=%u cnt=%u len=%u",
                  w, h, per, (unsigned)cnt, (unsigned)len);
         return false;
     }
     s_back.d = d + 16;
-    s_back.len = len;
     s_back.count = (uint16_t)cnt;
+    s_back.per = per;
+    s_back.w = (uint8_t)w;
+    s_back.h = (uint8_t)h;
     s_back.ok = true;
     return true;
 }
 
 const uint8_t *assets_back_sprite(uint16_t id)
 {
-    if (!s_back.ok || id < 1 || id > s_back.count) return NULL;
-    return s_back.d + (size_t)(id - 1) * BACK_SPRITE_BYTES;
+    // Existing callers still assume 32x32; never hand them a 48px record.
+    if (!s_back.ok || s_back.w != 32 || id < 1 || id > s_back.count) return NULL;
+    return s_back.d + (size_t)(id - 1) * s_back.per;
+}
+
+bool assets_back_sprite_info(uint16_t id, sprite_asset_t *out)
+{
+    if (!out) return false;
+    memset(out, 0, sizeof(*out));
+    if (!s_back.ok || id < 1 || id > s_back.count) return false;
+    out->data = s_back.d + (size_t)(id - 1) * s_back.per;
+    out->w = s_back.w;
+    out->h = s_back.h;
+    return true;
 }
 
 #define FRONT_MAX_SEGMENTS 3
