@@ -61,27 +61,46 @@ RE_BAR = re.compile(r'draw_bar\w*\s*\(\s*[^,]+,\s*Y\(([^;]+?)\)\s*,\s*[^,]+,\s*(
 RE_SPR = re.compile(r'render_sprite\w*\s*\(\s*[^,]+,\s*Y\(([^;]+?)\)\s*,.*?,\s*(\w+),\s*(\w+)')
 RE_BAND_OK = re.compile(r'//\s*band-ok:\s*(.+)')
 
-# 四色散开检查：DMG 配色的 RGB_HEX 字面量不应出现在任何 .c 里。
-# 唯一来源是 screen.h 的 C_BG/C_INK/C_MID/C_LIGHT。
+# UI colors live in screen.h. Reject old DMG RGB888 and GSC RGB565 copies.
 DMG_HEX = [
     ("C_BG",    "0x9bbc0f"),
     ("C_INK",   "0x0f380f"),
     ("C_MID",   "0x306230"),
     ("C_LIGHT", "0x8bac0f"),
 ]
+GSC_HEX = [
+    ("C_BG", "0xFFF0"),
+    ("C_INK", "0x0000"),
+    ("C_MID", "0x7240"),
+    ("C_LIGHT", "0xAD55"),
+    ("C_HP_TRACK", "0xF6AF"),
+    ("C_FOCUS", "0x247F"),
+    ("C_HP_GREEN", "0x05E0"),
+    ("C_HP_YELLOW", "0xFD60"),
+    ("C_HP_RED", "0xF800"),
+]
 
 
 def check_palette_scatter(main_dir: str) -> list[str]:
-    """检查 *.c 里是否有人写回 DMG 四色的 RGB_HEX 字面量。"""
+    """Reject copied palette literals; leave layout checks independent."""
     violations = []
+    patterns = [
+        (name, re.compile(r"\bRGB_HEX\s*\(\s*" + value +
+                          r"[uUlL]*\s*\)", re.IGNORECASE))
+        for name, value in DMG_HEX
+    ] + [
+        (name, re.compile(r"\b" + value + r"[uUlL]*\b", re.IGNORECASE))
+        for name, value in GSC_HEX
+    ]
     for p in sorted(pathlib.Path(main_dir).glob("*.c")):
         for ln, line in enumerate(
                 p.read_text(errors='replace').split('\n'), 1):
-            for name, hexval in DMG_HEX:
-                if f"RGB_HEX({hexval})" in line:
+            for name, pattern in patterns:
+                match = pattern.search(line)
+                if match:
                     violations.append(
                         f"  ✗ {p.name}:{ln} 发现 {name} 字面量 "
-                        f"RGB_HEX({hexval}) —— 应引用 screen.h 的 {name}")
+                        f"{match.group()} —— 应引用 screen.h 的 {name}")
     return violations
 
 
