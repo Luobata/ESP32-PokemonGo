@@ -6,10 +6,10 @@
   "session": "pokemon",
   "permission": "full-access",
   "watchdog": true,
-  "rebuild": true,
+  "rebuild": false,
   "templateOrigin": {
     "id": "template-093af84e93",
-    "version": 3
+    "version": 4
   },
   "roles": [
     {
