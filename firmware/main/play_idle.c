@@ -129,7 +129,7 @@ static void draw_bar(int x, int y, int w, int h, uint8_t pct)
 static void draw_band(int band_y, int8_t breath)
 {
     screen_band_clear(C_BG);
-    const uint16_t ink = C_INK, mid = C_MID;
+    const uint16_t ink = C_INK;
 
     // 画布坐标 = 整屏坐标 - band_y。超出这条带的部分自然被裁掉，
     // 所以每个元素都无脑画，不用判断在不在带内。
@@ -163,7 +163,7 @@ static void draw_band(int band_y, int8_t breath)
                               heart.data, heart.w, heart.h, 1, HEART_PAL);
     }
 
-    hline(Y(24), 0, SCR_W, mid);
+    hline(Y(24), 0, SCR_W, C_FOCUS);
 
     // -- 精灵 ----------------------------------------------------------
     const uint8_t *spr = assets_back_sprite(s_w.species);
@@ -222,7 +222,7 @@ static void draw_band(int band_y, int8_t breath)
     //
     // 这一行是 P1-③ 规格冲突的落点：ASCII 半宽让它 184px 放得下。
     // 按定长 16px 算会是 272px，溢出 40px。
-    hline(Y(292), 0, SCR_W, mid);
+    hline(Y(292), 0, SCR_W, C_FOCUS);
     int hx = render_text(8, Y(298), "[A]照料 [B]图鉴 [C]遭遇", ink);
 
     // 待处理遭遇的角标。页面文档：「C 键在有待处理遭遇时显示角标数字

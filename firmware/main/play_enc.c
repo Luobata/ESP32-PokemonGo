@@ -92,7 +92,7 @@ static void draw_stars(int x, int y, uint8_t rarity, uint16_t fg)
 // 而提到公共头文件反而要处理颜色参数。
 static void hline_at(int y)
 {
-    for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_MID);
+    for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_FOCUS);
 }
 
 static void overlay_transition(int band_y)
@@ -147,7 +147,7 @@ static void draw_band(int band_y)
             ui_art_t cur;
             if (assets_ui("cursor", &cur)) {
                 static const uint16_t PAL[4] = {
-                    C_INK, C_MID,
+                    C_INK, C_FOCUS,
                     C_LIGHT, 0,
                 };
                 render_sprite_2bpp_wh(6, Y(y + 3), cur.data, cur.w, cur.h,

@@ -92,7 +92,7 @@ static uint8_t s_flash_i = FLASH_FRAMES;
 
 static void hline_at(int y)
 {
-    for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_MID);
+    for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_FOCUS);
 }
 
 // 判定窗口宽度 —— 四个乘数都在这里汇合

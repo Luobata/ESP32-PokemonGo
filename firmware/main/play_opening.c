@@ -49,7 +49,7 @@ static uint8_t s_oak_breath_frame;
 
 static void hline_at(int y)
 {
-    for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_MID);
+    for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_FOCUS);
 }
 
 // 从 UTF-8 字符串复制前 n 个码点。台词最长 11 个汉字，64B 足够。

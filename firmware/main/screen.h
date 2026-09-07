@@ -47,13 +47,17 @@ typedef void (*screen_redraw_cb_t)(void);
                                  ((b) >> 3)))
 #define RGB_HEX(h) RGB(((h) >> 16) & 0xFF, ((h) >> 8) & 0xFF, (h) & 0xFF)
 
-// DMG 四色 —— 全固件 UI 配色的唯一来源。
-// 原来七个 play_*.c 各自 #define 了一遍，换配色要改七处还容易漏。
-// 现在只改这里。verify_layout.py 会扫 *.c 里是否有人写回字面量。
-#define C_BG    RGB_HEX(0x9bbc0f)   // 背景（GB 绿）
-#define C_INK   RGB_HEX(0x0f380f)   // 前景（最深）
-#define C_MID   RGB_HEX(0x306230)   // 中间调
-#define C_LIGHT RGB_HEX(0x8bac0f)   // 亮调
+// GSC UI colors (RGB565): bg_tiles.pal, hp_bar.pal, exp_bar.pal.
+// Keep the shared names for existing pages; sprite palettes stay in assets.
+#define C_BG        0xFFF0u   // background
+#define C_INK       0x0000u   // primary text / outlines
+#define C_MID       0x7240u   // secondary text
+#define C_LIGHT     0xAD55u   // generic track / cursor (#a8a8a8 quantized)
+#define C_HP_TRACK  0xF6AFu   // HP track
+#define C_FOCUS     0x247Fu   // focus / frame
+#define C_HP_GREEN  0x05E0u
+#define C_HP_YELLOW 0xFD60u
+#define C_HP_RED    0xF800u
 
 // 让 LVGL 闭嘴：建一张空屏并载入，之后**再也不动它**。
 //

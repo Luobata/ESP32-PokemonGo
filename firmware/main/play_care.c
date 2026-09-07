@@ -60,7 +60,7 @@ static uint8_t s_hold;
 
 static void hline_at(int y)
 {
-    for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_MID);
+    for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_FOCUS);
 }
 
 static void draw_bar(int x, int y, int w, int h, uint8_t pct)
@@ -131,7 +131,7 @@ static void draw_band(int band_y)
             ui_art_t cur;
             if (assets_ui("cursor", &cur)) {
                 static const uint16_t PAL[4] = {
-                    C_INK, C_MID, C_LIGHT, 0,
+                    C_INK, C_FOCUS, C_LIGHT, 0,
                 };
                 render_sprite_2bpp_wh(8, Y(y + 3), cur.data, cur.w, cur.h,
                                       1, PAL);
