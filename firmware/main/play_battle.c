@@ -37,6 +37,10 @@
 
 static const char *TAG = "p3";
 
+// dbg.c 的战斗种子覆盖。0 = 不覆盖（用 enc.ts，与正常路径一致）。
+// 见 dbg.c 顶部注释。
+extern uint32_t dbg_battle_seed;
+
 #define BAND_H SCREEN_BAND_H
 #define SCR_W SCREEN_W
 #define SCR_H SCREEN_H
@@ -356,8 +360,11 @@ void play_battle_enter(void)
     if (assets_species(c->enc.species_id, &sp)) {
         uint8_t wlv = battle_wild_level(c->enc.rarity);
         // 先算一遍只为拿到 HP 上限（画满血条用），不播放
+        // 种子：dbg 注入优先（截 miss 图用），否则用 enc.ts（确定性设计）
+        uint32_t battle_seed = dbg_battle_seed ? dbg_battle_seed
+                                               : (c->enc.ts ? c->enc.ts : 1u);
         battle_run(s_pet_species, s_pet_level, c->enc.species_id, wlv,
-                   1024, c->enc.ts ? c->enc.ts : 1, &s_res);
+                   1024, battle_seed, &s_res);
         uint8_t saved_rounds = s_res.round_count;
         (void)saved_rounds;
         s_play_i = 0;    // 回到第 0 回合 = 双方满血

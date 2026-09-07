@@ -43,6 +43,12 @@
 
 static const char *TAG = "dbg";
 
+// 战斗种子覆盖。0 = 不覆盖（用 enc.ts，与正常路径一致）。
+// play_battle.c 在 battle_run() 前读这个值。
+// 设为特定值（如 31）可让第一场战斗第一回合就 miss，
+// 用来截「的攻击落空了！」的真机图 —— miss 是随机事件，不注入截不到。
+uint32_t dbg_battle_seed = 0;
+
 #define AUDIO_PROBE_SAMPLES 480
 static int16_t s_audio_probe_pcm[AUDIO_PROBE_SAMPLES];
 
@@ -172,6 +178,8 @@ static void dbg_task(void *arg)
     (void)arg;
     bool sfx_command = false;
     int sfx_id = -1;
+    bool seed_command = false;
+    uint32_t seed_val = 0;
     for (;;) {
         int c = fgetc(stdin);
         if (c == EOF) {
@@ -197,9 +205,28 @@ static void dbg_task(void *arg)
             sfx_id = -1;
             continue;
         }
+        if (seed_command) {
+            if (c >= '0' && c <= '9') {
+                seed_val = seed_val * 10u + (uint32_t)(c - '0');
+                continue;
+            }
+            if ((c == ' ' || c == '\t') && seed_val == 0) continue;
+            if (c == '\n' || c == '\r') {
+                dbg_battle_seed = seed_val;
+                ESP_LOGI(TAG, "战斗种子注入：%u", (unsigned)seed_val);
+            }
+            seed_command = false;
+            seed_val = 0;
+            continue;
+        }
         if (c == 'p') {
             sfx_command = true;
             sfx_id = -1;
+            continue;
+        }
+        if (c == 'm') {
+            seed_command = true;
+            seed_val = 0;
             continue;
         }
         dispatch((char)c);
@@ -216,8 +243,8 @@ void dbg_start(void)
 
     xTaskCreate(dbg_task, "dbg", 3072, NULL, 3, NULL);
 #ifdef CONFIG_POKEWALK_DEBUG_KEYS
-    ESP_LOGI(TAG, "按键注入已开：a/b/c 单击 A/B/C 双击 s 截图 e 造遭遇 w 存档 v evo-ready p <id> 音效 r 回采");
+    ESP_LOGI(TAG, "按键注入已开：a/b/c 单击 A/B/C 双击 s 截图 e 造遭遇 w 存档 v evo-ready p <id> 音效 m <seed> 战斗种子 r 回采");
 #else
-    ESP_LOGI(TAG, "按键注入已开：a/b/c 单击 A/B/C 双击 s 截图 e 造遭遇 w 存档 p <id> 音效 r 回采");
+    ESP_LOGI(TAG, "按键注入已开：a/b/c 单击 A/B/C 双击 s 截图 e 造遭遇 w 存档 p <id> 音效 m <seed> 战斗种子 r 回采");
 #endif
 }

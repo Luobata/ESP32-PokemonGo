@@ -3937,7 +3937,9 @@ function tileDraw(rows,x0,y0,pal,sc){
 /* GSC HP 条 —— 逐 tile 复刻 home/pokemon.asm DrawBattleHPBar：
    [HP: 标签 $60$61] + 6 条 tile（满 $6a / 部分 $62+e / 空 $62）+ 端帽 $6b(+b)。
    填充色三段：GetHPPal（home/tilemap.asm:220）≥24/48px 绿、≥10/48px 黄、否则红。
-   我方端帽 b=1 → $6c = EnemyHPBarBorderGFX tile0（左楔形，右端斜收）。 */
+   我方端帽 b=1 → $6c = EnemyHPBarBorderGFX tile0（左楔形，右端斜收）。
+   十九派活②：tile 8px ×1.5 = 12px —— 敌我条均 9 tiles = 108px
+   （敌 hlcoord 2,2=x16→x24；我 hlcoord 10,9=x80→x120）。 */
 function gscHpBar(x0,y0,pct,side){
   const e=Math.round(48*Math.max(0,Math.min(100,pct))/100);
   const col=e>=24?'#00be00':(e>=10?'#ffae00':'#ff0000');
@@ -3948,18 +3950,34 @@ function gscHpBar(x0,y0,pct,side){
   let rem=e;
   for(let i=0;i<6;i++){ if(rem>=8){seq.push(10);rem-=8;} else {seq.push(2+rem);rem=0;} }
   let x=x0;
-  for(const ti of seq){ tileDraw(GSC_GFX.hpbar.f[ti],x,y0,pal,2); x+=16; }
-  if(side==='pet') tileDraw(GSC_GFX.hudE.f[0],x,y0,{'1':'#000000'},2);  // 楔形端帽
-  else tileDraw(GSC_GFX.hpbar.f[11],x,y0,pal,2);                        // 方端帽
+  for(const ti of seq){ tileDraw15(GSC_GFX.hpbar.f[ti],x,y0,pal); x+=12; }
+  if(side==='pet') tileDraw15(GSC_GFX.hudE.f[0],x,y0,{'1':'#000000'});  // 楔形端帽
+  else tileDraw15(GSC_GFX.hpbar.f[11],x,y0,pal);                        // 方端帽
+}
+/* tile 原语（×1.5 GSC 比例版）：离屏画原生 8×8 再最近邻放大 12px ——
+   十九派活②：GSC 160×144 → 240×320 宽比 1.5，条按原作 tile 数换算
+   （敌/我条 9 tiles=72px→108px，EXP 8 tiles=64px→96px）。
+   半像素 fillRect 会 AA 糊点阵，离屏+smoothing=false 的 drawImage 是
+   GB 模拟器标准 1.5× 手法（偶数源像素重复，硬边保持）。 */
+const _t8=document.createElement('canvas'); _t8.width=8; _t8.height=8;
+const _t8x=_t8.getContext('2d');
+function tileDraw15(rows,x0,y0,pal){
+  _t8x.clearRect(0,0,8,8);
+  for(let y=0;y<rows.length;y++) for(let x=0;x<rows[y].length;x++){
+    const c=rows[y][x]; if(pal[c]===undefined) continue;
+    _t8x.fillStyle=pal[c]; _t8x.fillRect(x,y,1,1); }
+  ctx.imageSmoothingEnabled=false;
+  ctx.drawImage(_t8, Math.round(x0), Math.round(y0), 12, 12);
 }
 /* GSC EXP 条 —— 与 HP 条同族 tile（core.asm PlaceExpBar:7831 用 $62 空/$6a 满/$54+e 部分，
    与 HP 条共享图元），填充色 exp_bar.pal 0x247F=#218eff（test 量化值）。
-   8 tiles=64px 满、无标签无端帽（asm hlcoord 17,11, c=$8）。 */
+   8 tiles=64px ×1.5=96px、无标签无端帽（asm PlaceExpBar hlcoord 17,11 回写 8 tiles，
+   右端 tile17=x136/160→204 → 条 x108..204）。 */
 function gscExpBar(x0,y0,px,flash){
   const pal={'0':'#000000','2':'#f8f8f8','3':'#f8f8f8','1':flash?'#ffffff':'#218eff'};
   let rem=Math.max(0,Math.min(64,Math.round(px))), x=x0;
   for(let i=0;i<8;i++){ let ti; if(rem>=8){ti=10;rem-=8;} else {ti=2+rem;rem=0;}
-    tileDraw(GSC_GFX.hpbar.f[ti],x,y0,pal,2); x+=16; }
+    tileDraw15(GSC_GFX.hpbar.f[ti],x,y0,pal); x+=12; }
 }
 /* EXP 动画帧序列 —— 照 core.asm AnimateExpBar:7436 .LoopBarAnimation 的节奏：
    逐 px 填充，每个 px 显示 d 帧、每 2px dec d（3→1，先慢后快）；
@@ -4241,36 +4259,41 @@ function p3G(){ // G 金银：GSC 原作布局（engine/battle/core.asm 坐标 �
         第十六派活②根因修正：hudE png 是装饰性 tile（楔形/竖条），不是条本体 ——
         条本体是 FontBattleExtra $60-$6b（现提取为 GSC_GFX.hpbar）。── */
   text('野生的'+nameOf(m)+' Lv'+sc.wildLevel, 12, 2, t.ink);
-  gscHpBar(12, 22, wildHpPct(sc,r), 'wild');         // 144px：x12..156
+  gscHpBar(24, 22, wildHpPct(sc,r), 'wild');         // 十九派活②：hlcoord 2,2=x16×1.5=24，9 tiles=108px
 
   // 敌方 sprite + 平台（GSC 平台属背景 tilemap 无独立 png —— 实心椭圆近似，标注）
+  // 十九派活①：平台 y 贴墨迹底边（inkBBox 现算），不再用落进 sprite 中段的固定值
   spr(sc.wildSid,'front',wildX+wdx+fxo.wild,150-wpx,2);
-  ellipse(186, 100, 44, 6, t.dim);
+  const wFeetY = wbb ? 150-wpx + (wbb.y1+1)*(wpx/m.fsize) : 148;
+  ellipse(186, Math.round(wFeetY)+2, 44, 6, t.dim);
 
   /* ── 我方 HUD（GSC DrawPlayerHUD 四行制：名字 / HP 条 / cur-max 数字 / EXP）。
         x120 起 —— x96 会压到 96px 主宠（右缘 x112），第十六派活③。
         条 112px（无 HP: 标签 —— 124 起放不下 144px，偏离原作，报告注明），
         数字行右对齐 236 与消息窗右缘同栅格 —— 第十六派活：Lv 与数字同行重叠修复。── */
   text('皮卡丘 Lv'+sc.playerLevel, 120, 150, t.ink);
-  // HP: 标签补回（十七派活③，用户授权按比例调；实测无需缩放 ——
-  // 标签 x92 起的 144px 满配放得下：皮卡丘 back 墨迹右缘 x72，标签不压墨迹）
-  gscHpBar(92, 170, petHpPct(sc,r), 'pet');          // 144px：x92..236
+  /* 十九派活②③：四行紧邻照 asm 行距 —— DrawPlayerHUD 行 7/9/10/11 tiles，
+     相对行距 2/1/1 tile = 16/8/8px ×1.5 = 24/12/12px。数字是 16px 点阵字
+     （asm 的 8px PrintNum 放不下 12px 行距），就近取 16px —— 相对关系
+     （紧邻不空行）保持，代价报告注明。条 hlcoord 10,9 = x80×1.5 = x120。 */
+  gscHpBar(120, 174, petHpPct(sc,r), 'pet');        // 9 tiles=108px：x120..228
   const hpNum=Math.max(0,r.petHp)+'/'+sc.petMax;    // GSC DrawPlayerHP：我方显数字
-  text(hpNum, 236-textW(hpNum), 190, t.ink);
-  // EXP 条（十七派活）：exp_progress 只读导出（expDemo），PlaceExpBar 同族 tile、
-  // 8 tiles ×2 = 128px @ x108..236。动画帧（it.exp）走 asm 节奏：逐 px → 满格闪白翻 0 → 升级
+  text(hpNum, 228-textW(hpNum), 186, t.ink);        // 右对齐条右端
+  // EXP 条（十七派活）：PlaceExpBar 8 tiles ×1.5=96px，条右端 tile17=x204
   const exd=SP.battle.expDemo||{};
   if(exd.need){
     const flash = it.exp && it.exp.px==='flash';
     const px = it.exp ? (flash?64:it.exp.px)
               : Math.round((exd.expCur||0)/(exd.need||1)*64);   // 战前静态进度
-    gscExpBar(108, 210, px, flash);
+    gscExpBar(108, 202, px, flash);
   }
 
-  // 我方 sprite + 平台（实心椭圆，标注）
-  if(big) sprNN(25,'back',16+pdx+fxo.pet,112,96);
-  else    sprNN(25,'back',24+pdx+fxo.pet,160,48);
-  ellipse(64, 214, 50, 7, t.dim);
+  // 我方 sprite + 平台（实心椭圆，标注；十九派活①：y 贴墨迹底边）
+  const pbb=inkBBox(25,'back');
+  if(big){ sprNN(25,'back',16+pdx+fxo.pet,112,96);
+    ellipse(64, Math.round(112+(pbb.y1+1)*3)+2, 50, 7, t.dim); }
+  else{   sprNN(25,'back',24+pdx+fxo.pet,160,48);
+    ellipse(64, Math.round(160+(pbb.y1+1)*1.5)+2, 50, 7, t.dim); }
 
   // 招式动画（第二段）：特效层叠在 sprite 之上
   if(!it.exp) fxOverlay(fxSpec(r), r, ph, petRect, wildRect, sc.wildSid);
