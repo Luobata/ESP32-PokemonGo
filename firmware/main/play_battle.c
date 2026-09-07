@@ -49,19 +49,25 @@ extern uint32_t dbg_battle_seed;
 //   y=4    ★★★☆☆            野怪名 Lv20    带 0
 //   y=28                       野怪 HP 条    带 0
 //   y=88                    [野怪 front]    带 1
-//   y=140  [主宠 back] 主宠名 Lv12          带 1/2
-//   y=192              主宠 HP 条           带 2
+//   y=140  [主宠 back]  主宠名 Lv12         带 1/2
+//   y=192               主宠 HP 条          带 2
 //   y=244  回合文字（第一行）               带 3
 //   y=268  回合文字（第二行）               带 3
 //   y=292  ────────────────────
 //   y=298  [A]捕获 [B]战斗 [C]逃跑          带 3
+//
+// 主宠区 x 排布：sprite 96px 在 x=8..103，名牌/HP 条从 x=112 起
+// （sprite 右缘 104 之后），HP 条宽 120 到右边距 232。
 #define WILD_NAME_Y 4
 #define WILD_BAR_Y 28
 #define WILD_SPRITE_BOX_Y 88
 #define WILD_SPRITE_BOX_H 64
 #define PET_SPRITE_Y 140
 #define PET_NAME_Y 168
+#define PET_NAME_X 112
 #define PET_BAR_Y 192
+#define PET_BAR_X 112
+#define PET_BAR_W 120
 #define MSG_Y 244
 #define MSG_DETAIL_Y 268
 
@@ -203,9 +209,9 @@ static void draw_band(int band_y)
     if (has_pet) {
         snprintf(buf, sizeof(buf), "%.*s Lv%u",
                  pet_sp.name_zh_len, pet_sp.name_zh, s_pet_level);
-        render_text(80, Y(PET_NAME_Y), buf, C_INK);
+        render_text(PET_NAME_X, Y(PET_NAME_Y), buf, C_INK);
     }
-    draw_bar(80, Y(PET_BAR_Y), 152, 10, p_hp, s_res.pet_hp_max);
+    draw_bar(PET_BAR_X, Y(PET_BAR_Y), PET_BAR_W, 10, p_hp, s_res.pet_hp_max);
 
     // -- 回合文字（两行：GSC 消息窗形态）--------------------------------
     // 第一行 MSG_Y：谁（野怪加「野生」前缀）+ 效果提示
