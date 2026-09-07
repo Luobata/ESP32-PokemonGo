@@ -49,17 +49,17 @@ extern uint32_t dbg_battle_seed;
 //   y=4    ★★★☆☆            野怪名 Lv20    带 0
 //   y=28                       野怪 HP 条    带 0
 //   y=88                    [野怪 front]    带 1
-//   y=168  [主宠 back] 主宠名 Lv12          带 2
+//   y=140  [主宠 back] 主宠名 Lv12          带 1/2
 //   y=192              主宠 HP 条           带 2
-//   y=244  回合文字（招名）                 带 3
-//   y=268  效果 / 伤害 / 经验 / 虚弱提示    带 3
+//   y=244  回合文字（第一行）               带 3
+//   y=268  回合文字（第二行）               带 3
 //   y=292  ────────────────────
 //   y=298  [A]捕获 [B]战斗 [C]逃跑          带 3
 #define WILD_NAME_Y 4
 #define WILD_BAR_Y 28
 #define WILD_SPRITE_BOX_Y 88
 #define WILD_SPRITE_BOX_H 64
-#define PET_SPRITE_Y 168
+#define PET_SPRITE_Y 140
 #define PET_NAME_Y 168
 #define PET_BAR_Y 192
 #define MSG_Y 244
@@ -71,8 +71,9 @@ SCREEN_ASSERT_WITHIN_BAND(battle_wild_sprite_box,
                           WILD_SPRITE_BOX_Y, WILD_SPRITE_BOX_H);
 // 主宠 96px @2x（48×2）—— 用户已定。当前 back sprite 是 32×32（gen1），
 // 临时用 32×3=96 顶上；GSC back（48×48）接入后改 48×2=96，画质更好。
-// 96 > 80 带高，跨带 2/3 —— 用 SCREEN_ASSERT_ALLOW_CROSS_BAND 显式声明，
-// 且 shake tick 必须重画带 2+3（见 tick 里的注释）。
+// 96 > 80 带高，跨带 1/2 —— 用 SCREEN_ASSERT_ALLOW_CROSS_BAND 显式声明，
+// 且 shake tick 必须重画带 1+2（见 tick 里的注释）。
+// PET_SPRITE_Y=140 让 sprite 底边 235 < MSG_Y=244，不压消息行。
 #define PET_SPRITE_DISPLAY 96
 SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_pet_sprite, PET_SPRITE_Y, PET_SPRITE_DISPLAY);
 SCREEN_ASSERT_WITHIN_BAND(battle_pet_name, PET_NAME_Y, 16);
@@ -277,16 +278,16 @@ static void tick(lv_timer_t *t)
     if (!s_playing) return;
 
     // 抖动阶段只重画挨打 sprite 所在的带；HP 和文字不移动。
-    // 主宠 96px 跨带 2/3（y=168..263），只重画带 2 会让上半抖、下半不动
-    // = 撕裂（BUG-1）。所以主宠挨打时带 2+3 都要重画。
+    // 主宠 96px 跨带 1/2（y=140..235），只重画带 2 会让下半抖、上半不动
+    // = 撕裂（BUG-1）。所以主宠挨打时带 1+2 都要重画。
     if (s_shake_i < SHAKE_FRAMES) {
         s_shake_i++;
         const battle_round_t *r = &s_res.rounds[s_play_i - 1];
         if (r->by_pet) {
             draw_band(BAND_H);               // 野怪在带 1（y=88..151）
         } else {
-            draw_band(BAND_H * 2);           // 主宠上半（y=168..239）
-            draw_band(BAND_H * 3);           // 主宠下半（y=240..263）
+            draw_band(BAND_H);               // 主宠上半（y=140..159）
+            draw_band(BAND_H * 2);           // 主宠下半（y=160..235）
         }
         return;
     }
