@@ -131,6 +131,39 @@ int main(void)
                 g_mv[i][k].name_zh = "招"; g_mv[i][k].name_zh_len = 3;
             }
             printf("ok\n");
+        } else if (!strcmp(cmd, "dmg")) {
+            /* D73：伤害逐值对账。
+               do_hit 里有两处随机（选招、命中判定），这里都消掉：
+                 · 只给**一招** → pick_move 恒返回 moves[0]
+                   （权重>0 时 rng_below(total) 必 < ws[0]；权重==0 时
+                    rng_below(1)==0，两条路都指向同一招）
+                 · accuracy 传 255（ACC_ALWAYS_HIT）→ 跳过命中掷骰
+               于是 do_hit 退化为纯函数，可以逐值比。
+               dmg <a_lv> <atk_t1> <atk_t2> <def_t1> <def_t2>
+                   <a_hp,atk,def,spc,spd> <d_hp,atk,def,spc,spd>
+                   <mv_type> <mv_power> <mv_special> <factor_q10> */
+            int alv, at1, at2, dt1, dt2;
+            int ah, aa, ad, as_, asp, dh, da, dd, ds, dsp;
+            int mty, mpw, msp, fq;
+            scanf("%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d",
+                  &alv, &at1, &at2, &dt1, &dt2,
+                  &ah, &aa, &ad, &as_, &asp, &dh, &da, &dd, &ds, &dsp,
+                  &mty, &mpw, &msp, &fq);
+            species_t asp_s = {0}, dsp_s = {0};
+            asp_s.type1 = (uint8_t)at1; asp_s.type2 = (uint8_t)at2;
+            dsp_s.type1 = (uint8_t)dt1; dsp_s.type2 = (uint8_t)dt2;
+            stats_t A = {(uint16_t)ah, (uint16_t)aa, (uint16_t)ad,
+                         (uint16_t)as_, (uint16_t)asp};
+            stats_t D = {(uint16_t)dh, (uint16_t)da, (uint16_t)dd,
+                         (uint16_t)ds, (uint16_t)dsp};
+            move_t m = {0};
+            m.type = (uint8_t)mty; m.power = (uint8_t)mpw;
+            m.accuracy = ACC_ALWAYS_HIT; m.special = msp ? true : false;
+            m.name_zh = "招"; m.name_zh_len = 3;
+            uint16_t mult; const move_t *got; bool miss;
+            uint16_t d = do_hit(&asp_s, &A, (uint8_t)alv, &dsp_s, &D,
+                                &m, 1, (uint16_t)fq, &mult, &got, &miss);
+            printf("%u %u %d\n", d, mult, miss ? 1 : 0);
         } else if (!strcmp(cmd, "battle")) {
             int plv, wlv; unsigned seed;
             scanf("%d %d %u", &plv, &wlv, &seed);
@@ -268,7 +301,63 @@ def main() -> int:
                                      f"C {c_fled} ≠ Python {py_fled}")
         print(f"  逃跑判定   {n} 组")
 
-        # ---- ⑦ 战斗：统计分布 ----------------------------------------------
+        # ---- ⑦ damage：伤害公式逐值（D73）---------------------------------
+        #
+        # 这一组是补一个实测出来的缺口：**伤害公式原先只被胜率间接覆盖**，
+        # 而 `STAB` 从 150 改到 600（4 倍伤害）门禁仍报绿 ——
+        # 三个场景的胜率本就饱和在 100%/0%/0%，推不动（回合数变了，但没人验它）。
+        #
+        # 能逐值对账是因为把随机消掉了：只给一招 → C 侧 pick_move 恒选它；
+        # accuracy=255 → 跳过命中掷骰。于是 do_hit 退化成纯函数。
+        #
+        # factor 固定 1024（=1.0）：两侧在 factor≠1.0 时算法本就不同
+        # （C 在 base 之后乘、sim 乘进 atk，`+2` 是否被缩放不一致），
+        # 那是一个既存分叉，**本轮只报不掩盖** —— 见 reports/test.md 第十五轮。
+        n = 0
+        # 属性号：0 一般 / 3 电 / 8 地面 / 12 岩石（与上面 setup 同源）
+        #
+        # ⚠️ atk/def/spc 必须**互不相同**：第一版我把五项都填成同一个值，
+        # 于是 `special ? spc : atk` 无论选哪个都拿到同一个数 ——
+        # 「物理/特殊选反」这类缺陷完全测不出（实测注入后仍 rc=0）。
+        # 现在三者刻意错开，选反必被抓。
+        #
+        # power 含 1：power=0 时 base 恒为 2，`max(1,...)` 那条下限
+        # 永远不被触及；要 mult=0 才压到 0，所以电打地面那组负责它。
+        for a_lv in (5, 12, 25, 50, 100):
+            for atk_base in (30, 55, 90, 130):
+                for power in (0, 1, 40, 90, 120):
+                    for def_base in (30, 60, 100, 160):
+                        for mty, at1, dt1 in ((3, 3, 0),      # 电打一般：×100 且同属性
+                                              (3, 0, 8),      # 电打地面：×0
+                                              (0, 0, 12),     # 一般打岩石：×50
+                                              (3, 3, 12)):    # 电打岩石：×100 同属性
+                            for special in (0, 1):
+                                A = S.effective_stat(atk_base, a_lv)
+                                D = S.effective_stat(def_base, a_lv)
+                                SPC = S.effective_stat(atk_base // 2 + 5, a_lv)
+                                got = d.ask(
+                                    f"dmg {a_lv} {at1} 255 {dt1} 255 "
+                                    f"1 {A} {D} {SPC} {A}  "
+                                    f"1 {A} {D} {SPC} {A} "
+                                    f"{mty} {power} {special} 1024").split()
+                                c_dmg, c_mult = int(got[0]), int(got[1])
+                                mult = S.effectiveness(T[mty], [T[dt1]])
+                                stab = S.STAB if mty == at1 else 100
+                                # 物理用 atk/def，特殊用 spc 双向（两侧同规则）
+                                pa, pd = (SPC, SPC) if special else (A, D)
+                                want = S.damage_of(a_lv, pa, power, pd,
+                                                   mult, stab)
+                                n += 1
+                                if c_dmg != want or c_mult != mult:
+                                    fails.append(
+                                        f"damage(lv={a_lv},A={pa},P={power},"
+                                        f"D={pd},mty={mty},at1={at1},"
+                                        f"dt1={dt1},spc={special}): "
+                                        f"C {c_dmg}/×{c_mult} ≠ "
+                                        f"Python {want}/×{mult}")
+        print(f"  伤害公式   {n} 组（factor=1.0；随机已消除）")
+
+        # ---- ⑧ 战斗：统计分布 ----------------------------------------------
         # 三组对局，验的是**难度梯度**而不只是「能打赢」。
         # 只测一组稳赢的看不出问题：伤害公式整体偏高时它照样 100%。
         N = 400

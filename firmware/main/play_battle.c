@@ -31,6 +31,7 @@
 #include "nav.h"
 #include "play.h"
 #include "render.h"
+#include "render_scene_screen.h"
 #include "screen.h"
 #include "sfx.h"
 #include "world.h"
@@ -62,12 +63,12 @@ extern uint32_t dbg_battle_seed;
 #define WILD_BAR_Y 28
 #define WILD_SPRITE_BOX_Y 88
 #define WILD_SPRITE_BOX_H 64
-#define PET_SPRITE_Y 140
-#define PET_NAME_Y 168
-#define PET_NAME_X 112
-#define PET_BAR_Y 192
-#define PET_BAR_X 112
-#define PET_BAR_W 120
+#define PET_SPRITE_Y SCENE_P3_PET_BACK_Y
+#define PET_NAME_Y SCENE_P3_PET_NAME_Y
+#define PET_NAME_X SCENE_P3_PET_NAME_X
+#define PET_BAR_Y SCENE_P3_PET_HP_Y
+#define PET_BAR_X SCENE_P3_PET_HP_X
+#define PET_BAR_W SCENE_P3_PET_HP_W
 #define MSG_Y 244
 #define MSG_DETAIL_Y 268
 
@@ -75,15 +76,14 @@ SCREEN_ASSERT_WITHIN_BAND(battle_wild_name, WILD_NAME_Y, 16);
 SCREEN_ASSERT_WITHIN_BAND(battle_wild_bar, WILD_BAR_Y, 10);
 SCREEN_ASSERT_WITHIN_BAND(battle_wild_sprite_box,
                           WILD_SPRITE_BOX_Y, WILD_SPRITE_BOX_H);
-// 主宠 96px @2x（48×2）—— 用户已定。当前 back sprite 是 32×32（gen1），
-// 临时用 32×3=96 顶上；GSC back（48×48）接入后改 48×2=96，画质更好。
+// 主宠显示目标为 96px；共享配方从资产尺寸自动取 32x3 / 48x2。
 // 96 > 80 带高，跨带 1/2 —— 用 SCREEN_ASSERT_ALLOW_CROSS_BAND 显式声明，
 // 且 shake tick 必须重画带 1+2（见 tick 里的注释）。
 // PET_SPRITE_Y=140 让 sprite 底边 235 < MSG_Y=244，不压消息行。
-#define PET_SPRITE_DISPLAY 96
+#define PET_SPRITE_DISPLAY SCENE_P3_PET_BACK_SIZE
 SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_pet_sprite, PET_SPRITE_Y, PET_SPRITE_DISPLAY);
 SCREEN_ASSERT_WITHIN_BAND(battle_pet_name, PET_NAME_Y, 16);
-SCREEN_ASSERT_WITHIN_BAND(battle_pet_bar, PET_BAR_Y, 10);
+SCREEN_ASSERT_WITHIN_BAND(battle_pet_bar, PET_BAR_Y, SCENE_P3_PET_HP_H);
 SCREEN_ASSERT_WITHIN_BAND(battle_round_message, MSG_Y, 16);
 SCREEN_ASSERT_WITHIN_BAND(battle_effect, MSG_DETAIL_Y, 16);
 SCREEN_ASSERT_WITHIN_BAND(battle_exp, MSG_DETAIL_Y, 16);
@@ -110,16 +110,19 @@ static uint8_t s_pet_level;
 
 static void hline_at(int y)
 {
-    for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_MID);
+    for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_FOCUS);
 }
 
 static void draw_bar(int x, int y, int w, int h, uint16_t cur, uint16_t max)
 {
     int fw = max ? (int)((uint32_t)w * cur / max) : 0;
+    // GSC GetHPPal compares filled pixels with integer width thresholds.
+    uint16_t fill = fw >= w * 50 / 100 ? C_HP_GREEN
+        : (fw >= w * 21 / 100 ? C_HP_YELLOW : C_HP_RED);
     for (int dy = 0; dy < h; dy++) {
         for (int dx = 0; dx < w; dx++) {
             bool border = (dy == 0 || dy == h - 1 || dx == 0 || dx == w - 1);
-            uint16_t c = border ? C_INK : (dx < fw ? C_MID : C_LIGHT);
+            uint16_t c = border ? C_INK : (dx < fw ? fill : C_HP_TRACK);
             screen_px(x + dx, y + dy, c);
         }
     }
@@ -192,9 +195,26 @@ static void draw_band(int band_y)
                            spr, sprite_size, 1, pal);
     }
 
+    // Shiny marker sits left of the wild sprite, clear of names and HP.
+    // The two assets and palette match the encounter list.
+    if (c->enc.is_shiny) {
+        static const uint16_t STAR_PAL[4] = {
+            C_INK, RGB_HEX(0xfff0a0), RGB_HEX(0xffffff), 0,
+        };
+        ui_art_t s7, s5;
+        if (assets_ui("star_7", &s7)) {
+            render_sprite_2bpp_wh(136, Y(WILD_SPRITE_BOX_Y + 8),
+                                  s7.data, s7.w, s7.h, 1, STAR_PAL);
+            if (assets_ui("star_5", &s5)) {
+                render_sprite_2bpp_wh(136 + s7.w + 2, Y(WILD_SPRITE_BOX_Y + 16),
+                                      s5.data, s5.w, s5.h, 1, STAR_PAL);
+            }
+        }
+    }
+
     // -- 主宠 ------------------------------------------------------------
-    const uint8_t *pet_spr = assets_back_sprite(s_pet_species);
-    if (pet_spr && has_pet) {
+    sprite_asset_t pet_spr;
+    if (has_pet && assets_back_sprite_info(s_pet_species, &pet_spr)) {
         uint16_t pal[4];
         assets_palette(pet_sp.palette, pal);
         int dx = 0;
@@ -203,15 +223,13 @@ static void draw_band(int band_y)
             !s_res.rounds[s_play_i - 1].missed) {
             dx = render_shake_dx(s_shake_i, SHAKE_FRAMES, SHAKE_AMP);
         }
-        // 32×3=96px（临时）；GSC back 48×48 接入后改 render_sprite_2bpp(..., 48, 2, pal)
-        render_sprite_2bpp(8 + dx, Y(PET_SPRITE_Y), pet_spr, 32, 3, pal);
+        scene_screen_p3_pet_back(band_y, pet_spr.data, pet_spr.w, pet_spr.h, dx, pal);
     }
     if (has_pet) {
-        snprintf(buf, sizeof(buf), "%.*s Lv%u",
-                 pet_sp.name_zh_len, pet_sp.name_zh, s_pet_level);
-        render_text(PET_NAME_X, Y(PET_NAME_Y), buf, C_INK);
+        scene_screen_p3_pet_name(band_y, pet_sp.name_zh,
+                                  pet_sp.name_zh_len, s_pet_level);
     }
-    draw_bar(PET_BAR_X, Y(PET_BAR_Y), PET_BAR_W, 10, p_hp, s_res.pet_hp_max);
+    scene_screen_p3_pet_hp(band_y, p_hp, s_res.pet_hp_max);
 
     // -- 回合文字（两行：GSC 消息窗形态）--------------------------------
     // 第一行 MSG_Y：谁（野怪加「野生」前缀）+ 效果提示

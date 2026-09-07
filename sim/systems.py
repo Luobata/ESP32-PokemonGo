@@ -660,6 +660,32 @@ def move_weight(move: dict, atk_types: list, def_types: list) -> int:
     return max(0, w)
 
 
+def damage_of(atk_lv: int, atk: int, power: int, dfn: int,
+              mult: int, stab: int) -> int:
+    """伤害算式 —— 确定性，不含选招与命中判定（那两步用 rng）。
+
+    初代原式：((2*Lv/5+2) * Atk * Power / Def) / 50 + 2。
+    但原式的分母 50 配合的是原版等级成长曲线，而本项目主宠等级偏低、
+    野怪种族值可能很高（实测 Lv12 打 Lv10 鸭嘴火兽只有 3 伤害/回合，
+    要 46 回合）。分母压到 25 让战斗落在 4~8 回合 ——
+    符合「30 秒会话」的预算，也让 HP 条的逐步扣减看得出变化。
+
+    ## 为什么单独提出来（D73）
+
+    `verify_battle` 分两层对账：确定性部分逐值、随机部分只对胜率分布。
+    伤害原先嵌在 `battle()` 的 `hit()` 闭包里，**只能被胜率间接覆盖** ——
+    实测 `STAB` 从 150 改到 600（4 倍伤害）门禁仍报绿，因为三个场景的
+    胜率本就饱和在 100%/0%/0%，推不动。提出来之后门禁可以直接逐值对账。
+
+    **不要在这里加 ability_factor** —— 调用方先把 factor 乘进 `atk`
+    再传进来（见 `hit()`）。固件 `battle.c` 是在 base 之后乘 factor_q10，
+    两侧在 factor≠1.0 时算法本就不同（实测 factor=0.6 时 144/144 组合不等，
+    factor=1.0 时 0/144），那是一个既存分叉，**不是本函数的事**。
+    """
+    base = (2 * atk_lv // 5 + 2) * atk * power // dfn // 25 + 2
+    return max(1, base * mult // 100 * stab // 100) if mult else 0
+
+
 def pick_move(moves: list, atk_types: list, def_types: list,
               rng) -> Optional[dict]:
     """AI 选招 —— 按权重随机，偏好高伤害。
@@ -777,13 +803,8 @@ def auto_battle(pet_types: list[str], pet_stats: list[int], pet_level: int,
                        default=100)
             stab = 100
 
-        # 初代原式：((2*Lv/5+2) * Atk * Power / Def) / 50 + 2。
-        # 但原式的分母 50 配合的是原版等级成长曲线，而本项目主宠等级偏低、
-        # 野怪种族值可能很高（实测 Lv12 打 Lv10 鸭嘴火兽只有 3 伤害/回合，
-        # 要 46 回合）。分母压到 25 让战斗落在 4~8 回合 ——
-        # 符合「30 秒会话」的预算，也让 HP 条的逐步扣减看得出变化。
-        base = (2 * atk_lv // 5 + 2) * atk * power // dfn // 25 + 2
-        dmg = max(1, base * mult // 100 * stab // 100) if mult else 0
+        # 算式提到模块级 damage_of（D73）—— 门禁要能逐值对账它。
+        dmg = damage_of(atk_lv, atk, power, dfn, mult, stab)
         return dmg, mult, eff_label(mult), (mv["zh"] if mv else ""), False
 
     for _ in range(max_rounds):

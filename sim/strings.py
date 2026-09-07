@@ -364,10 +364,226 @@ def check_line_widths() -> list[str]:
     return bad
 
 
+# ---------------------------------------------------------------------------
+# 可变宽元素登记表（D54，第二十四派活）
+#
+# ## 为什么需要它 —— check_line_widths() 正确地回答了一个不同的问题
+#
+# `check_line_widths()` 遍历 PAGES 里的**固定模板字**，判据是 `px > USABLE_W`
+# （232px = 整屏可用宽）。它报绿，而真溢出可以存在，因为两个盲区：
+#
+#   盲区①  不代入数据池。PAGES['P3'] 的 keys 是
+#          ['eff','result','labels','fled','weakened'] —— **没有「{name} Lv{level}」**。
+#          那个模板在固件 snprintf 里，Python 侧根本不知道它存在。
+#   盲区②  预算恒为整屏宽，不看元素起始 x。P3 主宠名牌从 x=112 起，
+#          真实预算是 232-112=120，而判据拿 232 去比：
+#          「三合一磁怪 Lv100」128px ≤ 232 → 判通过。
+#
+# **这比「没有约束层」更危险：一个报绿的门禁让所有人以为这件事有人管着。**
+# 所以下面这张表登记的是「模板 + 数据池 + 该元素的真实容器」三者的组合。
+#
+# ## 最坏输入必须现算，不能手抄
+#
+# 本文件上方曾有注释写「招式名最长 5 字（百万吨重拳）」——
+# **实测 5 字招式有 4 个**（百万吨重拳/百万吨重踢/尖刺加农炮/骨头回力镖）。
+# 手抄的最坏输入会腐烂，这是现成证据。所以最坏样本一律从
+# gen1.bin / moves.bin 现算（见 _pool()），将来接 gen2 的 251 只判据自动跟着变。
+#
+# ## 字段语义
+#   page/elem  定位用；src 指向固件真实调用点
+#   x          左锚元素的起始 x；右对齐元素填 None（预算算法不同）
+#   right      右界。左锚元素可用宽 = right - x；右对齐 = right - MARGIN
+#   tmpl       固件 snprintf 的格式，占位符处代入最坏数据
+#   fallback   固件自带的降级分支（有则参与判定 —— 判据要测「最终上屏的东西」，
+#              不是「第一版拼装结果」）
+# ---------------------------------------------------------------------------
+
+_POOL_CACHE: dict | None = None
+
+
+def _pool() -> dict:
+    """物种名 / 招式名的最坏样本 —— 从 assets/*.bin 现算。
+
+    复用 tools/pipeline/inventory_assets.py 的 parse_gen1 / parse_moves：
+    它们已做 magic + 记录数 + 池长度断言（两个文件头都是 16 字节，
+    Hub 与 test 先后在这上面栽过）。**不要在这里再写第三份解析器。**
+    """
+    global _POOL_CACHE
+    if _POOL_CACHE is not None:
+        return _POOL_CACHE
+    import os
+    import sys
+    here = os.path.dirname(os.path.abspath(__file__))
+    repo = os.path.dirname(here)
+    pipeline = os.path.join(repo, "tools", "pipeline")
+    if pipeline not in sys.path:
+        sys.path.insert(0, pipeline)
+    import inventory_assets as _IA          # noqa: E402
+
+    g = _IA.parse_gen1(os.path.join(repo, "assets", "gen1.bin"))
+    mv = _IA.parse_moves(os.path.join(repo, "assets", "moves.bin"))
+    species = [m["zh"] for m in g["mons"]]
+    moves = [m["zh"] for m in mv["moves"]]
+    if not species or not moves:
+        raise RuntimeError("gen1.bin / moves.bin 解析出空池 —— 判据会假绿，拒绝继续")
+    _POOL_CACHE = {
+        "species": max(species, key=text_px),
+        "species_all": species,
+        "move": max(moves, key=text_px),
+        "moves_all": moves,
+        "level": "100",     # 等级/百分比/数量取位数最多的字面量
+        "pct": "100",
+        "count": "99",
+    }
+    return _POOL_CACHE
+
+
+def _fill(tmpl: str, pool: dict) -> str:
+    """登记表模板的占位符换成最坏数据。"""
+    return (tmpl.replace("{species}", pool["species"])
+                .replace("{move}", pool["move"])
+                .replace("{level}", pool["level"])
+                .replace("{pct}", pool["pct"])
+                .replace("{count}", pool["count"]))
+
+
+# (page, elem, x, right, tmpl, fallback_tmpl|None, src)
+VAR_ELEMENTS: list[tuple] = [
+    ("P3", "主宠名牌", 112, 232, "{species} Lv{level}", "{species}Lv{level}",
+     "play_battle.c:230-237"),
+    ("P3", "野怪名牌", None, 232, "{species} Lv{level}", None,
+     "play_battle.c:153-158"),
+    ("P3", "回合文字", 8, 232, "使用了{move}！", None, "play_battle.c:272"),
+    ("P3", "回合首行", 8, 232, "野生{species}", None, "play_battle.c:262-275"),
+    ("P3", "伤害数", None, 232, "-999 HP", None, "play_battle.c:277-279"),
+    ("P3", "经验行", 8, 96, "经验 +99999", None,
+     "play_battle.c:283-285"),   # 右侧 x96 起有「看起来虚弱了」，故右界 96
+    ("P1", "名牌", 8, 232, "{species} Lv{level}", None, "play_idle.c:143-148"),
+    ("P1", "亲密度", None, 232, "{pct}", None, "play_idle.c:153-155"),
+    ("P1", "待处理数", 8, 232, "{count}", None,
+     "play_idle.c:234-236"),     # hx+4，hx 由心形位置推；宽 ≤2 字符恒安全
+    ("P2", "物种名", 18, 200, "{species}", None,
+     "play_enc.c:158-164"),      # :166 注释自陈右界 200（稀有度星右对齐到 200）
+    ("P2", "队列计数", None, 232, "{count}", None, "play_enc.c:128-131"),
+    ("P2", "稀有度星", None, 232, "★★★★★", None,
+     "play_enc.c:80-88"),        # 恒 5 个字形，helper 右对齐到 200
+    ("P4", "物种名", None, 232, "{species}", None, "play_capture.c:151-154"),
+    ("P4", "球名×数", 40, 232, "高级球 ×{count}", None, "play_capture.c:195-197"),
+    ("P5", "物种名", 8, 232, "{species}", None, "play_care.c:120-121"),
+    ("P5", "等级", None, 232, "等级 {level}", None, "play_care.c:117-118"),
+    ("P5", "亲密度", None, 232, "亲密度 {pct}", None, "play_care.c:123-124"),
+    ("P5", "轴数值", None, 232, "{pct}", None, "play_care.c:163-166"),
+    ("P6", "格内编号", None, 232, "{count}", None, "play_dex.c:99-101"),
+    ("P6", "已捕获数", None, 232, "151/151", None, "play_dex.c:67-69"),
+    ("P6", "页码", None, 232, "99/99", None, "play_dex.c:105-107"),
+    ("P0", "框号", None, 232, "7/7", None, "play_opening.c:149-151"),
+    ("P0", "正文行", MARGIN, 232, "{species}使用了{move}！", None,
+     "play_opening.c:186-188"),  # 打字机逐字显示，最坏是整行显完
+]
+
+
+def check_element_widths() -> list[str]:
+    """可变宽元素在**各自容器**里放不放得下（模板 + 数据池最坏组合）。
+
+    与 check_line_widths() 的分工：那个问「固定文案放得下整屏宽吗」，
+    这个问「模板代入最坏数据后放得下该元素的容器吗」。两者都要跑。
+    """
+    pool = _pool()
+    bad = []
+    for page, elem, x, right, tmpl, fb, src in VAR_ELEMENTS:
+        s = _fill(tmpl, pool)
+        px = text_px(s)
+        budget = (right - x) if x is not None else (right - MARGIN)
+        used, note = s, ""
+        if px > budget and fb:
+            used = _fill(fb, pool)      # 固件自带降级 —— 判据测最终上屏的东西
+            px = text_px(used)
+            note = "（经固件回退分支）"
+        if px > budget:
+            bad.append(f"{page}.{elem} 「{used}」{px}px > {budget}px"
+                       f"（x={x} 右界={right}）{note} @ {src}")
+    return bad
+
+
+def check_unregistered_elements() -> list[str]:
+    """扫固件：`render_text(..., buf, ...)` 却没进 VAR_ELEMENTS 的，报红。
+
+    ## 为什么漏登记本身必须红
+    上面那张表是人手维护的。**没有这一条，表会慢慢过期而没人发现** ——
+    新加一个 snprintf+render_text 的元素，判据默默不覆盖它，
+    门禁照常绿。这与本轮修的 check_line_widths() 是同一个病：
+    **一个报绿的门禁让所有人以为这件事有人管着。**
+
+    判据取「render_text 的实参是运行时拼装的 buf」而非字面量 ——
+    字面量已由 check_line_widths() 覆盖，且它们不随数据变。
+
+    ## 已知弱点：登记窗口可重叠
+    匹配用的是行号窗口（`lo-6 <= 调用行 <= hi+2`，容纳 snprintf 与
+    render_text 分行）。**相邻登记项的窗口可能互相覆盖** ——
+    实测摘掉「P3 回合文字（:272）」后仍不报，因为它的 render_text 在 :275，
+    而「P3 回合首行」登记的 262-275 把那一行也盖住了。
+    摘掉窗口不重叠的项（play_care.c:163-166 等）能正常报红。
+    **所以这条守卫能挡「新增一个没人登记的元素」，
+    但挡不住「删掉一条恰好被邻项窗口覆盖的登记」。** 后者要靠 review。
+    """
+    import os
+    import re
+    here = os.path.dirname(os.path.abspath(__file__))
+    main = os.path.join(os.path.dirname(here), "firmware", "main")
+    if not os.path.isdir(main):
+        return ["firmware/main 不存在 —— 无法做反向检查（宁可报红也不假绿）"]
+
+    registered = {src.split("@")[-1].strip() for src in
+                  (e[6] for e in VAR_ELEMENTS)}
+    reg_files = {}
+    for r in registered:                       # "play_battle.c:230-237"
+        f, _, span = r.partition(":")
+        lo = int(span.split("-")[0])
+        hi = int(span.split("-")[1]) if "-" in span else lo
+        reg_files.setdefault(f, []).append((lo, hi))
+
+    call = re.compile(r"render_text\s*\(")
+    bad = []
+    for fn in sorted(os.listdir(main)):
+        if not fn.startswith("play_") or not fn.endswith(".c"):
+            continue
+        lines = open(os.path.join(main, fn), encoding="utf-8").read().split("\n")
+        for i, ln in enumerate(lines, 1):
+            if not call.search(ln):
+                continue
+            # 实参可能跨行：从 render_text( 起截到配平的右括号为止，
+            # **只看这一个调用的实参**。早期版本简单拼下一行，
+            # 结果把下一条 render_text("字面量") 的内容也算进来，
+            # 误报了 play_battle.c:282 与 play_dex.c:67 两处字面量调用。
+            seg, depth, started = "", 0, False
+            for j in range(i - 1, min(i + 2, len(lines))):
+                for ch in lines[j]:
+                    if ch == "(":
+                        depth += 1
+                        started = True
+                    if started:
+                        seg += ch
+                    if ch == ")":
+                        depth -= 1
+                        if started and depth == 0:
+                            break
+                if started and depth == 0:
+                    break
+            if not re.search(r"[,(]\s*buf\s*[,)]", seg):
+                continue               # 字面量/常量数组 —— 由 check_line_widths 管
+            spans = reg_files.get(fn, [])
+            if not any(lo - 6 <= i <= hi + 2 for lo, hi in spans):
+                bad.append(f"{fn}:{i} render_text(buf) 未登记进 VAR_ELEMENTS："
+                           f"「{ln.strip()[:60]}」")
+    return bad
+
+
 def audit() -> dict:
     """全量排版审计 —— CI 与验收平台都跑这个。"""
     kf, kw = check_key_hints()
     lb = check_line_widths()
+    eb = check_element_widths()          # D54：模板+数据池 vs 元素容器
+    ur = check_unregistered_elements()   # D54：漏登记本身要红
     widest = max(all_strings(), key=text_px)
     hints = {p: text_px(" ".join(f"[{k}]{a}" for k, a in ks.items()))
              for p, ks in KEYS.items()}
@@ -382,5 +598,7 @@ def audit() -> dict:
         # ⚠️ 提示单独放 —— 调用方（gen_pages）应打印但不因此拒生成
         "key_warnings": kw,
         "line_violations": lb,
-        "ok": not kf and not lb,
+        "element_violations": eb,
+        "unregistered_elements": ur,
+        "ok": not kf and not lb and not eb and not ur,
     }

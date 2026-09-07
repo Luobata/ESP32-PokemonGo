@@ -146,7 +146,12 @@ def main() -> int:
     audit = UI.audit()
     if not audit["ok"]:
         print("排版审计不通过，先修文案：", file=sys.stderr)
-        for v in audit["key_violations"] + audit["line_violations"]:
+        # D54：新增的两类也要打印 —— 否则 ok=False 而这里一条都不打，
+        # 用户看到「审计不通过」却没有任何原因（实测过：只打前两类时，
+        # 元素级违规会让 exit 1 但输出为空）。
+        for v in (audit["key_violations"] + audit["line_violations"]
+                  + audit.get("element_violations", [])
+                  + audit.get("unregistered_elements", [])):
             print(f"  ✗ {v}", file=sys.stderr)
         return 1
     # ⚠️ 是已知规格待决项（字库定长模型 vs 渲染器实际按字符类型步进），

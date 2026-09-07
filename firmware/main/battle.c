@@ -210,11 +210,14 @@ static uint16_t do_hit(const species_t *atk_sp, const stats_t *a, uint8_t a_lv,
     uint32_t D = mv->special ? d->spc : d->def;
     if (D == 0) D = 1;
 
+    // ability_factor 缩放有效 attack/special（消沉约 0.6，Q10 614）。
+    // 与 sim 的施加位置一致：能力最低为 1，公式的 +2 不属于能力，不打折。
+    // 614/1024 略小于 0.6，边界处仍可能与浮点参考相差一次取整。
+    A = A * factor_q10 / 1024;
+    if (A == 0) A = 1;
+
     // 分母 25（不是原版 50）—— 理由见文件头
     uint32_t base = (2u * a_lv / 5 + 2) * A * mv->power / D / 25 + 2;
-
-    // ability_factor：消沉时 0.6。Q10 定点，1024 = 1.0
-    base = base * factor_q10 / 1024;
 
     uint32_t stab = (mv->type == atk_sp->type1 || mv->type == atk_sp->type2)
                     ? STAB : 100;
