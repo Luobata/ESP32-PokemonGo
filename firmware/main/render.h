@@ -66,6 +66,13 @@ int render_text(int x, int y, const char *s, uint16_t fg);
 // 排版宽度（像素）。必须与 sim/strings.py 的 text_px() 一致。
 int render_text_width(const char *s);
 
+// Visible pixel bounds relative to the drawing origin (half-open rectangle).
+// Unlike advance width, this includes glyph bearings and excludes blank space.
+typedef struct { int x, y, w, h; } render_bounds_t;
+bool render_text_ink_bounds(const char *s, render_bounds_t *out);
+bool render_sprite_ink_bounds(const uint8_t *data, int w, int h,
+                              render_bounds_t *out);
+
 // 单个码点的步进宽度。ASCII 8，汉字 16。
 uint8_t render_char_advance(uint16_t cp);
 
@@ -83,6 +90,12 @@ void render_sprite_2bpp(int x, int y,
 void render_sprite_2bpp_wh(int x, int y,
                            const uint8_t *data, int w, int h, int scale,
                            const uint16_t *palette);
+
+// Square thumbnails for compact grids. Sample at destination pixel centers;
+// shade 3 stays transparent. Full-size artwork uses the integer-scale API above.
+void render_sprite_2bpp_thumbnail(int x, int y, const uint8_t *data,
+                                  int size, int dest_size,
+                                  const uint16_t *palette);
 
 // ---------------------------------------------------------------------------
 // 动效（S15 / sim/effects.py）

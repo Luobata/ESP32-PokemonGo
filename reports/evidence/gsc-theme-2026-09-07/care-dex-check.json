@@ -1,0 +1,58 @@
+{
+  "build": "09772dddff9aaf14b3c1",
+  "checks": 22,
+  "captures": [
+    "care-25",
+    "care-25-after",
+    "care-150",
+    "care-150-after",
+    "dex-first",
+    "dex-last"
+  ],
+  "source_sha256": {
+    "play_care.c": "e127640ee32023bc02a44dc2e50b8b35071df7374cdba323c4d4bbbd49a1c1be",
+    "play_dex.c": "300fb8804c6412b4f0d5042e2e096786b5ab5628dff886bc9b482349d8a251e0"
+  },
+  "care": {
+    "menu_y": [
+      80,
+      100,
+      120,
+      140
+    ],
+    "front_box": [
+      120,
+      64,
+      112,
+      112
+    ],
+    "axis_y": [
+      180,
+      202,
+      224
+    ],
+    "axis_bar_x_width": [
+      56,
+      128
+    ],
+    "evolution_hint_y": 256
+  },
+  "dex": {
+    "grid_origin": [
+      6,
+      40
+    ],
+    "cell_size": [
+      46,
+      56
+    ],
+    "thumbnail_size": 32,
+    "pages": 8,
+    "page_number_y": 260
+  },
+  "shared": {
+    "text_left": 12,
+    "text_right": 228,
+    "footer_y": 280
+  }
+}

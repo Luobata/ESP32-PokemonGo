@@ -27,6 +27,7 @@
 
 #include "bsp_display.h"
 #include "screen.h"
+#include "screen_idle.h"
 
 static const char *TAG = "screen";
 
@@ -59,10 +60,18 @@ void screen_own_display(void)
     s_lv_scr = lv_obj_create(NULL);
     lv_obj_set_style_pad_all(s_lv_scr, 0, 0);
     lv_obj_set_style_border_width(s_lv_scr, 0, 0);
-    // 背景设成与页面同色 —— 万一 LVGL 因为别的原因刷了一次，
-    // 刷出来的也是 GB 绿而不是刺眼的白/黑。
-    lv_obj_set_style_bg_color(s_lv_scr, lv_color_hex(0x9bbc0f), 0);
+    lv_obj_set_style_bg_color(s_lv_scr, lv_color_hex(0xffffff), 0);
     lv_screen_load(s_lv_scr);
+    // Loading an empty screen queues a full LVGL refresh. If it runs after
+    // nav_start draws the game, its background overwrites our four bands.
+    // Idle animation redraws only selected bands, leaving a persistent stripe.
+    // Own pixel output exclusively; keep the LVGL task and gameplay timers alive.
+    // Called while holding bsp_lvgl_lock, before the first game frame.
+    lv_display_t *display = lv_obj_get_display(s_lv_scr);
+    lv_display_enable_invalidation(display, false);
+    lv_timer_t *refresh = lv_display_get_refr_timer(display);
+    if (refresh) lv_timer_pause(refresh);
+    ESP_LOGI(TAG, "Game owns panel; LVGL pixel refresh disabled");
 }
 
 uint16_t *screen_band(void) { return s_band; }
@@ -114,6 +123,7 @@ static void wait_dma_done(void)
 
 void screen_push_band(int band_y)
 {
+    if (screen_idle_is_off() && !s_dumping) return;
     esp_lcd_panel_handle_t panel = bsp_display_panel();
     if (!panel) return;
 
@@ -150,6 +160,7 @@ static const char B64[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 void screen_set_redraw(screen_redraw_cb_t cb) { s_redraw = cb; }
+void screen_redraw_current(void) { if (s_redraw) s_redraw(); }
 
 // 把当前横带 base64 吐到串口。由 screen_push_band 在 dump 模式下调用。
 void screen_emit_band(int band_y)

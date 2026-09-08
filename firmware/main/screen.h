@@ -59,14 +59,10 @@ typedef void (*screen_redraw_cb_t)(void);
 #define C_HP_YELLOW 0xFD60u
 #define C_HP_RED    0xF800u
 
-// 让 LVGL 闭嘴：建一张空屏并载入，之后**再也不动它**。
-//
-// 我们整页自己画（screen_push_band 直接推面板），LVGL 只是个
-// 定时器与按键的宿主。但每页 lv_obj_create + lv_screen_load
-// 会让 LVGL 把新屏标脏、按 240×20 的块刷一遍**它自己的空背景** ——
-// 那就是切页时闪的那一下。
-//
-// 五个页面共用这一张，切页时不再新建/销毁，LVGL 就没有理由重刷。
+// Claim exclusive pixel output under bsp_lvgl_lock, before drawing a game page.
+// Pause only the LVGL display refresh timer and disable invalidation; gameplay
+// timers/input continue running. A blank loaded screen alone still queues a
+// background flush that can overwrite directly rendered bands after startup.
 void screen_own_display(void);
 
 // 当前横带的缓冲。直接写它比逐像素函数快得多 —— 画 sprite 时用。
@@ -84,6 +80,8 @@ void screen_push_band(int band_y);
 
 // 注册页面的重画函数。截图靠它 —— 见 screen_dump。
 void screen_set_redraw(screen_redraw_cb_t cb);
+// Restore the current page before revealing the backlight after screen idle.
+void screen_redraw_current(void);
 
 // 截图：让页面重画一遍，每条带 base64 吐到串口。
 // PC 侧用 `python3 tools/device/screenshot.py` 收成 PNG。

@@ -10,6 +10,7 @@
 #include <stdint.h>
 
 #include "assets.h"
+#include "combat.h"
 
 #define BATTLE_MAX_ROUNDS 40      // 与 sim 的 max_rounds 默认值一致
 #define BATTLE_TYPE_COUNT 15      // 初代 15 属性
@@ -25,14 +26,18 @@ enum {
 #define TY_NONE 0xFF
 
 // 一个回合的记录 —— P3 逐回合播放要用
-typedef struct {
+typedef struct battle_round {
     uint8_t by_pet;           // 1 = 主宠出手
     uint16_t damage;
     uint16_t mult;            // 倍率 ×100
     uint16_t pet_hp, wild_hp;
+    uint16_t move_id;         // Stable presentation dispatch key, never localized text.
+    uint8_t move_type;        // TY_*; TY_NONE when no move was selected.
     const char *move_zh;      // 指向字符串池，非 NUL 结尾
     uint8_t move_zh_len;
     bool missed;
+    uint8_t self_target, no_effect, charging, skipped, hits, critical;
+    uint16_t healed;
 } battle_round_t;
 
 typedef struct {
@@ -44,6 +49,44 @@ typedef struct {
     uint16_t pet_hp_max, wild_hp_max;
 } battle_result_t;
 
+// A resumable encounter battle. No pointers or animation clocks: copies retain
+// exact HP, turn order and RNG across P3/P4 and encounter-list navigation.
+typedef struct {
+    uint32_t rng;
+    uint16_t pet_species, wild_species;
+    uint16_t pet_hp, wild_hp, pet_hp_max, wild_hp_max;
+    uint16_t ability_factor_q10;
+    uint8_t pet_level, wild_level, attack_count;
+    uint8_t escape_attempts;
+    bool initialized, started, finished, won;
+    // Only the explicit Battle choice enables the continuous turn loop.
+    // A failed capture can start one attack while auto_battle stays false.
+    bool auto_battle;
+    bool intro_seen;
+    bool next_by_pet;
+    bool retaliation_pending;
+    bool escape_retaliation;
+    bool capture_used_after_win;
+    bool reward_settled;
+    bool defeat_applied;
+    bool loot_checked, loot_full;
+    uint8_t loot_item, loot_qty;
+    combat_mon_t fighters[2];
+    uint8_t acted;
+    uint16_t planned[2];
+} battle_session_t;
+
+bool battle_session_init(battle_session_t *session,
+                          uint16_t pet_species, uint8_t pet_level,
+                          uint16_t wild_species, uint8_t wild_level,
+                          uint16_t ability_factor_q10, uint32_t seed);
+// Commit one attack independently of frame timing. Pending capture retaliation
+// forces one wild attack, then gives the next ordinary turn to the player.
+bool battle_session_step(battle_session_t *session, battle_round_t *out);
+uint8_t battle_session_hp_ratio(const battle_session_t *session);
+uint16_t battle_session_exp(const battle_session_t *session);
+bool battle_session_can_capture(const battle_session_t *session);
+
 // 属性相克倍率（×100）。双属性相乘；def2 传 TY_NONE 表示单属性。
 uint16_t battle_effectiveness(uint8_t atk, uint8_t def1, uint8_t def2);
 
@@ -54,9 +97,9 @@ const char *battle_eff_label(uint16_t mult);
 // 种族值 → 实际能力值（含等级成长）。与 sim 的 effective_stat 同式。
 uint16_t battle_effective_stat(uint8_t base, uint8_t level);
 
-// 野怪等级 —— 绝对等级带，**不跟主宠涨**。
-// 跟着涨会让练级毫无意义（S3 文档记过这个缺陷）。
+// Baseline bands and progression-aware level (freeze in battle_session_t).
 uint8_t battle_wild_level(uint8_t rarity);
+uint8_t battle_wild_level_for_pet(uint8_t rarity, uint8_t pet_level);
 
 // 打一场。seed 让同一组输入得到同一场战斗（可回放）。
 void battle_run(uint16_t pet_species, uint8_t pet_level,

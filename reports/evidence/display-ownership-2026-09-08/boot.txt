@@ -1,0 +1,4 @@
+I (571) world: 读档：图鉴 5/151 队列 4 行程 4% party 6 total 6
+I (647) main: Audio preference: muted=0
+I (819) screen: Game owns panel; LVGL pixel refresh disabled
+I (901) idle: P1：#129 Lv6  提示行 184 px  横带 240x80×4 条

@@ -10,9 +10,8 @@
 //
 // ## 无动效
 //
-// 纯静态。这一页的作用是「看清」，动效只会干扰；且它可能是玩家
-// 停留最久的一页，省电。所以没有 lv_timer —— **进来画一次，
-// 按键才重画**。
+// 只在队列内容或选择变化时重画。200ms 检查后台快照，保证 FIFO 淘汰后
+// 画面能跟上；绘图和选择始终使用同一份页面快照，不能按新下标误选旧行。
 //
 // ## 光标为什么是点阵不是字符
 //
@@ -29,8 +28,10 @@
 #include "lvgl.h"
 
 #include "assets.h"
+#include "game_ui.h"
 #include "battle.h"
 #include "nav.h"
+#include "music_director.h"
 #include "play.h"
 #include "render.h"
 #include "screen.h"
@@ -48,19 +49,18 @@ static const char *TAG = "p2";
 // 布局。**每个元素都不跨横带边界**（边界在 y=80/160/240）——
 // 跨界会被两条带各画一半，刷新频率不同就撕裂（P1 栽过一次）。
 //
-//   y=4    刚才路上遇到              标题      带 0
-//   y=32   ▸ 妙蛙种子  ★★☆☆☆ 野外   第 1 条   带 0
-//   y=56     小拉达    ★☆☆☆☆ 住宅区 第 2 条   带 0
-//   …每条 24px，最多 8 条到 y=200            带 0~2
-//   y=264  稀有度越高越难捕获        提示      带 3
-//   y=292  ──────────────────────
-//   y=298  [A]选中 [B]下条 [C]返回            带 3
-#define ROW0_Y 32
+// Title y8; eight rows at y40 + i*24; explanatory text y248; the shared
+// GSC key frame occupies y280..320. Input and transition redraw every band.
+#define ROW0_Y 40
 #define ROW_H 24
 #define VISIBLE_ROWS 8
 
 static uint8_t s_sel;          // 选中第几条
 static uint8_t s_top;          // 滚动窗口的第一条
+static enc_queue_t s_view;     // One immutable queue for every band of a frame.
+static enc_queue_t s_latest;   // Static scratch; no queue-sized LVGL stack copy.
+#define REFRESH_TICK_MS 200
+static lv_timer_t *s_refresh_tick;
 
 // P2 → P3 遭遇转场。100ms 一拍推进 6 个原始 60fps 帧，实际时长与
 // trans_frames() 一致；LVGL timer 只重画屏幕，不阻塞独立的 world 任务。
@@ -88,13 +88,6 @@ static void draw_stars(int x, int y, uint8_t rarity, uint16_t fg)
     render_text(x, y, buf, fg);
 }
 
-// 画一条横线（分隔线）。各页各留一份 —— 两行代码，
-// 而提到公共头文件反而要处理颜色参数。
-static void hline_at(int y)
-{
-    for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_FOCUS);
-}
-
 static void overlay_transition(int band_y)
 {
     uint16_t *band = screen_band();
@@ -117,24 +110,20 @@ static void overlay_transition(int band_y)
 
 static void draw_band(int band_y)
 {
-    screen_band_clear(C_BG);
+    screen_band_clear(GAME_UI_BG);
     #define Y(v) ((v) - band_y)
 
-    const enc_queue_t *q = world_queue();
+    const enc_queue_t *q = &s_view;
     char buf[64];
     species_t sp;
 
     // -- 标题 ----------------------------------------------------------
-    render_text(8, Y(4), "刚才路上遇到", C_INK);
-    if (q->count) {
-        snprintf(buf, sizeof(buf), "%u", q->count);
-        render_text(SCR_W - 8 - render_text_width(buf), Y(4), buf, C_MID);
-    }
-    hline_at(Y(26));
+    snprintf(buf, sizeof(buf), "%u", q->count);
+    game_ui_title(band_y, "刚才路上遇到", buf);
 
     // -- 列表 ----------------------------------------------------------
     if (q->count == 0) {
-        render_text(8, Y(ROW0_Y + 24), "队列是空的", C_MID);
+        render_text(12, Y(96), "队列是空的", GAME_UI_MUTED);
     }
     for (uint8_t i = 0; i < VISIBLE_ROWS; i++) {
         uint8_t idx = (uint8_t)(s_top + i);
@@ -142,18 +131,7 @@ static void draw_band(int band_y)
         const encounter_t *e = &q->items[idx];
         int y = ROW0_Y + i * ROW_H;
 
-        // 光标 —— ui.bin 的点阵，不是 ▸（字库没有那个字形）
-        if (idx == s_sel) {
-            ui_art_t cur;
-            if (assets_ui("cursor", &cur)) {
-                static const uint16_t PAL[4] = {
-                    C_INK, C_FOCUS,
-                    C_LIGHT, 0,
-                };
-                render_sprite_2bpp_wh(6, Y(y + 3), cur.data, cur.w, cur.h,
-                                      1, PAL);
-            }
-        }
+        if (idx == s_sel) game_ui_cursor(band_y, 12, y + 3);
 
         // 物种名
         if (assets_species(e->species_id, &sp)) {
@@ -161,7 +139,7 @@ static void draw_band(int band_y)
         } else {
             snprintf(buf, sizeof(buf), "#%03u", e->species_id);
         }
-        render_text(18, Y(y), buf, C_INK);
+        render_text(24, Y(y), buf, GAME_UI_INK);
 
         // 稀有度星 —— 右对齐到 x=200，名字最长 5 字（80px）不会撞
         draw_stars(112, Y(y), e->rarity, C_INK);
@@ -187,9 +165,8 @@ static void draw_band(int band_y)
     }
 
     // -- 提示与三键 ------------------------------------------------------
-    render_text(8, Y(264), "稀有度越高越难捕获", C_MID);
-    hline_at(Y(292));
-    render_text(8, Y(298), "[A]选中 [B]下条 [C]返回", C_INK);
+    render_text(12, Y(248), "稀有度越高越难捕获", GAME_UI_MUTED);
+    game_ui_footer(band_y, "[A]选中 [B]下条 [C]返回");
 
     if (s_trans_flash_black) {
         screen_band_clear(C_BLACK);
@@ -207,6 +184,37 @@ static void draw_all(void)
 }
 
 static void redraw_for_dump(void) { draw_all(); }
+
+// Keep the chosen identity when FIFO shifts its index. If it disappeared,
+// choose a valid visible row but let the next explicit A select that new row.
+static bool refresh_list(void)
+{
+    world_queue_snapshot(&s_latest);
+    if (s_latest.count == s_view.count &&
+        memcmp(s_latest.items, s_view.items, s_view.count * sizeof(s_view.items[0])) == 0)
+        return false;
+    uint16_t selected_uid = s_sel < s_view.count ? s_view.items[s_sel].uid : 0;
+    uint32_t selected_ts = s_sel < s_view.count ? s_view.items[s_sel].ts : 0;
+    uint8_t next_sel = s_sel < s_latest.count ? s_sel : (s_latest.count ? s_latest.count - 1 : 0);
+    for (uint8_t i = 0; i < s_latest.count; i++) {
+        if (s_latest.items[i].uid == selected_uid && s_latest.items[i].ts == selected_ts) {
+            next_sel = i;
+            break;
+        }
+    }
+    s_view = s_latest;
+    s_sel = next_sel;
+    if (s_top > s_sel) s_top = s_sel;
+    if (s_sel >= s_top + VISIBLE_ROWS) s_top = s_sel - VISIBLE_ROWS + 1;
+    return true;
+}
+
+static void refresh_tick(lv_timer_t *timer)
+{
+    (void)timer;
+    // A transition keeps the selected list frame; P3 checks uid+ts again.
+    if (!s_trans_tick && refresh_list()) draw_all();
+}
 
 static uint16_t covered_tiles(void)
 {
@@ -260,15 +268,17 @@ static void transition_tick(lv_timer_t *timer)
 
 static void start_transition(void)
 {
+    music_director_play(MUSIC_WILD);
     const nav_ctx_t *c = nav_ctx();
     world_t w;
     world_snapshot(&w);
 
     uint8_t idx;
-    uint8_t wild_level = battle_wild_level(c->enc.rarity);
+    uint8_t wild_level = battle_wild_level_for_pet(c->enc.rarity, w.level);
     // biome 顺序与 sensing 的 dwell_by_biome 一致：0 野外、4 交通枢纽。
     bool open_biome = c->enc.biome == 0 || c->enc.biome == 4;
-    s_trans_id = trans_pick(false, wild_level, w.level, open_biome, &idx);
+    trans_pick(false, wild_level, w.level, open_biome, &idx);
+    s_trans_id = trans_pick_encounter(c->enc.uid, c->enc.biome, wild_level >= w.level + 3);
     s_trans_frame = 0;
     s_trans_q = 0;
     s_trans_flash_black = false;
@@ -289,6 +299,9 @@ void play_enc_enter(void)
 {
     s_sel = 0;
     s_top = 0;
+    memset(&s_view, 0, sizeof(s_view));
+    refresh_list();
+    s_refresh_tick = NULL;
     s_trans_tick = NULL;
     s_trans_frame = 0;
     s_trans_q = 0;
@@ -296,16 +309,18 @@ void play_enc_enter(void)
     s_trans_finish_hold = false;
     screen_set_redraw(redraw_for_dump);
     draw_all();
+    s_refresh_tick = lv_timer_create(refresh_tick, REFRESH_TICK_MS, NULL);
 
     // **不做自动截图** —— P1 那个是在只有一页时加的，
     // 现在有了 dbg.c 的按键注入，截图由 walk.py 显式发 's' 触发。
     // 页面自己再截一张只会与之交错，让 PC 侧收到半张（踩过一次）。
 
-    ESP_LOGI(TAG, "P2：队列 %u 条", world_queue()->count);
+    ESP_LOGI(TAG, "P2：队列 %u 条", s_view.count);
 }
 
 void play_enc_exit(void)
 {
+    if (s_refresh_tick) { lv_timer_delete(s_refresh_tick); s_refresh_tick = NULL; }
     if (s_trans_tick) { lv_timer_delete(s_trans_tick); s_trans_tick = NULL; }
     s_trans_flash_black = false;
     s_trans_q = 0;
@@ -315,12 +330,21 @@ void play_enc_exit(void)
 // A 单击 = 选中进战斗。主流程不依赖提示行没有说明的双击手势。
 static void on_select(void)
 {
-    const enc_queue_t *q = world_queue();
-    if (q->count == 0) return;
+    if (s_sel >= s_view.count) {
+        if (refresh_list()) draw_all();
+        return;
+    }
+    const encounter_t *shown = &s_view.items[s_sel];
+    encounter_t current;
+    if (!world_get_encounter_uid(shown->uid, &current) || current.ts != shown->ts) {
+        if (refresh_list()) draw_all();
+        return;
+    }
 
     nav_ctx_t *c = nav_ctx();
-    c->enc = q->items[s_sel];
-    c->uid = q->items[s_sel].uid;
+    c->enc = current;
+        c->exploring = false;
+    c->uid = current.uid;
     c->valid = true;
     c->battled = false;
     c->battle_won = false;
@@ -331,21 +355,24 @@ static void on_select(void)
 // C 长按由 main.c 全局用于退出玩法，不能作为页面手势；截图仍可走 dbg 的 s。
 static void discard_selected(void)
 {
-    const enc_queue_t *q = world_queue();
-    if (q->count == 0) return;
+    if (s_sel >= s_view.count) {
+        if (refresh_list()) draw_all();
+        return;
+    }
 
-    encounter_t dropped;
-    if (world_take_encounter(s_sel, &dropped)) {
+    const encounter_t *shown = &s_view.items[s_sel];
+    encounter_t dropped, current;
+    if (world_get_encounter_uid(shown->uid, &current) && current.ts == shown->ts &&
+        world_take_uid(shown->uid, &dropped)) {
         ESP_LOGI(TAG, "丢弃 #%u ★%u", dropped.species_id,
                  dropped.rarity);
     }
 
-    // 队列变短了，选中项与滚动窗口都可能越界。
-    const enc_queue_t *nq = world_queue();
-    if (s_sel >= nq->count && s_sel) s_sel--;
-    if (s_top > s_sel) s_top = s_sel;
+    refresh_list();
     draw_all();
 }
+
+bool play_enc_screen_busy(void) { return s_trans_tick != NULL; }
 
 void play_enc_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
@@ -360,16 +387,15 @@ void play_enc_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 
     if (ev != BSP_BTN_CLICK) return;
 
-    const enc_queue_t *q = world_queue();
-
     switch (btn) {
     case BSP_BTN_UP:                       // A 选中
         on_select();
         break;
 
     case BSP_BTN_DOWN:                     // B 下移一条
-        if (q->count == 0) break;
-        s_sel = (uint8_t)((s_sel + 1) % q->count);
+        refresh_list();
+        if (s_view.count == 0) { draw_all(); break; }
+        s_sel = (uint8_t)((s_sel + 1) % s_view.count);
         // 滚动窗口跟着选中项走
         if (s_sel < s_top) s_top = s_sel;
         if (s_sel >= s_top + VISIBLE_ROWS) {

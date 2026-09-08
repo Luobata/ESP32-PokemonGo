@@ -1,0 +1,15 @@
+{
+  "build": "19c991c6b46359d87b98",
+  "status": "PASS",
+  "cases": [
+    "safe escape has no reward or penalty",
+    "failed escape costs exactly one reply then capture remains available",
+    "auto escape is processed after current move once",
+    "lethal reply applies one penalty then care restores it",
+    "escape save failure leaves attempt and encounter intact",
+    "low nurture condition affects newly entered battle",
+    "begin battle refreshes a condition changed while waiting",
+    "original species frames play once and finish in resting pose"
+  ],
+  "dirty_full_checks": 705
+}

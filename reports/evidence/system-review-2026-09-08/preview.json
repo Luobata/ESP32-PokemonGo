@@ -1,0 +1,10 @@
+{
+  "checks": 139,
+  "version": "c8d80bc04bdcd0eaf034",
+  "moves": [
+    63,
+    84
+  ],
+  "settlement_retry_exactly_once": true,
+  "reward_gain": 151
+}

@@ -1,0 +1,31 @@
+{
+  "status": "PASS",
+  "build": "41d2c15b14d213e7cd94",
+  "method": "CUA actual buttons and page controls; live clock enabled for encounter transition",
+  "flows": [
+    {
+      "flow": "P1 A → P5 B/A care action",
+      "changed": true,
+      "page": "P5",
+      "ms": 0,
+      "sha256": "74c4ae6053054dbb8b1f97894fd13c293fcdd011935c3533b30f5d1a407c93de",
+      "dirty_redraw_mismatch": 0
+    },
+    {
+      "flow": "P1 B → P6 B next / A previous",
+      "changed": true,
+      "returned": true,
+      "page": "P6",
+      "ms": 0,
+      "sha256": "81e3f7e981c0fea9d597547734664787e1b9f61e00125c16f4aded90097ceee0",
+      "dirty_redraw_mismatch": 0
+    },
+    {
+      "flow": "P1 C → P2 A → automatic transition P3",
+      "page": "P3",
+      "ms": 2640,
+      "sha256": "34ec1edeef507e8bac2ea6e8262850ee83fa9b056a863f642ae645a68e439ba3",
+      "dirty_redraw_mismatch": 0
+    }
+  ]
+}

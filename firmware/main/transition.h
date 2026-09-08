@@ -19,11 +19,15 @@ typedef enum {
     TRANS_SHRINK,
     TRANS_V_STRIPES,
     TRANS_SPLIT,
+    TRANS_WAVE,
+    TRANS_SPECKLE,
     TRANS_COUNT,
 } trans_id_t;
 
 trans_id_t trans_pick(bool is_trainer, uint8_t wild_level,
                       uint8_t pet_level, bool open_biome, uint8_t *idx);
+// Presentation-only variation. Does not consume combat/capture RNG.
+trans_id_t trans_pick_encounter(uint16_t uid, uint8_t biome, bool stronger);
 uint16_t trans_frames(trans_id_t id);
 bool trans_has_flash(trans_id_t id);
 bool trans_tile_covered(trans_id_t id, uint16_t progress_q10,

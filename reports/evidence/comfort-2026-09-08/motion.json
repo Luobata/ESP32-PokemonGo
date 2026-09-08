@@ -1,0 +1,11 @@
+{
+  "build": "baf7fcd72e6a9cd80bec",
+  "care_species_animated": 151,
+  "selected_party_slots": 6,
+  "dirty_full_checks": 4012,
+  "C_long_battle_no_escape": true,
+  "wake_hold_consumed": true,
+  "idle_animation_allows_sleep": true,
+  "transition_variants": 8,
+  "new_masks_monotonic_complete": true
+}

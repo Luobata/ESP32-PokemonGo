@@ -1,0 +1,21 @@
+{
+  "build": "c8d80bc04bdcd0eaf034",
+  "checks": 478,
+  "screens": [
+    "menu.png",
+    "forest.png",
+    "route-list.png",
+    "power-plant.png",
+    "cave.png",
+    "coast.png",
+    "save-failed.png",
+    "discovery.png",
+    "clue-one.png",
+    "target-lapras.png",
+    "returned-after-capture.png",
+    "no-energy.png"
+  ],
+  "capture_returns_to": 15,
+  "failed_capture_retaliations": 1,
+  "escape_returns_to": 15
+}

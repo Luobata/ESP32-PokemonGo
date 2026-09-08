@@ -1,116 +1,100 @@
 #include "sfx.h"
+#include "sdkconfig.h"
 
-#include <inttypes.h>
+#if CONFIG_POKEWALK_SILENT_BOOT
 
+// Keep every gameplay, background and debug caller safe without creating a
+// queue/task or touching the codec. Rebuilding with the option off restores SFX.
+void sfx_start(void) {}
+void sfx_encounter(uint8_t rarity, bool shiny) {(void)rarity;(void)shiny;}
+void sfx_music_play(music_id_t id) { (void)id; }
+void sfx_move(uint16_t id, uint8_t type, bool missed) { (void)id; (void)type; (void)missed; }
+void sfx_play(sfx_id_t id) { (void)id; }
+
+#else
+
+#include <stdatomic.h>
+#include "sound_mixer.h"
+#include "audio_settings.h"
+#include "screen_idle.h"
 #include "bsp_audio.h"
-#include "esp_heap_caps.h"
 #include "esp_log.h"
-#include "esp_system.h"
-#include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
 
-#define SFX_QUEUE_DEPTH 8
 #define SFX_CHUNK_SAMPLES 480
-
-static const char *TAG = "sfx";
 static QueueHandle_t s_queue;
-static volatile uint32_t s_drops;
+static atomic_uint s_music;
+static atomic_uint s_alert;
 static int16_t s_pcm[SFX_CHUNK_SAMPLES];
+static sound_mixer_t s_mixer;
+typedef struct { uint16_t id; uint8_t type, kind; bool missed; } request_t;
 
-static uint32_t dma_largest(void)
-{
-    return (uint32_t)heap_caps_get_largest_free_block(MALLOC_CAP_DMA);
+static void sfx_task(void *arg) {
+ (void)arg;
+ bool opened=false, notifying=false;
+ int volume=-1;
+ sound_mixer_init(&s_mixer);
+ for(;;) {
+  request_t request;
+  // Latest effect takes priority over stale menu clicks; queue cannot build an audio backlog.
+  bool pending=false;
+  while(xQueueReceive(s_queue,&request,0)==pdTRUE)pending=true;
+  bool off=screen_idle_is_off();
+  unsigned alert=0;
+  if(notifying&&!s_mixer.active)notifying=false;
+  if(!audio_settings_muted() && off && !notifying) {
+   // Sleeping music is suspended, but an encounter may briefly open the codec.
+   alert=atomic_exchange(&s_alert,0);
+   s_mixer.active=false;
+  }
+  if(audio_settings_muted() || (off&&!notifying&&!alert)) {
+   s_mixer.active=false;notifying=false;
+   if(audio_settings_muted())atomic_store(&s_alert,0);
+   if(opened && bsp_audio_suspend()==ESP_OK)opened=false;
+   vTaskDelay(pdMS_TO_TICKS(25));continue;
+  }
+  if(!opened) {
+   if(bsp_audio_init()!=ESP_OK || bsp_audio_set_format(AUDIO_SAMPLE_RATE,16,1)!=ESP_OK) {
+    vTaskDelay(pdMS_TO_TICKS(250));continue;
+   }
+   volume=-1;opened=true;
+  }
+  if(volume!=audio_settings_volume()) {
+   int desired=audio_settings_volume();
+   bsp_audio_set_volume(desired);volume=desired;
+  }
+  if(pending && !off) {
+   if(request.kind)sound_mixer_move(&s_mixer,request.id,request.type,request.missed);
+   else sound_mixer_effect(&s_mixer,(sfx_id_t)request.id);
+  }
+  if(!alert && !pending && !s_mixer.active)alert=atomic_exchange(&s_alert,0);
+  if(alert){sound_mixer_effect(&s_mixer,audio_encounter_alert(alert==2?4:1,alert==3));notifying=true;}
+  sound_mixer_music(&s_mixer,off?MUSIC_NONE:(music_id_t)atomic_load(&s_music));
+  if(opened && (s_mixer.music.id!=MUSIC_NONE||s_mixer.active)) {
+   sound_mixer_render(&s_mixer,SFX_CHUNK_SAMPLES,s_pcm);
+   if(bsp_audio_write(s_pcm,sizeof(s_pcm))!=ESP_OK)vTaskDelay(pdMS_TO_TICKS(25));
+  } else vTaskDelay(pdMS_TO_TICKS(25));
+ }
 }
-
-static void play_one(sfx_id_t id)
-{
-    uint32_t total = audio_sfx_samples(id);
-    uint32_t written = 0;
-    uint32_t write_errors = 0;
-    uint32_t underruns = 0;
-    uint32_t pcm_peak = 0;
-    uint32_t pcm_clip = 0;
-
-    while (written < total) {
-        uint32_t count = total - written;
-        if (count > SFX_CHUNK_SAMPLES) count = SFX_CHUNK_SAMPLES;
-        int64_t render_started_us = esp_timer_get_time();
-        count = audio_render(id, written, count, s_pcm);
-        if (count == 0) break;
-
-        for (uint32_t i = 0; i < count; i++) {
-            int32_t sample = s_pcm[i];
-            uint32_t magnitude = (uint32_t)(sample < 0 ? -sample : sample);
-            if (magnitude > pcm_peak) pcm_peak = magnitude;
-            if (magnitude >= 32767u) pcm_clip++;
-        }
-
-        /* The codec API exposes no hardware underrun counter. A chunk whose
-         * synthesis exceeds its own playback time would starve the writer. */
-        if (written > 0 &&
-            esp_timer_get_time() - render_started_us >
-                (int64_t)count * 1000000 / AUDIO_SAMPLE_RATE) {
-            underruns++;
-        }
-        if (bsp_audio_write(s_pcm, count * sizeof(s_pcm[0])) != ESP_OK) {
-            write_errors++;
-        }
-        written += count;
-    }
-
-    ESP_LOGI(TAG, "@@SFX id=%u samples=%" PRIu32
-             " i2s_underrun=%" PRIu32 " write_errors=%" PRIu32
-             " pcm_peak=%" PRIu32 " pcm_clip=%" PRIu32
-             " queue_drops=%" PRIu32 " heap=%" PRIu32
-             " dma_largest=%" PRIu32,
-             (unsigned)id, written, underruns, write_errors,
-             pcm_peak, pcm_clip,
-             __atomic_load_n(&s_drops, __ATOMIC_RELAXED),
-             (uint32_t)esp_get_free_heap_size(), dma_largest());
+void sfx_start(void) {
+ if(s_queue)return;
+ s_queue=xQueueCreate(8,sizeof(request_t));
+ if(s_queue && xTaskCreate(sfx_task,"sound",4096,NULL,5,NULL)!=pdPASS) {vQueueDelete(s_queue);s_queue=NULL;}
 }
-
-static void sfx_task(void *arg)
-{
-    (void)arg;
-    esp_err_t err = bsp_audio_set_format(AUDIO_SAMPLE_RATE, 16, 1);
-    if (err == ESP_OK) bsp_audio_set_volume(SFX_VOLUME_PERCENT);
-    ESP_LOGI(TAG, "@@SFX prewarm=%s volume=%u heap=%" PRIu32
-             " dma_largest=%" PRIu32,
-             esp_err_to_name(err), err == ESP_OK ? SFX_VOLUME_PERCENT : 0,
-             (uint32_t)esp_get_free_heap_size(), dma_largest());
-
-    for (;;) {
-        sfx_id_t id;
-        if (xQueueReceive(s_queue, &id, portMAX_DELAY) == pdTRUE) {
-            if (err == ESP_OK) play_one(id);
-            else ESP_LOGE(TAG, "丢弃音效 %u：codec 格式预热失败", (unsigned)id);
-        }
-    }
+void sfx_play(sfx_id_t id) {
+ if((unsigned)id>=SFX_COUNT||!s_queue||audio_settings_muted()||screen_idle_is_off())return;
+ request_t request={.id=id};xQueueSend(s_queue,&request,0);
 }
-
-void sfx_start(void)
-{
-    if (s_queue) return;
-    s_queue = xQueueCreate(SFX_QUEUE_DEPTH, sizeof(sfx_id_t));
-    if (!s_queue) {
-        ESP_LOGE(TAG, "音效队列创建失败");
-        return;
-    }
-    if (xTaskCreate(sfx_task, "sfx", 4096, NULL, 5, NULL) != pdPASS) {
-        vQueueDelete(s_queue);
-        s_queue = NULL;
-        ESP_LOGE(TAG, "音效任务创建失败");
-    }
+void sfx_music_play(music_id_t id) { if((unsigned)id<MUSIC_COUNT)atomic_store(&s_music,id); }
+void sfx_move(uint16_t id,uint8_t type,bool missed) {
+ if(!s_queue||audio_settings_muted()||screen_idle_is_off())return;
+ request_t request={.id=id,.type=type,.kind=1,.missed=missed};xQueueSend(s_queue,&request,0);
 }
-
-void sfx_play(sfx_id_t id)
-{
-    if ((unsigned)id >= SFX_COUNT || !s_queue ||
-        xQueueSend(s_queue, &id, 0) != pdTRUE) {
-        uint32_t drops = __atomic_add_fetch(&s_drops, 1, __ATOMIC_RELAXED);
-        ESP_LOGW(TAG, "音效请求丢弃 id=%u queue_drops=%" PRIu32,
-                 (unsigned)id, drops);
-    }
+void sfx_encounter(uint8_t rarity,bool shiny) {
+ if(!s_queue||audio_settings_muted())return;
+ unsigned desired=shiny?3:rarity>=4?2:1,previous=atomic_load(&s_alert);
+ while(previous<desired&&!atomic_compare_exchange_weak(&s_alert,&previous,desired)){}
 }
+#endif

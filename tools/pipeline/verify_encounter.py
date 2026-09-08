@@ -15,9 +15,8 @@
     · 队列淘汰          随机灌 500 条，逐步比对队列内容
     · 图鉴位图          151 只全部 set/get + 越界
 
-队列那项尤其值得逐条比：淘汰规则是「最低稀有度里最旧的」，
-退化成 FIFO 的话统计上看不出来（长度、丢弃数都一样），
-只有比对**具体留下了哪几条**才能发现。
+队列规则是最多五条、满后无条件顶掉第一条。
+独立的最新五条参考序列同时比对 C 和 Python，防止两端同错。
 """
 
 from __future__ import annotations
@@ -224,7 +223,7 @@ def main() -> int:
 
         # ---- ③ rarity_from_ap ----------------------------------------------
         n = 0
-        AUTH = {0: "open", 3: "wpa2", 5: "wpa2-ent", 8: "wpa3-ent"}
+        AUTH = {0: "open", 3: "wpa2", 5: "wpa2-ent", 8: "wapi", 10: "wpa3-ent", 14: "wpa3-ent", 15: "wpa3-ent", 16: "wpa2-ent"}
         for rssi in (-30, -79, -80, -81, -95):
             for a_code, a_name in AUTH.items():
                 for has_ssid in (True, False):
@@ -244,6 +243,7 @@ def main() -> int:
         # ---- ④ 队列淘汰：逐步比对内容 ----------------------------------------
         d.ask("qreset")
         q = EncounterQueue()
+        arrivals = []
         n = mismatch = 0
         for step in range(300):
             rar = rnd.randint(1, 5)
@@ -253,13 +253,15 @@ def main() -> int:
             q.push(QueuedEncounter(enc=G.Encounter(
                 ts=ts, species_id=sid, type_name="一般", rarity=rar,
                 from_bssid_hash=0, biome="野外", is_transient=False)))
+            arrivals.append((rar, sid))
             # 每 10 步比一次完整内容
             if step % 10 == 9:
                 parts = d.ask("qdump").split()
                 c_items = [tuple(map(int, p.split(":"))) for p in parts[1:]]
                 py_items = [(x.rarity, x.species_id) for x in q.items]
                 n += 1
-                if c_items != py_items:
+                expected = arrivals[-5:]
+                if c_items != expected or py_items != expected or len(q) != 5 or q.dropped != step + 1 - 5:
                     mismatch += 1
                     if mismatch <= 2:
                         fails.append(

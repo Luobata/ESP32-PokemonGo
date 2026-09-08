@@ -1,0 +1,15 @@
+{
+  "cases": 5,
+  "save_bytes": 2336,
+  "erase_calls": 0,
+  "status": "PASS",
+  "sanitized": true,
+  "scope": "Actual world/save/items/party C. NVS/RTOS mocked; species evolution metadata is a small fixture. Five targeted independent transaction/migration/loot/evolution scenarios; does not exercise full UI or physical NVS.",
+  "source_sha256": {
+    "firmware/main/world.c": "997a6b8bc5ba3fbbb4219ba609697858e0dd2c7dae4168bcc459090221ff1572",
+    "firmware/main/save.c": "cd1602b47d2596b8050644d4d84aacf32ecc0ebdea56594de1b15f66266cf1c2",
+    "firmware/main/items.c": "65e01b52622db5745c783a2c0068bfd5795a33ebc96138123ad58cf18efd3ccd",
+    "firmware/main/items.h": "6ee11e3eace5bfd7343aca6b9ec8fac9b4b4eb1e8dd0738d6f6f2b2988beacd6",
+    "firmware/main/save.h": "37e35ed94131fdbbc0836e4d512d6f53e1c19a2fa0092347d18fdf999ccaba33"
+  }
+}

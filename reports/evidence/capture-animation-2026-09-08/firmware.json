@@ -1,0 +1,7 @@
+{
+  "bytes": 1822816,
+  "sha256": "13cfbe753143cc25868522bb913d840d5a338670a73c99227b7a88676c7c35a5",
+  "app_offset": "0x10000",
+  "flash_hash_verified": true,
+  "boot_ready": true
+}

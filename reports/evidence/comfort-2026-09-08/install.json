@@ -1,0 +1,10 @@
+{
+  "backup_sha256": "41b1145998b524199703b964567621234b0944d016e58ce876bb0e0d13ec39c7",
+  "backup_bytes": 1678944,
+  "previous_app_verified": true,
+  "new_app_bytes": 1650736,
+  "new_app_sha256": "b4ac39a444a747458628ab89025f3e24df4051b4d6b999c23f5c3a59a29dbea0",
+  "silent_boot": true,
+  "flash_hash_verified": true,
+  "device_verified": true
+}

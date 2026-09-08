@@ -1,0 +1,33 @@
+{
+  "dataset_sha256": "7af716b2bc326a66b0e33166362a3881f6fb4b7a8c7d2fc7dc826d3b77591d43",
+  "assets": {
+    "species": 151,
+    "actual_asset_reads": 604,
+    "sanitizers": [
+      "address",
+      "undefined"
+    ],
+    "fallback": "private missing #149 entry retained official 快龙",
+    "metadata_unchanged": true
+  },
+  "font_characters": 142,
+  "native": {
+    "build": "4e927afa07140fc618d7",
+    "pages": 8,
+    "changed_pixels": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      9
+    ],
+    "pages_without_visible_species_names": [
+      0,
+      6
+    ],
+    "hardware_long_A": true,
+    "game_state_unchanged": true,
+    "roundtrip_pixels_equal": true
+  }
+}

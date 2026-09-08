@@ -5,7 +5,7 @@
 #define TRANS_CELLS (TRANS_GRID_W * TRANS_GRID_H)
 
 static const uint16_t FRAMES[TRANS_COUNT] = {
-    102, 153, 132, 120, 60, 64, 54, 64,
+    102, 153, 132, 120, 60, 64, 54, 64, 72, 66,
 };
 
 // sim 的 spiral key 是 distance + atan2/(2*pi)。网格固定，直接保存每格
@@ -62,6 +62,14 @@ trans_id_t trans_pick(bool is_trainer, uint8_t wild_level,
     if (!open_biome) bits |= 4u;
     if (idx) *idx = bits;
     return (trans_id_t)bits;
+}
+
+trans_id_t trans_pick_encounter(uint16_t uid, uint8_t biome, bool stronger)
+{
+    static const trans_id_t variants[] = {TRANS_WAVE, TRANS_SPIRAL_IN,
+        TRANS_SPECKLE, TRANS_H_STRIPES, TRANS_SHRINK, TRANS_SPIRAL_OUT,
+        TRANS_V_STRIPES, TRANS_SPLIT};
+    return variants[((uint32_t)uid + biome * 3u + (stronger ? 4u : 0u)) % 8u];
 }
 
 uint16_t trans_frames(trans_id_t id)
@@ -148,6 +156,17 @@ bool trans_tile_covered(trans_id_t id, uint16_t progress_q10,
         return dy2 < (int16_t)half * 2;
     }
 
+    case TRANS_WAVE: {
+        // Fixed-point sine-shaped edge: no float/trig on ESP32-C3.
+        static const int8_t wave[16] = {0,2,4,6,6,6,4,2,0,-2,-4,-6,-6,-6,-4,-2};
+        int edge = (int)(q * (TRANS_GRID_W + 12u) / 1000u) - 6;
+        return (int)gx < edge + wave[gy % 16];
+    }
+    case TRANS_SPECKLE: {
+        // 37 is coprime to 1200: every cell has a unique reveal rank.
+        uint32_t rank = ((uint32_t)gy * TRANS_GRID_W + gx) * 37u % TRANS_CELLS;
+        return rank < (uint32_t)q * TRANS_CELLS / 1000u;
+    }
     default:
         return false;
     }

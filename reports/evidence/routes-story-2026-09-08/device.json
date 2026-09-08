@@ -1,0 +1,20 @@
+{
+  "preserved": {
+    "party": true,
+    "queue": true,
+    "dex": true,
+    "inventory": true,
+    "challenge": true,
+    "achievements": true,
+    "exploration": true
+  },
+  "settings": {
+    "mute": 1,
+    "volume": 80
+  },
+  "save_version": 11,
+  "save_bytes": 3664,
+  "firmware_sha256": "4c34052ebc9de210609031ac651620f61166ce362767f301f85fc076369a36c8",
+  "flash_verified": true,
+  "boot_muted": true
+}

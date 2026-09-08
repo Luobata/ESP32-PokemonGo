@@ -1,0 +1,606 @@
+{
+  "species": 151,
+  "original_moves": 251,
+  "learnable_unique": 238,
+  "unique_by_method": {
+    "level_up": 203,
+    "tm_hm": 57,
+    "egg": 94
+  },
+  "missing_engine_moves": 74,
+  "missing": [
+    {
+      "id": 168,
+      "name": "THIEF",
+      "effect": "EFFECT_THIEF",
+      "power": 40,
+      "type": "DARK",
+      "accuracy": 100
+    },
+    {
+      "id": 170,
+      "name": "MIND_READER",
+      "effect": "EFFECT_LOCK_ON",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 171,
+      "name": "NIGHTMARE",
+      "effect": "EFFECT_NIGHTMARE",
+      "power": 0,
+      "type": "GHOST",
+      "accuracy": 100
+    },
+    {
+      "id": 172,
+      "name": "FLAME_WHEEL",
+      "effect": "EFFECT_FLAME_WHEEL",
+      "power": 60,
+      "type": "FIRE",
+      "accuracy": 100
+    },
+    {
+      "id": 173,
+      "name": "SNORE",
+      "effect": "EFFECT_SNORE",
+      "power": 40,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 174,
+      "name": "CURSE",
+      "effect": "EFFECT_CURSE",
+      "power": 0,
+      "type": "CURSE_TYPE",
+      "accuracy": 100
+    },
+    {
+      "id": 175,
+      "name": "FLAIL",
+      "effect": "EFFECT_REVERSAL",
+      "power": 1,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 176,
+      "name": "CONVERSION2",
+      "effect": "EFFECT_CONVERSION2",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 179,
+      "name": "REVERSAL",
+      "effect": "EFFECT_REVERSAL",
+      "power": 1,
+      "type": "FIGHTING",
+      "accuracy": 100
+    },
+    {
+      "id": 180,
+      "name": "SPITE",
+      "effect": "EFFECT_SPITE",
+      "power": 0,
+      "type": "GHOST",
+      "accuracy": 100
+    },
+    {
+      "id": 181,
+      "name": "POWDER_SNOW",
+      "effect": "EFFECT_FREEZE_HIT",
+      "power": 40,
+      "type": "ICE",
+      "accuracy": 100
+    },
+    {
+      "id": 182,
+      "name": "PROTECT",
+      "effect": "EFFECT_PROTECT",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 183,
+      "name": "MACH_PUNCH",
+      "effect": "EFFECT_PRIORITY_HIT",
+      "power": 40,
+      "type": "FIGHTING",
+      "accuracy": 100
+    },
+    {
+      "id": 184,
+      "name": "SCARY_FACE",
+      "effect": "EFFECT_SPEED_DOWN_2",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 90
+    },
+    {
+      "id": 185,
+      "name": "FAINT_ATTACK",
+      "effect": "EFFECT_ALWAYS_HIT",
+      "power": 60,
+      "type": "DARK",
+      "accuracy": 100
+    },
+    {
+      "id": 186,
+      "name": "SWEET_KISS",
+      "effect": "EFFECT_CONFUSE",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 75
+    },
+    {
+      "id": 187,
+      "name": "BELLY_DRUM",
+      "effect": "EFFECT_BELLY_DRUM",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 188,
+      "name": "SLUDGE_BOMB",
+      "effect": "EFFECT_POISON_HIT",
+      "power": 90,
+      "type": "POISON",
+      "accuracy": 100
+    },
+    {
+      "id": 189,
+      "name": "MUD_SLAP",
+      "effect": "EFFECT_ACCURACY_DOWN_HIT",
+      "power": 20,
+      "type": "GROUND",
+      "accuracy": 100
+    },
+    {
+      "id": 190,
+      "name": "OCTAZOOKA",
+      "effect": "EFFECT_ACCURACY_DOWN_HIT",
+      "power": 65,
+      "type": "WATER",
+      "accuracy": 85
+    },
+    {
+      "id": 192,
+      "name": "ZAP_CANNON",
+      "effect": "EFFECT_PARALYZE_HIT",
+      "power": 100,
+      "type": "ELECTRIC",
+      "accuracy": 50
+    },
+    {
+      "id": 193,
+      "name": "FORESIGHT",
+      "effect": "EFFECT_FORESIGHT",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 194,
+      "name": "DESTINY_BOND",
+      "effect": "EFFECT_DESTINY_BOND",
+      "power": 0,
+      "type": "GHOST",
+      "accuracy": 100
+    },
+    {
+      "id": 195,
+      "name": "PERISH_SONG",
+      "effect": "EFFECT_PERISH_SONG",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 196,
+      "name": "ICY_WIND",
+      "effect": "EFFECT_SPEED_DOWN_HIT",
+      "power": 55,
+      "type": "ICE",
+      "accuracy": 95
+    },
+    {
+      "id": 197,
+      "name": "DETECT",
+      "effect": "EFFECT_PROTECT",
+      "power": 0,
+      "type": "FIGHTING",
+      "accuracy": 100
+    },
+    {
+      "id": 198,
+      "name": "BONE_RUSH",
+      "effect": "EFFECT_MULTI_HIT",
+      "power": 25,
+      "type": "GROUND",
+      "accuracy": 80
+    },
+    {
+      "id": 199,
+      "name": "LOCK_ON",
+      "effect": "EFFECT_LOCK_ON",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 200,
+      "name": "OUTRAGE",
+      "effect": "EFFECT_RAMPAGE",
+      "power": 90,
+      "type": "DRAGON",
+      "accuracy": 100
+    },
+    {
+      "id": 201,
+      "name": "SANDSTORM",
+      "effect": "EFFECT_SANDSTORM",
+      "power": 0,
+      "type": "ROCK",
+      "accuracy": 100
+    },
+    {
+      "id": 202,
+      "name": "GIGA_DRAIN",
+      "effect": "EFFECT_LEECH_HIT",
+      "power": 60,
+      "type": "GRASS",
+      "accuracy": 100
+    },
+    {
+      "id": 203,
+      "name": "ENDURE",
+      "effect": "EFFECT_ENDURE",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 204,
+      "name": "CHARM",
+      "effect": "EFFECT_ATTACK_DOWN_2",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 205,
+      "name": "ROLLOUT",
+      "effect": "EFFECT_ROLLOUT",
+      "power": 30,
+      "type": "ROCK",
+      "accuracy": 90
+    },
+    {
+      "id": 206,
+      "name": "FALSE_SWIPE",
+      "effect": "EFFECT_FALSE_SWIPE",
+      "power": 40,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 207,
+      "name": "SWAGGER",
+      "effect": "EFFECT_SWAGGER",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 90
+    },
+    {
+      "id": 210,
+      "name": "FURY_CUTTER",
+      "effect": "EFFECT_FURY_CUTTER",
+      "power": 10,
+      "type": "BUG",
+      "accuracy": 95
+    },
+    {
+      "id": 211,
+      "name": "STEEL_WING",
+      "effect": "EFFECT_DEFENSE_UP_HIT",
+      "power": 70,
+      "type": "STEEL",
+      "accuracy": 90
+    },
+    {
+      "id": 212,
+      "name": "MEAN_LOOK",
+      "effect": "EFFECT_MEAN_LOOK",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 213,
+      "name": "ATTRACT",
+      "effect": "EFFECT_ATTRACT",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 214,
+      "name": "SLEEP_TALK",
+      "effect": "EFFECT_SLEEP_TALK",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 215,
+      "name": "HEAL_BELL",
+      "effect": "EFFECT_HEAL_BELL",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 216,
+      "name": "RETURN",
+      "effect": "EFFECT_RETURN",
+      "power": 1,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 217,
+      "name": "PRESENT",
+      "effect": "EFFECT_PRESENT",
+      "power": 1,
+      "type": "NORMAL",
+      "accuracy": 90
+    },
+    {
+      "id": 218,
+      "name": "FRUSTRATION",
+      "effect": "EFFECT_FRUSTRATION",
+      "power": 1,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 219,
+      "name": "SAFEGUARD",
+      "effect": "EFFECT_SAFEGUARD",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 220,
+      "name": "PAIN_SPLIT",
+      "effect": "EFFECT_PAIN_SPLIT",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 222,
+      "name": "MAGNITUDE",
+      "effect": "EFFECT_MAGNITUDE",
+      "power": 1,
+      "type": "GROUND",
+      "accuracy": 100
+    },
+    {
+      "id": 223,
+      "name": "DYNAMICPUNCH",
+      "effect": "EFFECT_CONFUSE_HIT",
+      "power": 100,
+      "type": "FIGHTING",
+      "accuracy": 50
+    },
+    {
+      "id": 225,
+      "name": "DRAGONBREATH",
+      "effect": "EFFECT_PARALYZE_HIT",
+      "power": 60,
+      "type": "DRAGON",
+      "accuracy": 100
+    },
+    {
+      "id": 226,
+      "name": "BATON_PASS",
+      "effect": "EFFECT_BATON_PASS",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 227,
+      "name": "ENCORE",
+      "effect": "EFFECT_ENCORE",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 228,
+      "name": "PURSUIT",
+      "effect": "EFFECT_PURSUIT",
+      "power": 40,
+      "type": "DARK",
+      "accuracy": 100
+    },
+    {
+      "id": 229,
+      "name": "RAPID_SPIN",
+      "effect": "EFFECT_RAPID_SPIN",
+      "power": 20,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 230,
+      "name": "SWEET_SCENT",
+      "effect": "EFFECT_EVASION_DOWN",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 231,
+      "name": "IRON_TAIL",
+      "effect": "EFFECT_DEFENSE_DOWN_HIT",
+      "power": 100,
+      "type": "STEEL",
+      "accuracy": 75
+    },
+    {
+      "id": 233,
+      "name": "VITAL_THROW",
+      "effect": "EFFECT_ALWAYS_HIT",
+      "power": 70,
+      "type": "FIGHTING",
+      "accuracy": 100
+    },
+    {
+      "id": 235,
+      "name": "SYNTHESIS",
+      "effect": "EFFECT_SYNTHESIS",
+      "power": 0,
+      "type": "GRASS",
+      "accuracy": 100
+    },
+    {
+      "id": 236,
+      "name": "MOONLIGHT",
+      "effect": "EFFECT_MOONLIGHT",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 237,
+      "name": "HIDDEN_POWER",
+      "effect": "EFFECT_HIDDEN_POWER",
+      "power": 1,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 238,
+      "name": "CROSS_CHOP",
+      "effect": "EFFECT_NORMAL_HIT",
+      "power": 100,
+      "type": "FIGHTING",
+      "accuracy": 80
+    },
+    {
+      "id": 239,
+      "name": "TWISTER",
+      "effect": "EFFECT_TWISTER",
+      "power": 40,
+      "type": "DRAGON",
+      "accuracy": 100
+    },
+    {
+      "id": 240,
+      "name": "RAIN_DANCE",
+      "effect": "EFFECT_RAIN_DANCE",
+      "power": 0,
+      "type": "WATER",
+      "accuracy": 90
+    },
+    {
+      "id": 241,
+      "name": "SUNNY_DAY",
+      "effect": "EFFECT_SUNNY_DAY",
+      "power": 0,
+      "type": "FIRE",
+      "accuracy": 90
+    },
+    {
+      "id": 242,
+      "name": "CRUNCH",
+      "effect": "EFFECT_SP_DEF_DOWN_HIT",
+      "power": 80,
+      "type": "DARK",
+      "accuracy": 100
+    },
+    {
+      "id": 243,
+      "name": "MIRROR_COAT",
+      "effect": "EFFECT_MIRROR_COAT",
+      "power": 1,
+      "type": "PSYCHIC_TYPE",
+      "accuracy": 100
+    },
+    {
+      "id": 244,
+      "name": "PSYCH_UP",
+      "effect": "EFFECT_PSYCH_UP",
+      "power": 0,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 245,
+      "name": "EXTREMESPEED",
+      "effect": "EFFECT_PRIORITY_HIT",
+      "power": 80,
+      "type": "NORMAL",
+      "accuracy": 100
+    },
+    {
+      "id": 246,
+      "name": "ANCIENTPOWER",
+      "effect": "EFFECT_ALL_UP_HIT",
+      "power": 60,
+      "type": "ROCK",
+      "accuracy": 100
+    },
+    {
+      "id": 247,
+      "name": "SHADOW_BALL",
+      "effect": "EFFECT_SP_DEF_DOWN_HIT",
+      "power": 80,
+      "type": "GHOST",
+      "accuracy": 100
+    },
+    {
+      "id": 248,
+      "name": "FUTURE_SIGHT",
+      "effect": "EFFECT_FUTURE_SIGHT",
+      "power": 80,
+      "type": "PSYCHIC_TYPE",
+      "accuracy": 90
+    },
+    {
+      "id": 249,
+      "name": "ROCK_SMASH",
+      "effect": "EFFECT_DEFENSE_DOWN_HIT",
+      "power": 20,
+      "type": "FIGHTING",
+      "accuracy": 100
+    },
+    {
+      "id": 250,
+      "name": "WHIRLPOOL",
+      "effect": "EFFECT_TRAP_TARGET",
+      "power": 15,
+      "type": "WATER",
+      "accuracy": 70
+    },
+    {
+      "id": 251,
+      "name": "BEAT_UP",
+      "effect": "EFFECT_BEAT_UP",
+      "power": 10,
+      "type": "DARK",
+      "accuracy": 100
+    }
+  ],
+  "source_commit": "656583c939d30f920a316177311a502dd222b57c"
+}

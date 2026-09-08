@@ -111,6 +111,18 @@ void nurture_rest(nurture_t *n)
     n->stamina = clamp_axis((int64_t)n->stamina + NURT_REST_STAMINA);
 }
 
+void nurture_defeat(nurture_t *n)
+{
+    if (!n) return;
+    n->stamina = clamp_axis((int64_t)n->stamina - NURT_DEFEAT_STAMINA);
+    n->mood = clamp_axis((int64_t)n->mood - NURT_DEFEAT_MOOD);
+}
+
+uint16_t nurture_ability_factor(const nurture_t *n)
+{
+    return n && nurture_mood(n) == NURT_MOOD_DESPONDENT ? 614 : 1024;
+}
+
 uint8_t nurture_pct(int32_t q)
 {
     // 四舍五入而非截断 —— 截断会让 99.9 显示成 99，
@@ -155,8 +167,8 @@ bool nurture_selftest(void)
     nurture_tick(&n, 0, 0, false);
     nurture_tick(&n, US_PER_HOUR, 0, false);
     if (nurture_pct(n.satiety) != 76 || nurture_pct(n.mood) != 67 ||
-        nurture_pct(n.stamina) != 96) {
-        printf("nurture: 一小时后 %u/%u/%u，预期 76/67/96\n",
+        nurture_pct(n.stamina) != 100) {
+        printf("nurture: 一小时后 %u/%u/%u，预期 76/67/100\n",
                nurture_pct(n.satiety), nurture_pct(n.mood),
                nurture_pct(n.stamina));
         ok = false;
@@ -269,14 +281,14 @@ bool nurture_selftest(void)
     nurture_init(&n);
     n.stamina = 30 * NURT_Q;
     nurture_rest(&n);
-    if (n.stamina != 78 * NURT_Q) {
+    if (n.stamina != 30 * NURT_Q) {
         printf("nurture: 休息结果不符 %u\n", nurture_pct(n.stamina));
         ok = false;
     }
     n.stamina = 80 * NURT_Q;
     nurture_rest(&n);
-    if (n.stamina != NURT_MAX) {
-        printf("nurture: 休息应封顶，得到 %u\n", nurture_pct(n.stamina));
+    if (n.stamina != 80 * NURT_Q) {
+        printf("nurture: 休息不应回体力，得到 %u\n", nurture_pct(n.stamina));
         ok = false;
     }
 
@@ -291,4 +303,13 @@ bool nurture_selftest(void)
                "（首拍 · 整点 · 幂等 · 高频等价 · 触底 · 分档 · 封顶 · 照料）\n");
     }
     return ok;
+}
+
+uint8_t nurture_exp_percent(const nurture_t *n) {
+ if(!n)return 100;
+ return 80+(nurture_pct(n->satiety)+nurture_pct(n->mood))/5+nurture_pct(n->intimacy)/10;
+}
+uint8_t nurture_rare_bonus(const nurture_t *n) {
+ if(!n)return 0;
+ return (nurture_pct(n->satiety)+nurture_pct(n->mood)+nurture_pct(n->intimacy))/6;
 }

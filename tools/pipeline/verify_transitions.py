@@ -57,7 +57,7 @@ _Static_assert(TRANS_TILE == 8, "D16: tile 8");
 _Static_assert(TRANS_GRID_W == 30, "D16: grid 30x40");
 _Static_assert(TRANS_GRID_H == 40, "D16: grid 30x40");
 _Static_assert(TRANS_FLASH_FRAMES == 72, "D16: flash 72");
-_Static_assert(TRANS_COUNT == 8, "D16: 8 transitions");
+_Static_assert(TRANS_WAVE == 8 && TRANS_SPECKLE == 9 && TRANS_COUNT == 10, "original eight IDs plus Crystal-inspired extensions");
 _Static_assert(TRANS_DOUBLE_CIRCLE == 0, "enum = pokered 表");
 _Static_assert(TRANS_SPIRAL_IN == 1, "enum = pokered 表");
 _Static_assert(TRANS_CIRCLE == 2, "enum = pokered 表");

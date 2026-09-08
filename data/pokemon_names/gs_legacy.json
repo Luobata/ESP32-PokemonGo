@@ -1,0 +1,1336 @@
+{
+  "schema": 1,
+  "key": "gs_legacy_research",
+  "label": "金银民间旧译（资料版）",
+  "retrieved": "2026-09-08",
+  "scope": "关都151，早期金银民间汉化显示名资料整理；不是官方旧译或水晶译名，未作ROM字节定版。",
+  "fallback": "缺失条目或未支持ID使用当前资产中的官方名。",
+  "sources": [
+    {
+      "id": "tieba-612037835",
+      "title": "【永恒的经典】口袋妖怪金/银全PM汉化对照表",
+      "author": "究级硬骨头",
+      "url": "https://tiebac.baidu.com/p/612037835?fr=good",
+      "kind": "玩家原整理帖",
+      "note": "作者注明从原帖533386626的1211L~1727L多位玩家材料整理编号；本次公开索引可核对001..088，其余记录依据下方分版本表。"
+    },
+    {
+      "id": "pmcenter-42616",
+      "title": "【经典】251金银PM汉化名称对照表",
+      "url": "https://www.pmcenter.cn/forum.php?mod=viewthread&tid=42616",
+      "kind": "历史转载",
+      "note": "明确链接原帖612037835；用于交叉确认来源链，不作为独立实机考证。"
+    },
+    {
+      "id": "moegirl-gs",
+      "title": "宝可梦系列/俗称 · 肥大——快龙 · 金&银版列",
+      "url": "https://moegirl.uk/index.php?title=%E5%AE%9D%E5%8F%AF%E6%A2%A6%E7%B3%BB%E5%88%97/%E4%BF%97%E7%A7%B0&variant=zh-hans",
+      "kind": "分版本资料表",
+      "note": "只采用1至151行的金&银版列；括号异名不自动混入。水晶列149为富阿，未收录为本方案。"
+    }
+  ],
+  "records": [
+    {
+      "id": 1,
+      "official_reference": "妙蛙种子",
+      "name": "巨菇",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 2,
+      "official_reference": "妙蛙草",
+      "name": "阿钱",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 3,
+      "official_reference": "妙蛙花",
+      "name": "西天",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 4,
+      "official_reference": "小火龙",
+      "name": "号令",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 5,
+      "official_reference": "火恐龙",
+      "name": "比斯",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 6,
+      "official_reference": "喷火龙",
+      "name": "魔鲁",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 7,
+      "official_reference": "杰尼龟",
+      "name": "阿夫",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 8,
+      "official_reference": "卡咪龟",
+      "name": "美兰",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 9,
+      "official_reference": "水箭龟",
+      "name": "美罗",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 10,
+      "official_reference": "绿毛虫",
+      "name": "美后",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 11,
+      "official_reference": "铁甲蛹",
+      "name": "多王",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 12,
+      "official_reference": "巴大蝶",
+      "name": "肥波",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 13,
+      "official_reference": "独角虫",
+      "name": "可斯",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 14,
+      "official_reference": "铁壳蛹",
+      "name": "皮可",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 15,
+      "official_reference": "大针蜂",
+      "name": "阿大",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 16,
+      "official_reference": "波波",
+      "name": "音",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 17,
+      "official_reference": "比比鸟",
+      "name": "阿童",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 18,
+      "official_reference": "大比鸟",
+      "name": "阿明",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 19,
+      "official_reference": "小拉达",
+      "name": "风雪",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 20,
+      "official_reference": "拉达",
+      "name": "德",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 21,
+      "official_reference": "烈雀",
+      "name": "玉风",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 22,
+      "official_reference": "大嘴雀",
+      "name": "玉委",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 23,
+      "official_reference": "阿柏蛇",
+      "name": "玉",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 24,
+      "official_reference": "阿柏怪",
+      "name": "玉天",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 25,
+      "official_reference": "皮卡丘",
+      "name": "厄讹",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 26,
+      "official_reference": "雷丘",
+      "name": "威克",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 27,
+      "official_reference": "穿山鼠",
+      "name": "威",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 28,
+      "official_reference": "穿山王",
+      "name": "吉斯",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 29,
+      "official_reference": "尼多兰",
+      "name": "地里",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 30,
+      "official_reference": "尼多娜",
+      "name": "野花",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 31,
+      "official_reference": "尼多后",
+      "name": "宇木",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 32,
+      "official_reference": "尼多朗",
+      "name": "彬木",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 33,
+      "official_reference": "尼多力诺",
+      "name": "古西",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 34,
+      "official_reference": "尼多王",
+      "name": "宇西",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 35,
+      "official_reference": "皮皮",
+      "name": "崎",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 36,
+      "official_reference": "皮可西",
+      "name": "天胆",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 37,
+      "official_reference": "六尾",
+      "name": "莉",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 38,
+      "official_reference": "九尾",
+      "name": "古胆",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 39,
+      "official_reference": "胖丁",
+      "name": "花",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 40,
+      "official_reference": "胖可丁",
+      "name": "江大",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 41,
+      "official_reference": "超音蝠",
+      "name": "江花",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 42,
+      "official_reference": "大嘴蝠",
+      "name": "江天",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 43,
+      "official_reference": "走路草",
+      "name": "江彬",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 44,
+      "official_reference": "臭臭花",
+      "name": "江灵",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 45,
+      "official_reference": "霸王花",
+      "name": "高超",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 46,
+      "official_reference": "派拉斯",
+      "name": "基",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 47,
+      "official_reference": "派拉斯特",
+      "name": "卡斯",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 48,
+      "official_reference": "毛球",
+      "name": "铁腕",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 49,
+      "official_reference": "摩鲁蛾",
+      "name": "口呆",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 50,
+      "official_reference": "地鼠",
+      "name": "呆兽",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 51,
+      "official_reference": "三地鼠",
+      "name": "力量",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 52,
+      "official_reference": "喵喵",
+      "name": "小火",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 53,
+      "official_reference": "猫老大",
+      "name": "催兽",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 54,
+      "official_reference": "可达鸭",
+      "name": "大钳",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 55,
+      "official_reference": "哥达鸭",
+      "name": "大呆",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 56,
+      "official_reference": "猴怪",
+      "name": "耿鬼",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 57,
+      "official_reference": "火暴猴",
+      "name": "叮叮",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 58,
+      "official_reference": "卡蒂狗",
+      "name": "小磁",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 59,
+      "official_reference": "风速狗",
+      "name": "磁怪",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 60,
+      "official_reference": "蚊香蝌蚪",
+      "name": "三合",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 61,
+      "official_reference": "蚊香君",
+      "name": "蛋蛋",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 62,
+      "official_reference": "蚊香泳士",
+      "name": "卡拉",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 63,
+      "official_reference": "凯西",
+      "name": "椰兽",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 64,
+      "official_reference": "勇基拉",
+      "name": "沙拉",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 65,
+      "official_reference": "胡地",
+      "name": "古拉",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 66,
+      "official_reference": "腕力",
+      "name": "比拉",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 67,
+      "official_reference": "豪力",
+      "name": "袋兽",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 68,
+      "official_reference": "怪力",
+      "name": "长藤",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 69,
+      "official_reference": "喇叭芽",
+      "name": "阿贝",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 70,
+      "official_reference": "口呆花",
+      "name": "立方",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 71,
+      "official_reference": "大食花",
+      "name": "贝立",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 72,
+      "official_reference": "玛瑙水母",
+      "name": "石菊",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 73,
+      "official_reference": "毒刺水母",
+      "name": "石怪",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 74,
+      "official_reference": "小拳石",
+      "name": "石兽",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 75,
+      "official_reference": "隆隆石",
+      "name": "万年",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 76,
+      "official_reference": "隆隆岩",
+      "name": "迷你",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 77,
+      "official_reference": "小火马",
+      "name": "卡比",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 78,
+      "official_reference": "烈焰马",
+      "name": "宝石",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 79,
+      "official_reference": "呆呆兽",
+      "name": "工",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 80,
+      "official_reference": "呆壳兽",
+      "name": "水箭",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 81,
+      "official_reference": "小磁怪",
+      "name": "芳",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 82,
+      "official_reference": "三合一磁怪",
+      "name": "白林",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 83,
+      "official_reference": "大葱鸭",
+      "name": "阿能",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 84,
+      "official_reference": "嘟嘟",
+      "name": "南版",
+      "sources": [
+        "tieba-612037835"
+      ],
+      "variant_note": "贴吧原整理表作南版；萌娘百科金银列作南板。本资料版采用原整理表，不推断哪个ROM字节版本。",
+      "other_recorded_names": [
+        "南板"
+      ]
+    },
+    {
+      "id": 85,
+      "official_reference": "嘟嘟利",
+      "name": "鲁风",
+      "sources": [
+        "tieba-612037835"
+      ],
+      "variant_note": "贴吧原整理表作鲁风；萌娘百科金银列作北风。本资料版采用原整理表，不推断哪个ROM字节版本。",
+      "other_recorded_names": [
+        "北风"
+      ]
+    },
+    {
+      "id": 86,
+      "official_reference": "小海狮",
+      "name": "北口",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 87,
+      "official_reference": "白海狮",
+      "name": "品质",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 88,
+      "official_reference": "臭泥",
+      "name": "阿兰",
+      "sources": [
+        "tieba-612037835",
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 89,
+      "official_reference": "臭臭泥",
+      "name": "方明",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 90,
+      "official_reference": "大舌贝",
+      "name": "方红",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 91,
+      "official_reference": "刺甲贝",
+      "name": "方剑",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 92,
+      "official_reference": "鬼斯",
+      "name": "卡",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 93,
+      "official_reference": "鬼斯通",
+      "name": "地花",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 94,
+      "official_reference": "耿鬼",
+      "name": "怪花",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 95,
+      "official_reference": "大岩蛇",
+      "name": "路草",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 96,
+      "official_reference": "催眠貘",
+      "name": "草宝",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 97,
+      "official_reference": "引梦貘人",
+      "name": "合地",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 98,
+      "official_reference": "大钳蟹",
+      "name": "皮",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 99,
+      "official_reference": "巨钳蟹",
+      "name": "小波",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 100,
+      "official_reference": "霹雳电球",
+      "name": "阿月",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 101,
+      "official_reference": "顽皮雷弹",
+      "name": "阿利",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 102,
+      "official_reference": "蛋蛋",
+      "name": "小林",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 103,
+      "official_reference": "椰蛋树",
+      "name": "小雷",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 104,
+      "official_reference": "卡拉卡拉",
+      "name": "怪兽",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 105,
+      "official_reference": "嘎啦嘎啦",
+      "name": "魔怪",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 106,
+      "official_reference": "飞腿郎",
+      "name": "小津",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 107,
+      "official_reference": "快拳郎",
+      "name": "小森",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 108,
+      "official_reference": "大舌头",
+      "name": "阿日",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 109,
+      "official_reference": "瓦斯弹",
+      "name": "阿历",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 110,
+      "official_reference": "双弹瓦斯",
+      "name": "基纳",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 111,
+      "official_reference": "独角犀牛",
+      "name": "山山",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 112,
+      "official_reference": "钻角犀兽",
+      "name": "奇草",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 113,
+      "official_reference": "吉利蛋",
+      "name": "呆花",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 114,
+      "official_reference": "蔓藤怪",
+      "name": "阿槐",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 115,
+      "official_reference": "袋兽",
+      "name": "鬼通",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 116,
+      "official_reference": "墨海马",
+      "name": "小狮",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 117,
+      "official_reference": "海刺龙",
+      "name": "阿柏",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 118,
+      "official_reference": "角金鱼",
+      "name": "尼多",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 119,
+      "official_reference": "金鱼王",
+      "name": "多利",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 120,
+      "official_reference": "海星星",
+      "name": "美王",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 121,
+      "official_reference": "宝石海星",
+      "name": "皮皮",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 122,
+      "official_reference": "魔墙人偶",
+      "name": "比超",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 123,
+      "official_reference": "飞天螳螂",
+      "name": "比卡",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 124,
+      "official_reference": "迷唇姐",
+      "name": "雷超",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 125,
+      "official_reference": "电击兽",
+      "name": "美",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 126,
+      "official_reference": "鸭嘴火兽",
+      "name": "波球",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 127,
+      "official_reference": "凯罗斯",
+      "name": "金刚",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 128,
+      "official_reference": "肯泰罗",
+      "name": "阿音",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 129,
+      "official_reference": "鲤鱼王",
+      "name": "玉明",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 130,
+      "official_reference": "暴鲤龙",
+      "name": "阿斯",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 131,
+      "official_reference": "拉普拉斯",
+      "name": "阿露",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 132,
+      "official_reference": "百变怪",
+      "name": "露斯",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 133,
+      "official_reference": "伊布",
+      "name": "布依",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 134,
+      "official_reference": "水伊布",
+      "name": "米米",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 135,
+      "official_reference": "雷伊布",
+      "name": "委比",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 136,
+      "official_reference": "火伊布",
+      "name": "毛毛",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 137,
+      "official_reference": "多边兽",
+      "name": "哥夫",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 138,
+      "official_reference": "菊石兽",
+      "name": "吉尼",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 139,
+      "official_reference": "多刺菊石兽",
+      "name": "三头",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 140,
+      "official_reference": "化石盔",
+      "name": "瑞",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 141,
+      "official_reference": "镰刀盔",
+      "name": "野威",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 142,
+      "official_reference": "化石翼龙",
+      "name": "诗",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 143,
+      "official_reference": "卡比兽",
+      "name": "童童",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 144,
+      "official_reference": "急冻鸟",
+      "name": "兹古",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 145,
+      "official_reference": "闪电鸟",
+      "name": "西木",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 146,
+      "official_reference": "火焰鸟",
+      "name": "阿西",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 147,
+      "official_reference": "迷你龙",
+      "name": "江明",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 148,
+      "official_reference": "哈克龙",
+      "name": "江连",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 149,
+      "official_reference": "快龙",
+      "name": "肥大",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 150,
+      "official_reference": "超梦",
+      "name": "灵怪",
+      "sources": [
+        "moegirl-gs"
+      ]
+    },
+    {
+      "id": 151,
+      "official_reference": "梦幻",
+      "name": "斯",
+      "sources": [
+        "moegirl-gs"
+      ]
+    }
+  ]
+}

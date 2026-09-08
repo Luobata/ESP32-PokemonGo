@@ -1,0 +1,105 @@
+{
+  "status": "FLASHED_AND_DEVICE_UI_VERIFIED",
+  "date": "2026-09-08",
+  "chip": "ESP32-C3",
+  "port": "/dev/cu.usbmodem1101",
+  "image": "firmware/build/PokeWalk.bin",
+  "image_bytes": 1639120,
+  "image_sha256": "5b3b0e3c3434f60676666a0c1bcbc3d07b13b5f4540ab83a84a42d64be393c7e",
+  "native_build": "228718009b2f7897a4cd",
+  "inspector_manifest_matches_final_sources": true,
+  "silent_boot_config": true,
+  "boot_silent_diagnostic_verified": true,
+  "flash_hash_verified": true,
+  "write_region": {
+    "offset": "0x10000",
+    "partition": "factory",
+    "capacity_bytes": 3145728
+  },
+  "nvs_partition_reflashed": false,
+  "cardid_partition_reflashed": false,
+  "recovery_partition_reflashed": false,
+  "backup": {
+    "backup": "/Users/bytedance/luobata/ESP32-PokemonGo/.device-backup/flash-before-items-silent-20260908.bin",
+    "bytes": 8388608,
+    "sha256": "97e8720c4acaf787cdc3c075e6a2c780ab7855f0ab34c95788db0005931874d2",
+    "partitions": [
+      {
+        "name": "nvs",
+        "type": 1,
+        "subtype": 2,
+        "offset": 36864,
+        "size": 24576,
+        "flags": 0
+      },
+      {
+        "name": "phy_init",
+        "type": 1,
+        "subtype": 1,
+        "offset": 61440,
+        "size": 4096,
+        "flags": 0
+      },
+      {
+        "name": "factory",
+        "type": 0,
+        "subtype": 0,
+        "offset": 65536,
+        "size": 3145728,
+        "flags": 0
+      },
+      {
+        "name": "cardid",
+        "type": 1,
+        "subtype": 2,
+        "offset": 3497984,
+        "size": 16384,
+        "flags": 0
+      },
+      {
+        "name": "recovery",
+        "type": 0,
+        "subtype": 32,
+        "offset": 7340032,
+        "size": 1048576,
+        "flags": 0
+      }
+    ],
+    "after_backup": "no_reset (ROM download mode)"
+  },
+  "device_boot": {
+    "ui_assets": "6/6",
+    "party_count": 6,
+    "caught_species": 5,
+    "leader_species": 26,
+    "leader_level": 6,
+    "error_panic_abort_lines": 0
+  },
+  "device_ui": {
+    "method": "serial RGB565 framebuffer readback; no physical camera capture",
+    "pages": [
+      "P1 idle",
+      "P5 care",
+      "P10 bag"
+    ],
+    "keys": "a,bbba,c,c,w",
+    "screenshots": [
+      "reports/evidence/items-2026-09-08/device/00-start.png",
+      "reports/evidence/items-2026-09-08/device/01-key-a.png",
+      "reports/evidence/items-2026-09-08/device/02-key-bbba.png",
+      "reports/evidence/items-2026-09-08/device/03-key-c.png",
+      "reports/evidence/items-2026-09-08/device/04-key-c.png",
+      "reports/evidence/items-2026-09-08/device/05-key-w.png"
+    ],
+    "ball_stock_observed": {
+      "poke": 12,
+      "great": 3,
+      "ultra": 1,
+      "master": 0
+    },
+    "final_page": "P1 idle",
+    "save_requested": true,
+    "items_consumed": 0
+  },
+  "scope": "Actual app flash, hash verification, startup diagnostics and device-rendered page navigation. Acoustic measurement and physical power-loss testing were not performed."
+}

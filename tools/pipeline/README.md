@@ -1,6 +1,18 @@
 # tools/pipeline — 素材管线
 
-把**初代 151 只宝可梦**的数据与 sprite 转成固件能直接用的紧凑格式，并核算 flash 预算。
+把 **151 只关都宝可梦**的数据与 sprite 转成固件格式。玩法数据仍保留初代规则；当前正面首帧、48×48 背面及普通/闪光配色来自固定版本的《水晶》原素材。
+
+当前素材使用 `convert_pokemon_art.py`，来源固定为 `pret/pokecrystal` 的 `7a7881d0d62e0ddbd82dcf10e7116807487ac651`。它保留四档像素、原版普通/闪光配色与 7 项调色板反序例外，来源和输出哈希见 `assets/pokemon_art_sources.json`。渲染色号 3 保留原白色，在统一白底页面按透明绘制。
+
+```bash
+python3 tools/pipeline/convert_pokemon_art.py --src /path/to/pokecrystal
+python3 tools/pipeline/convert_pokemon_art.py --src /path/to/pokecrystal --check
+python3 tools/pipeline/verify_pokemon_art.py --src /path/to/pokecrystal
+```
+
+转换只需 Python 标准库；独立核验需 Pillow 和本机 C 编译器。核验使用上游 `gbcpal.c`、独立 PNG 解码，以及实际 `assets.c/render.c/screen.c` 的 604 次普通/闪光正背渲染。P6 的 32px 最近邻缩略图不属于原像素 1:1 呈现。
+
+下文保留的 `fetch_gen1.py` / `convert_gen1.py` / `convert_palettes.py` 是历史 RBY 数据与素材流程；它会覆盖同名资产，并包含内部白色合并与自定义闪光变色，**不用于重建当前水晶素材**。旧表格中的 32px 背图和 10 套配色均是历史结果。
 
 **完全不依赖目标硬件**，是[硬件到手前可推进的工作](../../docs/07-roadmap.md#71-硬件到手前可做的四件事)之一。
 零第三方依赖（自己解 PNG、只用标准库）。
@@ -299,4 +311,3 @@ UI 文案按页面组织在 `UI_STRINGS`，便于对照 `docs/08-systems.md` 增
 
 - **招式表** —— `reserved` 字段已留位。本项目的战斗系统尚未设计
 - **图鉴描述文本** —— 同上
-

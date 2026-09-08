@@ -19,6 +19,8 @@ esp_lcd_panel_io_handle_t bsp_display_io(void);
 
 // 背光亮度 0..100(%)。LEDC PWM,0=全灭。
 void bsp_display_backlight(uint8_t percent);
+// Read the configured PWM duty (not a physical light/current measurement).
+uint8_t bsp_display_get_backlight(void);
 
 // ---------------------------------------------------------------------------
 // LVGL 接入(可选层)。必须先 bsp_display_init() 成功后再调。

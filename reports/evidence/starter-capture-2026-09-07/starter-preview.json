@@ -1,0 +1,14 @@
+{
+  "build": "788d5f7752742418ba6c",
+  "passed": [
+    "choose #001, persist fixture, no duplicate",
+    "choose #004, persist fixture, no duplicate",
+    "choose #007, persist fixture, no duplicate",
+    "choose #025, persist fixture, no duplicate",
+    "C wrap, failed save stays pending, retry receives Pikachu once",
+    "full opening reaches P9; every gameplay route guarded",
+    "existing Eevee fixture retained after replaying opening/starter",
+    "HTTP P9 accepted; P7/P8 and malformed pages rejected"
+  ],
+  "scope": "actual C pages/navigation; fixture storage, see verify_starter.py for real world/save"
+}

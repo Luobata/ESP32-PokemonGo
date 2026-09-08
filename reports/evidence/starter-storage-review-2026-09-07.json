@@ -1,0 +1,29 @@
+{
+  "status": "PASS",
+  "world_save_regression": {
+    "command": "python3 tools/pipeline/verify_starter.py --sanitize",
+    "cases": 67,
+    "save_version": 5,
+    "save_bytes": 2296,
+    "battle_slots": 16,
+    "erase_calls": 0,
+    "sanitized": true,
+    "scope": "actual world.c/save.c/party.c/encounter.c; simulated NVS/RTOS/device services"
+  },
+  "independent_queue_counterexample": {
+    "gate": "loaded_queue_valid(&s.queue) && loaded_party_valid(&s)",
+    "count_255_rejected": true,
+    "count_17_rejected": true,
+    "valid_full_16_accepted": true,
+    "valid_empty_accepted": true,
+    "sanitized": true,
+    "stdout": "count=255 accepted=0 expected=0\ncount=17 accepted=0 expected=0\ncount=16 accepted=1 expected=1\ncount=0 accepted=1 expected=1\n"
+  },
+  "source_sha256": {
+    "firmware/main/world.c": "dfab64f147540bfe3c62a5f9ac839668915b44cac79b9062b3b5d34072ea37a8",
+    "firmware/main/save.c": "6d9e1e51c28dbaca04f6ed814e672b203469f9d8f99966bbb14c266a046cdb41",
+    "tools/pipeline/verify_starter.py": "2da4820420ecfb0afb1eb7226d6b9435a4c7c73f12e655f25482b4c6ff436c32"
+  },
+  "open_findings": [],
+  "limits": "No real ESP32/NVS flash operation exercised; native page-flow fixture evidence is recorded separately."
+}

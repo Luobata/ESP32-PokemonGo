@@ -1,0 +1,21 @@
+{
+  "cases": 15,
+  "members_checked_per_load": 157,
+  "pidgeotto_level": 12,
+  "repaired_exp": 4320,
+  "after_reward_exp": 4380,
+  "save_version": 6,
+  "save_bytes": 2336,
+  "erase_calls": 0,
+  "sanitized": true,
+  "scope": "Actual world/save/party/exp C with simulated NVS/device boundary",
+  "negative_checks": [
+    "load repair",
+    "box repair",
+    "immediate persistence",
+    "keep higher EXP",
+    "reward baseline",
+    "reward overflow"
+  ],
+  "world_sha256": "26f292f27d29076a4397af30f3f81efbfcd05f046761c7ff797316f38c7d9a78"
+}

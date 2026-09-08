@@ -12,12 +12,8 @@
 // 第 3 点是关键：它让「先打再抓」成为**真策略**，而不是可跳过的动画。
 // 战斗页因此不是通往捕获的走廊，而是一个决策点。
 //
-// ## 为什么先算完再逐帧播
-//
-// battle_run() 一次算完整场（40 回合上限），页面按定时器逐条播放。
-// 反过来（每帧算一回合）看似更自然，但那样**结果依赖帧率** ——
-// 页面被 WiFi 扫描挤掉几帧就少打几回合。先算完就没这问题，
-// 而且能提前知道总回合数用来分配播放节奏。
+// Each attack commits one resumable battle step before its animation. Timers
+// only pace presentation; capture and page navigation retain HP/RNG/turn order.
 
 #include <inttypes.h>
 #include <stdio.h>
@@ -28,12 +24,20 @@
 
 #include "assets.h"
 #include "battle.h"
+#include "battle_escape.h"
+#include "battle_fx.h"
+#include "battle_presentation.h"
+#include "game_ui.h"
+#include "party_ball_assets.h"
+#include "exp.h"
 #include "nav.h"
 #include "play.h"
+#include "pokemon_animation.h"
 #include "render.h"
 #include "render_scene_screen.h"
 #include "screen.h"
 #include "sfx.h"
+#include "music_director.h"
 #include "world.h"
 
 static const char *TAG = "p3";
@@ -46,91 +50,168 @@ extern uint32_t dbg_battle_seed;
 #define SCR_W SCREEN_W
 #define SCR_H SCREEN_H
 
-// 布局（不跨横带边界 y=80/160/240）
-//   y=4    ★★★☆☆            野怪名 Lv20    带 0
-//   y=28                       野怪 HP 条    带 0
-//   y=88                    [野怪 front]    带 1
-//   y=140  [主宠 back]  主宠名 Lv12         带 1/2
-//   y=192               主宠 HP 条          带 2
-//   y=244  回合文字（第一行）               带 3
-//   y=268  回合文字（第二行）               带 3
-//   y=292  ────────────────────
-//   y=298  [A]捕获 [B]战斗 [C]逃跑          带 3
-//
-// 主宠区 x 排布：sprite 96px 在 x=8..103，名牌/HP 条从 x=112 起
-// （sprite 右缘 104 之后），HP 条宽 120 到右边距 232。
-#define WILD_NAME_Y 4
-#define WILD_BAR_Y 28
-#define WILD_SPRITE_BOX_Y 88
-#define WILD_SPRITE_BOX_H 64
+// GSC composition adapted to 240x320: enemy status top-left, front sprite
+// top-right, player back bottom-left and player status bottom-right.
+// Original 8px HUD tiles use integer 2x scaling. Both sprite bands redraw
+// together, while the complete 240x80 message box owns the bottom band.
+#define WILD_NAME_Y 8
+#define WILD_BAR_Y SCENE_P3_WILD_TOP
+#define WILD_RARITY_Y 50
+#define WILD_SHINY_Y 68
 #define PET_SPRITE_Y SCENE_P3_PET_BACK_Y
 #define PET_NAME_Y SCENE_P3_PET_NAME_Y
 #define PET_NAME_X SCENE_P3_PET_NAME_X
 #define PET_BAR_Y SCENE_P3_PET_HP_Y
 #define PET_BAR_X SCENE_P3_PET_HP_X
 #define PET_BAR_W SCENE_P3_PET_HP_W
-#define MSG_Y 244
-#define MSG_DETAIL_Y 268
+#define PET_HP_VALUE_Y 208
+#define MSG_Y 256
+#define MSG_DETAIL_Y 274
+#define MSG_HINT_Y 292
+#define MSG_X 16
+#define MSG_RIGHT 224
 
 SCREEN_ASSERT_WITHIN_BAND(battle_wild_name, WILD_NAME_Y, 16);
-SCREEN_ASSERT_WITHIN_BAND(battle_wild_bar, WILD_BAR_Y, 10);
-SCREEN_ASSERT_WITHIN_BAND(battle_wild_sprite_box,
-                          WILD_SPRITE_BOX_Y, WILD_SPRITE_BOX_H);
+SCREEN_ASSERT_WITHIN_BAND(battle_wild_bar, WILD_BAR_Y, BATTLE_HUD_HP_HEIGHT);
+SCREEN_ASSERT_WITHIN_BAND(battle_wild_rarity, WILD_RARITY_Y, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_wild_sprite_box,
+                          SCENE_P3_WILD_TOP, SCENE_P3_WILD_MAX_SIZE);
+SCREEN_ASSERT_WITHIN_BAND(battle_wild_shiny, WILD_SHINY_Y, 7);
 // 主宠显示目标为 96px；共享配方从资产尺寸自动取 32x3 / 48x2。
 // 96 > 80 带高，跨带 1/2 —— 用 SCREEN_ASSERT_ALLOW_CROSS_BAND 显式声明，
 // 且 shake tick 必须重画带 1+2（见 tick 里的注释）。
-// PET_SPRITE_Y=140 让 sprite 底边 235 < MSG_Y=244，不压消息行。
+// PET_SPRITE_Y=140 keeps its last pixel at 235, above the message box.
 #define PET_SPRITE_DISPLAY SCENE_P3_PET_BACK_SIZE
 SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_pet_sprite, PET_SPRITE_Y, PET_SPRITE_DISPLAY);
 SCREEN_ASSERT_WITHIN_BAND(battle_pet_name, PET_NAME_Y, 16);
 SCREEN_ASSERT_WITHIN_BAND(battle_pet_bar, PET_BAR_Y, SCENE_P3_PET_HP_H);
+SCREEN_ASSERT_WITHIN_BAND(battle_pet_hp_value, PET_HP_VALUE_Y, 16);
 SCREEN_ASSERT_WITHIN_BAND(battle_round_message, MSG_Y, 16);
 SCREEN_ASSERT_WITHIN_BAND(battle_effect, MSG_DETAIL_Y, 16);
 SCREEN_ASSERT_WITHIN_BAND(battle_exp, MSG_DETAIL_Y, 16);
 SCREEN_ASSERT_WITHIN_BAND(battle_weak, MSG_DETAIL_Y, 16);
+SCREEN_ASSERT_WITHIN_BAND(battle_keys, MSG_HINT_Y, 16);
 
 static lv_timer_t *s_tick;
 
 static battle_result_t s_res;
+static battle_session_t s_session;
+static bool s_counter_anim;
 static uint8_t s_play_i;         // 播到第几回合
 static bool s_playing;
 static bool s_done;
 
-// 受击抖动。**挨打的那一方抖**，不是攻击方 ——
-// 页面文档把「HP 逐回合扣减 + shake」列为三处张力之一。
-//
-// 每回合播放时先抖 SHAKE_FRAMES 帧再停，所以 tick 要比回合快：
-// 回合 600ms，抖动 4 帧 × 60ms = 240ms，剩下 360ms 静止让人看清数字。
-#define SHAKE_FRAMES 4
-#define SHAKE_AMP 3
-static uint8_t s_shake_i = SHAKE_FRAMES;   // >= FRAMES 表示不抖
+// Read-only presentation of the recorded move. Each entry resets the phase;
+// no static hold counter can leak into the next battle after leaving a page.
+static uint8_t s_fx_frame;
+static uint8_t s_between_moves;
+static bool s_entering, s_exp_anim, s_store_failed;
+static bool s_loot_failed, s_settle_failed;
+static bool s_wild_animating, s_escape_requested, s_counter_escape;
+enum { ESCAPE_NONE, ESCAPE_SUCCESS, ESCAPE_FAILED };
+static uint8_t s_escape_feedback, s_escape_hold;
+static uint32_t s_wild_anim_ms;
+static uint8_t s_wild_anim_frame;
+static pokemon_anim_info_t s_wild_anim_info;
+static uint8_t s_wild_frame_buffer[POKEMON_ANIM_BUFFER_BYTES];
+static uint8_t s_entry_frame, s_exp_frame, s_exp_sound_level;
+static uint16_t s_pet_hp_from, s_wild_hp_from;
+static uint32_t s_exp_from;
 
 static uint16_t s_pet_species;
+static bool s_pet_shiny;
 static uint8_t s_pet_level;
+static uint32_t s_pet_exp;
+static const uint8_t *s_wild_sprite;
+static uint8_t s_wild_size;
+static scene_sprite_layout_t s_wild_layout;
 
-static void hline_at(int y)
+static void prepare_wild_sprite(uint16_t species)
 {
-    for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_FOCUS);
+    memset(&s_wild_layout, 0, sizeof(s_wild_layout));
+    s_wild_sprite = assets_front_sprite(species, &s_wild_size);
+    if (!s_wild_sprite) {
+        sprite_asset_t fallback;
+        if (assets_back_sprite_info(species, &fallback) && fallback.w == fallback.h) {
+            s_wild_sprite = fallback.data;
+            s_wild_size = fallback.w;
+        }
+    }
+    if (!scene_p3_wild_layout(s_wild_sprite, s_wild_size, &s_wild_layout)) {
+        s_wild_sprite = NULL;
+        s_wild_size = 0;
+    }
+    memset(&s_wild_anim_info, 0, sizeof(s_wild_anim_info));
+    s_wild_anim_frame = 0;
+    if (s_wild_sprite && pokemon_anim_info(species, &s_wild_anim_info) &&
+        s_wild_anim_info.size == s_wild_size) {
+        // One original-picture origin for every frame, including the resting
+        // pose. The full animation's opaque union fits the enemy region.
+        s_wild_layout.x = 232 - (s_wild_anim_info.x + s_wild_anim_info.w) * 2;
+        s_wild_layout.y = SCENE_P3_WILD_TOP - s_wild_anim_info.y * 2;
+        s_wild_layout.visible.x = 232 - s_wild_anim_info.w * 2;
+        s_wild_layout.visible.y = SCENE_P3_WILD_TOP;
+        s_wild_layout.visible.w = s_wild_anim_info.w * 2;
+        s_wild_layout.visible.h = s_wild_anim_info.h * 2;
+    }
 }
 
-static void draw_bar(int x, int y, int w, int h, uint16_t cur, uint16_t max)
+static void sample_wild_motion(void)
 {
-    int fw = max ? (int)((uint32_t)w * cur / max) : 0;
-    // GSC GetHPPal compares filled pixels with integer width thresholds.
-    uint16_t fill = fw >= w * 50 / 100 ? C_HP_GREEN
-        : (fw >= w * 21 / 100 ? C_HP_YELLOW : C_HP_RED);
-    for (int dy = 0; dy < h; dy++) {
-        for (int dx = 0; dx < w; dx++) {
-            bool border = (dy == 0 || dy == h - 1 || dx == 0 || dx == w - 1);
-            uint16_t c = border ? C_INK : (dx < fw ? fill : C_HP_TRACK);
-            screen_px(x + dx, y + dy, c);
-        }
+    pokemon_anim_sample_t sample = pokemon_anim_sample(nav_ctx()->enc.species_id, s_wild_anim_ms);
+    if (sample.frame != s_wild_anim_frame) {
+        sprite_asset_t sprite;
+        if (pokemon_anim_decode(nav_ctx()->enc.species_id, sample.frame,
+            s_wild_frame_buffer, sizeof(s_wild_frame_buffer), &sprite)) {
+            s_wild_sprite = sprite.data;
+            s_wild_anim_frame = sample.frame;
+        } else sample.finished = true;
+    }
+    if (sample.finished) s_wild_animating = false;
+}
+
+static battle_presentation_exp_t visible_exp(void)
+{
+    return battle_presentation_exp(s_exp_from, s_pet_exp, LEVEL_MAX,
+        s_exp_anim ? s_exp_frame : BATTLE_PRESENTATION_EXP_FRAMES);
+}
+
+void play_battle_presentation_snapshot(play_battle_view_t *out)
+{
+    if (!out) return;
+    *out = (play_battle_view_t){.pet_hp = s_session.pet_hp,
+        .wild_hp = s_session.wild_hp, .phase = "choice"};
+    if (s_play_i) {
+        const battle_round_t *r = &s_res.rounds[0];
+        out->move_id = r->move_id;
+        out->by_pet = r->by_pet;
+        uint16_t hit = battle_presentation_hit_frame(battle_fx_frames(r));
+        uint16_t elapsed = s_fx_frame > hit ? s_fx_frame - hit : 0;
+        out->pet_hp = battle_presentation_hp(s_pet_hp_from, s_session.pet_hp, false, elapsed);
+        out->wild_hp = battle_presentation_hp(s_wild_hp_from, s_session.wild_hp, false, elapsed);
+        out->phase = s_counter_anim ? "retaliation" : "attack";
+    } else if (s_done) out->phase = "result";
+    else if (s_playing) out->phase = "battle";
+    battle_presentation_exp_t xp = visible_exp();
+    out->exp = xp.total;
+    out->level = (s_done || s_exp_anim) ? xp.level : s_pet_level;
+    if (s_exp_anim) out->phase = "exp";
+    if (s_wild_animating) out->phase = "entrance-motion";
+    out->wild_frame = s_wild_anim_frame;
+    if (s_escape_feedback) out->phase = s_escape_feedback == ESCAPE_SUCCESS ? "escaped" : "escape-failed";
+    if (s_entering) {
+        battle_presentation_entry_t entry = battle_presentation_entry(s_entry_frame,
+            SCREEN_W - SCENE_P3_PET_BACK_X,
+            -(s_wild_layout.visible.x + s_wild_layout.visible.w));
+        out->pet_dx = entry.pet_dx;
+        out->wild_dx = entry.wild_dx;
+        out->phase = "entry";
     }
 }
 
 static void draw_band(int band_y)
 {
-    screen_band_clear(C_BG);
+    screen_band_clear(SCENE_P3_BG);
     #define Y(v) ((v) - band_y)
 
     const nav_ctx_t *c = nav_ctx();
@@ -139,15 +220,43 @@ static void draw_band(int band_y)
     bool has_wild = assets_species(c->enc.species_id, &wild_sp);
     bool has_pet = assets_species(s_pet_species, &pet_sp);
 
-    uint8_t wlv = battle_wild_level(c->enc.rarity);
+    uint8_t wlv = s_session.wild_level;
+    const battle_round_t *round = !s_done && s_play_i > 0 &&
+        s_play_i <= s_res.round_count ? &s_res.rounds[s_play_i - 1] : NULL;
+    const uint8_t *wild_sprite=s_wild_sprite;uint8_t wild_size=s_wild_size;
+    scene_sprite_layout_t wild_layout=s_wild_layout;
+    species_t wild_art=wild_sp;
+    if(s_session.fighters[1].transform_species){
+        uint16_t id=s_session.fighters[1].transform_species;
+        wild_sprite=assets_front_sprite(id,&wild_size);
+        scene_p3_wild_layout(wild_sprite,wild_size,&wild_layout);
+        assets_species(id,&wild_art);
+    }
+    battle_fx_rect_t pet = {SCENE_P3_PET_BACK_X, PET_SPRITE_Y,
+                            PET_SPRITE_DISPLAY, PET_SPRITE_DISPLAY};
+    battle_fx_rect_t wild = {wild_layout.visible.x, wild_layout.visible.y,
+                             wild_layout.visible.w, wild_layout.visible.h};
+    sprite_asset_t actor_sprite;render_bounds_t actor_ink;
+    uint16_t pet_art_id=s_session.fighters[0].transform_species?s_session.fighters[0].transform_species:s_pet_species;
+    if(assets_back_sprite_info(pet_art_id,&actor_sprite)&&render_sprite_ink_bounds(actor_sprite.data,actor_sprite.w,actor_sprite.h,&actor_ink)){
+        int scale=PET_SPRITE_DISPLAY/actor_sprite.w;
+        pet=(battle_fx_rect_t){SCENE_P3_PET_BACK_X+actor_ink.x*scale,PET_SPRITE_Y+actor_ink.y*scale,actor_ink.w*scale,actor_ink.h*scale};
+    }
+    if(wild_sprite&&render_sprite_ink_bounds(wild_sprite,wild_size,wild_size,&actor_ink))
+        wild=(battle_fx_rect_t){wild_layout.x+actor_ink.x*2,wild_layout.y+actor_ink.y*2,actor_ink.w*2,actor_ink.h*2};
+    battle_fx_pose_t pose = round ? battle_fx_pose_for_rects(round, s_fx_frame, pet, wild)
+                                 : (battle_fx_pose_t){0, 0};
 
-    // 当前 HP —— 播放到第几回合就显示那一回合的值
-    uint16_t p_hp = s_res.pet_hp_max, w_hp = s_res.wild_hp_max;
-    if (s_play_i > 0 && s_play_i <= s_res.round_count) {
-        p_hp = s_res.rounds[s_play_i - 1].pet_hp;
-        w_hp = s_res.rounds[s_play_i - 1].wild_hp;
+    play_battle_view_t view;
+    play_battle_presentation_snapshot(&view);
+    uint16_t p_hp = view.pet_hp, w_hp = view.wild_hp;
+    if (s_entering) {
+        pose.pet_dx = view.pet_dx;
+        pose.wild_dx = view.wild_dx;
     }
 
+    // HUD appears once the full sprites reach their battle positions.
+    if (!s_entering) {
     // -- 野怪 ------------------------------------------------------------
     if (has_wild) {
         snprintf(buf, sizeof(buf), "%.*s Lv%u",
@@ -155,10 +264,9 @@ static void draw_band(int band_y)
     } else {
         snprintf(buf, sizeof(buf), "#%03u Lv%u", c->enc.species_id, wlv);
     }
-    render_text(SCR_W - 8 - render_text_width(buf), Y(WILD_NAME_Y),
-                buf, C_INK);
+    render_text(8, Y(WILD_NAME_Y), buf, C_INK);
 
-    // 稀有度星，留在野怪状态行左侧，避免与右上的名字和 sprite 混淆。
+    // Rarity remains below the enemy HP, separated from its name and sprite.
     {
         char st[32];
         int n = 0;
@@ -167,46 +275,38 @@ static void draw_band(int band_y)
             n += 3;
         }
         st[n] = '\0';
-        render_text(8, Y(WILD_NAME_Y), st, C_INK);
+        // Reserve the same left slot for every species, keeping stars aligned.
+        render_text(28, Y(WILD_RARITY_Y), st, C_INK);
+        if (dex_is_caught(world_dex(), c->enc.species_id)) {
+            const uint16_t pal[4] = {C_INK, 0x52aa, 0xad55, SCENE_P3_BG};
+            render_sprite_2bpp(8, Y(WILD_RARITY_Y), PARTY_BALLS[0], 8, 2, pal);
+        }
     }
-    draw_bar(120, Y(WILD_BAR_Y), 112, 10, w_hp, s_res.wild_hp_max);
+    battle_hud_draw_hp(scene_screen_rect, &band_y, 8, WILD_BAR_Y,
+                       BATTLE_HUD_HP_COMPACT_FILL_TILES, BATTLE_HUD_SCALE,
+                       BATTLE_HUD_WILD, w_hp, s_res.wild_hp_max, SCENE_P3_BG);
+    }
 
     // -- 野怪 front sprite -----------------------------------------------
-    uint8_t sprite_size = 0;
-    const uint8_t *spr = assets_front_sprite(c->enc.species_id, &sprite_size);
-    if (!spr) {
-        // 资产损坏或缺号时保留可玩的页面，不因一张图崩溃。
-        spr = assets_back_sprite(c->enc.species_id);
-        sprite_size = spr ? 32 : 0;
-    }
-    if (spr && has_wild) {
+    if (wild_sprite && has_wild) {
         uint16_t pal[4];
-        assets_palette(wild_sp.palette, pal);
-        // 野怪挨打且命中时抖它；落空时目标保持静止。
-        int dx = 0;
-        if (s_play_i > 0 && s_play_i <= s_res.round_count &&
-            s_res.rounds[s_play_i - 1].by_pet &&
-            !s_res.rounds[s_play_i - 1].missed) {
-            dx = render_shake_dx(s_shake_i, SHAKE_FRAMES, SHAKE_AMP);
-        }
-        int sprite_y = WILD_SPRITE_BOX_Y +
-                       (WILD_SPRITE_BOX_H - sprite_size) / 2;
-        render_sprite_2bpp(SCR_W - 8 - sprite_size + dx, Y(sprite_y),
-                           spr, sprite_size, 1, pal);
+        assets_palette_variant(wild_art.palette, c->enc.is_shiny, pal);
+        render_sprite_2bpp(wild_layout.x + pose.wild_dx, Y(wild_layout.y),
+                           wild_sprite, wild_size, SCENE_P3_WILD_SCALE, pal);
     }
 
     // Shiny marker sits left of the wild sprite, clear of names and HP.
     // The two assets and palette match the encounter list.
-    if (c->enc.is_shiny) {
+    if (c->enc.is_shiny && !s_entering) {
         static const uint16_t STAR_PAL[4] = {
             C_INK, RGB_HEX(0xfff0a0), RGB_HEX(0xffffff), 0,
         };
         ui_art_t s7, s5;
         if (assets_ui("star_7", &s7)) {
-            render_sprite_2bpp_wh(136, Y(WILD_SPRITE_BOX_Y + 8),
+            render_sprite_2bpp_wh(96, Y(WILD_SHINY_Y),
                                   s7.data, s7.w, s7.h, 1, STAR_PAL);
             if (assets_ui("star_5", &s5)) {
-                render_sprite_2bpp_wh(136 + s7.w + 2, Y(WILD_SPRITE_BOX_Y + 16),
+                render_sprite_2bpp_wh(96 + s7.w + 2, Y(WILD_SHINY_Y),
                                       s5.data, s5.w, s5.h, 1, STAR_PAL);
             }
         }
@@ -214,29 +314,46 @@ static void draw_band(int band_y)
 
     // -- 主宠 ------------------------------------------------------------
     sprite_asset_t pet_spr;
-    if (has_pet && assets_back_sprite_info(s_pet_species, &pet_spr)) {
+    if (has_pet && assets_back_sprite_info(pet_art_id, &pet_spr)) {
         uint16_t pal[4];
-        assets_palette(pet_sp.palette, pal);
-        int dx = 0;
-        if (s_play_i > 0 && s_play_i <= s_res.round_count &&
-            !s_res.rounds[s_play_i - 1].by_pet &&
-            !s_res.rounds[s_play_i - 1].missed) {
-            dx = render_shake_dx(s_shake_i, SHAKE_FRAMES, SHAKE_AMP);
-        }
-        scene_screen_p3_pet_back(band_y, pet_spr.data, pet_spr.w, pet_spr.h, dx, pal);
+        species_t drawn=pet_sp;assets_species(pet_art_id,&drawn);
+        assets_palette_variant(drawn.palette, s_pet_shiny, pal);
+        scene_screen_p3_pet_back(band_y, pet_spr.data, pet_spr.w, pet_spr.h,
+                                  pose.pet_dx, pal);
     }
+    if (round) {
+        battle_fx_draw_band(round, s_fx_frame, band_y, pet, wild);
+    }
+    if (!s_entering) {
     if (has_pet) {
         scene_screen_p3_pet_name(band_y, pet_sp.name_zh,
-                                  pet_sp.name_zh_len, s_pet_level);
+                                  pet_sp.name_zh_len, view.level);
     }
     scene_screen_p3_pet_hp(band_y, p_hp, s_res.pet_hp_max);
+    snprintf(buf, sizeof(buf), "%u/%u", p_hp, s_res.pet_hp_max);
+    render_text(SCR_W - 8 - render_text_width(buf), Y(PET_HP_VALUE_Y), buf, C_INK);
+    battle_presentation_exp_t xp = visible_exp();
+    battle_hud_draw_exp(scene_screen_rect, &band_y, 120, 224, 7, BATTLE_HUD_SCALE,
+                        xp.got, xp.need, SCENE_P3_BG);
+    }
+
+    battle_hud_draw_message_box(scene_screen_rect, &band_y,
+                                0, 240, 15, 5, BATTLE_HUD_SCALE, SCENE_P3_BG);
 
     // -- 回合文字（两行：GSC 消息窗形态）--------------------------------
     // 第一行 MSG_Y：谁（野怪加「野生」前缀）+ 效果提示
     // 第二行 MSG_DETAIL_Y：做了什么 + 伤害数字
     // 单行最坏 256px 超 232px 上限（野生多刺菊石兽 + 尖刺加农炮），
     // 拆两行后最坏 144px（「使用了尖刺加农炮！」）。
-    if (!s_done && s_play_i > 0 && s_play_i <= s_res.round_count) {
+    if(s_settle_failed){
+        render_text(MSG_X,Y(MSG_Y),"结算保存失败",C_INK);
+        render_text(MSG_X,Y(MSG_DETAIL_Y),"按A重试 奖励不会重复",GAME_UI_MUTED);
+    } else if (s_escape_feedback) {
+        render_text(MSG_X, Y(MSG_Y), s_escape_feedback == ESCAPE_SUCCESS
+                    ? "成功逃跑了！" : "没能逃跑！", C_INK);
+        if (s_escape_feedback == ESCAPE_FAILED)
+            render_text(MSG_X, Y(MSG_DETAIL_Y), "对方准备反击", GAME_UI_MUTED);
+    } else if (!s_done && s_play_i > 0 && s_play_i <= s_res.round_count) {
         const battle_round_t *r = &s_res.rounds[s_play_i - 1];
         char who[32];
         if (r->by_pet && has_pet) {
@@ -250,40 +367,69 @@ static void draw_band(int band_y)
         }
         // 第一行：谁 + 效果提示（100 倍率不显示，
         // 每回合都弹「效果一般」会把「效果绝佳」的分量冲掉）
-        const char *lbl = battle_eff_label(r->mult);
-        if (lbl) {
-            snprintf(buf, sizeof(buf), "%s %s", who, lbl);
-        } else {
-            snprintf(buf, sizeof(buf), "%s", who);
-        }
-        render_text(8, Y(MSG_Y), buf, C_INK);
+        snprintf(buf, sizeof(buf), "%s", who);
+        game_ui_text_fitted(band_y, MSG_X, MSG_Y, MSG_RIGHT-MSG_X, buf, C_INK);
 
         // 第二行：做了什么 + 伤害
-        if (r->missed) {
+        if (r->skipped) {snprintf(buf,sizeof(buf),"%s",combat_feedback(r));
+        } else if (r->missed) {
             snprintf(buf, sizeof(buf), "的攻击落空了！");
         } else {
             snprintf(buf, sizeof(buf), "使用了%.*s！",
                      r->move_zh_len, r->move_zh ? r->move_zh : "");
         }
-        render_text(8, Y(MSG_DETAIL_Y), buf, C_INK);
-        if (!r->missed && r->damage > 0) {
-            snprintf(buf, sizeof(buf), "-%u HP", r->damage);
-            render_text(SCR_W - 8 - render_text_width(buf), Y(MSG_DETAIL_Y),
-                        buf, C_INK);
-        }
+        game_ui_text_fitted(band_y, MSG_X, MSG_DETAIL_Y, MSG_RIGHT-MSG_X, buf, C_INK);
     } else if (s_done) {
-        render_text(8, Y(MSG_Y), s_res.won ? "胜" : "败", C_INK);
-        snprintf(buf, sizeof(buf), "经验 +%u", s_res.exp);
-        render_text(8, Y(MSG_DETAIL_Y), buf, C_MID);
-        if (s_res.won) render_text(96, Y(MSG_DETAIL_Y), "看起来虚弱了", C_MID);
+        unsigned gained = s_exp_anim
+            ? (unsigned)s_res.exp * s_exp_frame / BATTLE_PRESENTATION_EXP_FRAMES : s_res.exp;
+        if (s_res.won) {
+            snprintf(buf, sizeof(buf), "胜利 经验 +%u", gained);
+            render_text(MSG_X, Y(MSG_Y), buf, C_INK);
+            const item_info_t *item = items_info(s_session.loot_item);
+            if (s_loot_failed) snprintf(buf, sizeof(buf), "掉落保存失败，请重试");
+            else if (item && s_session.loot_qty)
+                snprintf(buf, sizeof(buf), "获得%s ×%u", item->name, s_session.loot_qty);
+            else if (item && s_session.loot_full) snprintf(buf, sizeof(buf), "%s已满", item->name);
+            else snprintf(buf, sizeof(buf), "这次没有掉落");
+            render_text(MSG_X, Y(MSG_DETAIL_Y), buf, GAME_UI_MUTED);
+        } else {
+            snprintf(buf, sizeof(buf), "战败 经验 +%u", gained);
+            render_text(MSG_X, Y(MSG_Y), buf, C_INK);
+            render_text(MSG_X, Y(MSG_DETAIL_Y), "体能 -20 心情 -15", GAME_UI_MUTED);
+        }
+    } else {
+        const char *message = s_store_failed ? "保存失败，请重试"
+            : s_session.started ? "继续捕捉，还是战斗？" : "野生宝可梦出现了！";
+        render_text(MSG_X, Y(MSG_Y), message, C_INK);
+        if (!s_entering && !s_wild_animating && has_pet && has_wild) {
+            uint16_t chance = battle_escape_chance(
+                battle_effective_stat(pet_sp.speed, s_session.pet_level),
+                battle_effective_stat(wild_sp.speed, s_session.wild_level), s_session.escape_attempts);
+            snprintf(buf, sizeof(buf), "逃跑成功率 %u%%", chance * 100 / 256);
+            render_text(MSG_X, Y(MSG_DETAIL_Y), buf, GAME_UI_MUTED);
+        }
     }
 
     // -- 三键 --------------------------------------------------------------
-    hline_at(Y(292));
-    render_text(8, Y(298),
-                s_done ? "[A]捕获 [B]— [C]逃跑"
-                       : "[A]捕获 [B]战斗 [C]逃跑",
-                C_INK);
+    const char *hint = s_escape_feedback ? ""
+        : (s_entering || s_wild_animating) ? "宝可梦出场中"
+        : s_exp_anim ? "正在获得经验"
+        : (s_loot_failed||s_settle_failed) ? "[A]重试保存"
+        : s_counter_anim ? (s_counter_escape ? "逃跑失败，对方反击" : "野生宝可梦正在反击")
+        : s_done ? (s_session.won ? "[A]最后投球 [C]返回" : "[A]照料 [C]返回")
+        : s_escape_requested ? "招式结束后尝试逃跑"
+        : s_playing ? "战斗进行中 [C]逃跑" : "[A]捕获 [B]战斗 [C]逃跑";
+    char attack_hint[80];
+    if (!s_done && s_playing && !s_escape_requested && s_play_i > 0 && s_play_i <= s_res.round_count) {
+        const battle_round_t *r = &s_res.rounds[s_play_i-1];
+        const char *effect = combat_feedback(r);
+        if(r->charging||r->skipped||r->self_target||r->no_effect||!r->damage)snprintf(attack_hint,sizeof(attack_hint),"%s",effect?effect:"[C]逃跑");
+        else if (r->missed) snprintf(attack_hint,sizeof(attack_hint),"[C]逃跑");
+        else snprintf(attack_hint,sizeof(attack_hint),"%s -%uHP [C]逃跑",effect?effect:"",r->damage);
+        hint = attack_hint;
+    }
+    game_ui_text_centered(band_y, MSG_X, MSG_HINT_Y, MSG_RIGHT - MSG_X, 16,
+                           hint, C_INK);
 
     #undef Y
     screen_push_band(band_y);
@@ -296,114 +442,239 @@ static void draw_all(void)
 
 static void redraw_for_dump(void) { draw_all(); }
 
-static void tick(lv_timer_t *t)
+static bool store_session(void)
 {
-    (void)t;
-    if (!s_playing) return;
+    nav_ctx_t *c = nav_ctx();
+    if (!world_battle_set_uid(c->uid, &s_session)) return false;
+    c->battled = s_session.finished;
+    c->battle_won = s_session.won;
+    c->enc.hp_ratio = battle_session_hp_ratio(&s_session);
+    world_update_hp_uid(c->uid, c->enc.hp_ratio);
+    return true;
+}
 
-    // 抖动阶段只重画挨打 sprite 所在的带；HP 和文字不移动。
-    // 主宠 96px 跨带 1/2（y=140..235），只重画带 2 会让下半抖、上半不动
-    // = 撕裂（BUG-1）。所以主宠挨打时带 1+2 都要重画。
-    if (s_shake_i < SHAKE_FRAMES) {
-        s_shake_i++;
-        const battle_round_t *r = &s_res.rounds[s_play_i - 1];
-        if (r->by_pet) {
-            draw_band(BAND_H);               // 野怪在带 1（y=88..151）
-        } else {
-            draw_band(BAND_H);               // 主宠上半（y=140..159）
-            draw_band(BAND_H * 2);           // 主宠下半（y=160..235）
-        }
-        return;
+static void encounter_gone(void)
+{
+    nav_ctx()->valid = false;
+    nav_end_encounter();
+}
+
+static void settle_loot(void)
+{
+    item_loot_t loot;
+    s_loot_failed = !world_battle_loot_uid(nav_ctx()->uid, &loot);
+    // Retain world's award guard when storing the session from this page.
+    if (!s_loot_failed) world_battle_get_uid(nav_ctx()->uid, &s_session);
+}
+
+static bool settle_battle(void)
+{
+    s_playing = false;
+    s_done = true;
+    s_counter_anim = false;
+    s_play_i = 0;
+    s_res.won = s_session.won;
+    music_director_play(s_session.won ? MUSIC_WILD_WIN : MUSIC_HOME);
+    s_res.exp = 0;
+    s_exp_from = s_pet_exp;
+    nav_ctx_t *c = nav_ctx();
+    if (!s_session.won && !s_session.defeat_applied) {
+        if (!world_apply_defeat_uid(c->uid)) return false;
+        s_session.defeat_applied = true;
     }
-
-    // 回合间隔：抖完还要停一会儿让人看清。未命中不抖，但仍完整
-    // 保留 600ms，让「落空了」不会因为省掉四帧抖动而一闪而过。
-    static uint8_t hold;
-    uint8_t hold_ticks = 6;      // 命中：4 帧抖动 + 6 帧停留 = 600ms
-    if (s_play_i > 0 && s_play_i <= s_res.round_count &&
-        s_res.rounds[s_play_i - 1].missed) {
-        hold_ticks += SHAKE_FRAMES;
+    if (!s_session.reward_settled) {
+        if(!world_battle_reward_uid(c->uid,&s_res.exp))return false;
+        c->enc.exp_granted=true;
+        s_session.reward_settled = true;
     }
-    if (++hold < hold_ticks) return;
-    hold = 0;
+    if (!store_session()) return false;
+    if (s_session.won) settle_loot();
+    world_t w;
+    world_snapshot(&w);
+    s_pet_exp = w.exp;
+    s_exp_sound_level = exp_to_level(s_exp_from, LEVEL_MAX);
+    s_exp_frame = 0;
+    s_exp_anim = s_res.exp > 0 || s_pet_exp > s_exp_from;
+    ESP_LOGI(TAG, "战斗结束：%s %u 次攻击，野怪剩 %u%%",
+             s_session.won ? "胜" : "败", s_session.attack_count,
+             battle_session_hp_ratio(&s_session));
+    return true;
+}
 
-    if (s_play_i < s_res.round_count) {
-        s_play_i++;
-        // 未命中已由回合记录给出：显示「落空了」，但目标不应受击抖动。
-        s_shake_i = s_res.rounds[s_play_i - 1].missed ? SHAKE_FRAMES : 0;
+static bool begin_attack(void)
+{
+    battle_session_t previous = s_session;
+    s_counter_anim = s_session.retaliation_pending;
+    s_counter_escape = s_counter_anim && s_session.escape_retaliation;
+    s_pet_hp_from = s_session.pet_hp;
+    s_wild_hp_from = s_session.wild_hp;
+    bool stepped = battle_session_step(&s_session, &s_res.rounds[0]);
+    s_session.escape_retaliation = false;
+    if (!stepped || !store_session()) {
+        s_session = previous;
+        s_counter_anim = false;
+        return false;
+    }
+    s_res.round_count = 1;
+    s_play_i = 1;
+    s_fx_frame = 0;
+    return true;
+}
+
+static void attempt_escape(void)
+{
+    battle_session_t previous = s_session;
+    battle_escape_result_t result;
+    s_escape_requested = false;
+    if (!s_session.started) {
+        world_t w;
+        world_snapshot(&w);
+        s_session.ability_factor_q10 = nurture_ability_factor(&w.pet);
+    }
+    if (!battle_escape_try(&s_session, &result) || !store_session()) {
+        s_session = previous;
+        encounter_t current;
+        if (!world_get_encounter_uid(nav_ctx()->uid, &current) ||
+            current.ts != nav_ctx()->enc.ts) { encounter_gone(); return; }
+        s_store_failed = true;
         draw_all();
         return;
     }
+    s_store_failed = false;
+    s_escape_feedback = result.escaped ? ESCAPE_SUCCESS : ESCAPE_FAILED;
+    s_escape_hold = 0;
+    draw_all();
+}
 
-    // 播完
-    s_playing = false;
-    s_done = true;
-    nav_ctx_t *c = nav_ctx();
-    c->battled = true;
-    c->battle_won = s_res.won;
-    // 打残的程度写回队列 —— **这是「先打再抓」成为真策略的落点**
-    c->enc.hp_ratio = s_res.wild_hp_ratio;
-    world_update_hp_uid(c->uid, s_res.wild_hp_ratio);
-    if (!c->enc.exp_granted && world_mark_exp_granted_uid(c->uid)) {
-        c->enc.exp_granted = true;
-        world_grant_exp(s_res.exp);
-    } else {
-        // 同一条遭遇可以重进战斗，但经验只能领取一次。
-        s_res.exp = 0;
+static void tick(lv_timer_t *t)
+{
+    (void)t;
+    if(s_settle_failed)return;
+    if (s_entering) {
+        if (++s_entry_frame >= BATTLE_PRESENTATION_ENTRY_FRAMES) {
+            s_entering = false;
+            s_wild_animating = s_wild_anim_info.duration_ticks > 0;
+            s_wild_anim_ms = 0;
+            if (s_wild_animating) sample_wild_motion();
+        }
+        draw_all();
+        return;
     }
-
-    uint8_t level_before = s_pet_level;
-    world_t w;
-    world_snapshot(&w);
-    s_pet_species = w.species;
-    s_pet_level = w.level;
-    if (w.level > level_before) sfx_play(SFX_LEVEL_UP);
-
-    ESP_LOGI(TAG, "战斗结束：%s %u 回合，野怪剩 %u%%",
-             s_res.won ? "胜" : "败", s_res.round_count, s_res.wild_hp_ratio);
+    if (s_wild_animating) {
+        s_wild_anim_ms += BATTLE_FX_TICK_MS;
+        sample_wild_motion();
+        draw_all();
+        return;
+    }
+    if (s_escape_feedback) {
+        if (++s_escape_hold < 12) return;
+        if (s_escape_feedback == ESCAPE_SUCCESS) { encounter_gone(); return; }
+        s_escape_feedback = ESCAPE_NONE;
+        s_playing = true;
+        if (!begin_attack()) { encounter_gone(); return; }
+        draw_all();
+        return;
+    }
+    if (s_exp_anim) {
+        if (++s_exp_frame >= BATTLE_PRESENTATION_EXP_FRAMES) s_exp_anim = false;
+        uint8_t level = visible_exp().level;
+        if (level > s_exp_sound_level) { sfx_play(SFX_LEVEL_UP); s_exp_sound_level = level; }
+        draw_all();
+        return;
+    }
+    if (!s_playing) return;
+    if (s_between_moves) { s_between_moves--; return; }
+    if (s_play_i) {
+        const battle_round_t *r = &s_res.rounds[0];
+        uint16_t frames = battle_fx_frames(r);
+        uint16_t hp_end = battle_presentation_hit_frame(frames) + BATTLE_PRESENTATION_HP_FRAMES + 1;
+        if (hp_end > frames) frames = hp_end;
+        if (s_fx_frame + 1 < frames) {
+            s_fx_frame++;
+            if (s_fx_frame == battle_presentation_hit_frame(battle_fx_frames(r)))
+                if(r->move_id) sfx_move(r->move_id, r->move_type, r->missed);
+            draw_band(0);
+            draw_band(BAND_H);
+            draw_band(BAND_H * 2);
+            return;
+        }
+        s_counter_anim = false;
+        s_play_i = 0;
+        s_between_moves = 5;
+        draw_all();
+        return;
+    }
+    if (s_session.finished) {
+        if (!settle_battle()) { s_settle_failed=true;draw_all();return; }
+    } else if (s_escape_requested) {
+        attempt_escape();
+        return;
+    } else if (!s_session.auto_battle) {
+        // A failed capture costs exactly one enemy move, then restores choice.
+        s_playing = false;
+    } else if (!begin_attack()) {
+        encounter_gone(); return;
+    }
     draw_all();
 }
 
 void play_battle_enter(void)
 {
-
     memset(&s_res, 0, sizeof(s_res));
     s_play_i = 0;
-    s_playing = false;
-    s_done = false;
-    s_shake_i = SHAKE_FRAMES;
-
+    s_fx_frame = 0;
+    s_between_moves = 0;
+    s_counter_anim = false;
+    s_counter_escape = s_escape_requested = s_wild_animating = false;
+    s_escape_feedback = ESCAPE_NONE;
+    s_escape_hold = 0;
+    s_entering = s_exp_anim = s_store_failed = false;
+    s_loot_failed = s_settle_failed = false;
+    s_entry_frame = s_exp_frame = 0;
     world_t w;
     world_snapshot(&w);
-    s_pet_species = w.species;
-    s_pet_level = w.level;
-
-    // 进来先不打 —— 玩家可以直接 A 捕获（不打就抓，窗口窄但省时间）
-    // 或 B 开打。这正是页面文档说的「战斗页是决策点不是走廊」。
-    const nav_ctx_t *c = nav_ctx();
-    species_t sp;
-    if (assets_species(c->enc.species_id, &sp)) {
-        uint8_t wlv = battle_wild_level(c->enc.rarity);
-        // 先算一遍只为拿到 HP 上限（画满血条用），不播放
-        // 种子：dbg 注入优先（截 miss 图用），否则用 enc.ts（确定性设计）
-        uint32_t battle_seed = dbg_battle_seed ? dbg_battle_seed
-                                               : (c->enc.ts ? c->enc.ts : 1u);
-        battle_run(s_pet_species, s_pet_level, c->enc.species_id, wlv,
-                   1024, battle_seed, &s_res);
-        uint8_t saved_rounds = s_res.round_count;
-        (void)saved_rounds;
-        s_play_i = 0;    // 回到第 0 回合 = 双方满血
+    world_party_t party;
+    world_party_snapshot(&party);
+    s_pet_shiny = party.count && (party.members[0].flags & 1u);
+    nav_ctx_t *c = nav_ctx();
+    encounter_t current;
+    if (!world_get_encounter_uid(c->uid, &current) || current.ts != c->enc.ts ||
+        !world_battle_get_uid(c->uid, &s_session)) { encounter_gone(); return; }
+    c->enc = current;
+    if (!s_session.initialized || (!s_session.started &&
+        (s_session.pet_species != w.species || s_session.pet_level != w.level))) {
+        bool intro_seen = s_session.initialized && s_session.intro_seen;
+        uint32_t seed = dbg_battle_seed ? dbg_battle_seed : (c->enc.ts ? c->enc.ts : 1u);
+        if (!battle_session_init(&s_session, w.species, w.level,
+                                  c->enc.species_id, battle_wild_level_for_pet(c->enc.rarity, w.level),
+                                  nurture_ability_factor(&w.pet), seed)) { encounter_gone(); return; }
+        s_session.intro_seen = intro_seen;
+        // Existing weakened encounters retain their saved wild HP percentage.
+        if (c->enc.hp_ratio && c->enc.hp_ratio < 100) {
+            s_session.wild_hp = (uint32_t)s_session.wild_hp_max * c->enc.hp_ratio / 100;
+            if (!s_session.wild_hp) s_session.wild_hp = 1;
+        }
+        if (!store_session()) { encounter_gone(); return; }
     }
-
+    c->valid = true;
+    s_pet_species = s_session.pet_species;
+    s_pet_level = s_session.pet_level;
+    s_pet_exp = s_exp_from = w.exp;
+    s_res.pet_hp_max = s_session.pet_hp_max;
+    s_res.wild_hp_max = s_session.wild_hp_max;
+    s_playing = (s_session.auto_battle || s_session.retaliation_pending) && !s_session.finished;
+    s_done = s_session.finished;
+    prepare_wild_sprite(c->enc.species_id);
+    if (!s_session.intro_seen && !s_session.started) {
+        s_entering = true;
+        s_session.intro_seen = true;
+        if (!store_session()) { encounter_gone(); return; }
+    }
+    if (s_done && !settle_battle()) { s_settle_failed=true;draw_all(); }
+    if (s_session.retaliation_pending && !begin_attack()) { encounter_gone(); return; }
     screen_set_redraw(redraw_for_dump);
     draw_all();
-    // 60ms 一拍：抖动要这个频率才顺，回合节奏靠 tick 里数拍子凑
-    // （抖 4 拍 + 停 6 拍 = 600ms/回合）。
-    s_tick = lv_timer_create(tick, 60, NULL);
-
-    // **不做自动截图** —— P1 那个是在只有一页时加的，
-    // 现在有了 dbg.c 的按键注入，截图由 walk.py 显式发 's' 触发。
-    // 页面自己再截一张只会与之交错，让 PC 侧收到半张（踩过一次）。
+    s_tick = lv_timer_create(tick, BATTLE_FX_TICK_MS, NULL);
 }
 
 void play_battle_exit(void)
@@ -412,27 +683,81 @@ void play_battle_exit(void)
     if (s_tick) { lv_timer_delete(s_tick); s_tick = NULL; }
 }
 
+static bool can_choose(void)
+{
+    return !s_entering && !s_wild_animating && !s_escape_feedback && !s_exp_anim && !s_playing && !s_counter_anim &&
+           !s_session.retaliation_pending && !(s_session.finished && !s_done);
+}
+
+bool play_battle_can_leave(void)
+{
+    // Hardware menu navigation must not bypass an unfinished escape roll.
+    return s_done && !s_loot_failed && !s_settle_failed && can_choose();
+}
+
+bool play_battle_screen_busy(void)
+{
+    return !can_choose() || s_play_i != 0 || s_escape_requested;
+}
+
 void play_battle_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
     if (btn == BSP_BTN_DOWN && ev == BSP_BTN_LONG) { screen_dump(); return; }
     if (ev != BSP_BTN_CLICK) return;
-
+    if(s_settle_failed){
+        if(btn==BSP_BTN_UP){s_settle_failed=!settle_battle();draw_all();}
+        return;
+    }
+    if (btn == BSP_BTN_OK && s_playing && !s_session.finished &&
+        !s_entering && !s_wild_animating && !s_counter_anim &&
+        !s_escape_feedback && !s_session.retaliation_pending) {
+        s_escape_requested = true;
+        draw_band(BAND_H * 3);
+        return;
+    }
+    // The failed throw already committed the retaliation obligation. Neither
+    // another throw nor returning to the list may skip its attack animation.
+    if (!can_choose()) return;
+    if (s_loot_failed) {
+        if (btn == BSP_BTN_UP) { settle_loot(); draw_all(); }
+        return;
+    }
     switch (btn) {
-    case BSP_BTN_UP:                       // A 捕获 → P4
-        nav_go(PAGE_CAPTURE);
-        break;
-
-    case BSP_BTN_DOWN:                     // B 战斗（开始播放）
-        if (!s_playing && !s_done) {
-            s_playing = true;
-            ESP_LOGI(TAG, "开打：%u 回合", s_res.round_count);
+    case BSP_BTN_UP:
+        if (s_done && !s_session.won) { nav_go(PAGE_CARE); break; }
+        if (battle_session_can_capture(&s_session)) {
+            if (!store_session()) { encounter_gone(); return; }
+            nav_go(PAGE_CAPTURE);
         }
         break;
-
-    case BSP_BTN_OK:                       // C 逃跑 → 回 P2
-        nav_go(PAGE_ENCOUNTER);
+    case BSP_BTN_DOWN:
+        if (!s_playing && !s_done) {
+            battle_session_t previous = s_session;
+            if (!s_session.started) {
+                world_t w;
+                world_snapshot(&w);
+                s_session.ability_factor_q10 = nurture_ability_factor(&w.pet);
+            }
+            s_session.started = true;
+            s_session.auto_battle = true;
+            if (!store_session()) {
+                s_session = previous;
+                encounter_t current;
+                if (!world_get_encounter_uid(nav_ctx()->uid, &current) ||
+                    current.ts != nav_ctx()->enc.ts) { encounter_gone(); return; }
+                s_store_failed = true;
+                draw_all();
+                return;
+            }
+            s_store_failed = false;
+            s_playing = true;
+            draw_all();
+        }
         break;
-
+    case BSP_BTN_OK:
+        if (s_done) nav_end_encounter();
+        else attempt_escape();
+        break;
     default:
         break;
     }

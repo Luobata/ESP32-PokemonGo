@@ -1,0 +1,43 @@
+{
+  "status": "PASS",
+  "native_build": "2fd50c6c0b64a616574f",
+  "back_source_size": 48,
+  "palette_sets": 146,
+  "species": 25,
+  "palette_index": 24,
+  "cases": [
+    {
+      "shiny": false,
+      "route": "P4 capture at pointer center → P2 → P1 → P6 second page",
+      "pixels_compared": 1024,
+      "mismatch": 0,
+      "palette": [
+        0,
+        53632,
+        61093,
+        65535
+      ],
+      "screenshot": "reports/evidence/gsc-theme-2026-09-07/dex-25-0.png"
+    },
+    {
+      "shiny": true,
+      "route": "P4 capture at pointer center → P2 → P1 → P6 second page",
+      "pixels_compared": 1024,
+      "mismatch": 0,
+      "palette": [
+        0,
+        41099,
+        64608,
+        65535
+      ],
+      "screenshot": "reports/evidence/gsc-theme-2026-09-07/dex-25-1.png"
+    }
+  ],
+  "asset_sha256": {
+    "gen1.bin": "00c511b56bfe41c7ad1859841f740c537ae09f32a4b1fc8ba39975f547db8489",
+    "gen1_front.bin": "e9a36fbec5ab678333dbe94e400e1a2398c2974abf5332fbe23baab129bce114",
+    "gen1_back.bin": "ca451aa71e8a92440eb715ab7f511d4146ee7f89e203c50c37e0f6d8baacf690",
+    "palettes.bin": "4217560355328ba3c2016e6c6c859a94c8c64fba74d1918dbdb3c50a1177279d"
+  },
+  "normal_shiny_differing_rgb565_pixels": 382
+}

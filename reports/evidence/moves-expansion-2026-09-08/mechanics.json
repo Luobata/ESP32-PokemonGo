@@ -1,0 +1,225 @@
+{
+  "commit": "7a7881d0d62e0ddbd82dcf10e7116807487ac651",
+  "moves": 104,
+  "learn_records": 629,
+  "added_records": [
+    [
+      19,
+      34,
+      162
+    ],
+    [
+      20,
+      41,
+      162
+    ],
+    [
+      56,
+      33,
+      69
+    ],
+    [
+      57,
+      37,
+      69
+    ],
+    [
+      66,
+      39,
+      69
+    ],
+    [
+      67,
+      44,
+      69
+    ],
+    [
+      68,
+      44,
+      69
+    ],
+    [
+      81,
+      21,
+      49
+    ],
+    [
+      82,
+      1,
+      49
+    ],
+    [
+      82,
+      21,
+      49
+    ],
+    [
+      92,
+      1,
+      101
+    ],
+    [
+      93,
+      1,
+      101
+    ],
+    [
+      94,
+      1,
+      101
+    ],
+    [
+      100,
+      17,
+      49
+    ],
+    [
+      101,
+      1,
+      49
+    ],
+    [
+      101,
+      17,
+      49
+    ],
+    [
+      127,
+      25,
+      69
+    ],
+    [
+      130,
+      1,
+      82
+    ],
+    [
+      130,
+      25,
+      82
+    ],
+    [
+      147,
+      40,
+      82
+    ],
+    [
+      148,
+      45,
+      82
+    ],
+    [
+      149,
+      45,
+      82
+    ]
+  ],
+  "corrected_classes": [
+    7,
+    8,
+    9,
+    13,
+    16,
+    22,
+    51,
+    63,
+    75,
+    123,
+    124,
+    127,
+    128,
+    129,
+    152,
+    161
+  ],
+  "source_sha256": {
+    "data/moves/moves.asm": "50cd7c03a51a3228e96af6b61a1f77e9173fc2118017eb3752d5ce055d3be39d",
+    "constants/type_constants.asm": "4f8dcb0231495bc0ed45c388322bc57c3df3a4ff20324b30a06aa1eee7aff2bb",
+    "engine/battle/effect_commands.asm": "3f549ae0e7062e47f45a6794f1b580e089563c1b491395f760e9e087c8f61723",
+    "data/moves/effects.asm": "1cb48da65b33db0c37a42d108a669acac8b6c665d32088ac1ff4a9e00eb3878b"
+  },
+  "moves_sha256": "2d9decd0a7fd5427b483dd7523366abf5014fb56d882822e532f5b50ce1ffa8b",
+  "fixed_cases": 12000,
+  "source_lookup_cases": 715,
+  "resumed_actual_sessions": 1536,
+  "reachable": [
+    {
+      "move": 49,
+      "species": 81,
+      "level": 21,
+      "wild_reply": false,
+      "seed": 1
+    },
+    {
+      "move": 49,
+      "species": 81,
+      "level": 21,
+      "wild_reply": true,
+      "seed": 1
+    },
+    {
+      "move": 69,
+      "species": 56,
+      "level": 33,
+      "wild_reply": false,
+      "seed": 32
+    },
+    {
+      "move": 69,
+      "species": 56,
+      "level": 33,
+      "wild_reply": true,
+      "seed": 32
+    },
+    {
+      "move": 82,
+      "species": 130,
+      "level": 25,
+      "wild_reply": false,
+      "seed": 2
+    },
+    {
+      "move": 82,
+      "species": 130,
+      "level": 25,
+      "wild_reply": true,
+      "seed": 2
+    },
+    {
+      "move": 101,
+      "species": 92,
+      "level": 25,
+      "wild_reply": false,
+      "seed": 3
+    },
+    {
+      "move": 101,
+      "species": 92,
+      "level": 25,
+      "wild_reply": true,
+      "seed": 3
+    },
+    {
+      "move": 162,
+      "species": 19,
+      "level": 34,
+      "wild_reply": false,
+      "seed": 8
+    },
+    {
+      "move": 162,
+      "species": 19,
+      "level": 34,
+      "wild_reply": true,
+      "seed": 8
+    }
+  ],
+  "high_level_fire_spin_seed": 24,
+  "negative_checks": [
+    "fixed dispatch",
+    "wrong half rounding",
+    "STAB reapplied",
+    "immunity removed",
+    "oldest learning records retained"
+  ]
+}

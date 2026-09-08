@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "final_native_build": "68ff02e5d313e457b575",
+  "firmware_bytes": 1689616,
+  "firmware_sha256": "be6801bbb6f147ae30d5be8ab28c161ebfc0a0f71328b7fdd3e30fa1670ce1f0",
+  "inspector_inputs": 175,
+  "inspector_payload_sha256": "dba447df42b81d8cba282977718e6401d867319d53a79252452d5a5ba00079e3",
+  "hardware_flashed": false
+}

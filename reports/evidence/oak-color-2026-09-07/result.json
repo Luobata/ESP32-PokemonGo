@@ -1,0 +1,83 @@
+{
+  "status": "PASS",
+  "repository": "https://github.com/pret/pokecrystal",
+  "commit": "7a7881d0d62e0ddbd82dcf10e7116807487ac651",
+  "source_inputs_sha256": {
+    "gfx/trainers/oak.png": "40e72de176670e4512af00990aebc2f9f7e9d1f552fe1c249ac9ee1e76eaed2e",
+    "engine/menus/intro_menu.asm": "d1777feee7154ee7b130c8397bd78dced74c1cae0e241d393d604a9f57e2b1e0",
+    "data/trainers/pic_pointers.asm": "58205f9f33d7f900110b3f09471290cad19ef8b2366ca8b9664936874cd41b39",
+    "gfx/pics.asm": "ec95caae8fb15ad86d766dfecce9c15d899e9460231b9f8b296ab5cf66a75d7f",
+    "data/trainers/palettes.asm": "b198ddf247e6ace0932e53e7b34fb9d1657468f4fb741d3283e19793925fb2db",
+    "engine/gfx/cgb_layouts.asm": "662f9a2843b9e409a82cebd7df99135dea06b5ef1bb9ffdfa9b7377a5c8b3013",
+    "engine/gfx/color.asm": "57846bcbe105ec645cdd39ff3770e9a559749e2fc4b79bb135c60919f2b5a3ef",
+    "Makefile": "3416a95d328172fc7fc5b4e991510383d9e15761bc6ccc59af52700adad3695e",
+    "tools/gbcpal.c": "153db16acae4923741fb9e96e9591d19cb4167ea20babc5272f5504c7d221d71",
+    "tools/common.h": "276f4932f978ab9f1091f4279a05dac5709d36516036d264329176b1f0dee3f5"
+  },
+  "source_size": [
+    56,
+    56
+  ],
+  "packed_size": [
+    112,
+    112
+  ],
+  "source_pixels": 3136,
+  "source_index_mismatches": 0,
+  "source_white_pixels_preserved": 2331,
+  "original_rgb5_engine_order": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      13,
+      16,
+      0
+    ],
+    [
+      24,
+      19,
+      11
+    ],
+    [
+      31,
+      31,
+      31
+    ]
+  ],
+  "rgb565": [
+    "0000",
+    "6C20",
+    "C4EB",
+    "FFFF"
+  ],
+  "inspector_palette": [
+    "#000000",
+    "#6b8600",
+    "#c69e5a",
+    "#ffffff"
+  ],
+  "upstream_gbcpal_matches": true,
+  "unchanged_other_ui_entries": [
+    "ball_24",
+    "ball_great",
+    "ball_open",
+    "ball_ultra",
+    "cursor",
+    "heart",
+    "star_5",
+    "star_7"
+  ],
+  "native_build": "f9ee0c79a1bf99b90099",
+  "native_page": "P0",
+  "native_ms": 330,
+  "actual_c_pixels_compared": 12544,
+  "actual_c_pixel_mismatches": 0,
+  "dirty_redraw_mismatches": 0,
+  "interior_white_recolor_mutant_rejected": true,
+  "ui_sha256": "c9caf21353583fef10aa0aacb317fb655d7489447d7c224396a6c012e5dbcddf",
+  "oak_sha256": "5e86a6f5ad87075ad33db6828984da3e170163883521a2d4e2a5b99b2499b58f",
+  "limit": "Source index 3 is original white; renderer skips it on the page white background. No color correction or redraw."
+}

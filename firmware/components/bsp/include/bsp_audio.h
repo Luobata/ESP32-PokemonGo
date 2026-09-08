@@ -6,7 +6,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
+// Call before other app initialization. A wired active-high PA is driven low;
+// ES8311 is always shut down over I2C before initialization, without I2S.
+// BSP_I2S_PA_CTRL=-1 means this board has no MCU-controlled PA enable pin.
+esp_err_t bsp_audio_boot_quiet(void);
+// Playback task only: close the codec on mute/sleep; next set_format reopens it.
+esp_err_t bsp_audio_suspend(void);
+
 // 初始化 codec 与 I2S。内部会调 bsp_i2c_init()(幂等),无需外部先调。
+// Silent builds retain the shutdown state instead of creating the codec/I2S.
 esp_err_t bsp_audio_init(void);
 
 // 设置采样格式。同格式重复调用是廉价的(直接复用已打开的 codec)。
@@ -14,6 +22,8 @@ esp_err_t bsp_audio_init(void);
 // ⚠ 这里有个必须绕开的坑:esp_codec_dev_open() 在 codec【已打开】时会直接返回 OK 且
 //   【不重新配置采样率】。若不先 close,16kHz 播完再播 8kHz 会以 16k 时钟送出 ——
 //   音调和速度都快一倍。故本函数在格式变化时先 close 再 open。
+// Silent builds return ESP_ERR_NOT_SUPPORTED for format, write and read;
+// volume is a no-op. No caller (including demos/debug) can enable output.
 esp_err_t bsp_audio_set_format(uint32_t hz, uint8_t bits, uint8_t ch);
 
 // 播放 / 录音。bytes 为字节数(16bit 单声道时 = 采样数 x 2)。

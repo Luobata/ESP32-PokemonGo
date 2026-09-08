@@ -26,6 +26,7 @@
 
 #include "assets.h"
 #include "encounter.h"
+#include "game_ui.h"
 #include "nav.h"
 #include "play.h"
 #include "render.h"
@@ -39,37 +40,35 @@ static const char *TAG = "p6";
 #define SCR_H SCREEN_H
 
 // 网格：5 列 × 4 行 = 每页 20 只，151 只共 8 页。
-// 每格 44×56（sprite 32px @scale1 + 编号）。
+// 每格 46×56，正面图最近邻缩成 32px，编号与图片居中。
 #define COLS 5
 #define ROWS 4
 #define PER_PAGE (COLS * ROWS)
 #define CELL_W 46
 #define CELL_H 56
-#define GRID_X 6
-#define GRID_Y 34
+#define GRID_X 5
+#define GRID_Y 40
+#define THUMB_SIZE 32
+#define PAGE_Y 260
+
+SCREEN_ASSERT_WITHIN_BAND(dex_page_number, PAGE_Y, 16);
 
 static uint8_t s_page;
 
-static void hline_at(int y)
-{
-    for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_FOCUS);
-}
-
 static void draw_band(int band_y)
 {
-    screen_band_clear(C_BG);
+    screen_band_clear(GAME_UI_BG);
     #define Y(v) ((v) - band_y)
 
     const dex_t *d = world_dex();
     char buf[48];
 
     // 标题 + 计数
-    render_text(8, Y(4), "图鉴", C_INK);
     snprintf(buf, sizeof(buf), "%u/%u", dex_count_caught(d), DEX_SPECIES);
-    render_text(SCR_W - 8 - render_text_width(buf), Y(4), buf, C_INK);
-    hline_at(Y(26));
+    game_ui_title(band_y, "图鉴", buf);
 
-    // 网格
+    // Static grid: every page/selection update calls draw_all(). A thumbnail
+    // or number may cross an 80px band; both parts are redrawn together.
     for (int i = 0; i < PER_PAGE; i++) {
         uint16_t sid = (uint16_t)(s_page * PER_PAGE + i + 1);
         if (sid > DEX_SPECIES) break;
@@ -79,35 +78,37 @@ static void draw_band(int band_y)
         bool caught = dex_is_caught(d, sid);
         bool seen = dex_is_seen(d, sid);
 
-        const uint8_t *spr = assets_back_sprite(sid);
+        uint8_t sprite_size = 0;
+        const uint8_t *spr = assets_front_sprite(sid, &sprite_size);
         species_t sp;
         if (spr && assets_species(sid, &sp)) {
             uint16_t pal[4];
             if (caught) {
-                assets_palette(sp.palette, pal);
+                assets_palette_variant(sp.palette, dex_is_shiny_caught(d, sid), pal);
             } else if (seen) {
                 // 剪影：三档前景全指最深色，背景仍透明（色号 3）
-                pal[0] = pal[1] = pal[2] = C_MID;
+                pal[0] = pal[1] = pal[2] = GAME_UI_MUTED;
                 pal[3] = 0;
             } else {
                 // 没见过 —— 连剪影都不画，只留编号
                 spr = NULL;
             }
-            if (spr) render_sprite_2bpp(cx + 4, Y(cy), spr, 32, 1, pal);
+            if (spr) game_ui_thumbnail_centered(band_y, cx, cy, CELL_W, THUMB_SIZE,
+                                                 spr, sprite_size, THUMB_SIZE, pal);
         }
 
         // 编号。见过但没抓到的标一下 —— 「见过」是 P6 的专有状态
         snprintf(buf, sizeof(buf), "%03u", sid);
-        render_text(cx + 4, Y(cy + 34), buf, caught ? C_INK : C_MID);
+        game_ui_text_centered(band_y, cx, cy + 34, CELL_W, 16, buf,
+                               caught ? GAME_UI_INK : GAME_UI_MUTED);
     }
 
     // 页码
     snprintf(buf, sizeof(buf), "%u/%u", s_page + 1,
              (DEX_SPECIES + PER_PAGE - 1) / PER_PAGE);
-    render_text(SCR_W - 8 - render_text_width(buf), Y(268), buf, C_MID);
+    render_text(228 - render_text_width(buf), Y(PAGE_Y), buf, GAME_UI_MUTED);
 
-    hline_at(Y(292));
-    render_text(8, Y(298), "[A]上页 [B]下页 [C]返回", C_INK);
+    game_ui_footer(band_y, "[A]上页 [B]下页 [C]返回");
 
     #undef Y
     screen_push_band(band_y);
@@ -161,7 +162,7 @@ void play_dex_key(bsp_btn_t btn, bsp_btn_ev_t ev)
     }
 
     case BSP_BTN_OK:                       // C 返回
-        nav_go(PAGE_IDLE);
+        nav_back(PAGE_IDLE);
         break;
 
     default:

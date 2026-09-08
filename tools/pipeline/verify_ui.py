@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""assets/ui.bin 与 sim/pixelart.py 逐条目对账。
+"""assets/ui.bin 与原版 Crystal / sim/pixelart.py 逐条目对账。
 
 用法：
     /usr/bin/python3 tools/pipeline/verify_ui.py [ui.bin 路径]
@@ -9,13 +9,13 @@
 
     · 结构自洽   magic UIA1 / 文件长 = 头 + 表 + 位图区 / 每条目
                  len == h·ceil(w/4)（2bpp 定长）/ 偏移按序无缝铺满位图区
-    · 条目齐全   与 convert_ui.py 登记的七个名字一一对应（多/少/重名都红）
+    · 条目齐全   与 convert_ui.py 登记的九个名字一一对应（多/少/重名都红）
     · 逐像素对账 每条目 2bpp 解码回点阵，与 pixelart 的生成结果全等 ——
                  打包链路任何一环错（名字挂错、偏移算错、行宽不齐）都会
                  在这里现形，而不是等真机上「隐形素材」
     · 非空白     每条目解码后必须含 ≥2 个色值 —— 全 CLEAR 的素材会静默
                  变成隐形（▸/✦/♥ 那次就是这样），统计上看不出来
-    · oak 专项   112×112（pret 真品 ×2）、sha256 钉定内容、色值合法
+    · oak 专项   112×112（固定 Crystal 原图 ×2）、sha256、原白保留、配色同步
 
 退出码 0 = 过，非 0 = 挂。ui.bin 缺失默认红（ALLOW_MISSING=1 显式容忍）。
 """
@@ -35,17 +35,17 @@ ENTRY_FMT = "<16sBBIHH"
 ENTRY_SIZE = struct.calcsize(ENTRY_FMT)          # 26
 CLEAR = 3
 
-# convert_ui.py 登记的名字 → pixelart 生成物（对账基准）
+# convert_ui.py 登记的名字与来源。
 EXPECTED = {
-    "ball_24": "poke_ball(24)",
-    "ball_open": "poke_ball(24, open_top=True)",
-    "ball_great": "poke_ball(24, kind='great')",
-    "ball_ultra": "poke_ball(24, kind='ultra')",
+    "ball_24": "Crystal OAMSET_0A / red",
+    "ball_open": "Crystal OAMSET_0C + 0D / red",
+    "ball_great": "Crystal OAMSET_0A / blue",
+    "ball_ultra": "Crystal OAMSET_0A / yellow",
     "cursor": "MENU_CURSOR",
     "heart": "HEART",
     "star_5": "star(5)",
     "star_7": "star(7)",
-    "oak": "pret 真品（fetch_oak，sha256 钉定）",
+    "oak": "Crystal 开场原图（fetch_oak，固定源与产物 sha256）",
 }
 
 
@@ -131,10 +131,6 @@ def main() -> int:
     # ---- ③ 逐像素对账 + ④ 非空白 ----------------------------------------
     import systems  # noqa: F401  # 与其它门禁同环境
     grids = {
-        "ball_24": pa.poke_ball(24),
-        "ball_open": pa.poke_ball(24, open_top=True),
-        "ball_great": pa.poke_ball(24, kind="great"),
-        "ball_ultra": pa.poke_ball(24, kind="ultra"),
         "cursor": pa.MENU_CURSOR,
         "heart": pa.HEART,
         "star_5": pa.star(5),
@@ -156,23 +152,57 @@ def main() -> int:
         vals = {v for row in got for v in row}
         if len(vals) < 2:
             fails.append(f"{name}: 全 {vals} —— 空白素材会静默隐形")
-    # 三球区分：P4「换球」的承诺是三张**不同的**图 —— 两两相同即红
-    # （这缺陷的原始形态就是三球共用一张 ball_24）
-    balls = {n: decode_2bpp(blob[off:off + ln], w, h)
-             for n, w, h, off, ln in entries if n.startswith("ball_")}
-    for a, b in (("ball_24", "ball_great"), ("ball_24", "ball_ultra"),
-                 ("ball_great", "ball_ultra")):
-        if a in balls and b in balls and balls[a] == balls[b]:
-            fails.append(f"{a} 与 {b} 点阵相同 —— P4 换球切图失效")
     print(f"  逐像素对账     {len(grids)} 条全等；全部非空白（≥2 色值）；"
-          f"三球两两不同")
+          f"其余原版素材独立校验")
+
+    # The original three kinds intentionally share shape; source palettes,
+    # not invented stripes, distinguish them. Fixed Crystal 7a7881d0d62e.
+    import hashlib
+    import re
+    import fetch_balls
+    closed_hash = '6bde85e8c3f62f058c6d53b3729c85f3c3523b2f8a54fd0bb6575cd9ab4b6d89'
+    open_hash = 'eb283cb15fc259bf5c8fe39a707158fc3987933389f630146041449698d7a3e4'
+    for name, w, h, off, ln in entries:
+        if not name.startswith('ball_'):
+            continue
+        if (w,h,ln) != (32,32,256):
+            fails.append(f'{name}: 原版16px×2要求32×32 / 256B')
+            continue
+        pixels = bytes(blob[off:off+ln])
+        if hashlib.sha256(pixels).hexdigest() != (open_hash if name=='ball_open' else closed_hash):
+            fails.append(f'{name}: 与固定 Crystal 原图×2不一致')
+        bounds = fetch_balls.visible_bounds(decode_2bpp(pixels,w,h))
+        if bounds != ([4,0,24,32] if name=='ball_open' else [4,8,24,24]):
+            fails.append(f'{name}: 可见边界不符 {bounds}')
+    ball_colors = [[0x0000,0xf286,0xfcf8,0xffff],
+                   [0x0000,0x091f,0x431f,0xffff],
+                   [0x0000,0xfc21,0xffe7,0xffff],
+                   [0x0000,0x2b80,0x6661,0xffff],
+                   [0x0000,0x091f,0x431f,0xffff],
+                   [0x0000,0x6b4d,0xce79,0xffff],
+                   [0x0000,0xa3c3,0xc4a7,0xffff],
+                   [0x0000,0xfc21,0xffe7,0xffff]]
+    ball_header = open(os.path.join(REPO,'firmware/main/ball_assets.h')).read()
+    actual_colors = [int(v,16) for v in re.findall(r'0x[0-9a-fA-F]+',ball_header)]
+    if actual_colors != [v for pal in ball_colors for v in pal]:
+        fails.append('ball: 固件八种球的原版配色不一致')
+    if [list(pal) for pal in fetch_balls.BALL_PALETTES_RGB565] != ball_colors:
+        fails.append('ball: Inspector 八种球的原版配色不一致')
+    print('  ball 专项      原图32×32 / 八种球原版配色 / 闭球24×24、开球24×32可见边界')
 
     # ---- ⑤ oak 专项 ------------------------------------------------------
-    # 真品来自 pret/pokered（fetch_oak.py），内容用 sha256 钉死 ——
-    # 换源/重转换都会红，逼着改动者有意识地更新这里的哈希与理由。
-    import hashlib
-    OAK_SHA256 = ("f5f4ad1f68d5b5ce300ba833da789786"
-                  "3d47d48e4cd31d3703d4083b02ad9c95")
+    # Crystal 7a7881d0d62e0ddbd82dcf10e7116807487ac651 gfx/trainers/oak.png。
+    # 完整原生 56×56 四档色值 ×2；原白不再合并为浅色。
+    import fetch_oak
+    OAK_SHA256 = ("5e86a6f5ad87075ad33db6828984da3e170"
+                  "163883521a2d4e2a5b99b2499b58f")
+    oak_colors = [0x0000, 0x6c20, 0xc4eb, 0xffff]
+    c_source = open(os.path.join(REPO, "firmware", "main", "play_opening.c")).read()
+    c_palette = re.search(r"OAK_PALETTE\[4\]\s*=\s*\{([^}]+)\}", c_source)
+    if not c_palette or [int(v, 16) for v in re.findall(r"0x[0-9a-fA-F]+", c_palette[1])] != oak_colors:
+        fails.append("oak: 固件配色与固定 Crystal 原配色不一致")
+    if [fetch_oak.rgb565(v) for v in fetch_oak.OAK_PALETTE] != oak_colors:
+        fails.append("oak: Inspector 导出配色与固定 Crystal 原配色不一致")
     oak = [e for e in entries if e[0] == "oak"]
     if not oak:
         fails.append("oak 不存在 —— BUG-2 的核心交付物缺席")
@@ -190,24 +220,14 @@ def main() -> int:
         vals = {v for row in g for v in row}
         if not vals <= {0, 1, 2, 3}:
             fails.append(f"oak: 色值越界 {sorted(vals)}")
-        if len(vals) < 3:
-            fails.append(f"oak: 色值仅 {sorted(vals)} —— 4 级灰阶真品"
-                         f"至少用到 3 档（疑似量化错）")
-        # 防绕过洪泛：fill_interior_white 把白大褂（内部 3）并进 2 之后，
-        # idx3 只剩画布外背景（65.3%）、idx2 升到 15.9%。不跑洪泛的旧
-        # 素材 idx3 高达 78.7% / idx2 仅 2.6% —— 白大褂在真机上会透明消失
+        if vals != {0, 1, 2, 3}:
+            fails.append(f"oak: 色值 {sorted(vals)} ≠ 原图四档")
+        # 白大褂及外部画布的源白全部保留，透明语义依赖页面白底。
         n3 = sum(1 for row in g for v in row if v == 3)
-        n2 = sum(1 for row in g for v in row if v == 2)
-        ratio3 = n3 / (w * h)
-        ratio2 = n2 / (w * h)
-        if ratio3 > 0.70:
-            fails.append(f"oak: idx3 占 {ratio3:.1%} > 70% —— 疑似没跑"
-                         f"fill_interior_white（白大褂会透明）")
-        if ratio2 < 0.10:
-            fails.append(f"oak: idx2 占 {ratio2:.1%} < 10% —— 同上，"
-                         f"白大褂应已并入 idx2")
+        if n3 != 2331 * 4:
+            fails.append(f"oak: 原白像素 {n3} ≠ 2331×4（禁止内部白改色）")
     print("  oak 专项       112×112 / 3136 B / sha256 钉定 / "
-          "洪泛已跑（idx3 ≤70%、idx2 ≥10%）")
+          "原白保留 / 固件与 Inspector 原配色同步")
 
     if fails:
         print(f"\n❌ {len(fails)} 处不符：")
@@ -215,8 +235,8 @@ def main() -> int:
             print("   " + f)
         return 1
 
-    print("\n✅ ui.bin 与 pixelart 逐像素一致"
-          "（结构 / 条目 / 点阵 / 非空白 / oak 专项）")
+    print("\n✅ ui.bin 与来源一致"
+          "（结构 / 条目 / 点阵 / 非空白 / 原版 ball、oak 专项）")
     return 0
 
 

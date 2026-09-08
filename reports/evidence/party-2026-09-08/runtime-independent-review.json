@@ -1,0 +1,10 @@
+{
+  "nullable_loot": true,
+  "stale_defeat_guard_preserved": true,
+  "first_stamina": 70,
+  "second_stamina": 70,
+  "first_mood": 55,
+  "second_mood": 55,
+  "runtime_sha256": "fc4800edf658f4e386748d21ed6eb7f414838bd7ffcb90a567351912ddb63872",
+  "current_source_matches": true
+}

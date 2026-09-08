@@ -1,0 +1,19 @@
+{
+  "sourceSha256": "02b691d4d6e6f37f16369e043845332b7e450668f3f84dce50d2bfeda1642981",
+  "passed": [
+    "pointerLong",
+    "pointerClicks",
+    "keyboardLong",
+    "explicitGesture",
+    "cancelPending",
+    "ignoredInput",
+    "queuedHold"
+  ],
+  "negativeCaught": [
+    "click after long release",
+    "native click double dispatch",
+    "missing keyboard hold",
+    "cancelled hold fires"
+  ],
+  "scope": "actual firmware.js pointer/keyboard handlers in Node VM, controlled hold timers and delayed fetch; browser event delivery is checked separately"
+}

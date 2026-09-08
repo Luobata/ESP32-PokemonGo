@@ -1,0 +1,40 @@
+{
+  "save_before": 10,
+  "save_after": 11,
+  "save_bytes": 3664,
+  "preserved": {
+    "queue": true,
+    "party": true,
+    "dex": true,
+    "inventory": true,
+    "challenge": true,
+    "achievements": true,
+    "refresh": true,
+    "leader": true
+  },
+  "settings": {
+    "mute": 1,
+    "volume": 80
+  },
+  "exploration": {
+    "route": 0,
+    "energy": 3,
+    "clues": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "steps": 0
+  },
+  "party_count": 6,
+  "leader": 129,
+  "level": 8,
+  "exp": 1040,
+  "firmware_bytes": 1834656,
+  "firmware_sha256": "2a70e5f828383e4415d3e64cd48e3cb932be34d0b1efc8a0830ab3875bc627a1",
+  "flash_hash_verified": true,
+  "boot_migration": true,
+  "backup_before": ".device-backup/nvs-preflash-routes-v11-20260908.bin",
+  "backup_after": ".device-backup/nvs-after-routes-v11-20260908.bin"
+}

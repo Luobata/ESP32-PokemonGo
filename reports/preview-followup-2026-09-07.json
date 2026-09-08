@@ -1,0 +1,39 @@
+{
+  "build": "0019a1c61cb1dea5f36e",
+  "url": "http://127.0.0.1:8766/firmware.html",
+  "clockSourceSha256": "cb24289cd506118c678d9c2f6904bd53bcdf66e5b2e9ce112a409b2b1db64a64",
+  "browserActions": [
+    {"action": "fresh P2 defaults live", "ms": 17640, "passed": true},
+    {"action": "P2 B changes list selection", "before": "10ad60ec7b2d902dc631763a426a84c604aa15ae3788be3d0f75217df9c25f5a", "after": "13a1eff39b27104a0b6eb21d3d0f1e4abf801b520750c01b4f250f3e6ebb07d7", "passed": true},
+    {"action": "P2 A completes transition to P3 without play button", "page": "P3", "passed": true},
+    {"action": "P3 C returns P2", "page": "P2", "passed": true},
+    {"action": "P3 B starts battle; live clock advances it", "startMs": 34080, "laterMs": 45360, "start": "b45e7e1b6c5ce48a8c4512a554fe0b4d7d5e9f6c80f2b2c91e29fee6805da6f2", "later": "83f790af98078f09828d0d4944ce661245e482ed113c7a68b6a5f39644dc8b87", "passed": true},
+    {"action": "manual pause stays stopped across separate observations", "beforeMs": 45420, "afterMs": 45420, "passed": true},
+    {"action": "single step advances exactly 60ms", "beforeMs": 45420, "afterMs": 45480, "passed": true},
+    {"action": "scene reload preserves manual pause", "ms": 0, "passed": true},
+    {"action": "check actual battle dirty bands at 240ms", "mismatchPixels": 0, "passed": true}
+  ],
+  "canvasParity": {
+    "method": "Read actual browser Canvas RGBA through CDP; compare SHA-256 with independent production-C Renderer output expanded to RGBA",
+    "fixture": "boot 3 25 12 74 3 1 0",
+    "frames": [
+      {"commands": [], "ms": 0, "browserRgbaSha256": "be8e3a1daa4d291e38069cc4b265d49dc5ee29813f29c9e9b93c8f59a7f95400", "nativeRgbaSha256": "be8e3a1daa4d291e38069cc4b265d49dc5ee29813f29c9e9b93c8f59a7f95400"},
+      {"commands": ["key 1 1", "tick 240"], "ms": 240, "browserRgbaSha256": "b45e7e1b6c5ce48a8c4512a554fe0b4d7d5e9f6c80f2b2c91e29fee6805da6f2", "nativeRgbaSha256": "b45e7e1b6c5ce48a8c4512a554fe0b4d7d5e9f6c80f2b2c91e29fee6805da6f2"}
+    ]
+  },
+  "regression": {
+    "productionClockScenarios": 8,
+    "clockNegativeMutationsCaught": 4,
+    "firmwareDirtyRedrawComparisons": 848,
+    "wireColorsCompared": 65536,
+    "battleFxPhaseCases": 45984,
+    "battleFxNegativeMutationsCaught": 8,
+    "frontSpeciesCompared": 151,
+    "frontLayoutRgb565PixelsCompared": 2355600,
+    "frontLayoutEvidence": "evidence/firmware-preview-2026-09-07/aligned-layout.json",
+    "espIdfBuild": "passed",
+    "appBytesHex": "0x175cc0",
+    "flashed": false
+  },
+  "scope": "Browser interaction, logical RGB565 pixels and firmware compilation; physical LCD timing and DMA interrupts still require device verification. The existing 1MB recovery partition warning remains unchanged."
+}

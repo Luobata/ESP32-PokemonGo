@@ -1,0 +1,11 @@
+{
+  "build": "c8d80bc04bdcd0eaf034",
+  "cases": [
+    "success and deferred fanfare",
+    "breakout and exactly one retaliation",
+    "atomic save failures and same-ball retry",
+    "post-victory miss consumes the only chance"
+  ],
+  "frame_checks": 1675,
+  "mismatches": 0
+}

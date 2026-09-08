@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "build": "b89596dac0f6a9a529a1",
+  "font_characters": 133,
+  "menu_checks": 31,
+  "party_checks": 107,
+  "capacity_checks": 31,
+  "shiny_checks": 158,
+  "legacy_exp_checks": 195,
+  "dirty_full_checks": 522,
+  "scope": "Actual C pages/assets/nav; fixture world/save; real world/save checked separately."
+}

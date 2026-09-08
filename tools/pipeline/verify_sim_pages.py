@@ -28,8 +28,9 @@
                 （种子确定，可逐值）
     · P6 图鉴   cols/rows/perPage/pages == party 常量；页容量 ≥ 151
     · ui 素材   9 条；三种球位图两两不同；oak 112×112；调色板 4 色
-    · 新鲜度    index.html 里注入的 simPages JSON == 现算 payload
-                （防 build 过期 / 手改产物）
+    · 新鲜度    模板 / 固件资产 / sim / 生成器输入 hash 与当前源码一致；
+                实际 HTML 正文、字体 CSS、全量 payload 未被改写；
+                simPages JSON == 现算 payload
 
 退出码 0 = 过，非 0 = 挂。缺 index.html 默认红（ALLOW_MISSING=1 容忍）。
 """
@@ -37,8 +38,10 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import pathlib
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -52,6 +55,54 @@ FAILS: list[str] = []
 def ck(cond: bool, msg: str):
     if not cond:
         FAILS.append(msg)
+
+
+def check_build_manifest(html: str, B, repo: pathlib.Path = REPO) -> dict | None:
+    """校验实际产物，不只看一个声称已接线的 marker。"""
+    match = re.search(r"\bconst D\s*=\s*", html)
+    if not match:
+        ck(False, "index.html 缺少 const D 资产 payload")
+        return None
+    try:
+        payload, end = json.JSONDecoder().raw_decode(html, match.end())
+    except ValueError as e:
+        ck(False, f"index.html 资产 JSON 无效：{e}")
+        return None
+    if not isinstance(payload, dict):
+        ck(False, "index.html 资产 payload 不是对象")
+        return None
+    manifest = payload.get("buildManifest")
+    if not isinstance(manifest, dict) or manifest.get("version") != 1:
+        ck(False, "index.html 缺少当前构建 manifest —— 重新跑 build.py")
+        return payload
+    try:
+        current = B.source_manifest(repo)
+        saved = manifest.get("inputs", {})
+        if not isinstance(saved, dict):
+            saved = {}
+        changed = sorted(k for k in current.keys() | saved.keys()
+                         if current.get(k) != saved.get(k))
+        ck(not changed, "构建输入已变化：" + ", ".join(changed[:8])
+           + " —— 重新跑 build.py")
+        ck(manifest.get("payloadSha256") == B.payload_hash(payload),
+           "index.html 全量 payload hash 不符（产物被改写）")
+        # 移除两个构建期注入区，还原模板，再逐字比对实际脚本和 DOM。
+        normalized = html[:match.end()] + "ASSETS_JSON" + html[end:]
+        if normalized.count(B.FONT_BEGIN) != 1 or normalized.count(B.FONT_END) != 1:
+            ck(False, "index.html Kanto16 字体注入区缺失或重复")
+        else:
+            start = normalized.index(B.FONT_BEGIN)
+            stop = normalized.index(B.FONT_END, start)
+            css = normalized[start + len(B.FONT_BEGIN):stop]
+            ck(bool(css) and hashlib.sha256(css.encode()).hexdigest()
+               == manifest.get("fontCssSha256"), "index.html Kanto16 字体 CSS hash 不符")
+            normalized = normalized[:start] + "/*KANTO16CSS*/" + normalized[stop + len(B.FONT_END):]
+            ck(normalized == (repo / "tools/inspector/template.html").read_text(),
+               "index.html 实际模板 / JS 与 template.html 不符（产物代码过期或被改写）")
+        ck(bool(payload.get("kantoChars")), "index.html 缺少固件字形，不能用宿主字体作一致性预览")
+    except (OSError, ValueError) as e:
+        ck(False, f"构建 manifest 校验失败：{e}")
+    return payload
 
 
 def main() -> int:
@@ -261,13 +312,15 @@ def main() -> int:
     ck(set(ui) == need, f"ui 素材集合不符：{set(ui) ^ need}")
     balls3 = [ui["ball_24"]["bytes"], ui["ball_great"]["bytes"],
               ui["ball_ultra"]["bytes"]]
-    ck(len({tuple(x) for x in balls3}) == 3, "三种球位图两两相同")
+    ck(len({tuple(x) for x in balls3}) == 1, "原版三种球必须共用闭球点阵")
+    ck(len({tuple(ui[n]["palette"]) for n in ("ball_24", "ball_great", "ball_ultra")}) == 3, "三种球调色板必须区分")
+    ck(all(ui[n]["w"] == 32 and ui[n]["h"] == 32 for n in ("ball_24", "ball_great", "ball_ultra", "ball_open")), "原版球必须保留 32×32 画布")
     ck(ui["oak"]["w"] == 112 and ui["oak"]["h"] == 112, "oak 必须 112×112")
     for nm, a in ui.items():
         ck(len(a["palette"]) == 4, f"ui {nm} 调色板不是 4 色")
     ck(sp["encounter"]["generatedBySim"] is True,
        "P2 样本必须声明 generatedBySim")
-    print(f"  stub/ui    P7/P8 诚实标注；9 素材齐全，三球两两不同，"
+    print(f"  stub/ui    P7/P8 诚实标注；9 素材齐全，三球同形异色，"
           f"oak 112×112")
 
     # ---- ⑨ index.html 注入新鲜度 ----------------------------------------
@@ -282,26 +335,18 @@ def main() -> int:
             return 1
     else:
         html = open(idx_path, encoding="utf-8").read()
-        i = html.find('"simPages"')
-        ck(i >= 0, "index.html 里没有 simPages —— build 未注入或产物过期")
-        if i >= 0:
-            depth = 0
-            j = html.index("{", i)
-            for k in range(j, len(html)):
-                if html[k] == "{":
-                    depth += 1
-                elif html[k] == "}":
-                    depth -= 1
-                    if depth == 0:
-                        break
-            served = json.loads(html[j:k + 1])
+        payload = check_build_manifest(html, B)
+        ck(payload is not None and "simPages" in payload,
+           "index.html 里没有 simPages —— build 未注入或产物过期")
+        if payload is not None and "simPages" in payload:
+            served = payload["simPages"]
             fresh = served == json.loads(json.dumps(sp, ensure_ascii=False,
                                                     default=str))
             ck(fresh,
                "index.html 注入的 simPages 与现算 payload 不一致"
                "（build 过期或被手改）—— 重新跑 build.py")
             # 打印要跟着判定走：ck 只记录不拦截，无条件打 ✓ 会骗读日志的人
-            print("  新鲜度     " + ("index.html 注入值 == 现算 payload"
+            print("  新鲜度     " + ("simPages 注入值 == 现算 payload"
                                     if fresh else "✗ 不一致（见下）"))
 
     if FAILS:
@@ -310,7 +355,7 @@ def main() -> int:
             print("   " + f)
         return 1
     print("\n✅ 页面模拟器数据全部与 sim/ 现算一致"
-          "（开场逐帧/按键表/战斗/捕获/养成/遭遇/图鉴/素材/新鲜度）")
+          "（开场逐帧/按键表/战斗/捕获/养成/遭遇/图鉴/素材/输入与产物新鲜度）")
     return 0
 
 

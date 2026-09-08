@@ -1,0 +1,11 @@
+{
+  "build": "0da97b4a8a1841f5ddd8",
+  "three_rows": true,
+  "bidirectional_wrap": true,
+  "original_names_preserved": true,
+  "manual_off": true,
+  "wake_key_consumed": true,
+  "same_selection_after_wake": true,
+  "text_pixel_checks": 6,
+  "dirty_checks": 20
+}

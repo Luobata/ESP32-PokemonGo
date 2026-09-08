@@ -1,0 +1,196 @@
+{
+  "build": "ab8989a0323c39a95133",
+  "status": "PASS",
+  "p3_original_motion_frames": 582,
+  "p3_roi_pixels": 9079200,
+  "dirty_full_checks": 1326,
+  "species_variants": [
+    {
+      "species": 1,
+      "shiny": false,
+      "frames_seen": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "duration_ticks": 70
+    },
+    {
+      "species": 1,
+      "shiny": true,
+      "frames_seen": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "duration_ticks": 70
+    },
+    {
+      "species": 50,
+      "shiny": false,
+      "frames_seen": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "duration_ticks": 39
+    },
+    {
+      "species": 50,
+      "shiny": true,
+      "frames_seen": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "duration_ticks": 39
+    },
+    {
+      "species": 78,
+      "shiny": false,
+      "frames_seen": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "duration_ticks": 178
+    },
+    {
+      "species": 78,
+      "shiny": true,
+      "frames_seen": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "duration_ticks": 178
+    },
+    {
+      "species": 94,
+      "shiny": false,
+      "frames_seen": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "duration_ticks": 118
+    },
+    {
+      "species": 94,
+      "shiny": true,
+      "frames_seen": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "duration_ticks": 118
+    },
+    {
+      "species": 118,
+      "shiny": false,
+      "frames_seen": [
+        0,
+        1,
+        2
+      ],
+      "duration_ticks": 143
+    },
+    {
+      "species": 118,
+      "shiny": true,
+      "frames_seen": [
+        0,
+        1,
+        2
+      ],
+      "duration_ticks": 143
+    },
+    {
+      "species": 124,
+      "shiny": false,
+      "frames_seen": [
+        0,
+        1,
+        2
+      ],
+      "duration_ticks": 129
+    },
+    {
+      "species": 124,
+      "shiny": true,
+      "frames_seen": [
+        0,
+        1,
+        2
+      ],
+      "duration_ticks": 129
+    },
+    {
+      "species": 149,
+      "shiny": false,
+      "frames_seen": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "duration_ticks": 158
+    },
+    {
+      "species": 149,
+      "shiny": true,
+      "frames_seen": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "duration_ticks": 158
+    },
+    {
+      "species": 151,
+      "shiny": false,
+      "frames_seen": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "duration_ticks": 176
+    },
+    {
+      "species": 151,
+      "shiny": true,
+      "frames_seen": [
+        0,
+        1,
+        2,
+        3,
+        4
+      ],
+      "duration_ticks": 176
+    }
+  ],
+  "escape_feedbacks": [
+    "failure: 11 static ticks and exactly one retaliation then choice",
+    "success: 11 static ticks then encounter removed"
+  ],
+  "review_scope": "Actual P3 original frames and union against pinned PNG/script; click locking, feedback dirty bands, P4 no-reentry motion. Hardware timing, main demo shell and NVS not exercised."
+}

@@ -162,7 +162,7 @@ int main(void)
             m.name_zh = "招"; m.name_zh_len = 3;
             uint16_t mult; const move_t *got; bool miss;
             uint16_t d = do_hit(&asp_s, &A, (uint8_t)alv, &dsp_s, &D,
-                                &m, 1, (uint16_t)fq, &mult, &got, &miss);
+                                &m, 1, (uint16_t)fq, (uint16_t)dh, &mult, &got, &miss);
             printf("%u %u %d\n", d, mult, miss ? 1 : 0);
         } else if (!strcmp(cmd, "battle")) {
             int plv, wlv; unsigned seed;
@@ -171,6 +171,42 @@ int main(void)
             battle_run(g_sp[0].id, (uint8_t)plv, g_sp[1].id, (uint8_t)wlv,
                        1024, seed, &r);
             printf("%d %u %u\n", r.won ? 1 : 0, r.round_count, r.wild_hp_ratio);
+        } else if (!strcmp(cmd, "session")) {
+            int plv, wlv; unsigned seed; int fail = 0;
+            scanf("%d %d %u", &plv, &wlv, &seed);
+            battle_result_t whole;
+            battle_run(g_sp[0].id, plv, g_sp[1].id, wlv, 1024, seed, &whole);
+            battle_session_t live;
+            battle_session_init(&live, g_sp[0].id, plv, g_sp[1].id, wlv, 1024, seed);
+            for (unsigned i = 0; i < whole.round_count; i++) {
+                battle_session_t saved = live, other;
+                battle_round_t got, noise;
+                // Other battles consume RNG between saving and restoring this
+                // one: a global RNG must not silently corrupt resumed turns.
+                battle_session_init(&other, g_sp[0].id, plv, g_sp[1].id, wlv, 1024, seed + 77);
+                for (int k = 0; k < 3; k++) battle_session_step(&other, &noise);
+                live = saved;
+                if (!battle_session_step(&live, &got) ||
+                    memcmp(&got, &whole.rounds[i], sizeof got)) fail |= 1;
+                if (!live.rng || live.rng == saved.rng) fail |= 128;
+            }
+            if (!live.finished || live.won != whole.won ||
+                battle_session_hp_ratio(&live) != whole.wild_hp_ratio ||
+                battle_session_exp(&live) != whole.exp) fail |= 2;
+            if (battle_session_can_capture(&live) != live.won) fail |= 4;
+            live.capture_used_after_win = true;
+            if (battle_session_can_capture(&live)) fail |= 8;
+            battle_session_t terminal = live; battle_round_t ignored;
+            if (battle_session_step(&live, &ignored) || memcmp(&terminal, &live, sizeof live)) fail |= 16;
+            battle_session_init(&live, g_sp[0].id, plv, g_sp[1].id, wlv, 1024, seed);
+            uint16_t wild_before = live.wild_hp, pet_before = live.pet_hp;
+            live.next_by_pet = true;
+            live.retaliation_pending = true;
+            if (battle_session_can_capture(&live)) fail |= 32;
+            if (!battle_session_step(&live, &ignored) || ignored.by_pet ||
+                live.wild_hp != wild_before || live.pet_hp > pet_before ||
+                !live.next_by_pet || live.retaliation_pending || live.attack_count != 1) fail |= 64;
+            printf("%d\n", fail);
         }
         fflush(stdout);
     }
@@ -391,6 +427,12 @@ def main() -> int:
             # 回合数要落在「30 秒会话」的预算内（伤害公式分母压 25 的目的）
             if avg > 25:
                 fails.append(f"{label}: 平均 {avg:.1f} 回合太长")
+
+            for seed in range(1, 33):
+                result = d.ask(f"session {plv} {wlv} {seed}")
+                if result != "0":
+                    fails.append(f"{label}: session seed={seed} failed flags={result}")
+        print("  战斗恢复   96 组（跨会话 RNG、HP、终局锁、一次反击）")
 
         d.close()
 

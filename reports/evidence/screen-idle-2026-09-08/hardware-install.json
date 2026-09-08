@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "native_build": "0da97b4a8a1841f5ddd8",
+  "image_bytes": 1650272,
+  "image_sha256": "7b169a301cb2caea9ef000041aa7e1df6d4403280b4d91be6a44432869b47459",
+  "inspector_manifest_matches": true,
+  "silent": true,
+  "app_offset": "0x10000",
+  "flash_hash_verified": true,
+  "boot_silent_confirmed": true,
+  "device_test": "device.json",
+  "original_leader": {
+    "pet": 26,
+    "level": 6,
+    "exp": 616
+  },
+  "final_page": "P1",
+  "physical_power_key_bound": false,
+  "power_key_reason": "Dedicated hardware power button has no publicly documented MCU short-press input; manufacturer schematic/interface needed."
+}

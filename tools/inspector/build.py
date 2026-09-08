@@ -11,13 +11,14 @@
 解码逻辑（2bpp 解包、分段寻址）与固件侧必须一致，
 页面里的 JS 实现就是那份逻辑的对照参考。
 
-零第三方依赖。
+字库生成需要 fontTools；资产或字体依赖缺失时构建失败。
 """
 
 from __future__ import annotations
 
 import argparse
 import base64
+import hashlib
 import json
 import os
 import pathlib
@@ -33,6 +34,50 @@ TYPES_CN = ["一般", "火", "水", "电", "草", "冰", "格斗", "毒",
 BIOMES_CN = ["野外", "住宅区", "办公区", "商业区", "交通枢纽"]
 TRIGGERS = {0: "升级", 1: "道具", 2: "交换", 255: ""}
 FRONT_SIZES = [40, 48, 56]
+ASSET_FILES = ("gen1.bin", "gen1_front.bin", "gen1_back.bin", "palettes.bin",
+               "font16.bin", "moves.bin", "ui.bin")
+FONT_BEGIN = "/* KANTO16:BEGIN */"
+FONT_END = "/* KANTO16:END */"
+
+
+def rgb565_hex(value: int) -> str:
+    """与 tools/device/screenshot.py 相同：位复制展开到 RGB888。"""
+    r, g, b = (value >> 11) & 31, (value >> 5) & 63, value & 31
+    return f"#{((r << 3) | (r >> 2)):02x}{((g << 2) | (g >> 4)):02x}{((b << 3) | (b >> 2)):02x}"
+
+
+def source_manifest(repo: pathlib.Path | None = None) -> dict:
+    """记录实际生成输入；路径相对仓库，内容变化、增删均使产物过期。"""
+    repo = repo or REPO
+    paths = {repo / "assets" / name for name in ASSET_FILES}
+    for pattern in ("tools/inspector/*.py", "tools/inspector/template.html",
+                    "tools/inspector/host/**/*.c", "tools/inspector/host/**/*.h",
+                    "tools/pipeline/*.py", "tools/pipeline/*.c", "sim/*.py",
+                    "firmware/main/*.c", "firmware/main/*.h",
+                    "firmware/main/CMakeLists.txt", "data/raw/*.ndjson"):
+        paths.update(repo.glob(pattern))
+    return {str(p.relative_to(repo)): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in sorted(paths) if p.is_file() or p.name in ASSET_FILES}
+
+
+def payload_hash(payload: dict) -> str:
+    # JSON 往返统一整数键 / tuple，保证导出前与浏览器实际 JSON 的口径一致。
+    plain = json.loads(json.dumps({k: v for k, v in payload.items()
+                                   if k != "buildManifest"}, ensure_ascii=False))
+    encoded = json.dumps(plain, ensure_ascii=False, sort_keys=True,
+                         separators=(",", ":")).encode()
+    return hashlib.sha256(encoded).hexdigest()
+
+
+def require_firmware_assets(assets: pathlib.Path) -> None:
+    """sim / 字库 / native 均读固件 assets；外部目录只接受同内容副本。"""
+    for name in ASSET_FILES:
+        p = assets / name
+        if not p.is_file():
+            raise ValueError(f"缺少固件资产 {p}；请先完成素材管线，不生成回退预览")
+        source = REPO / "assets" / name
+        if p.resolve() != source.resolve() and p.read_bytes() != source.read_bytes():
+            raise ValueError(f"{p} 与固件 {source} 不同；请更新固件 assets 后再构建预览")
 
 
 def _scene_cli() -> pathlib.Path:
@@ -43,14 +88,16 @@ def _scene_cli() -> pathlib.Path:
     """
     src = REPO / "tools" / "pipeline" / "scene_cli.c"
     inc = REPO / "firmware" / "main"
-    out = pathlib.Path(os.environ.get("TMPDIR", "/tmp")) / "scene_cli.build"
+    # 构建和门禁可以并行，避免另一进程覆盖正在执行的求值器。
+    out = pathlib.Path(os.environ.get("TMPDIR", "/tmp")) / f"scene_cli.build.{os.getpid()}"
     # 既有门禁（verify_battle.py:187）用裸 "cc"；这里同口径，
     # 但显式回退 /usr/bin/cc —— 交互 shell 里 cc 可能被别名劫持。
     r = None
     for compiler in ("cc", "/usr/bin/cc"):
         try:
             r = subprocess.run([compiler, "-std=c11", "-O1", "-Wall", "-Wextra",
-                                "-Werror", "-I", str(inc), "-o", str(out), str(src)],
+                                "-Werror", "-I", str(inc), "-o", str(out), str(src),
+                                str(inc / "battle_hud.c")],
                                capture_output=True, text=True)
             if r.returncode == 0:
                 return out
@@ -151,7 +198,7 @@ def load_data(path: pathlib.Path) -> list[dict]:
             "id": i + 1,
             "slug": pool[off:off + ln].decode("utf-8"),
             "zh": pool[zo:zo + zl].decode("utf-8") if zl else "",
-            "pal": pi & 0x0F,
+            "pal": pi,                    # 与 assets_species 的完整 uint8 索引一致
             "t1": TYPES_CN[t1] if t1 < len(TYPES_CN) else "?",
             "t2": TYPES_CN[t2] if t2 < len(TYPES_CN) else None,
             "biomes": [BIOMES_CN[j] for j in range(5) if bm >> j & 1],
@@ -167,16 +214,18 @@ def load_data(path: pathlib.Path) -> list[dict]:
 
 
 def load_palettes(path: pathlib.Path) -> dict:
-    """调色板表：10 套普通 + 10 套闪光 + 每只索引。
+    """调色板表：N 套原版普通/闪光配对 + 每只索引。
 
     彩色屏用，且闪光就是换调色板（S8）—— 位图完全相同。
     """
-    if not path.exists():
-        return {}
     d = path.read_bytes()
+    if len(d) < 12:
+        raise ValueError(f"{path.name} 头部截断")
     magic, ver, nsets, ncolors, count = struct.unpack("<4sHHHH", d[:12])
-    if magic != b"PALS":
-        raise ValueError(f"{path.name} magic 不对：{magic!r}")
+    if magic != b"PALS" or ver != 1 or not nsets or ncolors != 4:
+        raise ValueError(f"{path.name} 调色板头无效：{magic!r}/v{ver}/{nsets}×{ncolors}")
+    if len(d) != 12 + nsets * 2 * ncolors * 2 + count:
+        raise ValueError(f"{path.name} 长度与头部声明不符")
 
     body = d[12:]
     per_set = ncolors * 2
@@ -186,14 +235,13 @@ def load_palettes(path: pathlib.Path) -> dict:
         colors = []
         for c in range(ncolors):
             (rgb565,) = struct.unpack("<H", body[o + c * 2:o + c * 2 + 2])
-            r = ((rgb565 >> 11) & 0x1F) << 3
-            g = ((rgb565 >> 5) & 0x3F) << 2
-            b = (rgb565 & 0x1F) << 3
-            colors.append(f"#{r:02x}{g:02x}{b:02x}")
+            colors.append(rgb565_hex(rgb565))
         (normal if i < nsets else shiny).append(colors)
 
     idx_off = nsets * 2 * per_set
     per_mon = list(body[idx_off:idx_off + count])
+    if any(i >= nsets for i in per_mon):
+        raise ValueError(f"{path.name} 物种调色板索引越界（完整 uint8，不能截成 4 位）")
     return {"normal": normal, "shiny": shiny, "perMon": per_mon}
 
 
@@ -828,14 +876,24 @@ def load_systems2(repo: pathlib.Path, mons: list[dict]) -> dict:
     # 改成与 sprite 同一套 2bpp 点阵路径。
     try:
         import pixelart as PA                  # noqa: E402
+        ball_ui = _ui_assets()
+        def ball_grid(name):
+            item = ball_ui[name]
+            stride = (item["w"] + 3) // 4
+            return [[(item["bytes"][y * stride + x // 4] >> (6 - (x % 4) * 2)) & 3
+                     for x in range(item["w"])] for y in range(item["h"])]
+        art_budget = PA.budget()
+        art_budget["per"]["ball_24"] = len(ball_ui["ball_24"]["bytes"])
+        art_budget["per"]["ball_24_open"] = len(ball_ui["ball_open"]["bytes"])
+        art_budget["total"] = sum(art_budget["per"].values())
         art = {
-            "ball": PA.poke_ball(24),
-            "ballOpen": PA.poke_ball(24, open_top=True),
+            "ball": ball_grid("ball_24"),
+            "ballOpen": ball_grid("ball_open"),
             "cursor": PA.CURSOR,
             "stars": {str(sz): PA.star(sz) for sz in PA.STAR_SIZES},
-            "pal": {"ball": PA.BALL_PALETTE, "ballOpen": PA.BALL_OPEN_PALETTE,
+            "pal": {"ball": ball_ui["ball_24"]["palette"], "ballOpen": ball_ui["ball_open"]["palette"],
                     "cursor": PA.CURSOR_PALETTE, "star": PA.STAR_PALETTE},
-            "budget": PA.budget(),
+            "budget": art_budget,
         }
     except ImportError as e:
         print(f"  注：pixelart 导入失败（{e}）", file=sys.stderr)
@@ -1004,32 +1062,39 @@ def _ui_assets() -> dict:
     import pixelart as pa
     sys.path.insert(0, str(REPO / "tools" / "pipeline"))
     import fetch_oak
+    import fetch_balls
     path = REPO / "assets" / "ui.bin"
     data = path.read_bytes()
-    _, ver, count = struct.unpack_from("<4sHH", data, 0)
+    if len(data) < 8:
+        raise ValueError("ui.bin 头部截断")
+    magic, ver, count = struct.unpack_from("<4sHH", data, 0)
     fmt, esize = "<16sBBIHH", struct.calcsize("<16sBBIHH")
     base = 8 + count * esize
     pals = {
-        "ball_24": pa.BALL_PALETTE, "ball_open": pa.BALL_OPEN_PALETTE,
-        "ball_great": pa.BALL_GREAT_PALETTE,
-        "ball_ultra": pa.BALL_ULTRA_PALETTE,
+        **fetch_balls.BALL_PALETTES,
         "cursor": pa.MENU_CURSOR_PALETTE, "heart": pa.HEART_PALETTE,
         "star_5": pa.STAR_PALETTE, "star_7": pa.STAR_PALETTE,
-        "oak": fetch_oak.OAK_PALETTE,
+        "oak": fetch_oak.OAK_PALETTE,  # Fixed Crystal RGB5, exact LCD RGB565 expansion.
     }
+    if magic != b"UIA1" or ver != 1 or base > len(data):
+        raise ValueError("ui.bin 头部或条目表无效")
     out = {}
     for i in range(count):
         name, w, h, off, ln, _ = struct.unpack_from(fmt, data, 8 + i * esize)
         nm = name.rstrip(b"\0").decode()
+        if nm not in pals or nm in out or not w or not h or ln != ((w + 3) // 4) * h or base + off + ln > len(data):
+            raise ValueError(f"ui.bin 条目 {nm!r} 无效或缺少明确调色板")
         # 调成 sprite 序（0=最暗 3=最亮）—— canvas 渲染统一按这个
-        pal = pals.get(nm, pa.BALL_PALETTE)
-        if nm == "oak":
-            sprite_pal = pal          # oak 已是 sprite 序
+        pal = pals[nm]
+        if nm == "oak" or nm in fetch_balls.BALL_PALETTES:
+            sprite_pal = pal          # Original Crystal art uses engine shade order.
         else:
             sprite_pal = [pal[0], pal[2], pal[1], pal[3]]  # pixelart→sprite 序
         out[nm] = {"w": w, "h": h,
                    "bytes": list(data[base + off: base + off + ln]),
                    "palette": sprite_pal}
+    if set(out) != set(pals):
+        raise ValueError(f"ui.bin 缺少条目：{sorted(set(pals) - set(out))}")
     return out
 
 
@@ -1226,41 +1291,45 @@ def sim_pages_payload() -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser(description="构建验收页面")
     ap.add_argument("--src", default="/tmp/gen1",
-                    help="fetch_gen1.py 的输出目录（用于必要时重跑转换）")
-    ap.add_argument("--assets", default="",
-                    help="已有的 .bin 目录；留空则临时转换到 /tmp")
+                    help="兼容旧命令；素材转换请先单独运行 convert_gen1.py")
+    ap.add_argument("--assets", default=str(REPO / "assets"),
+                    help="固件 .bin 目录（默认 assets/；其它目录须为相同内容副本）")
     ap.add_argument("--out", default=str(HERE / "index.html"))
     args = ap.parse_args()
 
-    assets = pathlib.Path(args.assets) if args.assets else pathlib.Path("/tmp/_inspect_assets")
-
-    need = ["gen1.bin", "gen1_front.bin", "gen1_back.bin"]
-    if not all((assets / f).exists() for f in need):
-        print(f"资产不全，从 {args.src} 转换到 {assets} ...")
-        assets.mkdir(parents=True, exist_ok=True)
-        r = subprocess.run(
-            [sys.executable, str(REPO / "tools/pipeline/convert_gen1.py"),
-             "--src", args.src, "--out", str(assets)],
-            capture_output=True, text=True)
-        if r.returncode != 0:
-            print(r.stdout + r.stderr, file=sys.stderr)
-            print("\n转换失败。先确认已拉取数据：", file=sys.stderr)
-            print(f"  python3 tools/pipeline/fetch_gen1.py --out {args.src}",
-                  file=sys.stderr)
-            return 1
+    assets = pathlib.Path(args.assets)
+    try:
+        require_firmware_assets(assets)
+        inputs = source_manifest()
+    except (OSError, ValueError) as e:
+        print(f"错误：{e}", file=sys.stderr)
+        return 1
 
     mons = load_data(assets / "gen1.bin")
     palettes = load_palettes(assets / "palettes.bin")
+    if [m["pal"] for m in mons] != palettes["perMon"]:
+        raise ValueError("gen1.bin 与 palettes.bin 的物种调色板索引不一致")
+    front, seg_meta, front_bytes = load_front(assets / "gen1_front.bin")
+    back, back_size, back_bytes = load_back(assets / "gen1_back.bin")
+    # Art generation can change independently of the preserved gameplay flags.
+    # Infer the display size from each actual FRNT record, never its old hint.
+    for mon in mons:
+        encoded = front.get(mon["id"])
+        if encoded is not None:
+            byte_count = len(base64.b64decode(encoded))
+            sizes = [size for size in FRONT_SIZES if size * size // 4 == byte_count]
+            if len(sizes) != 1:
+                raise ValueError(f'#{mon["id"]} 正面图长度不能确定原生尺寸')
+            mon["fsize"] = sizes[0]
     sensing = load_sensing(REPO)
     systems = load_systems(REPO, mons)
     systems2 = load_systems2(REPO, mons)
     play = load_playthrough(REPO, mons)
-    front, seg_meta, front_bytes = load_front(assets / "gen1_front.bin")
-    back, back_size, back_bytes = load_back(assets / "gen1_back.bin")
 
     missing = [m["id"] for m in mons if m["id"] not in front or m["id"] not in back]
     if missing:
-        print(f"⚠️  {len(missing)} 只缺 sprite：{missing[:8]}", file=sys.stderr)
+        print(f"错误：{len(missing)} 只缺 sprite：{missing[:8]}", file=sys.stderr)
+        return 1
 
     payload = {
         "meta": {
@@ -1285,12 +1354,12 @@ def main() -> int:
     }
 
     tpl = (HERE / "template.html").read_text(encoding="utf-8")
-    if "ASSETS_JSON" not in tpl:
-        print("错误：template.html 里找不到 ASSETS_JSON 占位符", file=sys.stderr)
+    if tpl.count("ASSETS_JSON") != 1 or tpl.count("/*KANTO16CSS*/") != 1:
+        print("错误：template.html 的资产 / 字体占位符缺失或重复", file=sys.stderr)
+        return 1
 
     # Kanto16 点阵字体（第十一派活）：font16.bin → 位图 TTF → data URI @font-face。
-    # fontTools 缺失时降级（模板占位符替换为空，web 回退 Silkscreen/PingFang），
-    # 不阻塞构建与门禁 —— 依赖说明见 make_font.py 头注。
+    # 字体与固件同源是正式预览的必要条件；不输出宿主字体回退产物。
     kanto_css = ""
     kanto_chars = ""
     try:
@@ -1302,12 +1371,24 @@ def main() -> int:
         payload["kantoChars"] = kanto_chars
         print(f"  Kanto16：{kmeta['chars']} 字形 {kmeta['bytes']}B → data URI 内嵌")
     except ImportError as e:
-        print(f"  ⚠️ Kanto16 跳过（fontTools 缺失，web 用回退字体）：{e}", file=sys.stderr)
+        print(f"错误：Kanto16 缺少构建依赖（需要 fontTools）：{e}", file=sys.stderr)
+        return 1
     except Exception as e:
-        print(f"  ⚠️ Kanto16 生成失败（web 用回退字体）：{e}", file=sys.stderr)
+        print(f"错误：Kanto16 生成失败：{e}", file=sys.stderr)
         return 1
 
-    html = tpl.replace("/*KANTO16CSS*/", kanto_css).replace(
+    if not kanto_css or not kanto_chars:
+        print("错误：Kanto16 字形 / CSS 为空", file=sys.stderr)
+        return 1
+    if source_manifest() != inputs:
+        print("错误：构建期间生成输入发生变化，请待修改完成后重新构建", file=sys.stderr)
+        return 1
+    payload["buildManifest"] = {
+        "version": 1, "inputs": inputs,
+        "payloadSha256": payload_hash(payload),
+        "fontCssSha256": hashlib.sha256(kanto_css.encode()).hexdigest(),
+    }
+    html = tpl.replace("/*KANTO16CSS*/", FONT_BEGIN + kanto_css + FONT_END).replace(
         "ASSETS_JSON",
         json.dumps(payload, ensure_ascii=False, separators=(",", ":")))
     out = pathlib.Path(args.out)

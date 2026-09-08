@@ -1,0 +1,11 @@
+{
+  "status": "VERIFIED",
+  "path": ".device-backup/nvs-and-app-before-screen-idle-20260908.bin",
+  "offset": "0x9000",
+  "bytes": 1676144,
+  "sha256": "5e0cb89ef3d79206e8ade0b5b9ec7ac718ba59eb3611ce93e4d4b9f3ff34841e",
+  "previous_application_sha256": "fb7bdc34d5464b9a1566d2e6e2d203313d048d09b5d08046a655a3bf26e01cc4",
+  "previous_application_matches_last_install": true,
+  "nvs_bytes": 24576,
+  "full_flash_backup_also_retained": ".device-backup/flash-before-team-menu-silent-20260908.bin"
+}

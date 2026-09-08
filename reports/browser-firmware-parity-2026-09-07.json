@@ -1,0 +1,165 @@
+{
+  "date": "2026-09-07",
+  "method": "Actual browser Canvas.getImageData RGBA SHA-256 through CUA/CDP, compared with a separate native process and serial RGB565 bit-expansion contract",
+  "url": "http://127.0.0.1:8766/firmware.html",
+  "build": "b3f8f2a8c1130f51830a",
+  "pages": [
+    {
+      "page": "P0",
+      "ms": 0,
+      "sha256": "7e615d6a4c3f79c3fae0b9040b252e66445126a781bea2cf41b582c7261c5828",
+      "canvasSha256": "7e615d6a4c3f79c3fae0b9040b252e66445126a781bea2cf41b582c7261c5828",
+      "matches": true
+    },
+    {
+      "page": "P1",
+      "ms": 0,
+      "sha256": "bd01422e0144c5a18d6e0f6ccc07df15ef64c96fece591655970fd6dcafa20b4",
+      "canvasSha256": "bd01422e0144c5a18d6e0f6ccc07df15ef64c96fece591655970fd6dcafa20b4",
+      "matches": true
+    },
+    {
+      "page": "P2",
+      "ms": 0,
+      "sha256": "10ad60ec7b2d902dc631763a426a84c604aa15ae3788be3d0f75217df9c25f5a",
+      "canvasSha256": "10ad60ec7b2d902dc631763a426a84c604aa15ae3788be3d0f75217df9c25f5a",
+      "matches": true
+    },
+    {
+      "page": "P3",
+      "ms": 0,
+      "sha256": "870c156f96fa2e0f7c25de8898533e3af93302591fc41f941f6cc263b3d48536",
+      "canvasSha256": "870c156f96fa2e0f7c25de8898533e3af93302591fc41f941f6cc263b3d48536",
+      "matches": true
+    },
+    {
+      "page": "P4",
+      "ms": 0,
+      "sha256": "9f7af408644c36bdc61d113c84c02a7e5deed277d6381563e5f5e1d2f552a340",
+      "canvasSha256": "9f7af408644c36bdc61d113c84c02a7e5deed277d6381563e5f5e1d2f552a340",
+      "matches": true
+    },
+    {
+      "page": "P5",
+      "ms": 0,
+      "sha256": "d65c0c917ef7cd7929cb06f465836702e8c949c874c1fe377a5a356fa5a59a12",
+      "canvasSha256": "d65c0c917ef7cd7929cb06f465836702e8c949c874c1fe377a5a356fa5a59a12",
+      "matches": true
+    },
+    {
+      "page": "P6",
+      "ms": 0,
+      "sha256": "46f6340a83a90abee1210da9e6a9e9957419e9778929ab5911ec0bd65034a056",
+      "canvasSha256": "46f6340a83a90abee1210da9e6a9e9957419e9778929ab5911ec0bd65034a056",
+      "matches": true
+    }
+  ],
+  "battle": [
+    {
+      "case": "electric-idle",
+      "page": "P3",
+      "ms": 0,
+      "sha256": "04152a7c1559dfdd85c2532a8cb2cf5d0b656c4ba5701d450a976053406238df",
+      "canvasSha256": "04152a7c1559dfdd85c2532a8cb2cf5d0b656c4ba5701d450a976053406238df",
+      "matches": true
+    },
+    {
+      "case": "electric-60",
+      "page": "P3",
+      "ms": 60,
+      "sha256": "7093dd44187fac672226008f9e3b697fd2b31e2d74ff7792bfc256bf03e774d4",
+      "canvasSha256": "7093dd44187fac672226008f9e3b697fd2b31e2d74ff7792bfc256bf03e774d4",
+      "matches": true
+    },
+    {
+      "case": "electric-240",
+      "page": "P3",
+      "ms": 240,
+      "sha256": "7093dd44187fac672226008f9e3b697fd2b31e2d74ff7792bfc256bf03e774d4",
+      "canvasSha256": "7093dd44187fac672226008f9e3b697fd2b31e2d74ff7792bfc256bf03e774d4",
+      "matches": true
+    },
+    {
+      "case": "electric-480",
+      "page": "P3",
+      "ms": 480,
+      "sha256": "437c554c2ea9a33498b8115739003125b7e534121ad32ee0bc4e3475338a07d9",
+      "canvasSha256": "437c554c2ea9a33498b8115739003125b7e534121ad32ee0bc4e3475338a07d9",
+      "matches": true
+    },
+    {
+      "case": "long-names-idle",
+      "page": "P3",
+      "ms": 0,
+      "sha256": "b7f6a5086117ae3775b6bc59486078ccd3d6f741aa85923bbadcc356d0d44dad",
+      "canvasSha256": "b7f6a5086117ae3775b6bc59486078ccd3d6f741aa85923bbadcc356d0d44dad",
+      "matches": true
+    },
+    {
+      "case": "long-names-60",
+      "page": "P3",
+      "ms": 60,
+      "sha256": "dcba6d6afa1d291cd65ed4f22c78ef02c66a2a0af90c56ccce2186105ecef8f3",
+      "canvasSha256": "dcba6d6afa1d291cd65ed4f22c78ef02c66a2a0af90c56ccce2186105ecef8f3",
+      "matches": true
+    },
+    {
+      "case": "long-names-240",
+      "page": "P3",
+      "ms": 240,
+      "sha256": "a5c0944d07e43bc526a3033b57246b5386a5f5703317114f685a7ffed7ea772e",
+      "canvasSha256": "a5c0944d07e43bc526a3033b57246b5386a5f5703317114f685a7ffed7ea772e",
+      "matches": true
+    },
+    {
+      "case": "long-names-480",
+      "page": "P3",
+      "ms": 480,
+      "sha256": "34ab9429ca7d29700ff81152bbf95ce463954f4485e363a682901c86001dc720",
+      "canvasSha256": "34ab9429ca7d29700ff81152bbf95ce463954f4485e363a682901c86001dc720",
+      "matches": true
+    }
+  ],
+  "fixtures": {
+    "pages": "boot 3 25 12 74 3 1 0, then page 0..6",
+    "electric": "boot 3 25 12 19 1 7 0",
+    "long-names": "boot 3 139 100 103 5 3 1",
+    "battleInputs": "B click, then 60ms steps; read idle/60/240/480ms"
+  },
+  "frameCount": 15,
+  "canvasDimensions": [
+    240,
+    320
+  ],
+  "decoderSha256": "37c2990d8d2ec6fc01a88fcc06b240ca237fce5b5142ea1b9b06601ca7737aac",
+  "viewportChecks": [
+    {
+      "width": 320,
+      "canvas": [
+        240,
+        320
+      ],
+      "integerScale": 1,
+      "overflow": false
+    },
+    {
+      "width": 835,
+      "canvas": [
+        240,
+        320
+      ],
+      "integerScale": 1,
+      "overflow": false
+    },
+    {
+      "width": 1280,
+      "canvas": [
+        480,
+        640
+      ],
+      "integerScale": 2,
+      "overflow": false
+    }
+  ],
+  "scope": "Seven implemented C pages and sampled GSC battle frames; not physical LCD timing/color calibration or WiFi/NVS/audio validation."
+}

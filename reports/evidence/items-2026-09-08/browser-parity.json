@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "final_build": "228718009b2f7897a4cd",
+  "frames_matched": 2,
+  "pixels_per_frame": 76800,
+  "browser_url": "http://127.0.0.1:8766/firmware.html",
+  "observed_builds": [
+    "7cd46e736258d0ee8940"
+  ],
+  "scope": "UI-operated Canvas readback vs final C renderer; no physical LCD capture",
+  "frames": [
+    {
+      "label": "items-bag-initial",
+      "ms": 0,
+      "page": "P10",
+      "rgba_sha256": "63e87a11805a77c079869547c12add21447413e4de7446955d2631bde9563ef4"
+    },
+    {
+      "label": "items-care-feed",
+      "ms": 60,
+      "page": "P5",
+      "rgba_sha256": "3bcb4e4b89aa9e226fb8e312e3f3bbf74062a5a6aabe5377e3d581ccad9f112b"
+    }
+  ]
+}

@@ -24,6 +24,8 @@
 #include "esp_log.h"
 
 #include "assets.h"
+#include "combat.h"
+#include "pokemon_names.h"
 
 static const char *TAG = "assets";
 
@@ -113,6 +115,7 @@ bool assets_species(uint16_t id, species_t *out)
     out->special = r[13];
     out->speed = r[14];
     out->flags = r[15];
+    out->weight_hg = rd16(r + 18);
     // 调色板索引 8 位（上限 256 套）。原来只取低 4 位（& 0x0F），
     // 上限 16 套；GSC 有 135 套，4 位装不下。高 4 位经全仓 grep 确认
     // 无其他字段占用（convert_gen1.py 的 off/size 表标注「高 4 位预留」）。
@@ -122,13 +125,19 @@ bool assets_species(uint16_t id, species_t *out)
     uint8_t zl = r[22];
     out->name_zh = (const char *)(s_gen1.pool + zo);
     out->name_zh_len = zl;
+    uint8_t selected_length = 0;
+    const char *selected_name = pokemon_names_override(id, &selected_length);
+    if (selected_name) {
+        out->name_zh = selected_name;
+        out->name_zh_len = selected_length;
+    }
     return true;
 }
 
 uint32_t assets_species_count(void) { return s_gen1.ok ? s_gen1.count : 0; }
 
 // ---------------------------------------------------------------------------
-// moves.bin —— 99 个伤害招 + 151 只的升级学习表
+// moves.bin —— 伤害招 + 151 只的升级学习表
 // ---------------------------------------------------------------------------
 
 static struct {
@@ -173,56 +182,18 @@ static bool parse_moves(void)
     return true;
 }
 
-static void fill_move(uint16_t slot, move_t *out)
+bool assets_move(uint16_t id, move_t *out) {return combat_move(id,out);}
+
+int assets_known_moves(uint16_t species_id,uint8_t level,move_t *out,int max_out)
 {
-    const uint8_t *m = s_mv.moves + (size_t)slot * s_mv.rec_size;
-    out->id = rd16(m);
-    out->type = m[5];
-    out->power = m[6];
-    out->accuracy = m[7];
-    out->pp = m[8];
-    out->special = (m[9] == 1);
-    out->name_zh = (const char *)(s_mv.pool + rd16(m + 2));
-    out->name_zh_len = m[4];
+ if(!out||max_out<=0)return 0;
+ uint16_t ids[COMBAT_MOVE_CAP];int n=combat_known_moves(species_id,level,ids,COMBAT_MOVE_CAP);
+ if(n>max_out)n=max_out;
+ for(int i=0;i<n;i++)combat_move(ids[i],&out[i]);
+ return n;
 }
 
-int assets_known_moves(uint16_t species_id, uint8_t level,
-                       move_t *out, int max_out)
-{
-    if (!s_mv.ok || species_id < 1 || species_id > s_mv.species_count) return 0;
-
-    const uint8_t *s = s_mv.species + (size_t)(species_id - 1) * 4;
-    uint16_t loff = rd16(s);
-    uint8_t lcnt = s[2];
-
-    int n = 0;
-    for (uint8_t k = 0; k < lcnt && n < max_out; k++) {
-        uint32_t idx = (uint32_t)loff + k;
-        if (idx >= s_mv.learn_count) break;
-        const uint8_t *e = s_mv.learn + idx * 2;
-        if (e[0] > level) continue;            // 还没学会
-        uint8_t slot = e[1];
-        if (slot >= s_mv.move_count) continue;
-        fill_move(slot, &out[n++]);
-    }
-
-    // 一招都不会 → 退回「挣扎」。
-    // 实测有 4 只到 Lv50 仍一招不会（#11/#14 铁甲蛹、#63 凯西、#132 百变怪）
-    // —— 它们在原版只会变化招，而本项目只收伤害招。
-    // 原版对这种处境有现成规则，与 sim/systems.py 的 known_moves 一致。
-    if (n == 0 && max_out > 0) {
-        for (uint16_t i = 0; i < s_mv.move_count; i++) {
-            const uint8_t *m = s_mv.moves + (size_t)i * s_mv.rec_size;
-            if (rd16(m) == MOVE_ID_STRUGGLE) {
-                fill_move(i, &out[0]);
-                return 1;
-            }
-        }
-    }
-    return n;
-}
-
-uint16_t assets_move_count(void) { return s_mv.ok ? s_mv.move_count : 0; }
+uint16_t assets_move_count(void) { return COMBAT_MOVE_CAP; }
 
 // ---------------------------------------------------------------------------
 // sprite / 调色板 / 字库 —— 先只做长度校验与取指针，
@@ -296,6 +267,7 @@ static struct {
 
 static bool parse_front(void)
 {
+    s_front.ok = false;
     const uint8_t *d = front_bin_start;
     size_t len = (size_t)(front_bin_end - front_bin_start);
     if (len < 8 || memcmp(d, "FRNT", 4) != 0 || rd16(d + 4) != 1) {
@@ -319,7 +291,8 @@ static bool parse_front(void)
         uint32_t off = rd32(e + 8);
         size_t records_len = (size_t)count * (2u + per);
 
-        if (size == 0 || per != ((uint32_t)size * size + 3u) / 4u ||
+        if ((size != 40 && size != 48 && size != 56) ||
+            per != ((uint32_t)size * size + 3u) / 4u ||
             off > blob_len || records_len > blob_len - off) {
             ESP_LOGE(TAG, "front.bin segment %u invalid", i);
             return false;
@@ -340,17 +313,18 @@ static bool parse_front(void)
 const uint8_t *assets_front_sprite(uint16_t id, uint8_t *size)
 {
     if (size) *size = 0;
-    species_t sp;
-    if (!size || !s_front.ok || !assets_species(id, &sp)) return NULL;
+    if (!size || !s_front.ok || id < 1 || id > assets_species_count()) return NULL;
 
-    uint8_t tier = (sp.flags >> 2) & 3u;
-    if (tier >= s_front.count) return NULL;
-    const front_segment_t *seg = &s_front.segments[tier];
-    for (uint32_t i = 0; i < seg->count; i++) {
-        const uint8_t *record = seg->records + (size_t)i * (2u + seg->per);
-        if (rd16(record) == id) {
-            *size = (uint8_t)seg->size;
-            return record + 2;
+    // Presentation art can change generations while gameplay records remain
+    // byte-for-byte stable. The FRNT record ID, not the old flags hint, is authoritative.
+    for (uint16_t tier = 0; tier < s_front.count; tier++) {
+        const front_segment_t *seg = &s_front.segments[tier];
+        for (uint32_t i = 0; i < seg->count; i++) {
+            const uint8_t *record = seg->records + (size_t)i * (2u + seg->per);
+            if (rd16(record) == id) {
+                *size = (uint8_t)seg->size;
+                return record + 2;
+            }
         }
     }
     return NULL;
@@ -401,14 +375,47 @@ bool assets_ui(const char *name, ui_art_t *out)
     return false;
 }
 
+static struct {
+    const uint8_t *colors;
+    uint16_t pairs;
+    bool ok;
+} s_pal;
+
+static bool parse_palettes(void)
+{
+    s_pal.ok = false;
+    const uint8_t *d = pal_bin_start;
+    size_t len = (size_t)(pal_bin_end - pal_bin_start);
+    if (len < 12 || memcmp(d, "PALS", 4) != 0 || rd16(d + 4) != 1 || rd16(d + 8) != 4)
+        return false;
+    uint16_t pairs = rd16(d + 6), count = rd16(d + 10);
+    size_t index_offset = 12u + (size_t)pairs * 16u;
+    if (!pairs || pairs > 256 || count != assets_species_count() || index_offset + count != len)
+        return false;
+    for (uint16_t i = 0; i < count; i++) {
+        uint8_t index = d[index_offset + i];
+        if (index >= pairs || index != s_gen1.recs[(size_t)i * s_gen1.rec_size + 23]) return false;
+    }
+    s_pal.colors = d + 12;
+    s_pal.pairs = pairs;
+    s_pal.ok = true;
+    return true;
+}
+
+void assets_palette_variant(uint8_t set_idx, bool shiny, uint16_t out[4])
+{
+    if (!out) return;
+    out[0] = out[1] = out[2] = 0;
+    out[3] = 0xffff;
+    if (!s_pal.ok || set_idx >= s_pal.pairs) return;
+    size_t index = (size_t)set_idx + (shiny ? s_pal.pairs : 0u);
+    const uint8_t *p = s_pal.colors + index * 8u;
+    for (int i = 0; i < 4; i++) out[i] = rd16(p + i * 2);
+}
+
 void assets_palette(uint8_t set_idx, uint16_t out[4])
 {
-    // palettes.bin 存的就是 RGB565 小端，与帧缓冲同格式 —— 直接拷。
-    // 布局：12 字节头 + 每组 4 色 × 2 字节。
-    const uint8_t *p = pal_bin_start + 12 + (size_t)set_idx * 4 * 2;
-    for (int i = 0; i < 4; i++) {
-        out[i] = (uint16_t)(p[i * 2] | (p[i * 2 + 1] << 8));
-    }
+    assets_palette_variant(set_idx, false, out);
 }
 
 // ---------------------------------------------------------------------------
@@ -420,6 +427,7 @@ bool assets_init(void)
     ok &= parse_moves();
     ok &= parse_back();
     ok &= parse_front();
+    ok &= parse_palettes();
     ok &= parse_ui();
     if (!ok) ESP_LOGE(TAG, "资产解析失败 —— 游戏逻辑不可用");
     return ok;
@@ -440,7 +448,8 @@ void assets_selftest(void)
     // 名字是字符串键，拼错在编译期查不出来 —— 只有查一遍才知道。
     // 尺寸也一起验：506 字节的东西错一个字节就全歪了。
     static const struct { const char *n; uint8_t w, h; } UI_EXPECT[] = {
-        {"ball_24", 24, 24}, {"ball_open", 24, 24}, {"cursor", 5, 9},
+        // Crystal source canvas is 32x32; the closed ball's visible ink is 24x24.
+        {"ball_24", 32, 32}, {"ball_open", 32, 32}, {"cursor", 5, 9},
         {"heart", 7, 6}, {"star_5", 5, 5}, {"star_7", 7, 7},
     };
     int ui_ok = 0;
@@ -468,9 +477,9 @@ void assets_selftest(void)
 
     move_t mv[8];
     int n = assets_known_moves(25, 43, mv, 8);
-    ESP_LOGI(TAG, "皮卡丘 Lv43 会 %d 招 → 期望 4（电击/电光一闪/高速星星/打雷）", n);
+    ESP_LOGI(TAG, "皮卡丘 Lv43 等级技能（前8项）%d", n);
     for (int i = 0; i < n; i++) {
-        ESP_LOGI(TAG, "  %.*s  威力%u 命中%u PP%u %s",
+        ESP_LOGI(TAG, "  %.*s  威力%u 命中%u 数据PP%u %s",
                  mv[i].name_zh_len, mv[i].name_zh,
                  mv[i].power, mv[i].accuracy, mv[i].pp,
                  mv[i].special ? "特殊" : "物理");
@@ -478,6 +487,6 @@ void assets_selftest(void)
 
     // 无招物种的兜底 —— 凯西只会变化招，应当退回「挣扎」
     n = assets_known_moves(63, 20, mv, 8);
-    ESP_LOGI(TAG, "凯西 Lv20 → %d 招（期望 1，挣扎）%.*s", n,
+    ESP_LOGI(TAG, "凯西 Lv20 → %d 招 %.*s", n,
              n ? mv[0].name_zh_len : 0, n ? mv[0].name_zh : "");
 }

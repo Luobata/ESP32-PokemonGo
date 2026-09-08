@@ -276,7 +276,8 @@ def png_native_size(path: str) -> tuple[int, int]:
 def to_2bpp_native(path: str) -> tuple[bytearray, int]:
     """读 PNG，按**原生尺寸**直接转 2bpp，不缩放。
 
-    两条路径都零有损：
+    这是历史 RBY 路径。灰阶直接打包；彩色分支还会把内部白色
+    合并到浅色，并非零损失。当前水晶素材走 convert_pokemon_art.py。
 
     **彩色**（colortype=3，depth=2）：原始索引按亮度重排后直接打包。
     索引顺序必须重排 —— PNG 里的顺序是任意的，实测每只都不同

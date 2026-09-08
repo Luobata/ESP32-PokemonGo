@@ -1,0 +1,120 @@
+{
+  "build": "788d5f7752742418ba6c",
+  "frames": 16,
+  "pixels_compared": 1228800,
+  "mismatches": 0,
+  "results": [
+    {
+      "label": "victory",
+      "page": "P3",
+      "ms": 4320,
+      "rgba_sha256": "22c52830743d5b53a56dfa76db5ef4b5a76a2d88945d766d1890a81c2cb8c485",
+      "match": true
+    },
+    {
+      "label": "last-capture-poke",
+      "page": "P4",
+      "ms": 4320,
+      "rgba_sha256": "1f358089b7baa5bfc8cdc02b58d54d6ff6a9cef238f39d49136443b49229f61d",
+      "match": true
+    },
+    {
+      "label": "last-capture-great",
+      "page": "P4",
+      "ms": 4320,
+      "rgba_sha256": "cd1349b75f3375cbbaf6897b23fdc71c8fe48f2e631d8ff064b2fb102d204166",
+      "match": true
+    },
+    {
+      "label": "last-capture-ultra",
+      "page": "P4",
+      "ms": 4320,
+      "rgba_sha256": "35228aa1a61be3ab5febe8b9ff7fa58a1c0cd57e0a32237e8074046c54e51bf4",
+      "match": true
+    },
+    {
+      "label": "last-capture-success",
+      "page": "P4",
+      "ms": 4320,
+      "rgba_sha256": "35b3a123010f2b439e1175d7fa51d06c78ac765da1086f9699c2b889577a7cef",
+      "match": true
+    },
+    {
+      "label": "caught-encounter-list",
+      "page": "P2",
+      "ms": 4380,
+      "rgba_sha256": "2fcc4ee85a2a932d8dc1313eac4c7d13fc352d2b6df737fe298a70e038f8260e",
+      "match": true
+    },
+    {
+      "label": "porygon-victory",
+      "page": "P3",
+      "ms": 1920,
+      "rgba_sha256": "72bfd6cb28782c3ab4c739d6466806de23cd08f2e7a873eb219bdaa4101235b5",
+      "match": true
+    },
+    {
+      "label": "porygon-last-throw-miss",
+      "page": "P4",
+      "ms": 1920,
+      "rgba_sha256": "d10e9d719eb9bb827fac1f386297da1886c90dcb0be8fb332fe591b215bf078e",
+      "match": true
+    },
+    {
+      "label": "porygon-escaped-list",
+      "page": "P2",
+      "ms": 1980,
+      "rgba_sha256": "2fcc4ee85a2a932d8dc1313eac4c7d13fc352d2b6df737fe298a70e038f8260e",
+      "match": true
+    },
+    {
+      "label": "prebattle-capture-miss",
+      "page": "P4",
+      "ms": 0,
+      "rgba_sha256": "331070424cf68ee4d82ea1e53a06c81906b3a9143fbc2808084e67badd9bc60c",
+      "match": true
+    },
+    {
+      "label": "mandatory-retaliation",
+      "page": "P3",
+      "ms": 60,
+      "rgba_sha256": "1e89c94899c90e30a19fab54d16b96605fdda0847270e5f478ac0cfcbe2437a6",
+      "match": true
+    },
+    {
+      "label": "retaliation-cannot-cancel",
+      "page": "P3",
+      "ms": 60,
+      "rgba_sha256": "1e89c94899c90e30a19fab54d16b96605fdda0847270e5f478ac0cfcbe2437a6",
+      "match": true
+    },
+    {
+      "label": "starter-001",
+      "page": "P9",
+      "ms": 0,
+      "rgba_sha256": "9d4a22810694d1f4d659a4538473a8817be3699d4c7b824e99ca818e66b85354",
+      "match": true
+    },
+    {
+      "label": "starter-004",
+      "page": "P9",
+      "ms": 0,
+      "rgba_sha256": "77aa0aae592b7a6fb22e302cefb19a5a9a01173ddddff09ddff043329e61f1e6",
+      "match": true
+    },
+    {
+      "label": "starter-007",
+      "page": "P9",
+      "ms": 0,
+      "rgba_sha256": "17a95f058bbca1022975883f1010823c9453df09285b8eb3fce0cb553434068a",
+      "match": true
+    },
+    {
+      "label": "starter-025",
+      "page": "P9",
+      "ms": 0,
+      "rgba_sha256": "4177b87acd669b7b5fe7bc90857f9f09693e868ee8123d1072d333b969aa208d",
+      "match": true
+    }
+  ]
+}

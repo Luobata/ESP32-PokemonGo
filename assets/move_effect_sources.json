@@ -1,0 +1,64 @@
+{
+  "commit": "7a7881d0d62e0ddbd82dcf10e7116807487ac651",
+  "move_table": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/data/moves/moves.asm",
+  "effect_implementation": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/engine/battle/effect_commands.asm",
+  "effect_script": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/data/moves/effects.asm",
+  "type_class_rule": "Pre-Gen4 physical/special split by the existing 15-type table",
+  "special_types": [
+    "dragon",
+    "electric",
+    "fire",
+    "grass",
+    "ice",
+    "psychic",
+    "water"
+  ],
+  "fixed_moves": [
+    {
+      "id": 49,
+      "slug": "sonic-boom",
+      "symbol": "SONICBOOM",
+      "effect": "EFFECT_STATIC_DAMAGE",
+      "power_parameter": 20,
+      "cache_sha256": "6a5273151a1025674de4171c44aad7ea558ccdf5ecda5a68a22cbee619f6a5ab",
+      "cache_source": "https://pokeapi.co/api/v2/move/49/"
+    },
+    {
+      "id": 69,
+      "slug": "seismic-toss",
+      "symbol": "SEISMIC_TOSS",
+      "effect": "EFFECT_LEVEL_DAMAGE",
+      "power_parameter": 1,
+      "cache_sha256": "3d7f8b8b15d009e904cce90f775c302c1f5fda4e7ff078f03d6c63fe3971cb54",
+      "cache_source": "https://pokeapi.co/api/v2/move/69/"
+    },
+    {
+      "id": 82,
+      "slug": "dragon-rage",
+      "symbol": "DRAGON_RAGE",
+      "effect": "EFFECT_STATIC_DAMAGE",
+      "power_parameter": 40,
+      "cache_sha256": "614f1729c72371855cd9ef01df3fc43965606a2e0cec0b1c77343c36430d0c48",
+      "cache_source": "https://pokeapi.co/api/v2/move/82/"
+    },
+    {
+      "id": 101,
+      "slug": "night-shade",
+      "symbol": "NIGHT_SHADE",
+      "effect": "EFFECT_LEVEL_DAMAGE",
+      "power_parameter": 1,
+      "cache_sha256": "92edcf67a1b95cd41362f7ab13afc9a39404902becdc9b5d89135460e90e2e79",
+      "cache_source": "https://pokeapi.co/api/v2/move/101/"
+    },
+    {
+      "id": 162,
+      "slug": "super-fang",
+      "symbol": "SUPER_FANG",
+      "effect": "EFFECT_SUPER_FANG",
+      "power_parameter": 1,
+      "cache_sha256": "1fba87b433ebc18ba8a5bfc853f4ab132d254e3b28ebaff093cb3d8b9d71d96e",
+      "cache_source": "https://pokeapi.co/api/v2/move/162/"
+    }
+  ],
+  "scope": "Five Crystal fixed-damage mechanisms with the project's existing 15-type immunity table; not full GSC battle emulation"
+}

@@ -2,6 +2,9 @@
 CONFIG_IDF_TARGET="esp32c3"
 # 注:ESP32-C3 无 PSRAM,故不设 CONFIG_SPIRAM。
 
+# This firmware stays silent until the option is disabled and rebuilt.
+# CONFIG_POKEWALK_SILENT_BOOT is not set
+
 # --- Flash ---
 # FoloToy AI Passport 当前产品/固件基线使用 8MB Flash。
 CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y

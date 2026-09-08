@@ -1,0 +1,4 @@
+I (360) assets: gen1 151 只 · moves 165 招 · back 151 张
+I (571) world: 读档：图鉴 5/151 队列 3 行程 4% party 6 total 6
+I (640) main: Audio preference: muted=0
+I (890) idle: P1：#129 Lv6  提示行 184 px  横带 240x80×4 条

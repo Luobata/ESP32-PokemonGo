@@ -1,0 +1,72 @@
+{
+  "status": "PASS",
+  "build": "40fb517ab012dd3a66c1",
+  "frames": [
+    {
+      "command": "boot 11 25 12 74 3 1 0 0 1",
+      "page": "P11",
+      "sha256": "7ddf616c3786825f0920178f852f31177c4744558573fefcfb0da5ff98dc9906"
+    },
+    {
+      "command": "key 1 1",
+      "page": "P11",
+      "sha256": "9684636d069581a2c03ebe08268d2bda17c27ced45bf743080ffe6eeaaa3baa7"
+    },
+    {
+      "command": "key 0 1",
+      "page": "P12",
+      "sha256": "2c4d2bb2ed5f4bf1ef872449c8f3b85405e0d152cdbb63c00ce8caaa7f51cb3e"
+    },
+    {
+      "command": "key 1 3",
+      "page": "P12",
+      "sha256": "165a170b71ddc96f916c67de8f3f7f244f0cffb41c9d921709a1712d5e3ec634"
+    },
+    {
+      "command": "key 0 1",
+      "page": "P12",
+      "sha256": "741548e44fca70847229b916c188d876ae30ad89c1a38ad581d19ea1fff8fbf0"
+    },
+    {
+      "command": "key 2 1",
+      "page": "P12",
+      "sha256": "165a170b71ddc96f916c67de8f3f7f244f0cffb41c9d921709a1712d5e3ec634"
+    },
+    {
+      "command": "key 2 1",
+      "page": "P11",
+      "sha256": "9684636d069581a2c03ebe08268d2bda17c27ced45bf743080ffe6eeaaa3baa7"
+    },
+    {
+      "command": "boot 10 25 12 74 3 1 0 0 1",
+      "page": "P10",
+      "sha256": "762bb377295ad04554ec1a14cc46178b767d0187575981e78102dc87246b54e1"
+    },
+    {
+      "command": "key 1 3",
+      "page": "P10",
+      "sha256": "62ad8b7c82356d58f43dbe9b1e6a20ecf775a60d5db560ec987e1258ef4a1f8e"
+    },
+    {
+      "command": "key 1 1",
+      "page": "P10",
+      "sha256": "762bb377295ad04554ec1a14cc46178b767d0187575981e78102dc87246b54e1"
+    },
+    {
+      "command": "boot 12 25 12 74 3 1 0 0 1",
+      "page": "P12",
+      "sha256": "2c4d2bb2ed5f4bf1ef872449c8f3b85405e0d152cdbb63c00ce8caaa7f51cb3e"
+    },
+    {
+      "command": "key 1 1",
+      "page": "P12",
+      "sha256": "9b26b40ac201ece8f1bbc0920c3e22c0aca8fab5a602e84552a8997914409b21"
+    },
+    {
+      "command": "key 1 3",
+      "page": "P12",
+      "sha256": "2c4d2bb2ed5f4bf1ef872449c8f3b85405e0d152cdbb63c00ce8caaa7f51cb3e"
+    }
+  ],
+  "scope": "Real localhost HTTP API vs C renderer; browser input tested under JS harness, not live desktop."
+}

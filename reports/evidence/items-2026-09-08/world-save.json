@@ -1,0 +1,20 @@
+{
+  "cases": 102,
+  "items": 19,
+  "save_version": 11,
+  "legacy_bytes": 2296,
+  "save_bytes": 3664,
+  "erase_calls": 0,
+  "source_evolution_routes": 20,
+  "source": {
+    "commit": "7a7881d0d62e0ddbd82dcf10e7116807487ac651",
+    "sha256": {
+      "constants/pokemon_constants.asm": "a6203404f6113da199fd68a94e04409e6cfd8c5b69d16a60d100615b11964440",
+      "data/pokemon/evos_attacks_pointers.asm": "014ee54a0294c9ea9bd78009f18b91c7336329ba0ebd8e854ee96d50bc5a3241",
+      "data/pokemon/evos_attacks.asm": "ace4251417a9260c5b898e3fadcdb785cd994f0ac6966767cd8f09f1fecfbfe6"
+    }
+  },
+  "sanitized": true,
+  "scope": "Actual C assets/items/world/save, source bins, pthread ordering; fake NVS/clock/device boundary",
+  "negative_checks": []
+}

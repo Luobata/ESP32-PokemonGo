@@ -1,0 +1,368 @@
+{
+  "renderer_build": "1b4ad5276979ab5dc716",
+  "fps": 30,
+  "duration": 133,
+  "resolution": [
+    720,
+    1280
+  ],
+  "fresh_save_opening": true,
+  "later_chapters_staged": true,
+  "audio": "production game mixer sampled synchronously at 22050Hz",
+  "scenes": [
+    {
+      "name": "opening",
+      "start": 0.0,
+      "duration": 22,
+      "pages": [
+        0,
+        9
+      ],
+      "music_ids": [
+        1,
+        2
+      ],
+      "audio_samples": 485100,
+      "ending_page": 9,
+      "caught": 0,
+      "evolutions": 0,
+      "checks": 22
+    },
+    {
+      "name": "starter",
+      "start": 22.0,
+      "duration": 7,
+      "pages": [
+        1,
+        9
+      ],
+      "music_ids": [
+        2,
+        3
+      ],
+      "audio_samples": 154350,
+      "ending_page": 1,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 7
+    },
+    {
+      "name": "idle",
+      "start": 29.0,
+      "duration": 3,
+      "pages": [
+        1
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 66150,
+      "ending_page": 1,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 3
+    },
+    {
+      "name": "menu",
+      "start": 32.0,
+      "duration": 4,
+      "pages": [
+        11
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 88200,
+      "ending_page": 11,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 4
+    },
+    {
+      "name": "explore",
+      "start": 36.0,
+      "duration": 7,
+      "pages": [
+        15
+      ],
+      "music_ids": [
+        5
+      ],
+      "audio_samples": 154350,
+      "ending_page": 15,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 7
+    },
+    {
+      "name": "battle",
+      "start": 43.0,
+      "duration": 10,
+      "pages": [
+        3
+      ],
+      "music_ids": [
+        7
+      ],
+      "audio_samples": 220500,
+      "ending_page": 3,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 10
+    },
+    {
+      "name": "capture",
+      "start": 53.0,
+      "duration": 6,
+      "pages": [
+        4
+      ],
+      "music_ids": [
+        0,
+        7,
+        16
+      ],
+      "audio_samples": 132300,
+      "ending_page": 4,
+      "caught": 2,
+      "evolutions": 0,
+      "checks": 6
+    },
+    {
+      "name": "capture-fail",
+      "start": 59.0,
+      "duration": 6,
+      "pages": [
+        4
+      ],
+      "music_ids": [
+        0,
+        7
+      ],
+      "audio_samples": 132300,
+      "ending_page": 3,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 6
+    },
+    {
+      "name": "party",
+      "start": 65.0,
+      "duration": 5,
+      "pages": [
+        12
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 110250,
+      "ending_page": 12,
+      "caught": 7,
+      "evolutions": 0,
+      "checks": 5
+    },
+    {
+      "name": "skills",
+      "start": 70.0,
+      "duration": 5,
+      "pages": [
+        12
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 110250,
+      "ending_page": 12,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 5
+    },
+    {
+      "name": "care",
+      "start": 75.0,
+      "duration": 5,
+      "pages": [
+        5
+      ],
+      "music_ids": [
+        4
+      ],
+      "audio_samples": 110250,
+      "ending_page": 5,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 5
+    },
+    {
+      "name": "evolve",
+      "start": 80.0,
+      "duration": 5,
+      "pages": [
+        1,
+        5
+      ],
+      "music_ids": [
+        3,
+        4,
+        14
+      ],
+      "audio_samples": 110250,
+      "ending_page": 1,
+      "caught": 2,
+      "evolutions": 1,
+      "checks": 5
+    },
+    {
+      "name": "dex",
+      "start": 85.0,
+      "duration": 4,
+      "pages": [
+        6
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 88200,
+      "ending_page": 6,
+      "caught": 6,
+      "evolutions": 0,
+      "checks": 4
+    },
+    {
+      "name": "bag",
+      "start": 89.0,
+      "duration": 4,
+      "pages": [
+        10
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 88200,
+      "ending_page": 10,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 4
+    },
+    {
+      "name": "achievements",
+      "start": 93.0,
+      "duration": 4,
+      "pages": [
+        14
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 88200,
+      "ending_page": 14,
+      "caught": 6,
+      "evolutions": 0,
+      "checks": 4
+    },
+    {
+      "name": "gym",
+      "start": 97.0,
+      "duration": 10,
+      "pages": [
+        13
+      ],
+      "music_ids": [
+        6,
+        9,
+        15
+      ],
+      "audio_samples": 220500,
+      "ending_page": 13,
+      "caught": 6,
+      "evolutions": 0,
+      "checks": 10
+    },
+    {
+      "name": "league",
+      "start": 107.0,
+      "duration": 7,
+      "pages": [
+        13
+      ],
+      "music_ids": [
+        6,
+        8,
+        15
+      ],
+      "audio_samples": 154350,
+      "ending_page": 13,
+      "caught": 6,
+      "evolutions": 0,
+      "checks": 7
+    },
+    {
+      "name": "journal",
+      "start": 114.0,
+      "duration": 5,
+      "pages": [
+        15
+      ],
+      "music_ids": [
+        5
+      ],
+      "audio_samples": 110250,
+      "ending_page": 15,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 5
+    },
+    {
+      "name": "red",
+      "start": 119.0,
+      "duration": 7,
+      "pages": [
+        13
+      ],
+      "music_ids": [
+        6,
+        10,
+        15
+      ],
+      "audio_samples": 154350,
+      "ending_page": 13,
+      "caught": 6,
+      "evolutions": 0,
+      "checks": 7
+    },
+    {
+      "name": "settings",
+      "start": 126.0,
+      "duration": 4,
+      "pages": [
+        11
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 88200,
+      "ending_page": 11,
+      "caught": 6,
+      "evolutions": 0,
+      "checks": 4
+    },
+    {
+      "name": "outro",
+      "start": 130.0,
+      "duration": 3,
+      "pages": [
+        1
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 66150,
+      "ending_page": 1,
+      "caught": 6,
+      "evolutions": 0,
+      "checks": 3
+    }
+  ],
+  "audio_sha256": "38cc6910f20e86a40621356bdc1a27fc8e2b4ddb775023dae0dd10766fe7b193",
+  "frames": 3990
+}

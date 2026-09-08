@@ -1,0 +1,64 @@
+{
+  "status": "PASS",
+  "native_build": "29c1ccd895c652491c7a",
+  "checks": [
+    {
+      "starter": 1,
+      "page_guard_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "failed_save_keeps_empty": true,
+      "retry_grants_once": true,
+      "repeat_grants_zero": true
+    },
+    {
+      "starter": 4,
+      "page_guard_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "failed_save_keeps_empty": true,
+      "retry_grants_once": true,
+      "repeat_grants_zero": true
+    },
+    {
+      "starter": 7,
+      "page_guard_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "failed_save_keeps_empty": true,
+      "retry_grants_once": true,
+      "repeat_grants_zero": true
+    },
+    {
+      "starter": 25,
+      "page_guard_pages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "failed_save_keeps_empty": true,
+      "retry_grants_once": true,
+      "repeat_grants_zero": true
+    }
+  ],
+  "existing_fixture_stays_150": true,
+  "scope": "Actual P0/P9/nav code with host world+NVS fixtures; this does not validate real NVS storage behavior."
+}

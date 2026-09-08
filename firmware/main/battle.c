@@ -93,77 +93,21 @@ uint16_t battle_effective_stat(uint8_t base, uint8_t level)
 
 uint8_t battle_wild_level(uint8_t rarity)
 {
-    // 绝对等级带 —— **不跟主宠涨**。跟着涨的话主宠 Lv40 打 ★★ 照样输，
-    // 练级毫无意义（S3 文档把这条列为实测暴露的平衡缺陷之一）。
-    static const uint8_t BAND[6] = {12, 5, 12, 20, 30, 45};  // [0] 是兜底
-    uint8_t band = (rarity <= 5) ? BAND[rarity] : 12;
-    return band < 2 ? 2 : band;
+    static const uint8_t BAND[6] = {12, 5, 12, 20, 30, 45};
+    return rarity <= 5 ? BAND[rarity] : 12;
 }
 
-// ---------------------------------------------------------------------------
-// 随机源
-// ---------------------------------------------------------------------------
-
-// xorshift32 —— 8 行，状态一个 u32。
-// 不用 rand()：newlib 的 rand 每次调用会取锁（可重入），在战斗循环里
-// 调几百次不值当；而且它的序列不受我们控制，回放就无从谈起。
-static uint32_t s_rng;
-
-static uint32_t rng_next(void)
+uint8_t battle_wild_level_for_pet(uint8_t rarity, uint8_t pet_level)
 {
-    uint32_t x = s_rng;
-    x ^= x << 13;
-    x ^= x >> 17;
-    x ^= x << 5;
-    s_rng = x;
-    return x;
+    // Low tiers remain easier as the player grows. Existing early-game level
+    // floors are retained; high tiers provide useful late-game EXP and moves.
+    static const uint8_t PERCENT[6] = {85, 75, 85, 95, 100, 105};
+    uint8_t tier = rarity <= 5 ? rarity : 0;
+    unsigned level = (pet_level > 100 ? 100 : pet_level) * PERCENT[tier] / 100;
+    unsigned floor = battle_wild_level(rarity);
+    if (level < floor) level = floor;
+    return level > 100 ? 100 : level;
 }
-
-static uint32_t rng_below(uint32_t n)
-{
-    return n ? rng_next() % n : 0;
-}
-
-// ---------------------------------------------------------------------------
-// 选招
-// ---------------------------------------------------------------------------
-
-// 权重 = 威力 × 相克 × 本属性加成。倍率 0 的招权重 0 ——
-// AI 不会选一个必定打不中的招，除非它没有别的选择。
-static uint32_t move_weight(const move_t *m, uint8_t atk_t1, uint8_t atk_t2,
-                            uint8_t def1, uint8_t def2)
-{
-    uint16_t mult = battle_effectiveness(m->type, def1, def2);
-    uint32_t w = (uint32_t)m->power * mult / 100;
-    if (m->type == atk_t1 || m->type == atk_t2) w = w * STAB / 100;
-    return w;
-}
-
-static const move_t *pick_move(const move_t *moves, int n,
-                               uint8_t atk_t1, uint8_t atk_t2,
-                               uint8_t def1, uint8_t def2)
-{
-    if (n <= 0) return NULL;
-    uint32_t ws[8], total = 0;
-    if (n > 8) n = 8;
-    for (int i = 0; i < n; i++) {
-        ws[i] = move_weight(&moves[i], atk_t1, atk_t2, def1, def2);
-        total += ws[i];
-    }
-    // 全 0（比如只会一般系招的打幽灵）→ 等概率。总得出一招，哪怕打不中。
-    if (total == 0) return &moves[rng_below((uint32_t)n)];
-
-    uint32_t r = rng_below(total);
-    for (int i = 0; i < n; i++) {
-        if (r < ws[i]) return &moves[i];
-        r -= ws[i];
-    }
-    return &moves[n - 1];
-}
-
-// ---------------------------------------------------------------------------
-// 一次攻击
-// ---------------------------------------------------------------------------
 
 typedef struct {
     uint16_t hp, atk, def, spc, spd;
@@ -178,130 +122,111 @@ static void load_stats(const species_t *sp, uint8_t lv, stats_t *out)
     out->spd = battle_effective_stat(sp->speed, lv);
 }
 
-// 返回伤害；倍率、招名、是否未命中由出参带出。
-static uint16_t do_hit(const species_t *atk_sp, const stats_t *a, uint8_t a_lv,
-                       const species_t *def_sp, const stats_t *d,
-                       const move_t *moves, int n_moves,
-                       uint16_t factor_q10,
-                       uint16_t *out_mult, const move_t **out_mv,
-                       bool *out_miss)
+bool battle_session_init(battle_session_t *s,
+                          uint16_t pet_species, uint8_t pet_level,
+                          uint16_t wild_species, uint8_t wild_level,
+                          uint16_t ability_factor_q10, uint32_t seed)
 {
-    *out_mult = 100;
-    *out_mv = NULL;
-    *out_miss = false;
-
-    const move_t *mv = pick_move(moves, n_moves, atk_sp->type1, atk_sp->type2,
-                                 def_sp->type1, def_sp->type2);
-    if (!mv) return 0;
-    *out_mv = mv;
-
-    if (mv->accuracy != ACC_ALWAYS_HIT && rng_below(100) >= mv->accuracy) {
-        *out_miss = true;
-        return 0;
-    }
-
-    uint16_t mult = battle_effectiveness(mv->type, def_sp->type1, def_sp->type2);
-    *out_mult = mult;
-    if (mult == 0) return 0;
-
-    // 初代分物理/特殊：物理用 attack/defense，特殊用 special 双向。
-    // 这是招式带来的新层次 —— 同样种族值，特攻高的用特殊招更疼。
-    uint32_t A = mv->special ? a->spc : a->atk;
-    uint32_t D = mv->special ? d->spc : d->def;
-    if (D == 0) D = 1;
-
-    // ability_factor 缩放有效 attack/special（消沉约 0.6，Q10 614）。
-    // 与 sim 的施加位置一致：能力最低为 1，公式的 +2 不属于能力，不打折。
-    // 614/1024 略小于 0.6，边界处仍可能与浮点参考相差一次取整。
-    A = A * factor_q10 / 1024;
-    if (A == 0) A = 1;
-
-    // 分母 25（不是原版 50）—— 理由见文件头
-    uint32_t base = (2u * a_lv / 5 + 2) * A * mv->power / D / 25 + 2;
-
-    uint32_t stab = (mv->type == atk_sp->type1 || mv->type == atk_sp->type2)
-                    ? STAB : 100;
-    uint32_t dmg = base * mult / 100 * stab / 100;
-    return (uint16_t)(dmg < 1 ? 1 : dmg);
+    if (!s) return false;
+    memset(s, 0, sizeof(*s));
+    species_t pet_sp, wild_sp;
+    if (!assets_species(pet_species, &pet_sp) ||
+        !assets_species(wild_species, &wild_sp)) return false;
+    stats_t ps, ws;
+    load_stats(&pet_sp, pet_level, &ps);
+    load_stats(&wild_sp, wild_level, &ws);
+    s->pet_species = pet_species;
+    s->wild_species = wild_species;
+    s->pet_level = pet_level;
+    s->wild_level = wild_level;
+    s->pet_hp = s->pet_hp_max = ps.hp * 2 + pet_level;
+    s->wild_hp = s->wild_hp_max = ws.hp * 2 + wild_level;
+    s->ability_factor_q10 = ability_factor_q10;
+    s->rng = seed ? seed : 1;
+    s->next_by_pet = ps.spd >= ws.spd;
+    combat_init(&s->fighters[0],pet_species,pet_level,s->pet_hp_max);
+    combat_init(&s->fighters[1],wild_species,wild_level,s->wild_hp_max);
+    s->initialized = true;
+    return true;
 }
 
-// ---------------------------------------------------------------------------
+uint8_t battle_session_hp_ratio(const battle_session_t *s)
+{
+    if (!s || !s->initialized || !s->wild_hp_max) return 100;
+    uint32_t ratio = (uint32_t)s->wild_hp * 100 / s->wild_hp_max;
+    return (uint8_t)(ratio < 1 ? 1 : ratio > 100 ? 100 : ratio);
+}
+
+uint16_t battle_session_exp(const battle_session_t *s)
+{
+    return s && s->initialized && s->finished
+        ? (uint16_t)((s->wild_level * 8 + 20) * (s->won ? 100 : 30) / 100) : 0;
+}
+
+bool battle_session_can_capture(const battle_session_t *s)
+{
+    if (!s || !s->initialized || s->retaliation_pending) return false;
+    return s->finished ? s->won && !s->capture_used_after_win
+                       : !s->auto_battle && s->pet_hp > 0;
+}
+
+bool battle_session_step(battle_session_t *s, battle_round_t *out)
+{
+    if (!s || !out || !s->initialized || s->finished) return false;
+    memset(out, 0, sizeof(*out));
+    species_t pet_sp, wild_sp;
+    if (!assets_species(s->pet_species, &pet_sp) ||
+        !assets_species(s->wild_species, &wild_sp)) return false;
+    if (!s->pet_hp || !s->wild_hp || s->attack_count >= BATTLE_MAX_ROUNDS) return false;
+    stats_t ps, ws;
+    load_stats(&pet_sp, s->pet_level, &ps);
+    load_stats(&wild_sp, s->wild_level, &ws);
+    s->fighters[0].hp=s->pet_hp;s->fighters[1].hp=s->wild_hp;
+    if((s->acted==0||s->acted==3)&&!s->retaliation_pending){
+        s->planned[0]=combat_choose(&s->fighters[0],&s->fighters[1],&s->rng);
+        s->planned[1]=combat_choose(&s->fighters[1],&s->fighters[0],&s->rng);
+        int priority=combat_priority(s->planned[0])-combat_priority(s->planned[1]);
+        s->next_by_pet=priority?priority>0:combat_speed(&s->fighters[0])>=combat_speed(&s->fighters[1]);s->acted=0;
+    }
+    bool retaliation=s->retaliation_pending;
+    bool by_pet = !s->retaliation_pending && s->next_by_pet;
+    combat_mon_t *a=&s->fighters[by_pet?0:1],*d=&s->fighters[by_pet?1:0];
+    // HP mirrors remain the capture/escape API; all effects use the same core.
+    s->fighters[0].hp=s->pet_hp;s->fighters[1].hp=s->wild_hp;
+    out->by_pet=by_pet;
+    combat_turn(a,d,by_pet?s->ability_factor_q10:1024,&s->rng,25,retaliation?0:s->planned[by_pet?0:1],out);
+    s->pet_hp=s->fighters[0].hp;s->wild_hp=s->fighters[1].hp;
+    s->acted|=by_pet?1:2;
+    if(s->acted&(by_pet?2:1))d->flinch=0;
+    if(retaliation)s->acted=0;
+    s->next_by_pet = !by_pet;
+    s->retaliation_pending = false;
+    s->started = true;
+    s->attack_count++;
+    s->finished = !s->pet_hp || !s->wild_hp || s->attack_count >= BATTLE_MAX_ROUNDS;
+    s->won = s->finished && !s->wild_hp && s->pet_hp > 0;
+    out->pet_hp = s->pet_hp;
+    out->wild_hp = s->wild_hp;
+    return true;
+}
 
 void battle_run(uint16_t pet_species, uint8_t pet_level,
                 uint16_t wild_species, uint8_t wild_level,
                 uint16_t ability_factor_q10, uint32_t seed,
                 battle_result_t *out)
 {
+    if (!out) return;
     memset(out, 0, sizeof(*out));
-    s_rng = seed ? seed : 1;      // xorshift32 的 0 是不动点，必须避开
-
-    species_t pet_sp, wild_sp;
-    if (!assets_species(pet_species, &pet_sp) ||
-        !assets_species(wild_species, &wild_sp)) {
-        return;
+    battle_session_t session;
+    if (!battle_session_init(&session, pet_species, pet_level,
+                             wild_species, wild_level, ability_factor_q10, seed)) return;
+    out->pet_hp_max = session.pet_hp_max;
+    out->wild_hp_max = session.wild_hp_max;
+    while (out->round_count < BATTLE_MAX_ROUNDS &&
+           battle_session_step(&session, &out->rounds[out->round_count])) {
+        out->round_count++;
     }
-
-    stats_t ps, ws;
-    load_stats(&pet_sp, pet_level, &ps);
-    load_stats(&wild_sp, wild_level, &ws);
-
-    uint16_t p_hp_max = ps.hp * 2 + pet_level;
-    uint16_t w_hp_max = ws.hp * 2 + wild_level;
-    uint16_t p_hp = p_hp_max, w_hp = w_hp_max;
-    out->pet_hp_max = p_hp_max;
-    out->wild_hp_max = w_hp_max;
-
-    // 各自会哪些招 —— **现算不存**（与 sim 的 known_moves 同取向，
-    // 所以队伍里的 Mon 不用存招式列表，省 8 字节/只）
-    move_t p_moves[8], w_moves[8];
-    int p_n = assets_known_moves(pet_species, pet_level, p_moves, 8);
-    int w_n = assets_known_moves(wild_species, wild_level, w_moves, 8);
-
-    bool pet_first = ps.spd >= ws.spd;
-
-    for (int r = 0; r < BATTLE_MAX_ROUNDS && out->round_count < BATTLE_MAX_ROUNDS; r++) {
-        for (int k = 0; k < 2; k++) {
-            bool by_pet = pet_first ? (k == 0) : (k == 1);
-            if (p_hp == 0 || w_hp == 0) break;
-            if (out->round_count >= BATTLE_MAX_ROUNDS) break;
-
-            uint16_t mult;
-            const move_t *mv;
-            bool miss;
-            uint16_t dmg;
-
-            if (by_pet) {
-                dmg = do_hit(&pet_sp, &ps, pet_level, &wild_sp, &ws,
-                             p_moves, p_n, ability_factor_q10,
-                             &mult, &mv, &miss);
-                w_hp = (dmg >= w_hp) ? 0 : (uint16_t)(w_hp - dmg);
-            } else {
-                // 野怪没有消沉，factor 恒为 1.0
-                dmg = do_hit(&wild_sp, &ws, wild_level, &pet_sp, &ps,
-                             w_moves, w_n, 1024, &mult, &mv, &miss);
-                p_hp = (dmg >= p_hp) ? 0 : (uint16_t)(p_hp - dmg);
-            }
-
-            battle_round_t *br = &out->rounds[out->round_count++];
-            br->by_pet = by_pet;
-            br->damage = dmg;
-            br->mult = mult;
-            br->pet_hp = p_hp;
-            br->wild_hp = w_hp;
-            br->move_zh = mv ? mv->name_zh : NULL;
-            br->move_zh_len = mv ? mv->name_zh_len : 0;
-            br->missed = miss;
-        }
-        if (p_hp == 0 || w_hp == 0) break;
-    }
-
-    out->won = (w_hp == 0 && p_hp > 0);
-
-    // 野怪 HP 比例传给 S2 —— **不允许降到 0**，
-    // 否则「打死了还能抓」不合逻辑。胜利时留 1% 表示濒死，
-    // 那也正是捕获窗口最宽的状态。
-    uint32_t ratio = w_hp_max ? (uint32_t)w_hp * 100 / w_hp_max : 100;
-    out->wild_hp_ratio = (uint8_t)(ratio < 1 ? 1 : ratio);
-
-    out->exp = (uint16_t)(wild_level * 8 + (out->won ? 20 : 0));
+    out->won = session.won;
+    out->wild_hp_ratio = battle_session_hp_ratio(&session);
+    out->exp = battle_session_exp(&session);
 }

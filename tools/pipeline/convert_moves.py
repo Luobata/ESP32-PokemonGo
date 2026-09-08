@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""初代伤害招 + 红蓝升级学习表 → 固件用的紧凑二进制。
+"""初代伤害招与五种固定伤害效果 + 红蓝学习表 → 固件紧凑二进制。
 
 用法：
     python3 tools/pipeline/fetch_gen1.py --out /tmp/gen1c
@@ -36,10 +36,10 @@
     2     2     zh_offset      中文名在字符串池的偏移
     4     1     zh_len         中文名 UTF-8 字节数
     5     1     type           属性编号，与 sim/gameplay.py TYPES 下标一致
-    6     1     power          威力 1~255（初代最大 200 self-destruct→130）
+    6     1     power          普通威力，或固定伤害效果的原版参数（20/40/1）
     7     1     accuracy       命中 0~100；**255 = 必中**（swift 电光）
     8     1     pp             1~40
-    9     1     damage_class   0=物理 1=特殊
+    9     1     damage_class   按初代属性分类：0=物理 1=特殊
     10    2     reserved       预留：附加效果 id、优先度
 
     ---- 段② 物种索引：species_count × 4 B，按 (species_id-1) 直接索引 ----
@@ -90,6 +90,7 @@ from __future__ import annotations
 import argparse
 import collections
 import json
+import hashlib
 import os
 import struct
 import sys
@@ -117,6 +118,53 @@ GEN1_TYPES_CN = [
 ]
 
 DAMAGE_CLASS_ID = {"physical": 0, "special": 1}
+SPECIAL_TYPES = {"fire", "water", "grass", "electric", "ice", "psychic", "dragon"}
+
+# PokeAPI represents these five damaging moves with power=null, so the legacy
+# fetch's power>0 filter omitted them. Their Crystal move-table power is an
+# effect parameter (1 for level/half-HP), never ordinary formula damage.
+EFFECT_SOURCE_COMMIT = "7a7881d0d62e0ddbd82dcf10e7116807487ac651"
+FIXED_MOVES = {
+    49: ("sonic-boom", "SONICBOOM", "EFFECT_STATIC_DAMAGE", 20),
+    69: ("seismic-toss", "SEISMIC_TOSS", "EFFECT_LEVEL_DAMAGE", 1),
+    82: ("dragon-rage", "DRAGON_RAGE", "EFFECT_STATIC_DAMAGE", 40),
+    101: ("night-shade", "NIGHT_SHADE", "EFFECT_LEVEL_DAMAGE", 1),
+    162: ("super-fang", "SUPER_FANG", "EFFECT_SUPER_FANG", 1),
+}
+
+
+def load_source_moves(src: str) -> tuple[list[dict], dict]:
+    """Use the fetched source plus raw cached names/accuracy for fixed effects."""
+    from fetch_gen1 import gen1_move_values, move_zh_name
+    with open(os.path.join(src, "moves.json"), encoding="utf-8") as stream:
+        moves = json.load(stream)
+    by_id = {m["id"]: dict(m) for m in moves}
+    records = []
+    for mid, (slug, symbol, effect, power) in FIXED_MOVES.items():
+        path = os.path.join(src, "cache", f"move_{mid}.json")
+        with open(path, "rb") as stream:
+            raw_bytes = stream.read()
+        raw = json.loads(raw_bytes)
+        assert raw["id"] == mid and raw["name"] == slug, f"wrong cached move: {path}"
+        values, _ = gen1_move_values(raw)
+        zh, zh_source = move_zh_name(raw)
+        assert zh, f"missing original localized name: {slug}"
+        by_id[mid] = dict(id=mid, slug=slug, zh=zh, zh_source=zh_source,
+                         power=power, accuracy=values["accuracy"], pp=values["pp"],
+                         type=values["type"], damage_class="special" if values["type"] in SPECIAL_TYPES else "physical")
+        records.append(dict(id=mid, slug=slug, symbol=symbol, effect=effect,
+                            power_parameter=power, cache_sha256=hashlib.sha256(raw_bytes).hexdigest(),
+                            cache_source=f"https://pokeapi.co/api/v2/move/{mid}/"))
+    source_base = f"https://github.com/pret/pokecrystal/blob/{EFFECT_SOURCE_COMMIT}"
+    return sorted(by_id.values(), key=lambda m: m["id"]), dict(
+        commit=EFFECT_SOURCE_COMMIT,
+        move_table=source_base + "/data/moves/moves.asm",
+        effect_implementation=source_base + "/engine/battle/effect_commands.asm",
+        effect_script=source_base + "/data/moves/effects.asm",
+        type_class_rule="Pre-Gen4 physical/special split by the existing 15-type table",
+        special_types=sorted(SPECIAL_TYPES),
+        fixed_moves=records,
+        scope="Five Crystal fixed-damage mechanisms with the project's existing 15-type immunity table; not full GSC battle emulation")
 
 # 初代必中招（swift 电光）在 PokeAPI 里 accuracy=null。
 # 存 0 会被固件读成「永远打不中」，所以用 255 显式表示必中。
@@ -220,7 +268,7 @@ def build_moves(moves: list[dict]) -> tuple[bytes, bytes, dict[str, int], dict]:
             min(power, 255),
             min(acc, 255),
             min(pp, 255),
-            DAMAGE_CLASS_ID.get(m.get("damage_class", ""), 0xFF),
+            int(t in SPECIAL_TYPES),
             b"\x00" * 2,
         )
 
@@ -256,11 +304,11 @@ def build_learnsets(mons: list[dict],
         for lv, slug in (mon or {}).get("learnset", []):
             slot = slot_of.get(slug)
             if slot is None:
-                # 变化招 —— fetch 保真存了全部，这里才丢。
+                # 未支持招式（变化招及其余特殊伤害效果）。
                 dropped_status[slug] += 1
                 continue
             if lv > 255 or slot > 255:
-                # move_slot 是 1 字节。初代伤害招约 80 个，远小于 255，
+                # move_slot 是 1 字节，本表 104 招，远小于 255，
                 # 但如果将来扩到二代就会溢出 —— 显式报出来而不是静默截断。
                 over_255.append(f"#{sid} {slug} lv={lv} slot={slot}")
                 continue
@@ -368,6 +416,8 @@ def crosscheck(blob: bytes, moves: list[dict], mons: list[dict],
             out.append(f"段① {s['slug']} 命中 {ac} != {want_acc}")
         if pp != min(s["pp"], 255):
             out.append(f"段① {s['slug']} PP {pp} != {s['pp']}")
+        if dc != int(s["type"] in SPECIAL_TYPES):
+            out.append(f"段① {s['slug']} 物理/特殊没有按初代属性分类")
 
     # 段②③ 抽查指定物种，与源 json 的 learnset 对
     damage_slugs = {m["slug"] for m in moves}
@@ -427,8 +477,7 @@ def main() -> int:
             print(f"错误：找不到 {path}。先跑 fetch_gen1.py", file=sys.stderr)
             return 1
 
-    with open(moves_json, encoding="utf-8") as f:
-        moves = json.load(f)
+    moves, sources = load_source_moves(args.src)
     with open(gen1_json, encoding="utf-8") as f:
         mons = json.load(f)
 
@@ -440,6 +489,9 @@ def main() -> int:
     out_path = os.path.join(args.out, "moves.bin")
     with open(out_path, "wb") as f:
         f.write(blob)
+    with open(os.path.join(args.out, "move_effect_sources.json"), "w", encoding="utf-8") as f:
+        json.dump(sources, f, ensure_ascii=False, indent=2)
+        f.write("\n")
 
     print(f"\n{out_path}")
     print(f"  文件头      {st['header_bytes']:>7} B")

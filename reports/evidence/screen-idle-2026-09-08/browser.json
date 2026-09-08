@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "build": "06a48183e33c9fdbf2d8",
+  "url": "http://127.0.0.1:8766/firmware.html",
+  "method": "CUA actual browser button clicks; screenshot inspection",
+  "checks": [
+    "P11 options three rows and centered screen-off hints",
+    "A on 立即熄屏 returns all-black screen and 已熄屏 hint",
+    "next A restores same selected option without turning off again"
+  ],
+  "later_change": "Atomic cleanup for dropped physical RELEASE/END; page and browser input code unchanged."
+}

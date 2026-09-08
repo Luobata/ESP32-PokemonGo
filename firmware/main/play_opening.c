@@ -7,12 +7,14 @@
 #include "lvgl.h"
 
 #include "assets.h"
+#include "game_ui.h"
 #include "nav.h"
 #include "opening.h"
 #include "play.h"
 #include "render.h"
 #include "save.h"
 #include "screen.h"
+#include "world.h"
 
 static const char *TAG = "p0";
 
@@ -20,24 +22,25 @@ static const char *TAG = "p0";
 #define SCR_W SCREEN_W
 #define SCR_H SCREEN_H
 
-// oak 是独立 UI 素材，不经过物种调色板。
+// Crystal intro Oak: gfx/trainers/oak.png -> oak.gbcpal, pinned in fetch_oak.py.
+// Original RGB5 in engine shade order: black, (13,16,0), (24,19,11), white.
+// UI index 3 preserves source white on GAME_UI_BG; no interior recoloring.
 static const uint16_t OAK_PALETTE[4] = {
-    0x2104, 0x6b4d, 0xef5d, 0xf79e,
+    0x0000, 0x6c20, 0xc4eb, 0xffff,
 };
 
-// 与 sim/opening.py 一致：240 宽、16px 汉字、左右各留 4px、最多 4 行。
+// Four lines inside the original GSC frame, using the same 16px font.
 #define GLYPH        16
-#define MARGIN       4
+#define MARGIN       12
 #define USABLE_W     (SCR_W - MARGIN * 2)
-#define TEXT_BOX_Y   164
+#define TEXT_BOX_Y   160
 #define OAK_ZOOM_FRAMES 8
 #define TEXT_SLIDE_FRAMES OPENING_BOX_APPEAR_FRAMES
 #define OAK_BREATH_BOX 3
 #define OAK_BREATH_FRAMES 20
 
-// 第 4 行从 240 开始，让 16px 字形完整落在第 4 条横带；若按统一
-// 22px 行距放在 234，会跨 239/240 边界，两个半字可能在刷新时撕裂。
-static const uint16_t TEXT_LINE_Y[OPENING_LINES_PER_BOX] = {168, 190, 212, 240};
+// Static lines fit within a single band; slide frames redraw both text bands.
+static const uint16_t TEXT_LINE_Y[OPENING_LINES_PER_BOX] = {176, 200, 224, 248};
 
 static opening_t s_opening;
 static lv_timer_t *s_tick;
@@ -46,11 +49,6 @@ static bool s_oak_ok;
 static uint8_t s_oak_zoom_frame;
 static uint8_t s_text_slide_frame;
 static uint8_t s_oak_breath_frame;
-
-static void hline_at(int y)
-{
-    for (int x = 0; x < SCR_W; x++) screen_px(x, y, C_FOCUS);
-}
 
 // 从 UTF-8 字符串复制前 n 个码点。台词最长 11 个汉字，64B 足够。
 static void utf8_prefix(char *out, size_t cap, const char *s, uint16_t n)
@@ -137,26 +135,25 @@ static void log_fx(void)
 
 static void draw_band(int band_y)
 {
-    screen_band_clear(C_BG);
+    screen_band_clear(GAME_UI_BG);
     #define Y(v) ((v) - band_y)
 
     char buf[64];
 
-    render_text(8, Y(4), "大木博士", C_INK);
+    buf[0] = '\0';
     if (s_opening.box < OPENING_BOXES) {
         buf[0] = (char)('1' + s_opening.box);
         buf[1] = '/';
         buf[2] = '7';
         buf[3] = '\0';
-        render_text(SCR_W - 8 - render_text_width(buf), Y(4), buf, C_MID);
     }
-    hline_at(Y(26));
+    game_ui_title(band_y, "大木博士", buf);
 
     uint8_t mon = opening_show_mon(&s_opening);
     if (s_oak_ok && opening_show_oak(&s_opening)) {
         int scale_num = s_opening.box == 0 ? s_oak_zoom_frame : OAK_ZOOM_FRAMES;
         int center_x = mon ? SCR_W / 4 : SCR_W / 2;
-        draw_ui_scaled_centered(center_x, Y(94), &s_oak_art,
+        draw_ui_scaled_centered(center_x, Y(96), &s_oak_art,
                                 scale_num, OAK_ZOOM_FRAMES,
                                 oak_breath_offset(), OAK_PALETTE);
     }
@@ -168,16 +165,16 @@ static void draw_band(int band_y)
         uint16_t pal[4];
         assets_palette(sp.palette, pal);
         int rendered = sprite_size * 2;
-        int y = 28 + (132 - rendered) / 2;
+        int y = 96 - rendered / 2;
         int x = SCR_W / 2 + (SCR_W / 2 - rendered) / 2;
         render_sprite_2bpp(x, Y(y), spr,
                            sprite_size, 2, pal);
     }
 
-    // 文本框宽度严格为 232px。四行起点避免 16px 字形跨 80px 横带边界。
+    // Both text bands refresh together throughout the short slide animation.
+    // Keep typed lines within the frame even when A completes a box early.
     int text_offset = text_slide_offset();
-    hline_at(Y(TEXT_BOX_Y + text_offset));
-    hline_at(Y(272));
+    game_ui_box(band_y, 0, TEXT_BOX_Y, 240, 112);
     uint16_t left = s_opening.typed;
     uint8_t lines = opening_line_count(&s_opening);
     for (uint8_t i = 0; i < lines && left; i++) {
@@ -185,12 +182,12 @@ static void draw_band(int band_y)
         uint16_t len = utf8_len(line);
         uint16_t visible = left < len ? left : len;
         utf8_prefix(buf, sizeof(buf), line, visible);
-        render_text(MARGIN, Y(TEXT_LINE_Y[i] + text_offset), buf, C_INK);
+        if (TEXT_LINE_Y[i] + text_offset + GLYPH <= 264)
+            render_text(MARGIN, Y(TEXT_LINE_Y[i] + text_offset), buf, GAME_UI_INK);
         left = left > len ? (uint16_t)(left - len) : 0;
     }
 
-    hline_at(Y(292));
-    render_text(8, Y(298), "[A]继续 [C]跳过", C_INK);
+    game_ui_footer(band_y, "[A]继续 [C]跳过");
 
     #undef Y
     screen_push_band(band_y);
@@ -272,6 +269,13 @@ void play_opening_exit(void)
     if (s_tick) { lv_timer_delete(s_tick); s_tick = NULL; }
 }
 
+bool play_opening_screen_busy(void)
+{
+    return opening_typing(&s_opening) || s_oak_zoom_frame < OAK_ZOOM_FRAMES ||
+           s_text_slide_frame < TEXT_SLIDE_FRAMES ||
+           (s_opening.box == OAK_BREATH_BOX && s_oak_breath_frame < OAK_BREATH_FRAMES);
+}
+
 void play_opening_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
     if (btn == BSP_BTN_DOWN && ev == BSP_BTN_LONG) { screen_dump(); return; }
@@ -287,9 +291,9 @@ void play_opening_key(bsp_btn_t btn, bsp_btn_ev_t ev)
     opening_press(&s_opening, key);
     if (s_opening.done) {
         if (!save_mark_opening_seen()) {
-            ESP_LOGE(TAG, "开场标记写入失败；本次继续进入 P1");
+            ESP_LOGE(TAG, "opening flag save failed; starter commit will retry it");
         }
-        nav_go(PAGE_IDLE);
+        nav_go(world_needs_starter() ? PAGE_STARTER : PAGE_IDLE);
         return;
     }
     if (s_opening.box != before_box) {

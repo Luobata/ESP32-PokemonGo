@@ -40,12 +40,28 @@
 #define BASE_SCALE_1000 550
 
 // 球种系数 ×1000。索引 = cap_ball_t
-static const uint16_t BALL_FACTOR_1000[CAP_BALL_COUNT] = {1000, 1500, 2000};
+uint16_t cap_ball_factor_1000(cap_ball_t ball, const cap_context_t *context)
+{
+    if (ball == CAP_BALL_GREAT) return 1500;
+    if (ball == CAP_BALL_ULTRA) return 2000;
+    if (!context) return 1000;
+    if (ball == CAP_BALL_FAST && context->wild_speed >= 100) return 4000;
+    if (ball == CAP_BALL_HEAVY) {
+        if (context->wild_weight_hg >= 2000) return 3000;
+        if (context->wild_weight_hg >= 1000) return 2000;
+    }
+    if (ball == CAP_BALL_LEVEL && context->wild_level) {
+        if (context->pet_level >= 2u * context->wild_level) return 2000;
+        if (context->pet_level > context->wild_level) return 1500;
+    }
+    return 1000;
+}
 
 const char *cap_ball_name(cap_ball_t b)
 {
-    static const char *N[CAP_BALL_COUNT] = {"精灵球", "超级球", "高级球"};
-    return (b < CAP_BALL_COUNT) ? N[b] : "精灵球";
+    static const char *N[CAP_BALL_COUNT] = {"精灵球", "超级球", "高级球", "大师球",
+        "速度球", "沉重球", "等级球", "友友球"};
+    return ((unsigned)b < CAP_BALL_COUNT) ? N[b] : "精灵球";
 }
 
 // 逃跑概率 ×1000，按稀有度。⏳ 这条曲线纯凭手感，待实测校准
@@ -54,6 +70,13 @@ static const uint16_t FLEE_1000[6] = {200, 100, 180, 280, 380, 500};
 
 uint16_t cap_window_width(uint8_t capture_rate, uint16_t mood_bonus_q10,
                           cap_ball_t ball, uint8_t hp_ratio)
+{
+    return cap_window_width_context(capture_rate, mood_bonus_q10, ball, hp_ratio, NULL);
+}
+
+uint16_t cap_window_width_context(uint8_t capture_rate, uint16_t mood_bonus_q10,
+                                  cap_ball_t ball, uint8_t hp_ratio,
+                                  const cap_context_t *context)
 {
     // 四个乘数，对应四条不同来源的玩家能动性：
     //   capture_rate 种族固有（改不了）· mood 养成 · ball 探索 · hp 战斗
@@ -69,7 +92,8 @@ uint16_t cap_window_width(uint8_t capture_rate, uint16_t mood_bonus_q10,
     // 溢出边界：255 × 550 × 2048 × 2000 × 199 ≈ 1.14e14，
     // 超 u32 但 u64 绰绰有余（u64 上限 1.8e19）。
     if (hp_ratio > 100) hp_ratio = 100;
-    uint16_t bf = (ball < CAP_BALL_COUNT) ? BALL_FACTOR_1000[ball] : 1000;
+    if (ball == CAP_BALL_MASTER) return CAP_WINDOW_MAX;
+    uint16_t bf = cap_ball_factor_1000(ball, context);
 
     uint64_t num = (uint64_t)capture_rate * BASE_SCALE_1000
                  * mood_bonus_q10 * bf * (uint32_t)(100 + (100 - hp_ratio));
@@ -102,9 +126,18 @@ void cap_attempt(uint8_t capture_rate, uint16_t mood_bonus_q10,
                  uint32_t elapsed_ms, uint32_t seed,
                  cap_result_t *out)
 {
+    cap_attempt_context(capture_rate, mood_bonus_q10, ball, hp_ratio, rarity,
+                         elapsed_ms, seed, NULL, out);
+}
+
+void cap_attempt_context(uint8_t capture_rate, uint16_t mood_bonus_q10,
+                         cap_ball_t ball, uint8_t hp_ratio, uint8_t rarity,
+                         uint32_t elapsed_ms, uint32_t seed,
+                         const cap_context_t *context, cap_result_t *out)
+{
     memset(out, 0, sizeof(*out));
 
-    uint16_t w = cap_window_width(capture_rate, mood_bonus_q10, ball, hp_ratio);
+    uint16_t w = cap_window_width_context(capture_rate, mood_bonus_q10, ball, hp_ratio, context);
     // 窗口居中
     uint16_t start = (uint16_t)((CAP_BAR_WIDTH - w) / 2);
     uint16_t p = cap_pointer_position(elapsed_ms);

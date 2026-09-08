@@ -1,0 +1,62 @@
+{
+  "method": "Actual CUA UI page/reset/step/A/B/check controls; CDP reads Canvas getImageData RGBA. Compare SHA256 with independent native Renderer execution of saved commands.",
+  "status": "PASS",
+  "frames": [
+    {
+      "page": "P0",
+      "ms": 600,
+      "build": "41d2c15b14d213e7cd94",
+      "canvas_rgba_sha256": "eae038301ed3903d08fe111656e7fe21b0b7b0b837bc4b80941f327a1e2f2131",
+      "native_rgba_sha256": "eae038301ed3903d08fe111656e7fe21b0b7b0b837bc4b80941f327a1e2f2131",
+      "dirty_redraw_mismatch": 0
+    },
+    {
+      "page": "P1",
+      "ms": 0,
+      "build": "41d2c15b14d213e7cd94",
+      "canvas_rgba_sha256": "5273f26ca901ba2ca36ff7abf5fd12582ca1943cd36705d8a876249564388375",
+      "native_rgba_sha256": "5273f26ca901ba2ca36ff7abf5fd12582ca1943cd36705d8a876249564388375",
+      "dirty_redraw_mismatch": 0
+    },
+    {
+      "page": "P2",
+      "ms": 0,
+      "build": "41d2c15b14d213e7cd94",
+      "canvas_rgba_sha256": "87a36b0d233a43ebc713fa1241813ef84b7df572e51fdc1f0a93815e2afdf341",
+      "native_rgba_sha256": "87a36b0d233a43ebc713fa1241813ef84b7df572e51fdc1f0a93815e2afdf341",
+      "dirty_redraw_mismatch": 0
+    },
+    {
+      "page": "P3",
+      "ms": 0,
+      "build": "41d2c15b14d213e7cd94",
+      "canvas_rgba_sha256": "34ec1edeef507e8bac2ea6e8262850ee83fa9b056a863f642ae645a68e439ba3",
+      "native_rgba_sha256": "34ec1edeef507e8bac2ea6e8262850ee83fa9b056a863f642ae645a68e439ba3",
+      "dirty_redraw_mismatch": 0
+    },
+    {
+      "page": "P4",
+      "ms": 0,
+      "build": "41d2c15b14d213e7cd94",
+      "canvas_rgba_sha256": "0f2e699a7c1ed0f70445dc185461af31bbda3eb7d29b3c8becb7a6f1a41ec8e0",
+      "native_rgba_sha256": "0f2e699a7c1ed0f70445dc185461af31bbda3eb7d29b3c8becb7a6f1a41ec8e0",
+      "dirty_redraw_mismatch": 0
+    },
+    {
+      "page": "P5",
+      "ms": 0,
+      "build": "41d2c15b14d213e7cd94",
+      "canvas_rgba_sha256": "a82f7bd8d7396e73ce26acb417006ca79fa09a8bb770aaa9bd1068dffdbdd5f0",
+      "native_rgba_sha256": "a82f7bd8d7396e73ce26acb417006ca79fa09a8bb770aaa9bd1068dffdbdd5f0",
+      "dirty_redraw_mismatch": 0
+    },
+    {
+      "page": "P6",
+      "ms": 0,
+      "build": "41d2c15b14d213e7cd94",
+      "canvas_rgba_sha256": "0b39c8f4802b99e32cdfe07b3d98cbdb95234569ac087cb6aa0afae47aff5343",
+      "native_rgba_sha256": "0b39c8f4802b99e32cdfe07b3d98cbdb95234569ac087cb6aa0afae47aff5343",
+      "dirty_redraw_mismatch": 0
+    }
+  ]
+}

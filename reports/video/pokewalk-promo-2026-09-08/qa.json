@@ -1,0 +1,14 @@
+{
+  "full_video_decode": "passed",
+  "duration_seconds": 42,
+  "main_resolution": [
+    1080,
+    1920
+  ],
+  "clean_resolution": [
+    720,
+    960
+  ],
+  "fps": 30,
+  "rgb_conversion": "production native.rgb888"
+}

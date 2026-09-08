@@ -1,0 +1,6 @@
+{
+  "bytes": 1819072,
+  "sha256": "21d4cbf925b3bfc37857350cf000c39a26b90306d7d4973946d59372a8163b77",
+  "offset": "0x10000",
+  "previous_backup": ".device-backup/nvs-and-app-before-display-owner-20260908.bin"
+}

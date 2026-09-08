@@ -22,11 +22,8 @@ static const char *TAG = "save";
 bool save_init(void)
 {
     esp_err_t e = nvs_flash_init();
-    if (e == ESP_ERR_NVS_NO_FREE_PAGES || e == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_LOGW(TAG, "NVS 需要擦除重建（版本变了或写满）");
-        ESP_ERROR_CHECK(nvs_flash_erase());
-        e = nvs_flash_init();
-    }
+    // Initialization failure is not permission to erase a player's save.
+    // Preserve the partition and surface the unavailable state to onboarding.
     if (e != ESP_OK) {
         ESP_LOGE(TAG, "NVS 初始化失败: %s —— 存档不可用", esp_err_to_name(e));
         return false;
@@ -50,6 +47,7 @@ bool save_init(void)
 
 bool save_write(const save_t *s)
 {
+    if (!s || s->version != SAVE_VERSION || !items_inventory_valid(&s->inventory) || !trainer_store_valid(&s->challenge) || !enc_refresh_valid(&s->refresh) || !exploration_valid(&s->exploration)) return false;
     nvs_handle_t h;
     esp_err_t e = nvs_open(NS, NVS_READWRITE, &h);
     if (e != ESP_OK) {
@@ -77,36 +75,101 @@ bool save_write(const save_t *s)
     return true;
 }
 
-bool save_read(save_t *out)
+save_read_result_t save_read_status(save_t *out)
 {
+    if (!out) return SAVE_READ_ERROR;
     nvs_handle_t h;
-    if (nvs_open(NS, NVS_READONLY, &h) != ESP_OK) return false;
+    esp_err_t e = nvs_open(NS, NVS_READONLY, &h);
+    if (e == ESP_ERR_NVS_NOT_FOUND) return SAVE_READ_EMPTY;
+    if (e != ESP_OK) return SAVE_READ_ERROR;
 
-    size_t len = sizeof(*out);
-    esp_err_t e = nvs_get_blob(h, KEY, out, &len);
+    size_t len = 0;
+    e = nvs_get_blob(h, KEY, NULL, &len);
+    if (e == ESP_ERR_NVS_NOT_FOUND) {
+        nvs_close(h);
+        return SAVE_READ_EMPTY;
+    }
+    bool legacy = len == sizeof(save_v5_t);
+    bool version6 = len == sizeof(save_v6_t);
+    bool version7 = len == sizeof(save_v7_t);
+    bool version8 = len == sizeof(save_v8_t);
+    bool version9 = len == sizeof(save_v9_t);
+    bool version10 = len == sizeof(save_v10_t);
+    if (e != ESP_OK || (!legacy && !version6 && !version7 && !version8 && !version9 && !version10 && len != sizeof(*out))) {
+        ESP_LOGW(TAG, "存档 %u 字节 ≠ 结构体 %u，或读取失败 —— 保留原档",
+                 (unsigned)len, (unsigned)sizeof(*out));
+        nvs_close(h);
+        return SAVE_READ_ERROR;
+    }
+
+    size_t expected_len = len;
+    memset(out, 0, sizeof(*out));
+    e = nvs_get_blob(h, KEY, out, &len);
     uint8_t opening_seen = 0;
     if (e == ESP_OK) (void)nvs_get_u8(h, KEY_OPENING, &opening_seen);
     nvs_close(h);
-
-    if (e != ESP_OK) return false;
-
-    // 长度与版本都要验。
-    //
-    // **长度对不上直接拒绝**：结构体加了字段但版本号忘了改时，
-    // 旧存档会被按新布局解读 —— 那不会报错，只是所有字段错位，
-    // 表现为「图鉴突然满了」「三条轴是天文数字」这种莫名其妙的状态。
-    if (len != sizeof(*out)) {
-        ESP_LOGW(TAG, "存档 %u 字节 ≠ 结构体 %u —— 格式变了，丢弃",
-                 (unsigned)len, (unsigned)sizeof(*out));
-        return false;
-    }
-    if (out->version != SAVE_VERSION) {
-        ESP_LOGW(TAG, "存档版本 %u ≠ %d —— 丢弃",
+    if (e != ESP_OK || len != expected_len) return SAVE_READ_ERROR;
+    if (out->version != (legacy ? SAVE_LEGACY_VERSION : version6 ? 6 : version7 ? 7 : version8 ? 8 : version9 ? 9 : version10 ? 10 : SAVE_VERSION)) {
+        ESP_LOGW(TAG, "存档版本 %u ≠ %d —— 保留原档，禁止新游戏覆盖",
                  out->version, SAVE_VERSION);
-        return false;
+        return SAVE_READ_ERROR;
     }
-    out->opening_seen = opening_seen != 0;
-    return true;
+    // A raw blob can contain an invalid _Bool representation. Compare its bytes
+    // before evaluating it so malformed data is rejected without undefined reads.
+    const bool no = false, yes = true;
+    if (memcmp(&out->opening_seen, &no, sizeof(no)) != 0 &&
+        memcmp(&out->opening_seen, &yes, sizeof(yes)) != 0) return SAVE_READ_ERROR;
+    out->opening_seen = out->opening_seen || opening_seen != 0;
+    if (legacy) {
+        items_inventory_init(&out->inventory);
+        out->version = SAVE_VERSION;
+    } else if (!items_inventory_valid(&out->inventory)) return SAVE_READ_ERROR;
+    if (legacy || version6) {
+        out->version = SAVE_VERSION;
+        // Older saves have no victory counter: grandfather existing adventurers.
+        out->challenge.wild_wins = out->species != 0;
+    }
+    if (version7 || version8) {
+        // Read old tail before overwriting it: expanded mons have different strides.
+        trainer_store_v8_t previous;
+        memcpy(&previous,(uint8_t *)out+sizeof(save_v6_t),sizeof(previous));
+        achievement_store_t achievements={0};
+        if(version8)memcpy(&achievements,(uint8_t *)out+offsetof(save_v8_t,achievements),sizeof(achievements));
+        trainer_store_t *next=&out->challenge;memset(next,0,sizeof(*next));
+        next->wild_wins=previous.wild_wins;next->defeated=previous.defeated;
+        next->league_stage=previous.league_stage;next->league_active=previous.league_active;
+        // Session header has identical fields; only side/mon strides changed.
+        memcpy(&next->session.rng,&previous.session.rng,sizeof(previous.session)-offsetof(trainer_session_v8_t,rng));
+        next->session.pending_move=0;
+        for(unsigned side=0;side<2;side++){
+            trainer_side_t *d=&next->session.sides[side];const trainer_side_v8_t *s=&previous.session.sides[side];
+            d->count=s->count;d->active=s->active;d->reflect=s->reflect;d->light_screen=s->light_screen;
+            for(unsigned i=0;i<6;i++)memcpy(&d->mons[i],&s->mons[i],sizeof(s->mons[i]));
+        }
+        out->achievements=achievements;out->version=SAVE_VERSION;
+    }
+    if (legacy || version6 || version7 || version8 || version9) {
+        memset(&out->refresh,0,sizeof(out->refresh));
+        uint64_t seconds=out->last_uptime_us>0?(uint64_t)out->last_uptime_us/1000000:0;
+        out->refresh.online_s=seconds>UINT32_MAX-ENC_BASE_INTERVAL_S?UINT32_MAX-ENC_BASE_INTERVAL_S:(uint32_t)seconds;
+        // Existing players do not receive another boot gift on migration.
+        out->refresh.base_started=out->scans!=0 || out->species!=0;
+        out->refresh.next_base_s=out->refresh.online_s+ENC_BASE_INTERVAL_S;
+        out->version=SAVE_VERSION;
+    }
+    if (legacy || version6 || version7 || version8 || version9 || version10) {
+        exploration_init(&out->exploration);
+        out->version=SAVE_VERSION;
+    }
+    if (!exploration_valid(&out->exploration)) return SAVE_READ_ERROR;
+    if (!enc_refresh_valid(&out->refresh)) return SAVE_READ_ERROR;
+    if (!trainer_store_valid(&out->challenge)) return SAVE_READ_ERROR;
+    return legacy || version6 || version7 || version8 || version9 || version10 ? SAVE_READ_MIGRATED : SAVE_READ_OK;
+}
+
+bool save_read(save_t *out) {
+    save_read_result_t result = save_read_status(out);
+    return result == SAVE_READ_OK || result == SAVE_READ_MIGRATED;
 }
 
 bool save_opening_seen(void)
@@ -141,7 +204,7 @@ bool save_exists(void)
     size_t len = 0;
     esp_err_t e = nvs_get_blob(h, KEY, NULL, &len);
     nvs_close(h);
-    return e == ESP_OK && len == sizeof(save_t);
+    return e == ESP_OK && (len == sizeof(save_t) || len == sizeof(save_v8_t) || len == sizeof(save_v7_t) || len == sizeof(save_v6_t) || len == sizeof(save_v5_t));
 }
 
 bool save_erase(void)

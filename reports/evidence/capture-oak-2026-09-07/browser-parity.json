@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "method": "Actual page/reset/step/A/check buttons via CUA; CDP Canvas getImageData RGBA SHA256 compared with independent native commands",
+  "frames": [
+    {
+      "page": "P4",
+      "ms": 0,
+      "rgba_sha256": "ca98813bf33072e915324d4a3a9bca56b2e08fd6efdf41246d48669a8f7692b5",
+      "build": "f9ee0c79a1bf99b90099",
+      "mismatch": 0
+    },
+    {
+      "page": "P0",
+      "ms": 600,
+      "rgba_sha256": "14269e8dd6629deea22b2158356731478873c6312d9b3f3c998f01146ffc39e1",
+      "build": "f9ee0c79a1bf99b90099",
+      "mismatch": 0
+    }
+  ]
+}

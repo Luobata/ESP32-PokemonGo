@@ -1,0 +1,37 @@
+{
+  "passed": true,
+  "calls": [
+    {
+      "action": "reset",
+      "names": "1",
+      "page": "P5",
+      "build": "ab8989a0323c39a95133"
+    },
+    {
+      "action": "names",
+      "names": "0",
+      "page": "P5",
+      "build": "ab8989a0323c39a95133"
+    },
+    {
+      "action": "key",
+      "names": "1",
+      "page": "P5",
+      "build": "ab8989a0323c39a95133"
+    },
+    {
+      "action": "reset",
+      "names": "1",
+      "page": "P9",
+      "build": "ab8989a0323c39a95133"
+    },
+    {
+      "action": "check",
+      "names": "1",
+      "page": "P9",
+      "build": "ab8989a0323c39a95133"
+    }
+  ],
+  "invalid_styles_rejected": 4,
+  "hardware_toggle_sync": true
+}

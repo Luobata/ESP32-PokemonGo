@@ -30,9 +30,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "battle.h"
 #include "encounter.h"
 #include "nurture.h"
+#include "items.h"
 #include "party.h"
+#include "trainer.h"
 #include "sensing.h"
 
 // 页面看到的世界。**这是个值拷贝**，拿到后随便读，不用加锁。
@@ -73,6 +76,69 @@ bool world_wifi_ready(void);
 // 不可从 ISR 调用（互斥量可能阻塞）。
 void world_snapshot(world_t *out);
 
+// Six visible members, in current order; box_count counts occupied species
+// slots, not total captures. No pointers into mutable world storage escape.
+typedef struct {
+    mon_t members[PARTY_MAX];
+    uint8_t count, box_count;
+    bool switch_locked; // Storage unavailable, no starter, or active P3/P4.
+} world_party_t;
+typedef enum {
+    WORLD_SWITCH_OK = 0,
+    WORLD_SWITCH_ALREADY_LEADER,
+    WORLD_SWITCH_INVALID,
+    WORLD_SWITCH_STALE,
+    WORLD_SWITCH_BUSY,
+    WORLD_SWITCH_SAVE_FAILED,
+    WORLD_SWITCH_STORAGE_UNAVAILABLE,
+} world_switch_result_t;
+
+void world_party_snapshot(world_party_t *out);
+// expected must be the complete member shown by world_party_snapshot(), so a
+// reordered list or a different same-species member cannot be selected by a
+// stale index. out may be NULL; OK/ALREADY_LEADER return a fresh snapshot.
+// Save before publishing. Shared satiety/mood/stamina and time remain intact;
+// intimacy/exploration/EXP follow the member. The outgoing Q10 intimacy is
+// floored to mon_t's integer precision, so repeated switching cannot round up.
+// Legacy EXP below exp_for_level(level) is repaired for all loaded party/box
+// members and saved on startup; switch/capture candidates also enforce this
+// floor without lowering the saved level or discarding higher existing EXP.
+world_switch_result_t world_set_leader(uint8_t index, const mon_t *expected,
+                                      world_party_t *out);
+
+// Fresh saves have no leader until the chosen starter is durably saved. A
+// valid existing V5 party already satisfies this requirement; it is preserved.
+bool world_needs_starter(void);
+
+// Inventory snapshots are locked value copies. A successful use means both
+// the effect and decrement were saved; failure publishes neither. Active
+// P3/P4 sessions must be left before using a care/evolution item.
+void world_inventory_snapshot(inventory_t *out);
+item_use_status_t world_item_use(uint16_t expected_species, uint8_t item_id,
+                                  item_use_result_t *out);
+// Once per won active session. Repeated calls return the same actual award
+// without adding it again. A false return is retryable and publishes nothing.
+bool world_battle_loot_uid(uint16_t uid, item_loot_t *out);
+// Save one ball decrement and the throw's candidate session together. An
+// unstarted pending encounter is detached in that same commit. The caller
+// supplies the session immediately after choosing to throw, before cap_attempt.
+// No stock/save failure leaves the previous session and final throw intact.
+bool world_capture_ball_spend_uid(uint16_t uid, uint8_t ball,
+                                  const battle_session_t *item_session);
+
+typedef enum {
+    WORLD_STARTER_OK = 0,
+    WORLD_STARTER_ALREADY_CHOSEN,
+    WORLD_STARTER_INVALID,
+    WORLD_STARTER_SAVE_FAILED,
+    WORLD_STARTER_STORAGE_UNAVAILABLE,
+} world_starter_result_t;
+
+// Accept only #1/#4/#7/#25. Build and save a complete party+dex snapshot before
+// publishing the leader. Failure leaves the pending choice unchanged; retry is
+// safe. ALREADY_CHOSEN never replaces a leader or adds another Pokemon.
+world_starter_result_t world_choose_starter(uint16_t species);
+
 // 照料。**由按键触发，走 world 而不是页面自己改** ——
 // 状态的唯一所有者是 world，页面只读。
 void world_feed(void);
@@ -82,6 +148,10 @@ void world_rest(void);
 // 发放主宠经验并立即存档。战斗页只调用一次，状态与持久化由 world 管。
 void world_grant_exp(uint16_t amount);
 
+// Once per defeated active battle: stamina -20, mood -15, no EXP reduction.
+// Updates the runtime guard in the same lock, then saves existing nurture axes.
+bool world_apply_defeat_uid(uint16_t uid);
+
 // 原子完成队首进化并立即存档。会在锁内重新核对物种进化目标与两条
 // 进度线；expected_species 防止页面快照过期后把另一只误进化。
 bool world_evolve_leader(uint16_t expected_species, uint16_t evolve_to);
@@ -90,12 +160,24 @@ bool world_evolve_leader(uint16_t expected_species, uint16_t evolve_to);
 // 随后立即把包含三者的完整状态存档。无效/已淘汰 uid 返回 false。
 bool world_capture_uid(uint16_t uid, const mon_t *mon);
 
-// 遭遇队列与图鉴。**返回指针而不是拷贝** —— 队列 128 字节、
+// 遭遇队列与图鉴。**返回指针而不是拷贝** —— 队列保留 V5 的16槽、
 // 图鉴 76 字节，每帧拷一遍不划算，而页面只读不写。
 //
 // 写操作走下面几个函数，它们内部加锁。
 const enc_queue_t *world_queue(void);
 const dex_t *world_dex(void);
+
+// Consistent pending-list snapshot for rendering and selecting visible rows.
+// A missing/unavailable world produces an empty snapshot.
+void world_queue_snapshot(enc_queue_t *out);
+
+// Locked snapshot of either a pending encounter or the one active P3/P4
+// target. The active target is absent from world_queue() and the pending count.
+bool world_get_encounter_uid(uint16_t uid, encounter_t *out);
+
+// Leaving the P3/P4 chain ends an already started encounter permanently. It is
+// never requeued. An unstarted target is still pending and remains untouched.
+void world_end_active_encounter(void);
 
 // 按下标取走（P2 的丢弃 —— 那一刻下标是准的）。加锁。
 bool world_take_encounter(uint8_t index, encounter_t *out);
@@ -104,11 +186,20 @@ bool world_take_encounter(uint8_t index, encounter_t *out);
 // 返回 false 表示那条已被后台淘汰，正常情况，调用方不用报错。
 bool world_take_uid(uint16_t uid, encounter_t *out);
 
-// 把战斗结果写回队列（P3 打完但没抓，HP 要留着给 P4 算窗口）。
+// 更新待处理/活动遭遇的HP（P3/P4共享同一目标）。
 void world_update_hp_uid(uint16_t uid, uint8_t hp_ratio);
 
 // 首次结算时标记该遭遇已领取经验。返回 false 表示已领取或已被淘汰。
 bool world_mark_exp_granted_uid(uint16_t uid);
+
+// Runtime-only battle state, keyed by encounter uid+ts. First started=true
+// commits its removal from the pending save before moving it to the single
+// active slot. Save failure returns false with pending/session unchanged, so
+// the caller must not publish the attack/throw and can retry. Further active updates
+// do not write flash. Both active/session are excluded from V5 and disappear
+// on reboot; the committed pending removal prevents a battled target returning.
+bool world_battle_get_uid(uint16_t uid, battle_session_t *out);
+bool world_battle_set_uid(uint16_t uid, const battle_session_t *session);
 
 // 图鉴登记。加锁。
 void world_mark_seen(uint16_t sid, bool shiny);
@@ -133,3 +224,27 @@ bool world_debug_evolution_ready(void);
 // 与 PC 侧对账用：把移动量累积映射成 0~100 的今日行程。
 // 单独暴露是为了能在宿主上测（见 tools/pipeline/verify_world.py）。
 uint8_t world_progress_from_motion(uint32_t motion_units);
+
+// Transactional trainer campaign, separate from the five pending wild encounters.
+void world_challenge_snapshot(trainer_store_t *out);
+bool world_challenge_begin(uint8_t id);
+bool world_challenge_step(trainer_event_t *out);
+bool world_challenge_move(uint8_t slot);
+bool world_challenge_switch(uint8_t slot, bool forced);
+bool world_challenge_retire(void);
+bool world_challenge_settle(void);
+bool world_challenge_recover(uint8_t slot); // One milk: heal 50 HP and clear status.
+
+#include "achievements.h"
+void world_achievements_snapshot(achievement_view_t *out);
+achievement_claim_t world_achievement_claim(unsigned id);
+
+#include "exploration.h"
+void world_exploration_snapshot(exploration_view_t *out);
+exploration_kind_t world_exploration_select(uint8_t route);
+exploration_event_t world_explore(void);
+
+bool world_battle_reward_uid(uint16_t uid,uint16_t *amount);
+
+void world_box_snapshot(mon_t out[BOX_SPECIES]);
+world_switch_result_t world_box_exchange(uint8_t slot,const mon_t *outgoing,const mon_t *incoming);

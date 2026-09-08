@@ -1,0 +1,123 @@
+{
+  "native_build": "41d2c15b14d213e7cd94",
+  "firmware_preview": {
+    "build": "41d2c15b14d213e7cd94",
+    "pages": 7,
+    "dirty_redraw_checks": 848,
+    "wire_colors": 65536,
+    "negative_dma": "caught",
+    "negative_dirty_band": "caught",
+    "long_press_discard": "passed",
+    "evidence": "/Users/bytedance/luobata/ESP32-PokemonGo/.build/firmware-preview/evidence"
+  },
+  "battle_layout": {
+    "build": "41d2c15b14d213e7cd94",
+    "species": 151,
+    "source_size_counts": {
+      "40": 48,
+      "48": 46,
+      "56": 57
+    },
+    "normal_palette_sets": 146,
+    "roi_half_open": [
+      120,
+      30,
+      240,
+      160
+    ],
+    "compared_rgb565_pixels": 2355600,
+    "opaque_scaled_pixels_preserved": 661080,
+    "visible_bounds_union": [
+      120,
+      30,
+      232,
+      142
+    ],
+    "transparent_canvas_outside_screen": 11,
+    "transparent_canvas_outside_edges": {
+      "left": 0,
+      "top": 1,
+      "right": 10,
+      "bottom": 0
+    },
+    "transparent_scaled_pixels_clipped": 4000,
+    "raw_canvas_bounds_union": [
+      120,
+      -2,
+      250,
+      142
+    ],
+    "transparent_canvas_beyond_right": 10,
+    "maximum_raw_canvas_right": 250,
+    "negative_controls_rejected": [
+      "opaque source pixel clipped at left",
+      "opaque source pixel clipped at top",
+      "opaque source pixel clipped at right",
+      "opaque source pixel clipped at bottom",
+      "one visible native RGB565 sprite pixel removed"
+    ],
+    "evidence": "/Users/bytedance/luobata/ESP32-PokemonGo/reports/evidence/gsc-theme-2026-09-07/battle-layout"
+  },
+  "browser_complete_frames": 7,
+  "browser_compared_pixels": 537600,
+  "gameplay_gates": {
+    "battle": {
+      "exit_code": 0,
+      "last_line": "✅ 确定性部分与 sim 逐值一致，随机部分分布合理"
+    },
+    "encounter": {
+      "exit_code": 0,
+      "last_line": "✅ 遭遇/图鉴与 sim 逐值一致"
+    },
+    "nurture": {
+      "exit_code": 0,
+      "last_line": "✅ 衰减逐拍一致（≤1），照料动作严格相等（feed / play / rest 全部轴与钳位边界），混合序列一致（≤1）"
+    },
+    "party": {
+      "exit_code": 0,
+      "last_line": "✅ 队伍与仓库与 sim 逐值一致（布局 / better / receive / 200 连捕 / set_leader / 序列化）"
+    },
+    "exp": {
+      "exit_code": 0,
+      "last_line": "✅ 经验曲线与 sim 逐值一致（常量 / 曲线 / 升级边界 / 上限 / 进度）"
+    },
+    "evolution": {
+      "exit_code": 0,
+      "last_line": "✅ 进化条件与 sim 逐值一致（trigger/等级全枚举 / max 与回绕边界 / 两线判定 / early-out）"
+    },
+    "opening": {
+      "exit_code": 0,
+      "last_line": "✅ 开场状态机与 sim 逐帧一致（总帧数 / 逐帧五元组 / A 两语义 / B 空键 / C 跳过 / 结束边界）"
+    },
+    "transitions": {
+      "exit_code": 0,
+      "last_line": "✅ 转场与 sim 逐值一致（pick 全枚举 / 帧数 / 闪屏 / 1200 格逐格几何）"
+    },
+    "ui": {
+      "exit_code": 0,
+      "last_line": "✅ ui.bin 与 pixelart 逐像素一致（结构 / 条目 / 点阵 / 非空白 / oak 专项）"
+    }
+  },
+  "clock": {
+    "tests_passed": 8,
+    "negative_controls_rejected": 4
+  },
+  "static_layout": {
+    "violations": 0,
+    "dynamic_skips": 4
+  },
+  "inspector_build": {
+    "exit_code": 0,
+    "freshness_gate_exit_code": 0,
+    "front_images": 151,
+    "back_images": 151,
+    "font_glyphs": 884
+  },
+  "esp32c3_build": {
+    "exit_code": 0,
+    "bytes": 1582784,
+    "sha256": "135b3db31f504d4433b398c0bf6031fb152a46efe9c7dc9a25eafe1a99076888",
+    "existing_warning": "1MB recovery partition is smaller than application; main 3MB application partition fits",
+    "flashed": false
+  }
+}

@@ -1,0 +1,461 @@
+{
+  "commit": "7a7881d0d62e0ddbd82dcf10e7116807487ac651",
+  "source": "https://github.com/pret/pokecrystal",
+  "adaptation": "Original note order, channel loops, duty and fixed-point frame durations. Mono synthesis; vibrato, frequency-register detune and pitch slides currently approximated by static note pitch; noise drums use a synthesized kit, wave-channel instrument uses a triangle. Not cycle-accurate Game Boy audio.",
+  "tracks": [
+    {
+      "id": 1,
+      "name": "profoak",
+      "sha256": "ff6f0dec054d4bb74e6dab8281013ff268823b181bae277d6a6bcea0a0cb76cf",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 71,
+          "notes": 135,
+          "frames": 1615
+        },
+        {
+          "channel": 2,
+          "loop": 57,
+          "notes": 90,
+          "frames": 1615
+        },
+        {
+          "channel": 3,
+          "loop": 101,
+          "notes": 181,
+          "frames": 1615
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "elmslab",
+      "sha256": "52e332a2f1b41c7836fa8650317abbd99ecd951e5c4a626ea99bfd0165fe06f6",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 15,
+          "notes": 112,
+          "frames": 2322
+        },
+        {
+          "channel": 2,
+          "loop": 16,
+          "notes": 104,
+          "frames": 2322
+        },
+        {
+          "channel": 3,
+          "loop": 19,
+          "notes": 152,
+          "frames": 2322
+        },
+        {
+          "channel": 4,
+          "loop": 2,
+          "notes": 3,
+          "frames": 148
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "name": "goldenrodcity",
+      "sha256": "168f00e4cb794b9a40c9b2566ecda3978eb697f949e9c718e7837ce07960e834",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 4,
+          "notes": 201,
+          "frames": 2640
+        },
+        {
+          "channel": 2,
+          "loop": 0,
+          "notes": 79,
+          "frames": 2112
+        },
+        {
+          "channel": 3,
+          "loop": 0,
+          "notes": 151,
+          "frames": 2112
+        },
+        {
+          "channel": 4,
+          "loop": 9,
+          "notes": 161,
+          "frames": 2640
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "name": "pokemoncenter",
+      "sha256": "4d3714fd9f3806b3fa83fddbf3702334a95db13688a4e05ca1267555e679eac2",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 0,
+          "notes": 115,
+          "frames": 1824
+        },
+        {
+          "channel": 2,
+          "loop": 0,
+          "notes": 69,
+          "frames": 1824
+        },
+        {
+          "channel": 3,
+          "loop": 0,
+          "notes": 146,
+          "frames": 1824
+        },
+        {
+          "channel": 4,
+          "loop": 0,
+          "notes": 5,
+          "frames": 114
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "name": "route29",
+      "sha256": "6cd1c6615c9208411c2c90e35000a02af8e54475965d9a1c675dc68b4f9ccee3",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 1,
+          "notes": 105,
+          "frames": 1875
+        },
+        {
+          "channel": 2,
+          "loop": 2,
+          "notes": 141,
+          "frames": 1875
+        },
+        {
+          "channel": 3,
+          "loop": 1,
+          "notes": 118,
+          "frames": 1875
+        },
+        {
+          "channel": 4,
+          "loop": 1,
+          "notes": 12,
+          "frames": 232
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "name": "gym",
+      "sha256": "2c2fd84874a31e11202b1b85aecd3e8d5b2ad2864eb8ddeb62ad08fb5361d917",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 0,
+          "notes": 139,
+          "frames": 2106
+        },
+        {
+          "channel": 2,
+          "loop": 0,
+          "notes": 165,
+          "frames": 2106
+        },
+        {
+          "channel": 3,
+          "loop": 0,
+          "notes": 103,
+          "frames": 2106
+        },
+        {
+          "channel": 4,
+          "loop": 0,
+          "notes": 186,
+          "frames": 2106
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "name": "kantowildbattle",
+      "sha256": "150b62d8b414c37d5e572f669a43661ebf55b29cb330aecadc1e61e5a4cac1d0",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 12,
+          "notes": 366,
+          "frames": 3864
+        },
+        {
+          "channel": 2,
+          "loop": 32,
+          "notes": 535,
+          "frames": 3864
+        },
+        {
+          "channel": 3,
+          "loop": 32,
+          "notes": 381,
+          "frames": 3864
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "name": "kantotrainerbattle",
+      "sha256": "125169b773ba54b5cb62506588710da4aa4e8dc630bc8ecc1cfbab99653acfe0",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 92,
+          "notes": 360,
+          "frames": 3291
+        },
+        {
+          "channel": 2,
+          "loop": 103,
+          "notes": 385,
+          "frames": 3291
+        },
+        {
+          "channel": 3,
+          "loop": 87,
+          "notes": 381,
+          "frames": 3291
+        }
+      ]
+    },
+    {
+      "id": 9,
+      "name": "kantogymbattle",
+      "sha256": "9895c8d2e3d56fc587dca9e60eddc495e52a5c98227e243849d8c308ee543b71",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 61,
+          "notes": 190,
+          "frames": 2461
+        },
+        {
+          "channel": 2,
+          "loop": 112,
+          "notes": 198,
+          "frames": 2461
+        },
+        {
+          "channel": 3,
+          "loop": 89,
+          "notes": 284,
+          "frames": 2461
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "name": "championbattle",
+      "sha256": "403be9305119d9a19108db20389fc69f6606ba1f1db37620e006d19cc18c27f5",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 87,
+          "notes": 239,
+          "frames": 3822
+        },
+        {
+          "channel": 2,
+          "loop": 84,
+          "notes": 195,
+          "frames": 3822
+        },
+        {
+          "channel": 3,
+          "loop": 149,
+          "notes": 409,
+          "frames": 3822
+        }
+      ]
+    },
+    {
+      "id": 11,
+      "name": "wildpokemonvictory",
+      "sha256": "a9096a90621deed5ed6cbd5c2912c8456b505a4a771a544a66ec47ab5b9b4f62",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 5,
+          "notes": 79,
+          "frames": 850
+        },
+        {
+          "channel": 2,
+          "loop": 5,
+          "notes": 61,
+          "frames": 850
+        },
+        {
+          "channel": 3,
+          "loop": 7,
+          "notes": 61,
+          "frames": 850
+        }
+      ]
+    },
+    {
+      "id": 12,
+      "name": "trainervictory",
+      "sha256": "7a59a6592fc94fb9dc01c5d314e94dd229d21d47034ec4c2eb808288d45ce975",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 7,
+          "notes": 83,
+          "frames": 810
+        },
+        {
+          "channel": 2,
+          "loop": 7,
+          "notes": 57,
+          "frames": 810
+        },
+        {
+          "channel": 3,
+          "loop": 11,
+          "notes": 95,
+          "frames": 810
+        }
+      ]
+    },
+    {
+      "id": 13,
+      "name": "gymleadervictory",
+      "sha256": "6c0c579d26efcc8c58d2a190e951f1b648dfc6f1771285540273fa54858c92dc",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 10,
+          "notes": 137,
+          "frames": 2262
+        },
+        {
+          "channel": 2,
+          "loop": 7,
+          "notes": 98,
+          "frames": 2262
+        },
+        {
+          "channel": 3,
+          "loop": 5,
+          "notes": 179,
+          "frames": 2262
+        },
+        {
+          "channel": 4,
+          "loop": 2,
+          "notes": 170,
+          "frames": 2262
+        }
+      ]
+    },
+    {
+      "id": 14,
+      "name": "evolution",
+      "sha256": "211adcbfd6aceff378326b4179d757aee0bbdaf23012a36bf41e1246b4a8bbc6",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 5,
+          "notes": 53,
+          "frames": 1237
+        },
+        {
+          "channel": 2,
+          "loop": 5,
+          "notes": 53,
+          "frames": 1237
+        },
+        {
+          "channel": 3,
+          "loop": 1,
+          "notes": 91,
+          "frames": 1237
+        },
+        {
+          "channel": 4,
+          "loop": 1,
+          "notes": 6,
+          "frames": 148
+        }
+      ]
+    },
+    {
+      "id": 15,
+      "name": "lookhiker",
+      "sha256": "dbaa42db8a0da7c199fa3c6c02a720f3e180c20891b2f7b0348d25290a7e34d2",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 3,
+          "notes": 15,
+          "frames": 272
+        },
+        {
+          "channel": 2,
+          "loop": 9,
+          "notes": 21,
+          "frames": 222
+        },
+        {
+          "channel": 3,
+          "loop": 3,
+          "notes": 27,
+          "frames": 470
+        },
+        {
+          "channel": 4,
+          "loop": 2,
+          "notes": 6,
+          "frames": 173
+        }
+      ]
+    },
+    {
+      "id": 16,
+      "name": "caughtmon",
+      "sha256": "e72aff1a4a0a119b3df73121598f2635e6d3a09d597cf706bd9668f503edb451",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 10,
+          "notes": 10,
+          "frames": 168
+        },
+        {
+          "channel": 2,
+          "loop": 10,
+          "notes": 10,
+          "frames": 168
+        },
+        {
+          "channel": 3,
+          "loop": 10,
+          "notes": 10,
+          "frames": 168
+        },
+        {
+          "channel": 4,
+          "loop": 2,
+          "notes": 2,
+          "frames": 168
+        }
+      ]
+    }
+  ]
+}

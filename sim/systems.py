@@ -26,7 +26,7 @@ from gameplay import (
 # S1 遭遇累积
 # ---------------------------------------------------------------------------
 
-QUEUE_CAP = 16              # 环形队列容量（固件 16 × 8 B = 128 字节）
+QUEUE_CAP = 5               # 待处理遭遇最多五条；固件保留 V5 的16槽物理布局
 BASE_SPAWN_INTERVAL = 4 * 3600   # 基地遭遇间隔：驻留时按时间排程
 
 # 猎场遭遇的触发条件：一次扫描里有多少个瞬现 AP 才算一次遭遇机会。
@@ -59,11 +59,7 @@ class QueuedEncounter:
 
 
 class EncounterQueue:
-    """环形队列。满了丢**最旧的低稀有度**那条，而非单纯最旧。
-
-    理由：玩家一天可能遇 30 次而只处理 10 次，若单纯丢最旧，
-    攒到的稀有个体会被后来的常见个体挤掉 —— 那与「稀有度驱动收集」矛盾。
-    """
+    """待处理遭遇 FIFO：满后无条件顶掉第一条，新遭遇始终进入末尾。"""
 
     def __init__(self, cap: int = QUEUE_CAP):
         self.cap = cap
@@ -79,13 +75,8 @@ class EncounterQueue:
         if len(self.items) <= self.cap:
             return None
 
-        # 找最低稀有度中最旧的一条
-        min_rarity = min(q.rarity for q in self.items)
-        for i, q in enumerate(self.items):
-            if q.rarity == min_rarity:
-                self.dropped += 1
-                return self.items.pop(i)
-        return self.items.pop(0)   # 不会到这里，兜底
+        self.dropped += 1
+        return self.items.pop(0)
 
     def pop(self, index: int = 0) -> Optional[QueuedEncounter]:
         if 0 <= index < len(self.items):
@@ -421,24 +412,15 @@ class BattleRound:
     missed: bool = False   # 未命中（招式命中率判定）
 
 
-# 野怪的**绝对**等级带，按稀有度定。
-#
-# 早期版本让野怪等级跟着主宠走（pet_level + delta），实测发现那让
-# 练级完全失去意义：主宠 Lv40 打 ★★ 照样输，因为对手也涨到 Lv39。
-# 玩家的成长必须能兑现成战力，否则养成线与战斗线是脱钩的。
-#
-# 改成绝对等级带后，「打不过」变成一个**暂时**的状态 ——
-# 练到 Lv30 就能回头收拾 ★★★★ 了，这才是收集游戏该有的曲线。
+# Baseline floors plus partial scaling; keep common encounters easier.
 WILD_LEVEL_BAND = {1: 5, 2: 12, 3: 20, 4: 30, 5: 45}
+WILD_LEVEL_PERCENT = {1: 75, 2: 85, 3: 95, 4: 100, 5: 105}
 
 
 def wild_level(rarity: int, pet_level: int = 0) -> int:
-    """野怪等级 —— 按稀有度的绝对等级带，不随主宠浮动。
-
-    pet_level 参数保留但只用于兜底（避免野怪等级低到毫无威胁）。
-    """
-    band = WILD_LEVEL_BAND.get(rarity, 12)
-    return max(2, band)
+    """Same curve as firmware; freeze the result for the encounter session."""
+    scaled = min(100, max(0, pet_level)) * WILD_LEVEL_PERCENT.get(rarity, 85) // 100
+    return min(100, max(WILD_LEVEL_BAND.get(rarity, 12), scaled))
 
 
 @dataclass
@@ -466,24 +448,14 @@ class BattleResult:
 
 # 升到 Lv n 所需的**累计**经验。
 #
-# 取 `5n³/2` —— 初代 slow 曲线（5n³/4）的两倍。为什么不直接用原版四条曲线：
-# 原版一周目要打上百场训练师战 + 几百只野怪，而这个项目是「30 秒会话、
-# 被动累积遭遇」，实测 7 天只有 114 场战斗。原版 medium_fast 在这个产出下
-# 一周就冲到 Lv24、一个月 Lv40，节奏完全垮掉。
-#
-# 按实测产出（7 天约 15000 exp）校准后的节奏：
-#
-#     1 周 Lv18    2 周 Lv22    1 月 Lv29    3 月 Lv42
-#
-# 与 S3 的靶子对得上：一个月能收拾 ★★★★（Lv30），
-# 而 ★★★★★（Lv45）要三个月以上 —— 那份留白是 S3 有意设计的。
-#
-# 用整数除法而非浮点：C3 无 FPU，且这个函数固件侧每场战斗都要调。
+# 2026-09-08：按用户希望降低难度，将旧 5n³/2 门槛降至 3n³/2（约 -40%）。
+# 战斗、捕获、照料和移动奖励不变；累计经验保留，硬件读档时上调对应等级。
+# 整数运算与 firmware/main/exp.c 一致。
 def exp_for_level(n: int) -> int:
     """升到 Lv n 所需的累计经验。n ≤ 1 时为 0。"""
     if n <= 1:
         return 0
-    return 5 * n * n * n // 2
+    return 3 * n * n * n // 2
 
 
 LEVEL_MAX = 100
@@ -639,7 +611,8 @@ def known_moves(species_id: int, level: int) -> list:
     """
     db = _load_moves()
     rows = db["learn"].get(species_id, [])
-    out = [db["moves"][slot] for lv, slot in rows if lv <= level]
+    # Match assets_known_moves(..., 8): retain the latest learned records.
+    out = [db["moves"][slot] for lv, slot in rows if lv <= level][-8:]
     if not out:
         for m in db["moves"]:
             if m["id"] == STRUGGLE_MOVE_ID:
@@ -647,13 +620,30 @@ def known_moves(species_id: int, level: int) -> list:
     return out
 
 
-def move_weight(move: dict, atk_types: list, def_types: list) -> int:
+def fixed_move_damage(move_id: int, level: int, target_hp: int) -> Optional[int]:
+    """Selected Crystal fixed-damage effects, before the shared immunity check."""
+    if move_id == 49:
+        return 20
+    if move_id in (69, 101):
+        return level
+    if move_id == 82:
+        return 40
+    if move_id == 162:
+        return max(1, target_hp // 2)
+    return None
+
+
+def move_weight(move: dict, atk_types: list, def_types: list,
+                level: int = 1, target_hp: int = 1) -> int:
     """选招权重 = 威力 × 相克倍率 × 本属性加成。
 
     倍率为 0（幽灵打超能，初代那条著名 bug）时权重为 0 ——
     AI 不会选一个必定打不中的招，除非它没有别的选择。
     """
     mult = effectiveness(move["type"], def_types)
+    fixed = fixed_move_damage(move.get("id", 0), level, target_hp)
+    if fixed is not None:
+        return fixed if mult else 0
     w = move["power"] * mult // 100
     if move["type"] in atk_types:
         w = w * STAB // 100
@@ -687,7 +677,7 @@ def damage_of(atk_lv: int, atk: int, power: int, dfn: int,
 
 
 def pick_move(moves: list, atk_types: list, def_types: list,
-              rng) -> Optional[dict]:
+              rng, level: int = 1, target_hp: int = 1) -> Optional[dict]:
     """AI 选招 —— 按权重随机，偏好高伤害。
 
     rng 由调用方传入（战斗要可回放，所以不用全局随机源）。
@@ -697,7 +687,7 @@ def pick_move(moves: list, atk_types: list, def_types: list,
     """
     if not moves:
         return None
-    ws = [move_weight(m, atk_types, def_types) for m in moves]
+    ws = [move_weight(m, atk_types, def_types, level, target_hp) for m in moves]
     total = sum(ws)
     if total <= 0:
         return moves[rng.randrange(len(moves))]
@@ -771,9 +761,9 @@ def auto_battle(pet_types: list[str], pet_stats: list[int], pet_level: int,
     rounds: list[BattleRound] = []
 
     def hit(atk_types, atk_stats, atk_lv, def_types, def_stats,
-            factor: float, moves: list) -> tuple:
+            factor: float, moves: list, target_hp: int) -> tuple:
         """一次攻击 → (伤害, 倍率, 标签, 招名, 是否未命中)。"""
-        mv = pick_move(moves, atk_types, def_types, rng) if moves else None
+        mv = pick_move(moves, atk_types, def_types, rng, atk_lv, target_hp) if moves else None
 
         if mv:
             # 命中判定 —— 255 表示必中（swift 电光）
@@ -790,6 +780,10 @@ def auto_battle(pet_types: list[str], pet_stats: list[int], pet_level: int,
                 atk = max(1, int(atk_stats[1] * factor))
                 dfn = max(1, def_stats[2])
             mult = effectiveness(atk_type, def_types)
+            fixed = fixed_move_damage(mv.get("id", 0), atk_lv, target_hp)
+            if fixed is not None:
+                return (fixed if mult else 0), (100 if mult else 0), \
+                    ("" if mult else eff_label(0)), mv["zh"], False
             # 本属性加成算进**伤害**，但不算进 mult ——
             # mult 要用于「效果绝佳」标签，混进 STAB 会让电系打一般系
             # 显示成 ×150「效果绝佳」，而那是错的（相克其实是 ×100）。
@@ -815,12 +809,12 @@ def auto_battle(pet_types: list[str], pet_stats: list[int], pet_level: int,
             if who == "pet":
                 dmg, mult, lbl, mv, miss = hit(
                     pet_types, ps, pet_level, wild_types, ws,
-                    ability_factor, p_moves)
+                    ability_factor, p_moves, w_hp)
                 w_hp = max(0, w_hp - dmg)
             else:
                 dmg, mult, lbl, mv, miss = hit(
                     wild_types, ws, wild_level, pet_types, ps,
-                    1.0, w_moves)
+                    1.0, w_moves, p_hp)
                 p_hp = max(0, p_hp - dmg)
             rounds.append(BattleRound(who, dmg, mult, lbl, p_hp, w_hp,
                                       move=mv, missed=miss))

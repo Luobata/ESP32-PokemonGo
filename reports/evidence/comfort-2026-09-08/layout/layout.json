@@ -1,0 +1,20 @@
+{
+  "build": "b89596dac0f6a9a529a1",
+  "species": 151,
+  "cases": 302,
+  "sprite_pixel_comparisons": 906,
+  "complete_name_comparisons": 302,
+  "dirty_checks": 906,
+  "font_characters": 133,
+  "rows_exercised": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "max_name_ink_width": 79,
+  "minimum_name_level_gap": 45,
+  "negative": "Unsupported 80px enlargement produces blank P11; positive pixel oracle rejects it."
+}

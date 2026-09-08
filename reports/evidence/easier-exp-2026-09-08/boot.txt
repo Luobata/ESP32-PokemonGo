@@ -1,0 +1,5 @@
+I (572) world: 读档：图鉴 5/151 队列 0 行程 4% party 6 total 6
+I (572) world: reconciled EXP curve/baseline for 3 members
+I (601) world: 已存档（legacy_experience）：图鉴 5 队列 0
+I (670) main: Audio preference: muted=0
+I (926) idle: P1：#129 Lv8  提示行 184 px  横带 240x80×4 条

@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "date": "2026-09-08",
+  "url": "http://127.0.0.1:8766/firmware.html",
+  "native_build": "40fb517ab012dd3a66c1",
+  "gesture_setting": "自动（单击 / 按住 A、B）",
+  "playback": "paused",
+  "input_method": "CUA browser clicks and CDP Input.dispatchMouseEvent pressed/released, held 750 ms",
+  "checks": [
+    {"page": "P10", "action": "short B", "observed": "selection 01/19 to 02/19 (超级球)"},
+    {"page": "P10", "action": "hold B 750 ms and release", "observed": "selection 02/19 to 01/19 (精灵球); no click on release"},
+    {"page": "P1", "action": "short B", "observed": "P11 menu with 图鉴/队伍/道具/照料/选项/关闭"},
+    {"page": "P11", "action": "short B then A", "observed": "P12 six-member party"},
+    {"page": "P12", "action": "hold B 750 ms and release", "observed": "selection first member to sixth member; no click on release"},
+    {"page": "P12", "action": "short C", "observed": "P11 menu, party row retained"}
+  ],
+  "observation": "Rendered browser screenshots visually inspected after inputs; no synthetic DOM events or state mutation used.",
+  "final_page": "P11",
+  "limitations": ["Keyboard and touch covered by production JavaScript tests, not live browser checks.", "Physical finger hold not measured; real BSP and button library tested with simulated ADC."]
+}

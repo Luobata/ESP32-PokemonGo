@@ -1,3 +1,5 @@
+#include "sfx.h"
+#include "audio_settings.h"
 // main/main.c —— FoloToy AI Passport BSP 驱动参考示例:初始化 + 菜单 + 按键分发。
 //
 // 按键语义(全局统一):
@@ -20,12 +22,14 @@
 #include "nav.h"
 #include "save.h"
 #include "screen.h"
+#include "screen_idle.h"
 #include "dbg.h"
 #include "render.h"
 #include "ui_pixel.h"
 #include "lvgl.h"
 #include "esp_log.h"
 #include "esp_sleep.h"
+#include "sdkconfig.h"
 
 static const char *TAG = "main";
 
@@ -54,6 +58,7 @@ static int  s_active = -1;         // 当前所在演示页;-1 = 在菜单
 // 在玩法里（nav 管的那五页）还是在 demo 菜单里。
 // 两套分发并存：玩法是链式的，demo 是菜单式的（见 nav.h 的说明）。
 static bool s_in_game;
+static bool display_busy(void) { return s_in_game && nav_screen_busy(); }
 
 static void menu_refresh(void) {
     for (size_t i = 0; i < DEMO_COUNT; i++) {
@@ -93,25 +98,21 @@ static void enter_menu(void) {
 // 按键回调运行在 button 组件的任务里,操作 LVGL 必须加锁。
 static void on_key(bsp_btn_t btn, bsp_btn_ev_t ev, void *user) {
     (void)user;
-    if (!bsp_lvgl_lock(500)) return;
+    if (!bsp_lvgl_lock(500)) {
+        screen_idle_input_dropped(btn, ev);
+        return;
+    }
 
+    // Game and debug inputs share nav's filter; the demo shell filters here.
+    // C-long belongs to display power on every page, never to navigation.
+    if (!s_in_game && screen_idle_filter_key(btn, ev)) {
+        bsp_lvgl_unlock();
+        return;
+    }
     if (s_in_game) {
-        // 玩法页走 nav（P1↔P2↔P3↔P4↔P6 链式跳转），
-        // 长按 OK 才退回上游 demo 菜单。
-        if (btn == BSP_BTN_OK && ev == BSP_BTN_LONG) {
-            s_in_game = false;
-            nav_exit_current();
-            enter_menu();
-        } else {
-            nav_key(btn, ev);
-        }
+        nav_key(btn, ev);
     } else if (s_active >= 0) {
-        if (btn == BSP_BTN_OK && ev == BSP_BTN_LONG) {     // 统一返回
-            DEMOS[s_active].exit();
-            enter_menu();
-        } else {
-            DEMOS[s_active].key(btn, ev);
-        }
+        DEMOS[s_active].key(btn, ev);
     } else if (ev == BSP_BTN_CLICK) {
         if (btn == BSP_BTN_UP)   { s_sel = (s_sel + DEMO_COUNT - 1) % DEMO_COUNT; menu_refresh(); }
         if (btn == BSP_BTN_DOWN) { s_sel = (s_sel + 1) % DEMO_COUNT;              menu_refresh(); }
@@ -131,6 +132,13 @@ static void on_key(bsp_btn_t btn, bsp_btn_ev_t ev, void *user) {
 }
 
 void app_main(void) {
+    // First app action: silence a connected PA and, in silent builds, the
+    // codec before scans, display initialization, gameplay or debug tasks.
+    esp_err_t quiet = bsp_audio_boot_quiet();
+    if (quiet != ESP_OK) ESP_LOGE(TAG, "Early audio shutdown failed: %s", esp_err_to_name(quiet));
+#if CONFIG_POKEWALK_SILENT_BOOT
+    ESP_LOGI(TAG, "Silent build: audio output disabled for this boot");
+#endif
     ESP_LOGI(TAG, "PokeWalk on AI Passport 启动");
     esp_sleep_wakeup_cause_t wakeup = esp_sleep_get_wakeup_cause();
     if (wakeup != ESP_SLEEP_WAKEUP_UNDEFINED) {
@@ -171,15 +179,20 @@ void app_main(void) {
     bool world_ok = world_start();
 
     bool btn_ok = (bsp_button_init(on_key, NULL) == ESP_OK);
-    bool audio_ok = (bsp_audio_init() == ESP_OK);
+    audio_settings_init();
+    ESP_LOGI(TAG, "Audio preference: muted=%d", audio_settings_muted());
+    sfx_start();
+    // Codec creation/opening is lazy, owned by the playback task after unmute.
+    bool audio_ok = quiet == ESP_OK;
     bool batt_ok = (bsp_battery_init() == ESP_OK);
     for (size_t i = 0; i < DEMO_COUNT; i++) s_ok[i] = true;
 
-    // 开机直接进玩法而不是停在菜单。首次冷启动先播 P0 开场；完成或
-    // 跳过后写入单调标记，以后复位直接进 P1。
+    // Fresh games finish/skip P0, then must save a starter choice in P9.
+    // Existing parties resume an active challenge or go to P1; a pending choice resumes in P9 once
+    // the opening has been seen. Never replace an existing player's leader.
     //
     // 理由是实测的：每次烧写后设备回到菜单，没人按键就什么都不发生。
-    // 长按 OK 仍可退回菜单 —— 只是默认状态反过来了。
+    // 长按 C 由统一输入过滤层处理为熄屏。
     //
     // **进 Idle 而不是 Collect** —— 这是 F9-① 换来的。
     // 在那之前扫描绑在 Collect 页的 lv_timer 上，离开那页就停，
@@ -190,7 +203,10 @@ void app_main(void) {
         // 唯一的那张 LVGL 屏 —— 五个玩法页共用，切页时不再新建。
         screen_own_display();
         s_in_game = true;
-        nav_go(save_opening_seen() ? PAGE_IDLE : PAGE_OPENING);
+        if (!world_needs_starter()) nav_start();
+        else nav_go(save_opening_seen() ? PAGE_STARTER : PAGE_OPENING);
+        if (!screen_idle_init(display_busy))
+            ESP_LOGE(TAG, "自动熄屏计时器创建失败");
         bsp_lvgl_unlock();
     }
 

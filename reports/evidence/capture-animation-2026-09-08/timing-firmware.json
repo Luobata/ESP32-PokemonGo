@@ -1,0 +1,8 @@
+{
+  "size": 1822448,
+  "sha256": "86f60198914fdd33f6392a7ae8644402a5741eccdfb0304ca7eef21621433d77",
+  "app_offset": "0x10000",
+  "flash_hash_verified": true,
+  "boot_ready": true,
+  "muted_on_boot": true
+}

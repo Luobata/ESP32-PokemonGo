@@ -39,6 +39,7 @@
 #include "nav.h"
 #include "world.h"
 #include "screen.h"
+#include "screen_idle.h"
 #include "sfx.h"
 
 static const char *TAG = "dbg";
@@ -150,6 +151,17 @@ static void dispatch(char c)
         return;
     case 'w':                       // 立刻存档（验证掉电不丢）
         world_debug_save();
+        return;
+    case 'q':                       // 只读显示/世界状态，不重置熄屏倒计时
+        if (bsp_lvgl_lock(2000)) {
+            world_t view;
+            world_snapshot(&view);
+            ESP_LOGI(TAG, "@@DISPLAY_STATE off=%d brightness=%u page=%u scans=%lu pending=%u pet=%u level=%u exp=%lu",
+                     screen_idle_is_off(), bsp_display_get_backlight(), (unsigned)nav_current(),
+                     (unsigned long)view.scans, view.pending, view.species, view.level,
+                     (unsigned long)view.exp);
+            bsp_lvgl_unlock();
+        }
         return;
     case 'r':                       // 静音基线 + 扬声器播放期间的麦克风 RMS
         audio_probe();

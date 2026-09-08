@@ -14,7 +14,7 @@
 //   正式流程只需要 mode 2 那一条：求矩形、输出。**不搬运脚手架。**
 //
 // 编译（build.py 自动做，无需手工）：
-//   cc -std=c11 -I firmware/main -o <tmp>/scene_cli tools/pipeline/scene_cli.c
+//   cc -std=c11 -I firmware/main -o <tmp>/scene_cli tools/pipeline/scene_cli.c firmware/main/battle_hud.c
 //
 // 用法：
 //   scene_cli p3_pet_hp <cur> <max>        单帧

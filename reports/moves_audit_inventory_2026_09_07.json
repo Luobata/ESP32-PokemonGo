@@ -1,0 +1,2797 @@
+{
+  "input_template_sha256": "522a78d745df1ea25f212594523f57ccc898166a9901f686fda0649d0b6bc441",
+  "moves_bin": {
+    "bytes": 3856,
+    "move_count": 99,
+    "species_count": 151,
+    "learn_count": 607,
+    "sha256": "dfe634e8c8107b265933150844117d9831f3434ad90262173108db5b44a7d504"
+  },
+  "dedicated_count": 26,
+  "type_fallback_count": 15,
+  "type_counts": {
+    "一般": 43,
+    "火": 5,
+    "冰": 4,
+    "电": 4,
+    "飞行": 5,
+    "草": 6,
+    "格斗": 6,
+    "毒": 4,
+    "虫": 3,
+    "水": 8,
+    "超能": 4,
+    "岩石": 2,
+    "地面": 4,
+    "幽灵": 1
+  },
+  "dedicated_names": [
+    "乱击",
+    "吸血",
+    "咬住",
+    "啄",
+    "啄钻",
+    "必杀门牙",
+    "念力",
+    "抓",
+    "投球",
+    "拍击",
+    "挣扎",
+    "撞击",
+    "毒针",
+    "水枪",
+    "泡沫",
+    "火花",
+    "电光一闪",
+    "电击",
+    "紧束",
+    "舌舔",
+    "落石",
+    "藤鞭",
+    "角撞",
+    "起风",
+    "连环巴掌",
+    "飞叶快刀"
+  ],
+  "dedicated_missing_from_bin": [],
+  "per_move_fallback_count": 73,
+  "obtainable_move_count": 88,
+  "level_up_move_count": 87,
+  "obtainable_without_dedicated": [
+    "三重攻击",
+    "乱抓",
+    "二连踢",
+    "冰冻光束",
+    "冰冻拳",
+    "劈开",
+    "双针",
+    "吸取",
+    "喷射火焰",
+    "回旋踢",
+    "地狱翻滚",
+    "地震",
+    "大爆炸",
+    "大闹一番",
+    "头锤",
+    "夹住",
+    "尖刺加农炮",
+    "幻象光线",
+    "愤怒",
+    "打雷",
+    "挖洞",
+    "摔打",
+    "攀瀑",
+    "日光束",
+    "暴风雪",
+    "极光束",
+    "水炮",
+    "污泥攻击",
+    "泰山压顶",
+    "浊雾",
+    "溶解液",
+    "火焰拳",
+    "火焰旋涡",
+    "火箭头锤",
+    "猛撞",
+    "百万吨重拳",
+    "百万吨重踢",
+    "破坏光线",
+    "神鸟猛击",
+    "空手劈",
+    "精神强念",
+    "绑紧",
+    "缠绕",
+    "翅膀攻击",
+    "聚宝功",
+    "自爆",
+    "舍身冲撞",
+    "花瓣舞",
+    "蟹钳锤",
+    "贝壳夹击",
+    "踢倒",
+    "踩踏",
+    "连续拳",
+    "迷昏拳",
+    "雷电拳",
+    "飞弹针",
+    "飞膝踢",
+    "飞踢",
+    "食梦",
+    "骨头回力镖",
+    "骨棒",
+    "高速星星"
+  ],
+  "obtainable_without_dedicated_count": 62,
+  "bin_not_obtainable": [
+    {
+      "id": 13,
+      "zh": "旋风刀"
+    },
+    {
+      "id": 15,
+      "zh": "居合斩"
+    },
+    {
+      "id": 19,
+      "zh": "飞翔"
+    },
+    {
+      "id": 57,
+      "zh": "冲浪"
+    },
+    {
+      "id": 61,
+      "zh": "泡沫光线"
+    },
+    {
+      "id": 70,
+      "zh": "怪力"
+    },
+    {
+      "id": 72,
+      "zh": "超级吸取"
+    },
+    {
+      "id": 85,
+      "zh": "十万伏特"
+    },
+    {
+      "id": 121,
+      "zh": "炸蛋"
+    },
+    {
+      "id": 126,
+      "zh": "大字爆炎"
+    },
+    {
+      "id": 157,
+      "zh": "岩崩"
+    }
+  ],
+  "zero_learn_species": [
+    11,
+    14,
+    63,
+    132
+  ],
+  "reserved_nonzero_count": 0,
+  "gen1_damage_class_mismatch_count": 16,
+  "gen1_damage_class_mismatches": [
+    {
+      "id": 7,
+      "zh": "火焰拳",
+      "type": "火",
+      "stored": "physical",
+      "gen1": "special"
+    },
+    {
+      "id": 8,
+      "zh": "冰冻拳",
+      "type": "冰",
+      "stored": "physical",
+      "gen1": "special"
+    },
+    {
+      "id": 9,
+      "zh": "雷电拳",
+      "type": "电",
+      "stored": "physical",
+      "gen1": "special"
+    },
+    {
+      "id": 13,
+      "zh": "旋风刀",
+      "type": "一般",
+      "stored": "special",
+      "gen1": "physical"
+    },
+    {
+      "id": 16,
+      "zh": "起风",
+      "type": "一般",
+      "stored": "special",
+      "gen1": "physical"
+    },
+    {
+      "id": 22,
+      "zh": "藤鞭",
+      "type": "草",
+      "stored": "physical",
+      "gen1": "special"
+    },
+    {
+      "id": 51,
+      "zh": "溶解液",
+      "type": "毒",
+      "stored": "special",
+      "gen1": "physical"
+    },
+    {
+      "id": 63,
+      "zh": "破坏光线",
+      "type": "一般",
+      "stored": "special",
+      "gen1": "physical"
+    },
+    {
+      "id": 75,
+      "zh": "飞叶快刀",
+      "type": "草",
+      "stored": "physical",
+      "gen1": "special"
+    },
+    {
+      "id": 123,
+      "zh": "浊雾",
+      "type": "毒",
+      "stored": "special",
+      "gen1": "physical"
+    },
+    {
+      "id": 124,
+      "zh": "污泥攻击",
+      "type": "毒",
+      "stored": "special",
+      "gen1": "physical"
+    },
+    {
+      "id": 127,
+      "zh": "攀瀑",
+      "type": "水",
+      "stored": "physical",
+      "gen1": "special"
+    },
+    {
+      "id": 128,
+      "zh": "贝壳夹击",
+      "type": "水",
+      "stored": "physical",
+      "gen1": "special"
+    },
+    {
+      "id": 129,
+      "zh": "高速星星",
+      "type": "一般",
+      "stored": "special",
+      "gen1": "physical"
+    },
+    {
+      "id": 152,
+      "zh": "蟹钳锤",
+      "type": "水",
+      "stored": "physical",
+      "gen1": "special"
+    },
+    {
+      "id": 161,
+      "zh": "三重攻击",
+      "type": "一般",
+      "stored": "special",
+      "gen1": "physical"
+    }
+  ],
+  "raw_cache_moves": 165,
+  "omitted_status_count": 55,
+  "omitted_damage_count": 11,
+  "omitted_damaging_moves": [
+    {
+      "id": 12,
+      "slug": "guillotine",
+      "damage_class": "physical"
+    },
+    {
+      "id": 32,
+      "slug": "horn-drill",
+      "damage_class": "physical"
+    },
+    {
+      "id": 49,
+      "slug": "sonic-boom",
+      "damage_class": "special"
+    },
+    {
+      "id": 68,
+      "slug": "counter",
+      "damage_class": "physical"
+    },
+    {
+      "id": 69,
+      "slug": "seismic-toss",
+      "damage_class": "physical"
+    },
+    {
+      "id": 82,
+      "slug": "dragon-rage",
+      "damage_class": "special"
+    },
+    {
+      "id": 90,
+      "slug": "fissure",
+      "damage_class": "physical"
+    },
+    {
+      "id": 101,
+      "slug": "night-shade",
+      "damage_class": "special"
+    },
+    {
+      "id": 117,
+      "slug": "bide",
+      "damage_class": "physical"
+    },
+    {
+      "id": 149,
+      "slug": "psywave",
+      "damage_class": "special"
+    },
+    {
+      "id": 162,
+      "slug": "super-fang",
+      "damage_class": "physical"
+    }
+  ],
+  "unlocked_matrix": {
+    "species_count": 151,
+    "levels": [
+      5,
+      12,
+      20,
+      30,
+      45
+    ],
+    "definition": "Distinct unlocked moves per species-level; no spawn/AI frequency weighting",
+    "total": 1529,
+    "dedicated": 1058
+  },
+  "priority_by_unlocks": [
+    {
+      "id": 33,
+      "zh": "撞击",
+      "slug": "tackle",
+      "type": "一般",
+      "dedicated": true,
+      "unlocked_species_level_cases": 183,
+      "level_up_rows": 37
+    },
+    {
+      "id": 10,
+      "zh": "抓",
+      "slug": "scratch",
+      "type": "一般",
+      "dedicated": true,
+      "unlocked_species_level_cases": 99,
+      "level_up_rows": 22
+    },
+    {
+      "id": 55,
+      "zh": "水枪",
+      "slug": "water-gun",
+      "type": "水",
+      "dedicated": true,
+      "unlocked_species_level_cases": 62,
+      "level_up_rows": 22
+    },
+    {
+      "id": 98,
+      "zh": "电光一闪",
+      "slug": "quick-attack",
+      "type": "一般",
+      "dedicated": true,
+      "unlocked_species_level_cases": 60,
+      "level_up_rows": 19
+    },
+    {
+      "id": 52,
+      "zh": "火花",
+      "slug": "ember",
+      "type": "火",
+      "dedicated": true,
+      "unlocked_species_level_cases": 52,
+      "level_up_rows": 14
+    },
+    {
+      "id": 35,
+      "zh": "紧束",
+      "slug": "wrap",
+      "type": "一般",
+      "dedicated": true,
+      "unlocked_species_level_cases": 49,
+      "level_up_rows": 13
+    },
+    {
+      "id": 44,
+      "zh": "咬住",
+      "slug": "bite",
+      "type": "一般",
+      "dedicated": true,
+      "unlocked_species_level_cases": 48,
+      "level_up_rows": 21
+    },
+    {
+      "id": 93,
+      "zh": "念力",
+      "slug": "confusion",
+      "type": "超能",
+      "dedicated": true,
+      "unlocked_species_level_cases": 45,
+      "level_up_rows": 16
+    },
+    {
+      "id": 64,
+      "zh": "啄",
+      "slug": "peck",
+      "type": "飞行",
+      "dedicated": true,
+      "unlocked_species_level_cases": 45,
+      "level_up_rows": 9
+    },
+    {
+      "id": 145,
+      "zh": "泡沫",
+      "slug": "bubble",
+      "type": "水",
+      "dedicated": true,
+      "unlocked_species_level_cases": 44,
+      "level_up_rows": 11
+    },
+    {
+      "id": 40,
+      "zh": "毒针",
+      "slug": "poison-sting",
+      "type": "毒",
+      "dedicated": true,
+      "unlocked_species_level_cases": 44,
+      "level_up_rows": 15
+    },
+    {
+      "id": 1,
+      "zh": "拍击",
+      "slug": "pound",
+      "type": "一般",
+      "dedicated": true,
+      "unlocked_species_level_cases": 44,
+      "level_up_rows": 9
+    },
+    {
+      "id": 31,
+      "zh": "乱击",
+      "slug": "fury-attack",
+      "type": "一般",
+      "dedicated": true,
+      "unlocked_species_level_cases": 34,
+      "level_up_rows": 15
+    },
+    {
+      "id": 30,
+      "zh": "角撞",
+      "slug": "horn-attack",
+      "type": "一般",
+      "dedicated": true,
+      "unlocked_species_level_cases": 34,
+      "level_up_rows": 12
+    },
+    {
+      "id": 3,
+      "zh": "连环巴掌",
+      "slug": "double-slap",
+      "type": "一般",
+      "dedicated": true,
+      "unlocked_species_level_cases": 32,
+      "level_up_rows": 10
+    },
+    {
+      "id": 51,
+      "zh": "溶解液",
+      "slug": "acid",
+      "type": "毒",
+      "dedicated": false,
+      "unlocked_species_level_cases": 29,
+      "level_up_rows": 10
+    },
+    {
+      "id": 84,
+      "zh": "电击",
+      "slug": "thunder-shock",
+      "type": "电",
+      "dedicated": true,
+      "unlocked_species_level_cases": 28,
+      "level_up_rows": 9
+    },
+    {
+      "id": 29,
+      "zh": "头锤",
+      "slug": "headbutt",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 26,
+      "level_up_rows": 8
+    },
+    {
+      "id": 141,
+      "zh": "吸血",
+      "slug": "leech-life",
+      "type": "虫",
+      "dedicated": true,
+      "unlocked_species_level_cases": 25,
+      "level_up_rows": 8
+    },
+    {
+      "id": 23,
+      "zh": "踩踏",
+      "slug": "stomp",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 24,
+      "level_up_rows": 11
+    },
+    {
+      "id": 165,
+      "zh": "挣扎",
+      "slug": "struggle",
+      "type": "一般",
+      "dedicated": true,
+      "unlocked_species_level_cases": 23,
+      "level_up_rows": 0
+    },
+    {
+      "id": 2,
+      "zh": "空手劈",
+      "slug": "karate-chop",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 23,
+      "level_up_rows": 6
+    },
+    {
+      "id": 22,
+      "zh": "藤鞭",
+      "slug": "vine-whip",
+      "type": "草",
+      "dedicated": true,
+      "unlocked_species_level_cases": 21,
+      "level_up_rows": 6
+    },
+    {
+      "id": 163,
+      "zh": "劈开",
+      "slug": "slash",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 20,
+      "level_up_rows": 16
+    },
+    {
+      "id": 99,
+      "zh": "愤怒",
+      "slug": "rage",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 18,
+      "level_up_rows": 12
+    },
+    {
+      "id": 71,
+      "zh": "吸取",
+      "slug": "absorb",
+      "type": "草",
+      "dedicated": false,
+      "unlocked_species_level_cases": 18,
+      "level_up_rows": 6
+    },
+    {
+      "id": 122,
+      "zh": "舌舔",
+      "slug": "lick",
+      "type": "幽灵",
+      "dedicated": true,
+      "unlocked_species_level_cases": 18,
+      "level_up_rows": 4
+    },
+    {
+      "id": 34,
+      "zh": "泰山压顶",
+      "slug": "body-slam",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 17,
+      "level_up_rows": 9
+    },
+    {
+      "id": 16,
+      "zh": "起风",
+      "slug": "gust",
+      "type": "一般",
+      "dedicated": true,
+      "unlocked_species_level_cases": 15,
+      "level_up_rows": 3
+    },
+    {
+      "id": 75,
+      "zh": "飞叶快刀",
+      "slug": "razor-leaf",
+      "type": "草",
+      "dedicated": true,
+      "unlocked_species_level_cases": 13,
+      "level_up_rows": 6
+    },
+    {
+      "id": 129,
+      "zh": "高速星星",
+      "slug": "swift",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 13,
+      "level_up_rows": 9
+    },
+    {
+      "id": 154,
+      "zh": "乱抓",
+      "slug": "fury-swipes",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 13,
+      "level_up_rows": 11
+    },
+    {
+      "id": 67,
+      "zh": "踢倒",
+      "slug": "low-kick",
+      "type": "格斗",
+      "dedicated": false,
+      "unlocked_species_level_cases": 13,
+      "level_up_rows": 5
+    },
+    {
+      "id": 62,
+      "zh": "极光束",
+      "slug": "aurora-beam",
+      "type": "冰",
+      "dedicated": false,
+      "unlocked_species_level_cases": 13,
+      "level_up_rows": 5
+    },
+    {
+      "id": 11,
+      "zh": "夹住",
+      "slug": "vice-grip",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 13,
+      "level_up_rows": 4
+    },
+    {
+      "id": 17,
+      "zh": "翅膀攻击",
+      "slug": "wing-attack",
+      "type": "飞行",
+      "dedicated": false,
+      "unlocked_species_level_cases": 12,
+      "level_up_rows": 6
+    },
+    {
+      "id": 65,
+      "zh": "啄钻",
+      "slug": "drill-peck",
+      "type": "飞行",
+      "dedicated": true,
+      "unlocked_species_level_cases": 12,
+      "level_up_rows": 5
+    },
+    {
+      "id": 88,
+      "zh": "落石",
+      "slug": "rock-throw",
+      "type": "岩石",
+      "dedicated": true,
+      "unlocked_species_level_cases": 12,
+      "level_up_rows": 4
+    },
+    {
+      "id": 120,
+      "zh": "自爆",
+      "slug": "self-destruct",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 12,
+      "level_up_rows": 7
+    },
+    {
+      "id": 94,
+      "zh": "精神强念",
+      "slug": "psychic",
+      "type": "超能",
+      "dedicated": false,
+      "unlocked_species_level_cases": 11,
+      "level_up_rows": 11
+    },
+    {
+      "id": 36,
+      "zh": "猛撞",
+      "slug": "take-down",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 11,
+      "level_up_rows": 11
+    },
+    {
+      "id": 140,
+      "zh": "投球",
+      "slug": "barrage",
+      "type": "一般",
+      "dedicated": true,
+      "unlocked_species_level_cases": 10,
+      "level_up_rows": 2
+    },
+    {
+      "id": 125,
+      "zh": "骨棒",
+      "slug": "bone-club",
+      "type": "地面",
+      "dedicated": false,
+      "unlocked_species_level_cases": 10,
+      "level_up_rows": 2
+    },
+    {
+      "id": 4,
+      "zh": "连续拳",
+      "slug": "comet-punch",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 10,
+      "level_up_rows": 2
+    },
+    {
+      "id": 123,
+      "zh": "浊雾",
+      "slug": "smog",
+      "type": "毒",
+      "dedicated": false,
+      "unlocked_species_level_cases": 10,
+      "level_up_rows": 3
+    },
+    {
+      "id": 60,
+      "zh": "幻象光线",
+      "slug": "psybeam",
+      "type": "超能",
+      "dedicated": false,
+      "unlocked_species_level_cases": 9,
+      "level_up_rows": 6
+    },
+    {
+      "id": 83,
+      "zh": "火焰旋涡",
+      "slug": "fire-spin",
+      "type": "火",
+      "dedicated": false,
+      "unlocked_species_level_cases": 9,
+      "level_up_rows": 8
+    },
+    {
+      "id": 132,
+      "zh": "缠绕",
+      "slug": "constrict",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 9,
+      "level_up_rows": 3
+    },
+    {
+      "id": 56,
+      "zh": "水炮",
+      "slug": "hydro-pump",
+      "type": "水",
+      "dedicated": false,
+      "unlocked_species_level_cases": 8,
+      "level_up_rows": 20
+    },
+    {
+      "id": 24,
+      "zh": "二连踢",
+      "slug": "double-kick",
+      "type": "格斗",
+      "dedicated": false,
+      "unlocked_species_level_cases": 8,
+      "level_up_rows": 6
+    },
+    {
+      "id": 37,
+      "zh": "大闹一番",
+      "slug": "thrash",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 8,
+      "level_up_rows": 7
+    },
+    {
+      "id": 91,
+      "zh": "挖洞",
+      "slug": "dig",
+      "type": "地面",
+      "dedicated": false,
+      "unlocked_species_level_cases": 8,
+      "level_up_rows": 3
+    },
+    {
+      "id": 21,
+      "zh": "摔打",
+      "slug": "slam",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 8,
+      "level_up_rows": 8
+    },
+    {
+      "id": 124,
+      "zh": "污泥攻击",
+      "slug": "sludge",
+      "type": "毒",
+      "dedicated": false,
+      "unlocked_species_level_cases": 8,
+      "level_up_rows": 5
+    },
+    {
+      "id": 20,
+      "zh": "绑紧",
+      "slug": "bind",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 8,
+      "level_up_rows": 2
+    },
+    {
+      "id": 80,
+      "zh": "花瓣舞",
+      "slug": "petal-dance",
+      "type": "草",
+      "dedicated": false,
+      "unlocked_species_level_cases": 7,
+      "level_up_rows": 3
+    },
+    {
+      "id": 128,
+      "zh": "贝壳夹击",
+      "slug": "clamp",
+      "type": "水",
+      "dedicated": false,
+      "unlocked_species_level_cases": 7,
+      "level_up_rows": 2
+    },
+    {
+      "id": 158,
+      "zh": "必杀门牙",
+      "slug": "hyper-fang",
+      "type": "一般",
+      "dedicated": true,
+      "unlocked_species_level_cases": 6,
+      "level_up_rows": 2
+    },
+    {
+      "id": 6,
+      "zh": "聚宝功",
+      "slug": "pay-day",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 6,
+      "level_up_rows": 2
+    },
+    {
+      "id": 58,
+      "zh": "冰冻光束",
+      "slug": "ice-beam",
+      "type": "冰",
+      "dedicated": false,
+      "unlocked_species_level_cases": 6,
+      "level_up_rows": 5
+    },
+    {
+      "id": 89,
+      "zh": "地震",
+      "slug": "earthquake",
+      "type": "地面",
+      "dedicated": false,
+      "unlocked_species_level_cases": 4,
+      "level_up_rows": 5
+    },
+    {
+      "id": 153,
+      "zh": "大爆炸",
+      "slug": "explosion",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 4,
+      "level_up_rows": 7
+    },
+    {
+      "id": 5,
+      "zh": "百万吨重拳",
+      "slug": "mega-punch",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 4,
+      "level_up_rows": 3
+    },
+    {
+      "id": 53,
+      "zh": "喷射火焰",
+      "slug": "flamethrower",
+      "type": "火",
+      "dedicated": false,
+      "unlocked_species_level_cases": 3,
+      "level_up_rows": 7
+    },
+    {
+      "id": 130,
+      "zh": "火箭头锤",
+      "slug": "skull-bash",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 3,
+      "level_up_rows": 3
+    },
+    {
+      "id": 41,
+      "zh": "双针",
+      "slug": "twineedle",
+      "type": "虫",
+      "dedicated": false,
+      "unlocked_species_level_cases": 3,
+      "level_up_rows": 1
+    },
+    {
+      "id": 161,
+      "zh": "三重攻击",
+      "slug": "tri-attack",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 3,
+      "level_up_rows": 3
+    },
+    {
+      "id": 138,
+      "zh": "食梦",
+      "slug": "dream-eater",
+      "type": "超能",
+      "dedicated": false,
+      "unlocked_species_level_cases": 3,
+      "level_up_rows": 3
+    },
+    {
+      "id": 42,
+      "zh": "飞弹针",
+      "slug": "pin-missile",
+      "type": "虫",
+      "dedicated": false,
+      "unlocked_species_level_cases": 2,
+      "level_up_rows": 2
+    },
+    {
+      "id": 152,
+      "zh": "蟹钳锤",
+      "slug": "crabhammer",
+      "type": "水",
+      "dedicated": false,
+      "unlocked_species_level_cases": 2,
+      "level_up_rows": 2
+    },
+    {
+      "id": 7,
+      "zh": "火焰拳",
+      "slug": "fire-punch",
+      "type": "火",
+      "dedicated": false,
+      "unlocked_species_level_cases": 2,
+      "level_up_rows": 2
+    },
+    {
+      "id": 8,
+      "zh": "冰冻拳",
+      "slug": "ice-punch",
+      "type": "冰",
+      "dedicated": false,
+      "unlocked_species_level_cases": 2,
+      "level_up_rows": 2
+    },
+    {
+      "id": 9,
+      "zh": "雷电拳",
+      "slug": "thunder-punch",
+      "type": "电",
+      "dedicated": false,
+      "unlocked_species_level_cases": 2,
+      "level_up_rows": 2
+    },
+    {
+      "id": 127,
+      "zh": "攀瀑",
+      "slug": "waterfall",
+      "type": "水",
+      "dedicated": false,
+      "unlocked_species_level_cases": 2,
+      "level_up_rows": 2
+    },
+    {
+      "id": 87,
+      "zh": "打雷",
+      "slug": "thunder",
+      "type": "电",
+      "dedicated": false,
+      "unlocked_species_level_cases": 1,
+      "level_up_rows": 4
+    },
+    {
+      "id": 38,
+      "zh": "舍身冲撞",
+      "slug": "double-edge",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 1,
+      "level_up_rows": 3
+    },
+    {
+      "id": 76,
+      "zh": "日光束",
+      "slug": "solar-beam",
+      "type": "草",
+      "dedicated": false,
+      "unlocked_species_level_cases": 1,
+      "level_up_rows": 6
+    },
+    {
+      "id": 155,
+      "zh": "骨头回力镖",
+      "slug": "bonemerang",
+      "type": "地面",
+      "dedicated": false,
+      "unlocked_species_level_cases": 1,
+      "level_up_rows": 2
+    },
+    {
+      "id": 26,
+      "zh": "飞踢",
+      "slug": "jump-kick",
+      "type": "格斗",
+      "dedicated": false,
+      "unlocked_species_level_cases": 1,
+      "level_up_rows": 1
+    },
+    {
+      "id": 27,
+      "zh": "回旋踢",
+      "slug": "rolling-kick",
+      "type": "格斗",
+      "dedicated": false,
+      "unlocked_species_level_cases": 1,
+      "level_up_rows": 1
+    },
+    {
+      "id": 131,
+      "zh": "尖刺加农炮",
+      "slug": "spike-cannon",
+      "type": "一般",
+      "dedicated": false,
+      "unlocked_species_level_cases": 1,
+      "level_up_rows": 3
+    }
+  ],
+  "gfx": {
+    "fire": {
+      "width": 8,
+      "frames": 3,
+      "frame_sizes": [
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ]
+      ],
+      "pixels": 192
+    },
+    "water": {
+      "width": 8,
+      "frames": 2,
+      "frame_sizes": [
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ]
+      ],
+      "pixels": 128
+    },
+    "leaf": {
+      "width": 16,
+      "frames": 2,
+      "frame_sizes": [
+        [
+          16,
+          8
+        ],
+        [
+          16,
+          8
+        ]
+      ],
+      "pixels": 256
+    },
+    "bubble": {
+      "width": 16,
+      "frames": 1,
+      "frame_sizes": [
+        [
+          16,
+          16
+        ]
+      ],
+      "pixels": 256
+    },
+    "cut": {
+      "width": 8,
+      "frames": 2,
+      "frame_sizes": [
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ]
+      ],
+      "pixels": 128
+    },
+    "powder": {
+      "width": 8,
+      "frames": 2,
+      "frame_sizes": [
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ]
+      ],
+      "pixels": 128
+    },
+    "wave": {
+      "width": 8,
+      "frames": 3,
+      "frame_sizes": [
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ]
+      ],
+      "pixels": 192
+    },
+    "rocks": {
+      "width": 32,
+      "frames": 3,
+      "frame_sizes": [
+        [
+          32,
+          16
+        ],
+        [
+          32,
+          16
+        ],
+        [
+          32,
+          16
+        ]
+      ],
+      "pixels": 1536
+    },
+    "bolt": {
+      "width": 24,
+      "frames": 5,
+      "frame_sizes": [
+        [
+          24,
+          16
+        ],
+        [
+          24,
+          16
+        ],
+        [
+          24,
+          16
+        ],
+        [
+          24,
+          16
+        ],
+        [
+          24,
+          24
+        ]
+      ],
+      "pixels": 2112
+    },
+    "hudE": {
+      "width": 32,
+      "frames": 1,
+      "frame_sizes": [
+        [
+          32,
+          8
+        ]
+      ],
+      "pixels": 256
+    },
+    "hudP": {
+      "width": 48,
+      "frames": 1,
+      "frame_sizes": [
+        [
+          48,
+          8
+        ]
+      ],
+      "pixels": 384
+    },
+    "expbar": {
+      "width": 72,
+      "frames": 1,
+      "frame_sizes": [
+        [
+          72,
+          8
+        ]
+      ],
+      "pixels": 576
+    },
+    "expend": {
+      "width": 8,
+      "frames": 1,
+      "frame_sizes": [
+        [
+          8,
+          8
+        ]
+      ],
+      "pixels": 64
+    },
+    "hpbar": {
+      "width": 8,
+      "frames": 12,
+      "frame_sizes": [
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ],
+        [
+          8,
+          8
+        ]
+      ],
+      "pixels": 768
+    }
+  },
+  "registry": {
+    "撞击": {
+      "dur": 3,
+      "dash": 20,
+      "hit": 1,
+      "seg": [
+        [
+          0,
+          4
+        ],
+        [
+          3,
+          8
+        ]
+      ]
+    },
+    "挣扎": {
+      "dur": 3,
+      "dash": 8,
+      "tint": 1,
+      "hit": 1
+    },
+    "抓": {
+      "dur": 5,
+      "dash": 12,
+      "slash": 1,
+      "hit": 1
+    },
+    "毒针": {
+      "dur": 5,
+      "projN": "needle",
+      "burstG": [
+        "powder",
+        "poison"
+      ],
+      "hit": 1,
+      "seg": [
+        [
+          0,
+          16
+        ],
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    "电光一闪": {
+      "dur": 6,
+      "dash": 26,
+      "wind": 1,
+      "hit": 1,
+      "seg": [
+        [
+          0,
+          12
+        ],
+        [
+          3,
+          8
+        ],
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    "啄": {
+      "dur": 4,
+      "dash": 18,
+      "slash": 1,
+      "hit": 1,
+      "seg": [
+        [
+          3,
+          8
+        ],
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    "电击": {
+      "dur": 19,
+      "charge": 1,
+      "tint": 1,
+      "boltG": 1,
+      "hit": 1,
+      "seg": [
+        [
+          0,
+          16
+        ],
+        [
+          2,
+          96
+        ]
+      ]
+    },
+    "火花": {
+      "dur": 9,
+      "ember": 1,
+      "burstG": [
+        "fire",
+        "fire"
+      ],
+      "hit": 1,
+      "seg": [
+        [
+          0,
+          24
+        ],
+        [
+          3,
+          32
+        ]
+      ]
+    },
+    "起风": {
+      "dur": 13,
+      "wind": 1,
+      "hit": 1,
+      "seg": [
+        [
+          0,
+          54
+        ],
+        [
+          5,
+          24
+        ]
+      ]
+    },
+    "紧束": {
+      "dur": 29,
+      "bind": 1,
+      "seg": [
+        [
+          0,
+          8
+        ],
+        [
+          1,
+          8
+        ],
+        [
+          2,
+          64
+        ],
+        [
+          6,
+          96
+        ]
+      ]
+    },
+    "咬住": {
+      "dur": 5,
+      "dash": 14,
+      "slash": 1,
+      "hit": 1,
+      "seg": [
+        [
+          2,
+          8
+        ],
+        [
+          4,
+          16
+        ],
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    "拍击": {
+      "dur": 4,
+      "dash": 16,
+      "hit": 1,
+      "seg": [
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          16
+        ]
+      ]
+    },
+    "泡沫": {
+      "dur": 29,
+      "burstG": [
+        "bubble",
+        "water"
+      ],
+      "burstAt": 0,
+      "hit": 1,
+      "seg": [
+        [
+          0,
+          12
+        ],
+        [
+          1,
+          128
+        ],
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    "水枪": {
+      "dur": 17,
+      "proj": [
+        "water",
+        "water"
+      ],
+      "waterbg": 1,
+      "hit": 1,
+      "seg": [
+        [
+          0,
+          40
+        ],
+        [
+          3,
+          48
+        ],
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    "藤鞭": {
+      "dur": 3,
+      "slash": 1,
+      "bind": 1,
+      "hit": 1
+    },
+    "必杀门牙": {
+      "dur": 4,
+      "slash": 2,
+      "dash": 10,
+      "hit": 1,
+      "seg": [
+        [
+          2,
+          6
+        ],
+        [
+          3,
+          16
+        ]
+      ]
+    },
+    "吸血": {
+      "dur": 20,
+      "drain": 1,
+      "hit": 1,
+      "seg": [
+        [
+          0,
+          90
+        ],
+        [
+          6,
+          32
+        ]
+      ]
+    },
+    "乱击": {
+      "dur": 5,
+      "multi": 1,
+      "dash": 10,
+      "hit": 1
+    },
+    "角撞": {
+      "dur": 5,
+      "dash": 22,
+      "hit": 1,
+      "seg": [
+        [
+          0,
+          16
+        ],
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    "舌舔": {
+      "dur": 11,
+      "projN": "lick",
+      "hit": 1
+    },
+    "落石": {
+      "dur": 18,
+      "rocksG": 1,
+      "hit": 1,
+      "seg": [
+        [
+          0,
+          10
+        ],
+        [
+          1,
+          96
+        ]
+      ]
+    },
+    "连环巴掌": {
+      "dur": 7,
+      "multi": 1,
+      "dash": 12,
+      "hit": 1,
+      "seg": [
+        [
+          2,
+          14
+        ],
+        [
+          4,
+          14
+        ],
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    "啄钻": {
+      "dur": 16,
+      "dash": 24,
+      "slash": 1,
+      "hit": 1,
+      "seg": [
+        [
+          2,
+          80
+        ],
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    "飞叶快刀": {
+      "dur": 28,
+      "proj": [
+        "leaf",
+        "grass"
+      ],
+      "hit": 1,
+      "seg": [
+        [
+          0,
+          6
+        ],
+        [
+          1,
+          80
+        ],
+        [
+          4,
+          20
+        ],
+        [
+          7,
+          64
+        ]
+      ]
+    },
+    "念力": {
+      "dur": 21,
+      "rings": 1,
+      "hit": 1
+    },
+    "投球": {
+      "dur": 9,
+      "projN": "orb",
+      "hit": 1,
+      "seg": [
+        [
+          0,
+          36
+        ],
+        [
+          5,
+          16
+        ]
+      ]
+    },
+    "*": {
+      "dur": 4,
+      "dash": 12,
+      "hit": 1
+    }
+  },
+  "type_registry": {
+    "一般": {
+      "dur": 4,
+      "dash": 16,
+      "hit": 1
+    },
+    "火": {
+      "dur": 9,
+      "ember": 1,
+      "burstG": [
+        "fire",
+        "fire"
+      ],
+      "hit": 1
+    },
+    "水": {
+      "dur": 17,
+      "proj": [
+        "water",
+        "water"
+      ],
+      "hit": 1
+    },
+    "草": {
+      "dur": 28,
+      "proj": [
+        "leaf",
+        "grass"
+      ],
+      "hit": 1
+    },
+    "电": {
+      "dur": 19,
+      "charge": 1,
+      "boltG": 1,
+      "hit": 1
+    },
+    "冰": {
+      "dur": 29,
+      "burstG": [
+        "bubble",
+        "ice"
+      ],
+      "hit": 1
+    },
+    "格斗": {
+      "dur": 8,
+      "dash": 24,
+      "slash": 1,
+      "hit": 1
+    },
+    "毒": {
+      "dur": 5,
+      "projN": "needle",
+      "burstG": [
+        "powder",
+        "poison"
+      ],
+      "hit": 1
+    },
+    "地面": {
+      "dur": 18,
+      "rocksG": 1,
+      "hit": 1
+    },
+    "飞行": {
+      "dur": 13,
+      "wind": 1,
+      "dash": 18,
+      "hit": 1
+    },
+    "超能": {
+      "dur": 21,
+      "rings": 1,
+      "hit": 1
+    },
+    "虫": {
+      "dur": 8,
+      "drain": 1,
+      "hit": 1
+    },
+    "岩石": {
+      "dur": 18,
+      "rocksG": 1,
+      "hit": 1
+    },
+    "幽灵": {
+      "dur": 8,
+      "tint": 1,
+      "rings": 1,
+      "hit": 1
+    },
+    "龙": {
+      "dur": 8,
+      "projN": "orb",
+      "tint": 1,
+      "hit": 1
+    }
+  },
+  "asm_wait_audit": {
+    "source": "/tmp/pokecrystal/data/moves/animations.asm",
+    "sha256": "3e8c0e82a8807342862970304fb879bf7c4ad2364675c3af2f5af356b11d07e3",
+    "git_commit": "7a7881d0d62e0ddbd82dcf10e7116807487ac651",
+    "definition": "Executed anim_wait operand sum, param=0; aliases/calls/finite loops followed; not an emulator",
+    "mismatch_count": 8,
+    "entries": [
+      {
+        "zh": "撞击",
+        "id": 33,
+        "asm": "BattleAnim_Tackle",
+        "wait_total": 25,
+        "waits": [
+          {
+            "line": 4797,
+            "count": 6,
+            "called": true
+          },
+          {
+            "line": 2089,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2092,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 4801,
+            "count": 1,
+            "called": true
+          },
+          {
+            "line": 4803,
+            "count": 5,
+            "called": true
+          },
+          {
+            "line": 4805,
+            "count": 1,
+            "called": true
+          }
+        ],
+        "declared_wait": 12,
+        "web_duration_10fps": 3,
+        "sum_wait_rounded_10fps": 4,
+        "segment_sum": 12,
+        "declared_wait_matches": false
+      },
+      {
+        "zh": "挣扎",
+        "id": 165,
+        "asm": "BattleAnim_Struggle",
+        "wait_total": 16,
+        "waits": [
+          {
+            "line": 3102,
+            "count": 16,
+            "called": false
+          }
+        ],
+        "declared_wait": 16,
+        "web_duration_10fps": 3,
+        "sum_wait_rounded_10fps": 3,
+        "segment_sum": null,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "抓",
+        "id": 10,
+        "asm": "BattleAnim_Scratch",
+        "wait_total": 32,
+        "waits": [
+          {
+            "line": 1515,
+            "count": 32,
+            "called": false
+          }
+        ],
+        "declared_wait": 32,
+        "web_duration_10fps": 5,
+        "sum_wait_rounded_10fps": 5,
+        "segment_sum": null,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "毒针",
+        "id": 40,
+        "asm": "BattleAnim_PoisonSting",
+        "wait_total": 32,
+        "waits": [
+          {
+            "line": 2290,
+            "count": 16,
+            "called": false
+          },
+          {
+            "line": 2293,
+            "count": 16,
+            "called": false
+          }
+        ],
+        "declared_wait": 32,
+        "web_duration_10fps": 5,
+        "sum_wait_rounded_10fps": 5,
+        "segment_sum": 32,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "电光一闪",
+        "id": 98,
+        "asm": "BattleAnim_QuickAttack",
+        "wait_total": 36,
+        "waits": [
+          {
+            "line": 2829,
+            "count": 12,
+            "called": false
+          },
+          {
+            "line": 2832,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 2834,
+            "count": 16,
+            "called": false
+          }
+        ],
+        "declared_wait": 36,
+        "web_duration_10fps": 6,
+        "sum_wait_rounded_10fps": 6,
+        "segment_sum": 36,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "啄",
+        "id": 64,
+        "asm": "BattleAnim_Peck",
+        "wait_total": 24,
+        "waits": [
+          {
+            "line": 2488,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 2491,
+            "count": 16,
+            "called": false
+          }
+        ],
+        "declared_wait": 24,
+        "web_duration_10fps": 4,
+        "sum_wait_rounded_10fps": 4,
+        "segment_sum": 24,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "电击",
+        "id": 84,
+        "asm": "BattleAnim_Thundershock",
+        "wait_total": 112,
+        "waits": [
+          {
+            "line": 1250,
+            "count": 16,
+            "called": false
+          },
+          {
+            "line": 1253,
+            "count": 96,
+            "called": false
+          }
+        ],
+        "declared_wait": 112,
+        "web_duration_10fps": 19,
+        "sum_wait_rounded_10fps": 19,
+        "segment_sum": 112,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "火花",
+        "id": 52,
+        "asm": "BattleAnim_Ember",
+        "wait_total": 56,
+        "waits": [
+          {
+            "line": 865,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 868,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 871,
+            "count": 16,
+            "called": false
+          },
+          {
+            "line": 879,
+            "count": 32,
+            "called": false
+          }
+        ],
+        "declared_wait": 56,
+        "web_duration_10fps": 9,
+        "sum_wait_rounded_10fps": 9,
+        "segment_sum": 56,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "起风",
+        "id": 16,
+        "asm": "BattleAnim_Gust",
+        "wait_total": 78,
+        "waits": [
+          {
+            "line": 1348,
+            "count": 6,
+            "called": false
+          },
+          {
+            "line": 1348,
+            "count": 6,
+            "called": false
+          },
+          {
+            "line": 1348,
+            "count": 6,
+            "called": false
+          },
+          {
+            "line": 1348,
+            "count": 6,
+            "called": false
+          },
+          {
+            "line": 1348,
+            "count": 6,
+            "called": false
+          },
+          {
+            "line": 1348,
+            "count": 6,
+            "called": false
+          },
+          {
+            "line": 1348,
+            "count": 6,
+            "called": false
+          },
+          {
+            "line": 1348,
+            "count": 6,
+            "called": false
+          },
+          {
+            "line": 1348,
+            "count": 6,
+            "called": false
+          },
+          {
+            "line": 1351,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 1353,
+            "count": 16,
+            "called": false
+          }
+        ],
+        "declared_wait": 78,
+        "web_duration_10fps": 13,
+        "sum_wait_rounded_10fps": 13,
+        "segment_sum": 78,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "紧束",
+        "id": 35,
+        "asm": "BattleAnim_Wrap",
+        "wait_total": 176,
+        "waits": [
+          {
+            "line": 1786,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 1788,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 1790,
+            "count": 64,
+            "called": false
+          },
+          {
+            "line": 1795,
+            "count": 96,
+            "called": false
+          }
+        ],
+        "declared_wait": 176,
+        "web_duration_10fps": 29,
+        "sum_wait_rounded_10fps": 29,
+        "segment_sum": 176,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "咬住",
+        "id": 44,
+        "asm": "BattleAnim_Bite",
+        "wait_total": 32,
+        "waits": [
+          {
+            "line": 1570,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 1573,
+            "count": 16,
+            "called": false
+          },
+          {
+            "line": 1576,
+            "count": 8,
+            "called": false
+          }
+        ],
+        "declared_wait": 32,
+        "web_duration_10fps": 5,
+        "sum_wait_rounded_10fps": 5,
+        "segment_sum": 32,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "拍击",
+        "id": 1,
+        "asm": "BattleAnim_Pound",
+        "wait_total": 22,
+        "waits": [
+          {
+            "line": 657,
+            "count": 6,
+            "called": false
+          },
+          {
+            "line": 659,
+            "count": 16,
+            "called": false
+          }
+        ],
+        "declared_wait": 22,
+        "web_duration_10fps": 4,
+        "sum_wait_rounded_10fps": 4,
+        "segment_sum": 22,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "泡沫",
+        "id": 145,
+        "asm": "BattleAnim_Bubble",
+        "wait_total": 172,
+        "waits": [
+          {
+            "line": 1032,
+            "count": 6,
+            "called": false
+          },
+          {
+            "line": 1035,
+            "count": 6,
+            "called": false
+          },
+          {
+            "line": 1038,
+            "count": 128,
+            "called": false
+          },
+          {
+            "line": 1039,
+            "count": 32,
+            "called": false
+          }
+        ],
+        "declared_wait": 172,
+        "web_duration_10fps": 29,
+        "sum_wait_rounded_10fps": 29,
+        "segment_sum": 172,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "水枪",
+        "id": 55,
+        "asm": "BattleAnim_WaterGun",
+        "wait_total": 114,
+        "waits": [
+          {
+            "line": 4817,
+            "count": 4,
+            "called": true
+          },
+          {
+            "line": 1073,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 1075,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 1077,
+            "count": 24,
+            "called": false
+          },
+          {
+            "line": 1079,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 1081,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 1083,
+            "count": 32,
+            "called": false
+          },
+          {
+            "line": 4821,
+            "count": 1,
+            "called": true
+          },
+          {
+            "line": 4823,
+            "count": 4,
+            "called": true
+          },
+          {
+            "line": 4825,
+            "count": 1,
+            "called": true
+          },
+          {
+            "line": 1086,
+            "count": 16,
+            "called": false
+          }
+        ],
+        "declared_wait": 104,
+        "web_duration_10fps": 17,
+        "sum_wait_rounded_10fps": 19,
+        "segment_sum": 104,
+        "declared_wait_matches": false
+      },
+      {
+        "zh": "藤鞭",
+        "id": 22,
+        "asm": "BattleAnim_VineWhip",
+        "wait_total": 12,
+        "waits": [
+          {
+            "line": 1142,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 1145,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 1147,
+            "count": 4,
+            "called": false
+          }
+        ],
+        "declared_wait": 12,
+        "web_duration_10fps": 3,
+        "sum_wait_rounded_10fps": 3,
+        "segment_sum": null,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "必杀门牙",
+        "id": 158,
+        "asm": "BattleAnim_HyperFang",
+        "wait_total": 22,
+        "waits": [
+          {
+            "line": 841,
+            "count": 6,
+            "called": false
+          },
+          {
+            "line": 843,
+            "count": 16,
+            "called": false
+          }
+        ],
+        "declared_wait": 22,
+        "web_duration_10fps": 4,
+        "sum_wait_rounded_10fps": 4,
+        "segment_sum": 22,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "吸血",
+        "id": 141,
+        "asm": "BattleAnim_LeechLife",
+        "wait_total": 176,
+        "waits": [
+          {
+            "line": 2693,
+            "count": 128,
+            "called": false
+          },
+          {
+            "line": 2694,
+            "count": 48,
+            "called": false
+          }
+        ],
+        "declared_wait": 122,
+        "web_duration_10fps": 20,
+        "sum_wait_rounded_10fps": 29,
+        "segment_sum": 122,
+        "declared_wait_matches": false
+      },
+      {
+        "zh": "乱击",
+        "id": 31,
+        "asm": "BattleAnim_FuryAttack",
+        "wait_total": 48,
+        "waits": [
+          {
+            "line": 2250,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 2253,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 2255,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 2258,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 2260,
+            "count": 8,
+            "called": false
+          },
+          {
+            "line": 2263,
+            "count": 8,
+            "called": false
+          }
+        ],
+        "declared_wait": 32,
+        "web_duration_10fps": 5,
+        "sum_wait_rounded_10fps": 8,
+        "segment_sum": null,
+        "declared_wait_matches": false
+      },
+      {
+        "zh": "角撞",
+        "id": 30,
+        "asm": "BattleAnim_HornAttack",
+        "wait_total": 32,
+        "waits": [
+          {
+            "line": 2241,
+            "count": 16,
+            "called": false
+          },
+          {
+            "line": 2244,
+            "count": 16,
+            "called": false
+          }
+        ],
+        "declared_wait": 32,
+        "web_duration_10fps": 5,
+        "sum_wait_rounded_10fps": 5,
+        "segment_sum": 32,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "舌舔",
+        "id": 122,
+        "asm": "BattleAnim_Lick",
+        "wait_total": 64,
+        "waits": [
+          {
+            "line": 2638,
+            "count": 64,
+            "called": false
+          }
+        ],
+        "declared_wait": 64,
+        "web_duration_10fps": 11,
+        "sum_wait_rounded_10fps": 11,
+        "segment_sum": null,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "落石",
+        "id": 88,
+        "asm": "BattleAnim_RockThrow",
+        "wait_total": 104,
+        "waits": [
+          {
+            "line": 1400,
+            "count": 2,
+            "called": false
+          },
+          {
+            "line": 1403,
+            "count": 2,
+            "called": false
+          },
+          {
+            "line": 1406,
+            "count": 2,
+            "called": false
+          },
+          {
+            "line": 1409,
+            "count": 2,
+            "called": false
+          },
+          {
+            "line": 1412,
+            "count": 96,
+            "called": false
+          }
+        ],
+        "declared_wait": 106,
+        "web_duration_10fps": 18,
+        "sum_wait_rounded_10fps": 17,
+        "segment_sum": 106,
+        "declared_wait_matches": false
+      },
+      {
+        "zh": "连环巴掌",
+        "id": 3,
+        "asm": "BattleAnim_Doubleslap",
+        "wait_total": 14,
+        "waits": [
+          {
+            "line": 686,
+            "count": 6,
+            "called": false
+          },
+          {
+            "line": 688,
+            "count": 8,
+            "called": false
+          }
+        ],
+        "declared_wait": 42,
+        "web_duration_10fps": 7,
+        "sum_wait_rounded_10fps": 3,
+        "segment_sum": 42,
+        "declared_wait_matches": false
+      },
+      {
+        "zh": "啄钻",
+        "id": 65,
+        "asm": "BattleAnim_DrillPeck",
+        "wait_total": 96,
+        "waits": [
+          {
+            "line": 2499,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2502,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2505,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2508,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2499,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2502,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2505,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2508,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2499,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2502,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2505,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2508,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2499,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2502,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2505,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2508,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2499,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2502,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2505,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2508,
+            "count": 4,
+            "called": false
+          },
+          {
+            "line": 2510,
+            "count": 16,
+            "called": false
+          }
+        ],
+        "declared_wait": 96,
+        "web_duration_10fps": 16,
+        "sum_wait_rounded_10fps": 16,
+        "segment_sum": 96,
+        "declared_wait_matches": true
+      },
+      {
+        "zh": "飞叶快刀",
+        "id": 75,
+        "asm": "BattleAnim_RazorLeaf",
+        "wait_total": 168,
+        "waits": [
+          {
+            "line": 1174,
+            "count": 6,
+            "called": false
+          },
+          {
+            "line": 1179,
+            "count": 80,
+            "called": false
+          },
+          {
+            "line": 1182,
+            "count": 2,
+            "called": false
+          },
+          {
+            "line": 1185,
+            "count": 2,
+            "called": false
+          },
+          {
+            "line": 1188,
+            "count": 2,
+            "called": false
+          },
+          {
+            "line": 1191,
+            "count": 2,
+            "called": false
+          },
+          {
+            "line": 1194,
+            "count": 2,
+            "called": false
+          },
+          {
+            "line": 1197,
+            "count": 2,
+            "called": false
+          },
+          {
+            "line": 1200,
+            "count": 2,
+            "called": false
+          },
+          {
+            "line": 1203,
+            "count": 2,
+            "called": false
+          },
+          {
+            "line": 1206,
+            "count": 2,
+            "called": false
+          },
+          {
+            "line": 1209,
+            "count": 64,
+            "called": false
+          }
+        ],
+        "declared_wait": 170,
+        "web_duration_10fps": 28,
+        "sum_wait_rounded_10fps": 28,
+        "segment_sum": 170,
+        "declared_wait_matches": false
+      },
+      {
+        "zh": "念力",
+        "id": 93,
+        "asm": "BattleAnim_Confusion",
+        "wait_total": 138,
+        "waits": [
+          {
+            "line": 4817,
+            "count": 4,
+            "called": true
+          },
+          {
+            "line": 1803,
+            "count": 128,
+            "called": false
+          },
+          {
+            "line": 4821,
+            "count": 1,
+            "called": true
+          },
+          {
+            "line": 4823,
+            "count": 4,
+            "called": true
+          },
+          {
+            "line": 4825,
+            "count": 1,
+            "called": true
+          }
+        ],
+        "declared_wait": 128,
+        "web_duration_10fps": 21,
+        "sum_wait_rounded_10fps": 23,
+        "segment_sum": null,
+        "declared_wait_matches": false
+      },
+      {
+        "zh": "投球",
+        "id": 140,
+        "asm": "BattleAnim_Barrage",
+        "wait_total": 52,
+        "waits": [
+          {
+            "line": 2377,
+            "count": 36,
+            "called": false
+          },
+          {
+            "line": 2380,
+            "count": 16,
+            "called": false
+          }
+        ],
+        "declared_wait": 52,
+        "web_duration_10fps": 9,
+        "sum_wait_rounded_10fps": 9,
+        "segment_sum": 52,
+        "declared_wait_matches": true
+      }
+    ]
+  }
+}

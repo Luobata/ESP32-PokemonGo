@@ -275,7 +275,8 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
 
 
 <div class="tabs" role="tablist" id="tabs">
-  <button role="tab" data-p="dex"     aria-selected="true">图鉴 / 动效</button>
+  <button role="tab" data-p="firmware" aria-selected="true">固件同源预览</button>
+  <button role="tab" data-p="dex"     aria-selected="false">图鉴 / 动效</button>
   <button role="tab" data-p="sensing" aria-selected="false">感知层回放</button>
   <button role="tab" data-p="pixels"  aria-selected="false">2bpp 像素</button>
   <button role="tab" data-p="gameplay" aria-selected="false">S1-S3 玩法</button>
@@ -288,7 +289,7 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
   <button role="tab" data-p="sim"    aria-selected="false">🎮 页面模拟器</button>
 </div>
 
-<div class="panel" id="p-dex">
+<div class="panel" id="p-dex" hidden>
 <div class="cols">
   <div class="device">
     <div class="screen-frame">
@@ -439,36 +440,42 @@ td.gen1{outline:2px solid var(--warn);outline-offset:-2px;font-weight:700}
   </div>
 </div>
 
+<div class="panel" id="p-firmware">
+  <iframe title="固件同源预览" src="firmware.html" loading="lazy" style="width:100%;height:1050px;border:0"></iframe>
+</div>
 <div class="panel" id="p-sim" hidden>
 <!-- 用户验收清单（第七派活）：打开即可按深链逐项走完，不用问任何人 -->
 <div style="border:2px solid var(--accent);padding:12px 14px;margin-bottom:16px">
   <b style="color:var(--accent)">📋 用户验收清单</b>
-  <span class="sub">—— 逐项点深链看；G=设计稿（画面右下角有水印），base=与真机固件一致</span>
+  <span class="sub">—— 这里是历史 JS 参考稿与美术设计稿；整页渲染与当前玩法请打开「固件同源预览」页签</span>
   <ol style="margin:8px 0 6px;padding-left:22px;font-size:12.5px;line-height:1.9">
-    <li><a href="#sim=P3&d=G&z=96" onclick="this.blur()">P3 战斗 · G 定稿（96px 主宠）</a>
+    <li><a href="firmware.html#P3">P3 战斗 · 当前固件金银布局</a> —— 直接运行共享 C 血条、消息框与技能效果</li>
+    <li><a href="#sim=P3&d=G&z=96" onclick="this.blur()">P3 战斗 · 旧 G 设计稿（96px 主宠）</a>
       —— 消息行与主宠的净空在这里看；<b>◀ ▶ 逐帧</b>看招式动画（撞击/电击/落石/绑紧按回合自动派发，
       时长与段内相位照 GSC asm 实值 —— 蓄力长命中短），右栏「招式动画」按钮可强制预览</li>
-    <li><a href="#sim=P1&d=G" onclick="this.blur()">P1 待机 · G 定稿</a>
+    <li><a href="#sim=P1&d=G" onclick="this.blur()">P1 待机 · 旧 G 设计稿</a>
       —— 主宠光学居中、四轴数据窗、心情/亲密度</li>
-    <li><a href="#sim=P6&d=G" onclick="this.blur()">P6 图鉴 · G 定稿（无边框版）</a>
+    <li><a href="#sim=P6&d=G" onclick="this.blur()">P6 图鉴 · 旧 G 设计稿（无边框版）</a>
       —— caught 彩 / seen 剪影 / unseen 淡编号，B 键翻页</li>
     <li><a href="#sim=P3&d=base" onclick="this.blur()">P3 · base</a> 与
-      <a href="#sim=P4" onclick="this.blur()">P0/P2/P4/P5</a>
-      —— base 方向 = 现有固件的逐像素对照（美术方向按钮全部切 base 即是）</li>
+      <a href="#sim=P4&d=base" onclick="this.blur()">P0/P2/P4/P5</a>
+      —— base 为 JS 参考稿，P3 部分元素消费共享 C 配方；不代表整页与固件逐像素相同</li>
     <li>「📐 量化当前画面」随时量单色占比 —— 对比 test 报的 85~96% 基线</li>
   </ol>
   <div style="font-size:11.5px;line-height:1.8;color:var(--ink-soft)">
-    <b>GSC 实值（有出处）</b>：底色/HP 三段/EXP 蓝/文字色（test 探源 RGB565）；血条图元
+    <b>素材与配色</b>：base/G 跟随当前固件的白底、黑字与中性灰；HP 三段/EXP 蓝与血条图元
     （font_battle_extra 逐 tile）；fire/water/leaf/bubble/cut/powder/wave/rocks/bolt/explosion
     图元（pokecrystal 逐像素提取）；电击 CORE 球（explosion tile$00 四向镜像，OAMSET_18）；
     水枪 BG 水波（DeformWater 逐行正弦复刻）；<b>26 高频招 + 15 属性兜底的时长与段内相位</b>
     （animations.asm 的 anim_wait 六档 2/4/8/16/32/96 逐段实值，单段 wait 的招均分即原作）。<br>
-    <b>我们的选择</b>：四色 *T 文字加深档（GSC 彩色从不作米白底文字）；平台椭圆；圆角框；
+    <b>历史稿的选择</b>：平台椭圆、近似框、单独的布局与动画解释器；
     elec 火花调色板（PAL_BATTLE_OB_YELLOW 语义近似非逐值）；屏抖/闪避幅度。<br>
-    <b>仍是近似/没做的（如实）</b>：GSC sprite 未进模拟器（暂用初代官方彩放大）；
+    <b>与固件的边界</b>：sprite 读取构建包的原始尺寸，按历史显示区域最近邻缩放；
     低频招共用同属性动画（非 99 招各自专属）；rocks 图元内部抖动保真有损失
     （web 14.5% vs 原 png 25%，十八派活记为待办）；HIT 命中星/针/舌/球/风线为几何近似；
-    P4 球计数 ×N 与目标物种待 payload；P7/P8 固件本身未实现。
+    P4 球计数 ×N 与目标物种待 payload；P7/P8 固件本身未实现。<br>
+    <b>玩法验证</b>：这里的 P3/P4 按键只操作历史样本，不验证战斗续接、捕获失败后野怪先反击、获胜后仅一球或经验只结算一次。
+    请在「固件同源预览」中操作实际 C 页面；其中 P3 的 C 返回队列，P4 投球前的 C 返回同一场战斗。
   </div>
 </div>
 <div class="cols">
@@ -833,7 +840,7 @@ document.getElementById("shiny").onchange = e => {
 };
 
 /* ── tab 切换 ── */
-const PANELS = ["dex","sensing","pixels","gameplay","nurture","meta","audio","anim","systems","play","sim"];
+const PANELS = ["dex","sensing","pixels","gameplay","nurture","meta","audio","anim","systems","play","sim","firmware"];
 let built = {dex:1};
 document.getElementById("tabs").addEventListener("click", e => {
   const b = e.target.closest("button"); if(!b) return;
@@ -3423,11 +3430,10 @@ window.addEventListener('error', ev=>{
 try {
 const cv = document.getElementById('sim-canvas');          // 可见画布 480×640（×2 显示）
 const oc = document.createElement('canvas'); oc.width=240; oc.height=320;   // 真屏 1×
-const ctx = oc.getContext('2d');                              // 全部渲染在 1× —— 字体 1:1 光栅，
-const vctx = cv.getContext('2d');                             // 逐像素=固件；上屏统一最近邻 ×2
+const ctx = oc.getContext('2d');                              // JS 参考稿在 1× 光栅上绘制，
+const vctx = cv.getContext('2d');                             // 最近邻放大；整页 C 渲染见固件同源预览。
 const W=240, H=320, BAND=80, SC=1;
-// 现状基线 = 真机实测色（固件 RGB_HEX(0x9bbc0f/0x0f380f/0x306230/0x8bac0f)
-// 经 RGB565 量化后的上屏值）—— 模拟器要对的就是设备，不是另立一套灰白。
+// 早期 GB 绿配色，只保留给 A/B/C 历史设计备选。base/G 使用白底中性色表。
 const INK_B='#083808', MID_B='#316131', BG_B='#9cbe08', LGT_B='#8cae08';
 /* 第二十二派活：四个基线常量改成「跟随方向」的取值器 TC。
    ── 契约初判只对了第一层 ──
@@ -3439,7 +3445,7 @@ const INK_B='#083808', MID_B='#316131', BG_B='#9cbe08', LGT_B='#8cae08';
    判据因此是**色值等于 G 的 token**，不是「看得清」。
    ── 为什么安全 ──
    DEVG(:3515) 与这四个基线值**逐值相同**（#9cbe08/#083808/#316131/#8cae08），
-   故 base/A/C（pal 皆 DEVG）取到的与改前完全一致，只有 G/B 才不同。
+   当轮 base/A/C（pal 皆 DEVG）取到的与改前一致；base 后续已改用金银色表。
    ── 为什么是 getter 对象而不是原地改常量 ──
    本段在 :3417 的 IIFE 内，`const INK` 是函数作用域绑定，**无法被拦截**
    （曾试过在 window 上装同名 getter：装上了但永远读不到，因为根本不是全局，
@@ -3478,7 +3484,7 @@ function bands(){
 function text(str,x,y,ink){
   let cx=x;
   for(const ch of str){
-    const full=ch.charCodeAt(0)>0xFF;
+    const full=ch.charCodeAt(0)>=0x80;
     if(KANTO && KSET.has(ch)){
       ctx.font='16px Kanto16'; ctx.textBaseline='alphabetic';
       // 固件 render.c：字形居中 16 格，ASCII 左移 4 落进 8px 步进
@@ -3493,7 +3499,7 @@ function text(str,x,y,ink){
   }
   return cx;
 }
-function textW(str){ let w=0; for(const ch of str) w += ch.charCodeAt(0)>0xFF?16:8; return w; }
+function textW(str){ let w=0; for(const ch of str) w += ch.charCodeAt(0)>=0x80?16:8; return w; }
 function hintRow(p){
   const h = SP.hints[p];
   const line = typeof h === 'string' ? h : (h && h.line) || '';
@@ -3520,7 +3526,7 @@ function uiC(name,scale){
 }
 function ui(name,dx,dy,scale){ const c=uiC(name,scale); if(c) ctx.drawImage(c,dx,dy); }
 function bar(x,y,w,h,pct,fg,track){
-  ctx.strokeStyle=TC.ink; ctx.strokeRect(x+.5,y+.5,w,h);
+  frame(x,y,w,h,TC.ink,1);
   if(track){ ctx.fillStyle=track; ctx.fillRect(x+1,y+1,w-2,h-2); }
   ctx.fillStyle=fg||TC.dim;
   ctx.fillRect(x+1,y+1,Math.round((w-2)*Math.max(0,Math.min(100,pct))/100),h-2);
@@ -3538,9 +3544,11 @@ const DEVG = {field:'#9cbe08', ink:'#083808', dim:'#316131', track:'#8cae08'};
 //   sprite 上屏一律官方彩（palettes.bin 着色）——「四阶灰」是数据格式，
 //   不是显示色；基底也不换主题，A/B/C 全部在绿系里做。
 const DIRS = {
- base:{label:'现状（真机）', spritePal:null,
-   pal:DEVG,
-   note:'GB 绿单底 + 官方彩 sprite —— 与固件 RGB 常量（量化后）一致，即 test 实测 85~96% 单色的那版'},
+ base:{label:'base · JS 参考稿', spritePal:null,
+   pal:{field:rgb565hex(0xFFFF),ink:rgb565hex(0x0000),dim:rgb565hex(0x6B4D),
+        track:rgb565hex(0xAD55),hpT:rgb565hex(0xFFFF),hpG:rgb565hex(0x05E0),
+        hpY:rgb565hex(0xFD60),hpR:rgb565hex(0xF800)},
+   note:'白底、黑字与中性灰跟随 game_ui.h。历史布局、状态与动画由 JS 绘制，只有 P3 主宠名牌与 HP 条消费部分共享 C 配方；整页对照请看「固件同源预览」。'},
  A:{label:'A 守四色', spritePal:null,
    pal:DEVG,
    note:'DMG 绿四档用足层次：C_LIGHT 从「进度条空槽」扩展到分隔/底纹/次级信息（更正 1），纯构图不加色'},
@@ -3551,21 +3559,15 @@ const DIRS = {
  C:{label:'C 原机版式', spritePal:null,
    pal:DEVG,
    note:'pokered 菜单版式移植：双线框 / 反白标题签 / ▸ 光标 / 纯色留白 —— 版式取原作，配色守 DMG 绿（斜纹已撤）'},
- G:{label:'G 金银（底/HP 实值）', spritePal:null,
-   // 第七派活：全部换成 test 探源的 GSC 实值（出处见报告补记7）——
-   //   底 0xFFF0 / 主文字 0x0000 / 次级文字 0x7240 / HP·EXP 槽 0xF6AF /
-   //   red 0xF800 / green 0x05E0 / blue 0x247F / gold 0xFD60（=HP 黄段，GSC 本就复用）
-   // 文字规则：GSC 的彩色从不作米白底文字（0xFD60 属于深色 HP 槽），实测作文字
-   //   gold 1.76 / green 2.38 / blue 3.12 / red 3.79 全不达 AA ——
-   //   所以彩色作「图形/填充」用原值，作「文字」一律加深档（*T，保色相，全部 ≥4.5），
-   //   这是 web 侧调整非 GSC 原值；0xEEB2 备选更浅（更差），弃用。
-   // 注：green 展开 test 报 #00be00、位复制展开为 #00ba00（G=46 vs 47 的进位差，
-   //   Δ4/255 不可见）—— 统一采用契约值 #00be00。
-   pal:{field:'#ffff84', ink:'#000000', dim:'#734900', track:'#a8a8a8',
-        red:'#ff0000', green:'#00be00', blue:'#218eff', gold:'#ffae00',
-        redT:'#cc0000', greenT:'#007e1e', blueT:'#0057d6', goldT:'#8a5e00',
-        hpT:'#f7d77b', hpG:'#00be00', hpY:'#ffae00', hpR:'#ff0000'},
-   note:'金银方向：全部界面色为 GSC 实值（底/文字/HP 槽/四彩色，出处见报告补记7）；彩色作文字用加深档（GSC 彩色从不作米白底文字，实测 gold 1.76 不可读）；sprite 暂用初代官方彩，GSC sprite 等 test 取源。⚠ 设计稿：框/居中/无边框图鉴固件均未实现（D22 web 定稿在前），base 方向才与固件一致'},
+ G:{label:'G 金银 · 历史设计稿', spritePal:null,
+   // 画面与文字跟随当前固件的 GSC 白底主题；彩色只用于图形。
+   // *T 保留旧调用名，取黑/灰文字色。框、阴影与动画仍是独立 JS 设计稿。
+   pal:{field:rgb565hex(0xFFFF),ink:rgb565hex(0x0000),dim:rgb565hex(0x6B4D),
+        track:rgb565hex(0xAD55),red:rgb565hex(0xF800),green:rgb565hex(0x05E0),
+        blue:rgb565hex(0x247F),gold:rgb565hex(0xFD60),
+        redT:'#000000',greenT:rgb565hex(0x6B4D),blueT:'#000000',goldT:rgb565hex(0x6B4D),
+        hpT:rgb565hex(0xFFFF),hpG:rgb565hex(0x05E0),hpY:rgb565hex(0xFD60),hpR:rgb565hex(0xF800)},
+   note:'白底、黑字与中性灰跟随当前固件；保留旧构图、光学居中、近似框与 JS 动画。素材按真实源尺寸解码，缩放到历史显示区域；整页固件渲染请看「固件同源预览」。'},
 };
 function gscBox(x,y,w,h,c){ // GSC 菜单框占位：外框四角让 1px 的「圆角」 + 内线
   ctx.fillStyle=c;
@@ -3598,10 +3600,12 @@ function inkBBox(id,view){ // 数据级非透明像素 bbox（无画布/抗锯�
     const b=bytes[y*rb+((x*2)>>3)]; const v=(b>>(6-((x*2)&7)))&3;
     if(v!==3){ if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; } }
   return {x0,y0,x1,y1,w:x1-x0+1,h:y1-y0+1}; }
-function sprC(id,view,cx,cy,scale,sil){ // 光学居中：墨迹中心对准 (cx,cy)
+function sprC(id,view,cx,cy,dest,sil){ // 光学居中，dest 是固定显示边长而非源像素倍数
+  const m=D.mons[id-1]; if(!m) return;
+  const scale=dest/(view==='back'?D.meta.backSize:m.fsize);
   const bb=inkBBox(id,view); if(!bb) return;
   const dx=cx-(bb.x0+bb.x1+1)/2*scale, dy=cy-(bb.y0+bb.y1+1)/2*scale;
-  if(sil) sprSil(id,view,dx,dy,scale,sil); else spr(id,view,dx,dy,scale); }
+  sprNN(id,view,dx,dy,dest,sil); }
 let DIR='base', P3SKEL='std', P3GSZ='96', DODGE_PX=12;
 const COVERED={P0:1,P1:1,P2:1,P3:1,P4:1,P5:1,P6:1,P7:1,P8:1};
 // ↑ 第二十二派活：九页全覆盖（原 {P1,P3,P6}，其余六页落回 base 绿底，
@@ -3610,7 +3614,7 @@ const COVERED={P0:1,P1:1,P2:1,P3:1,P4:1,P5:1,P6:1,P7:1,P8:1};
 //   P7/P8 是「未实现」占位页，同样进总览图，所以也要跟随方向。
 function curDir(){ return COVERED[st.page]?DIRS[DIR]:DIRS.base; }
 function T(){ return curDir().pal; }
-function fieldFill(){ // 方向自带底色；现状沿用 cls() 的真机绿
+function fieldFill(){ // 方向自带底色；base 已由 cls() 清屏。
   if(DIR==='base') return;
   ctx.fillStyle=T().field; ctx.fillRect(0,0,W,H); }
 
@@ -3641,7 +3645,7 @@ function hintAt(y,inkC,keyC,x0){ // 提示行（可选给 [A]/[B]/[C] 键帽上�
   for(const p of parts){ if(!p) continue;
     ctx.fillStyle=(keyC&&/^\[[ABC]\]$/.test(p))?keyC:(inkC||T().ink);
     for(const ch of p){
-      const full=ch.charCodeAt(0)>0xFF;
+      const full=ch.charCodeAt(0)>=0x80;
       if(KANTO && KSET.has(ch)){
         ctx.font='16px Kanto16'; ctx.textBaseline='alphabetic';
         ctx.fillText(ch, full?cx:cx-4, y+16);
@@ -3697,7 +3701,7 @@ function p3Cur(){
 function p3Shake(r,ph){ // 挨打的一方抖（与固件同语义）；未命中不抖
   if(ph>=6 || r.missed) return [0,0];
   const s=SP.battle.shake[Math.min(7,Math.floor(ph))];   // p8f 小数相位（二十一派活①b）取整查表
-  const ox=(s&&s.ox)?s.ox:0;
+  const ox=(s&&s.offset_x)?s.offset_x:0;
   return r.attacker==='pet'?[ox,0]:[0,ox]; }
 function p3Msg(r,sc){ // 回合文本（文案拼装，数值全来自导出回合）
   if(!r) return '';
@@ -3710,11 +3714,12 @@ const R1={
    text(nameOf(D.mons[P.sid-1])+' Lv'+P.level,8,4,t.ink);
    const pv='亲'+SP.care.axes[3]; text(pv,W-8-textW(pv),4,t.ink);
    hlineS(24,t.dim);
-   spr(P.sid,'back',72,54,3);
+   sprNN(P.sid,'back',72,54,96);
    if(P.mood) text(P.mood,W-8-textW(P.mood),160,t.ink);
    const nx=SP.care.axisNames;
    for(let i=0;i<4;i++){ text(nx[i],8,180+22*i,t.ink);
-     bar(48,183+22*i,184,10,SP.care.axes[i],t.dim,t.track); }
+     const lx=8+textW(nx[i])+8;
+     bar(lx,183+22*i,232-lx,10,SP.care.axes[i],t.dim,t.track); }
    hlineS(292,t.dim); hintAt(298,t.ink); },
  A(){ const t=DIRS.A.pal; const P=petInfo();
    fieldFill();
@@ -3722,11 +3727,12 @@ const R1={
    text(nameOf(D.mons[P.sid-1])+' Lv'+P.level,8,3,t.field);
    const pv='亲'+SP.care.axes[3]; text(pv,W-8-textW(pv),3,t.field);
    dither(44,32,152,108,t.track,t.field);            // 舞台底纹 —— 次亮档从此上场
-   spr(P.sid,'back',72,54,3);
+   sprNN(P.sid,'back',72,54,96);
    if(P.mood) text(P.mood,W-8-textW(P.mood),160,t.dim);
    const nx=SP.care.axisNames;
    for(let i=0;i<4;i++){ text(nx[i],8,180+22*i,t.dim);
-     barD(48,183+22*i,184,10,SP.care.axes[i],{fill:t.ink,track:t.track}); }
+     const lx=8+textW(nx[i])+8;
+     barD(lx,183+22*i,232-lx,10,SP.care.axes[i],{fill:t.ink,track:t.track}); }
    band(288,32,t.ink); hintAt(296,t.field); },
  B(){ const t=DIRS.B.pal; const P=petInfo();
    fieldFill();
@@ -3736,27 +3742,29 @@ const R1={
    text(pv,W-8-textW(pv),4,t.ink);
    hlineS(24,t.dim);
    dither(44,32,152,108,t.track,t.field);            // 舞台底纹（层次，不加色）
-   spr(P.sid,'back',72,54,3);
+   sprNN(P.sid,'back',72,54,96);
    dither(64,148,112,4,t.track,t.field);             // 落脚阴影
    if(P.mood) text(P.mood,W-8-textW(P.mood),160,P.despondent?t.red:t.green);
    const nx=SP.care.axisNames;
    for(let i=0;i<4;i++){ text(nx[i],8,180+22*i,t.dim);
-     barD(48,183+22*i,184,10,SP.care.axes[i],
+     const lx=8+textW(nx[i])+8;
+     barD(lx,183+22*i,232-lx,10,SP.care.axes[i],
           {fill:t.green,track:t.track,low:LOWT,danger:t.red}); }
    hlineS(292,t.dim); hintAt(298,t.ink,t.blue); },
  C(){ const t=DIRS.C.pal; const P=petInfo();
    fieldFill();
    // C 的留白：不放舞台纹理 —— 原作用纯色留白+边框，让 sprite 自己撑画面
-   spr(P.sid,'back',72,44,3);
-   if(P.mood) text(P.mood,W-8-textW(P.mood),158,t.dim);
-   box2(6,168,228,92,t.ink);                          // 双线框数据窗
+   sprNN(P.sid,'back',72,44,96);
+   if(P.mood) text(P.mood,W-8-textW(P.mood),160,t.dim);
+   box2(6,168,228,102,t.ink);
    const nx=SP.care.axisNames;
    for(let i=0;i<4;i++){ text(nx[i],16,180+22*i,t.dim);
-     barD(56,183+22*i,166,10,SP.care.axes[i],{fill:t.ink,track:t.track}); }
+     const lx=16+textW(nx[i])+8;
+     barD(lx,183+22*i,222-lx,10,SP.care.axes[i],{fill:t.ink,track:t.track}); }
    ctx.fillStyle=t.ink; ctx.fillRect(14,158,116,20);  // 反白标题签（压在框线上）
    text(nameOf(D.mons[P.sid-1])+' Lv'+P.level,20,160,t.field);
-   box2(8,268,224,36,t.ink);
-   text('▸',16,280,t.ink); hintAt(280,t.ink,null,32); },
+   box2(8,276,224,36,t.ink);
+   text('▸',16,286,t.ink); hintAt(286,t.ink,null,32); },
  G(){ const t=DIRS.G.pal; const P=petInfo();
    fieldFill();
    text(nameOf(D.mons[P.sid-1])+' Lv'+P.level,8,4,t.ink);
@@ -3764,15 +3772,17 @@ const R1={
    const ha=SP.ui.heart; uiO('heart',W-8-textW(pv)-(ha?ha.w+6:20),3,1);
    text(pv,W-8-textW(pv),4,t.ink);
    hlineS(24,t.dim);
-   sprC(P.sid,'back',120,102,3);   // 光学居中：墨迹中心对 (120,102)（原 72,54 按盒子居中，视觉偏）
-   if(P.mood) text(P.mood,W-8-textW(P.mood),150,P.despondent?t.redT:t.greenT); // 150：Kanto16 到 166；回退 PingFang(非库字) 到 170 —— 都让开数据窗框顶 171
-   gscBox(4,171,232,84,t.blue);   // 框高收贴内容：实测内容墨迹 180..246 → y171 起上下各 9
+   sprC(P.sid,'back',120,102,96);  // 固定 96px 显示区，32/48px 素材均按真实尺寸解码
+   if(P.mood) text(P.mood,W-8-textW(P.mood),160,P.despondent?t.redT:t.greenT);
+   gscBox(4,178,232,90,t.blue);
    const nx=SP.care.axisNames;
-   for(let i=0;i<4;i++){ text(nx[i],12,180+18*i,t.ink);
-     barD(52,182+18*i,172,8,SP.care.axes[i],
+   // 16px 标签完整落在各自横带；最后一行 244..259 与内框底边 263 留空。
+   for(let i=0;i<4;i++){ const y=184+20*i; text(nx[i],12,y,t.ink);
+     const lx=12+textW(nx[i])+8;
+     barD(lx,y+4,224-lx,8,SP.care.axes[i],
           {fill:hp3(SP.care.axes[i]),track:t.track,border:t.ink}); }
-   gscBox(4,268,232,36,t.blue);                    // 通栏 232 右缘 236（栅格）
-   text('▸',12,280,t.ink); hintAt(280,t.ink,t.blueT,20); },
+   gscBox(4,276,232,36,t.blue);
+   text('▸',12,286,t.ink); hintAt(286,t.ink,t.blueT,28); },
 };
 
 /* ---- P3 三方向 + 现状 + 打破骨架 ---- */
@@ -3781,7 +3791,7 @@ function petHpPct(sc,r){ return sc.petMax?Math.max(0,Math.min(100,r.petHp*100/sc
 function rgb565hex(v){ // RGB565 → #rrggbb（配方给的是逻辑 RGB565，与固件同一值域）
   const r=(v>>11)&31, g=(v>>5)&63, b=v&31;
   const e=n=>n.toString(16).padStart(2,'0');
-  return '#'+e((r*255/31)|0)+e((g*255/63)|0)+e((b*255/31)|0); }
+  return '#'+e((r<<3)|(r>>2))+e((g<<2)|(g>>4))+e((b<<3)|(b>>2)); }
 function sceneRects(rects){ // 共享配方的绘制指令：后画的覆盖先画的（半开区间）
   for(const [x,y,w,h,c] of rects){ ctx.fillStyle=rgb565hex(c); ctx.fillRect(x,y,w,h); } }
 function scenePetHp(sc,it){ // D77 第 2 步：P3 主宠 HP 条走共享配方，web 零求解
@@ -3810,9 +3820,9 @@ const R3={
    const m=D.mons[sc.wildSid-1];
    if(st.P3.rarity) text('★'.repeat(st.P3.rarity),8,4,t.ink);
    const nm=nameOf(m)+' Lv'+sc.wildLevel; text(nm,W-8-textW(nm),4,t.ink);
-   bar(120,28,112,10,wildHpPct(sc,r),t.dim,t.track);
+   bar(120,28,112,10,wildHpPct(sc,r),hp3(wildHpPct(sc,r)),t.hpT||t.track);
    spr(sc.wildSid,'front',W-8-m.fsize+wdx,88+(64-m.fsize)/2,1);
-   spr(25,'back',8+pdx,140,3);
+   sprNN(25,'back',8+pdx,140,96);
    if(!scenePetName(sc)){          // ← D91 第 4 步：走共享配方（web 零拼装）
      // 配方没覆盖 → **显式失败，不静默回退到 JS 拼串**。
      // 上一轮 EXP 帧那次教训：静默回退会让同一元素两套行为，门禁与画面都看不出来。
@@ -3827,25 +3837,18 @@ const R3={
      console.error('sceneP3PetHp 未覆盖当前帧', sc.label, it && it.ri);
      ctx.fillStyle='#ff00ff'; ctx.fillRect(112,192,120,10);   // 洋红=缺配方，一眼可见
    }
-   /* 二十三派活：P3 base 主宠区对齐固件（play_battle.c:61-71）。
-      改前 spr(...,8+pdx,168,2) / text(...,80,168) / bar(80,192,152,10)
-      —— 固件那轮「96px 重叠修三轮」改完 web 没跟。
-      区间表（先列再改，防 handoff 坑④「逐个挪把重叠推给下一个」）：
-        sprite  backSize 32 × scale 3 = 96px  → x  8..103（固件 :226 就是 32,3）
-        名牌    PET_NAME_X 112                → x112..（在 sprite 右缘 104 之后）✓
-        HP 条   PET_BAR_X 112 + PET_BAR_W 120 → x112..232，右边距 8 ✓
-      **scale 2→3 是契约四项之外的第五项**：契约按 96px 给了 x112，
-      而 web 当时是 64px(scale 2)。只改 x 不改 scale 的话，
-      sprite 只到 x71，与固件的 8..103 仍然不一致（且名牌会离得过远）。
-      固件 :226 注释写明 32×3 是临时形态，GSC back 48×48 接入后改 (48,2)。 */
-   text(p3Msg(r,sc),8,244,t.ink);
-   if(r.label) text(r.label,8,268,t.ink);
-   if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,W-8-textW(d),268,t.ink); }
+   // 旧构图保留主宠 96px 显示区 x8..103；源图变为 48px 后仍显示 96px。
+   // 这里只共享名牌/HP 元素，整页构图与当前固件无逐像素对应承诺。
    if(tl[st.P3.fi+1]===undefined){
      // 文案与 play_battle.c 逐字一致：胜/败 + 经验 +N +（胜时）看起来虚弱了
      text(sc.won?'胜':'败',8,244,t.ink);
      text('经验 +'+sc.exp,8,268,t.dim);
-     if(sc.won) text('看起来虚弱了',96,268,t.dim); }
+     if(sc.won){ const weak='看起来虚弱了'; text(weak,W-8-textW(weak),268,t.dim); }
+   } else {
+     text(p3Msg(r,sc),8,244,t.ink);
+     if(r.label) text(r.label,8,268,t.ink);
+     if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,W-8-textW(d),268,t.ink); }
+   }
    hlineS(292,t.dim); hintAt(298,t.ink); },
  A(){ const t=DIRS.A.pal; const {sc,tl,it}=p3Cur();
    if(!sc||!tl.length){ text('（无回合）',80,150); return; }
@@ -3863,7 +3866,7 @@ const R3={
    dither(140,52,92,110,t.track,t.field);             // 野怪舞台
    spr(sc.wildSid,'front',W-8-m.fsize+wdx,88+(64-m.fsize)/2,1);
    dither(4,160,72,72,t.track,t.field);              // 主宠舞台（止于 y232，不压消息面板）
-   spr(25,'back',8+pdx,168,2);
+   sprNN(25,'back',8+pdx,168,64);
    text('皮卡丘 Lv'+sc.playerLevel,80,168,t.ink);
    barD(80,192,152,10,petHpPct(sc,r),{fill:t.ink,track:t.track});
    frame(4,238,232,42,t.ink);                         // 消息面板
@@ -3892,7 +3895,7 @@ const R3={
    const gs=W-8-m.fsize;
    dither(gs-8,88+(64-m.fsize)/2+m.fsize,m.fsize+16,4,t.track,t.field);   // 落脚
    dither(4,160,72,72,t.track,t.field);              // 主宠舞台（止于 y232，不压消息区）
-   spr(25,'back',8+pdx,168,2);
+   sprNN(25,'back',8+pdx,168,64);
    dither(2,232,76,4,t.track,t.field);
    frame(72,162,160,40,t.ink,1);                      // 主宠牌
    text('皮卡丘 Lv'+sc.playerLevel,78,166,t.ink);
@@ -3918,7 +3921,7 @@ const R3={
    barD(108,30,116,8,wildHpPct(sc,r),{fill:t.ink,track:t.track});
    // C 撤斜纹：双线框牌 + 消息窗撑结构，野怪/主宠纯色留白
    spr(sc.wildSid,'front',W-8-m.fsize+wdx,88+(64-m.fsize)/2,1);
-   spr(25,'back',8+pdx,168,2);
+   sprNN(25,'back',8+pdx,168,64);
    box2(68,158,164,48,t.ink);                         // 双线框主宠牌
    text('皮卡丘 Lv'+sc.playerLevel,76,164,t.ink);
    barD(76,188,148,8,petHpPct(sc,r),{fill:t.ink,track:t.track});
@@ -3962,7 +3965,7 @@ function p3Alt(){ // 「打破骨架」：pokered 战斗构图 —— 无全屏�
   dither(wcx-wpx/2-20,156,wpx+40,4,gcm[0],gcm[1]);
   dither(wcx-wpx/2-32,160,wpx+64,4,gcm[0],gcm[1]);
   // 主宠 back @2x 左下 + 土丘
-  spr(25,'back',16+pdx,172,2);
+  sprNN(25,'back',16+pdx,172,64);
   dither(8,238,80,4,gcm[0],gcm[1]); dither(20,242,56,4,gcm[0],gcm[1]);
   // 主宠牌（右）
   if(DIR==='C') box2(90,182,142,48,t.ink); else frame(92,184,138,42,t.ink,1);
@@ -3984,13 +3987,22 @@ function p3Alt(){ // 「打破骨架」：pokered 战斗构图 —— 无全屏�
   text('▸',14,294,t.ink); hintAt(294,t.ink,DIR==='B'?t.blue:null,30);
 }
 
-function sprNN(id,view,x,y,dest){ // 任意目标尺寸（最近邻）：尺寸对比要非整数倍（32→48）时保像素硬边
+function spriteSourceCanvas(id,view,sil){ // 始终先按素材原始尺寸解码，不用目标框推导源画布
   const m=D.mons[id-1]; if(!m) return;
   const size=view==='back'?D.meta.backSize:m.fsize;
   const src=view==='back'?D.back[id]:D.front[id]; if(!src) return;
+  const bytes=b64bytes(src);
+  if(bytes.length!==Math.ceil(size/4)*size)
+    throw new Error('sprite 字节数与源尺寸不符: '+id+'/'+view+' '+size+'px');
   const off=document.createElement('canvas'); off.width=off.height=size;
   const g=off.getContext('2d');
-  drawSprite(g,b64bytes(src),size,0,0,1,null,curDir().spritePal||palOf(id,false));
+  const pal=sil==null?(curDir().spritePal||palOf(id,false)):[sil,sil,sil,sil];
+  drawSprite(g,bytes,size,0,0,1,null,pal);
+  return off;
+}
+function sprNN(id,view,x,y,dest,sil){ // 最近邻缩放到固定目标边长；sil 可将非透明像素统一为剪影色
+  const off=spriteSourceCanvas(id,view,sil); if(!off) return;
+  ctx.imageSmoothingEnabled=false;
   ctx.drawImage(off,Math.round(x),Math.round(y),dest,dest); }
 /* ── 招式动画注册表（第六派活：用户定「每招单独做」）───────────────────
    形状：**一条目 = 一招**。加第 100 个招式动画 = 在 MOVE_FX 加一行数据，
@@ -4108,7 +4120,7 @@ const MOVE_FX = {
   // [[p8起点, GSC逻辑帧数]…]，asm anim_wait 逐段实值，相位边界不再均分；
   // 无 seg = asm 单段 wait（均分=原作）或脚本待查。本轮复核改正 9 条 dur 误值
   // （起风/必杀门牙/吸血/乱击/舌舔/啄钻/飞叶快刀/念力/连环巴掌，原为估读）。
-  '撞击': {dur:3, dash:20, hit:1, seg:[[0,4],[3,8]]},  // Tackle: 突进BG4 + HIT_BIG 8  [wait:12]
+  '撞击': {dur:4, dash:20, hit:1, seg:[[0,6],[1,4],[3,8],[6,7]]},  // Tackle: 准备6 + 突进4 + HIT8 + 恢复7 [wait:25]
   '挣扎': {dur:3, dash:8, tint:1, hit:1},  // Struggle: 单段 HIT+wait16（均分=原作）  [wait:16]
   '抓': {dur:5, dash:12, slash:1, hit:1},  // Scratch: 单段 3CUT+wait32  [wait:32]（原误引 FurySwipes 44）
   '毒针': {dur:5, projN:'needle', burstG:['powder','poison'], hit:1, seg:[[0,16],[4,16]]},  // PoisonSting: NEEDLE 16 + HIT 16  [wait:32]
@@ -4117,22 +4129,22 @@ const MOVE_FX = {
   '电击': {dur:19, charge:1, tint:1, boltG:1, hit:1, seg:[[0,16],[2,96]]},  // Thundershock: CORE球16 + SPARKS圈96  [wait:112]
   '火花': {dur:9, ember:1, burstG:['fire','fire'], hit:1, seg:[[0,24],[3,32]]},  // Ember: 用户3火苗24 + 目标3火苗32  [wait:56]
   '起风': {dur:13, wind:1, hit:1, seg:[[0,54],[5,24]]},  // Gust: 风loop 9×6=54 + HIT8+16  [wait:78]（原 ~10 估错）
-  '紧束': {dur:29, bind:1, seg:[[0,8],[1,8],[2,64],[6,96]]},  // Bind: 缠1/缠2 各8 + 缠3+hold64 + 收紧96  [wait:176]
+  '紧束': {dur:29, bind:1, seg:[[0,8],[1,8],[2,64],[6,96]]},  // Wrap (#35，非绑紧/Bind #20): 8+8+64+96 [wait:176]
   '咬住': {dur:5, dash:14, slash:1, hit:1, seg:[[2,8],[4,16],[6,8]]},  // Bite: BITE8 + HIT16 + HIT8  [wait:32]
   '拍击': {dur:4, dash:16, hit:1, seg:[[2,6],[3,16]]},  // Pound: PALM6 + HIT16  [wait:22]
   '泡沫': {dur:29, burstG:['bubble','water'], burstAt:0, hit:1, seg:[[0,12],[1,128],[7,32]]},  // Bubble: 3泡各6 + hold128 + 尾32  [wait:172]
-  '水枪': {dur:17, proj:['water','water'], waterbg:1, hit:1, seg:[[0,40],[3,48],[7,16]]},  // WaterGun: 3水柱40 + 水波BG48($1c/$8/$30) + 显回16  [wait:104]
+  '水枪': {dur:19, proj:['water','water'], waterbg:1, hit:1, seg:[[0,44],[3,48],[7,22]]},  // WaterGun: 准备4 + 水柱40 + 水波48 + 恢复6 + 尾16 [wait:114]
   '藤鞭': {dur:3, slash:1, bind:1, hit:1},  // VineWhip: 4+4+4 近均分  [wait:12]
   '必杀门牙': {dur:4, slash:2, dash:10, hit:1, seg:[[2,6],[3,16]]},  // HyperFang: FANG6+HIT16+屏抖BG  [wait:22]（原 34 错）
-  '吸血': {dur:20, drain:1, hit:1, seg:[[0,90],[6,32]]},  // Absorb: 吸取loop 5×(3×6)=90 + hold32  [wait:122]（原 50 错）
-  '乱击': {dur:5, multi:1, dash:10, hit:1},  // FurySwipes: 单段 3CUT+wait32  [wait:32]（原 44 错）
+  '吸血': {dur:29, drain:1, hit:1, seg:[[0,128],[6,48]]},  // LeechLife #141: Drain + 128+48；非吸取/Absorb #71 [wait:176]
+  '乱击': {dur:8, multi:1, dash:10, hit:1, seg:[[0,8],[2,8],[3,8],[4,8],[5,8],[6,8]]},  // FuryAttack #31: HORN/HIT 6×8，图元沿用多段近似；非乱抓/FurySwipes [wait:48]
   '角撞': {dur:5, dash:22, hit:1, seg:[[0,16],[4,16]]},  // HornAttack: HORN16 + HIT16  [wait:32]
   '舌舔': {dur:11, projN:'lick', hit:1},  // Lick: 单段 LICK+wait64（均分=原作）  [wait:64]（原 34 错）
-  '落石': {dur:18, rocksG:1, hit:1, seg:[[0,10],[1,96]]},  // RockThrow: 5石各2=10 + hold/SHAKE_SCREEN_X 96  [wait:106]
-  '连环巴掌': {dur:7, multi:1, dash:12, hit:1, seg:[[2,14],[4,14],[6,14]]},  // Doubleslap: 单轮 PALM6+HIT8=14 ×3轮  [wait:42]（原 58 错）
+  '落石': {dur:17, rocksG:1, hit:1, seg:[[0,8],[1,96]]},  // RockThrow: 5石之间4×2 + hold96 [wait:104]
+  '连环巴掌': {dur:3, dash:12, hit:1, seg:[[2,6],[4,8]]},  // Doubleslap: 单次 PALM6+HIT8；回合无hit_count，不再硬定三次 [wait:14]
   '啄钻': {dur:16, dash:24, slash:1, hit:1, seg:[[2,80],[6,16]]},  // DrillPeck: 钻loop 5×(4×4)=80 + 尾16  [wait:96]（原 34 错）
-  '飞叶快刀': {dur:28, proj:['leaf','grass'], hit:1, seg:[[0,6],[1,80],[4,20],[7,64]]},  // RazorLeaf: 6叶6 + 10叶80 + 散落incobj 10×2=20 + 尾64  [wait:170]（原 96 错）
-  '念力': {dur:21, rings:1, hit:1},  // Confusion: 单段 NIGHT_SHADE wait128（均分=原作）  [wait:128]（原 56 错）
+  '飞叶快刀': {dur:28, proj:['leaf','grass'], hit:1, seg:[[0,6],[1,80],[4,18],[7,64]]},  // RazorLeaf: 6+80 + 10次incobj之间9×2 + 尾64 [wait:168]
+  '念力': {dur:23, rings:1, hit:1, seg:[[0,4],[0.5,128],[7.5,6]]},  // Confusion: 准备4 + NIGHT_SHADE128 + 恢复6 [wait:138]
   '投球': {dur:9, projN:'orb', hit:1, seg:[[0,36],[5,16]]},  // Barrage: 投36 + 爆16  [wait:52]
   '*': {dur:4, dash:12, hit:1},    // [wait:默认]
 };
@@ -4143,17 +4155,17 @@ const MOVE_FX = {
 const TYPE_FX={
  '一般':{dur:4,dash:16,hit:1},
  '火':{dur:9,ember:1,burstG:['fire','fire'],hit:1},
- '水':{dur:17,proj:['water','water'],hit:1},
- '草':{dur:28,proj:['leaf','grass'],hit:1},   // 代表招 RazorLeaf 170（二十一派活复核改正）
+ '水':{dur:19,proj:['water','water'],hit:1},
+ '草':{dur:28,proj:['leaf','grass'],hit:1},   // 代表招 RazorLeaf wait168
  '电':{dur:19,charge:1,boltG:1,hit:1},
  '冰':{dur:29,burstG:['bubble','ice'],hit:1},
  '格斗':{dur:8,dash:24,slash:1,hit:1},
  '毒':{dur:5,projN:'needle',burstG:['powder','poison'],hit:1},
- '地面':{dur:18,rocksG:1,hit:1},   // RockThrow 106（原 104 误）
+ '地面':{dur:17,rocksG:1,hit:1},   // 代表招 RockThrow wait104
  '飞行':{dur:13,wind:1,dash:18,hit:1},   // Gust 78（原 ~10 估错）
- '超能':{dur:21,rings:1,hit:1},   // Confusion 128（原 56 误）
+ '超能':{dur:23,rings:1,hit:1},   // 代表招 Confusion 含子调用wait138
  '虫':{dur:8,drain:1,hit:1},
- '岩石':{dur:18,rocksG:1,hit:1},
+ '岩石':{dur:17,rocksG:1,hit:1},
  '幽灵':{dur:8,tint:1,rings:1,hit:1},
  '龙':{dur:8,projN:'orb',tint:1,hit:1},
 };
@@ -4293,12 +4305,11 @@ function coreBallDraw(cx,cy){
    振幅包线照 asm 三段（$1c/$8 渐强 → $30 最强 hold）。 */
 const _wob=document.createElement('canvas');
 function sprWater(id,view,x,y,dest,p8){
-  const m=D.mons[id-1]; if(!m) return;
-  const size=view==='back'?D.meta.backSize:m.fsize;
-  const src=view==='back'?D.back[id]:D.front[id]; if(!src) return;
+  const off=spriteSourceCanvas(id,view); if(!off) return;
   _wob.width=dest; _wob.height=dest;
   const g=_wob.getContext('2d');
-  drawSprite(g,b64bytes(src),size,0,0,dest/size,null,curDir().spritePal||palOf(id,false));
+  g.imageSmoothingEnabled=false;
+  g.drawImage(off,0,0,dest,dest);
   const amp = p8<4 ? (p8-3)*2 : (p8<5 ? 2+(p8-4)*2 : 4);
   ctx.imageSmoothingEnabled=false;
   for(let y0=0;y0<dest;y0+=2){
@@ -4318,8 +4329,8 @@ function fxOverlay(fx, r, ph, petRect, wildRect, wildId){
   if(fx.charge && ph<=1){                             // 蓄力：攻击方闪白（攻击方动作，miss 时也蓄力）
     const atkR = atkIsPet?petRect:wildRect;
     ctx.globalAlpha = ph<0.5 ? 0.85 : 0.4;
-    sprSil(atkIsPet?25:wildId, atkIsPet?'back':'front', atkR.x, atkR.y,
-           atkIsPet?atkR.s/32:atkR.s/40, '#f0f0f0');   // 主宠 back@32源 / 野怪 front@40源
+    sprNN(atkIsPet?25:wildId, atkIsPet?'back':'front', atkR.x, atkR.y,
+          atkR.s, '#f0f0f0');   // 剪影与本体共用目标框；源尺寸由 backSize / fsize 决定
     ctx.globalAlpha = 1;
   }
   if(fx.boltG && !r.missed){                    // 电击（照 asm Thundershock 逐行）：
@@ -4422,103 +4433,82 @@ function fxOverlay(fx, r, ph, petRect, wildRect, wildId){
     }
   }
 }
-function p3G(){ // G 金银：GSC 原作布局（engine/battle/core.asm 坐标 ×1.5 换算到 240×320）
+function p3G(){ // G 金银设计稿；完整固件渲染在独立页签。
   const t=DIRS.G.pal; const {sc,tl,it}=p3Cur();
   if(!sc||!tl.length){ text('（无回合）',80,150); return; }
   const r=it.r, ph=it.ph;
-  const fxsp = fxSpec(r)||{};
-  // 二十一派活①b：段内相位照 asm anim_wait 六档实值（p8fof 小数相位）；
-  // 无 seg 的招回落 8 段均分（单段 wait 的招均分即原作）
-  const p8 = it.n? p8fof(fxsp, ph, it.n) : ph;
+  const fxsp=fxSpec(r)||{};
+  const p8=it.n?p8fof(fxsp,ph,it.n):ph;
   const [wdx,pdx]=p3Shake(r,p8);
-  const m=D.mons[sc.wildSid-1]; const wpx=m.fsize*2;
+  const m=D.mons[sc.wildSid-1], wpx=m.fsize*2;
   fieldFill();
-  // 二十派活②/二十一派活①b：落石 SHAKE_SCREEN_X（asm RockThrow 首行 bgeffect）—— 全屏横抖。
-  // 只包战斗内容（HUD 消息窗不抖）。seg 后照 asm：10 落石段后 96 hold 段持续渐衰横抖；
-  // 无 seg 保持旧结束段 5-7 窗口
-  const gsx = (fxsp.rocksG||fxsp.rocks) && !r.missed
-            ? (fxsp.seg ? (p8>=1? Math.round(Math.sin(p8*2.4)*6*Math.max(0,8-p8)/7):0)
-                        : (p8>=5? Math.round(Math.sin(p8*2.4)*6*(8-p8)/3):0)) : 0;
-  // 招式动画（第一段）：攻击方突进位移 —— 必须在画 sprite 前算
-  const big = P3GSZ==='96';
-  const petRect = big?{x:16,y:112,s:96}:{x:24,y:160,s:48};
-  // GSC enemy front：hlcoord 12,0（px 96..152 → ×1.5 中心 ~186）
+  const gsx=(fxsp.rocksG||fxsp.rocks)&&!r.missed
+    ?(fxsp.seg?(p8>=1?Math.round(Math.sin(p8*2.4)*6*Math.max(0,8-p8)/7):0)
+      :(p8>=5?Math.round(Math.sin(p8*2.4)*6*(8-p8)/3):0)):0;
+  const big=P3GSZ==='96';
+  const petRect=big?{x:16,y:112,s:96}:{x:24,y:160,s:48};
   const wbb=inkBBox(sc.wildSid,'front');
-  const wildX = wbb ? 186-(wbb.x0+wbb.x1+1) : 168;
-  const wildRect = {x:wildX, y:150-wpx, s:wpx};
-  // 十八派活②：EXP 动画帧（it.exp）不再派发上一招特效 —— 战斗已结束，
-  // tint/charge 等残留会把 sprite 染色（曾把升级帧的两只都染绿）
-  const fxo = it.exp ? {pet:0,wild:0} : fxOffsets(fxSpec(r), r, p8, petRect, wildRect);
-  ctx.save(); if(gsx) ctx.translate(gsx,0);
+  const wildX=wbb?186-(wbb.x0+wbb.x1+1):168;
+  const wildRect={x:wildX,y:150-wpx,s:wpx};
+  const fxo=it.exp?{pet:0,wild:0}:fxOffsets(fxSpec(r),r,p8,petRect,wildRect);
 
-  /* ── 敌方 HUD（GSC core.asm DrawEnemyHUD：hlcoord 1,0；条 hlcoord 2,2 =
-        HP: 标签 + 6 条 tile + 端帽，敌侧无数字无 EXP）。
-        第十六派活②根因修正：hudE png 是装饰性 tile（楔形/竖条），不是条本体 ——
-        条本体是 FontBattleExtra $60-$6b（现提取为 GSC_GFX.hpbar）。── */
-  text('野生的'+nameOf(m)+' Lv'+sc.wildLevel, 12, 2, t.ink);
-  gscHpBar(24, 22, wildHpPct(sc,r), 'wild');         // 十九派活②：hlcoord 2,2=x16×1.5=24，9 tiles=108px
-
-  // 敌方 sprite + 平台（GSC 平台属背景 tilemap 无独立 png —— 实心椭圆近似，标注）
-  // 十九派活①：平台 y 贴墨迹底边（inkBBox 现算），不再用落进 sprite 中段的固定值
-  // 二十一派活①a：水枪 BG 水波（asm START/WATER/END_WATER = DeformWater 逐行正弦失真），
-  // 目标为野怪且处于水波段（p8 3-7）时画失真版 —— 目标「藏进水波再显回」
-  if(fxsp.waterbg && !r.missed && p8>=3 && p8<7 && r.attacker==='pet')
+  // 舞台有自己的裁剪区。HUD 最后绘制，屏抖与特效不会遮住名字和消息。
+  ctx.save(); ctx.beginPath(); ctx.rect(0,38,W,202); ctx.clip();
+  if(gsx) ctx.translate(gsx,0);
+  if(fxsp.waterbg&&!r.missed&&p8>=3&&p8<7&&r.attacker==='pet')
     sprWater(sc.wildSid,'front',wildX+wdx+fxo.wild,150-wpx,wpx,p8);
   else spr(sc.wildSid,'front',wildX+wdx+fxo.wild,150-wpx,2);
-  const wFeetY = wbb ? 150-wpx + (wbb.y1+1)*(wpx/m.fsize) : 148;
-  ellipse(186, Math.round(wFeetY)+2, 44, 6, t.dim);
+  const wFeetY=wbb?150-wpx+(wbb.y1+1)*(wpx/m.fsize):148;
+  ellipse(186,Math.round(wFeetY)+2,44,6,t.dim);
 
-  /* ── 我方 HUD（GSC DrawPlayerHUD 四行制：名字 / HP 条 / cur-max 数字 / EXP）。
-        x120 起 —— x96 会压到 96px 主宠（右缘 x112），第十六派活③。
-        条 112px（无 HP: 标签 —— 124 起放不下 144px，偏离原作，报告注明），
-        数字行右对齐 236 与消息窗右缘同栅格 —— 第十六派活：Lv 与数字同行重叠修复。── */
-  text('皮卡丘 Lv'+sc.playerLevel, 120, 150, t.ink);
-  /* 十九派活②③：四行紧邻照 asm 行距 —— DrawPlayerHUD 行 7/9/10/11 tiles，
-     相对行距 2/1/1 tile = 16/8/8px ×1.5 = 24/12/12px。数字是 16px 点阵字
-     （asm 的 8px PrintNum 放不下 12px 行距），就近取 16px —— 相对关系
-     （紧邻不空行）保持，代价报告注明。条 hlcoord 10,9 = x80×1.5 = x120。 */
-  gscHpBar(120, 174, petHpPct(sc,r), 'pet');        // 9 tiles=108px：x120..228
-  const hpNum=Math.max(0,r.petHp)+'/'+sc.petMax;    // GSC DrawPlayerHP：我方显数字
-  text(hpNum, 228-textW(hpNum), 186, t.ink);        // 右对齐条右端
-  // EXP 条（十七派活）：PlaceExpBar 8 tiles ×1.5=96px，条右端 tile17=x204
+  const wtrPet=fxsp.waterbg&&!r.missed&&p8>=3&&p8<7&&r.attacker==='wild';
+  const pbb=inkBBox(25,'back');
+  if(big){
+    if(wtrPet) sprWater(25,'back',16+pdx+fxo.pet,112,96,p8);
+    else sprNN(25,'back',16+pdx+fxo.pet,112,96);
+    ellipse(64,Math.round(112+(pbb.y1+1)*96/D.meta.backSize)+2,50,7,t.dim);
+  } else {
+    if(wtrPet) sprWater(25,'back',24+pdx+fxo.pet,160,48,p8);
+    else sprNN(25,'back',24+pdx+fxo.pet,160,48);
+    ellipse(64,Math.round(160+(pbb.y1+1)*48/D.meta.backSize)+2,50,7,t.dim);
+  }
+  if(!it.exp) fxOverlay(fxSpec(r),r,p8,petRect,wildRect,sc.wildSid);
+  ctx.restore();
+
+  text('野生的'+nameOf(m)+' Lv'+sc.wildLevel,12,4,t.ink);
+  gscHpBar(24,22,wildHpPct(sc,r),'wild');
+
+  // 我方 HUD 的共同右缘是 228；四行完整落在 y160..239 横带内。
+  // 主宠静态右缘是 112，突进时经过背板后方，数值仍然可读。
+  ctx.fillStyle=t.field; ctx.fillRect(116,160,120,80);
+  text('皮卡丘 Lv'+sc.playerLevel,120,164,t.ink);
+  gscHpBar(120,186,petHpPct(sc,r),'pet');
+  const hpNum=Math.max(0,r.petHp)+'/'+sc.petMax;
+  text(hpNum,228-textW(hpNum),202,t.ink);
   const exd=SP.battle.expDemo||{};
   if(exd.need){
-    const flash = it.exp && it.exp.px==='flash';
-    const px = it.exp ? (flash?64:it.exp.px)
-              : Math.round((exd.expCur||0)/(exd.need||1)*64);   // 战前静态进度
-    gscExpBar(108, 202, px, flash);
+    const flash=it.exp&&it.exp.px==='flash';
+    const px=it.exp?(flash?64:it.exp.px):Math.round((exd.expCur||0)/(exd.need||1)*64);
+    gscExpBar(132,226,px,flash);
   }
 
-  // 我方 sprite + 平台（实心椭圆，标注；十九派活①：y 贴墨迹底边）
-  // 水枪 BG 水波：目标为主宠（野怪攻击）且处于水波段时画失真版
-  const wtrPet = fxsp.waterbg && !r.missed && p8>=3 && p8<7 && r.attacker==='wild';
-  const pbb=inkBBox(25,'back');
-  if(big){ if(wtrPet) sprWater(25,'back',16+pdx+fxo.pet,112,96,p8);
-    else sprNN(25,'back',16+pdx+fxo.pet,112,96);
-    ellipse(64, Math.round(112+(pbb.y1+1)*3)+2, 50, 7, t.dim); }
-  else{   if(wtrPet) sprWater(25,'back',24+pdx+fxo.pet,160,48,p8);
-    else sprNN(25,'back',24+pdx+fxo.pet,160,48);
-    ellipse(64, Math.round(160+(pbb.y1+1)*1.5)+2, 50, 7, t.dim); }
-
-  // 招式动画（第二段）：特效层叠在 sprite 之上
-  if(!it.exp) fxOverlay(fxSpec(r), r, p8, petRect, wildRect, sc.wildSid);
-  ctx.restore();                                    // 屏抖结束（消息窗不抖）
-
-  /* ── 消息窗（两行，strings.py BATTLE_LINES：L1=谁 L2=做了什么）── */
-  const mvShow = st.P3.fxDemo || r.move;
-  if(it.exp){                                    // EXP 动画帧段独占消息窗（asm 同序：先获得后升级）
-    text('皮卡丘', 14, 255, t.ink);
+  // 消息框先画、文字后画；结算与回合消息互斥，避免旧文字叠印。
+  // 内框 y246/311，三行 y249/269/292，16px 字形均有净空。
+  gscBox(4,242,232,74,t.blue);
+  const mvShow=st.P3.fxDemo||r.move;
+  if(it.exp){
+    text('皮卡丘',14,249,t.ink);
     text(it.exp.lvl?'升到了 Lv'+(exd.postLevel||'')+'！':'经验 +'+(exd.gain||0),
-         14, 272, it.exp.lvl?t.ink:t.goldT); }
-  else{
-    text(r.attacker==='pet'?'皮卡丘':'野生的'+nameOf(m), 14, 255, t.ink);
-    text(r.missed?'的攻击落空了！':'使用了'+(mvShow||'攻击')+'！', 14, 272, t.ink);
-    if(!r.missed&&r.damage>0){ const d='-'+r.damage+' HP'; text(d,232-textW(d),255,t.redT); }
-    if(tl[st.P3.fi+1]===undefined){
-      text(sc.won?'胜':'败',14,255,t.ink);
-      text('经验 +'+sc.exp,14,272,t.goldT); } }
-  gscBox(4,250,232,63,t.blue);
-  text('▸',14,289,t.ink); hintAt(289,t.ink,t.blueT,30);
+      14,269,it.exp.lvl?t.ink:t.goldT);
+  } else if(tl[st.P3.fi+1]===undefined){
+    text(sc.won?'胜':'败',14,249,t.ink);
+    text('经验 +'+sc.exp,14,269,t.goldT);
+  } else {
+    text(r.attacker==='pet'?'皮卡丘':'野生'+nameOf(m),14,249,t.ink);
+    text(r.missed?'的攻击落空了！':'使用了'+(mvShow||'攻击')+'！',14,269,t.ink);
+    if(!r.missed&&r.damage>0){const d='-'+r.damage+' HP';text(d,228-textW(d),249,t.redT);}
+  }
+  text('▸',14,292,t.ink); hintAt(292,t.ink,t.blueT,30);
 }
 
 /* ---- P6 三方向 + 现状 ---- */
@@ -4531,9 +4521,10 @@ const R6={
    const ct=dexCount()+'/151'; text(ct,W-8-textW(ct),4,t.ink);
    hlineS(26,t.dim);
    p6Cells((sid,cx,cy)=>{ const stt=dexState(sid);
-     if(stt==='caught') spr(sid,'back',cx+4,cy,1);
-     else if(stt==='seen') sprSil(sid,'back',cx+4,cy,1,t.dim);
-     text(String(sid).padStart(3,'0'),cx+4,cy+34,stt==='caught'?t.ink:t.dim); });
+     const caught=stt==='caught'||stt==='shiny';
+     if(caught) sprNN(sid,'front',cx+7,cy,32);
+     else if(stt==='seen') sprNN(sid,'front',cx+7,cy,32,t.dim);
+     text(String(sid).padStart(3,'0'),cx+11,cy+34,caught?t.ink:t.dim); });
    const pg=(st.P6.pg+1)+'/'+SP.dex.pages; text(pg,W-8-textW(pg),268,t.dim);
    hlineS(292,t.dim); hintAt(298,t.ink); },
  A(){ const t=DIRS.A.pal;
@@ -4543,11 +4534,10 @@ const R6={
    const ct=dexCount()+'/151'; text(ct,W-8-textW(ct),4,t.field);
    p6Cells((sid,cx,cy)=>{ const stt=dexState(sid);
      if(stt==='unseen'){ ctx.fillStyle=t.track; ctx.fillRect(cx,cy,44,54);
-       text(String(sid).padStart(3,'0'),cx+4,cy+38,t.ink); }
+       text(String(sid).padStart(3,'0'),cx+10,cy+38,t.ink); }
      else{ frame(cx,cy,44,54,stt==='caught'?t.ink:t.track,1);
-       if(stt==='seen') sprSil(sid,'back',cx+6,cy+2,1,t.dim);
-       else spr(sid,'back',cx+6,cy+2,1);
-       text(String(sid).padStart(3,'0'),cx+6,cy+38,stt==='caught'?t.ink:t.dim); } });
+       sprNN(sid,'front',cx+6,cy+2,32,stt==='seen'?t.dim:undefined);
+       text(String(sid).padStart(3,'0'),cx+10,cy+38,stt==='seen'?t.dim:t.ink); } });
    for(let i=0;i<SP.dex.pages;i++){ ctx.fillStyle=i===st.P6.pg?t.ink:t.track; ctx.fillRect(8+i*14,272,8,8); }
    const pg=(st.P6.pg+1)+'/'+SP.dex.pages; text(pg,W-8-textW(pg),270,t.dim);
    band(288,32,t.ink); hintAt(296,t.field); },
@@ -4558,18 +4548,18 @@ const R6={
    hlineS(26,t.dim);
    p6Cells((sid,cx,cy)=>{ const stt=dexState(sid);
      if(stt==='unseen'){ ctx.fillStyle=t.track; ctx.fillRect(cx,cy,44,54);
-       text(String(sid).padStart(3,'0'),cx+4,cy+38,t.ink); }
+       text(String(sid).padStart(3,'0'),cx+10,cy+38,t.ink); }
      else if(stt==='seen'){
        ctx.strokeStyle=t.dim; ctx.setLineDash([3,2]);
        ctx.strokeRect(cx+.5,cy+.5,43,53); ctx.setLineDash([]);
-       sprSil(sid,'back',cx+6,cy+2,1,t.dim);
-       ctx.fillStyle=t.track; ctx.fillRect(cx+1,cy+42,42,11);
-       text(String(sid).padStart(3,'0'),cx+6,cy+43,t.ink); }
+       sprNN(sid,'front',cx+6,cy+2,32,t.dim);
+       ctx.fillStyle=t.track; ctx.fillRect(cx+1,cy+36,42,16);
+       text(String(sid).padStart(3,'0'),cx+10,cy+36,t.ink); }
      else{ frame(cx,cy,44,54,t.ink,1);
-       spr(sid,'back',cx+6,cy+2,1);
+       sprNN(sid,'front',cx+6,cy+2,32);
        if(stt==='shiny') uiO('star_5',cx+28,cy+1,1);               // 闪光已收=金星（素材接线）
-       ctx.fillStyle=t.track; ctx.fillRect(cx+1,cy+42,42,11);      // 名牌条（GBC 式标签底）
-       text(String(sid).padStart(3,'0'),cx+6,cy+43,t.ink); } });
+       ctx.fillStyle=t.track; ctx.fillRect(cx+1,cy+36,42,16);      // 名牌与16px编号完整留在54px格内
+       text(String(sid).padStart(3,'0'),cx+10,cy+36,t.ink); } });
    for(let i=0;i<SP.dex.pages;i++){ ctx.fillStyle=i===st.P6.pg?t.blue:t.track; ctx.fillRect(8+i*14,272,8,8); }
    const pg=(st.P6.pg+1)+'/'+SP.dex.pages; text(pg,W-8-textW(pg),270,t.dim);
    hlineS(292,t.dim); hintAt(298,t.ink,t.blue); },
@@ -4581,16 +4571,16 @@ const R6={
    /* 无框版（第五派活，用户定「图鉴可以没有边框」）：
       分隔靠留白 + 对齐 —— 格 40×52、步进 48×58（横向 8px 留白），
       不再画框/灰条（修前蓝框 7.7% + 灰条 10.3% 像素，装饰比信息还重）。
-      sprite 光学居中于编号上方区（sprC），编号统一基线 y=cy+38 落浅底。 */
+      32px front 缩略图居中于编号上方区，编号统一基线 y=cy+38 落浅底。 */
    const CW=40, SX=48, SY=58, GX=4;   // 5×48-8=232，左右各 4px —— GX=8 会右缘贴边
    for(let i=0;i<SP.dex.perPage;i++){ const sid=st.P6.pg*SP.dex.perPage+i+1; if(sid>151) break;
      const cx=GX+(i%SP.dex.cols)*SX, cy=34+((i/SP.dex.cols)|0)*SY;
      const stt=dexState(sid), no=String(sid).padStart(3,'0');
      if(stt==='unseen'){ text(no,cx+(CW-textW(no))/2,cy+38,t.track); }
      else if(stt==='seen'){                              // 见过 = 剪影 + 淡编号
-       sprC(sid,'back',cx+CW/2,cy+18,1,t.dim);
+       sprNN(sid,'front',cx+(CW-32)/2,cy+2,32,t.dim);
        text(no,cx+(CW-textW(no))/2,cy+38,t.dim); }
-     else{ sprC(sid,'back',cx+CW/2,cy+18,1);             // 已收 = 官方彩 + ink 编号
+     else{ sprNN(sid,'front',cx+(CW-32)/2,cy+2,32);    // 已收 = 官方彩 + ink 编号
        if(stt==='shiny') uiO('star_5',cx+CW-9,cy,1);
        text(no,cx+(CW-textW(no))/2,cy+38,t.ink); } }
    for(let i=0;i<SP.dex.pages;i++){ ctx.fillStyle=i===st.P6.pg?t.blue:t.track; ctx.fillRect(8+i*14,272,8,8); }
@@ -4605,10 +4595,9 @@ const R6={
      const x=12+(i%SP.dex.cols)*44, y=32+((i/SP.dex.cols)|0)*54;
      const stt=dexState(sid);
      if(stt==='unseen'){ /* 未开格=纯空（撤斜纹），只留淡编号 */
-       text(String(sid).padStart(3,'0'),x+5,y+34,t.dim); }
-     else{ if(stt==='seen') sprSil(sid,'back',x+5,y+2,1,t.dim);
-           else spr(sid,'back',x+5,y+2,1);
-       text(String(sid).padStart(3,'0'),x+5,y+34,stt==='caught'?t.ink:t.dim); } }
+       text(String(sid).padStart(3,'0'),x+10,y+34,t.dim); }
+     else{ sprNN(sid,'front',x+6,y+2,32,stt==='seen'?t.dim:undefined);
+       text(String(sid).padStart(3,'0'),x+10,y+34,stt==='seen'?t.dim:t.ink); } }
    const pg=(st.P6.pg+1)+'/'+SP.dex.pages; text(pg,226-textW(pg),252,t.dim);
    box2(8,276,224,34,t.ink);
    text('▸',16,286,t.ink); hintAt(286,t.ink,null,32); },
@@ -4666,7 +4655,8 @@ const PAGES={
      // oak 中心 (mon?W/4:W/2, 94) / 野怪 front @2x 右半居中 /
      // 文本框 hline164+272、四行 y=168/190/212/240 / hline292 / 提示 y298 左
      const s=st.P0;
-     if(s.done){ text('— 完 —',96,150); text(s.skipped?'已跳过':'剧情结束',84,170,TC.dim); hintAt(298); return; }
+     if(s.done){ const title='— 完 —', detail=s.skipped?'已跳过':'剧情结束';
+       text(title,(W-textW(title))/2,136); text(detail,(W-textW(detail))/2,168,TC.dim); hintAt(298); return; }
      const b=SP.opening.boxes[s.box];
      text('大木博士',8,4);
      const cnt=(s.box+1)+'/7'; text(cnt,W-8-textW(cnt),4,TC.dim);
@@ -4725,7 +4715,7 @@ const PAGES={
    info(){
      const tl=P3_timeline(st.P3.sc); if(!tl.length) return '（无回合）';
      const {r,ph,n}=tl[Math.min(st.P3.fi,tl.length-1)];
-     return `${st.P3.sc} 剧本 · 回合 ${r.attacker==='pet'?'皮卡丘':'野怪'}用「${r.move||'攻击'}」${r.label||''} −${r.damage} · 段内帧 ${ph}/${n||8}${r.missed?' · 未命中':''} · 骨架${P3SKEL==='alt'?'打破':'通用'}（${DIRS[DIR].label}）${DIR==='G'?' · 主宠 '+P3GSZ+'px · 动画 '+(st.P3.fxDemo?st.P3.fxDemo+'（预览）':(MOVE_FX[r.move]?'按 move 派发 '+r.move:'默认')):''}`; },
+     return `历史 JS 动画样本（不验证当前玩法） · ${st.P3.sc} 剧本 · 回合 ${r.attacker==='pet'?'皮卡丘':'野怪'}用「${r.move||'攻击'}」${r.label||''} −${r.damage} · 段内帧 ${ph}/${n||8}${r.missed?' · 未命中':''} · 骨架${P3SKEL==='alt'?'打破':'通用'}（${DIRS[DIR].label}）${DIR==='G'?' · 主宠 '+P3GSZ+'px · 动画 '+(st.P3.fxDemo?st.P3.fxDemo+'（预览）':(MOVE_FX[r.move]?'按 move 派发 '+r.move:'默认')):''}`; },
    render(){ if(DIR==='G'){ p3G(); }                   // G 恒用战斗构图（骨架开关对其无效）
      else if(P3SKEL==='alt') p3Alt(); else (R3[DIR]||R3.base)(); }},
  P4:{label:'P4 捕获', enter(){ st.P4.thrown=null; },
@@ -4738,7 +4728,7 @@ const PAGES={
        const b=SP.capture.balls[s.ball];
        const pos=SP.capture.pointer[s.t%SP.capture.periodMs];
        const hit=pos>=b.windowStart&&pos<=b.windowStart+b.window;
-       // 文案照 play_capture.c 的结果集：未命中/命中 → 捕获成功/跑掉了
+       // 历史 capture 原语样本；fled 不代表当前 C 页面的反击/战胜后逃跑规则。
        s.thrown=!hit?'未命中':(b.caught?'捕获成功':(b.fled?'跑掉了':'命中'));
        s.hit=hit;
      } else if(k==='C') go('P2');
@@ -4746,18 +4736,18 @@ const PAGES={
    info(){
      const s=st.P4,b=SP.capture.balls[s.ball];
      const pos=SP.capture.pointer[s.t%SP.capture.periodMs];
-     return `t=${s.t}ms · 指针 ${pos} · 窗口 ${b.windowStart}..${b.windowStart+b.window}（${b.ball} 球，宽 ${b.window}px）${s.thrown?' · '+s.thrown:''} · 布局照 play_capture.c（球/条/文案坐标逐项对齐）`; },
+     return `t=${s.t}ms · 指针 ${pos} · 窗口 ${b.windowStart}..${b.windowStart+b.window}（${b.ball} 球，宽 ${b.window}px）${s.thrown?' · '+s.thrown:''} · 历史 JS 样本，不验证当前捕获规则`; },
    render(){
-     // 布局照 play_capture.c:52-59 的注释逐项对齐：
+     // 历史布局，当前 play_capture.c 的整页像素与玩法由固件同源预览验证：
      //   y4 标题+物种名右 / y32 sprite@1x 居中 64px 盒 / y176 球图标+球名
      //   y208 判定条(20px,上下边框,窗口=中间调,其余=亮调,指针3px) / y248 结果
      const s=st.P4,b=SP.capture.balls[s.ball];
-     const m=D.mons[19];                 // 捕获样本固定 #19（payload 无物种字段，见报告缺口）
+     const m=D.mons[19-1];               // 捕获样本固定 #19；mons 按 species_id - 1 索引。
      text('捕获',8,4);
      text(nameOf(m),W-8-textW(nameOf(m)),4);
      spr(19,'front',(W-m.fsize)/2,32+(64-m.fsize)/2,1);
      const bn=['ball_24','ball_great','ball_ultra'][s.ball];
-     ui((s.thrown&&s.hit&&b.caught)?'ball_open':bn,8,176,1);   // 成功换 ball_open（同固件）
+     ui(bn,8,176,1);   // 成功后仍显示所选闭球，与当前固件一致。
      text(['精灵球','超级球','高级球'][s.ball],40,180);        // 固件此处还有 ×数量 —— sim payload 无球存量，列为缺口
      const BW=SP.capture.barWidth, BX=Math.floor((W-BW)/2), BY=208;
      // ↑ 二十三派活②：BW 原为字面量 200 —— 同一个值在三处各写一遍
@@ -4794,7 +4784,7 @@ const PAGES={
      return `${ACT_ZH[s.applied]}：${a.before.join('/')} → ${a.after.join('/')}`; },
    render(){
      // 布局照 play_care.c：标题 y4（照料 + 等级右）/ 名+亲密度 y28 / hline52 /
-     // 动作 y64+24i（光标=cursor 点阵 (8,y+3)，文字 x24）/ sprite back @2x (168,88) /
+     // 动作 y64+24i（光标=cursor 点阵 (8,y+3)，文字 x24）/ front @2x 居中于(120,54,112,112) /
      // 三轴 y166+24i（标签x8、条(48,y+3,136,10)、数值右对齐）/ hline292 / 提示 y298
      const s=st.P5; const P=petInfo();
      text('照料',8,4);
@@ -4807,7 +4797,9 @@ const PAGES={
        if(i===s.sel) ui('cursor',8,y+3,1);
        text(ACT_ZH[a],24,y);
      });
-     spr(P.sid,'back',168,88,2);
+     const petFront=D.mons[P.sid-1];
+     if(petFront){ const size=petFront.fsize*2;
+       spr(P.sid,'front',120+(112-size)/2,54+(112-size)/2,2); }
      const nm=SP.care.axisNames, cur=s.applied?SP.care.actions[s.applied].after:SP.care.axes;
      for(let i=0;i<3;i++){ const y=166+i*24;
        text(nm[i],8,y);
@@ -4829,19 +4821,19 @@ const PAGES={
      else if(k==='A') s.pg=(s.pg+SP.dex.pages-1)%SP.dex.pages;
      else if(k==='C') go('P1');
    },
-   info(){ return `页 ${st.P6.pg+1}/${SP.dex.pages} · 网格几何与翻页语义照 party.PartyBrowser · 收集状态 = sys2.s5 的 sim 图鉴样本（caught ${dexCount()}/151） · A=上页 B=下页`; },
+   info(){ return `页 ${st.P6.pg+1}/${SP.dex.pages} · 5×4 分页，32px 正面缩略图；历史 JS 布局 · 收集状态 = sys2.s5 的 sim 图鉴样本（caught ${dexCount()}/151） · A=上页 B=下页`; },
    render(){ (R6[DIR]||R6.base)(); }},
  P7:{label:'P7 成绩（未实现）', enter(){}, n(){return 1;}, get fi(){return 0;}, set fi(v){},
    key(){}, info(){return SP.stubs.P7;},
-   render(){ text('未实现',96,140,TC.dim); text(SP.stubs.P7,72,166,TC.dim); hintRow('P7'); }},
+   render(){ text('未实现',(W-textW('未实现'))/2,140,TC.dim); text(SP.stubs.P7,(W-textW(SP.stubs.P7))/2,166,TC.dim); hintRow('P7'); }},
  P8:{label:'P8 取名（未实现）', enter(){}, n(){return 1;}, get fi(){return 0;}, set fi(v){},
    key(){}, info(){return SP.stubs.P8;},
-   render(){ text('未实现',96,140,TC.dim); text(SP.stubs.P8,72,166,TC.dim); hintRow('P8'); }},
+   render(){ text('未实现',(W-textW('未实现'))/2,140,TC.dim); text(SP.stubs.P8,(W-textW(SP.stubs.P8))/2,166,TC.dim); hintRow('P8'); }},
 };
 function go(p){
   if(!PAGES[p]) return;
   st.page=p; PAGES[p].enter(); syncFrame(); draw();
-  try{ history.replaceState(null,'','#sim='+p
+  try{ if(!document.getElementById('p-sim').hidden) history.replaceState(null,'','#sim='+p
     +(DIR!=='base'?'&d='+DIR:'')
     +((p==='P3'&&P3SKEL==='alt')?'&k=alt':'')); }catch(e){}
   document.querySelectorAll('#sim-pages button').forEach(b=>{
@@ -4865,13 +4857,11 @@ function draw(){ cls(); PAGES[st.page].render(); bands();
   // 无矢量 AA —— 与固件点阵同观感
   vctx.imageSmoothingEnabled=false;
   vctx.drawImage(oc,0,0,cv.width,cv.height);   // 漏目标尺寸 = 只画左上 1/4（上轮残屏事故）
-  /* G 方向 = 设计稿（固件未实现）。proto tab 与 P4 坐标两次「假图被当真值」之后，
-     截图必须自带这个标记 —— 否则单看 PNG 分不清是定稿还是模拟器画错。
-     可见层右下角，半透明底不遮内容；base 方向不加（它与固件逐像素一致）。 */
+  // G 截图自带历史稿标记；当前固件的完整渲染在独立同源页签。
   if(DIR==='G'&&COVERED[st.page]){
     vctx.fillStyle='rgba(32,32,32,.62)'; vctx.fillRect(480-176,640-19,172,13);
     vctx.fillStyle='#f0f0f0'; vctx.font='9px monospace'; vctx.textBaseline='top';
-    vctx.fillText('GSC 设计稿 · 固件未实现',480-172,640-16); } }
+    vctx.fillText('GSC 历史 JS 设计稿',480-172,640-16); } }
 function step(d){ PAGES[st.page].fi+=d; syncFrame(); draw(); }
 el('sim-fprev').onclick=()=>step(-1);
 el('sim-fnext').onclick=()=>step(1);
@@ -4946,23 +4936,22 @@ function legend(){
   const d=DIRS[DIR]; const t=d.pal;
   let entries;
   if(DIR==='G'){
-    // 全部实值（第七派活，test 探源出处见报告补记7）；*T = 文字加深档（web 调整非原值）
-    entries=[['field','画面基底 0xFFF0','✓实值'],['ink','主文字 0x0000','✓实值'],['dim','次级文字 0x7240','✓实值'],
-      ['hpT','HP·EXP 槽 0xF6AF','✓实值'],['hpG','HP>50 绿 0x05E0','✓实值'],['hpY','HP 20~50 黄 0xFD60','✓实值'],['hpR','HP≤20 红 0xF800','✓实值'],
-      ['red','危险/牌框 hp_bar','✓实值'],['green','良好 hp_bar','✓实值'],['blue','焦点/框 exp_bar 0x247F','✓实值'],['gold','填充用 0xFD60','✓实值（图形）'],
-      ['redT','危险文字','⚠加深档'],['greenT','良好文字','⚠加深档'],['blueT','键帽/焦点文字','⚠加深档'],['goldT','稀有/经验文字','⚠加深档']];
+    entries=[['field','白底 0xFFFF'],['ink','主文字 0x0000'],['dim','次级文字 RGB_HEX(0x686868)'],
+      ['hpT','HP 空槽'],['hpG','HP 绿 0x05E0'],['hpY','HP 黄 0xFD60'],['hpR','HP 红 0xF800'],
+      ['red','危险图形'],['green','良好图形'],['blue','焦点图形 0x247F'],['gold','填充用 0xFD60'],
+      ['redT','危险文字'],['greenT','良好文字'],['blueT','键帽文字'],['goldT','稀有/经验文字']];
   } else if(DIR==='B'){
     entries=[['ink','一级字/描边'],['dim','二级字/分隔'],['track','轨道/空槽/底纹'],['field','画面基底'],
       ['red','危险/注意'],['green','良好/正向'],['blue','焦点/选中'],['gold','稀有/奖励']];
   } else if(DIR==='base'){
-    entries=[['field','底色（GB 绿）'],['ink','前景'],['dim','中间调'],['track','亮调']];
+    entries=[['field','金银白底'],['ink','前景'],['dim','次级文字'],['track','空槽']];
   } else {
     entries=[['ink','一级字/描边'],['dim','二级字/分隔'],['track','底纹/轨道/空槽'],['field','画面基底']];
   }
   el('dir-legend').innerHTML =
     '<div style="font-size:11px;margin:4px 0 2px;color:var(--ink-soft)">色板 · RGB565 量化精确值'
-    +(DIR==='G'?' · 全部 GSC 实值（test 探源）；<b style="color:var(--warn)">*T 四项为浅底文字加深档（web 调整非原值）</b>；<b>G=设计稿·固件未实现</b>':'')
-    +' · sprite 层：官方彩'+(DIR==='G'?'（初代；GSC sprite 等 test 取源）':'')+'</div>'
+    +((DIR==='G'||DIR==='base')?' · 白底/黑字/灰副文跟随当前固件；<b>布局与动画为历史 JS 稿</b>':' · 历史配色备选')
+    +' · sprite 层：当前构建包原素材 / 最近邻缩放</div>'
     +entries.map(([role,lab,ph])=>{
        const c=t[role];
        return `<span style="display:inline-block;margin:2px 4px 2px 0;font-size:11px">`
@@ -4975,8 +4964,7 @@ function dirNote(){
     parts.push('⚠ 本方向本轮只覆盖 P1/P3/P6，当前页按现状渲染');
   if(st.page==='P3')
     parts.push(DIR==='G'
-      ?'G 的 P3 恒为战斗构图（骨架开关不影响）· 当前主宠 '+P3GSZ+'px'
-        +(P3GSZ==='96'?'（48×2，真机需跨带渲染）':'（GSC 原生 @1x，不碰 80px 横带）')
+      ?'G 的 P3 恒为战斗构图（骨架开关不影响）· 主宠源图 '+D.meta.backSize+'px → 显示 '+P3GSZ+'px（最近邻；不模拟固件横带刷新）'
       :(P3SKEL==='alt'
       ?'骨架「打破」：pokered 战斗构图 —— 无全屏标题行、无底部通栏分隔，动作行收进消息窗'
       :'骨架「通用」：标题 Y4 + 分隔线 + 提示行 Y298（与其余六页同构）'));
@@ -5012,7 +5000,7 @@ Object.entries(DIRS).forEach(([k,d])=>{
   dirsEl.appendChild(b);
 });
 const skEl=el('sim-p3skel');
-[['std','通用（现状七页同构）'],['alt','打破（pokered 战斗构图）']].forEach(([k,lab])=>{
+[['std','通用（历史参考布局）'],['alt','pokered 战斗构图参考']].forEach(([k,lab])=>{
   const b=document.createElement('button');
   b.textContent=lab; b.dataset.k=k;
   b.style.cssText='display:block;width:100%;margin:3px 0;padding:6px 8px;text-align:left;font-size:12px';
@@ -5060,21 +5048,22 @@ el('sim-measure').onclick=()=>{
   const lines=sorted.map(([c,n])=>'#'+(+c).toString(16).padStart(6,'0')+'  '+(100*n/tot).toFixed(1)+'%');
   el('sim-measure-out').textContent =
     PAGES[st.page].label+' · '+DIRS[DIR].label
-    +(DIR==='G'&&COVERED[st.page]?' · 设计稿·固件未实现':'')
+    +(DIR==='G'&&COVERED[st.page]?' · 历史 JS 设计稿':'')
     +(st.page==='P3'?' · '+(P3SKEL==='alt'?'打破骨架':'通用骨架'):'')
     +(st.page==='P3'&&DIR==='G'?' · 主宠 '+P3GSZ+'px':'')+'\n'
     +'单色最大 '+lines[0]+'\n'+lines.join('  \n');
 };
 
 {
-  const m=location.hash.match(/^#sim=(P\d)(?:&d=(A|B|C|G))?(&k=alt)?(?:&z=(48|96))?/);
+  const m=location.hash.match(/^#sim=(P\d)(?:&d=(base|A|B|C|G))?(&k=alt)?(?:&z=(48|96))?/);
   if(m){ if(m[2]) DIR=m[2]; if(m[3]) P3SKEL='alt'; if(m[4]) P3GSZ=m[4]; }
 }
 // 验收清单的深链是页内锚点（不重载页面）—— hashchange 时重放状态。
 // go()/按钮的 history.replaceState 不触发本事件，不会自激。
 window.addEventListener('hashchange', ()=>{
-  const m=location.hash.match(/^#sim=(P\d)(?:&d=(A|B|C|G))?(&k=alt)?(?:&z=(48|96))?/);
+  const m=location.hash.match(/^#sim=(P\d)(?:&d=(base|A|B|C|G))?(&k=alt)?(?:&z=(48|96))?/);
   if(!m) return;
+  document.querySelector('#tabs button[data-p="sim"]').click();
   if(m[2]&&DIRS[m[2]]) DIR=m[2];
   P3SKEL=m[3]?'alt':'std';
   if(m[4]) P3GSZ=m[4];
@@ -5082,6 +5071,7 @@ window.addEventListener('hashchange', ()=>{
   syncDirUI(); draw();
 });
 syncDirUI();
+if(/^#sim=P\d/.test(location.hash)) document.querySelector('#tabs button[data-p="sim"]').click();
 go((location.hash.match(/^#sim=(P\d)/)||[])[1] || 'P0');
 } catch(err){
   const t = document.getElementById('sim-keylog');

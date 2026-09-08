@@ -1,0 +1,3 @@
+I (575) world: 读档：图鉴 10/151 队列 1 行程 85% party 6 total 11
+I (641) main: Audio preference: muted=1
+I (858) main: 就绪:Display=1 Button=1 Audio=1 Battery=1 World=1 → 进入玩法

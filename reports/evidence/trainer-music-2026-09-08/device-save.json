@@ -1,0 +1,12 @@
+{
+  "before_version": 6,
+  "after_version": 7,
+  "before_bytes": 2336,
+  "after_bytes": 2688,
+  "party_bytes_identical": true,
+  "inventory_bytes_identical": true,
+  "party_count": 6,
+  "leader": 129,
+  "level": 5,
+  "exp": 392
+}

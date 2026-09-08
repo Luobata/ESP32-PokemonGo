@@ -1,0 +1,36 @@
+{
+  "build": "f9ee0c79a1bf99b90099",
+  "measurement": "Actual RGB565 rows at x120, between blue fill and nearest black inner border",
+  "results": [
+    {
+      "ball": 0,
+      "blue_y": [
+        217,
+        232
+      ],
+      "gap_above": 2,
+      "gap_below": 2,
+      "dirty_mismatch": 0
+    },
+    {
+      "ball": 1,
+      "blue_y": [
+        217,
+        232
+      ],
+      "gap_above": 2,
+      "gap_below": 2,
+      "dirty_mismatch": 0
+    },
+    {
+      "ball": 2,
+      "blue_y": [
+        217,
+        232
+      ],
+      "gap_above": 2,
+      "gap_below": 2,
+      "dirty_mismatch": 0
+    }
+  ]
+}

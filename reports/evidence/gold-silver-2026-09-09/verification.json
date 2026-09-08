@@ -1,0 +1,91 @@
+{
+  "learning": [
+    {
+      "species_level_checks": 15100,
+      "hm_compatibility": true,
+      "never_forgets": true,
+      "whirlpool_damage_and_trap": true
+    }
+  ],
+  "sendout": [
+    {
+      "checks": 118,
+      "version": "1b4ad5276979ab5dc716",
+      "initial_mask": 3,
+      "manual_and_fainted_mask": 1,
+      "enemy_mask": 2,
+      "unchanged_side_stays_visible": true
+    }
+  ],
+  "fx": [
+    {
+      "moves": 166,
+      "moves_with_effect_pixels": 166,
+      "frames": 29504,
+      "self_targets_correct": true,
+      "hud_protected": true,
+      "clean_recovery": true
+    },
+    {
+      "readability_moves": 8,
+      "both_sides": true,
+      "min_visible_ms": 540,
+      "min_peak_contrast_pixels": 336
+    }
+  ],
+  "combat": [
+    {
+      "max_learned": 31,
+      "ai_distinct_moves": 19,
+      "cases": 4,
+      "moves": 165,
+      "save_version": 11,
+      "save_bytes": 3664,
+      "sanitized": true
+    }
+  ],
+  "trainer": [
+    {
+      "campaign_actions": 1809,
+      "replacements": 11,
+      "cases": 4,
+      "save_bytes": 3664,
+      "sanitized": true
+    }
+  ],
+  "system_links": [
+    {
+      "cases": 11,
+      "map_evolution_achievement_item": true,
+      "trainer_xp_conserved": true
+    }
+  ],
+  "clean_checkout": [
+    {
+      "species_level_checks": 15100,
+      "hm_compatibility": true,
+      "never_forgets": true,
+      "whirlpool_damage_and_trap": true
+    },
+    {
+      "checks": 118,
+      "version": "1b4ad5276979ab5dc716",
+      "initial_mask": 3,
+      "manual_and_fainted_mask": 1,
+      "enemy_mask": 2,
+      "unchanged_side_stays_visible": true
+    }
+  ],
+  "firmware": {
+    "build_pass": true,
+    "application_bytes": 1849152,
+    "flashed_this_revision": false
+  },
+  "promo": {
+    "duration_seconds": 133,
+    "chapters": 21,
+    "native_audio_nonzero_ratio": 0.9332456992822191,
+    "pcm_peak": 3607,
+    "contact_sheet_reviewed": true
+  }
+}

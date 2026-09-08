@@ -1,0 +1,31 @@
+{
+  "frontSourceSizeCounts": {
+    "40": 48,
+    "48": 46,
+    "56": 57
+  },
+  "sourceFixtures": [
+    {
+      "name": "actual assets",
+      "size": 48,
+      "species": 151
+    },
+    {
+      "name": "explicit full-bounds size fixture",
+      "size": 32,
+      "species": 151
+    }
+  ],
+  "p1States": 1510,
+  "p3States": 20,
+  "p5States": 1510,
+  "p6States": 320,
+  "p6FrontThumbnails": 4530,
+  "chargeCases": 12,
+  "waterCases": 4,
+  "negativeControls": [
+    "old P1 back 48 × scale3 grows to 144px",
+    "mismatched sprite bytes/size throws instead of drawing"
+  ],
+  "scope": "Actual template functions in Node VM with recording Canvas; source/target dimensions and text palette checks, no browser raster parity claim."
+}

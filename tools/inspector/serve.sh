@@ -9,7 +9,7 @@
 #
 # 用法：
 #   ./tools/inspector/serve.sh              # 起服务并打开浏览器
-#   ./tools/inspector/serve.sh --rebuild    # 先重新打包资产再起
+#   ./tools/inspector/serve.sh --rebuild    # 强制重建验收页，资产读 assets/
 #   ./tools/inspector/serve.sh --port 9000
 
 set -uo pipefail
@@ -32,34 +32,47 @@ while [ $# -gt 0 ]; do
     shift
 done
 
-if [ "$REBUILD" = 1 ]; then
-    if [ ! -f "$GEN1_SRC/gen1.json" ]; then
-        echo "错误：找不到 $GEN1_SRC/gen1.json" >&2
-        echo "先跑：python3 tools/pipeline/fetch_gen1.py --out $GEN1_SRC" >&2
+INSPECTOR_PYTHON="${INSPECTOR_PYTHON:-python3}"
+if ! "$INSPECTOR_PYTHON" -c 'import fontTools' >/dev/null 2>&1; then
+    if /usr/bin/python3 -c 'import fontTools' >/dev/null 2>&1; then
+        INSPECTOR_PYTHON=/usr/bin/python3
+    fi
+fi
+
+# Never open an old generated template after changing its renderer or assets.
+if [ "$REBUILD" = 1 ] || ! "$INSPECTOR_PYTHON" "$REPO_ROOT/tools/pipeline/verify_sim_pages.py" >/dev/null 2>&1; then
+    "$INSPECTOR_PYTHON" "$REPO_ROOT/tools/inspector/build.py" --src "$GEN1_SRC" || exit 1
+fi
+
+# 已在跑就不重复起；普通静态服务不能提供固件渲染接口。
+if curl -fsS --max-time 2 "http://127.0.0.1:$PORT/api/firmware" >/dev/null 2>&1; then
+    echo "端口 $PORT 已有服务在跑"
+elif curl -sI --max-time 2 "http://127.0.0.1:$PORT/" >/dev/null 2>&1; then
+    echo "端口 $PORT 被其他服务占用；请加 --port 8766 或停止旧的静态服务。" >&2
+    exit 1
+else
+    nohup "$INSPECTOR_PYTHON" server.py --port "$PORT" \
+        >/tmp/inspector-$PORT.log 2>&1 &
+    INSPECTOR_PID=$!
+    INSPECTOR_READY=0
+    for ((i=0;i<120;i++)); do
+        if curl -fsS --max-time 1 "http://127.0.0.1:$PORT/api/firmware" >/dev/null 2>&1; then
+            INSPECTOR_READY=1; break
+        fi
+        if ! kill -0 "$INSPECTOR_PID" 2>/dev/null; then break; fi
+        sleep .25
+    done
+    if [ "$INSPECTOR_READY" != 1 ]; then
+        echo "固件预览未就绪，查看 /tmp/inspector-$PORT.log" >&2
+        cat "/tmp/inspector-$PORT.log" >&2
         exit 1
     fi
-    echo "重新打包资产..."
-    python3 "$REPO_ROOT/tools/inspector/build.py" --src "$GEN1_SRC" || exit 1
-fi
-
-if [ ! -f index.html ]; then
-    echo "index.html 不存在，先构建：" >&2
-    echo "  ./tools/inspector/serve.sh --rebuild" >&2
-    exit 1
-fi
-
-# 已在跑就不重复起
-if curl -sI --max-time 2 "http://127.0.0.1:$PORT/" >/dev/null 2>&1; then
-    echo "端口 $PORT 已有服务在跑"
-else
-    nohup python3 -m http.server "$PORT" --bind 127.0.0.1 \
-        >/tmp/inspector-$PORT.log 2>&1 &
-    sleep 1
 fi
 
 URL="http://127.0.0.1:$PORT/"
 echo "验收页面：$URL"
 echo
-echo "停止服务：pkill -f 'http.server $PORT'"
+echo "固件同源预览：${URL}firmware.html"
+echo "停止服务：pkill -f 'server.py --port $PORT'"
 
 command -v open >/dev/null 2>&1 && open "$URL"

@@ -1,0 +1,73 @@
+{
+  "status": "PASS",
+  "build": "0da97b4a8a1841f5ddd8",
+  "frames": 11,
+  "checks": [
+    {
+      "command": "boot 1 25 12 74 3 1 0 0 1",
+      "page": "P1",
+      "off": false,
+      "same_native_pixels": true
+    },
+    {
+      "command": "tick 29999",
+      "page": "P1",
+      "off": false,
+      "same_native_pixels": true
+    },
+    {
+      "command": "tick 1",
+      "page": "P1",
+      "off": true,
+      "same_native_pixels": true
+    },
+    {
+      "command": "check",
+      "page": "P1",
+      "off": true,
+      "same_native_pixels": true
+    },
+    {
+      "command": "key 1 1",
+      "page": "P1",
+      "off": false,
+      "same_native_pixels": true
+    },
+    {
+      "command": "key 1 1",
+      "page": "P11",
+      "off": false,
+      "same_native_pixels": true
+    },
+    {
+      "command": "key 1 1",
+      "page": "P11",
+      "off": false,
+      "same_native_pixels": true
+    },
+    {
+      "command": "key 0 1",
+      "page": "P12",
+      "off": false,
+      "same_native_pixels": true
+    },
+    {
+      "command": "tick 30000",
+      "page": "P12",
+      "off": true,
+      "same_native_pixels": true
+    },
+    {
+      "command": "key 0 1",
+      "page": "P12",
+      "off": false,
+      "same_native_pixels": true
+    },
+    {
+      "command": "key 0 1",
+      "page": "P12",
+      "off": false,
+      "same_native_pixels": true
+    }
+  ]
+}

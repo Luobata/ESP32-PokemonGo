@@ -1,0 +1,205 @@
+{
+  "build": "41d2c15b14d213e7cd94",
+  "species": 151,
+  "source_size_counts": {
+    "40": 48,
+    "48": 46,
+    "56": 57
+  },
+  "normal_palette_sets": 146,
+  "roi_half_open": [
+    120,
+    30,
+    240,
+    160
+  ],
+  "compared_rgb565_pixels": 2355600,
+  "opaque_scaled_pixels_preserved": 661080,
+  "visible_bounds_union": [
+    120,
+    30,
+    232,
+    142
+  ],
+  "transparent_canvas_outside_screen": 11,
+  "transparent_canvas_outside_edges": {
+    "left": 0,
+    "top": 1,
+    "right": 10,
+    "bottom": 0
+  },
+  "transparent_scaled_pixels_clipped": 4000,
+  "raw_canvas_bounds_union": [
+    120,
+    -2,
+    250,
+    142
+  ],
+  "transparent_canvas_beyond_right": 10,
+  "maximum_raw_canvas_right": 250,
+  "negative_controls_rejected": [
+    "opaque source pixel clipped at left",
+    "opaque source pixel clipped at top",
+    "opaque source pixel clipped at right",
+    "opaque source pixel clipped at bottom",
+    "one visible native RGB565 sprite pixel removed"
+  ],
+  "asset_sha256": {
+    "gen1.bin": "00c511b56bfe41c7ad1859841f740c537ae09f32a4b1fc8ba39975f547db8489",
+    "gen1_front.bin": "e9a36fbec5ab678333dbe94e400e1a2398c2974abf5332fbe23baab129bce114",
+    "palettes.bin": "4217560355328ba3c2016e6c6c859a94c8c64fba74d1918dbdb3c50a1177279d"
+  },
+  "examples": {
+    "19": {
+      "name": "小拉达",
+      "source_size": 40,
+      "source_bbox": [
+        3,
+        0,
+        37,
+        38
+      ],
+      "source_origin": [
+        158,
+        30
+      ],
+      "visible_bbox": [
+        164,
+        30,
+        232,
+        106
+      ],
+      "normal_palette": 18,
+      "opaque_source_pixels": 557,
+      "raw_canvas_right": 238,
+      "raw_canvas_bbox": [
+        158,
+        30,
+        238,
+        110
+      ],
+      "transparent_scaled_pixels_clipped": 0
+    },
+    "50": {
+      "name": "地鼠",
+      "source_size": 40,
+      "source_bbox": [
+        2,
+        16,
+        39,
+        39
+      ],
+      "source_origin": [
+        154,
+        -2
+      ],
+      "visible_bbox": [
+        158,
+        30,
+        232,
+        76
+      ],
+      "normal_palette": 47,
+      "opaque_source_pixels": 475,
+      "raw_canvas_right": 234,
+      "raw_canvas_bbox": [
+        154,
+        -2,
+        234,
+        78
+      ],
+      "transparent_scaled_pixels_clipped": 160
+    },
+    "74": {
+      "name": "小拳石",
+      "source_size": 40,
+      "source_bbox": [
+        0,
+        3,
+        40,
+        36
+      ],
+      "source_origin": [
+        152,
+        24
+      ],
+      "visible_bbox": [
+        152,
+        30,
+        232,
+        96
+      ],
+      "normal_palette": 69,
+      "opaque_source_pixels": 632,
+      "raw_canvas_right": 232,
+      "raw_canvas_bbox": [
+        152,
+        24,
+        232,
+        104
+      ],
+      "transparent_scaled_pixels_clipped": 0
+    },
+    "81": {
+      "name": "小磁怪",
+      "source_size": 40,
+      "source_bbox": [
+        6,
+        9,
+        36,
+        30
+      ],
+      "source_origin": [
+        160,
+        12
+      ],
+      "visible_bbox": [
+        172,
+        30,
+        232,
+        72
+      ],
+      "normal_palette": 76,
+      "opaque_source_pixels": 249,
+      "raw_canvas_right": 240,
+      "raw_canvas_bbox": [
+        160,
+        12,
+        240,
+        92
+      ],
+      "transparent_scaled_pixels_clipped": 0
+    },
+    "150": {
+      "name": "超梦",
+      "source_size": 56,
+      "source_bbox": [
+        1,
+        0,
+        54,
+        56
+      ],
+      "source_origin": [
+        124,
+        30
+      ],
+      "visible_bbox": [
+        126,
+        30,
+        232,
+        142
+      ],
+      "normal_palette": 144,
+      "opaque_source_pixels": 1359,
+      "raw_canvas_right": 236,
+      "raw_canvas_bbox": [
+        124,
+        30,
+        236,
+        142
+      ],
+      "transparent_scaled_pixels_clipped": 0
+    }
+  },
+  "evidence": "/Users/bytedance/luobata/ESP32-PokemonGo/reports/evidence/gsc-theme-2026-09-07/battle-layout"
+}

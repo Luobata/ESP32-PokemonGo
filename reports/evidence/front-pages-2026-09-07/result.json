@@ -1,0 +1,60 @@
+{
+  "status": "PASS",
+  "native_build": "3d069d91a0c3bb797d55",
+  "elapsed_seconds": 6.99,
+  "source_size_counts": {
+    "40": 48,
+    "48": 48,
+    "56": 55
+  },
+  "p5": {
+    "species": 151,
+    "source": "original FRNT asset, full canvas at 2x, centered in (120,54,112,112)",
+    "compared_roi_half_open": [
+      112,
+      53,
+      240,
+      166
+    ]
+  },
+  "p6": {
+    "caught_species": 151,
+    "seen_silhouette_species": 151,
+    "unseen_species": 148,
+    "unseen_always_seen_fixture_exceptions": [
+      19,
+      74,
+      133
+    ],
+    "sample": "nearest neighbor at pixel centers; original 40/48/56 front -> 32x32",
+    "thumb_origin": "(13 + col*46, 34 + row*56)",
+    "grid": "5 columns x 4 rows",
+    "guard": "full 240px width, image rows plus 2px below, every page traversed"
+  },
+  "checks": {
+    "compared_rgb565_pixels": 44518144,
+    "p5_species": 151,
+    "dirty_full_checks": 454,
+    "p6_caught_cells": 282,
+    "p6_unseen_cells": 24767,
+    "p6_seen_cells": 693,
+    "p6_frames": 1297,
+    "p6_caught_target_species": 151,
+    "p6_seen_target_species": 151,
+    "p6_unused_cells": 198
+  },
+  "asset_sha256": {
+    "gen1.bin": "72d56376bc3e4acc15349b3a4ff726413d5c2cf76fc3c5f9bb97de464fac4f1d",
+    "gen1_front.bin": "7708d2bc02035fe55b84588f4b6655ffb0378f10a870e01b6588acab73b46b3e",
+    "palettes.bin": "059a8fda322ed923ae497c9adfd5c4a8b9486c53d6e4cddcb039f1ebe595d881"
+  },
+  "probe_sha256": "f28a680addb9e6df8680e00d09a3080bfc6d7041f3afc0044083d3c94aa20a13",
+  "evidence": [
+    "P5-25.png",
+    "P6-25-caught.png",
+    "P6-25-seen.png",
+    "P5-150.png",
+    "P6.png"
+  ],
+  "limits": "Native production C renderer only; physical display/timing and browser checks belong to parent task."
+}

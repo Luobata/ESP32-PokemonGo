@@ -421,7 +421,7 @@ def handle_encounter(s: Session, index: int = 0, do_battle: bool = True,
 
     qe = s.acc.queue.items[index]
     leader = s.party.leader
-    lv = wild_level(qe.rarity)
+    lv = wild_level(qe.rarity, leader.level if leader else 5)
 
     # 转场：确定性选择（S15）—— 玩家能从转场认出对手强弱
     tr_name, tr_idx = TR.pick_transition(

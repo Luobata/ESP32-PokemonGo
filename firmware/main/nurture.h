@@ -30,11 +30,11 @@
 // 每小时衰减/恢复速率，Q10。与 sim/gameplay.py 的常量逐个对应：
 //   SATIETY_DECAY_PER_HOUR   = 4.0
 //   MOOD_DECAY_PER_HOUR      = 3.0
-//   STAMINA_RECOVER_PER_HOUR = 6.0
+//   STAMINA_RECOVER_PER_HOUR = 12.0
 #define NURT_SATIETY_DECAY_PH  (4 * NURT_Q)
 #define NURT_MOOD_DECAY_PH     (3 * NURT_Q)
-#define NURT_STAMINA_RECOVER_PH (6 * NURT_Q)
-#define NURT_STAMINA_COST_PER_MOTION (2 * NURT_Q)
+#define NURT_STAMINA_RECOVER_PH (12 * NURT_Q)
+#define NURT_STAMINA_COST_PER_MOTION 0
 
 // 亲密度：陪伴时长累积，0.5/小时（sim 侧 intimacy += hours * 0.5）
 #define NURT_INTIMACY_PH (NURT_Q / 2)
@@ -48,7 +48,9 @@
 #define NURT_PLAY_MOOD     (15 * NURT_Q)
 #define NURT_PLAY_STAMINA  (5 * NURT_Q)
 #define NURT_PLAY_INTIMACY (1 * NURT_Q)
-#define NURT_REST_STAMINA  (48 * NURT_Q)
+#define NURT_REST_STAMINA  0
+#define NURT_DEFEAT_STAMINA (20 * NURT_Q)
+#define NURT_DEFEAT_MOOD    (15 * NURT_Q)
 
 typedef struct {
     int32_t satiety;      // Q10，0~NURT_MAX
@@ -81,6 +83,8 @@ void nurture_tick(nurture_t *n, int64_t now_us, int motion_events,
 void nurture_feed(nurture_t *n);
 void nurture_play(nurture_t *n);
 void nurture_rest(nurture_t *n);
+void nurture_defeat(nurture_t *n);
+uint16_t nurture_ability_factor(const nurture_t *n);
 
 // 三条轴取整成 0~100 —— 上屏用。
 uint8_t nurture_pct(int32_t q);
@@ -89,3 +93,7 @@ nurt_mood_t nurture_mood(const nurture_t *n);
 
 // 与 PC 侧逐项对账。宿主上编译运行，见 tools/pipeline/verify_nurture.py。
 bool nurture_selftest(void);
+
+#define NURT_EXPLORE_COST (5 * NURT_Q)
+uint8_t nurture_exp_percent(const nurture_t *n);
+uint8_t nurture_rare_bonus(const nurture_t *n);

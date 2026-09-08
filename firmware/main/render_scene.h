@@ -7,11 +7,18 @@
 #include "render.h"
 #include "screen.h"
 #include "render_layout_budget.h"
+#include "battle_hud.h"
 
-#define SCENE_P3_PET_HP_X 112
+#define SCENE_P3_BG BATTLE_HUD_ORIGINAL_BACKGROUND
+#define SCENE_P3_WILD_TOP 30
+#define SCENE_P3_WILD_RIGHT 232
+#define SCENE_P3_WILD_SCALE 2
+#define SCENE_P3_WILD_MAX_SIZE 112
+#define SCENE_P3_WILD_HUD_RIGHT 120
+#define SCENE_P3_PET_HP_X 120
 #define SCENE_P3_PET_HP_Y 192
-#define SCENE_P3_PET_HP_W 120
-#define SCENE_P3_PET_HP_H 10
+#define SCENE_P3_PET_HP_W 112
+#define SCENE_P3_PET_HP_H 16
 
 #define SCENE_P3_PET_BACK_X 8
 #define SCENE_P3_PET_BACK_Y 140
@@ -21,6 +28,41 @@
 #define SCENE_P3_PET_NAME_X 112
 #define SCENE_P3_PET_NAME_Y 168
 #define SCENE_P3_PET_NAME_RIGHT (SCENE_P3_PET_NAME_X + LAYOUT_P3_PET_NAME_BUDGET)
+
+typedef struct { int x, y, w, h; } scene_bounds_t;
+typedef struct {
+    int x, y;                  // Original asset's drawing origin.
+    scene_bounds_t visible;    // Half-open nontransparent bounds on screen.
+} scene_sprite_layout_t;
+
+// Align the visible artwork, not its transparent source padding. Preserve all
+// source pixels and integer scale; the renderer clips only transparent margins.
+// Call once on page entry. Sprite sizes are validated against the asset format.
+static inline bool scene_p3_wild_layout(const uint8_t *data, int size,
+                                         scene_sprite_layout_t *out)
+{
+    if (!data || !out || (size != 32 && size != 40 && size != 48 && size != 56)) return false;
+    int left = size, top = size, right = 0, bottom = 0;
+    for (int y = 0; y < size; y++) {
+        for (int x = 0; x < size; x++) {
+            unsigned shade = (data[y * (size / 4) + x / 4] >> (6 - 2 * (x % 4))) & 3u;
+            if (shade == 3u) continue;
+            if (x < left) left = x;
+            if (y < top) top = y;
+            if (x + 1 > right) right = x + 1;
+            if (y + 1 > bottom) bottom = y + 1;
+        }
+    }
+    if (right <= left || bottom <= top) return false;
+    int width = (right - left) * SCENE_P3_WILD_SCALE;
+    *out = (scene_sprite_layout_t){
+        SCENE_P3_WILD_RIGHT - right * SCENE_P3_WILD_SCALE,
+        SCENE_P3_WILD_TOP - top * SCENE_P3_WILD_SCALE,
+        {SCENE_P3_WILD_RIGHT - width, SCENE_P3_WILD_TOP,
+         width, (bottom - top) * SCENE_P3_WILD_SCALE},
+    };
+    return true;
+}
 
 // Text is borrowed for the duration of this synchronous callback only.
 typedef void (*scene_text_fn)(void *ctx, int x, int y, const char *text,
@@ -55,17 +97,9 @@ typedef void (*scene_rect_fn)(void *ctx, int x, int y, int w, int h,
 static inline void scene_p3_pet_hp(scene_rect_fn rect, void *ctx,
                                     uint16_t cur, uint16_t max)
 {
-    const int x = SCENE_P3_PET_HP_X, y = SCENE_P3_PET_HP_Y;
-    const int w = SCENE_P3_PET_HP_W, h = SCENE_P3_PET_HP_H;
-    int filled = max ? (int)((uint32_t)w * cur / max) : 0;
-    uint16_t color = filled >= w * 50 / 100 ? C_HP_GREEN
-        : (filled >= w * 21 / 100 ? C_HP_YELLOW : C_HP_RED);
-    // The original draw_bar tests dx < filled, then gives the border priority.
-    int inner = filled > 1 ? filled - 1 : 0;
-    if (inner > w - 2) inner = w - 2;
-    rect(ctx, x, y, w, h, C_INK);
-    rect(ctx, x + 1, y + 1, w - 2, h - 2, C_HP_TRACK);
-    if (inner) rect(ctx, x + 1, y + 1, inner, h - 2, color);
+    battle_hud_draw_hp(rect, ctx, SCENE_P3_PET_HP_X, SCENE_P3_PET_HP_Y,
+                       BATTLE_HUD_HP_COMPACT_FILL_TILES, BATTLE_HUD_SCALE,
+                       BATTLE_HUD_PET, cur, max, SCENE_P3_BG);
 }
 
 // Decode once in the shared recipe, including scale, transparency and palette.

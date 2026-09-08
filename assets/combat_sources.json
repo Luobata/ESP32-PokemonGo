@@ -1,0 +1,9 @@
+{
+  "moves": 165,
+  "effects": 79,
+  "levelup_records": 1090,
+  "learned_rule": "All level-eligible moves, including pre-evolution forms, deduplicated; no PP or forgetting",
+  "crystal_commit": "7a7881d0d62e0ddbd82dcf10e7116807487ac651",
+  "source_sha256": "50cd7c03a51a3228e96af6b61a1f77e9173fc2118017eb3752d5ce055d3be39d",
+  "type_adaptation": "Dark/Steel moves use pre-retcon types in the existing 15-type game."
+}

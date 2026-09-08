@@ -1,0 +1,111 @@
+{
+  "renderer_build": "875d312bdad8b28c6d85",
+  "fps": 30,
+  "duration": 42,
+  "resolution": [
+    1080,
+    1920
+  ],
+  "staged_preview_fixtures": true,
+  "scenes": [
+    {
+      "name": "idle",
+      "start": 0.0,
+      "duration": 4,
+      "title": "把冒险，装进口袋。",
+      "ending_page": 1,
+      "caught": 6,
+      "evolutions": 0,
+      "frozen_tail": false,
+      "playback_speed": 1
+    },
+    {
+      "name": "starter",
+      "start": 4.0,
+      "duration": 4,
+      "title": "选一只，出发吧。",
+      "ending_page": 9,
+      "caught": 0,
+      "evolutions": 0,
+      "frozen_tail": false,
+      "playback_speed": 1
+    },
+    {
+      "name": "battle",
+      "start": 8.0,
+      "duration": 8,
+      "title": "相遇，就此开战。",
+      "ending_page": 3,
+      "caught": 1,
+      "evolutions": 0,
+      "frozen_tail": false,
+      "playback_speed": 1
+    },
+    {
+      "name": "capture",
+      "start": 16.0,
+      "duration": 5,
+      "title": "这一刻，抓住它。",
+      "ending_page": 2,
+      "caught": 2,
+      "evolutions": 0,
+      "frozen_tail": true,
+      "playback_speed": 1
+    },
+    {
+      "name": "party",
+      "start": 21.0,
+      "duration": 4,
+      "title": "你的队伍，你的冒险。",
+      "ending_page": 12,
+      "caught": 6,
+      "evolutions": 0,
+      "frozen_tail": false,
+      "playback_speed": 1
+    },
+    {
+      "name": "care",
+      "start": 25.0,
+      "duration": 3,
+      "title": "战斗之外，也要陪伴。",
+      "ending_page": 5,
+      "caught": 1,
+      "evolutions": 0,
+      "frozen_tail": false,
+      "playback_speed": 1
+    },
+    {
+      "name": "evolve",
+      "start": 28.0,
+      "duration": 5,
+      "title": "成长，会给你惊喜。",
+      "ending_page": 1,
+      "caught": 2,
+      "evolutions": 1,
+      "frozen_tail": false,
+      "playback_speed": 0.4
+    },
+    {
+      "name": "red",
+      "start": 33.0,
+      "duration": 6,
+      "title": "向更强的对手，挑战。",
+      "ending_page": 13,
+      "caught": 6,
+      "evolutions": 0,
+      "frozen_tail": false,
+      "playback_speed": 1
+    },
+    {
+      "name": "outro",
+      "start": 39.0,
+      "duration": 3,
+      "title": "下一次相遇，会是谁？",
+      "ending_page": 1,
+      "caught": 6,
+      "evolutions": 0,
+      "frozen_tail": false,
+      "playback_speed": 1
+    }
+  ]
+}

@@ -147,3 +147,9 @@ void bsp_display_backlight(uint8_t percent) {
     ledc_set_duty(BSP_BL_LEDC_MODE, BSP_BL_LEDC_CHANNEL, duty);
     ledc_update_duty(BSP_BL_LEDC_MODE, BSP_BL_LEDC_CHANNEL);
 }
+
+uint8_t bsp_display_get_backlight(void) {
+    if (!s_bl_ready) return 0;
+    uint32_t max_duty = (1u << BSP_BL_LEDC_RES) - 1u;
+    return (uint8_t)(ledc_get_duty(BSP_BL_LEDC_MODE, BSP_BL_LEDC_CHANNEL) * 100u / max_duty);
+}

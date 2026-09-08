@@ -1,0 +1,9 @@
+{
+  "version": "65a45fef40c242949c16",
+  "P13_frame_bytes": 153600,
+  "pcm_rate": 22050,
+  "sleep_pcm_silent": true,
+  "invalid_size": 400,
+  "missing_session": 409,
+  "foreign_origin": 403
+}

@@ -1,0 +1,130 @@
+{
+  "status": "PASS",
+  "repository": "https://github.com/pret/pokecrystal",
+  "commit": "7a7881d0d62e0ddbd82dcf10e7116807487ac651",
+  "source_inputs_sha256": {
+    "gfx/battle_anims/pokeball.png": "08ff3eac18e420c5735eaa030bba9ae59ae53a6607407533fd3e89b95603f67b",
+    "gfx/battle_anims/battle_anims.pal": "a50a2b3d717f33c3a2c5fa690099406c6dd8182bb45fe90d265ace06ccd240d3",
+    "data/battle_anims/ball_colors.asm": "60110c0d270ea1a576d289db4b627f8b0e9f15ae28ef6627a57be8683ec30437",
+    "data/battle_anims/oam.asm": "3760169d375966da1c0b0b097201d384e358ad3aa6b0b0fda42d9e55877d3782",
+    "data/battle_anims/framesets.asm": "cb98a82f1d50e86f0c78bff3afa14001f0f865ac9c7324a28775365eb260dbe9",
+    "engine/battle_anims/functions.asm": "f79ffa3db232dfd21a81d9d8ad108d2c45217f52f876799eedec7de05ac227bf",
+    "data/moves/animations.asm": "3e8c0e82a8807342862970304fb879bf7c4ad2364675c3af2f5af356b11d07e3",
+    "constants/battle_anim_constants.asm": "b8f6bba84ac6a9e636cfe5f00596b42421da9a48c2a697ff423fc870c5fe99ce",
+    "Makefile": "3416a95d328172fc7fc5b4e991510383d9e15761bc6ccc59af52700adad3695e",
+    "tools/gfx.c": "2a55def1b32c90d4de6886df1b469ff084a135c1d838fe7eb0049b90b14c00f8",
+    "tools/common.h": "276f4932f978ab9f1091f4279a05dac5709d36516036d264329176b1f0dee3f5"
+  },
+  "upstream_gfx_optimized_tiles": 10,
+  "source_oam_sets": [
+    "0A",
+    "0C",
+    "0D"
+  ],
+  "original_native_frames": 2,
+  "source_frame_pixels": 512,
+  "source_oam_png_mismatches": 0,
+  "ui_entries_verified": 4,
+  "ui_pixel_mismatches": 0,
+  "original_palette_variants": 3,
+  "source_palette_rgb5": [
+    [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        30,
+        10,
+        6
+      ],
+      [
+        31,
+        19,
+        24
+      ],
+      [
+        31,
+        31,
+        31
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        4,
+        31
+      ],
+      [
+        8,
+        12,
+        31
+      ],
+      [
+        31,
+        31,
+        31
+      ]
+    ],
+    [
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        31,
+        16,
+        1
+      ],
+      [
+        31,
+        31,
+        7
+      ],
+      [
+        31,
+        31,
+        31
+      ]
+    ]
+  ],
+  "source_palette_mismatches": 0,
+  "full_canvas": [
+    32,
+    32
+  ],
+  "visible_bounds": {
+    "closed": [
+      4,
+      8,
+      24,
+      24
+    ],
+    "open": [
+      4,
+      0,
+      24,
+      32
+    ]
+  },
+  "unchanged_other_ui_entries": [
+    "cursor",
+    "heart",
+    "oak",
+    "star_5",
+    "star_7"
+  ],
+  "actual_c_renders": 6,
+  "actual_c_compared_screen_pixels": 460800,
+  "actual_c_pixel_mismatches": 0,
+  "asan_ubsan": "PASS",
+  "ui_sha256": "564795141d06823dfcdc713c45804d4c3444eba2ec861c856b5e146d6df9c6c3",
+  "limit": "Exact static source art and colors. Open original top/bottom OAM halves are joined as in source sheet, not a recreation of capture animation timing/motion."
+}

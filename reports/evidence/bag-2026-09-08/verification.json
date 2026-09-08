@@ -1,0 +1,92 @@
+{
+  "build": "cb890fafa247953503d4",
+  "font_characters": 165,
+  "browse": {
+    "items": 19,
+    "pocket_pages": 5,
+    "zero_stock_visible": true,
+    "reverse_wrap": true,
+    "live_quantity_refresh": true,
+    "dirty_checks": 52
+  },
+  "care": {
+    "feed_consumes_berry": true,
+    "empty_and_failed_save_unchanged": true,
+    "free_play_rest_preserved": true,
+    "dirty_checks": 17
+  },
+  "use": {
+    "evolutions": [
+      [
+        8,
+        37,
+        38
+      ],
+      [
+        9,
+        61,
+        62
+      ],
+      [
+        10,
+        25,
+        26
+      ],
+      [
+        11,
+        44,
+        45
+      ],
+      [
+        12,
+        35,
+        36
+      ],
+      [
+        13,
+        64,
+        65
+      ],
+      [
+        14,
+        1,
+        2
+      ],
+      [
+        8,
+        133,
+        136
+      ],
+      [
+        9,
+        133,
+        134
+      ],
+      [
+        10,
+        133,
+        135
+      ]
+    ],
+    "care_items": 4,
+    "dirty_checks": 240
+  },
+  "failures": {
+    "wrong_target": true,
+    "level_gate": true,
+    "save_failure_retry": true,
+    "full_axes_no_consumption": true,
+    "dirty_checks": 32
+  },
+  "natural": {
+    "level_natural_path": true,
+    "stone_trade_require_items": true,
+    "save_failure_retry": true,
+    "dirty_checks": 25
+  },
+  "negative_caught": [
+    "B skips items",
+    "missing berry transaction"
+  ],
+  "scope": "Actual P5/P10/nav/render C with runtime inventory/NVS fixtures; real world/save transactions have separate gates."
+}

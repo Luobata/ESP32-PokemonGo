@@ -1,0 +1,22 @@
+{
+  "native": {
+    "build": "f9ee0c79a1bf99b90099",
+    "pages": 7,
+    "dirty_redraw_checks": 848,
+    "wire_colors": 65536,
+    "negative_dma": "caught",
+    "negative_dirty_band": "caught",
+    "long_press_discard": "passed",
+    "evidence": "/Users/bytedance/luobata/ESP32-PokemonGo/.build/firmware-preview/evidence"
+  },
+  "browser_frames": 2,
+  "browser_pixels": 153600,
+  "browser_pixel_mismatches": 0,
+  "inspector_build_exit": 0,
+  "inspector_freshness_exit": 0,
+  "firmware_build_exit": 0,
+  "firmware_bytes": 1582784,
+  "firmware_sha256": "8fe7d567214e6f85369a9a34b7dd01c120ab4b5d3ab4add6c878c9bd2e562f08",
+  "existing_warning": "application exceeds 1MB recovery partition; fits 3MB main application partition",
+  "flashed": false
+}

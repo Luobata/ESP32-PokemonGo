@@ -16,8 +16,25 @@ typedef enum {
     CAP_BALL_POKE = 0,
     CAP_BALL_GREAT,
     CAP_BALL_ULTRA,
+    CAP_BALL_MASTER,
+    CAP_BALL_FAST,
+    CAP_BALL_HEAVY,
+    CAP_BALL_LEVEL,
+    CAP_BALL_FRIEND,
     CAP_BALL_COUNT,
 } cap_ball_t;
+
+typedef struct {
+    uint8_t pet_level, wild_level, wild_speed;
+    uint16_t wild_weight_hg;
+} cap_context_t;
+
+// Project adaptations of special balls for the timing-window capture system.
+// A missing context gives conditional balls their ordinary 1x multiplier.
+uint16_t cap_ball_factor_1000(cap_ball_t ball, const cap_context_t *context);
+uint16_t cap_window_width_context(uint8_t capture_rate, uint16_t mood_bonus_q10,
+                                  cap_ball_t ball, uint8_t hp_ratio,
+                                  const cap_context_t *context);
 
 typedef struct {
     bool caught;
@@ -26,6 +43,11 @@ typedef struct {
     uint16_t window_start, window_end, window_w;
     cap_ball_t ball;
 } cap_result_t;
+
+void cap_attempt_context(uint8_t capture_rate, uint16_t mood_bonus_q10,
+                         cap_ball_t ball, uint8_t hp_ratio, uint8_t rarity,
+                         uint32_t elapsed_ms, uint32_t seed,
+                         const cap_context_t *context, cap_result_t *out);
 
 const char *cap_ball_name(cap_ball_t b);
 

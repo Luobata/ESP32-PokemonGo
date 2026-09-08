@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// back sprite 定长 32×32 的 2bpp = 256 字节（convert_sprites.py）
+// Legacy 32x32 view only. Current Crystal backs are 48x48; use the sized API.
 #define BACK_SPRITE_BYTES 256
 
 // 「挣扎」的 PokeAPI 招式 id。无招可用时的兜底，与
@@ -24,9 +24,10 @@ typedef struct {
     uint8_t evolve_to;
     uint8_t evolve_level;
     uint8_t hp, attack, defense, special, speed;   // 初代单一 Special
-    uint8_t flags;               // bit0=传说 bit1=幻兽 bit2-3=front 尺寸档
+    uint8_t flags;               // bit0=传说 bit1=幻兽；历史尺寸提示保留，实际尺寸读FRNT
+    uint16_t weight_hg;          // Existing GEN1 record offset 18, hectograms.
     uint8_t palette;
-    const char *name_zh;         // 指向字符串池，**不是 NUL 结尾**
+    const char *name_zh;         // 当前译名的不可变存储，按长度读取，不依赖 NUL
     uint8_t name_zh_len;         // 用 "%.*s" 打印
 } species_t;
 
@@ -37,7 +38,7 @@ typedef struct {
     uint8_t accuracy;            // 255 = 必中
     uint8_t pp;
     bool special;                // 特殊招用 special 双向，物理招用 atk/def
-    const char *name_zh;         // 同上，非 NUL 结尾
+    const char *name_zh;         // 招式资产字符串池，非 NUL 结尾
     uint8_t name_zh_len;
 } move_t;
 
@@ -50,12 +51,13 @@ void assets_selftest(void);
 bool assets_species(uint16_t id, species_t *out);
 uint32_t assets_species_count(void);
 
-// 这只在这个等级学会了哪些招 —— **现算，不存**
-// （与 sim/systems.py 的 known_moves 同一取向：Mon 因此不用存招式列表）。
-// 返回写入 out 的条数。一招都不会时退回「挣扎」。
+// All level-eligible moves, deduplicated and including evolutionary ancestors.
+// Calculated from the full learnset; no four-move limit or PP consumption.
+// Returns at most max_out entries, ordered by move ID.
 int assets_known_moves(uint16_t species_id, uint8_t level,
                        move_t *out, int max_out);
 uint16_t assets_move_count(void);
+bool assets_move(uint16_t id, move_t *out);
 
 typedef struct {
     const uint8_t *data;      // 2bpp rows, ceil(w/4) bytes per row
@@ -69,7 +71,7 @@ bool assets_back_sprite_info(uint16_t id, sprite_asset_t *out);
 // Legacy 32x32 view (256 bytes). Other sizes/invalid IDs return NULL.
 const uint8_t *assets_back_sprite(uint16_t id);
 
-// front sprite 按物种尺寸档返回 2bpp 数据，并把原始边长写入 size。
+// front sprite 按图集显式物种 ID 返回 2bpp 数据，并把实际边长写入 size。
 // 图集损坏、物种缺失或 id 越界时返回 NULL，size 写 0。
 const uint8_t *assets_front_sprite(uint16_t id, uint8_t *size);
 
@@ -98,3 +100,7 @@ bool assets_ui(const char *name, ui_art_t *out);
 // 三份拷贝里只要有一份把偏移算错（头 12 字节 + 每组 8 字节），
 // 那一页的颜色就是错的，而另外两页正常 —— 极难注意到。
 void assets_palette(uint8_t set_idx, uint16_t out[4]);
+
+// Original paired palette variant. The shiny offset is computed in size_t,
+// so >128 palette pairs never wrap at an 8-bit set index. Invalid IDs are black/white.
+void assets_palette_variant(uint8_t set_idx, bool shiny, uint16_t out[4]);

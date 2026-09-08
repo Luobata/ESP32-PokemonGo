@@ -1,0 +1,11 @@
+{
+  "cases": 8,
+  "pending_limit": 5,
+  "storage_slots": 16,
+  "save_version": 5,
+  "save_bytes": 2296,
+  "erase_calls": 0,
+  "sanitized": true,
+  "concurrent_scan": true,
+  "scope": "actual world/save/encounter/party C; pthread locks and simulated NVS/device services"
+}

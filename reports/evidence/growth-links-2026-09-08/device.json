@@ -1,0 +1,21 @@
+{
+  "version": 11,
+  "bytes": 3664,
+  "leader": 129,
+  "level": 8,
+  "exp": 1088,
+  "preferences": {
+    "mute": 1,
+    "volume": 80
+  },
+  "preserved": {
+    "party": true,
+    "queue": true,
+    "dex": true,
+    "inventory": true,
+    "challenge": true,
+    "achievements": true,
+    "exploration": true,
+    "leader_exp": true
+  }
+}

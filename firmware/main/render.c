@@ -110,6 +110,61 @@ int render_text_width(const char *s)
     return render_text_width_sized(s, s_font.size);
 }
 
+bool render_text_ink_bounds(const char *s, render_bounds_t *out)
+{
+    if (!out) return false;
+    *out = (render_bounds_t){0};
+    if (!s_font.ok || !s) return false;
+    int left = 0, top = 0, right = 0, bottom = 0, pen = 0;
+    bool found = false;
+    const int row_bytes = (s_font.size + 7) / 8;
+    while (*s) {
+        uint16_t cp;
+        s += render_utf8_next(s, &cp);
+        int gi = glyph_index(cp);
+        if (gi >= 0) {
+            const uint8_t *g = s_font.glyphs + (size_t)gi * s_font.per;
+            int dx = pen - ((cp < 0x80) ? s_font.size / 4 : 0);
+            for (int y = 0; y < s_font.size; y++) {
+                for (int x = 0; x < s_font.size; x++) {
+                    if (!(g[y * row_bytes + x / 8] & (0x80 >> (x % 8)))) continue;
+                    int px = dx + x;
+                    if (!found || px < left) left = px;
+                    if (!found || px + 1 > right) right = px + 1;
+                    if (!found || y < top) top = y;
+                    if (!found || y + 1 > bottom) bottom = y + 1;
+                    found = true;
+                }
+            }
+        }
+        pen += render_char_advance(cp);
+    }
+    if (found) *out = (render_bounds_t){left, top, right - left, bottom - top};
+    return found;
+}
+
+bool render_sprite_ink_bounds(const uint8_t *data, int w, int h,
+                              render_bounds_t *out)
+{
+    if (!out) return false;
+    *out = (render_bounds_t){0};
+    if (!data || w <= 0 || h <= 0) return false;
+    int left = w, top = h, right = 0, bottom = 0;
+    const int row_bytes = (w + 3) / 4;
+    for (int y = 0; y < h; y++) {
+        for (int x = 0; x < w; x++) {
+            if (((data[y * row_bytes + x / 4] >> (6 - 2 * (x % 4))) & 3) == 3) continue;
+            if (x < left) left = x;
+            if (y < top) top = y;
+            if (x + 1 > right) right = x + 1;
+            if (y + 1 > bottom) bottom = y + 1;
+        }
+    }
+    if (right == 0) return false;
+    *out = (render_bounds_t){left, top, right - left, bottom - top};
+    return true;
+}
+
 // 画一个字形到 canvas。1bpp → 前景色，0 位不画（透明）。
 static void draw_glyph(int gi, int x, int y, uint16_t fg)
 {
@@ -183,6 +238,22 @@ void render_sprite_2bpp(int x, int y,
                         const uint16_t *palette)
 {
     render_sprite_2bpp_wh(x, y, data, size, size, scale, palette);
+}
+
+void render_sprite_2bpp_thumbnail(int x, int y, const uint8_t *data,
+                                  int size, int dest_size,
+                                  const uint16_t *palette)
+{
+    if (!data || !palette || size <= 0 || dest_size <= 0 || dest_size > size) return;
+    int row_bytes = (size + 3) / 4;
+    for (int dy = 0; dy < dest_size; dy++) {
+        int sy = ((2 * dy + 1) * size) / (2 * dest_size);
+        for (int dx = 0; dx < dest_size; dx++) {
+            int sx = ((2 * dx + 1) * size) / (2 * dest_size);
+            uint8_t shade = (data[sy * row_bytes + sx / 4] >> (6 - 2 * (sx % 4))) & 3;
+            if (shade != 3) screen_px(x + dx, y + dy, palette[shade]);
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------

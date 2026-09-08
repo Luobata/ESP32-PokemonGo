@@ -1,0 +1,25 @@
+{
+  "status": "PASS",
+  "build": "ab8989a0323c39a95133",
+  "cases": [
+    "FIFO independent of rarity",
+    "P2 asynchronously refreshes additions and same-count FIFO",
+    "A during FIFO refresh window cannot select a replacement",
+    "P2 cursor follows retained uid when FIFO shifts indices",
+    "discard during FIFO refresh window cannot drop a replacement",
+    "entry samples, input lock and unstarted cancellation",
+    "direct capture exactly once without battle EXP",
+    "evicted pending detail cannot claim a replacement",
+    "failed begin save and safe retry",
+    "single retaliation then choice, including 60s idle",
+    "automatic battle lock and active survives FIFO",
+    "victory cancellation retains one chance, miss consumes it",
+    "victory capture is committed once",
+    "lethal retaliation cannot reopen capture or reward",
+    "HP and EXP intermediate display samples",
+    "lethal HP and multiple EXP level boundaries"
+  ],
+  "dirty_full_checks": 1059,
+  "scope": "actual C pages/nav/battle/capture/encounter/rendering; fixture world/clock/NVS",
+  "storage_test": "verify_encounter_lifecycle.py exercises actual world/save separately"
+}

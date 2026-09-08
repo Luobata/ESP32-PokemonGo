@@ -191,8 +191,9 @@ def fill_interior_white(px: list[list[int]]) -> int:
 def indices_to_2bpp(indices: list[list[int]], remap: list[int]) -> bytearray:
     """原始 PNG 索引 → 重排后的 2bpp 位图。
 
-    这条路径**零有损** —— 只是重新编号并打包位，不做量化。
-    对比灰阶路径（彩色→灰度→4级量化）质量更高。
+    这是历史 RBY 路径：重排本身不损失像素，但下面的内部白填充
+    会合并一个源色阶。当前水晶素材使用 convert_pokemon_art.py，
+    不经过此函数，也不合并白色。
 
     重排之后会跑一遍 fill_interior_white：把身体内部的白改成
     最浅的实色，否则那些高光在设备上会透出背景色（见那个函数的说明）。

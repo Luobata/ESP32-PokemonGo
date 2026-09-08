@@ -94,6 +94,9 @@ int main(void)
         } else if (!strcmp(cmd, "play")) {
             nurture_play(&n);
             put_axes();
+        } else if (!strcmp(cmd, "defeat")) {
+            nurture_defeat(&n);
+            put_axes();
         } else if (!strcmp(cmd, "rest")) {
             /* 固件接口固定 8 小时（NURT_REST_STAMINA = 48q），
                与 sim 的 rest() 默认 hours=8.0 对账 —— 无 hours 旋钮。 */
@@ -268,6 +271,11 @@ def main() -> int:
             ("rest 体能 100 不动", (50, 50, 100, 50), ["rest"]),
             ("rest 体能 0 → 48", (50, 50, 0, 50), ["rest"]),
             ("rest×2 体能 50 → 100", (50, 50, 50, 50), ["rest", "rest"]),
+            ("defeat 基线", (80, 70, 90, 50), ["defeat"]),
+            ("defeat 下限", (80, 3, 4, 50), ["defeat"]),
+            ("defeat 零点", (80, 0, 0, 50), ["defeat"]),
+            ("defeat 后恢复", (80, 28, 33, 50), ["defeat", "rest", "play"]),
+            ("defeat 累计", (80, 70, 90, 50), ["defeat"]*8),
         ]
         n_act = 0
         for label, pre, ops in CASES:
@@ -281,6 +289,8 @@ def main() -> int:
                     py = F(pet)
                 elif op == "play":
                     py = P(pet)
+                elif op == "defeat":
+                    py = pet.defeat
                 else:
                     py = R(pet)
                 c = [int(v) for v in d.ask(op).split()]
@@ -291,8 +301,8 @@ def main() -> int:
                 if c != p:
                     fails.append(f"{label}「{op}»: C {c} ≠ Python {p}")
         print(f"  照料动作       {n_act} 步严格相等"
-              f"（feed 6 / play 8 / rest 8 组，含全部钳位与地板边界；"
-              f"rest 为固件固定 8h 语义）")
+              f"（feed 6 / play 8 / rest 8 / defeat 5 组，含全部钳位与地板边界；"
+              f"rest 不再即时补充体力）")
 
         d.close()
 

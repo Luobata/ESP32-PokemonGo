@@ -1,0 +1,17 @@
+{
+  "status": "READY_TO_FLASH",
+  "firmware_build_exit_code": 0,
+  "inspector_build_exit_code": 0,
+  "inspector_manifest_matches": true,
+  "native_build": "40fb517ab012dd3a66c1",
+  "silent_boot": true,
+  "bsp_source_matches_verified_guard": true,
+  "image_bytes": 1647472,
+  "image_sha256": "fb7bdc34d5464b9a1566d2e6e2d203313d048d09b5d08046a655a3bf26e01cc4",
+  "app_offset": "0x10000",
+  "app_capacity": 3145728,
+  "backup_sha256": "a84c9fd50441ff06965193a47472d2c22b3055bb969f0b220aaca7dda933935b",
+  "legacy_exp_verified": true,
+  "port": "/dev/cu.usbmodem2101",
+  "reconnected_identity_matches_backup": true
+}

@@ -1,0 +1,49 @@
+{
+  "status": "PASS",
+  "checks": {
+    "automatic_timeout": {
+      "before_60s": {
+        "off": 0,
+        "brightness": 100,
+        "page": 0,
+        "scans": 5847,
+        "pending": 5,
+        "pet": 26,
+        "level": 6,
+        "exp": 616
+      },
+      "after_60s": {
+        "off": 1,
+        "brightness": 0,
+        "page": 0,
+        "scans": 5847,
+        "pending": 5,
+        "pet": 26,
+        "level": 6,
+        "exp": 616
+      }
+    },
+    "background_scans_while_off": {
+      "before": 5847,
+      "after": 5848
+    },
+    "first_B_only_wakes_second_B_opens_menu": true,
+    "manual_off_and_A_only_wakes": true,
+    "original_leader_preserved": {
+      "pet": 26,
+      "level": 6,
+      "exp": 616
+    }
+  },
+  "final_state": {
+    "off": 0,
+    "brightness": 100,
+    "page": 0,
+    "scans": 5849,
+    "pending": 5,
+    "pet": 26,
+    "level": 6,
+    "exp": 616
+  },
+  "scope": "Actual board PWM duty readback and serial semantic inputs; physical finger presses and current draw not measured."
+}

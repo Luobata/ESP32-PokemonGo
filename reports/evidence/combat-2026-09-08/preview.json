@@ -1,0 +1,9 @@
+{
+  "build": "19c991c6b46359d87b98",
+  "trainers_completed": 10,
+  "wins": 9,
+  "losses": 1,
+  "dirty_full_checks": 2857,
+  "moves_read_only": true,
+  "party_skill_pages": true
+}

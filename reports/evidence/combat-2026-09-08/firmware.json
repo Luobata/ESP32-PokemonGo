@@ -1,0 +1,12 @@
+{
+  "bytes": 1818912,
+  "sha256": "201011a7194e844e8cf2d961863cad4f511bf13a46801244682a6f72f72d492a",
+  "app_offset": "0x10000",
+  "flash_hash_verified": true,
+  "preview_build": "7f8f4ce0ed86afd88aef",
+  "device_save_version": 8,
+  "ram_save_version": 9,
+  "save_bytes_identical_after_flash": true,
+  "mute": 0,
+  "volume": "stored key absent; existing default 55"
+}

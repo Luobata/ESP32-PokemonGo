@@ -125,7 +125,7 @@ python3 tools/device/collect.py --replay data/raw/park.ndjson   # 只回放
 设备输出的每行就是一条 NDJSON，键名与 `tools/collector` 完全一致：
 
 ```json
-{"ts":6906,"aps":[{"b":"26:18:c6:19:01:97","s":"LM1174","r":-32,"c":6,"a":"open"},…],"bat":100}
+{"ts":6906,"aps":[{"b":"aa:bb:cc:dd:ee:ff","s":"ExampleWiFi","r":-32,"c":6,"a":"open"},…],"bat":100}
 ```
 
 **零转换直接喂给 sim/ 跑通了**：

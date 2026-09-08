@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>固件同源预览 · PokeWalk</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f2efe5;color:#29302b;font:14px/1.6 ui-monospace,"PingFang SC",monospace}
+main{max-width:1080px;margin:auto;padding:24px}header{border-bottom:2px solid #29302b;padding-bottom:16px;margin-bottom:24px}
+h1{font-size:22px;margin:0 0 6px}p{margin:6px 0;color:#555e54}a{color:#355c3d}.layout{display:grid;grid-template-columns:240px minmax(240px,1fr);gap:36px}
+label{display:block;font-size:12px;margin:14px 0 4px}select,input,button{font:inherit;color:inherit;background:#fffdf5;border:1px solid #899081;border-radius:3px;padding:8px;width:100%}button{cursor:pointer;min-height:40px}button:hover{background:#e2e8d8}button:disabled{opacity:.45;cursor:wait}button.primary{background:#355c3d;color:white;border-color:#355c3d}
+.pair{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stage{display:flex;flex-direction:column;align-items:center;gap:12px}.shell{padding:16px;background:#363e35;border:1px solid #232923;border-radius:9px;max-width:100%}
+.screen{position:relative;width:480px;height:640px;max-width:100%}canvas{display:block;width:100%;height:100%;image-rendering:pixelated} .guides{display:none;position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(to bottom,transparent 0,transparent calc(25% - 1px),#db573c88 calc(25% - 1px),#db573c88 25%)}
+.keys{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:360px}.keys button{font-size:18px;font-weight:700}.controls{display:flex;flex-wrap:wrap;gap:8px;width:100%;max-width:514px}.controls button{width:auto;flex:1}.status{font-size:12px;min-height:40px;word-break:break-word;width:100%;max-width:514px}.error{color:#a52b22}.small{font-size:12px}.inline{display:flex;align-items:center;gap:8px;margin:8px 0}.inline input{width:auto}.note{border-left:3px solid #a5b195;padding-left:12px;margin-top:20px}details{margin-top:16px}
+@media(max-width:830px){.screen{width:240px;height:320px}.layout{gap:20px;grid-template-columns:220px minmax(240px,1fr)}}
+@media(max-width:560px){main{padding:16px}.layout{grid-template-columns:1fr}.settings{order:2}.stage{order:1}}
+</style>
+<main>
+<header><h1>固件同源预览</h1><p>运行 ESP32 的页面绘制代码，查看 240 × 320 的实际像素和三键操作。</p></header>
+<div class="layout">
+<aside class="settings">
+<label for="page">页面</label><select id="page"><option value="0">P0 开场</option><option value="1">P1 待机</option><option value="2">P2 遭遇列表</option><option value="3" selected>P3 对战</option><option value="4">P4 捕获</option><option value="5">P5 照料</option><option value="6">P6 图鉴</option><option value="9">P9 初始伙伴</option><option value="10">P10 道具背包</option><option value="11">P11 菜单</option><option value="12">P12 队伍</option><option value="13">P13 道馆与联盟</option><option value="14">P14 成就与奖励</option><option value="15">P15 路线探索</option><option disabled>P7 成绩 · 固件未实现</option><option disabled>P8 取名 · 固件未实现</option></select>
+<div class="pair"><div><label for="pet">主宠编号</label><input id="pet" type="number" value="25" min="1" max="151"></div><div><label for="level">主宠等级</label><input id="level" type="number" value="12" min="1" max="100"></div></div>
+<div class="pair"><div><label for="wild">野怪编号</label><input id="wild" type="number" value="74" min="1" max="151"></div><div><label for="rarity">稀有度</label><select id="rarity"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div></div>
+<label for="team">预览队伍</label><select id="team"><option value="1" selected>六人队伍</option><option value="0">仅主宠</option></select>
+<label for="seed">战斗种子</label><input id="seed" type="number" value="1" min="0" max="4294967295">
+<label class="inline"><input id="shiny" type="checkbox">闪光野怪</label>
+<label for="names">宝可梦译名</label><select id="names"><option value="0">官方中文名</option><option value="1">金银民间旧译（资料版）</option></select>
+<p class="small">旧译含“肥大”等早期金银民间汉化名，缺条目时使用官方名。<a href="https://tiebac.baidu.com/p/612037835?fr=good" target="_blank" rel="noreferrer">原帖</a> / <a href="https://moegirl.uk/index.php?title=%E5%AE%9D%E5%8F%AF%E6%A2%A6%E7%B3%BB%E5%88%97/%E4%BF%97%E7%A7%B0&amp;variant=zh-hans" target="_blank" rel="noreferrer">分版本资料</a>。游戏内「菜单 → 选项」也可切换。</p>
+<button id="reset" class="primary">载入场景</button>
+<p class="small">切换页面会载入新场景；修改其它条件后点击载入。P0 / P9 从未选伙伴的新游戏开始，不预置队伍。需要逐帧复现时，先暂停再用单步推进。</p>
+<label for="gesture">按键手势</label><select id="gesture"><option value="1">自动（单击 / 按住 A / B / C）</option><option value="2">双击</option><option value="3">长按（A / B / C）</option></select>
+<p class="small">A / B 按住 0.6 秒；C 按住 1.5 秒熄屏，任意键唤醒。支持键盘 A / B / C。</p>
+<label class="inline"><input id="bands" type="checkbox">显示 80px 横带参考线</label>
+<label for="zoom">像素缩放</label><select id="zoom"><option value="0" selected>自动 · 整数倍</option><option value="2">2 倍</option><option value="1">1 倍</option></select>
+<details><summary>预览范围</summary><p class="small">P0–P6、P9–P14 的布局、字体、精灵解码、RGB565 字节序、导航和战斗逻辑直接编译自固件。默认实时推进，可暂停后逐帧检查；世界状态来自测试场景。音乐与音效同样来自 C 混音器，需手动开启试听。WiFi、存档与 LCD 实际传输耗时需要真机验证。</p></details>
+<p class="small note">P7 / P8 仍可在页面模拟器查看设计稿。它们尚未进入固件。</p>
+</aside>
+<section class="stage">
+<div class="shell"><div class="screen" id="screen-wrap"><canvas id="firmware-canvas" width="240" height="320" aria-label="固件像素画面"></canvas><div class="guides" id="guides"></div></div></div>
+<div class="keys"><button data-key="0">A</button><button data-key="1">B</button><button data-key="2">C</button></div>
+<p id="clock-state" class="small" role="status">正在载入场景…</p>
+<div class="controls"><button id="play">暂停</button><button id="step">单步 60ms</button><button id="check">检查横带重绘</button><button id="download">保存 PNG</button></div>
+<div class="controls"><button id="audio-toggle" aria-pressed="false">开启试听</button><span class="small" id="audio-state">浏览器试听默认关闭；游戏静音在「选项」切换</span></div>
+<div class="status" id="status" role="status">正在载入固件渲染器…</div>
+</section>
+</div>
+</main>
+<script src="firmware-pixels.js"></script>
+<script src="firmware.js"></script>
+<script src="firmware-audio.js"></script>
+</html>

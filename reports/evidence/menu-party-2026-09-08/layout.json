@@ -1,0 +1,19 @@
+{
+  "build": "c8d80bc04bdcd0eaf034",
+  "species": 151,
+  "cases": 302,
+  "sprite_pixel_comparisons": 906,
+  "complete_name_comparisons": 302,
+  "dirty_checks": 906,
+  "font_characters": 181,
+  "rows_exercised": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "max_name_ink_width": 79,
+  "minimum_name_level_gap": 45
+}

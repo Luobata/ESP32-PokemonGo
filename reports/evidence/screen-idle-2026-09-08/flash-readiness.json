@@ -1,0 +1,9 @@
+{
+  "status": "READY",
+  "native_build": "0da97b4a8a1841f5ddd8",
+  "image_bytes": 1650272,
+  "image_sha256": "7b169a301cb2caea9ef000041aa7e1df6d4403280b4d91be6a44432869b47459",
+  "inspector_manifest_matches": true,
+  "silent": true,
+  "app_offset": "0x10000"
+}

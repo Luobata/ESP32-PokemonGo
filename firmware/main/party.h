@@ -29,3 +29,6 @@ const mon_t *party_leader(const party_t *p);
 uint16_t party_total(const party_t *p);
 void    party_serialize(const party_t *p, uint8_t *out);
 bool    party_deserialize(party_t *p, const uint8_t *in, uint16_t len);
+
+// Exact exchange; refuse an occupied outgoing species cell rather than discard it.
+bool party_exchange(party_t *p,uint8_t slot,uint16_t species);

@@ -31,6 +31,13 @@ typedef enum {
     PAGE_DEX,           // P6 图鉴
     PAGE_OPENING,       // P0 开场（只在首次冷启动进入）
     PAGE_CARE,          // P5 照料
+    PAGE_STARTER,       // P9 初始伙伴（P7/P8 尚未实现）
+    PAGE_BAG,           // P10 道具背包
+    PAGE_MENU,          // P11 主菜单与选项
+    PAGE_PARTY,         // P12 随行队伍
+    PAGE_TRAINER,       // P13 道馆与联盟挑战
+    PAGE_ACHIEVEMENTS,   // P14 成就与奖励
+    PAGE_EXPLORATION,    // P15 路线探索
     PAGE_COUNT,
 } page_id_t;
 
@@ -41,6 +48,11 @@ typedef enum {
 // 切页。在 LVGL 任务里调（按键回调已经持锁，直接调即可）。
 void nav_go(page_id_t p);
 page_id_t nav_current(void);
+// Menu drill-down keeps a bounded return path. nav_go starts a new path;
+// nav_open pushes the displayed page, nav_back restores it or uses fallback.
+void nav_open(page_id_t p);
+void nav_back(page_id_t fallback);
+bool nav_is_returning(void); // During enter(): retain the previous selection.
 
 // 分发按键给当前页
 void nav_key(bsp_btn_t btn, bsp_btn_ev_t ev);
@@ -50,6 +62,12 @@ void nav_start(void);
 
 // 退出当前页（要去 demo 菜单时用）—— 不进新页，只做清理。
 void nav_exit_current(void);
+// User-triggered exit (including C-long in main) must finish locked animations.
+// nav_exit_current itself remains unconditional for shutdown/cleanup.
+bool nav_can_leave(void);
+// Finite animations and timed outcomes keep the display on. Input choices,
+// idle breathing and background refreshes do not prevent the idle timeout.
+bool nav_screen_busy(void);
 
 // ---------------------------------------------------------------------------
 // 页面间传参
@@ -66,6 +84,7 @@ typedef struct {
     // 实测症状是「打的是 #64，抓到的是 #23」。见 encounter.h。
     uint16_t uid;
     bool valid;
+    bool exploring; // Return route discoveries to P15 after the encounter.
 
     // P3 打完留下的：给 P4 用
     bool battled;
@@ -77,3 +96,5 @@ typedef struct {
 } nav_ctx_t;
 
 nav_ctx_t *nav_ctx(void);
+
+void nav_end_encounter(void);

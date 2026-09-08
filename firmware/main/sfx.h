@@ -1,13 +1,21 @@
 #pragma once
 
 #include "audio.h"
+#include "music.h"
 
-/* Codec output level. 80% is about -10 dB before the board gain correction;
- * the synthesized PCM keeps its separate 0.22 full-scale mix ceiling. */
-#define SFX_VOLUME_PERCENT 80
+/* PCM headroom and a moderate codec level are independent. */
+#define SFX_VOLUME_PERCENT 55
 
-/* Start the priority-5 playback task and prewarm the codec format at boot. */
+/* Start the playback task. Runtime mute/sleep leaves the codec closed. */
+/* CONFIG_POKEWALK_SILENT_BOOT makes both functions no-ops for the whole boot. */
 void sfx_start(void);
 
 /* Nonblocking: a full or unavailable queue drops the new request. */
 void sfx_play(sfx_id_t id);
+
+// Same music ID keeps its current loop position; all calls are nonblocking.
+void sfx_music_play(music_id_t id);
+void sfx_move(uint16_t move_id, uint8_t type, bool missed);
+
+// Coalesce simultaneous spawns: shiny > rare > ordinary; never wake the screen.
+void sfx_encounter(uint8_t rarity, bool shiny);

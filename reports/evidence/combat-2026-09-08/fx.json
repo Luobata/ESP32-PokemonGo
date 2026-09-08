@@ -1,0 +1,8 @@
+{
+  "moves": 165,
+  "moves_with_effect_pixels": 165,
+  "frames": 20972,
+  "self_targets_correct": true,
+  "hud_protected": true,
+  "clean_recovery": true
+}

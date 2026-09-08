@@ -1,0 +1,143 @@
+#include "trainer.h"
+#include <string.h>
+#include "trainer_assets.h"
+#include "combat.h"
+static const trainer_info_t CATALOG[TRAINER_COUNT] = {
+ {"小刚","灰色徽章",{74,95},{10,12},2,0},
+ {"小霞","蓝色徽章",{120,121},{17,19},2,0},
+ {"马志士","橙色徽章",{100,25,26},{23,24,26},3,0},
+ {"莉佳","彩虹徽章",{114,70,45},{29,30,32},3,0},
+ {"阿桔","粉红徽章",{110,89,42,49},{36,37,38,39},4,0},
+ {"娜姿","金色徽章",{64,122,97,65},{40,41,42,43},4,0},
+ {"夏伯","深红徽章",{38,78,126,59},{45,46,47,48},4,0},
+ {"坂木","绿色徽章",{51,31,34,112},{50,51,52,53},4,0},
+ {"科拿","四天王",{87,91,80,124,131},{54,54,55,55,56},5,1},
+ {"希巴","四天王",{95,107,106,95,68},{55,55,56,56,57},5,1},
+ {"菊子","四天王",{94,42,93,24,94},{56,56,57,57,58},5,1},
+ {"阿渡","四天王",{130,148,148,142,149},{58,58,59,59,60},5,1},
+ {"青绿","联盟冠军",{18,65,112,6,130,103},{60,60,61,61,62,63},6,2},
+ {"赤红","最终挑战",{25,131,143,3,6,9},{81,75,75,77,77,77},6,3},
+};
+const trainer_info_t *trainer_info(uint8_t id) { return id<TRAINER_COUNT?&CATALOG[id]:0; }
+void trainer_art(uint8_t id,const uint8_t **data,uint16_t palette[4]) {
+ if(id>=TRAINER_COUNT){*data=0;return;}*data=TRAINER_ART[id];memcpy(palette,TRAINER_PAL[id],8);
+}
+const uint8_t *trainer_badge_art(uint8_t id) { return id<8?BADGE_ART[id]:0; }
+const uint8_t *trainer_player_art(void) { return TRAINER_ART[14]; }
+bool trainer_move(uint16_t id,move_t *out) {return combat_move(id,out);}
+static trainer_mon_t *actor(trainer_session_t *s,unsigned side) { return &s->sides[side].mons[s->sides[side].active]; }
+static void init_mon(trainer_mon_t *mon,uint8_t species,uint8_t level) {
+ species_t sp;assets_species(species,&sp);
+ combat_init(mon,species,level,2*battle_effective_stat(sp.hp,level)+level);
+}
+bool trainer_unlocked(const trainer_store_t *st,uint8_t id) {
+ if(!st||id>=TRAINER_COUNT)return false;
+ if(st->league_active)return id==st->league_stage;
+ if(id<8)return id==0?st->wild_wins>0:(st->defeated&(1u<<(id-1)))!=0;
+ if(id<13)return st->league_active?st->league_stage==id:id==8&&(st->defeated&255u)==255u;
+ return (st->defeated&(1u<<12))!=0;
+}
+static void choose_first(trainer_session_t *s) {
+ s->planned[0]=combat_choose(actor(s,0),actor(s,1),&s->rng);
+ s->planned[1]=combat_choose(actor(s,1),actor(s,0),&s->rng);
+ unsigned ps=combat_speed(actor(s,0)),es=combat_speed(actor(s,1));
+ int priority=combat_priority(s->planned[0])-combat_priority(s->planned[1]);
+ s->next=priority?priority>0?0:1:ps==es?(s->rng&1):ps>es?0:1;s->acted=0;
+}
+bool trainer_begin(trainer_store_t *st,uint8_t id,const mon_t *party,uint8_t count,uint16_t ability,uint32_t seed) {
+ if(!st||!party||!count||count>6||st->session.active||!trainer_unlocked(st,id))return false;
+ for(unsigned i=0;i<count;i++)if(!party[i].species_id||party[i].species_id>151||!party[i].level||party[i].level>100)return false;
+ trainer_side_t retained=st->session.sides[0];bool continuing=st->league_active&&id>8&&id<=12;
+ trainer_session_t *s=&st->session;memset(s,0,sizeof(*s));s->trainer=id;s->active=1;s->rng=seed?seed:1;s->ability=ability;
+ s->sides[0].count=count;
+ for(unsigned i=0;i<count;i++)init_mon(&s->sides[0].mons[i],party[i].species_id,party[i].level);
+ if(continuing){
+  s->sides[0]=retained;s->sides[0].reflect=s->sides[0].light_screen=0;
+  for(unsigned i=0;i<retained.count;i++){trainer_mon_t *m=&s->sides[0].mons[i];combat_reset_volatile(m);}
+ }
+ if(id==8){st->league_active=1;st->league_stage=8;}
+ const trainer_info_t *t=&CATALOG[id];s->sides[1].count=t->count;
+ for(unsigned i=0;i<t->count;i++)init_mon(&s->sides[1].mons[i],t->species[i],t->levels[i]);
+ s->participated=1u<<s->sides[0].active;choose_first(s);
+ return true;
+}
+static unsigned living(const trainer_side_t *side) { for(unsigned i=0;i<side->count;i++)if(side->mons[i].hp)return i;
+ return 6; }
+static void finish(trainer_store_t *st,bool won) { st->session.finished=1;st->session.won=won; }
+bool trainer_step(trainer_store_t *st,trainer_event_t *e) {
+ if(!st||!e||!st->session.active||st->session.finished)return false;
+ memset(e,0,sizeof(*e));trainer_session_t *s=&st->session;
+ for(unsigned side=0;side<2;side++)if(!actor(s,side)->hp) {
+  unsigned next=living(&s->sides[side]);
+  if(next==6){finish(st,side==1);e->kind=TRAINER_FINISHED;
+ return true;}
+  if(side==0){s->awaiting_replacement=1;e->kind=TRAINER_SWITCH_NEEDED;
+ return true;}
+  s->sides[side].active=next;choose_first(s);e->kind=TRAINER_SENDOUT;e->side=side;e->slot=next;
+ return true;
+ }
+ if(s->turns>=400){finish(st,false);e->kind=TRAINER_FINISHED;
+ return true;}
+ if(s->awaiting_replacement)return false;
+ if(s->acted==3)choose_first(s);
+ unsigned side=s->next;s->next^=1;s->acted|=1u<<side;s->turns++;
+ trainer_mon_t *a=actor(s,side),*d=actor(s,side^1);
+ e->kind=TRAINER_ATTACK;e->side=side;e->before_hp[0]=actor(s,0)->hp;e->before_hp[1]=actor(s,1)->hp;
+ battle_round_t *r=&e->attack;r->by_pet=side==0;
+ a->reflect=s->sides[side].reflect;a->light_screen=s->sides[side].light_screen;
+ d->reflect=s->sides[side^1].reflect;d->light_screen=s->sides[side^1].light_screen;
+ combat_turn(a,d,side?1024:s->ability,&s->rng,50,s->planned[side],r);
+ if(s->acted&(1u<<(side^1)))d->flinch=0;
+ s->sides[side].reflect=a->reflect;s->sides[side].light_screen=a->light_screen;
+ s->pending_move=0;
+ if(r->skipped){e->kind=TRAINER_STATUS;e->status=a->status;}
+ r->pet_hp=actor(s,0)->hp;r->wild_hp=actor(s,1)->hp;
+ return true;
+}
+// Retained ABI for old debug clients. Automatic combat never accepts manual moves.
+bool trainer_choose_move(trainer_store_t *st,uint8_t slot) {(void)st;(void)slot;return false;}
+bool trainer_switch(trainer_store_t *st,uint8_t slot,bool forced) {
+ trainer_session_t *s=&st->session;
+ if(!s->active||s->finished||slot>=s->sides[0].count||!s->sides[0].mons[slot].hp||slot==s->sides[0].active)return false;
+ if(forced!=!!s->awaiting_replacement)return false;
+ trainer_mon_t *old=actor(s,0);combat_reset_volatile(old);
+ s->pending_move=0;s->sides[0].active=slot;s->participated|=1u<<slot;s->awaiting_replacement=0;
+ if(forced)choose_first(s);else {s->next=1;s->acted=1;}
+ return true;
+}
+void trainer_retire(trainer_store_t *st) { if(st->session.active){st->session.retired=1;finish(st,false);} }
+uint16_t trainer_reward(const trainer_store_t *st) {
+ if(!st->session.finished||st->session.retired)return 0;
+ const trainer_info_t *t=trainer_info(st->session.trainer);unsigned reward=0;
+ for(unsigned i=0;i<t->count;i++)reward+=t->levels[i]*8+20;
+ return st->session.won?reward:reward*30/100;
+}
+void trainer_settle(trainer_store_t *st) {
+ trainer_session_t *s=&st->session;
+ if(!s->active||!s->finished)return;
+ if(s->won)st->defeated|=1u<<s->trainer;
+ if(s->trainer>=8&&s->trainer<=12) {
+  if(s->won&&s->trainer<12)st->league_stage=s->trainer+1;
+  else {st->league_active=0;st->league_stage=0;}
+ }
+ s->active=0;
+}
+bool trainer_store_valid(const trainer_store_t *st) {
+ if(!st||st->defeated>=1u<<TRAINER_COUNT||st->league_active>1||st->league_stage>12)return false;
+ const trainer_session_t *s=&st->session;
+ move_t planned;for(unsigned i=0;i<2;i++)if(s->planned[i]&&!combat_move(s->planned[i],&planned))return false;
+ if(st->league_active&&(st->league_stage<8||st->league_stage>12))return false;
+ if(s->active>1||s->finished>1||s->won>1||s->awaiting_replacement>1||s->retired>1||s->acted>3||s->pending_move>4)return false;
+ if(!s->active&&!st->league_active&&!s->finished)return true;
+ if(s->trainer>=TRAINER_COUNT||s->active>1||s->finished>1||s->won>1||s->next>1||s->ability>2048||s->turns>400)return false;
+ for(unsigned side=0;side<2;side++) {
+  const trainer_side_t *t=&s->sides[side];
+ if(!t->count||t->count>6||t->active>=t->count||t->reflect>5||t->light_screen>5)return false;
+  for(unsigned i=0;i<t->count;i++) {
+   const trainer_mon_t *m=&t->mons[i];
+ if(!combat_valid(m))return false;
+  }
+ }
+
+ return true;
+}

@@ -1,0 +1,19 @@
+{
+  "version": 10,
+  "bytes": 3648,
+  "preserved": {
+    "party": true,
+    "dex": true,
+    "inventory": true,
+    "challenge": true,
+    "achievements": true
+  },
+  "online_seconds": 601,
+  "next_base_seconds": 15001,
+  "hunt_credit": 0,
+  "refresh_serial": 0,
+  "discoveries": 0,
+  "base_started": 1,
+  "muted": true,
+  "volume": 80
+}

@@ -3,6 +3,86 @@
 #include "bsp_audio.h"
 #include "bsp_i2c.h"
 #include "bsp_pins.h"
+#include "sdkconfig.h"
+#include "driver/gpio.h"
+#include <stdbool.h>
+
+static esp_err_t pa_off(void) {
+#if BSP_I2S_PA_CTRL >= 0
+    // Load the low output latch before enabling the pin's output driver.
+    esp_err_t e = gpio_set_level(BSP_I2S_PA_CTRL, 0);
+    if (e != ESP_OK) return e;
+    return gpio_config(&(gpio_config_t){
+        .pin_bit_mask = 1ULL << BSP_I2S_PA_CTRL,
+        .mode = GPIO_MODE_OUTPUT,
+        .pull_up_en = GPIO_PULLUP_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_ENABLE,
+        .intr_type = GPIO_INTR_DISABLE,
+    });
+#else
+    return ESP_OK;
+#endif
+}
+
+static bool s_quiet;
+
+esp_err_t bsp_audio_boot_quiet(void) {
+    esp_err_t pa = pa_off();
+    if (s_quiet) return pa;
+    // A GPIO failure must not prevent the independent codec shutdown attempt.
+    esp_err_t e = bsp_i2c_init();
+    if (e != ESP_OK) return pa != ESP_OK ? pa : e;
+    i2c_master_dev_handle_t codec;
+    e = i2c_master_bus_add_device(bsp_i2c_bus(), &(i2c_device_config_t){
+        .dev_addr_length = I2C_ADDR_BIT_LEN_7,
+        .device_address = BSP_I2C_ES8311_ADDR,
+        .scl_speed_hz = 100000,
+    }, &codec);
+    if (e != ESP_OK) return pa != ESP_OK ? pa : e;
+    e = pa;
+
+    // Mute first, then the installed esp_codec_dev ES8311 driver's suspend
+    // sequence (device/es8311/es8311.c::es8311_suspend). This also stops a
+    // codec left powered by a previous firmware after an MCU-only reset.
+    // Do not create/open the codec: its enable path turns the PA/DAC on.
+    static const uint8_t stop[][2] = {
+        {0x31, 0x60}, {0x32, 0x00}, {0x17, 0x00}, {0x0e, 0xff},
+        {0x12, 0x02}, {0x14, 0x00}, {0x0d, 0xfa}, {0x15, 0x00},
+        {0x02, 0x10}, {0x00, 0x00}, {0x00, 0x1f}, {0x01, 0x30},
+        {0x01, 0x00}, {0x45, 0x00}, {0x0d, 0xfc}, {0x02, 0x00},
+        {0x31, 0x60},
+    };
+    for (size_t i = 0; i < sizeof(stop) / sizeof(stop[0]); i++) {
+        esp_err_t write = i2c_master_transmit(codec, stop[i], sizeof(stop[i]), 50);
+        // Keep trying the remaining shutdown writes after a transient failure.
+        if (e == ESP_OK && write != ESP_OK) e = write;
+    }
+    esp_err_t removed = i2c_master_bus_rm_device(codec);
+    if (e == ESP_OK) e = removed;
+    s_quiet = e == ESP_OK;
+    return e;
+}
+
+#if CONFIG_POKEWALK_SILENT_BOOT
+
+esp_err_t bsp_audio_suspend(void) { return bsp_audio_boot_quiet(); }
+esp_err_t bsp_audio_init(void) { return bsp_audio_boot_quiet(); }
+esp_err_t bsp_audio_set_format(uint32_t hz, uint8_t bits, uint8_t ch) {
+    (void)hz; (void)bits; (void)ch;
+    return ESP_ERR_NOT_SUPPORTED;
+}
+esp_err_t bsp_audio_write(const void *pcm, size_t bytes) {
+    (void)pcm; (void)bytes;
+    return ESP_ERR_NOT_SUPPORTED;
+}
+esp_err_t bsp_audio_read(void *pcm, size_t bytes) {
+    (void)pcm; (void)bytes;
+    return ESP_ERR_NOT_SUPPORTED;
+}
+void bsp_audio_set_volume(uint8_t percent) { (void)percent; }
+
+#else
+
 #include "esp_codec_dev.h"
 #include "esp_codec_dev_defaults.h"
 #include "es8311_codec.h"
@@ -17,6 +97,19 @@ static i2s_chan_handle_t      s_tx, s_rx;
 static uint32_t s_hz;
 static uint8_t  s_bits, s_ch;
 static bool     s_opened;
+
+esp_err_t bsp_audio_suspend(void) {
+    esp_err_t result = pa_off();
+    if (s_dev && s_opened) {
+        bsp_audio_set_volume(0);
+        if (esp_codec_dev_close(s_dev) != 0) return ESP_FAIL;
+        s_opened = false;
+        // Match the existing close/reopen lifecycle without reconfiguring clocks.
+        if (s_tx) i2s_channel_enable(s_tx);
+        if (s_rx) i2s_channel_enable(s_rx);
+    }
+    return result;
+}
 
 static esp_err_t i2s_full_duplex_init(void) {
     i2s_chan_config_t chan = {
@@ -150,6 +243,7 @@ esp_err_t bsp_audio_set_format(uint32_t hz, uint8_t bits, uint8_t ch) {
     //   这里只设麦克风模拟 PGA 增益。
     esp_codec_dev_set_in_gain(s_dev, 30.0f);
 
+    s_quiet = false;
     s_opened = true; s_hz = hz; s_bits = bits; s_ch = ch;
     ESP_LOGI(TAG, "codec 打开 %luHz/%ubit/%uch", (unsigned long)hz, bits, ch);
     return ESP_OK;
@@ -168,3 +262,5 @@ esp_err_t bsp_audio_read(void *pcm, size_t bytes) {
 void bsp_audio_set_volume(uint8_t percent) {
     if (s_dev) esp_codec_dev_set_out_vol(s_dev, percent);
 }
+
+#endif // CONFIG_POKEWALK_SILENT_BOOT

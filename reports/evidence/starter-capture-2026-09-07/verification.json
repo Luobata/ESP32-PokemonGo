@@ -1,0 +1,24 @@
+{
+  "build": "788d5f7752742418ba6c",
+  "centering_checks": 612,
+  "native_pages": 8,
+  "dirty_redraw_checks": 921,
+  "capture_flow_cases": 6,
+  "capture_dirty_checks": 244,
+  "capture_negative_variants": 4,
+  "storage_cases": 67,
+  "storage_sanitized": true,
+  "storage_erase_calls": 0,
+  "browser_clock_cases": 9,
+  "browser_clock_negative_variants": 5,
+  "browser_frames": 16,
+  "browser_compared_pixels": 1228800,
+  "firmware_binary_bytes": 1589168,
+  "flashed": false,
+  "all_passed": true,
+  "limits": [
+    "NVS/RTOS services in host tests are simulated; no physical device verification",
+    "Battle session copies persist during this run, not across power loss",
+    "Existing 1 MB recovery partition is smaller than the main app binary"
+  ]
+}

@@ -1,0 +1,81 @@
+{
+  "status": "COMPLETE",
+  "date": "2026-09-08",
+  "native_build": "40fb517ab012dd3a66c1",
+  "inspector_manifest_matches": true,
+  "firmware": {
+    "bytes": 1647472,
+    "sha256": "fb7bdc34d5464b9a1566d2e6e2d203313d048d09b5d08046a655a3bf26e01cc4",
+    "offset": "0x10000",
+    "hash_verified": true,
+    "write_scope": "factory application only"
+  },
+  "backup": {
+    "path": ".device-backup/flash-before-team-menu-silent-20260908.bin",
+    "bytes": 8388608,
+    "sha256": "a84c9fd50441ff06965193a47472d2c22b3055bb969f0b220aaca7dda933935b",
+    "partition_table_matches": true
+  },
+  "source_sha256": {
+    "world.c": "26f292f27d29076a4397af30f3f81efbfcd05f046761c7ff797316f38c7d9a78",
+    "bsp_button.c": "ee2109a42f6486700daa4bb70b055188b18c4a5f53ef2d19a068f7d54a2920ff"
+  },
+  "boot": {
+    "silent": true,
+    "party_count": 6,
+    "caught_species_count": 5,
+    "legacy_members_repaired": 5,
+    "legacy_repair_saved": true,
+    "errors_detected": false
+  },
+  "reboot": {
+    "silent": true,
+    "party_count": 6,
+    "caught_species_count": 5,
+    "legacy_repair_repeated": false,
+    "errors_detected": false
+  },
+  "device_checks": [
+    {
+      "check": "idle B opens menu",
+      "evidence": "device-final/01-key-b.png"
+    },
+    {
+      "check": "six original members listed",
+      "evidence": "device-final/02-key-ba.png"
+    },
+    {
+      "check": "Pidgeotto Lv12 EXP4320 repaired",
+      "evidence": "device-final/04-key-a.png"
+    },
+    {
+      "check": "set Pidgeotto as leader succeeds",
+      "evidence": "device-switch/01-key-a.png"
+    },
+    {
+      "check": "restore Raichu Lv6 EXP566, intimacy61, explore13 as leader",
+      "evidence": "device-switch/05-key-a.png"
+    },
+    {
+      "check": "party to menu to bag and back to idle",
+      "evidence": "device-return/03-key-ba.png"
+    },
+    {
+      "check": "original leader survives reboot",
+      "evidence": "device-reboot/00-start.png"
+    }
+  ],
+  "final_state": {
+    "page": "P1",
+    "leader_species": 26,
+    "leader_level": 6,
+    "original_party_order_restored": true,
+    "items_consumed": 0,
+    "silent": true
+  },
+  "boundaries": [
+    "Hardware display evidence is serial framebuffer readback, not a camera photo.",
+    "Hardware navigation used debug key events; physical finger hold was not measured.",
+    "BSP timing and real library were checked with simulated ADC; browser pointer holds separately verified."
+  ]
+}

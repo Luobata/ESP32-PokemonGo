@@ -1,0 +1,26 @@
+{
+  "sourceSha256": "f5b8d6fcfb125ccb82727877ee278ce1bb68bb2886826ed3947c0342997f4853",
+  "passed": [
+    "defaultClock",
+    "inputQueue",
+    "queuedTickCancellation",
+    "resumedQueuedTick",
+    "rapidResume",
+    "pausedSceneAndSingleStep",
+    "hiddenClock",
+    "activeSceneChanges",
+    "freshSceneSelection",
+    "savedNamePreference",
+    "queuedNamePreference",
+    "hardwareNamePreference",
+    "bagScene"
+  ],
+  "negativeCaught": [
+    "default pause",
+    "stale queued tick",
+    "stale resumed epoch",
+    "duplicate pump",
+    "stale encounter scene"
+  ],
+  "scope": "actual firmware.js in Node VM; delayed fetch, input order, visibility and clock scheduling"
+}

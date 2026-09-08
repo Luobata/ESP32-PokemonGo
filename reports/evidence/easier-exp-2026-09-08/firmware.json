@@ -1,0 +1,8 @@
+{
+  "bytes": 1820896,
+  "sha256": "1004929302882ca9377b02250a4cc0c7ed8f54157afb8b68719dbf01ec819fd8",
+  "curve": "3*n^3/2",
+  "previous_curve": "5*n^3/2",
+  "rewards_unchanged": true,
+  "save_version": 9
+}

@@ -1,122 +1,64 @@
-# ESP32-PokemonGo
+# PokeWalk · ESP32-PokemonGo
 
-> **接手/重启请先读 [docs/00-handoff.md](docs/00-handoff.md)** ——
-> 当前状态、待办优先级、已修缺陷、项目惯例都在那里。
+在 FoloToy AI Passport 上运行的宝可梦像素同人游戏：探索路线、捕获与养成前 151 只宝可梦，组建队伍，挑战道馆、四天王和赤红。设备为 ESP32-C3、8MB Flash、240×320 屏幕、三键操作。
 
+[宣传片（2分13秒）](reports/video/pokewalk-promo-2026-09-09/pokewalk-promo.mp4) · [玩法与架构文档](docs/) · [金银学习表核查](docs/systems/S21-auto-learning.md) · [社区发布准备](docs/release/community.md)
 
-在一台**没有 GPS**的 ESP32-C3 掌机上实现「现实世界探索 + 初代宝可梦收集 + 电子宠物养成」。
+## 已实现
 
-用 WiFi/BLE/声学的**环境指纹**代替 GPS 定位。设备揣在兜里后台低频扫描、静默累积事件；
-玩家偶尔掏出来，30 秒内处理完一批。形态上接近 Tamagotchi 与宝可梦步行者，而不是掌机。
+- 四条探索路线：Wi-Fi 环境变化积累探索机会；体力随设备运行时间恢复。不是 GPS 定位，也不是实际计步。
+- 最多保留 5 个待处理遭遇；直接捕捉失败，敌方反击一次后可再次选择；主动开战后自动交锋。
+- 六人队伍和按物种存储的仓库；捕获、进化和闪光记录进入图鉴与成就。
+- 战胜、战败、捕获均有经验；饱食、心情、亲密度影响经验、战斗和稀有遭遇。
+- 招式随等级自动学习、保留进化前技能，不设四招上限和 PP。兼容的机器/遗传招式自动加入成长库，详见 S21。
+- 道馆、四天王连战、冠军与赤红；解锁进度扩展稀有探索目标与道具获取。
+- 音乐、技能音效、捕获成功短曲；静音和音量设置；60秒无操作熄屏、长按 C 熄屏。
+- Web 原生预览编译相同的 C 页面/渲染代码，复用固件素材；Wi-Fi、NVS 和按键用隔离夹具，预览不会修改真实设备存档。
 
-> **项目范围：自用、不分发。** CC 系列许可与 GPL 的义务触发条件都是「分发」，
-> 私人使用不触发，因此素材可按实用性而非许可宽松度来挑。相关约束见
-> [docs/05-art-audio.md](docs/05-art-audio.md#54-如果将来想分发)。
+**招式范围如实说明：** 当前引擎支持初代 165 招及“潮旋”。金银前 151 只宝可梦在升级、TM/HM、遗传和进化前形态中涉及 238 种招式，仍有 73 种二代招式机制未实现；未实现项不会作为无效技能加入自动出招。机器学习资格按原物种表限制，普通皮卡丘不会凭空获得活动限定的冲浪。
 
-## 当前状态
+## 三键操作
 
-**PC 侧基本完成，固件阻塞于硬件。**
+| 场景 | A | B / 长按 B | C |
+|---|---|---|---|
+| 列表/菜单 | 确认 | 下一项 / 上一项 | 返回 |
+| 野生遭遇 | 捕捉 | 开始自动战斗 | 尝试逃跑 |
+| 队伍列表 | 查看详情；详情再次 A 设队首 | 选择成员 | 返回 |
+| 队伍列表长按 A | 为当前位置打开仓库换入 | 仓库中选择 | 返回 |
+| 训练家对战 | 回合结束后进入战术 | — | 认输确认 |
 
-| 项 | 状态 |
-|---|---|
-| **三态判别** | ✅ 真实数据验证成立 —— 家 0% 移动 / 通勤 52% / 办公 5%，家与公司指纹相似度 **0.0000** |
-| **感知层算法** | ✅ 四轮实测修正（每轮都是真数据推翻纸上设计） |
-| **10 个系统** | ✅ 9 个已实现（S7 只有条件判定） |
-| **素材管线** | ✅ 151 只 + 彩色配色 + 中文名 + 点阵字库 = 144.9 KB |
-| **验收平台** | ✅ 六个调试面板 |
-| 固件 | ⛔ 硬件未到 |
+队伍详情长按 A 查看已学技能。战斗过程的换宠投球动画只作用于换宠的一方。长按 C 熄屏，唤醒按键不会同时触发游戏动作。
 
-仍需实测的：**续航天数、RTC 走时精度、口袋 RSSI 基线、flash 磨损**。
-详见 [07-roadmap.md](docs/07-roadmap.md)。
+## 本地构建和预览
 
-## 硬件
+所需：ESP-IDF 5.5.3、C 编译器、Python 3；字库/素材管线另需 Pillow。运行所需的 7 个二进制素材和生成头文件随源码提供。
 
-`ESP32-C3FH8X` · 240×320 TFT · 3 键 · WiFi/BLE · 被动 NFC · 麦克风 + 扬声器 · 500mAh · 60×95×8.5mm / 50g
+```sh
+# 根据本机安装位置配置 ESP-IDF；脚本也支持已有 IDF_PATH。
+source tools/device/idf-env.sh
+tools/device/fw.sh build
 
-型号可直接读出两个事实：**FH8 = 8MB 片内 flash**，**X = 单核 RISC-V**。
-C3 不支持外接 PSRAM，因此约 400KB SRAM 就是全部内存 —— 240×320×16bit 的全屏帧缓冲
-需 150KB，占 SRAM 三分之一以上，**必须分块渲染**。
-
-官方器件清单穷举了全部硬件，其中**不含任何传感器**：**确认无 IMU，步数统计不可实现**。
-
-## 快速开始
-
-```bash
-# 1. 采集真实 WiFi 环境（macOS，需定位授权，见下方说明）
-tools/collector/build.sh && tools/collector/make-app.sh
-tools/collector/collect.sh -i 30 -o data/raw/$(date +%Y%m%d).ndjson
-
-# 2. 用采集数据回放感知层算法
-python3 sim/replay.py data/raw/20260902.ndjson
-
-# 3. 跑玩法原型（养成状态机 + 遭遇判定）
-python3 sim/prototype.py data/raw/20260902.ndjson --days 7
+# 同源网页预览
+python3 tools/inspector/server.py --port 8766
+# 打开 http://127.0.0.1:8766/firmware.html
 ```
 
-Python 部分**零第三方依赖**，用系统 python3 即可（已在 3.9 上验证）。
-
-### macOS 定位授权（重要）
-
-macOS 12+ 对 BSSID 做了权限门禁：**没有定位授权时 `bssid` 和 `ssid` 全返回 nil**，
-只剩 RSSI 和 channel。而指纹方案的核心正是 BSSID。
-
-**已实测通过的唯一路径是「打包成 .app + 用 `open` 启动」**，也就是 `collect.sh` 做的事。
-以下都试过且无效：给 iTerm 授权（列表里根本没有它）、`sudo`（root 不等于有 TCC 授权）、
-直接 exec .app 里的二进制（系统认的是调用方 shell）。
-完整对照表见 [tools/collector/README.md](tools/collector/README.md#定位授权)。
-
-采集器支持**降级模式**：无授权时用 `channel + RSSI 分桶`合成伪 BSSID，
-可以先把管线跑通、验证算法逻辑，但**指纹判别质量会明显下降**，不能用于最终标定。
-不过 channel 与 RSSI 不受权限限制，所以「这里能扫到几个 2.4GHz AP」这个数即使降级也准。
-
-## 文档
-
-| 文档 | 内容 |
-|---|---|
-| [01-constitution.md](docs/01-constitution.md) | 设计宪法 —— 硬约束清单与由此推导的核心形态。**先读这个** |
-| [02-sensing.md](docs/02-sensing.md) | 感知层 —— 环境指纹、降级阶梯、匹配算法、无连接对时 |
-| [03-spawning.md](docs/03-spawning.md) | 地点属性与刷新机制 —— OUI 语义、biome、一致性规则 |
-| [04-gameplay.md](docs/04-gameplay.md) | 玩法 —— 遇敌/捕获/培育/交换/图鉴，含电子宠物养成 |
-| [05-art-audio.md](docs/05-art-audio.md) | 美术与音频 —— GB 像素风、chiptune、素材来源 |
-| [06-engineering.md](docs/06-engineering.md) | 工程 —— 仿真器、内容管线、存档、调度 |
-| [07-roadmap.md](docs/07-roadmap.md) | 推进节奏 —— 当前可做什么、Phase 0 要测什么 |
-| **[08-systems.md](docs/08-systems.md)** | **系统索引** —— 10 个系统 + 7 个页面的导航与状态。各系统详见 `docs/systems/` |
-
-## 目录结构
-
-```
-docs/                 设计文档
-tools/pipeline/       素材管线：初代 151 只数据+sprite→二进制、flash 预算
-tools/collector/      macOS WiFi 采集器（Swift + CoreWLAN）
-  collect.sh          采集入口 —— 必须用这个启动（见定位授权）
-sim/                  PC 端仿真与系统实现
-  sensing.py          感知层：滑动窗口指纹、AP 新鲜度、8槽 LRU、移动量
-  gameplay.py         S4 养成、S7 进化条件、biome 分类、确定性刷新
-  systems.py          S1 遭遇累积、S2 捕获判定、S3 自动战斗、S8 闪光
-  state.py            S5 图鉴、S6 存档（双 buffer+CRC）、S9 道具、S10 成绩
-  effects.py          动效：缩放/闪白/抖动/进化/呼吸（零素材成本）
-  replay.py           回放采集数据，输出感知层判定
-  prototype.py        玩法原型，输出模拟游玩日志
-  preview_effects.py  逐帧 ASCII 目检动效
-assets/               素材产物 + 眼部标注归档
-data/raw/             采集的原始数据（.gitignore，不入库）
-firmware/             ESP32 固件（硬件到手后）
+```sh
+python3 tools/pipeline/verify_gs_learning.py
+python3 tools/pipeline/verify_trainer_sendout.py
+python3 tools/pipeline/verify_combat_system.py
+python3 tools/pipeline/verify_trainer_campaign.py
+python3 tools/pipeline/verify_system_links.py
 ```
 
-## 设计要点速览
+固件应用在 `firmware/build/PokeWalk.bin`，应用地址 `0x10000`。现有设备增量更新前备份 NVS，不能把应用文件当成从 `0x0` 烧写的合并固件。存档版本 V11，3664字节；真实设备备份、扫描原始数据与凭证不进入 Git。
 
-**WiFi 是上下文开关，不是内容生产者。** 初版把探索值挂在「新见 BSSID 数」上是错的
-—— 它会衰减到零：第一周发现完所有东西，第五周设备变砖。真实情况是**空间稀缺、时间充裕**
-（三个地点 × 24 小时 × 7 天），所以让**时间生产内容，空间调制内容**。
+社区上架需要另行验证的 `0x0` 合并固件、封面、源码地址和双语介绍，见发布说明。本仓库 push 不代表已经发布到社区。
 
-**猎场与基地。** 通勤时会短暂经过大量 AP，每个只出现一次然后消失 —— 这对定位是噪声，
-但对「遭遇」是完美映射：**一个转瞬即逝的 AP 天然就是一只出现又跑掉的野生怪**。
-移动中 = 猎场（遭遇密集、窗口窄），驻留 = 基地（适合照料孵化）。只需三个地点就成立。
+## 来源与验证边界
 
-**移动量而非步数。** 无 IMU 所以步数做不了，改用相邻扫描的加权 Jaccard 距离累积。
-这不是退而求其次：步数奖励原地踏步也能刷的动作，移动量奖励**空间位移**，
-而且**摇不出来** —— 计步器能绑电风扇上，但没人能在家里摇出一片新的射频环境。
+宝可梦名称、角色、原作像素画及音乐素材各自来源见 `assets/*_sources.json` 和 `docs/05-art-audio.md`；不将原作素材声称为本项目原创或统一 MIT 授权。金银招式事实表来自固定提交的 [pret/pokegold](https://github.com/pret/pokegold/tree/656583c939d30f920a316177311a502dd222b57c)，本项目的自动学习等级、养成与探索规则属于适配设计。
 
-**不做惩罚性死亡。** 原版 Tamagotchi 的宠物会饿死，那是 1996 年的设计语境。
-在一个「揣兜里跑一周」的设备上，一次出差清零进度只会让人把它扔进抽屉。
-改为状态低下时进入消沉，**能力打折但不清零** —— 惩罚体验密度，不惩罚存档。
+宣传片从全新存档初始化开始，后续“成长后的旅程”使用隔离的演示存档展示功能，音轨来自逐帧游戏混音器。没有用真实玩家存档录制或注入测试进度。
+
+构建、主机回归、真机启动及存档读回分别记录在 `reports/`。长期续航、真实步行环境下的遇敌速度、关机期间的时间恢复仍需后续验证；完全关机目前不补体力。

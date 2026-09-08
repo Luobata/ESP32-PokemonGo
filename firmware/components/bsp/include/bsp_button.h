@@ -4,6 +4,12 @@
 
 #include "esp_err.h"
 
+// A/B 的网页按住阈值也使用 600 ms；硬件在去抖确认按下后计时。
+#define BSP_BTN_LONG_PRESS_MS 600
+#define BSP_BTN_SHORT_PRESS_MS 180
+// C 长按会退出玩法，继续保留原来的较长门槛。
+#define BSP_BTN_EXIT_PRESS_MS 1500
+
 // 按键索引。数量用 bsp_pins.h 的 BSP_BTN_COUNT(硬件属性,归引脚表管),
 // 这里不再定义尾项计数,避免出现 BSP_BTN_COUNT / BSP_BTN_COUNT_ 两个近似名字。
 typedef enum {
@@ -16,7 +22,9 @@ typedef enum {
     BSP_BTN_PRESS = 0,   // 按下瞬间(低延迟,适合游戏类即时响应)
     BSP_BTN_CLICK,       // 单击(按下并抬起)
     BSP_BTN_DOUBLE,      // 双击
-    BSP_BTN_LONG,        // 长按
+    BSP_BTN_LONG,        // A/B 约 0.6 秒、C 约 1.5 秒；仅一次，松开不再触发单击
+    BSP_BTN_RELEASE = 4, // 去抖确认松开；短按时先 RELEASE，双击窗口结束后才 CLICK
+    BSP_BTN_GESTURE_END = 5, // 库已完成整组单/双/连按分类；此后才开始下一次独立手势
 } bsp_btn_ev_t;
 
 // 按键事件回调。运行于 button 组件的定时器任务,勿在其中阻塞或做重活。

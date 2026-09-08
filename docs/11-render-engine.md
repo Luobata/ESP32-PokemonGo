@@ -1,5 +1,7 @@
 # 双端渲染：共享 C 场景配方与矩形输出
 
+> **当前入口已更新（2026-09-07）**：P0–P6 的正式渲染预览已直接编译实际固件页面、资产、字体和 screen.c，浏览器只接收屏幕字节。用法、验证和硬件边界见 [12-firmware-preview.md](12-firmware-preview.md)。下文保留此前逐元素迁移的设计与历史证据；其中「尚未接入」等状态描述仅对应当时的原型。
+
 状态：D64 六问设计与元素级最小验证完成（2026-09-07）。共享 C 配方 → 固件横带后端 / 构建期矩形 payload → JS 软件 RGB565 后端，125 组输入、9600000 像素逐值一致。固件 build 与十三项回归通过。**这是逻辑像素缓冲的一致性证据，不是正式 inspector、Canvas 或真实 LCD 的整页 1:1 验收。**
 
 ## 1. 边界：共享“这一帧画什么”，设备继续负责“什么时候推屏”
@@ -760,3 +762,13 @@ result={'regression':p.stdout.strip(),'host_cli':rows,'host_links_render_c':Fals
 (O/'result.json').write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n');print(json.dumps(result,ensure_ascii=False,indent=2))
 ```
 <!-- D92_WIDTH_END -->
+
+## 2026-09-08：禁止 LVGL 空背景覆盖游戏横带
+
+`screen_own_display()` 不能仅创建、载入一张空 LVGL 屏。`lv_screen_load()` 会排队一次整屏刷新；它在 `nav_start()` 手动画完后执行，原先的 `#9bbc0f` 空背景会盖住游戏。待机页持续重画 0、1、3 带，但 2 带仅在养成值变化时刷新，因此 y=160–239 可留下绿色横幅。
+
+在 LVGL 锁内、首次游戏绘制前，关闭该 display 的 invalidation，并暂停其专属 refresh timer。LVGL 主任务、游戏动画定时器、按键与休眠计时器继续运行；不修改 SPI DMA 完成回调。
+
+`python3 tools/pipeline/verify_display_ownership.py` 编译仓库内真实 LVGL 和生产 `screen.c`，仅模拟面板输出边界：旧行为 16 次延迟背景刷新，修复后 0 次，业务 timer 60 次正常回调；移除保护的负向对照能再次检测到覆盖。
+
+串口截图会主动重画当前页面，捕获的是游戏提交像素，无法观察后来由 LVGL 写入的覆盖，因此它不能单独证明这类真机屏幕问题不存在。

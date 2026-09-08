@@ -1,0 +1,23 @@
+{
+  "bytes": 1802368,
+  "sha256": "bfe83c41c26251b7456064bfd4eff5d14ebc8ccf8dd2f2686fdf4e61e9fb6856",
+  "app_offset": "0x10000",
+  "flash_hash_verified": true,
+  "backup": ".device-backup/nvs-and-app-before-achievements-volume-20260908.bin",
+  "save_before": {
+    "version": 7,
+    "bytes": 2688,
+    "leader": 129,
+    "level": 6,
+    "exp": 568,
+    "party": 6
+  },
+  "save_after_readonly": {
+    "version": 7,
+    "bytes": 2688,
+    "party_identity_hp_exp_unchanged": true,
+    "inventory_unchanged": true,
+    "muted": false
+  },
+  "note": "V7 is migrated in RAM; next normal game save writes V8. Batch UI keys/save were rejected by automatic approval and not run."
+}

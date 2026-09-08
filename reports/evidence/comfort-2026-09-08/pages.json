@@ -1,0 +1,178 @@
+{
+  "build": "b89596dac0f6a9a529a1",
+  "cases": 17,
+  "dirty_checks": 1261,
+  "results": [
+    {
+      "case": "P1 static wait",
+      "dirty_checks": 10,
+      "page": 1,
+      "wait_ms": 60100,
+      "wake_did_not_act": true
+    },
+    {
+      "case": "P2 static wait",
+      "dirty_checks": 10,
+      "page": 2,
+      "wait_ms": 60100,
+      "wake_did_not_act": true
+    },
+    {
+      "case": "P5 static wait",
+      "dirty_checks": 10,
+      "page": 5,
+      "wait_ms": 60100,
+      "wake_did_not_act": true
+    },
+    {
+      "case": "P6 static wait",
+      "dirty_checks": 10,
+      "page": 6,
+      "wait_ms": 60100,
+      "wake_did_not_act": true
+    },
+    {
+      "case": "P9 static wait",
+      "dirty_checks": 10,
+      "page": 9,
+      "wait_ms": 60100,
+      "wake_did_not_act": true
+    },
+    {
+      "case": "P10 static wait",
+      "dirty_checks": 10,
+      "page": 10,
+      "wait_ms": 60100,
+      "wake_did_not_act": true
+    },
+    {
+      "case": "P11 static wait",
+      "dirty_checks": 10,
+      "page": 11,
+      "wait_ms": 60100,
+      "wake_did_not_act": true
+    },
+    {
+      "case": "P12 static wait",
+      "dirty_checks": 10,
+      "page": 12,
+      "wait_ms": 60100,
+      "wake_did_not_act": true
+    },
+    {
+      "case": "opening finite animations and dialogue wait",
+      "dirty_checks": 230,
+      "completed_dialogues": 4,
+      "finite_animation_ms": [
+        1386,
+        1386,
+        1881,
+        2508
+      ],
+      "dialogue_wait_can_sleep": true,
+      "wake_did_not_advance": true
+    },
+    {
+      "case": "encounter transition and locked battle choice",
+      "dirty_checks": 84,
+      "transition_samples": 45,
+      "entry_phases": [
+        "choice",
+        "entrance-motion",
+        "entry"
+      ],
+      "locked_choice_can_sleep": true
+    },
+    {
+      "case": "automatic battle longer than 30 seconds",
+      "dirty_checks": 618,
+      "entry_phases": [
+        "choice",
+        "entrance-motion",
+        "entry"
+      ],
+      "battle_phases": [
+        "attack",
+        "battle",
+        "exp",
+        "result"
+      ],
+      "duration_ms": 34140,
+      "animation_samples": 569,
+      "won": false,
+      "fresh_result_timeout": true
+    },
+    {
+      "case": "victory HP and EXP animation",
+      "dirty_checks": 97,
+      "entry_phases": [
+        "choice",
+        "entrance-motion",
+        "entry"
+      ],
+      "battle_phases": [
+        "attack",
+        "battle",
+        "exp",
+        "result"
+      ],
+      "duration_ms": 3780,
+      "animation_samples": 63,
+      "won": true,
+      "fresh_result_timeout": true
+    },
+    {
+      "case": "capture pointer wait and consumed wake gesture",
+      "dirty_checks": 46,
+      "unattended_ms": 60100,
+      "wake_did_not_throw": true,
+      "next_A_caught_once": true,
+      "flash_and_hold_protected": true
+    },
+    {
+      "case": "capture successful result storage retry",
+      "dirty_checks": 41,
+      "static_save_error_can_sleep": true,
+      "wake_did_not_retry": true,
+      "separate_retry_caught_once_without_second_ball": true
+    },
+    {
+      "case": "failed throw timed return and exactly one retaliation",
+      "dirty_checks": 45,
+      "hold_ms": 1000,
+      "retaliation_attacks": 1,
+      "phases": [
+        "choice",
+        "retaliation"
+      ]
+    },
+    {
+      "case": "care evolution and timed feedback",
+      "dirty_checks": 13,
+      "evolution_ms": 396,
+      "result_hold_ms": 990,
+      "evolved_species": 2,
+      "idle_timeout_resumes_after_return": true
+    },
+    {
+      "case": "starter failed save and consumed wake gesture",
+      "dirty_checks": 7,
+      "failed_save_wait_can_sleep": true,
+      "wake_did_not_choose_starter": true
+    }
+  ],
+  "source_sha256": {
+    "screen_idle.c": "1def067bc5028cae8c1d6b30958bb07c4fc21546c08746c283f7f356de6bc1ab",
+    "screen_idle.h": "3acaee2184c921c0c299dd2bc84ffc7bfbd82c17d3a0ded497a2cebc78da1197",
+    "nav.c": "de98e0d5677f35409a92e2e7ad94d5c208a1065496e146f853bb00a6a511b15a",
+    "nav.h": "49a16032e14e23a3ae41fefb68c7498d8dd62e877dfcb699a817b5bbea55c507",
+    "play.h": "04938b7168f0194abd43ab3e029809ec15ce518f60bdf3c1f3161966fafdc0de",
+    "play_opening.c": "28bb4aec2ef89ba66be3cb2e9c4346ac041d37f75d9c7665d5ef747294303b16",
+    "play_starter.c": "4c7dcb40f6c44ce1cb61e64fdd95cffca726319d281f6bf300f26008e76a26dd",
+    "play_enc.c": "a60d47e3f02143a69b3e609e5b98079a14b7e80338f3a3566126447c7d9a852e",
+    "play_battle.c": "927c87c7d3fb7bf947a5a6d94cbef3473fe2cd7ccb62d25acf93df5fd3b58ad4",
+    "play_capture.c": "66a61893562b8f114192c98c8391f79139836368618785b37f67ad3ba0aecec5",
+    "play_care.c": "d766b8bd0c5e00bc9fa3ab6d7d79b65f5a8b0d17987ef5a274635250d36bc682"
+  },
+  "scope": "Actual C pages, nav, screen_idle, assets and renderer; clock/world/NVS are host fixtures."
+}

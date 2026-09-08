@@ -1,0 +1,13 @@
+menu "PokeWalk"
+
+config POKEWALK_SILENT_BOOT
+    bool "Keep audio disabled for the entire boot"
+    default n
+    help
+        Shut down the ES8311 at the first app initialization and keep all BSP
+        audio output, format changes and volume calls disabled. No SFX queue
+        or playback task is created, including for demo/debug callers.
+        Disable and rebuild to restore audio. This is not a runtime volume
+        setting. Boards without a PA GPIO use the codec shutdown path.
+
+endmenu

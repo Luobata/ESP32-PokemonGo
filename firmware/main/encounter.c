@@ -81,8 +81,8 @@ uint8_t enc_rarity_from_ap(int8_t rssi, uint8_t auth, bool has_ssid,
     uint8_t r = 1;
     if (rssi < -80) r++;
     if (!has_ssid) r++;
-    // 企业级：wifi_auth_mode_t 里 WPA2_ENTERPRISE=5、WPA3_ENTERPRISE=8
-    if (auth == 5 || auth == 8) r++;
+    // ESP-IDF: 8 is WAPI, not enterprise. Include WPA/WPA2/WPA3 EAP modes.
+    if (auth == 5 || auth == 10 || auth == 14 || auth == 15 || auth == 16) r++;
     if (is_transient) r++;
     return r > 5 ? 5 : r;
 }
@@ -158,56 +158,38 @@ bool enc_queue_take_uid(enc_queue_t *q, uint16_t uid, encounter_t *out)
     return false;             // 已被后台淘汰 —— 正常，不是错误
 }
 
+uint8_t enc_queue_trim(enc_queue_t *q)
+{
+    if (q->count <= ENC_QUEUE_LIMIT) return 0;
+    uint8_t removed = q->count - ENC_QUEUE_LIMIT;
+    memmove(q->items, q->items + removed, ENC_QUEUE_LIMIT * sizeof(q->items[0]));
+    q->count = ENC_QUEUE_LIMIT;
+    q->dropped += removed;
+    memset(q->items + q->count, 0, (ENC_QUEUE_CAP - q->count) * sizeof(q->items[0]));
+    return removed;
+}
+
 bool enc_queue_push(enc_queue_t *q, const encounter_t *e)
 {
-    // 发号在入队时做，调用方不用管 uid。
-    // 回绕：u16 到 65535 后回到 1 —— 一天几十条，回绕要几年，
-    // 且真回绕了最坏是「跨页面选中的那条找不到」，会被当成已淘汰处理。
-    if (q->next_uid == 0) q->next_uid = 1;
+    // UIDs identify live entries even after FIFO shifts their indexes. Skip a
+    // queued ID on wrap rather than making two entries share an identity.
+    do {
+        if (q->next_uid == 0) q->next_uid = 1;
+        if (!enc_queue_find(q, q->next_uid)) break;
+        q->next_uid++;
+    } while (true);
     uint16_t uid = q->next_uid++;
-
-    if (q->count < ENC_QUEUE_CAP) {
-        q->items[q->count] = *e;
-        q->items[q->count].uid = uid;
-        q->items[q->count].exp_granted = false;
-        q->count++;
-        return false;
+    bool dropped = enc_queue_trim(q) != 0;
+    if (q->count == ENC_QUEUE_LIMIT) {
+        enc_queue_take(q, 0, NULL);
+        q->dropped++;
+        dropped = true;
     }
-
-    // 满了 —— 找**最低稀有度里最旧的**那条挤掉。
-    //
-    // 不是单纯丢最旧：玩家一天可能遇 30 次而只处理 10 次，
-    // 单纯 FIFO 会让攒到的稀有个体被后来的常见个体挤掉，
-    // 与「稀有度驱动收集」直接矛盾。
-    //
-    // **新来的也参与比较**（sim 那边是先 append 再找最低，
-    // 等价于把新条目算进候选）—— 所以一条比池子里全部都差的遭遇
-    // 会当场被丢掉，而不是挤走一条更好的。实测对齐过 sim 的行为。
-    uint8_t min_r = e->rarity;
-    for (uint8_t i = 0; i < q->count; i++) {
-        if (q->items[i].rarity < min_r) min_r = q->items[i].rarity;
-    }
-    q->dropped++;
-
-    // 新来的就是最差的（且队列里没有同样差的）→ 直接不收
-    if (e->rarity == min_r) {
-        bool tie = false;
-        for (uint8_t i = 0; i < q->count; i++) {
-            if (q->items[i].rarity == min_r) { tie = true; break; }
-        }
-        if (!tie) return true;
-    }
-
-    // 数组按入队顺序排，所以第一个命中最低稀有度的就是最旧的那条
-    for (uint8_t i = 0; i < q->count; i++) {
-        if (q->items[i].rarity != min_r) continue;
-        for (uint8_t k = i; k + 1 < q->count; k++) q->items[k] = q->items[k + 1];
-        q->items[q->count - 1] = *e;
-        q->items[q->count - 1].uid = uid;
-        q->items[q->count - 1].exp_granted = false;
-        return true;
-    }
-    return true;
+    q->items[q->count] = *e;
+    q->items[q->count].uid = uid;
+    q->items[q->count].exp_granted = false;
+    q->count++;
+    return dropped;
 }
 
 bool enc_queue_take(enc_queue_t *q, uint8_t index, encounter_t *out)
@@ -281,85 +263,42 @@ bool enc_selftest(void)
 {
     bool ok = true;
 
-    // ① 队列淘汰规则：稀有的不该被常见的挤掉
+    // ① FIFO always keeps the newest five, including a low-rarity arrival.
     enc_queue_t q;
     enc_queue_init(&q);
-    encounter_t e = {0};
-    // 先塞 1 条 ★★★★★ 再塞满 ★
-    e.rarity = 5; e.species_id = 150; e.ts = 1;
+    encounter_t e = {.rarity = 5, .species_id = 150, .ts = 1};
     enc_queue_push(&q, &e);
-    for (int i = 0; i < ENC_QUEUE_CAP + 5; i++) {
+    uint16_t expired = q.items[0].uid;
+    for (int i = 0; i < ENC_QUEUE_LIMIT; i++) {
         e.rarity = 1; e.species_id = (uint16_t)(10 + i); e.ts = (uint32_t)(2 + i);
-        enc_queue_push(&q, &e);
+        bool dropped = enc_queue_push(&q, &e);
+        if (dropped != (i == ENC_QUEUE_LIMIT - 1)) ok = false;
     }
-    bool found5 = false;
-    for (uint8_t i = 0; i < q.count; i++) {
-        if (q.items[i].rarity == 5) found5 = true;
-    }
-    if (!found5) {
-        printf("encounter: ★★★★★ 被 ★ 挤掉了 —— 淘汰规则退化成 FIFO 了\n");
-        ok = false;
-    }
-    if (q.count != ENC_QUEUE_CAP) {
-        printf("encounter: 队列长度 %u ≠ %d\n", q.count, ENC_QUEUE_CAP);
+    if (q.count != ENC_QUEUE_LIMIT || q.dropped != 1 ||
+        q.items[0].species_id != 10 || q.items[q.count - 1].species_id != 14 ||
+        enc_queue_find(&q, expired)) {
+        printf("encounter: FIFO did not keep the newest five\n");
         ok = false;
     }
 
-    // ①b **uid 在淘汰后仍然认得出同一条** —— 这条是真机抓出来的。
-    //
-    // 玩家在 P3/P4 期间后台还在塞遭遇，队列满了淘汰会让下标整体左移。
-    // 用下标认的后果实测是：打的是 #64，抓到的是 #23，
-    // 而且连打三轮只有第一轮真的捕获（另两轮 take 落到别的条目上）。
-    //
-    // 被观察的那条必须是**最高稀有度**，否则它自己先被淘汰掉，
-    // 后面的断言根本不会执行（第一版就是这样，用 ★3 观察、灌 ★4，
-    // 它第 17 条进来时就被挤走了 —— 退化版本照样"通过"）。
-    enc_queue_init(&q);
-    e.rarity = 5; e.species_id = 111; e.ts = 1;
-    enc_queue_push(&q, &e);
-    uint16_t watched = q.items[0].uid;
-    uint8_t idx_before = 0;                    // 它现在在 0 号位
-
-    // 灌 ★1，触发淘汰。★5 不会被挤掉，但**它前面的位置会变**吗？
-    // 不会 —— 淘汰的是它后面的。所以还要制造一次「它左边的被挤掉」：
-    // 先塞几条 ★1 占住 0..n，再让它们被挤掉。
-    enc_queue_init(&q);
-    for (int i = 0; i < 3; i++) {              // 先放 3 条 ★1
-        e.rarity = 1; e.species_id = (uint16_t)(50 + i); e.ts = (uint32_t)(i);
-        enc_queue_push(&q, &e);
-    }
-    e.rarity = 5; e.species_id = 111; e.ts = 100;   // ★5 在 3 号位
-    enc_queue_push(&q, &e);
-    watched = q.items[3].uid;
-    idx_before = 3;
-
-    for (int i = 0; i < ENC_QUEUE_CAP + 6; i++) {   // 灌到淘汰
-        e.rarity = 2; e.species_id = (uint16_t)(20 + i); e.ts = (uint32_t)(200 + i);
-        enc_queue_push(&q, &e);
-    }
-
+    // ①b A retained uid follows its encounter as earlier entries are removed.
+    uint16_t watched = q.items[2].uid;
+    enc_queue_take(&q, 0, NULL);
     encounter_t *found = enc_queue_find(&q, watched);
-    if (!found) {
-        printf("encounter: ★5 被挤掉了 —— 淘汰规则错了\n");
+    encounter_t taken;
+    if (!found || found != &q.items[1] || found->species_id != 12 ||
+        !enc_queue_take_uid(&q, watched, &taken) || taken.species_id != 12) {
+        printf("encounter: shifted uid no longer identifies its encounter\n");
         ok = false;
-    } else {
-        if (found->species_id != 111) {
-            printf("encounter: uid %u 找到的是 #%u，不是 #111 —— 张冠李戴\n",
-                   watched, found->species_id);
-            ok = false;
-        }
-        // 下标确实变了才说明这个用例有意义
-        uint8_t idx_now = (uint8_t)(found - q.items);
-        if (idx_now == idx_before) {
-            printf("encounter: 下标没变（%u）—— 这个用例没测到东西\n", idx_now);
-            ok = false;
-        }
-        encounter_t taken;
-        if (!enc_queue_take_uid(&q, watched, &taken) ||
-            taken.species_id != 111) {
-            printf("encounter: take_uid 取到的不是 #111\n");
-            ok = false;
-        }
+    }
+
+    // Wrap must never collide with a live uid or issue reserved uid zero.
+    q.next_uid = q.items[0].uid;
+    enc_queue_push(&q, &e);
+    for (uint8_t i = 0; i < q.count; i++) {
+        if (!q.items[i].uid) ok = false;
+        for (uint8_t j = 0; j < i; j++)
+            if (q.items[i].uid == q.items[j].uid) ok = false;
     }
 
     // 取一个不存在的 uid 应当安静地失败，不能误伤别人
@@ -424,4 +363,154 @@ bool enc_selftest(void)
                "（淘汰规则 · uid 稳定 · 取走 · 图鉴位图 · 边界）\n");
     }
     return ok;
+}
+
+// Durable, device-local refresh planning. Unlike the legacy pure AP/hour
+// functions, serial and exploration history deliberately diversify each visit.
+#include "encounter_refresh.h"
+
+static uint32_t refresh_key(const uint8_t bssid[6])
+{
+    uint32_t key = CRC32(bssid, 6);
+    return key ? key : 1;
+}
+static int refresh_history(const enc_refresh_state_t *s, uint32_t key)
+{
+    for (unsigned i=0;i<s->history_count;i++) if(s->history[i].key==key)return (int)i;
+    return -1;
+}
+static bool refresh_species_present(const enc_queue_t *q, uint16_t species)
+{
+    for(unsigned i=0;i<q->count;i++) if(q->items[i].species_id==species)return true;
+    return false;
+}
+typedef struct {int selected,history;unsigned replacement;} refresh_choice_t;
+static refresh_choice_t refresh_select(const enc_refresh_state_t *s,const enc_refresh_ap_t *aps,unsigned n)
+{
+    int selected=-1, history=-1;
+    unsigned replacement=s->history_count;
+    if(replacement==ENC_REFRESH_HISTORY) {
+        replacement=0;
+        for(unsigned i=1;i<ENC_REFRESH_HISTORY;i++)
+            if(s->history[i].last_s<s->history[replacement].last_s)replacement=i;
+    }
+    bool room=s->history_count<ENC_REFRESH_HISTORY ||
+        s->online_s-s->history[replacement].last_s>=ENC_AP_COOLDOWN_S;
+    uint32_t oldest=UINT32_MAX;
+    // Prefer unvisited APs. Stable rotation avoids always selecting strongest RSSI.
+    for(unsigned k=0;k<n;k++) {
+        unsigned i=(k+s->serial%n)%n;
+        int h=refresh_history(s,refresh_key(aps[i].bssid));
+        if(h<0) {if(room){selected=(int)i;history=-1;break;}else continue;}
+        uint32_t last=s->history[h].last_s;
+        if(s->online_s-last>=ENC_AP_COOLDOWN_S && last<oldest) {
+            selected=(int)i;history=h;oldest=last;
+        }
+    }
+    return (refresh_choice_t){selected,history,replacement};
+}
+static bool refresh_one(enc_refresh_state_t *s, const enc_refresh_ap_t *aps,
+    unsigned n, bool hunt, enc_queue_t *q, dex_t *dex, uint16_t active_uid)
+{
+    refresh_choice_t choice=refresh_select(s,aps,n);
+    int selected=choice.selected,history=choice.history;
+    unsigned replacement=choice.replacement;
+    if(selected<0)return false;
+    const enc_refresh_ap_t *ap=&aps[selected];
+    uint32_t previous_discoveries=s->discoveries;
+    if(hunt && history<0 && s->discoveries<UINT32_MAX)s->discoveries++;
+    unsigned bonus=s->discoveries/10;
+    if(bonus>10)bonus=10;
+    uint32_t seed=enc_spawn_seed(ap->bssid,s->serial*3600u);
+    unsigned roll=(seed>>12)%1000;
+    uint8_t rarity=enc_rarity_from_ap(ap->rssi,ap->auth,ap->has_ssid,hunt);
+    uint8_t extra=roll<10+2*bonus?5:roll<60+4*bonus?4:roll<250+10*bonus?3:1;
+    if(extra>rarity)rarity=extra;
+    if(hunt && s->since_elite>=29)rarity=5;
+    else if(hunt && s->since_rare>=7 && rarity<4)rarity=4;
+    encounter_t e={.ts=s->online_s,.rarity=rarity,.hp_ratio=100,.is_transient=hunt};
+    // Reject all pending species, including entries about to be FIFO-evicted.
+    // A tier has >=8 species, so the five-entry queue cannot exhaust its pool.
+    bool found=false;
+    for(unsigned attempt=0;attempt<256;attempt++) {
+        uint32_t salt=(s->serial+attempt)*3600u;
+        e.species_id=enc_pick_species(ap->bssid,salt,rarity);
+        if(!refresh_species_present(q,e.species_id)) {
+            e.is_shiny=enc_roll_shiny(ap->bssid,salt,rarity);found=true;break;
+        }
+    }
+    if(!found) {s->discoveries=previous_discoveries;return false;}
+    if(history<0) {
+        history=(int)replacement;
+        s->history_next=(s->history_next+1)%ENC_REFRESH_HISTORY;
+        if(s->history_count<ENC_REFRESH_HISTORY)s->history_count++;
+    }
+    s->history[history]=(enc_ap_history_t){refresh_key(ap->bssid),s->online_s};
+    if(hunt) {
+        s->since_rare=rarity>=4?0:s->since_rare+1;
+        s->since_elite=rarity>=5?0:s->since_elite+1;
+    }
+    s->serial++;
+    while(!q->next_uid || q->next_uid==active_uid || enc_queue_find(q,q->next_uid))q->next_uid++;
+    enc_queue_push(q,&e);dex_mark_seen(dex,e.species_id,e.is_shiny);
+    return true;
+}
+uint8_t enc_refresh_scan(enc_refresh_state_t *s,const enc_refresh_ap_t *aps,
+    unsigned n,bool exploring,uint16_t distance_q10,enc_queue_t *q,dex_t *dex,uint16_t active_uid)
+{
+    if(!s||!aps||!n||n>64||!q||!dex||!enc_refresh_valid(s))return 0;
+    if(exploring) {
+        unsigned credit=s->hunt_q10+distance_q10;
+        s->hunt_q10=credit>ENC_HUNT_CREDIT_MAX?ENC_HUNT_CREDIT_MAX:credit;
+    }
+    uint8_t made=0;
+    while(exploring && s->hunt_q10>=1024 && made<4) {
+        if(!refresh_one(s,aps,n,true,q,dex,active_uid))break;
+        s->hunt_q10-=1024;made++;
+    }
+    if((!s->base_started || s->online_s>=s->next_base_s) &&
+        refresh_one(s,aps,n,false,q,dex,active_uid)) {
+        s->base_started=1;
+        s->next_base_s=s->online_s>UINT32_MAX-ENC_BASE_INTERVAL_S?UINT32_MAX:s->online_s+ENC_BASE_INTERVAL_S;
+        made++;
+    }
+    return made;
+}
+
+// V11: radio earns banked opportunities. No Pokémon, dex bits or rarity pity
+// are resolved until the player explores a selected route.
+static bool refresh_collect_one(enc_refresh_state_t *s,const enc_refresh_ap_t *aps,unsigned n,bool hunt)
+{
+    refresh_choice_t c=refresh_select(s,aps,n);
+    if(c.selected<0)return false;
+    if(c.history<0) {
+        if(hunt && s->discoveries<UINT32_MAX)s->discoveries++;
+        c.history=(int)c.replacement;
+        if(s->history_count<ENC_REFRESH_HISTORY)s->history_count++;
+        s->history_next=(s->history_next+1)%ENC_REFRESH_HISTORY;
+    }
+    s->history[c.history]=(enc_ap_history_t){refresh_key(aps[c.selected].bssid),s->online_s};
+    s->serial++;
+    return true;
+}
+uint8_t enc_refresh_collect(enc_refresh_state_t *s,const enc_refresh_ap_t *aps,unsigned n,
+    bool exploring,uint16_t distance_q10,uint8_t room)
+{
+    if(!s||!aps||!n||n>64||!enc_refresh_valid(s))return 0;
+    if(exploring) {
+        unsigned credit=s->hunt_q10+distance_q10;
+        s->hunt_q10=credit>ENC_HUNT_CREDIT_MAX?ENC_HUNT_CREDIT_MAX:credit;
+    }
+    uint8_t made=0;
+    while(exploring && s->hunt_q10>=1024 && made<4 && made<room) {
+        if(!refresh_collect_one(s,aps,n,true))break;
+        s->hunt_q10-=1024;made++;
+    }
+    if(made<room && (!s->base_started||s->online_s>=s->next_base_s) &&
+        refresh_collect_one(s,aps,n,false)) {
+        s->base_started=1;
+        s->next_base_s=s->online_s>UINT32_MAX-ENC_BASE_INTERVAL_S?UINT32_MAX:s->online_s+ENC_BASE_INTERVAL_S;
+        made++;
+    }
+    return made;
 }

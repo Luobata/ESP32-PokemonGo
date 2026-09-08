@@ -1,0 +1,314 @@
+[
+  {
+    "id": 0,
+    "name": "brock",
+    "source": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/brock.png",
+    "sha256": "5ec4d45eb715343e7531a4f1930d6ae25ea5886e5b35b4400aa04a5b4ca44da7",
+    "size": [
+      56,
+      56
+    ]
+  },
+  {
+    "id": 1,
+    "name": "misty",
+    "source": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/misty.png",
+    "sha256": "66317b415d8195860316804946f0ec2dec19a0ea1687ace56bef9d758281f109",
+    "size": [
+      56,
+      56
+    ]
+  },
+  {
+    "id": 2,
+    "name": "lt_surge",
+    "source": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/lt_surge.png",
+    "sha256": "fdd5f6cce7e5df8eedd20c811e75f7b0f5e8164edc54fb644395ee77e4d4beff",
+    "size": [
+      56,
+      56
+    ]
+  },
+  {
+    "id": 3,
+    "name": "erika",
+    "source": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/erika.png",
+    "sha256": "44d38989a5adb017ba22e73b073f158a6ae75fa170b05e8b07d2545b776ae58c",
+    "size": [
+      56,
+      56
+    ]
+  },
+  {
+    "id": 4,
+    "name": "koga",
+    "source": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/koga.png",
+    "sha256": "8224aff367b027a9e1989abb7c2aad3f0c5a10597ff313541716c9be42327ba1",
+    "size": [
+      56,
+      56
+    ]
+  },
+  {
+    "id": 5,
+    "name": "sabrina",
+    "source": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/sabrina.png",
+    "sha256": "67c46186e57614b05fab6b8c505c977a9499e0d6aa7063a13ae7eec1a442a37a",
+    "size": [
+      56,
+      56
+    ]
+  },
+  {
+    "id": 6,
+    "name": "blaine",
+    "source": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/blaine.png",
+    "sha256": "819c709298c946dbb3ce06eb399c0fd6f210334c6fa7307be21332785090facc",
+    "size": [
+      56,
+      56
+    ]
+  },
+  {
+    "id": 7,
+    "name": "giovanni",
+    "source": "https://github.com/pret/pokered/blob/a1a22aaf84d1675bcdbaeb194592379d586d838e/gfx/trainers/giovanni.png",
+    "sha256": "2544f22f912e0e11ecf7ceb12daf23878df11947b7d1628be981a86ea52434f3",
+    "size": [
+      56,
+      56
+    ]
+  },
+  {
+    "id": 8,
+    "name": "lorelei",
+    "source": "https://github.com/pret/pokered/blob/a1a22aaf84d1675bcdbaeb194592379d586d838e/gfx/trainers/lorelei.png",
+    "sha256": "d8c7aff7064afd9e5ce3d2148062cee7128f899e02f1f894facc268b52be61fc",
+    "size": [
+      56,
+      56
+    ]
+  },
+  {
+    "id": 9,
+    "name": "bruno",
+    "source": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/bruno.png",
+    "sha256": "af1ba3cba427024f031f133122539fd5a16807b273f4a319231e782e7beadb75",
+    "size": [
+      56,
+      56
+    ]
+  },
+  {
+    "id": 10,
+    "name": "agatha",
+    "source": "https://github.com/pret/pokered/blob/a1a22aaf84d1675bcdbaeb194592379d586d838e/gfx/trainers/agatha.png",
+    "sha256": "158bc1a6f4f0dbfc75d3e53e2b9f92daf6a85020f8ee054ccd53db3181c5f982",
+    "size": [
+      56,
+      56
+    ]
+  },
+  {
+    "id": 11,
+    "name": "lance",
+    "source": "https://github.com/pret/pokered/blob/a1a22aaf84d1675bcdbaeb194592379d586d838e/gfx/trainers/lance.png",
+    "sha256": "adc5ee49a648f88bbac9679026ff99bfbab0bcd631875aab2f3d06a0589ff514",
+    "size": [
+      56,
+      56
+    ]
+  },
+  {
+    "id": 12,
+    "name": "blue",
+    "source": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/blue.png",
+    "sha256": "940f8ab4e6e227ab873492f3f5315dcb5dde0725766ec7ac8e7242798190d35d",
+    "size": [
+      56,
+      56
+    ]
+  },
+  {
+    "id": 13,
+    "name": "red",
+    "source": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/red.png",
+    "sha256": "0ed56920809da9a31e71e991e9d580321a80db7b62e2d63892825b7c696ec1a2",
+    "size": [
+      56,
+      56
+    ]
+  },
+  {
+    "id": 14,
+    "name": "chris_back",
+    "source": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/player/chris_back.png",
+    "sha256": "287057b19f862e95c66036f4c3edf7c2961c80092ec5c37637de55beead1e5cf",
+    "size": [
+      48,
+      48
+    ]
+  },
+  {
+    "name": "Kanto badges",
+    "source": "https://github.com/pret/pokered/blob/a1a22aaf84d1675bcdbaeb194592379d586d838e/gfx/trainer_card/badges.png",
+    "sha256": "457af952e3c2b94c915be4aa7cad3e2eed9b4522ad546470ea461545ef941928",
+    "layout": "16px badge rows at y=16+32*i, original gray palette"
+  },
+  {
+    "name": "supported Gen-I status learnsets",
+    "learnset_sha256": "7bedae558d8238d63d7f884aee6979c4bed7af17c77b125be9a670b0e6e83ba4",
+    "moves": [
+      {
+        "id": 14,
+        "source": "https://pokeapi.co/api/v2/move/14/",
+        "sha256": "064988ad0345d5a44233a8f1f3268ce60a45d6dbe887db3be6ac487b0f212769"
+      },
+      {
+        "id": 39,
+        "source": "https://pokeapi.co/api/v2/move/39/",
+        "sha256": "b0f876295b113d9c3466431d9c067933f02d97cc2898a38df40c5324db8136f9"
+      },
+      {
+        "id": 43,
+        "source": "https://pokeapi.co/api/v2/move/43/",
+        "sha256": "c957f4897d2b8f5fcd228f2b6e65bc181258998f9ff3afad3828e2bb582b5c07"
+      },
+      {
+        "id": 45,
+        "source": "https://pokeapi.co/api/v2/move/45/",
+        "sha256": "6915e2cb051aa3d92796969aa370bcdedfab62f0f04c083492ca544bcafca2b9"
+      },
+      {
+        "id": 47,
+        "source": "https://pokeapi.co/api/v2/move/47/",
+        "sha256": "5326fb4c6bd06139c147dec7300ef555afa6841f0382b7f7f369eaebaa33a7f9"
+      },
+      {
+        "id": 73,
+        "source": "https://pokeapi.co/api/v2/move/73/",
+        "sha256": "b388d466f77fccafbf1885b596529f040ce67db6280befebeef207bb2d314c89"
+      },
+      {
+        "id": 74,
+        "source": "https://pokeapi.co/api/v2/move/74/",
+        "sha256": "9aa9c67bc118e85e653556fdd6fe7f0b8c4a181da3aafa71b0746a5c0eadd9c5"
+      },
+      {
+        "id": 77,
+        "source": "https://pokeapi.co/api/v2/move/77/",
+        "sha256": "7da7f67084992489e6c87a6e6acd00872a15a022c2049a9abf0e63e4cbba8601"
+      },
+      {
+        "id": 78,
+        "source": "https://pokeapi.co/api/v2/move/78/",
+        "sha256": "441ac938b5b41ac3d90629d68dc0063405ffc99137777b089657f5b8adf834bf"
+      },
+      {
+        "id": 79,
+        "source": "https://pokeapi.co/api/v2/move/79/",
+        "sha256": "31c30e0ee73d27e65b92c16d81f0a92c5624582f9e29cb6bddfca87ff832886e"
+      },
+      {
+        "id": 81,
+        "source": "https://pokeapi.co/api/v2/move/81/",
+        "sha256": "48b7167ae02d013c962d6fabec29b5a4e520004c3b99be9fee9351838e6ca89f"
+      },
+      {
+        "id": 86,
+        "source": "https://pokeapi.co/api/v2/move/86/",
+        "sha256": "faf9af36e8b6be0c71e801537cc4ee3cff9932449947d8299dc2b5eb8a647547"
+      },
+      {
+        "id": 92,
+        "source": "https://pokeapi.co/api/v2/move/92/",
+        "sha256": "c5fccc6f3fe962cc43a72d4e488146b3c78ac0f2ed3cc7a9f9f7ca5a2994c229"
+      },
+      {
+        "id": 96,
+        "source": "https://pokeapi.co/api/v2/move/96/",
+        "sha256": "cb112a696a6ae9b1cc5d17b62423aa2fc985b723c16ab93d19d67be6084bb897"
+      },
+      {
+        "id": 97,
+        "source": "https://pokeapi.co/api/v2/move/97/",
+        "sha256": "5bdd2f87606c931b00c149d3cf3a76c42910fcd13af175b0d60ec58a96cda8f6"
+      },
+      {
+        "id": 105,
+        "source": "https://pokeapi.co/api/v2/move/105/",
+        "sha256": "cfb017fab2b112072a4f9fa9deef24275cd4f3600bb387379bc53370f9436811"
+      },
+      {
+        "id": 106,
+        "source": "https://pokeapi.co/api/v2/move/106/",
+        "sha256": "4bccf710c930a83465d4a5afa9d4684bf9b4228d37e2476459574b97bf569637"
+      },
+      {
+        "id": 110,
+        "source": "https://pokeapi.co/api/v2/move/110/",
+        "sha256": "9d32b2a9af0a7a249ec015af4efb81782dfed307f7f620e88f947d4c4cb9abcb"
+      },
+      {
+        "id": 111,
+        "source": "https://pokeapi.co/api/v2/move/111/",
+        "sha256": "5c9f3e6f9927f7a95fd681e146c33119d789dedde555e22efd218978a2fd24db"
+      },
+      {
+        "id": 112,
+        "source": "https://pokeapi.co/api/v2/move/112/",
+        "sha256": "af802781ee69ee88e2e65e2df150b65692b60d88ec5e20961531b01b37100d75"
+      },
+      {
+        "id": 113,
+        "source": "https://pokeapi.co/api/v2/move/113/",
+        "sha256": "7a35ece8fffa688ab0e3ee44e1e08e4fc8cf23cfd662505832e8471d2b680d33"
+      },
+      {
+        "id": 115,
+        "source": "https://pokeapi.co/api/v2/move/115/",
+        "sha256": "965287c471360770c24ce37393394cb2f17629cef8afb8aed8e42e0f1faf98b7"
+      },
+      {
+        "id": 133,
+        "source": "https://pokeapi.co/api/v2/move/133/",
+        "sha256": "fffb617e28f30f00370c0ae408e9ef2b85c114172b94b59e681de1f397f3ee9e"
+      },
+      {
+        "id": 135,
+        "source": "https://pokeapi.co/api/v2/move/135/",
+        "sha256": "b9d74b6a351d15c67083bbf26534c72e257a2276b79bb52c3696a16c44df9d3f"
+      },
+      {
+        "id": 137,
+        "source": "https://pokeapi.co/api/v2/move/137/",
+        "sha256": "160ac1d1687eb53ef9cf2780d43fdbc04ea6c8e7aaf06fab9b0d4222a3f539eb"
+      },
+      {
+        "id": 139,
+        "source": "https://pokeapi.co/api/v2/move/139/",
+        "sha256": "19af927a2f26ae7a1f5b92ecbdab73e120a49a403a436c8e1577eeb856590c7d"
+      },
+      {
+        "id": 142,
+        "source": "https://pokeapi.co/api/v2/move/142/",
+        "sha256": "cf03f6ffe8840f19ed3713eb5de0b51a031035bc00631ed01b738c72eaa2add7"
+      },
+      {
+        "id": 151,
+        "source": "https://pokeapi.co/api/v2/move/151/",
+        "sha256": "9e71fc388d24af0638fb2167210d44e12ab0414590120e73b09c592e53e974bc"
+      },
+      {
+        "id": 156,
+        "source": "https://pokeapi.co/api/v2/move/156/",
+        "sha256": "8e33159c60fef5c84457d09743bd69c5c372a65be98cae66d469c2b88f8c15da"
+      },
+      {
+        "id": 159,
+        "source": "https://pokeapi.co/api/v2/move/159/",
+        "sha256": "093ef5c7cddc853718bff30d640234383aa1d995ace721f429cb71c4eb20db06"
+      }
+    ]
+  }
+]

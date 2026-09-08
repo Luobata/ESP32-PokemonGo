@@ -35,3 +35,21 @@ firmware/managed_components/
 
 # 浏览器自动化的运行日志与报告（每次跑都变，不是源码）
 midscene_run/
+
+# Local recordings and build/serial logs: publish final videos and JSON summaries only.
+reports/**/*.log
+reports/**/*.wav
+reports/**/*silent.mp4
+reports/**/music_preview
+reports/**/music_preview.c
+release/
+
+# Required runtime snapshot: a fresh checkout must build without private asset caches.
+!assets/gen1.bin
+!assets/gen1_front.bin
+!assets/gen1_back.bin
+!assets/palettes.bin
+!assets/font16.bin
+!assets/font16_charset.txt
+!assets/moves.bin
+!assets/ui.bin

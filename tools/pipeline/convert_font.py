@@ -110,7 +110,7 @@ def _names_from_bin(path: str) -> set:
 def _firmware_chars(repo: str) -> tuple[set, int]:
     """扫固件源码里字符串字面量中的汉字。
 
-    只扫 firmware/main/*.c —— 页面文案都在那里。
+    扫描页面 C 源码及头文件中的生成招式名。
     跳过注释行（注释里的汉字不上屏，收了纯属浪费）。
 
     **宁可多收不可少收**：ESP_LOGI 的字面量也会被收进来，
@@ -123,7 +123,7 @@ def _firmware_chars(repo: str) -> tuple[set, int]:
     chars: set = set()
     n = 0
     pat = re.compile(r'"((?:[^"\\]|\\.)*)"')
-    for path in sorted(glob.glob(os.path.join(repo, "firmware", "main", "*.c"))):
+    for path in sorted(glob.glob(os.path.join(repo, "firmware", "main", "*.c")) + glob.glob(os.path.join(repo, "firmware", "main", "*.h"))):
         n += 1
         with open(path, encoding="utf-8") as f:
             for line in f:

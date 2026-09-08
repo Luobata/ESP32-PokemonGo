@@ -28,14 +28,22 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stddef.h>
 
 #include "encounter.h"
 #include "nurture.h"
 #include "party.h"
+#include "items.h"
+#include "trainer.h"
+#include "trainer_legacy.h"
+#include "achievements.h"
+#include "encounter_refresh.h"
+#include "exploration.h"
 
 // 存档版本。**加字段时必须 +1** —— load 会拒绝不认识的版本，
 // 那比读到错位的字段好（错位不报错，只是数值离谱）。
-#define SAVE_VERSION 5
+#define SAVE_VERSION 11
+#define SAVE_LEGACY_VERSION 5
 
 typedef struct {
     uint16_t version;
@@ -68,7 +76,153 @@ typedef struct {
     // S16 开场只播一次。save.c 同时用独立的单调 NVS 键保存它，避免
     // world 生成整块快照时把这个页面侧字段清零。
     bool opening_seen;
+} save_v5_t;
+
+// The first 2296 bytes retain V5's exact layout, including tail padding. This
+// makes migration a bounded prefix read; all new inventory fields are explicit.
+typedef struct {
+    uint16_t version;
+    nurture_t pet;
+    uint16_t species;
+    uint8_t level;
+    uint32_t exp;
+    uint8_t party[PARTY_BYTES];
+    enc_queue_t queue;
+    dex_t dex;
+    uint32_t motion_q10, scans;
+    int64_t last_uptime_us;
+    bool opening_seen;
+    uint8_t legacy_padding[sizeof(save_v5_t) - offsetof(save_v5_t, opening_seen) - sizeof(bool)];
+    inventory_t inventory;
+} save_v6_t;
+
+typedef struct {
+    union {
+        save_v6_t v6;
+        struct {
+    uint16_t version;
+    nurture_t pet;
+    uint16_t species;
+    uint8_t level;
+    uint32_t exp;
+    uint8_t party[PARTY_BYTES];
+    enc_queue_t queue;
+    dex_t dex;
+    uint32_t motion_q10, scans;
+    int64_t last_uptime_us;
+    bool opening_seen;
+    uint8_t legacy_padding[sizeof(save_v5_t) - offsetof(save_v5_t, opening_seen) - sizeof(bool)];
+    inventory_t inventory;
+
+        };
+    };
+    trainer_store_v8_t challenge;
+} save_v7_t;
+
+typedef struct {
+    union {
+        save_v7_t v7;
+        struct {
+    union {
+        save_v6_t v6;
+        struct {
+    uint16_t version;
+    nurture_t pet;
+    uint16_t species;
+    uint8_t level;
+    uint32_t exp;
+    uint8_t party[PARTY_BYTES];
+    enc_queue_t queue;
+    dex_t dex;
+    uint32_t motion_q10, scans;
+    int64_t last_uptime_us;
+    bool opening_seen;
+    uint8_t legacy_padding[sizeof(save_v5_t) - offsetof(save_v5_t, opening_seen) - sizeof(bool)];
+    inventory_t inventory;
+
+        };
+    };
+    trainer_store_v8_t challenge;
+        };
+    };
+    achievement_store_t achievements;
+} save_v8_t;
+
+// V9 keeps the established V6 party/inventory prefix, then the expanded combat state.
+typedef struct {
+ union {
+  save_v6_t v6;
+  struct {
+   uint16_t version; nurture_t pet; uint16_t species; uint8_t level; uint32_t exp;
+   uint8_t party[PARTY_BYTES]; enc_queue_t queue; dex_t dex; uint32_t motion_q10,scans;
+   int64_t last_uptime_us; bool opening_seen;
+   uint8_t legacy_padding[sizeof(save_v5_t)-offsetof(save_v5_t,opening_seen)-sizeof(bool)];
+   inventory_t inventory;
+  };
+ };
+ trainer_store_t challenge;
+ achievement_store_t achievements;
+} save_v9_t;
+typedef struct {
+ union {
+  save_v9_t v9;
+  struct {
+ union {
+  save_v6_t v6;
+  struct {
+   uint16_t version; nurture_t pet; uint16_t species; uint8_t level; uint32_t exp;
+   uint8_t party[PARTY_BYTES]; enc_queue_t queue; dex_t dex; uint32_t motion_q10,scans;
+   int64_t last_uptime_us; bool opening_seen;
+   uint8_t legacy_padding[sizeof(save_v5_t)-offsetof(save_v5_t,opening_seen)-sizeof(bool)];
+   inventory_t inventory;
+  };
+ };
+ trainer_store_t challenge;
+ achievement_store_t achievements;
+
+  };
+ };
+ enc_refresh_state_t refresh;
+} save_v10_t;
+typedef struct {
+ union {
+  save_v10_t v10;
+  struct {
+ union {
+  save_v9_t v9;
+  struct {
+ union {
+  save_v6_t v6;
+  struct {
+   uint16_t version; nurture_t pet; uint16_t species; uint8_t level; uint32_t exp;
+   uint8_t party[PARTY_BYTES]; enc_queue_t queue; dex_t dex; uint32_t motion_q10,scans;
+   int64_t last_uptime_us; bool opening_seen;
+   uint8_t legacy_padding[sizeof(save_v5_t)-offsetof(save_v5_t,opening_seen)-sizeof(bool)];
+   inventory_t inventory;
+  };
+ };
+ trainer_store_t challenge;
+ achievement_store_t achievements;
+
+  };
+ };
+ enc_refresh_state_t refresh;
+
+  };
+ };
+ exploration_state_t exploration;
 } save_t;
+_Static_assert(sizeof(save_v10_t)==3648,"V10 save layout changed");
+_Static_assert(offsetof(save_t,exploration)==sizeof(save_v10_t),"V11 preserves V10 prefix");
+_Static_assert(sizeof(save_v9_t)==3104,"V9 save layout changed");
+_Static_assert(offsetof(save_t,refresh)==sizeof(save_v9_t),"V10 preserves V9 prefix");
+_Static_assert(sizeof(save_v8_t)==2696,"V8 save layout changed");
+_Static_assert(sizeof(save_v7_t) == 2688, "V7 save layout changed");
+_Static_assert(offsetof(save_v8_t, achievements) == sizeof(save_v7_t), "V8 preserves V7 prefix");
+_Static_assert(offsetof(save_t, challenge) == sizeof(save_v6_t), "V7 preserves V6 prefix");
+_Static_assert(sizeof(save_v5_t) == 2296, "legacy save layout changed");
+_Static_assert(offsetof(save_t, inventory) == sizeof(save_v5_t), "V6 must preserve the complete V5 prefix");
+_Static_assert(offsetof(save_t, opening_seen) == offsetof(save_v5_t, opening_seen), "V5 field offset changed");
 
 // 初始化 NVS。**在任何 save_read/write 之前调**。
 // 幂等，且不依赖 WiFi —— 见 save.c 里那段（这条依赖搞反过一次：
@@ -79,7 +233,18 @@ bool save_init(void);
 // 存。**会阻塞几毫秒**（flash 写），别在渲染循环里调。
 bool save_write(const save_t *s);
 
-// 读。没有存档或版本不认识时返回 false，调用方该用初始状态。
+typedef enum {
+    SAVE_READ_OK = 0,
+    SAVE_READ_EMPTY,
+    SAVE_READ_ERROR,
+    SAVE_READ_MIGRATED, // Valid V5 decoded with its one-time initial inventory.
+} save_read_result_t;
+
+// Distinguish a genuinely absent save from unreadable/unsupported data. Only
+// EMPTY permits new-game writes; ERROR must preserve the existing NVS bytes.
+save_read_result_t save_read_status(save_t *out);
+
+// Compatibility wrapper. false does not imply a new game; world uses status.
 bool save_read(save_t *out);
 
 // 清档（调试用）。

@@ -75,6 +75,11 @@ static const note_t NOTES_ENCOUNTER[] = {
     NOTE(79, DUR_60, 1, ENV_PLUCK, VOL_100),
     NOTE(84, DUR_120, 1, ENV_FADE, VOL_100),
 };
+// Project-composed rare encounter arpeggio, distinct from the shiny sparkle.
+static const note_t NOTES_RARE[] = {
+ NOTE(72,DUR_70,1,ENV_PLUCK,VOL_100), NOTE(79,DUR_70,1,ENV_PLUCK,VOL_100),
+ NOTE(84,DUR_70,1,ENV_PLUCK,VOL_100), NOTE(91,DUR_220,1,ENV_FADE,VOL_100),
+};
 static const note_t NOTES_BALL_SQUARE[] = {
     NOTE(81, DUR_160, 0, ENV_PLUCK, VOL_100),
 };
@@ -132,6 +137,7 @@ static const note_t NOTES_MENU[] = {
 
 static const track_t TRACKS_BOOT_1[] = { TRACK(NOTES_BOOT_1, WAVE_SQUARE, SWEEP_NONE) };
 static const track_t TRACKS_BOOT_2[] = { TRACK(NOTES_BOOT_2, WAVE_SQUARE, SWEEP_NONE) };
+static const track_t TRACKS_RARE[] = { TRACK(NOTES_RARE, WAVE_SQUARE, SWEEP_NONE) };
 static const track_t TRACKS_ENCOUNTER[] = { TRACK(NOTES_ENCOUNTER, WAVE_SQUARE, SWEEP_NONE) };
 static const track_t TRACKS_BALL[] = {
     TRACK(NOTES_BALL_SQUARE, WAVE_SQUARE, SWEEP_DOWN),
@@ -166,6 +172,7 @@ static const effect_t EFFECTS[SFX_COUNT] = {
     EFFECT(TRACKS_LEVEL_UP, 325),
     EFFECT(TRACKS_CARE, 140),
     EFFECT(TRACKS_MENU, 24),
+    EFFECT(TRACKS_RARE, 430),
 };
 
 static const uint32_t MIDI_HZ_Q8[128] = {
@@ -396,3 +403,5 @@ uint32_t audio_render(sfx_id_t id, uint32_t from, uint32_t count, int16_t *out)
     for (uint32_t i = 0; i < count; i++) out[i] = render_next();
     return count;
 }
+
+sfx_id_t audio_encounter_alert(uint8_t rarity, bool shiny) { return shiny ? SFX_SHINY : rarity >= 4 ? SFX_RARE : SFX_ENCOUNTER; }

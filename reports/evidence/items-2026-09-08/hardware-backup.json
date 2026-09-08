@@ -1,0 +1,48 @@
+{
+  "backup": "/Users/bytedance/luobata/ESP32-PokemonGo/.device-backup/flash-before-items-silent-20260908.bin",
+  "bytes": 8388608,
+  "sha256": "97e8720c4acaf787cdc3c075e6a2c780ab7855f0ab34c95788db0005931874d2",
+  "partitions": [
+    {
+      "name": "nvs",
+      "type": 1,
+      "subtype": 2,
+      "offset": 36864,
+      "size": 24576,
+      "flags": 0
+    },
+    {
+      "name": "phy_init",
+      "type": 1,
+      "subtype": 1,
+      "offset": 61440,
+      "size": 4096,
+      "flags": 0
+    },
+    {
+      "name": "factory",
+      "type": 0,
+      "subtype": 0,
+      "offset": 65536,
+      "size": 3145728,
+      "flags": 0
+    },
+    {
+      "name": "cardid",
+      "type": 1,
+      "subtype": 2,
+      "offset": 3497984,
+      "size": 16384,
+      "flags": 0
+    },
+    {
+      "name": "recovery",
+      "type": 0,
+      "subtype": 32,
+      "offset": 7340032,
+      "size": 1048576,
+      "flags": 0
+    }
+  ],
+  "after_backup": "no_reset (ROM download mode)"
+}

@@ -1,0 +1,26 @@
+{
+  "build": "3d069d91a0c3bb797d55",
+  "fixture": "boot 5 25 12 74 3 1 0",
+  "method": "Actual browser Canvas RGBA readback compared with a separate production-C native Renderer",
+  "frames": [
+    {
+      "label": "P5 front Pikachu",
+      "commandsAfterBoot": [],
+      "ms": 0,
+      "browserRgbaSha256": "d37dc89f47113e9c2d1a5b5bc6bf0a98595ef051785d4a14db7b49d96b44c653",
+      "nativeRgbaSha256": "d37dc89f47113e9c2d1a5b5bc6bf0a98595ef051785d4a14db7b49d96b44c653"
+    },
+    {
+      "label": "P6 page 2, caught Pikachu front thumbnail",
+      "commandsAfterBoot": ["page 6", "key 1 1"],
+      "ms": 0,
+      "browserRgbaSha256": "ee828e0a02974589113c9eb8057b612348f699d94319228f65444c8cafa65cb1",
+      "nativeRgbaSha256": "ee828e0a02974589113c9eb8057b612348f699d94319228f65444c8cafa65cb1"
+    }
+  ],
+  "browserInteractions": ["P5 load", "P6 next page", "P6 previous page", "P6 return to P1"],
+  "nativeDirtyRedrawComparisons": 848,
+  "espIdfBuild": "passed",
+  "appBytesHex": "0x175dd0",
+  "flashed": false
+}

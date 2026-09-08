@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "build": "06fd9c5e4007d1153b88",
+  "dirty_full_checks": 102,
+  "same_species_levels": [
+    12,
+    45
+  ],
+  "failed_switch_bag_stayed": 12,
+  "new_leader_intimacy_after_cookie": 42,
+  "battle_visible_level": 45,
+  "scope": "Actual C party/menu/bag/care/battle/nav with host world fixture; same-species members distinguished by full saved fields"
+}

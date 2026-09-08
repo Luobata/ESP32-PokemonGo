@@ -1,0 +1,8 @@
+{
+  "build": "b89596dac0f6a9a529a1",
+  "page": "P12",
+  "long_C_black_canvas": true,
+  "second_C_wake_same_page": true,
+  "dirty_pixels": 0,
+  "scope": "In-app browser actual UI gesture selector and C buttons; physical pointer hold timing covered by Node input tests."
+}

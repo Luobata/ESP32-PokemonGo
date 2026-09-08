@@ -345,8 +345,8 @@ def roll_encounter(
 # 每小时衰减速率。这些值需要用真实数据调 —— 见 docs/07-roadmap.md#71
 SATIETY_DECAY_PER_HOUR = 4.0
 MOOD_DECAY_PER_HOUR = 3.0
-STAMINA_RECOVER_PER_HOUR = 6.0
-STAMINA_COST_PER_MOTION_EVENT = 2.0
+STAMINA_RECOVER_PER_HOUR = 12.0
+STAMINA_COST_PER_MOTION_EVENT = 0.0
 
 LOW_THRESHOLD = 25.0     # 低于此值进入消沉
 DESPONDENT_PENALTY = 0.6  # 消沉时能力打折系数
@@ -446,7 +446,11 @@ class PetState:
         self.intimacy = min(100.0, self.intimacy + 1.0)
 
     def rest(self, hours: float = 8.0) -> None:
-        self.stamina = min(100.0, self.stamina + STAMINA_RECOVER_PER_HOUR * hours)
+        pass  # Only elapsed tick time restores stamina; no instant rest credit.
+
+    def defeat(self) -> None:
+        self.stamina = max(0.0, self.stamina - 20.0)
+        self.mood = max(0.0, self.mood - 15.0)
 
     def on_new_place(self) -> None:
         """去了新地方 —— 心情加成（可再生信号，不会衰减到零）。

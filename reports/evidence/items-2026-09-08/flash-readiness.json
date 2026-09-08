@@ -1,0 +1,13 @@
+{
+  "status": "READY_TO_FLASH",
+  "firmware_build_exit_code": 0,
+  "inspector_build_exit_code": 0,
+  "inspector_manifest_matches": true,
+  "native_build": "228718009b2f7897a4cd",
+  "silent_boot": true,
+  "image_bytes": 1639120,
+  "image_sha256": "5b3b0e3c3434f60676666a0c1bcbc3d07b13b5f4540ab83a84a42d64be393c7e",
+  "app_offset": "0x10000",
+  "app_capacity": 3145728,
+  "backup_sha256": "97e8720c4acaf787cdc3c075e6a2c780ab7855f0ab34c95788db0005931874d2"
+}

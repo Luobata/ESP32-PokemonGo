@@ -15,7 +15,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define ENC_QUEUE_CAP 16          // 与 sim 的 QUEUE_CAP 一致，16×8B = 128 B
+// Keep the physical V5 save layout unchanged; gameplay only exposes five.
+#define ENC_QUEUE_CAP 16
+#define ENC_QUEUE_LIMIT 5
 #define DEX_SPECIES 151
 #define DEX_BYTES ((DEX_SPECIES + 7) / 8)    // 19
 
@@ -23,7 +25,7 @@
 typedef struct {
     // 稳定标识。**不能用队列下标认这一条** ——
     // 玩家在 P3/P4 期间后台还在往队列里塞，而队列满了会淘汰
-    // 「最低稀有度里最旧的」，那会把后面的条目整体左移。
+    // 第一条，那会把后面的条目整体左移。
     //
     // 实测症状：打的是 #64，抓到的却是 #23；连打三轮只有第一轮
     // 真的捕获，另外两轮的 take 落在别的条目上，队列还越攒越多。
@@ -57,11 +59,13 @@ typedef struct {
 
 void enc_queue_init(enc_queue_t *q);
 
-// 入队。满了丢**最旧的低稀有度**那条，不是单纯最旧 ——
-// 玩家一天可能遇 30 次而只处理 10 次，单纯丢最旧会让攒到的稀有个体
-// 被后来的常见个体挤掉，那与「稀有度驱动收集」矛盾。
+// 入队。最多五条，满后无条件淘汰第一条，再把新遭遇放到末尾。
 // 返回是否发生了淘汰。
 bool enc_queue_push(enc_queue_t *q, const encounter_t *e);
+
+// Validated legacy V5 queues may contain up to 16 entries. Keep the newest five
+// in their existing order; return how many entries were removed.
+uint8_t enc_queue_trim(enc_queue_t *q);
 
 // 按下标取走（P2 的丢弃用 —— 那一刻下标是准的）。
 bool enc_queue_take(enc_queue_t *q, uint8_t index, encounter_t *out);
