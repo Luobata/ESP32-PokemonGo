@@ -111,12 +111,12 @@ static void battle_stage(int y){
  if(wild_revealing&&wild_visible&&front&&assets_species(e->transform_species?e->transform_species:e->species,&sp)){assets_palette_variant(sp.palette,false,palette);game_ui_sprite_centered(y,wild.x+pose.wild_dx,wild.y,112,112,front,size,size,2,palette);}
  sprite_asset_t back;
  if(pet_revealing&&pet_visible&&assets_back_sprite_info(p->transform_species?p->transform_species:p->species,&back)&&assets_species(p->transform_species?p->transform_species:p->species,&sp)){unsigned slot=s_store.session.sides[0].active;bool shiny=slot<s_campaign_party.count&&(s_campaign_party.members[slot].flags&1);assets_palette_variant(sp.palette,shiny,palette);game_ui_sprite_centered(y,pet.x+pose.pet_dx,pet.y,96,96,back.data,back.w,back.h,2,palette);}
- if(s_mode==FIGHT&&(s_event.kind==TRAINER_ATTACK||s_event.kind==TRAINER_STATUS))battle_fx_draw_band(&s_event.attack,s_frame,y,pet,wild);
  name(p->species,label,sizeof(label));render_text(120,156-y,label,GAME_UI_INK);
  snprintf(text,sizeof(text),"Lv%u %s",p->level,status_names[p->status]);render_text(120,176-y,text,GAME_UI_MUTED);
  battle_hud_draw_hp(rectangle,&y,120,196,4,2,BATTLE_HUD_PET,visible_hp(0),p->max_hp,GAME_UI_BG);
  snprintf(text,sizeof(text),"%u/%u",visible_hp(0),p->max_hp);
  render_text(232-render_text_width(text),216-y,text,GAME_UI_INK);
+ if(s_mode==FIGHT&&(s_event.kind==TRAINER_ATTACK||s_event.kind==TRAINER_STATUS))battle_fx_draw_band(&s_event.attack,s_frame,y,pet,wild);
  battle_hud_draw_message_box(rectangle,&y,0,240,15,5,2,GAME_UI_BG);
  if(s_failed){game_ui_text_fitted(y,16,256,208,"保存失败 按A重试",GAME_UI_INK);}
  else if(s_mode==FIGHT){

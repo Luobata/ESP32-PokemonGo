@@ -2,7 +2,7 @@
 <style>
 *{box-sizing:border-box}body{margin:0;background:#f2efe5;color:#29302b;font:15px/1.6 system-ui}main{max-width:1080px;margin:auto;padding:24px}header{border-bottom:2px solid;padding-bottom:16px;margin-bottom:24px}h1{font-size:24px;margin:0}a{color:#355c3d}.layout{display:grid;grid-template-columns:300px 1fr;gap:32px}label{display:block;margin-top:14px}select,input,button{font:inherit;padding:8px;border:1px solid #899081;border-radius:3px;background:#fffdf5;color:inherit;width:100%}button{cursor:pointer}.row{display:flex;gap:8px;margin-top:12px}.screen{padding:16px;background:#363e35;border-radius:8px;display:inline-block}canvas{display:block;width:480px;height:640px;image-rendering:pixelated;max-width:100%}.note{font-size:13px;color:#555e54}#status{min-height:48px}button:disabled{opacity:.45;cursor:default}button.active{background:#355c3d;color:white}#meta{white-space:pre-line} @media(max-width:850px){canvas{width:240px;height:320px}.layout{grid-template-columns:280px 1fr}}@media(max-width:600px){.layout{display:flex;flex-direction:column}main{padding:16px}}
 </style>
-<main><header><h1>招式动画验收</h1><a href="firmware.html">返回完整游戏预览</a><p class="note">这里验收的是当前硬件实现，不是原版还原度认证。图元主要来自《水晶》，轨迹、背景和时序仍有项目适配；金银脚本尚未完整移植。</p></header>
+<main><header><h1>招式动画验收</h1><a href="firmware.html">返回完整游戏预览</a><p class="note">这里验收的是当前硬件实现，不是原版还原度认证。还原目标为全部已实现招式；图元已统一到《金银》，轨迹、背景和时序仍待完整移植。动画允许覆盖血条，结束后恢复。</p></header>
 <div class="layout"><aside>
 <label for="search">搜索名称或编号</label><input id="search" placeholder="例如：影子球 / 247">
 <label for="scope">范围</label><select id="scope"><option value="all">全部已实现招式</option><option value="new">本批新增招式</option></select>
@@ -10,6 +10,7 @@
 <label for="move">招式 <span id="count"></span></label><select id="move"></select>
 <div class="row"><button id="prev">上一招</button><button id="next">下一招</button></div>
 <p class="note" id="meta"></p>
+<details id="source-details" hidden><summary>金银原作对照</summary><p class="note" id="source-summary"></p><a id="source-link" target="_blank" rel="noopener">查看金银原作脚本</a><pre id="source-commands" style="max-height:280px;overflow:auto;font-size:11px;white-space:pre-wrap"></pre></details>
 <label for="side">出招方</label><select id="side"><option value="0">我方（左下）</option><option value="1">对方（右上）</option></select>
 <div class="row"><label>我方编号<input id="pet" type="number" min="1" max="151" value="25"></label><label>对方编号<input id="wild" type="number" min="1" max="151" value="143"></label></div>
 <label for="mode">验收场景</label><select id="mode"><option value="1">命中动作展示</option><option value="0">实际结算（固定种子）</option><option value="2">未命中动作展示</option><option value="3">蓄力后释放（实际结算）</option></select>

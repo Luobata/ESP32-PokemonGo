@@ -196,24 +196,14 @@ typedef struct {
     const uint16_t *palette;
 } draw_ctx_t;
 
-// Effects may cross the stage, but leave the independently drawn enemy HUD
-// untouched. Half-open rectangles include the two fixed 7/5 px shiny stars.
-static bool wild_hud_contains(int x, int y)
-{
-    if (x < 120 && y < 116) return true;
-    if (x >= 8 && x < 232 && y >= 8 && y < 24) return true;
-    if (x >= 8 && x < 120 && y >= 30 && y < 46) return true;
-    if (x >= 8 && x < 88 && y >= 50 && y < 66) return true;
-    if (x >= 96 && x < 110 && y >= 68 && y < 75) return true;
-    return false;
-}
-
+// Effects overlay the entire battlefield, including both HUDs. The message
+// window starts at y=240 and remains readable. Each band is rebuilt from the
+// clean scene before this pass, so recovery restores sprites and HUD together.
 static void effect_px(const draw_ctx_t *ctx, int px, int py, unsigned shade)
 {
-    if (py < ctx->band_y || py >= ctx->band_y + SCREEN_BAND_H || py < SCENE_P3_WILD_TOP || py >= 236) return;
-    int right = py < 160 ? SCREEN_W : 104;
-    if (px >= 0 && px < right && !wild_hud_contains(px, py))
-        screen_px(px, py - ctx->band_y, ctx->palette[shade]);
+    if (px < 0 || px >= SCREEN_W || py < 0 || py >= 240 ||
+        py < ctx->band_y || py >= ctx->band_y + SCREEN_BAND_H) return;
+    screen_px(px, py - ctx->band_y, ctx->palette[shade]);
 }
 
 // There is no clipping of the original sprite asset: this guard protects screen
@@ -278,9 +268,9 @@ void battle_fx_draw_band(const battle_round_t *round, uint8_t frame, int band_y,
     draw_ctx_t ctx = {band_y, TYPE_PAL[type]};
     if(round->move_id==57&&!round->missed&&!round->no_effect&&!round->charging&&!round->skipped){
         // GS Surf: rise, crest hold, then descend; adapted 184 GB ticks to 34
-        // active LCD frames. Pixel guard preserves text/HP in the tall layout.
-        int top=frame<18?240-(int)frame*210/18:frame<24?30:30+((int)frame-24)*210/10;
-        for(int y=band_y;y<band_y+SCREEN_BAND_H&&y<236;y++)for(int x=0;x<SCREEN_W;x++){
+        // active LCD frames. Overlay includes the HUD in the tall layout.
+        int top=frame<18?244-(int)frame*244/18:frame<24?0:((int)frame-24)*244/10;
+        for(int y=band_y;y<band_y+SCREEN_BAND_H&&y<240;y++)for(int x=0;x<SCREEN_W;x++){
             int wave=((x+(int)frame*4)%32);wave=wave<16?wave:32-wave;
             int crest=top+wave/2-4;
             if(y<crest)continue;

@@ -12,9 +12,10 @@ if subprocess.check_output(['git','-C',str(a.source),'status','--porcelain','--'
 s=(a.source/'data/moves/animations.asm').read_text();ptrs=re.findall(r'^\s*dw (BattleAnim_\w+)',s,re.M)[:252]
 labels=list(re.finditer(r'^(BattleAnim_\w+):',s,re.M));blocks={m[1]:s[m.end():labels[i+1].start() if i+1<len(labels) else len(s)] for i,m in enumerate(labels)}
 rows=json.loads((ROOT/'tools/inspector/move-catalog.json').read_text());report=[]
+graphics=json.loads((ROOT/'assets/battle_fx_sources.json').read_text())
 for r in rows:
  label=ptrs[r['id']];body=blocks.get(label,'');bg=re.findall(r'anim_bgeffect (\w+)',body)
  report.append(dict(id=r['id'],name=r['name'],original_script=label,original_direct_background_effects=bg,original_calls=re.findall(r'anim_call (\w+)',body),current_animation=r['animation'],alignment='source-informed-adaptation' if r['id']==57 else 'adaptation',full_script_emulation=False))
 out=ROOT/'reports/evidence/animation-alignment-2026-09-09';out.mkdir(parents=True,exist_ok=True)
-(out/'audit.json').write_text(json.dumps({'source_commit':'656583c939d30f920a316177311a502dd222b57c','graphics_source':'pokecrystal@7a7881d0d62e0ddbd82dcf10e7116807487ac651','moves':report,'fully_verified_original_animations':0,'notes':'Direct background commands only; callees not expanded. Asset, timing, palette and layer equivalence are not implied by pixel-consistency tests.'},ensure_ascii=False,indent=2)+'\n')
+(out/'audit.json').write_text(json.dumps({'source_commit':'656583c939d30f920a316177311a502dd222b57c','graphics_source':graphics['repository'].rsplit('/',1)[-1]+'@'+graphics['commit'],'moves':report,'fully_verified_original_animations':0,'notes':'Direct background commands only; callees not expanded. Asset, timing, palette and layer equivalence are not implied by pixel-consistency tests.'},ensure_ascii=False,indent=2)+'\n')
 print({'supported':len(rows),'scripts_with_direct_background_effects':sum(bool(r['original_direct_background_effects']) for r in report),'fully_verified_original_animations':0})

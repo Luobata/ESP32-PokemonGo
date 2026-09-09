@@ -1,11 +1,11 @@
 {
-  "repository": "https://github.com/pret/pokecrystal",
-  "commit": "7a7881d0d62e0ddbd82dcf10e7116807487ac651",
+  "repository": "https://github.com/pret/pokegold",
+  "commit": "656583c939d30f920a316177311a502dd222b57c",
   "sources": {
     "data/battle_anims/framesets.asm": "cb98a82f1d50e86f0c78bff3afa14001f0f865ac9c7324a28775365eb260dbe9",
     "data/battle_anims/oam.asm": "3760169d375966da1c0b0b097201d384e358ad3aa6b0b0fda42d9e55877d3782",
-    "data/moves/animations.asm": "3e8c0e82a8807342862970304fb879bf7c4ad2364675c3af2f5af356b11d07e3",
-    "engine/battle_anims/bg_effects.asm": "d268e15fa991e1ac78cef725b8c4db2a5ba9fe86324b520dab9ca662e0f0c837",
+    "data/moves/animations.asm": "f4276c51cef7cf203056cb3f8ee8e558f148f4e8c26f7b362656591118c527cd",
+    "engine/battle_anims/bg_effects.asm": "318c760d107529be6a8f9d2744546d18b4585ab4e1690a623a764d9247f2dc87",
     "gfx/battle_anims/beam.png": "3f9e9154b399bcd9c273f62b2556a89fbe8ec614de2ee776865f1f3d09ef5f9a",
     "gfx/battle_anims/bubble.png": "236637192644459decd2a8e9a55778d36a74199c725a2f4df2a0c62895b8b37b",
     "gfx/battle_anims/charge.png": "db76adf6342d52d7c86de9feceafd6bb489eb4b788830869d13e1de7230b1d3e",
@@ -27,7 +27,7 @@
     "gfx/battle_anims/water.png": "a532f07cee0ff90bbae5038dec90e3508ead8e0e3b2b7509945db0055e7cddc1",
     "gfx/battle_anims/whip.png": "c9cd7c0ea48c572d32ce061c1e80b2d9a67113dded3081f7cc909fc47f99db16",
     "gfx/battle_anims/wind.png": "fb996549375136181dd74ef882ef6563a55d31c213b8bf6349018f06144bf925",
-    "macros/gfx.asm": "9e5681fa4258a7addb2c3cd99b196898e3acf49d99a470d6926e4535b497529e"
+    "macros/gfx.asm": "93d65084acca6f5bb0bb313bf0ac749898284392a6bd23e54405e75c403ee558"
   },
   "sprites": [
     {

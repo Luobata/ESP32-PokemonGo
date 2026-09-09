@@ -571,6 +571,8 @@ static void state(void)
     }
     printf("],\"dropped\":%u,\"active\":", queue.dropped);
     if (active_valid) encounter_state(&active_enc); else printf("null");
+    extern unsigned play_battle_move_preview_frames(void);
+    printf(",\"move_animation_frames\":%u", nav_current() == PAGE_BATTLE ? play_battle_move_preview_frames() : 0);
     printf(",\"presentation\":");
     if (nav_current() == PAGE_BATTLE) {
         play_battle_view_t view;

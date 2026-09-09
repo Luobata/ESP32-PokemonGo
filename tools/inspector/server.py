@@ -145,6 +145,7 @@ class Handler(SimpleHTTPRequestHandler):
                                 ("Ms", result["ms"]), ("Mismatch", result["mismatch"]),
                                 ("Version", version), ("Names", name_style),
                                 ("Music", state.get("music", 0)),
+                                ("Animation-Frames", state.get("move_animation_frames", 0)),
                                 ("Screen-Off", int(state["display"]["off"]))):
                 self.send_header("X-Preview-" + name, str(value))
             self.end_headers()

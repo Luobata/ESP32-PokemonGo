@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Build exact 2bpp OAM composites from a pinned pret/pokecrystal checkout.
+"""Build exact 2bpp OAM composites from a pinned pret/pokegold checkout.
 
-python3 tools/pipeline/convert_battle_fx.py --src /tmp/pokecrystal
-python3 tools/pipeline/convert_battle_fx.py --src /tmp/pokecrystal --check
+python3 tools/pipeline/convert_battle_fx.py --src /tmp/pokegold
+python3 tools/pipeline/convert_battle_fx.py --src /tmp/pokegold --check
 
 Requires Pillow only at generation time. Source bytes must match the pinned Git
 tree; no images are drawn/recolored here. Firmware trajectories/palettes are
@@ -21,8 +21,8 @@ import subprocess
 from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
-COMMIT = "7a7881d0d62e0ddbd82dcf10e7116807487ac651"
-SOURCE_URL = f"https://github.com/pret/pokecrystal/tree/{COMMIT}"
+COMMIT = "656583c939d30f920a316177311a502dd222b57c"
+SOURCE_URL = f"https://github.com/pret/pokegold/tree/{COMMIT}"
 # key, graphic sheet, frameset label, index among its oamframe commands.
 SELECTION = (
     ("hit", "hit", "Hit", 0), ("hit_big", "hit", "HitBig", 0),
@@ -93,7 +93,7 @@ def build(src: Path) -> tuple[str, dict]:
            "// Exact PNG grayscale + OAM tile positions/flips; 3 = transparent.",
            "#pragma once", "#include <stdint.h>",
            "typedef struct { const uint8_t *data; uint8_t w, h; } battle_fx_art_t;", ""]
-    manifest = dict(repository="https://github.com/pret/pokecrystal", commit=COMMIT,
+    manifest = dict(repository="https://github.com/pret/pokegold", commit=COMMIT,
                     sources=hashes, sprites=[])
     for key, gfx, frameset, frame_index in SELECTION:
         rows = re.findall(r"oamframe BATTLE_ANIM_OAMSET_(\w+),\s*\d+([^\n]*)", block(framesets, ".Frameset_" + frameset))

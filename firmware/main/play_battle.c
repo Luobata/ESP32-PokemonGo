@@ -321,9 +321,6 @@ static void draw_band(int band_y)
         scene_screen_p3_pet_back(band_y, pet_spr.data, pet_spr.w, pet_spr.h,
                                   pose.pet_dx, pal);
     }
-    if (round) {
-        battle_fx_draw_band(round, s_fx_frame, band_y, pet, wild);
-    }
     if (!s_entering) {
     if (has_pet) {
         scene_screen_p3_pet_name(band_y, pet_sp.name_zh,
@@ -335,6 +332,10 @@ static void draw_band(int band_y)
     battle_presentation_exp_t xp = visible_exp();
     battle_hud_draw_exp(scene_screen_rect, &band_y, 120, 224, 7, BATTLE_HUD_SCALE,
                         xp.got, xp.need, SCENE_P3_BG);
+    }
+
+    if (round) {
+        battle_fx_draw_band(round, s_fx_frame, band_y, pet, wild);
     }
 
     battle_hud_draw_message_box(scene_screen_rect, &band_y,
@@ -764,6 +765,10 @@ void play_battle_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 }
 
 #ifdef HOST_BUILD
+unsigned play_battle_move_preview_frames(void) {
+    return s_play_i > 0 && s_play_i <= s_res.round_count
+        ? battle_fx_frames(&s_res.rounds[s_play_i - 1]) : 0;
+}
 // Isolated acceptance fixture: same combat calculation, sprites, HUD and FX.
 // mode 0 is actual resolution; mode 1/2 are labelled visual hit/miss fixtures.
 bool play_battle_move_preview(unsigned id,unsigned side,unsigned frame,unsigned mode){

@@ -9,7 +9,7 @@ static int center_x,center_y;
 static uint16_t raster[240*320];
 void screen_px(int x,int y,uint16_t color){
  assert(x>=0&&x<240&&y>=0&&y<80);int py=y+band;
- assert(py>=30&&py<236);assert(py<160||x<104);assert(!(x<120&&py<116));
+ assert(py>=0&&py<240);
  if(track_self){assert(x>=center_x-40&&x<=center_x+40);assert(py>=center_y-52&&py<=center_y+40);}
  raster[py*240+x]=color;pixels++;
 }
@@ -50,7 +50,7 @@ static void fx_all(void){
  }
  for(unsigned id=1;id<=250;id++){move_t supported;if(!combat_move(id,&supported))continue;if(covered[id])ids_with_pixels++;else{move_t m;combat_move(id,&m);assert(m.power>0);}}
  assert(ids_with_pixels==191);
- printf("{\"moves\":191,\"moves_with_effect_pixels\":%u,\"frames\":%u,\"self_targets_correct\":true,\"hud_protected\":true,\"clean_recovery\":true}\n",ids_with_pixels,frames_checked);
+ printf("{\"moves\":191,\"moves_with_effect_pixels\":%u,\"frames\":%u,\"self_targets_correct\":true,\"message_window_protected\":true,\"clean_recovery\":true}\n",ids_with_pixels,frames_checked);
 }
 static void readability(void){
  track_self=false;

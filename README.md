@@ -17,7 +17,7 @@
 
 **招式范围如实说明：** 当前引擎支持 191 招（初代 165 招及 26 招二代招式）。金银前 151 只宝可梦在升级、TM/HM、遗传和进化前形态中涉及 238 种招式，仍有 48 种二代招式机制未实现；未实现项不会作为无效技能加入自动出招。机器学习资格按原物种表限制，普通皮卡丘不会凭空获得活动限定的冲浪。
 
-招式逐项验收：启动预览服务后打开 [moves.html](http://127.0.0.1:8766/moves.html)，支持搜索、双侧出招、命中/未命中展示、实际结算和蓄力释放。详见 [本批招式与验收说明](docs/systems/S22-move-acceptance.md) 与 [原版动画数据对齐核查](docs/systems/S23-animation-source-alignment.md)。
+招式逐项验收：启动预览服务后打开 [moves.html](http://127.0.0.1:8766/moves.html)，支持搜索、双侧出招、命中/未命中展示、实际结算和蓄力释放。详见 [本批招式与验收说明](docs/systems/S22-move-acceptance.md) 与 [原版动画数据对齐核查](docs/systems/S23-animation-source-alignment.md)。全招式还原目标和当前进度见 [S24](docs/systems/S24-original-animation-restoration.md)。
 
 ## 三键操作
 

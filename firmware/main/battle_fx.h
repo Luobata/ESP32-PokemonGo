@@ -49,10 +49,10 @@ battle_fx_pose_t battle_fx_pose(const battle_round_t *round, uint8_t frame);
 battle_fx_pose_t battle_fx_pose_for_rects(const battle_round_t *round, uint8_t frame,
                                          battle_fx_rect_t pet, battle_fx_rect_t wild);
 
-// Draw after actor sprites and before HUD text/bars. Uses the current screen
-// band only, no allocation/framebuffer. Redraw bands 0/1/2 on every phase change
-// including recovery. Pixel guard permits stage y=30..159, or x<104,y=160..235,
-// except enemy name/HP/rarity/shiny markers. Pet HUD/message areas are protected.
+// Draw after actors AND both HUDs, before the message window. Uses the current
+// screen band only, no allocation/framebuffer. Effects may cover x=0..239,
+// y=0..239. Rebuild bands 0/1/2 from the scene on every phase and recovery;
+// animation cleanup must restore HUDs as well as actors.
 // Misses have no damage overlay; pose_for_rects() allows attack/evade movement.
 void battle_fx_draw_band(const battle_round_t *round, uint8_t frame, int band_y,
                          battle_fx_rect_t pet, battle_fx_rect_t wild);
