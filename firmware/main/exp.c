@@ -26,3 +26,11 @@ void exp_progress(uint32_t exp, uint8_t level, uint32_t *got, uint32_t *need)
 }
 
 uint16_t exp_scaled(uint16_t base,uint8_t percent) { uint32_t n=(uint32_t)base*percent/100;return n>UINT16_MAX?UINT16_MAX:(uint16_t)n; }
+
+void exp_share_party(party_t *party,unsigned eligible,uint16_t award) {
+ unsigned bonus=award/5;if(!bonus)return;
+ for(unsigned i=0;i<party->party_count;i++)if(eligible&(1u<<i)){
+  mon_t *m=&party->party[i];uint32_t base=exp_for_level(m->level);if(m->exp<base)m->exp=base;
+  m->exp=m->exp>UINT32_MAX-bonus?UINT32_MAX:m->exp+bonus;m->level=exp_to_level(m->exp,LEVEL_MAX);
+ }
+}

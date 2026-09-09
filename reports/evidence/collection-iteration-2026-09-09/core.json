@@ -1,0 +1,9 @@
+{
+  "tracked_species": 151,
+  "pending_protected": true,
+  "save_rollback": true,
+  "restart": true,
+  "reserve_xp": true,
+  "gym_rematches": 8,
+  "prize_idempotent": true
+}

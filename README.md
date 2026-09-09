@@ -19,6 +19,8 @@
 
 招式逐项验收：启动预览服务后打开 [moves.html](http://127.0.0.1:8766/moves.html)，支持搜索、双侧出招、命中/未命中展示、实际结算和蓄力释放。详见 [本批招式与验收说明](docs/systems/S22-move-acceptance.md) 与 [原版动画数据对齐核查](docs/systems/S23-animation-source-alignment.md)。全招式还原目标见 [S24](docs/systems/S24-original-animation-restoration.md)，191招原作轨迹接入和当前边界见 [S25](docs/systems/S25-gold-animation-tracks.md)。
 
+新增 [图鉴追踪、队伍经验分享与通关道馆重赛](docs/systems/S26-collection-and-rematches.md)：图鉴详情可追踪目标，匹配属性的队员助力探索，冠军通关后开放六只队伍的强化道馆。
+
 ## 三键操作
 
 | 场景 | A | B / 长按 B | C |

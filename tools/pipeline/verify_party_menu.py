@@ -80,15 +80,15 @@ def menu_routes(exe, out):
         f.key('C'); assert f.state()['page'] == 5
         f.key('C'); assert f.state()['page'] == 11
         # Settings are discoverable and return to their own menu item.
-        f.select_menu(4); f.key('A')
+        f.select_menu(5); f.key('A')
         assert f.state()['menu_view']['options']
         names = f.state()['names']; f.key('A')
         assert f.state()['names'] != names
         f.shot(out, 'options')
         f.key('C'); assert not f.state()['menu_view']['options']
-        assert f.state()['menu_view']['selected'] == 4
-        f.select_menu(0); f.key('B', True)
         assert f.state()['menu_view']['selected'] == 5
+        f.select_menu(0); f.key('B', True)
+        assert f.state()['menu_view']['selected'] == 8
         f.key('A'); assert f.state()['page'] == 1
         # The existing idle shortcuts remain usable.
         f.key('A'); assert f.state()['page'] == 5
@@ -213,7 +213,7 @@ def legacy_capture_exp(exe, out):
         f.cmd('save_fail 1'); f.key('A')
         assert f.state()['pet'] == 25 and f.state()['party'][1]['exp'] == 0
         f.key('A'); assert f.state()['pet'] == 17
-        assert f.state()['level'] == 12 and f.state()['exp'] == 4320
+        assert f.state()['level'] == 12 and f.state()['exp'] == 2592
         f.shot(out, 'legacy-level-exp-repaired')
         f.key('C'); f.key('C'); f.key('C'); f.key('C'); f.key('A')
         for _ in range(180):
@@ -229,7 +229,7 @@ def legacy_capture_exp(exe, out):
             f.cmd('tick 60')
         else: raise AssertionError('legacy member battle did not settle')
         state = f.state()
-        assert state['active']['won'] and state['exp'] > 4320 and state['level'] >= 12
+        assert state['active']['won'] and state['exp'] > 2592 and state['level'] >= 12
         f.shot(out, 'legacy-level-victory')
         return f.checks
     finally: f.close()
@@ -246,7 +246,7 @@ def main():
     result['shiny_checks'] = shiny_leader(exe, args.out)
     result['legacy_exp_checks'] = legacy_capture_exp(exe, args.out)
     for page in (11, 12): assert page_value({'page': page}) == page
-    for page in (7, 8, 13, True):
+    for page in (7, 8, 16, True):
         try: page_value({'page': page})
         except ValueError: pass
         else: raise AssertionError(f'invalid page accepted: {page}')

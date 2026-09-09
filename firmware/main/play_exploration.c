@@ -99,9 +99,11 @@ static void draw_all(void){
     int y=40+i*52;const exploration_route_t *row=exploration_route(i);game_ui_box(band,8,y,224,48);
     if(i==selected)game_ui_cursor(band,16,y+13);
     render_text(32,y+8-band,row->name,GAME_UI_INK);
-    snprintf(text,sizeof(text),"线索 %u/3",view.state.clues[i]);render_text(32,y+26-band,text,GAME_UI_MUTED);
-    uint8_t size;species_t sp;const uint8_t *data=assets_front_sprite(exploration_target(i,view.defeated),&size);
-    if(data&&assets_species(exploration_target(i,view.defeated),&sp)){uint16_t pal[4];assets_palette_variant(sp.palette,false,pal);game_ui_thumbnail_centered(band,182,y+6,40,36,data,size,32,pal);}
+    static const char *const habitats[]={"草虫","岩地","水冰","电毒"};
+    snprintf(text,sizeof(text),"%s 线索%u/3",habitats[i],view.state.clues[i]);render_text(32,y+26-band,text,GAME_UI_MUTED);
+    exploration_state_t focus=view.state;focus.route=i;unsigned target=exploration_focus(&focus,view.defeated);
+    uint8_t size;species_t sp;const uint8_t *data=assets_front_sprite(target,&size);
+    if(data&&assets_species(target,&sp)){uint16_t pal[4];assets_palette_variant(sp.palette,false,pal);game_ui_thumbnail_centered(band,182,y+6,40,36,data,size,32,pal);}
    }
    center(band,256,feedback?feedback:exploration_chapter(exploration_chapter_current(view.defeated))->name,GAME_UI_MUTED);
    game_ui_footer(band,"[A]选择 [B]下一 [C]返回");
@@ -120,18 +122,18 @@ static void draw_all(void){
    center(band,44,r->name,GAME_UI_INK);scene(band,route);
    center(band,164,"发现新的线索",GAME_UI_INK);progress(band,event.clues);
    static const char *const trail[]={"足迹延伸向路线深处","远处传来陌生的叫声","目标就在附近"};
-   center(band,218,exploration_chapter_current(view.defeated)?trail[event.clues-1]:r->clue[event.clues-1],GAME_UI_INK);
+   center(band,218,exploration_story(exploration_focus(&view.state,view.defeated),event.clues-1),GAME_UI_INK);
    if(event.item!=ITEM_NONE){snprintf(text,sizeof(text),event.item_full?"%s已满 未拾取":"发现 %s ×1",items_info(event.item)->name);center(band,248,text,GAME_UI_ACCENT);}
    else center(band,248,event.clues==3?"下次探索必定找到目标":"继续探索 追踪伙伴",GAME_UI_MUTED);
    game_ui_footer(band,"[A]继续 [B]路线 [C]返回");
   }else{
    center(band,44,r->name,GAME_UI_INK);scene(band,route);
    center(band,164,exploration_chapter(exploration_chapter_current(view.defeated))->name,GAME_UI_INK);progress(band,view.state.clues[route]);
-   species_t target;uint16_t target_id=exploration_target(route,view.defeated);
+   species_t target;uint16_t target_id=exploration_focus(&view.state,view.defeated);
    if(assets_species(target_id,&target))snprintf(text,sizeof(text),"%.*s 线索%u/3",target.name_zh_len,target.name_zh,view.state.clues[route]);else snprintf(text,sizeof(text),"线索 %u/3",view.state.clues[route]);center(band,214,text,GAME_UI_INK);
-   const char *hint=feedback?feedback:(view.pending==5?"遭遇已满 将替换最早一只":"长按A查看冒险笔记");
+   const char *hint=feedback?feedback:(view.pending==5?"遭遇已满 将替换最早一只":view.state.tracked_species?"图鉴可更换或取消追踪":"长按A查看冒险笔记");
    center(band,238,hint,GAME_UI_MUTED);
-   snprintf(text,sizeof(text),"体力 %u/100  每次消耗5",view.stamina);center(band,258,text,GAME_UI_MUTED);
+   snprintf(text,sizeof(text),"体力%u -5/次 助力%u",view.stamina,view.party_bonus/10);center(band,258,text,GAME_UI_MUTED);
    game_ui_footer(band,"[A]探索 [B]路线 [C]返回");
   }
   screen_push_band(band);

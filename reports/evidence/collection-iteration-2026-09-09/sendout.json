@@ -1,0 +1,8 @@
+{
+  "checks": 118,
+  "version": "93a579699fba37b9c280",
+  "initial_mask": 3,
+  "manual_and_fainted_mask": 1,
+  "enemy_mask": 2,
+  "unchanged_side_stays_visible": true
+}

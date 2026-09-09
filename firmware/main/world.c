@@ -668,6 +668,8 @@ bool world_capture_ball_spend_uid(uint16_t uid, uint8_t ball,
     return ok;
 }
 
+// Bonus experience for existing nonparticipants; one award in the enclosing
+// durable settlement, never paid again by a retry or animation callback.
 bool world_capture_uid(uint16_t uid, const mon_t *mon)
 {
     if (!mon || mon->species_id < 1 || mon->species_id > BOX_SPECIES) return false;
@@ -683,6 +685,7 @@ bool world_capture_uid(uint16_t uid, const mon_t *mon)
     uint16_t earned=exp_scaled(exp_scaled((uint16_t)(mon->level*8+20),60),nurture_exp_percent(&s_w.pet));
     mon_t *leader=&s_starter_party.party[0];leader->exp=leader->exp>UINT32_MAX-earned?UINT32_MAX:leader->exp+earned;
     leader->level=exp_to_level(leader->exp,LEVEL_MAX);
+    exp_share_party(&s_starter_party,((1u<<s_party.party_count)-1)&~1u,earned);
     s_save_buf.level=leader->level;
     s_save_buf.exp = leader->exp;
     party_serialize(&s_starter_party, s_save_buf.party);
@@ -1538,6 +1541,7 @@ bool world_challenge_settle(void)
             m->level=exp_to_level(m->exp, LEVEL_MAX);
         }
     }
+    exp_share_party(&s_starter_party,((1u<<s_starter_party.party_count)-1)&~s_challenge.session.participated,reward);
     party_serialize(&s_starter_party, s_save_buf.party);
     s_save_buf.exp=s_starter_party.party[0].exp;s_save_buf.level=s_starter_party.party[0].level;
     bool first = !(s_challenge.defeated & (1u<<s_challenge.session.trainer));
@@ -1545,6 +1549,8 @@ bool world_challenge_settle(void)
         unsigned milk=s_save_buf.inventory.quantity[ITEM_MILK]+2;
         s_save_buf.inventory.quantity[ITEM_MILK]=milk>items_capacity(ITEM_MILK)?items_capacity(ITEM_MILK):milk;
     }
+    uint8_t prize=trainer_rematch_prize(&s_challenge);
+    if(prize!=ITEM_NONE&&s_save_buf.inventory.quantity[prize]<items_capacity(prize))s_save_buf.inventory.quantity[prize]++;
     if (!s_challenge.session.won && !s_challenge.session.retired) {
         s_save_buf.pet.stamina = s_save_buf.pet.stamina>20*NURT_Q?s_save_buf.pet.stamina-20*NURT_Q:0;
         s_save_buf.pet.mood = s_save_buf.pet.mood>15*NURT_Q?s_save_buf.pet.mood-15*NURT_Q:0;
@@ -1620,7 +1626,7 @@ void world_exploration_snapshot(exploration_view_t *out)
     if(!s_lock||xSemaphoreTake(s_lock,portMAX_DELAY)!=pdTRUE)return;
     out->state=s_exploration;out->discoveries=s_refresh.discoveries;out->defeated=s_challenge.defeated;
     out->rare_left=8-s_refresh.since_rare;out->elite_left=30-s_refresh.since_elite;
-    out->pending=s_queue.count;out->stamina=nurture_pct(s_w.pet.stamina);out->exp_percent=nurture_exp_percent(&s_w.pet);out->rare_bonus=nurture_rare_bonus(&s_w.pet);
+    out->pending=s_queue.count;out->stamina=nurture_pct(s_w.pet.stamina);out->exp_percent=nurture_exp_percent(&s_w.pet);out->rare_bonus=nurture_rare_bonus(&s_w.pet);out->party_bonus=exploration_team_bonus(&s_party,s_exploration.route);
     xSemaphoreGive(s_lock);
 }
 exploration_kind_t world_exploration_select(uint8_t route)
@@ -1636,6 +1642,26 @@ exploration_kind_t world_exploration_select(uint8_t route)
     else s_dirty=true;
     unlock_encounter_change();return ok?EXPLORE_NONE:EXPLORE_SAVE_FAILED;
 }
+exploration_kind_t world_exploration_track(uint16_t species)
+{
+ int route=exploration_habitat(species,NULL);
+ if(species&&route<0)return EXPLORE_BLOCKED;
+ if(!lock_encounter_change())return EXPLORE_SAVE_FAILED;
+ if(!s_storage_ready||s_starter_pending){unlock_encounter_change();return EXPLORE_SAVE_FAILED;}
+ if(s_active.encounter.uid||s_challenge.session.active||s_challenge.league_active){unlock_encounter_change();return EXPLORE_BUSY;}
+ if(species&&!exploration_species_open(species,s_challenge.defeated)){unlock_encounter_change();return EXPLORE_BLOCKED;}
+ collect_save_locked(&s_save_buf);
+ exploration_state_t *x=&s_save_buf.exploration;
+ if(x->tracked_species!=species){
+  // A new target must earn its own trail; switching cannot spend another trail.
+  if(x->tracked_species){int old=exploration_habitat(x->tracked_species,NULL);if(old>=0){x->clues[old]=0;x->pulse[old]=0;}}
+  if(species){x->clues[route]=0;x->pulse[route]=0;}
+ }
+ x->tracked_species=species;if(species)x->route=route;
+ xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
+ if(ok){s_exploration=s_save_buf.exploration;s_last_save_us=esp_timer_get_time();}
+ unlock_encounter_change();return ok?EXPLORE_NONE:EXPLORE_SAVE_FAILED;
+}
 exploration_event_t world_explore(void)
 {
     exploration_event_t event={.kind=EXPLORE_SAVE_FAILED};
@@ -1646,7 +1672,7 @@ exploration_event_t world_explore(void)
     }
     collect_save_locked(&s_save_buf);
     if(s_w.pet.stamina<NURT_EXPLORE_COST){event.kind=EXPLORE_NO_STAMINA;unlock_encounter_change();return event;}
-    event=exploration_step_nurtured(&s_save_buf.exploration,&s_save_buf.refresh,&s_save_buf.queue,&s_save_buf.dex,s_active.encounter.uid,s_challenge.defeated,&s_save_buf.inventory,&s_w.pet);
+    event=exploration_step_team(&s_save_buf.exploration,&s_save_buf.refresh,&s_save_buf.queue,&s_save_buf.dex,s_active.encounter.uid,s_challenge.defeated,&s_save_buf.inventory,&s_w.pet,exploration_team_bonus(&s_party,s_exploration.route));
     if(event.kind!=EXPLORE_ENCOUNTER&&event.kind!=EXPLORE_CLUE&&event.kind!=EXPLORE_TARGET) {
         unlock_encounter_change();return event;
     }
@@ -1679,7 +1705,7 @@ bool world_battle_reward_uid(uint16_t uid,uint16_t *amount) {
  uint16_t gain=exp_scaled(battle_session_exp(b),nurture_exp_percent(&s_w.pet));
  collect_save_locked(&s_save_buf);s_starter_party=s_party;
  mon_t *leader=&s_starter_party.party[0];leader->exp=leader->exp>UINT32_MAX-gain?UINT32_MAX:leader->exp+gain;
- leader->level=exp_to_level(leader->exp,LEVEL_MAX);party_serialize(&s_starter_party,s_save_buf.party);
+ leader->level=exp_to_level(leader->exp,LEVEL_MAX);exp_share_party(&s_starter_party,((1u<<s_starter_party.party_count)-1)&~1u,gain);party_serialize(&s_starter_party,s_save_buf.party);
  s_save_buf.exp=leader->exp;s_save_buf.level=leader->level;
  xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
  if(ok){s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;

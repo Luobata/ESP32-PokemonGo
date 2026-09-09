@@ -90,7 +90,7 @@ static void draw_list(int band_y)
         render_text(64, y + 2 - band_y, name, GAME_UI_INK);
         snprintf(text, sizeof(text), "Lv%u", member->level);
         render_text(228 - render_text_width(text), y + 2 - band_y, text, GAME_UI_INK);
-        snprintf(text, sizeof(text), "亲密 %u", member->intimacy);
+        snprintf(text, sizeof(text), index?"经验分享20%%":"亲密 %u", member->intimacy);
         render_text(64, y + 20 - band_y, text, GAME_UI_MUTED);
         if (index == 0) render_text(196, y + 20 - band_y, "出战", GAME_UI_ACCENT);
         if (index == s_selected) game_ui_cursor(band_y, 10, y + 14);

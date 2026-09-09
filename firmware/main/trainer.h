@@ -54,3 +54,7 @@ bool trainer_store_valid(const trainer_store_t *store);
 uint16_t trainer_reward(const trainer_store_t *store);
 // Mark progress exactly once in the same world transaction as EXP/items.
 void trainer_settle(trainer_store_t *store);
+
+bool trainer_rematch(const trainer_store_t *,uint8_t id);
+
+uint8_t trainer_rematch_prize(const trainer_store_t *);

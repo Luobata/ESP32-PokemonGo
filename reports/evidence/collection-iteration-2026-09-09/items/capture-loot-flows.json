@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "build": "40fb517ab012dd3a66c1",
+  "cases": [
+    "ball 0: one spent, one catch, intimacy correct",
+    "ball 1: one spent, one catch, intimacy correct",
+    "ball 2: one spent, one catch, intimacy correct",
+    "ball 3: one spent, one catch, intimacy correct",
+    "ball 4: one spent, one catch, intimacy correct",
+    "ball 5: one spent, one catch, intimacy correct",
+    "ball 6: one spent, one catch, intimacy correct",
+    "ball 7: one spent, one catch, intimacy correct",
+    "first throw save failure spends nothing; A retry succeeds",
+    "second catch write failure keeps hit; retry adds mon without another ball",
+    "rarity 1: actual victory settles drop exactly once",
+    "rarity 2: actual victory settles drop exactly once",
+    "rarity 3: actual victory settles drop exactly once",
+    "rarity 4: actual victory settles drop exactly once",
+    "rarity 5: actual victory settles drop exactly once",
+    "loot write failure locks result; A retry awards once",
+    "victory may give no drop",
+    "full stock consumes roll without overflow",
+    "defeat gives no item award",
+    "victory final capture save retry keeps hit and locks menu exit"
+  ],
+  "awards": [
+    {
+      "rarity": 1,
+      "item": 0,
+      "quantity": 2
+    },
+    {
+      "rarity": 2,
+      "item": 1,
+      "quantity": 1
+    },
+    {
+      "rarity": 3,
+      "item": 2,
+      "quantity": 1
+    },
+    {
+      "rarity": 4,
+      "item": 5,
+      "quantity": 1
+    },
+    {
+      "rarity": 5,
+      "item": 4,
+      "quantity": 1
+    }
+  ],
+  "dirty_full_checks": 1083,
+  "scope": "actual C pages/rules/assets; host world/NVS fixture, storage verified separately"
+}

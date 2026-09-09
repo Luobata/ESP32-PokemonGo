@@ -59,7 +59,7 @@ static void hall(int y){
  }
  unsigned top=selected/5*5;
  for(unsigned row=0;row<5&&top+row<count;row++){
-  unsigned id=ids[top+row];int sy=76+row*30;const trainer_info_t *t=trainer_info(id);char level[12];snprintf(level,sizeof(level),"Lv%u",t->levels[t->count-1]);
+  unsigned id=ids[top+row];int sy=76+row*30;const trainer_info_t *t=trainer_info(id);char level[12];snprintf(level,sizeof(level),trainer_rematch(&s_store,id)?"再战%u":"Lv%u",trainer_rematch(&s_store,id)?67+id:t->levels[t->count-1]);
   render_text(32,sy-y,t->name,GAME_UI_INK);
   render_text(228-render_text_width(level),sy-y,level,GAME_UI_MUTED);
   if(id==s_selected)game_ui_cursor(y,12,sy+4);
@@ -170,6 +170,7 @@ static void draw_all(void){
    game_ui_text_centered(y,8,174,224,16,s_store.session.won?t->badge:s_store.session.retired?"已经认输":"去照料伙伴再来",GAME_UI_INK);
    char b[48];snprintf(b,sizeof(b),"获得经验 %lu",(unsigned long)s_result_exp);
    game_ui_text_centered(y,8,200,224,16,s_store.session.retired?"不扣经验 不降等级":b,GAME_UI_MUTED);
+   uint8_t prize=trainer_rematch_prize(&s_store);if(prize!=ITEM_NONE){snprintf(b,sizeof(b),"再战奖励：%s",items_info(prize)->name);game_ui_text_centered(y,8,222,224,16,b,GAME_UI_INK);}
    game_ui_text_centered(y,8,244,224,16,s_failed?"保存失败 按A重试":"经验与奖励已保存",GAME_UI_MUTED);
    game_ui_footer(y,"[A]继续 [C]挑战大厅");
   }else if(s_mode==CONFIRM){game_ui_title(y,"结束挑战","");game_ui_text_centered(y,8,112,224,16,s_failed?"保存失败 按A重试":"确定认输吗？",GAME_UI_INK);game_ui_text_centered(y,8,144,224,16,"联盟连战将重新开始",GAME_UI_MUTED);game_ui_footer(y,"[A]认输 [B/C]取消");}

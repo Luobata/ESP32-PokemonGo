@@ -2,6 +2,7 @@
 #include <string.h>
 #include "trainer_assets.h"
 #include "combat.h"
+#include "items.h"
 static const trainer_info_t CATALOG[TRAINER_COUNT] = {
  {"小刚","灰色徽章",{74,95},{10,12},2,0},
  {"小霞","蓝色徽章",{120,121},{17,19},2,0},
@@ -44,6 +45,11 @@ static void choose_first(trainer_session_t *s) {
  int priority=combat_priority(s->planned[0])-combat_priority(s->planned[1]);
  s->next=priority?priority>0?0:1:ps==es?(s->rng&1):ps>es?0:1;s->acted=0;
 }
+bool trainer_rematch(const trainer_store_t *st,uint8_t id){return st&&id<8&&(st->defeated&(1u<<12))&&(st->defeated&(1u<<id));}
+static const uint8_t REMATCH[8][6]={
+ {76,95,112,142,139,141},{121,130,131,134,73,9},{26,101,82,125,135,25},{45,71,103,114,3,47},
+ {110,89,42,49,73,94},{65,97,122,103,80,124},{59,78,126,136,6,38},{112,31,34,51,105,76}
+};
 bool trainer_begin(trainer_store_t *st,uint8_t id,const mon_t *party,uint8_t count,uint16_t ability,uint32_t seed) {
  if(!st||!party||!count||count>6||st->session.active||!trainer_unlocked(st,id))return false;
  for(unsigned i=0;i<count;i++)if(!party[i].species_id||party[i].species_id>151||!party[i].level||party[i].level>100)return false;
@@ -57,7 +63,10 @@ bool trainer_begin(trainer_store_t *st,uint8_t id,const mon_t *party,uint8_t cou
  }
  if(id==8){st->league_active=1;st->league_stage=8;}
  const trainer_info_t *t=&CATALOG[id];s->sides[1].count=t->count;
- for(unsigned i=0;i<t->count;i++)init_mon(&s->sides[1].mons[i],t->species[i],t->levels[i]);
+ if(trainer_rematch(st,id)){
+  s->sides[1].count=6;unsigned rotate=s->rng%6;
+  for(unsigned i=0;i<6;i++)init_mon(&s->sides[1].mons[i],REMATCH[id][(i+rotate)%6],65+id+i/2);
+ }else for(unsigned i=0;i<t->count;i++)init_mon(&s->sides[1].mons[i],t->species[i],t->levels[i]);
  s->participated=1u<<s->sides[0].active;choose_first(s);
  return true;
 }
@@ -109,7 +118,7 @@ void trainer_retire(trainer_store_t *st) { if(st->session.active){st->session.re
 uint16_t trainer_reward(const trainer_store_t *st) {
  if(!st->session.finished||st->session.retired)return 0;
  const trainer_info_t *t=trainer_info(st->session.trainer);unsigned reward=0;
- for(unsigned i=0;i<t->count;i++)reward+=t->levels[i]*8+20;
+ for(unsigned i=0;i<st->session.sides[1].count;i++)reward+=st->session.sides[1].mons[i].level*8+20;
  return st->session.won?reward:reward*30/100;
 }
 void trainer_settle(trainer_store_t *st) {
@@ -140,4 +149,10 @@ bool trainer_store_valid(const trainer_store_t *st) {
  }
 
  return true;
+}
+
+uint8_t trainer_rematch_prize(const trainer_store_t *st){
+ static const uint8_t prizes[8]={ITEM_MOON_STONE,ITEM_WATER_STONE,ITEM_THUNDER_STONE,ITEM_LEAF_STONE,ITEM_LINK_MACHINE,ITEM_GROWTH_MACHINE,ITEM_FIRE_STONE,ITEM_LINK_MACHINE};
+ if(!st||!st->session.finished||!st->session.won||!trainer_rematch(st,st->session.trainer))return ITEM_NONE;
+ return prizes[st->session.trainer];
 }

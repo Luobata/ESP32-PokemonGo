@@ -45,6 +45,32 @@ bool exploration_species_open(unsigned species,uint16_t defeated){
  if(species>=138&&species<=141)return c>=2;
  return true;
 }
+int exploration_habitat(unsigned species,unsigned *rarity) {
+ for(unsigned route=0;route<4;route++)for(unsigned tier=0;tier<5;tier++)for(unsigned i=0;i<16&&POOLS[route][tier][i];i++)
+  if(POOLS[route][tier][i]==species){if(rarity)*rarity=tier+1;return route;}
+ return -1;
+}
+unsigned exploration_unlock_chapter(unsigned species) {
+ if(species==151)return 8;
+ if(species==150)return 7;
+ if(species==144||species==145)return 6;
+ if(species==146||species==149)return 5;
+ if(species==142)return 3;
+ if(species>=138&&species<=141)return 2;
+ return 0;
+}
+uint16_t exploration_focus(const exploration_state_t *s,uint16_t defeated) {
+ return s->tracked_species&&exploration_species_open(s->tracked_species,defeated)&&exploration_habitat(s->tracked_species,NULL)==s->route?s->tracked_species:exploration_target(s->route,defeated);
+}
+const char *exploration_story(unsigned species,unsigned clue) {
+ static const char *const fossil[]={"岩层露出了古老的纹路","发现尚有温度的化石","岩壁后传来了生命的回声"};
+ static const char *const bird[]={"远处的天空突然变了颜色","羽毛中蕴藏着强大的力量","传说的羽翼就在前方"};
+ static const char *const mewtwo[]={"找到了遗落的研究记录","未知的力量在洞穴中回响","实验室深处传来了呼唤"};
+ static const char *const mew[]={"树叶间闪过粉色的影子","小小的足迹又突然消失","它似乎也在好奇地观察你"};
+ static const char *const normal[]={"足迹延伸向路线深处","远处传来目标的叫声","目标就在附近"};
+ if(clue>2)clue=2;
+ return (species==151?mew:species==150?mewtwo:species>=144&&species<=146?bird:species>=138&&species<=142?fossil:normal)[clue];
+}
 static uint32_t mix(uint32_t x) {
  x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);
 }
@@ -75,12 +101,18 @@ static exploration_event_t step(exploration_state_t *s,enc_refresh_state_t *r,
  else if(r->since_rare>=7 && rarity<4)rarity=4;
  unsigned species=0;
  if(target) {
-  species=campaign?exploration_target(route,defeated):ROUTES[route].target;
+  species=campaign?exploration_focus(s,defeated):ROUTES[route].target;
+  unsigned native_rarity;if(exploration_habitat(species,&native_rarity)>=0&&rarity<native_rarity)rarity=native_rarity;
   if(pending(q,species)){e.kind=EXPLORE_BLOCKED;return e;}
  } else {
   const uint8_t *pool=POOLS[route][rarity-1];
   unsigned n=0;while(n<16&&pool[n])n++;
-  for(unsigned i=0;i<n;i++) {
+  // Three of four rolls prefer uncaught species within the same unlocked tier.
+  if(campaign&&(seed&3)!=0)for(unsigned i=0;i<n;i++){
+   unsigned candidate=pool[(seed/1000+i)%n];
+   if(exploration_species_open(candidate,defeated)&&!pending(q,candidate)&&!dex_is_caught(dex,candidate)){species=candidate;break;}
+  }
+  for(unsigned i=0;!species&&i<n;i++) {
    unsigned candidate=pool[(seed/1000+i)%n];
    if((!campaign||exploration_species_open(candidate,defeated))&&!pending(q,candidate)){species=candidate;break;}
   }
@@ -105,8 +137,8 @@ static exploration_event_t step(exploration_state_t *s,enc_refresh_state_t *r,
 
 // Baseline rule harness retained for V11 regression. Runtime uses progress API.
 exploration_event_t exploration_step(exploration_state_t *s,enc_refresh_state_t *r,enc_queue_t *q,dex_t *d,uint16_t active){return step(s,r,q,d,active,0,false,0);}
-exploration_event_t exploration_step_nurtured(exploration_state_t *s,enc_refresh_state_t *r,enc_queue_t *q,dex_t *d,uint16_t active,uint16_t defeated,inventory_t *bag,const nurture_t *pet){
- exploration_event_t e=step(s,r,q,d,active,defeated,true,nurture_rare_bonus(pet));
+exploration_event_t exploration_step_team(exploration_state_t *s,enc_refresh_state_t *r,enc_queue_t *q,dex_t *d,uint16_t active,uint16_t defeated,inventory_t *bag,const nurture_t *pet,unsigned team_bonus){
+ exploration_event_t e=step(s,r,q,d,active,defeated,true,nurture_rare_bonus(pet)+(team_bonus>30?30:team_bonus));
  if(e.kind!=EXPLORE_CLUE||!bag)return e;
  unsigned chapter=exploration_chapter_current(defeated);
  uint32_t roll=mix(s->steps^r->serial*0x9e3779b9u^s->route*0x85ebca6bu^0x18b479u);
@@ -121,3 +153,17 @@ exploration_event_t exploration_step_nurtured(exploration_state_t *s,enc_refresh
 }
 
 exploration_event_t exploration_step_progress(exploration_state_t *s,enc_refresh_state_t *r,enc_queue_t *q,dex_t *d,uint16_t active,uint16_t defeated,inventory_t *bag){return exploration_step_nurtured(s,r,q,d,active,defeated,bag,NULL);}
+
+exploration_event_t exploration_step_nurtured(exploration_state_t *s,enc_refresh_state_t *r,enc_queue_t *q,dex_t *d,uint16_t active,uint16_t defeated,inventory_t *bag,const nurture_t *pet){return exploration_step_team(s,r,q,d,active,defeated,bag,pet,0);}
+
+unsigned exploration_team_bonus(const party_t *party,unsigned route) {
+ if(!party||route>=4)return 0;
+ // GEN1 type IDs: grass/bug, rock/ground, water/ice, electric/poison.
+ static const uint8_t types[4][2]={{4,11},{12,8},{2,5},{3,7}};
+ unsigned matches=0;for(unsigned i=0;i<party->party_count;i++){
+  bool duplicate=false;for(unsigned j=0;j<i;j++)if(party->party[j].species_id==party->party[i].species_id)duplicate=true;
+  species_t sp;if(duplicate||!assets_species(party->party[i].species_id,&sp))continue;
+  if(sp.type1==types[route][0]||sp.type2==types[route][0]||sp.type1==types[route][1]||sp.type2==types[route][1])matches++;
+ }
+ return matches>3?30:matches*10;
+}

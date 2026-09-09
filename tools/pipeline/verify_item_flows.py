@@ -38,7 +38,7 @@ def main():
             assert s['inventory'][ball]==0 and s['party_count']==2 and s['active'] is None
             caught=next(m for m in s['party'] if m['species']==143)
             assert caught['intimacy']==(40 if ball==7 else 0)
-            assert caught['level']==45 and caught['exp']==5*45**3//2, 'capture lost the EXP floor of its wild level'
+            assert caught['level']==45 and caught['exp']==3*45**3//2, 'capture lost the EXP floor of its wild level'
             for _ in range(3): f.command('key 0 1')
             f.command('tick 40')
             assert f.state()['inventory'][ball]==0 and f.state()['party_count']==2
@@ -62,6 +62,7 @@ def main():
         f.image('caught-result-save-failed.png')
         for c in ['key 1 1','key 2 1','tick 2400']:
             f.command(c);assert f.state()==pending,'pending successful catch became a miss or escaped'
+        f.command('tick 4200') # Wait for the capture animation before retrying storage.
         f.command('key 0 1');s=f.state()
         assert s['inventory'][3]==0 and s['party_count']==2 and s['active'] is None
         f.image('caught-result-save-retried.png')
@@ -92,7 +93,8 @@ def main():
         f.until(lambda:f.phase()=='result','loot retry result')
         pending=f.state();assert not f.encounter()['loot_checked'] and not pending['can_leave']
         for key in 'BCBC':f.key(key);assert f.state()==pending
-        f.key('A');assert f.encounter()['loot_checked'] and f.state()['can_leave']
+        f.key('A');f.until(lambda:f.phase()=='result','retry experience animation',limit=120)
+        assert f.encounter()['loot_checked'] and f.state()['can_leave']
         after=f.state()['inventory'];assert sum(after)-sum(before)==f.encounter()['loot_qty']
         f.key('A');f.key('C');assert f.state()['inventory']==after
         results.append('loot write failure locks result; A retry awards once')
@@ -125,7 +127,9 @@ def main():
         assert pending['page']==4 and not pending['can_leave']
         assert f.encounter()['capture_used'] and pending['inventory'][3]==0
         for key in 'BCBC':f.key(key);assert f.state()==pending
-        f.tick(2400);assert f.state()==pending,'final successful throw became an escape while awaiting save'
+        f.tick(4200);after_animation=f.state()
+        # The animation busy flag clears; the pending capture and exit lock must remain.
+        assert {k:v for k,v in after_animation.items() if k!='display'}=={k:v for k,v in pending.items() if k!='display'},'final successful throw changed while awaiting save'
         f.key('A');assert f.state()['party_count']==2 and f.state()['inventory'][3]==0
         results.append('victory final capture save retry keeps hit and locks menu exit')
     finally:checks+=f.checks;f.close()

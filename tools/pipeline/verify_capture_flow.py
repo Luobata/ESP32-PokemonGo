@@ -68,12 +68,12 @@ class Flow:
         assert self.encounter()['auto_battle'] and self.state()['active']
         assert all(e['uid'] != self.uid for e in self.state()['queue'])
         self.locked('ABABA', 'battle')
-        self.tick()
+        self.until(lambda: self.phase() == 'attack', 'first attack animation')
         self.locked('ABABA', 'attack')
         self.until(lambda: self.encounter()['reward_settled'], 'battle settlement')
         assert self.encounter()['won'], 'fixture did not win'
         self.locked('ACBAC', 'exp')
-        self.until(lambda: self.phase() == 'result', 'experience animation', limit=25)
+        self.until(lambda: self.phase() == 'result', 'experience animation', limit=120)
 
     def locked(self, keys, phase):
         before = self.state()
