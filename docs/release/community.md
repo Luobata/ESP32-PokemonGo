@@ -5,8 +5,9 @@
 ## 已备材料
 
 - 合并固件：本地 `release/community/FoloToy-AI-Passport-full.bin`，烧录地址 `0x0`。
-- 封面：`reports/video/pokewalk-promo-2026-09-09/pokewalk-cover.jpg`。
-- 宣传片：同目录 `pokewalk-promo.mp4`，2分09秒、720×1280、游戏原生音轨；另有无外框版本 `pokewalk-gameplay-clean.mp4`。
+- 封面：`reports/video/pokewalk-promo-collection-2026-09-09/pokewalk-cover.jpg`。
+- 宣传片：同目录 `pokewalk-promo.mp4`，2分17秒、720×1280、游戏原生音轨；另有无外框版本 `pokewalk-gameplay-clean.mp4`。
+- 新片包含图鉴追踪、梦幻三段线索与成功捕获、队伍经验分享和强化道馆；演示存档章节在片中标注。
 - 介绍草稿如下。版本限制写明，不能宣传为金银全招式复刻。
 
 ## 固件生成和验证

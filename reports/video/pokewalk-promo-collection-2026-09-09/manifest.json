@@ -1,0 +1,2301 @@
+{
+  "renderer_build": "629895d50988af74381b",
+  "fps": 30,
+  "duration": 137,
+  "resolution": [
+    720,
+    1280
+  ],
+  "fresh_save_opening": true,
+  "later_chapters_staged": true,
+  "audio": "production game mixer sampled synchronously at 22050Hz",
+  "capture_policy": "one successful tracked Mew capture; no failed throws",
+  "source_commit": "3ffab0063091b4a5b5db2e0ca377aa299c472721",
+  "scenes": [
+    {
+      "name": "opening",
+      "start": 0.0,
+      "duration": 22,
+      "pages": [
+        0,
+        9
+      ],
+      "music_ids": [
+        1,
+        2
+      ],
+      "audio_samples": 485100,
+      "ending_page": 9,
+      "caught": 0,
+      "evolutions": 0,
+      "checks": 22,
+      "audio_rms": 451.51,
+      "party": [],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 0,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "starter",
+      "start": 22.0,
+      "duration": 7,
+      "pages": [
+        1,
+        9
+      ],
+      "music_ids": [
+        2,
+        3
+      ],
+      "audio_samples": 154350,
+      "ending_page": 1,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 7,
+      "audio_rms": 399.95,
+      "party": [
+        {
+          "species": 25,
+          "level": 1,
+          "exp": 0,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 0,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "idle",
+      "start": 29.0,
+      "duration": 3,
+      "pages": [
+        1
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 66150,
+      "ending_page": 1,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 3,
+      "audio_rms": 370.67,
+      "party": [
+        {
+          "species": 25,
+          "level": 1,
+          "exp": 0,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 0,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "menu",
+      "start": 32.0,
+      "duration": 3,
+      "pages": [
+        11
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 66150,
+      "ending_page": 11,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 3,
+      "audio_rms": 376.03,
+      "party": [
+        {
+          "species": 25,
+          "level": 1,
+          "exp": 0,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 0,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "tracking",
+      "start": 35.0,
+      "duration": 6,
+      "pages": [
+        6,
+        15
+      ],
+      "music_ids": [
+        3,
+        5
+      ],
+      "audio_samples": 132300,
+      "ending_page": 15,
+      "caught": 2,
+      "evolutions": 0,
+      "checks": 6,
+      "audio_rms": 444.05,
+      "party": [
+        {
+          "species": 25,
+          "level": 60,
+          "exp": 324000,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 1,
+          "level": 30,
+          "exp": 40500,
+          "hp": 100,
+          "intimacy": 80,
+          "explore": 100,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 16383,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "clues",
+      "start": 41.0,
+      "duration": 17,
+      "pages": [
+        15
+      ],
+      "music_ids": [
+        5
+      ],
+      "audio_samples": 374850,
+      "ending_page": 15,
+      "caught": 2,
+      "evolutions": 0,
+      "checks": 17,
+      "audio_rms": 615.37,
+      "party": [
+        {
+          "species": 25,
+          "level": 60,
+          "exp": 324000,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 7,
+          "flags": 0
+        },
+        {
+          "species": 1,
+          "level": 30,
+          "exp": 40500,
+          "hp": 100,
+          "intimacy": 80,
+          "explore": 100,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 17,
+        "steps": 7,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 16383,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "capture",
+      "start": 58.0,
+      "duration": 12,
+      "pages": [
+        3,
+        4
+      ],
+      "music_ids": [
+        0,
+        7,
+        16
+      ],
+      "audio_samples": 264600,
+      "ending_page": 4,
+      "caught": 3,
+      "evolutions": 0,
+      "checks": 12,
+      "audio_rms": 467.04,
+      "party": [
+        {
+          "species": 25,
+          "level": 60,
+          "exp": 324345,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 7,
+          "flags": 0
+        },
+        {
+          "species": 1,
+          "level": 30,
+          "exp": 40569,
+          "hp": 100,
+          "intimacy": 80,
+          "explore": 100,
+          "flags": 0
+        },
+        {
+          "species": 151,
+          "level": 63,
+          "exp": 375070,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 17,
+        "steps": 7,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 16383,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "party",
+      "start": 70.0,
+      "duration": 5,
+      "pages": [
+        12
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 110250,
+      "ending_page": 12,
+      "caught": 3,
+      "evolutions": 0,
+      "checks": 5,
+      "audio_rms": 365.15,
+      "party": [
+        {
+          "species": 25,
+          "level": 60,
+          "exp": 324345,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 7,
+          "flags": 0
+        },
+        {
+          "species": 1,
+          "level": 30,
+          "exp": 40569,
+          "hp": 100,
+          "intimacy": 80,
+          "explore": 100,
+          "flags": 0
+        },
+        {
+          "species": 151,
+          "level": 63,
+          "exp": 375070,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 17,
+        "steps": 7,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 16383,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "battle",
+      "start": 75.0,
+      "duration": 8,
+      "pages": [
+        3
+      ],
+      "music_ids": [
+        7
+      ],
+      "audio_samples": 176400,
+      "ending_page": 3,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 8,
+      "audio_rms": 522.09,
+      "party": [
+        {
+          "species": 25,
+          "level": 60,
+          "exp": 324000,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 0,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "skills",
+      "start": 83.0,
+      "duration": 4,
+      "pages": [
+        12
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 88200,
+      "ending_page": 12,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 4,
+      "audio_rms": 364.8,
+      "party": [
+        {
+          "species": 9,
+          "level": 40,
+          "exp": 96000,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 0,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "care",
+      "start": 87.0,
+      "duration": 4,
+      "pages": [
+        5
+      ],
+      "music_ids": [
+        4
+      ],
+      "audio_samples": 88200,
+      "ending_page": 5,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 4,
+      "audio_rms": 589.38,
+      "party": [
+        {
+          "species": 25,
+          "level": 30,
+          "exp": 40500,
+          "hp": 100,
+          "intimacy": 71,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 0,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "evolve",
+      "start": 91.0,
+      "duration": 5,
+      "pages": [
+        1,
+        5
+      ],
+      "music_ids": [
+        3,
+        4,
+        14
+      ],
+      "audio_samples": 110250,
+      "ending_page": 1,
+      "caught": 2,
+      "evolutions": 1,
+      "checks": 5,
+      "audio_rms": 937.61,
+      "party": [
+        {
+          "species": 130,
+          "level": 20,
+          "exp": 12000,
+          "hp": 100,
+          "intimacy": 100,
+          "explore": 1000,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 0,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "bag",
+      "start": 96.0,
+      "duration": 4,
+      "pages": [
+        10
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 88200,
+      "ending_page": 10,
+      "caught": 1,
+      "evolutions": 0,
+      "checks": 4,
+      "audio_rms": 364.8,
+      "party": [
+        {
+          "species": 25,
+          "level": 30,
+          "exp": 40500,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 0,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "achievements",
+      "start": 100.0,
+      "duration": 4,
+      "pages": [
+        14
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 88200,
+      "ending_page": 14,
+      "caught": 6,
+      "evolutions": 0,
+      "checks": 4,
+      "audio_rms": 364.8,
+      "party": [
+        {
+          "species": 25,
+          "level": 30,
+          "exp": 40500,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 1,
+          "level": 5,
+          "exp": 187,
+          "hp": 100,
+          "intimacy": 12,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 4,
+          "level": 7,
+          "exp": 514,
+          "hp": 100,
+          "intimacy": 21,
+          "explore": 8,
+          "flags": 0
+        },
+        {
+          "species": 7,
+          "level": 9,
+          "exp": 1093,
+          "hp": 100,
+          "intimacy": 30,
+          "explore": 16,
+          "flags": 0
+        },
+        {
+          "species": 133,
+          "level": 11,
+          "exp": 1996,
+          "hp": 100,
+          "intimacy": 39,
+          "explore": 24,
+          "flags": 0
+        },
+        {
+          "species": 147,
+          "level": 13,
+          "exp": 3295,
+          "hp": 100,
+          "intimacy": 48,
+          "explore": 32,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 0,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "gym",
+      "start": 104.0,
+      "duration": 8,
+      "pages": [
+        13
+      ],
+      "music_ids": [
+        6,
+        9,
+        15
+      ],
+      "audio_samples": 176400,
+      "ending_page": 13,
+      "caught": 6,
+      "evolutions": 0,
+      "checks": 8,
+      "audio_rms": 565.47,
+      "party": [
+        {
+          "species": 9,
+          "level": 70,
+          "exp": 514500,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 1,
+          "level": 5,
+          "exp": 187,
+          "hp": 100,
+          "intimacy": 12,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 4,
+          "level": 7,
+          "exp": 514,
+          "hp": 100,
+          "intimacy": 21,
+          "explore": 8,
+          "flags": 0
+        },
+        {
+          "species": 7,
+          "level": 9,
+          "exp": 1093,
+          "hp": 100,
+          "intimacy": 30,
+          "explore": 16,
+          "flags": 0
+        },
+        {
+          "species": 133,
+          "level": 11,
+          "exp": 1996,
+          "hp": 100,
+          "intimacy": 39,
+          "explore": 24,
+          "flags": 0
+        },
+        {
+          "species": 147,
+          "level": 13,
+          "exp": 3295,
+          "hp": 100,
+          "intimacy": 48,
+          "explore": 32,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 0,
+        "league": 0,
+        "trainer": 0,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 1,
+        "rng": 2392551038,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 9,
+                "hp": 448,
+                "max_hp": 448,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 74,
+                "hp": 0,
+                "max_hp": 106,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 95,
+                "hp": 98,
+                "max_hp": 98,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "league",
+      "start": 112.0,
+      "duration": 6,
+      "pages": [
+        13
+      ],
+      "music_ids": [
+        6,
+        8,
+        15
+      ],
+      "audio_samples": 132300,
+      "ending_page": 13,
+      "caught": 6,
+      "evolutions": 0,
+      "checks": 6,
+      "audio_rms": 523.87,
+      "party": [
+        {
+          "species": 6,
+          "level": 80,
+          "exp": 768000,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 1,
+          "level": 5,
+          "exp": 187,
+          "hp": 100,
+          "intimacy": 12,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 4,
+          "level": 7,
+          "exp": 514,
+          "hp": 100,
+          "intimacy": 21,
+          "explore": 8,
+          "flags": 0
+        },
+        {
+          "species": 7,
+          "level": 9,
+          "exp": 1093,
+          "hp": 100,
+          "intimacy": 30,
+          "explore": 16,
+          "flags": 0
+        },
+        {
+          "species": 133,
+          "level": 11,
+          "exp": 1996,
+          "hp": 100,
+          "intimacy": 39,
+          "explore": 24,
+          "flags": 0
+        },
+        {
+          "species": 147,
+          "level": 13,
+          "exp": 3295,
+          "hp": 100,
+          "intimacy": 48,
+          "explore": 32,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 255,
+        "league": 8,
+        "trainer": 8,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 1,
+        "rng": 1870727909,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 484,
+                "max_hp": 484,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 87,
+                "hp": 347,
+                "max_hp": 428,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 91,
+                "hp": 262,
+                "max_hp": 262,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 80,
+                "hp": 453,
+                "max_hp": 453,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 124,
+                "hp": 327,
+                "max_hp": 327,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 606,
+                "max_hp": 606,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "red",
+      "start": 118.0,
+      "duration": 6,
+      "pages": [
+        13
+      ],
+      "music_ids": [
+        6,
+        10,
+        15
+      ],
+      "audio_samples": 132300,
+      "ending_page": 13,
+      "caught": 6,
+      "evolutions": 0,
+      "checks": 6,
+      "audio_rms": 444.59,
+      "party": [
+        {
+          "species": 6,
+          "level": 90,
+          "exp": 1093500,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 1,
+          "level": 5,
+          "exp": 187,
+          "hp": 100,
+          "intimacy": 12,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 4,
+          "level": 7,
+          "exp": 514,
+          "hp": 100,
+          "intimacy": 21,
+          "explore": 8,
+          "flags": 0
+        },
+        {
+          "species": 7,
+          "level": 9,
+          "exp": 1093,
+          "hp": 100,
+          "intimacy": 30,
+          "explore": 16,
+          "flags": 0
+        },
+        {
+          "species": 133,
+          "level": 11,
+          "exp": 1996,
+          "hp": 100,
+          "intimacy": 39,
+          "explore": 24,
+          "flags": 0
+        },
+        {
+          "species": 147,
+          "level": 13,
+          "exp": 3295,
+          "hp": 100,
+          "intimacy": 48,
+          "explore": 32,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 1,
+        "rng": 525720900,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 78,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "rematch",
+      "start": 124.0,
+      "duration": 7,
+      "pages": [
+        13
+      ],
+      "music_ids": [
+        6,
+        9,
+        15
+      ],
+      "audio_samples": 154350,
+      "ending_page": 13,
+      "caught": 6,
+      "evolutions": 0,
+      "checks": 7,
+      "audio_rms": 597.97,
+      "party": [
+        {
+          "species": 9,
+          "level": 80,
+          "exp": 768000,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 1,
+          "level": 5,
+          "exp": 187,
+          "hp": 100,
+          "intimacy": 12,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 4,
+          "level": 7,
+          "exp": 514,
+          "hp": 100,
+          "intimacy": 21,
+          "explore": 8,
+          "flags": 0
+        },
+        {
+          "species": 7,
+          "level": 9,
+          "exp": 1093,
+          "hp": 100,
+          "intimacy": 30,
+          "explore": 16,
+          "flags": 0
+        },
+        {
+          "species": 133,
+          "level": 11,
+          "exp": 1996,
+          "hp": 100,
+          "intimacy": 39,
+          "explore": 24,
+          "flags": 0
+        },
+        {
+          "species": 147,
+          "level": 13,
+          "exp": 3295,
+          "hp": 100,
+          "intimacy": 48,
+          "explore": 32,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 0,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 1,
+        "rng": 4195527149,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 9,
+                "hp": 413,
+                "max_hp": 490,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 142,
+                "hp": 433,
+                "max_hp": 433,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 139,
+                "hp": 387,
+                "max_hp": 387,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 141,
+                "hp": 344,
+                "max_hp": 344,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 76,
+                "hp": 436,
+                "max_hp": 436,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 95,
+                "hp": 229,
+                "max_hp": 229,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 112,
+                "hp": 557,
+                "max_hp": 557,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "settings",
+      "start": 131.0,
+      "duration": 3,
+      "pages": [
+        11
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 66150,
+      "ending_page": 11,
+      "caught": 6,
+      "evolutions": 0,
+      "checks": 3,
+      "audio_rms": 366.68,
+      "party": [
+        {
+          "species": 25,
+          "level": 30,
+          "exp": 40500,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 1,
+          "level": 5,
+          "exp": 187,
+          "hp": 100,
+          "intimacy": 12,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 4,
+          "level": 7,
+          "exp": 514,
+          "hp": 100,
+          "intimacy": 21,
+          "explore": 8,
+          "flags": 0
+        },
+        {
+          "species": 7,
+          "level": 9,
+          "exp": 1093,
+          "hp": 100,
+          "intimacy": 30,
+          "explore": 16,
+          "flags": 0
+        },
+        {
+          "species": 133,
+          "level": 11,
+          "exp": 1996,
+          "hp": 100,
+          "intimacy": 39,
+          "explore": 24,
+          "flags": 0
+        },
+        {
+          "species": 147,
+          "level": 13,
+          "exp": 3295,
+          "hp": 100,
+          "intimacy": 48,
+          "explore": 32,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 0,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "name": "outro",
+      "start": 134.0,
+      "duration": 3,
+      "pages": [
+        1
+      ],
+      "music_ids": [
+        3
+      ],
+      "audio_samples": 66150,
+      "ending_page": 1,
+      "caught": 6,
+      "evolutions": 0,
+      "checks": 3,
+      "audio_rms": 366.68,
+      "party": [
+        {
+          "species": 25,
+          "level": 30,
+          "exp": 40500,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 1,
+          "level": 5,
+          "exp": 187,
+          "hp": 100,
+          "intimacy": 12,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 4,
+          "level": 7,
+          "exp": 514,
+          "hp": 100,
+          "intimacy": 21,
+          "explore": 8,
+          "flags": 0
+        },
+        {
+          "species": 7,
+          "level": 9,
+          "exp": 1093,
+          "hp": 100,
+          "intimacy": 30,
+          "explore": 16,
+          "flags": 0
+        },
+        {
+          "species": 133,
+          "level": 11,
+          "exp": 1996,
+          "hp": 100,
+          "intimacy": 39,
+          "explore": 24,
+          "flags": 0
+        },
+        {
+          "species": 147,
+          "level": 13,
+          "exp": 3295,
+          "hp": 100,
+          "intimacy": 48,
+          "explore": 32,
+          "flags": 0
+        }
+      ],
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      },
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 0,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    }
+  ],
+  "audio_sha256": "9d4f3032a1e5821770cb79f5a6b7f105b9cc991d4e5a8674469ef240f1ce9b1f",
+  "frames": 4110
+}

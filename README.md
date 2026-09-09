@@ -2,7 +2,7 @@
 
 在 FoloToy AI Passport 上运行的宝可梦像素同人游戏：探索路线、捕获与养成前 151 只宝可梦，组建队伍，挑战道馆、四天王和赤红。设备为 ESP32-C3、8MB Flash、240×320 屏幕、三键操作。
 
-[宣传片（2分09秒）](reports/video/pokewalk-promo-2026-09-09/pokewalk-promo.mp4) · [玩法与架构文档](docs/) · [金银学习表核查](docs/systems/S21-auto-learning.md) · [社区发布准备](docs/release/community.md)
+[宣传片（2分17秒）](reports/video/pokewalk-promo-collection-2026-09-09/pokewalk-promo.mp4) · [玩法与架构文档](docs/) · [金银学习表核查](docs/systems/S21-auto-learning.md) · [社区发布准备](docs/release/community.md)
 
 ## 已实现
 

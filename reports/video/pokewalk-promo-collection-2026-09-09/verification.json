@@ -1,0 +1,194 @@
+{
+  "status": "PASS",
+  "files": [
+    {
+      "file": "pokewalk-promo.mp4",
+      "video_seconds": "137.000000",
+      "audio_seconds": "137.000000",
+      "frames": "4110",
+      "resolution": [
+        720,
+        1280
+      ],
+      "sha256": "578f663b03bb0643c16f52c9e8fe1b8aadfbe06d98739dc194eb4a601cc05f06",
+      "full_decode": "PASS"
+    },
+    {
+      "file": "pokewalk-gameplay-clean.mp4",
+      "video_seconds": "137.000000",
+      "audio_seconds": "137.000000",
+      "frames": "4110",
+      "resolution": [
+        480,
+        640
+      ],
+      "sha256": "417604accb1e822c4004e193a1d96ccee173793e44177e65f6a37420a93e3913",
+      "full_decode": "PASS"
+    }
+  ],
+  "audio_scenes": [
+    {
+      "scene": "opening",
+      "rms": 451.51,
+      "music_ids": [
+        1,
+        2
+      ]
+    },
+    {
+      "scene": "starter",
+      "rms": 399.95,
+      "music_ids": [
+        2,
+        3
+      ]
+    },
+    {
+      "scene": "idle",
+      "rms": 370.67,
+      "music_ids": [
+        3
+      ]
+    },
+    {
+      "scene": "menu",
+      "rms": 376.03,
+      "music_ids": [
+        3
+      ]
+    },
+    {
+      "scene": "tracking",
+      "rms": 444.05,
+      "music_ids": [
+        3,
+        5
+      ]
+    },
+    {
+      "scene": "clues",
+      "rms": 615.37,
+      "music_ids": [
+        5
+      ]
+    },
+    {
+      "scene": "capture",
+      "rms": 467.04,
+      "music_ids": [
+        0,
+        7,
+        16
+      ]
+    },
+    {
+      "scene": "party",
+      "rms": 365.15,
+      "music_ids": [
+        3
+      ]
+    },
+    {
+      "scene": "battle",
+      "rms": 522.09,
+      "music_ids": [
+        7
+      ]
+    },
+    {
+      "scene": "skills",
+      "rms": 364.8,
+      "music_ids": [
+        3
+      ]
+    },
+    {
+      "scene": "care",
+      "rms": 589.38,
+      "music_ids": [
+        4
+      ]
+    },
+    {
+      "scene": "evolve",
+      "rms": 937.61,
+      "music_ids": [
+        3,
+        4,
+        14
+      ]
+    },
+    {
+      "scene": "bag",
+      "rms": 364.8,
+      "music_ids": [
+        3
+      ]
+    },
+    {
+      "scene": "achievements",
+      "rms": 364.8,
+      "music_ids": [
+        3
+      ]
+    },
+    {
+      "scene": "gym",
+      "rms": 565.47,
+      "music_ids": [
+        6,
+        9,
+        15
+      ]
+    },
+    {
+      "scene": "league",
+      "rms": 523.87,
+      "music_ids": [
+        6,
+        8,
+        15
+      ]
+    },
+    {
+      "scene": "red",
+      "rms": 444.59,
+      "music_ids": [
+        6,
+        10,
+        15
+      ]
+    },
+    {
+      "scene": "rematch",
+      "rms": 597.97,
+      "music_ids": [
+        6,
+        9,
+        15
+      ]
+    },
+    {
+      "scene": "settings",
+      "rms": 366.68,
+      "music_ids": [
+        3
+      ]
+    },
+    {
+      "scene": "outro",
+      "rms": 366.68,
+      "music_ids": [
+        3
+      ]
+    }
+  ],
+  "redraw_checks": 137,
+  "capture_success_only": true,
+  "tracked_target": 151,
+  "exploration_steps": 7,
+  "reserve_exp_before": 40500,
+  "reserve_exp_after": 40569,
+  "gym_team_size": 6,
+  "recorder_sha256": "ca06c2760a55b65af40aab67ce0d8221a7bbf497509c1f9d115a6dd26aa8f6f9"
+}

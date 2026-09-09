@@ -751,7 +751,7 @@ int main(void)
                    a < 3 && b <= BSP_BTN_GESTURE_END) {
             /* Forward gameplay holds; omit debug screenshot and demo-shell exits. */
             if (b != BSP_BTN_LONG || a == BSP_BTN_UP ||
-                (a == BSP_BTN_DOWN && (nav_current() == PAGE_ENCOUNTER || nav_current() == PAGE_BAG ||
+                (a == BSP_BTN_DOWN && (nav_current() == PAGE_ENCOUNTER || nav_current() == PAGE_BAG || nav_current() == PAGE_DEX ||
                                       nav_current() == PAGE_MENU || nav_current() == PAGE_PARTY ||
                                       nav_current() == PAGE_TRAINER || nav_current() == PAGE_ACHIEVEMENTS ||
                                       nav_current() == PAGE_EXPLORATION))) nav_key(a, b);
