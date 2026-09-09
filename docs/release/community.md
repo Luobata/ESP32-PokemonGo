@@ -1,12 +1,13 @@
 # AI Passport 社区发布准备
 
-本次只准备发布素材并提交源码，尚未上传社区。公开源码：https://github.com/Luobata/ESP32-PokemonGo ，本轮分支 `render-engine-and-gates`。
+公开源码：https://github.com/Luobata/ESP32-PokemonGo 。发布分支为 `main`。最新双语标题与介绍以 [submission.json](submission.json) 为准，包含探索补给、12 位地图训练家、经验追赶和路线研究。社区项目地址与审核状态以官方提交回执为准。
 
 ## 已备材料
 
 - 合并固件：本地 `release/community/FoloToy-AI-Passport-full.bin`，烧录地址 `0x0`。
-- 封面：`reports/video/pokewalk-promo-collection-2026-09-09/pokewalk-cover.jpg`。
-- 宣传片：同目录 `pokewalk-promo.mp4`，2分17秒、720×1280、游戏原生音轨；另有无外框版本 `pokewalk-gameplay-clean.mp4`。
+- 封面：发布目录中的 `pokewalk-cover.png`，3:4 竖版。
+- 真机证据：`release/community/device-screen.png` 及官方工具生成的 `.fap-capture.json` 回执。
+- 宣传片：`reports/video/pokewalk-story-red-2026-09-09/pokewalk-story-v3.mp4`，约3分43秒，包含完整博士转场与赤红片段。
 - 新片包含图鉴追踪、梦幻三段线索与成功捕获、队伍经验分享和强化道馆；演示存档章节在片中标注。
 - 介绍草稿如下。版本限制写明，不能宣传为金银全招式复刻。
 
@@ -28,17 +29,12 @@ python tools/release/package_firmware.py
 
 1. 从官方地址加载 [publisher 工作流](https://ai-passport.folotoy.cn/skills/folotoy-ai-passport-publisher.zip)，由其检查上述产物和字段。
 2. 在 [AI Passport 社区](https://ai-passport.folotoy.cn) 登录，通过官方网页确认显示的授权码；无需把密码交给助手。
-3. 选择合并固件、封面（JPEG/PNG/WebP ≤10MiB）、公开 HTTPS 源码地址及双语标题和介绍，预览后确认上传。
-4. 发布后取得社区页面，再考虑是否归档到上游 `plays/`；那是单独的双语文本 PR，不在此处上传固件或封面。
+3. 通过 `FAP_SCREENSHOT_V1` 从当前设备读取截图，取得官方回执；该命令不切页、不唤醒、不修改存档，也不触发按键。
+4. 选择合并固件、3:4 封面（JPEG/PNG/WebP ≤10MiB）、公开 HTTPS 源码地址及 `submission.json` 中的双语介绍，预览后上传。
+5. 发布后取得社区页面，再考虑是否归档到上游 `plays/`；那是单独的双语文本 PR，不在此处上传固件或封面。
 
 可直接发送： “按 docs/release/community.md 准备好的材料，用官方 publisher 工作流发布到 AI Passport 社区。”
 
-## 标题与介绍草稿
+## 最新发布文案
 
-**中文标题：** PokeWalk · 随身宝可梦探索
-
-**中文介绍：** 在 AI Passport 上开启一段三键像素冒险。从大木博士介绍和选择伙伴开始，探索路线、捕获前151只宝可梦、培养六人队伍，挑战道馆、四天王和赤红。养成、图鉴、成就与探索奖励相互联动；招式随成长自动学习，无需管理 PP 或遗忘技能。配有像素动画、场景音乐、技能音效和可调音量。探索使用 Wi-Fi 环境变化，不是 GPS 或真实计步。本版本支持191种招式，仍有48种金银招式待补充。非官方同人项目；素材来源见源码文档。
-
-**English title:** PokeWalk · A Pocket Pokémon Adventure
-
-**English description:** Start with Professor Oak and choose your partner in this three-button pixel adventure for AI Passport. Explore routes, catch the first 151 Pokémon, raise a six-member party, and challenge Gym Leaders, the Elite Four and Red. Care, Pokédex progress, achievements and exploration rewards work together. Compatible moves unlock as Pokémon grow, without PP management or forced forgetting. Includes pixel animations, scene music, battle effects and adjustable volume. Exploration uses changes in the Wi-Fi environment, not GPS or step counting. This build supports 191 moves; 48 Gold/Silver moves remain unimplemented. An unofficial fan project; asset sources are documented in the repository.
+完整双语字段见 [submission.json](submission.json)。旧版宣传片仍保留在仓库中，社区介绍以本次实际功能为准。

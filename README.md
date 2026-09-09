@@ -2,13 +2,14 @@
 
 在 FoloToy AI Passport 上运行的宝可梦像素同人游戏：探索路线、捕获与养成前 151 只宝可梦，组建队伍，挑战道馆、四天王和赤红。设备为 ESP32-C3、8MB Flash、240×320 屏幕、三键操作。
 
-[宣传片（2分17秒）](reports/video/pokewalk-promo-collection-2026-09-09/pokewalk-promo.mp4) · [玩法与架构文档](docs/) · [金银学习表核查](docs/systems/S21-auto-learning.md) · [社区发布准备](docs/release/community.md)
+[宣传片（约3分43秒，含赤红彩蛋）](reports/video/pokewalk-story-red-2026-09-09/pokewalk-story-v3.mp4) · [玩法与架构文档](docs/) · [金银学习表核查](docs/systems/S21-auto-learning.md) · [社区发布说明](docs/release/community.md)
 
 [完整流程故事版 V3（约3分43秒，含赤红彩蛋）](reports/video/pokewalk-story-red-2026-09-09/pokewalk-story-v3.mp4) · [赤红片段](reports/video/pokewalk-story-red-2026-09-09/red-epilogue.mp4) · [博士转场预览（10秒）](reports/video/pokewalk-story-transition-2026-09-09/oak-to-starter-preview.mp4) · [故事版试剪（1分59秒）](reports/video/pokewalk-story-2026-09-09/pokewalk-story.mp4) · 以皮卡丘和尼多娜的冒险串联捕获、成长、道馆与探索解锁。
 
 ## 已实现
 
 - 四条探索路线：Wi-Fi 环境变化积累探索机会；体力随设备运行时间恢复。不是 GPS 定位，也不是实际计步。
+- 探索补给条满格获得一次机会，最多24次；12位地图训练家可重复切磋，低等级队员有经验追赶，路线研究与首次发现/捕获也能获得经验。
 - 最多保留 5 个待处理遭遇；直接捕捉失败，敌方反击一次后可再次选择；主动开战后自动交锋。
 - 六人队伍和 151 格仓库（换宠保留同类个体）；捕获、进化和闪光记录进入图鉴与成就。
 - 战胜、战败、捕获均有经验；饱食、心情、亲密度影响经验、战斗和稀有遭遇。
@@ -57,7 +58,7 @@ python3 tools/pipeline/verify_trainer_campaign.py
 python3 tools/pipeline/verify_system_links.py
 ```
 
-固件应用在 `firmware/build/PokeWalk.bin`，应用地址 `0x10000`。现有设备增量更新前备份 NVS，不能把应用文件当成从 `0x0` 烧写的合并固件。存档版本 V11，3664字节；真实设备备份、扫描原始数据与凭证不进入 Git。
+固件应用在 `firmware/build/PokeWalk.bin`，应用地址 `0x10000`。现有设备增量更新前备份 NVS，不能把应用文件当成从 `0x0` 烧写的合并固件。存档版本 V14，3664字节；真实设备备份、扫描原始数据与凭证不进入 Git。
 
 社区上架需要另行验证的 `0x0` 合并固件、封面、源码地址和双语介绍，见发布说明。本仓库 push 不代表已经发布到社区。
 

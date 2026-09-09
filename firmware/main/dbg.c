@@ -40,6 +40,7 @@
 #include "world.h"
 #include "screen.h"
 #include "screen_idle.h"
+#include "serial_capture.h"
 #include "sfx.h"
 
 static const char *TAG = "dbg";
@@ -192,11 +193,20 @@ static void dbg_task(void *arg)
     int sfx_id = -1;
     bool seed_command = false;
     uint32_t seed_val = 0;
+    serial_capture_parser_t capture = {0};
     for (;;) {
         int c = fgetc(stdin);
         if (c == EOF) {
             vTaskDelay(pdMS_TO_TICKS(30));
             continue;
+        }
+        if (capture.active || (!sfx_command && !seed_command)) {
+            int parsed = serial_capture_feed(&capture, (char)c);
+            if (parsed == SERIAL_CAPTURE_READY && bsp_lvgl_lock(2000)) {
+                screen_dump_fap();
+                bsp_lvgl_unlock();
+            }
+            if (parsed != SERIAL_CAPTURE_OTHER) continue;
         }
         if (sfx_command) {
             if (c >= '0' && c <= '9') {

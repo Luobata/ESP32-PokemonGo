@@ -212,18 +212,20 @@ static uint16_t current_window(void)
     return cap_window_width_context(cr, (uint16_t)bonus, s_ball, c->enc.hp_ratio, &context);
 }
 
+static bool s_replaying;
+
 static void draw_bar_band(int band_y)
 {
     // 位置仍为 capture.c 的 0..200，包含两端；框不占用判定尺度。
     // 投球后冻结当次窗口，与冻结的 s_last.pointer 使用同一结果。
-    uint16_t w = s_thrown ? s_last.window_w : current_window();
-    uint16_t offset = s_thrown ? s_last.window_start : (CAP_BAR_WIDTH - w) / 2;
+    uint16_t w = s_thrown ? s_last.window_w : s_replaying ? s_visible.window_w : current_window();
+    uint16_t offset = s_thrown ? s_last.window_start : s_replaying ? s_visible.window_start : (CAP_BAR_WIDTH - w) / 2;
     uint16_t start = (uint16_t)(BAR_X + offset);
     uint16_t end = (uint16_t)(start + w);
     uint32_t elapsed = (uint32_t)((esp_timer_get_time() - s_t0) / 1000);
-    uint16_t p = s_thrown ? s_last.pointer : cap_pointer_position(elapsed);
+    uint16_t p = s_thrown ? s_last.pointer : s_replaying ? s_visible.pointer : cap_pointer_position(elapsed);
 
-    if (!s_thrown) {
+    if (!s_thrown && !s_replaying) {
         s_visible = (cap_result_t){.window_w = w, .window_start = offset,
             .window_end = (uint16_t)(offset + w), .pointer = p, .ball = s_ball,
             .caught = p >= offset && p <= offset + w};
@@ -357,7 +359,14 @@ static bool save_caught_result(void)
     return true;
 }
 
-static void redraw_for_dump(void) { draw_all(); }
+static void redraw_for_dump(void)
+{
+    // Reproduce the last presented pointer; a screenshot must not move the
+    // visible hit window or change which throw would succeed between ticks.
+    s_replaying = true;
+    draw_all();
+    s_replaying = false;
+}
 
 static void tick(lv_timer_t *t)
 {

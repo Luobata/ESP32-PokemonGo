@@ -90,5 +90,9 @@ void screen_redraw_current(void);
 // 32624 字节链接失败。回调式的代价是画面闪一下，换零常驻内存。
 void screen_dump(void);
 
+// Official publisher screenshot: current render state, binary RGB565LE.
+// Caller holds the LVGL lock. Does not push pixels, wake, or change game state.
+void screen_dump_fap(void);
+
 // 内部用：把当前横带吐出去。screen_push_band 在 dump 模式下调它。
 void screen_emit_band(int band_y);

@@ -657,6 +657,8 @@ int main(void)
             if(!play_battle_move_preview(a,b,c,d)){fputs("invalid move fixture\n",stderr);return 2;}
         } else if (booted && !strcmp(cmd, "page") && sscanf(line, "%*s %u", &a) == 1 && valid_page(a)) {
             nav_go(page_ids[a]);
+        } else if (booted && !strcmp(cmd, "FAP_SCREENSHOT_V1")) {
+            screen_dump_fap(); continue;
         } else if (booted && !strcmp(cmd,"nurture_fixture") && sscanf(line,"%*s %u %u %u %u",&a,&b,&c,&d)==4 && a<=100 && b<=100 && c<=100 && d<=100) {
             world.pet.satiety=a*NURT_Q;world.pet.mood=b*NURT_Q;world.pet.stamina=c*NURT_Q;world.pet.intimacy=d*NURT_Q;world.pet.last_us=esp_timer_get_time();host_redraw();
         } else if (booted && !strcmp(cmd, "exploration_fixture") && sscanf(line,"%*s %u %u %u %u",&a,&b,&c,&d)==4 && a<4 && b<=24 && c<=3 && d<=1) {

@@ -55,7 +55,7 @@ idf_component_register(
          "demo_radio.c"
          "demo_wifi.c"
     INCLUDE_DIRS "."
-    REQUIRES bsp esp_event esp_hw_support esp_netif esp_timer esp_wifi nvs_flash
+    REQUIRES bsp esp_event esp_hw_support esp_netif esp_timer esp_wifi nvs_flash esp_driver_usb_serial_jtag
     # 资产直接嵌进 app 分区（158.8 KB，占 3MB 的 5%）——
     # 不另开数据分区：那要多一套分区表与烧写步骤，而这点体积完全放得下。
     #

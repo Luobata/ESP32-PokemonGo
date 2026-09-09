@@ -18,6 +18,10 @@
 // 照片有反光、偏色、摩尔纹，截图没有。
 
 #include <string.h>
+#include <stdio.h>
+#ifndef HOST_BUILD
+#include "driver/usb_serial_jtag_vfs.h"
+#endif
 
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_ops.h"
@@ -49,6 +53,7 @@ static uint16_t s_band[SCREEN_W * SCREEN_BAND_H];
 // 换来零常驻内存。
 static screen_redraw_cb_t s_redraw;
 static bool s_dumping;
+static bool s_fap_capture;
 
 // 唯一的那张 LVGL 屏。**只建一次**，之后页面切换不碰它 ——
 // 见 screen.h 里那段「让 LVGL 闭嘴」。
@@ -123,6 +128,12 @@ static void wait_dma_done(void)
 
 void screen_push_band(int band_y)
 {
+    if (s_fap_capture) {
+        // Logical RGB565 in the existing little-endian band buffer. No extra
+        // 150 KiB framebuffer and no panel/backlight writes during capture.
+        fwrite(s_band, 1, sizeof(s_band), stdout);
+        return;
+    }
     if (screen_idle_is_off() && !s_dumping) return;
     esp_lcd_panel_handle_t panel = bsp_display_panel();
     if (!panel) return;
@@ -211,4 +222,45 @@ void screen_dump(void)
     printf("@@SHOTEND\n");
     fflush(stdout);
     ESP_LOGI(TAG, "截图已输出（%d×%d）", SCREEN_W, SCREEN_H);
+}
+
+#ifndef HOST_BUILD
+static int capture_discard_log(const char *format, va_list args)
+{
+    (void)format; (void)args; return 0;
+}
+#endif
+
+void screen_dump_fap(void)
+{
+    if (!s_redraw || s_fap_capture) return;
+#ifndef HOST_BUILD
+    vprintf_like_t previous = esp_log_set_vprintf(capture_discard_log);
+#endif
+    // Keep background telemetry out of the binary payload. Rendering is frozen
+    // by the caller's LVGL lock; this callback only replays the current frame.
+    flockfile(stdout);
+    fflush(stdout);
+#ifndef HOST_BUILD
+    usb_serial_jtag_vfs_set_tx_line_endings(ESP_LINE_ENDINGS_LF);
+#endif
+    printf("\nFAP_SCREENSHOT_V1 %d %d RGB565LE %d\n", SCREEN_W, SCREEN_H,
+           SCREEN_W * SCREEN_H * 2);
+    s_fap_capture = true;
+    s_redraw();
+    s_fap_capture = false;
+    fflush(stdout);
+#ifndef HOST_BUILD
+#if CONFIG_LIBC_STDOUT_LINE_ENDING_CRLF
+    usb_serial_jtag_vfs_set_tx_line_endings(ESP_LINE_ENDINGS_CRLF);
+#elif CONFIG_LIBC_STDOUT_LINE_ENDING_CR
+    usb_serial_jtag_vfs_set_tx_line_endings(ESP_LINE_ENDINGS_CR);
+#else
+    usb_serial_jtag_vfs_set_tx_line_endings(ESP_LINE_ENDINGS_LF);
+#endif
+#endif
+    funlockfile(stdout);
+#ifndef HOST_BUILD
+    esp_log_set_vprintf(previous);
+#endif
 }
