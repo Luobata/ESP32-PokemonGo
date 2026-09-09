@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "source": "reports/video/pokewalk-story-complete-2026-09-09/pokewalk-story.mp4",
+  "frames": 5719,
+  "replacement_start_seconds": 28.4,
+  "replacement_end_seconds": 30.966666666666665,
+  "transition_frames": 77,
+  "fade_to_card_frames": 18,
+  "card_hold_frames": 35,
+  "fade_to_starter_frames": 24,
+  "audio_identical": true,
+  "audio_pcm_sha256": "a74b5edb5c3d988d0e7eee3c3f85e03ab223e8fadc524d70540b518ed2c529b0",
+  "final_sha256": "6f14515fa385010185825c5f64bf4173770390829a0ca50ffce5373345c9f2e8"
+}
