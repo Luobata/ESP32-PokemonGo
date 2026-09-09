@@ -13,9 +13,10 @@
  function selected(){return catalog.find(m=>m.id===Number($('move').value));}
  async function render(){if(!session||!selected())return;await request('move_preview',{move:selected().id,side:Number($('side').value),mode:Number($('mode').value),frame});$('frame').value=frame;$('frame-label').textContent=frame+' / 35';}
  function info(){const m=selected();$('meta').textContent=m?`${types[m.type]} · 威力 ${m.power||'—'} · 命中 ${m.accuracy===255?'必中':m.accuracy+'%'}\n动画：${m.animation==='属性/状态共用动画'?m.animation:'招式指定动作'}${m.new?' · 本批新增':''}`:'无匹配招式';}
- function filter(){const old=$('move').value,q=$('search').value.trim();const rows=catalog.filter(m=>($('scope').value!=='new'||m.new)&&(!q||m.name.includes(q)||String(m.id).includes(q)));$('move').replaceChildren(...rows.map(m=>new Option(`${m.id} · ${m.name}`,m.id)));if(rows.some(m=>String(m.id)===old))$('move').value=old;$('count').textContent=`(${rows.length})`;info();frame=0;enqueue(render);}
+ function filter(){const old=$('move').value,q=$('search').value.trim();const rows=catalog.filter(m=>($('scope').value!=='new'||m.new)&&(!q||m.name.includes(q)||String(m.id).includes(q)));$('move').replaceChildren(...rows.map(m=>new Option(`${m.id} · ${m.name}`,m.id)));if(rows.some(m=>String(m.id)===old))$('move').value=old;$('count').textContent=`(${rows.length} / ${catalog.length})`;$('prev').disabled=$('next').disabled=rows.length<2;$('move').disabled=!rows.length;$('clear-filters').disabled=!q&&$('scope').value==='all';$('filter-note').textContent=q?`搜索“${q}”：${rows.length} 条结果。想选择其他招式，可修改搜索或清除筛选。`:$('scope').value==='new'?`当前仅显示本批新增的 ${rows.length} 招。`:`显示全部 ${rows.length} 招，可下拉选择或按名称搜索。`;info();frame=0;enqueue(render);}
  async function load(){await request('reset',{page:3,pet:Number($('pet').value),wild:Number($('wild').value),level:60,rarity:3,seed:123,team:0});frame=0;await render();}
- $('move').onchange=()=>{info();frame=0;enqueue(render);};$('search').oninput=filter;$('scope').onchange=filter;
+ $('move').onchange=()=>{info();frame=0;enqueue(render);};$('search').oninput=filter;$('scope').onchange=()=>{$('search').value='';filter();};
+ $('clear-filters').onclick=()=>{$('search').value='';$('scope').value='all';filter();};
  for(const id of ['side','mode'])$(id).onchange=()=>{frame=0;enqueue(render);};
  $('load').onclick=()=>enqueue(load);
  for(const [id,dir] of [['prev',-1],['next',1]])$(id).onclick=()=>{const s=$('move');if(!s.options.length)return;s.selectedIndex=(s.selectedIndex+dir+s.options.length)%s.options.length;s.onchange();};
