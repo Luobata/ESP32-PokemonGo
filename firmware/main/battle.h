@@ -13,7 +13,7 @@
 #include "combat.h"
 
 #define BATTLE_MAX_ROUNDS 40      // 与 sim 的 max_rounds 默认值一致
-#define BATTLE_TYPE_COUNT 15      // 初代 15 属性
+#define BATTLE_TYPE_COUNT 17      // 金银属性；前15个下标保持素材兼容
 
 // 属性下标 —— 与 tools/pipeline/convert_gen1.py 的 GEN1_TYPES 同序，
 // 也与 sim/strings.py 的 TYPES_CN 逐位对应（已验证三处一致）。
@@ -21,7 +21,7 @@
 enum {
     TY_NORMAL = 0, TY_FIRE, TY_WATER, TY_ELECTRIC, TY_GRASS, TY_ICE,
     TY_FIGHTING, TY_POISON, TY_GROUND, TY_FLYING, TY_PSYCHIC, TY_BUG,
-    TY_ROCK, TY_GHOST, TY_DRAGON,
+    TY_ROCK, TY_GHOST, TY_DRAGON, TY_DARK, TY_STEEL,
 };
 #define TY_NONE 0xFF
 

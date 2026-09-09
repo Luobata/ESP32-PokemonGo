@@ -1,0 +1,67 @@
+{
+  "http_modes_pass": 4,
+  "unsupported_move_rejected": true,
+  "browser_controls_verified": true,
+  "effects": [
+    {
+      "supported": 191,
+      "selected_added": 25,
+      "type_chart": "Gold/Silver",
+      "mechanics_pass": true,
+      "save_bytes": 3664
+    }
+  ],
+  "combat": [
+    {
+      "max_learned": 42,
+      "ai_distinct_moves": 25,
+      "cases": 4,
+      "moves": 191,
+      "save_version": 11,
+      "save_bytes": 3664,
+      "sanitized": true
+    }
+  ],
+  "trainer": [
+    {
+      "campaign_actions": 1352,
+      "replacements": 7,
+      "cases": 4,
+      "save_bytes": 3664,
+      "sanitized": true
+    }
+  ],
+  "learning": [
+    {
+      "species_level_checks": 15100,
+      "hm_compatibility": true,
+      "never_forgets": true,
+      "whirlpool_damage_and_trap": true
+    }
+  ],
+  "links": [
+    {
+      "cases": 11,
+      "map_evolution_achievement_item": true,
+      "trainer_xp_conserved": true
+    }
+  ],
+  "fx": [
+    {
+      "moves": 191,
+      "moves_with_effect_pixels": 191,
+      "frames": 34086,
+      "self_targets_correct": true,
+      "hud_protected": true,
+      "clean_recovery": true
+    },
+    {
+      "readability_moves": 8,
+      "both_sides": true,
+      "min_visible_ms": 540,
+      "min_peak_contrast_pixels": 336
+    }
+  ],
+  "firmware_build_pass": true,
+  "hardware_flashed": false
+}

@@ -8,6 +8,32 @@
 
 typedef struct { uint16_t move_id; uint8_t style; } move_style_t;
 static const move_style_t MOVE_STYLES[] = {
+    {172, BATTLE_FX_FIRE},
+    {181, BATTLE_FX_ICE},
+    {183, BATTLE_FX_PALM},
+    {185, BATTLE_FX_LUNGE},
+    {186, BATTLE_FX_PSYCHIC},
+    {188, BATTLE_FX_POISON},
+    {189, BATTLE_FX_GROUND},
+    {192, BATTLE_FX_THUNDER},
+    {196, BATTLE_FX_ICE},
+    {198, BATTLE_FX_MULTICUT},
+    {200, BATTLE_FX_DRAGON_RAGE},
+    {202, BATTLE_FX_DRAIN},
+    {204, BATTLE_FX_PSYCHIC},
+    {206, BATTLE_FX_CUT},
+    {211, BATTLE_FX_WIND},
+    {223, BATTLE_FX_PALM},
+    {225, BATTLE_FX_DRAGON},
+    {231, BATTLE_FX_WHIP},
+    {238, BATTLE_FX_CUT},
+    {239, BATTLE_FX_WIND},
+    {242, BATTLE_FX_BITE},
+    {245, BATTLE_FX_LUNGE},
+    {246, BATTLE_FX_ROCK},
+    {247, BATTLE_FX_ORB},
+    {249, BATTLE_FX_PALM},
+
     {1, BATTLE_FX_PALM}, {2, BATTLE_FX_PALM}, {3, BATTLE_FX_PALM},
     {7, BATTLE_FX_FIRE}, {8, BATTLE_FX_ICE}, {9, BATTLE_FX_ELECTRIC},
     {10, BATTLE_FX_CUT}, {16, BATTLE_FX_WIND}, {17, BATTLE_FX_WIND},
@@ -49,6 +75,8 @@ static const uint16_t TYPE_PAL[BATTLE_TYPE_COUNT][3] = {
     {RGB_HEX(0x383028), RGB_HEX(0x887858), RGB_HEX(0xd0c8a0)}, // rock
     {RGB_HEX(0x201838), RGB_HEX(0x605080), RGB_HEX(0xb8a8d8)}, // ghost
     {RGB_HEX(0x381878), RGB_HEX(0x8858d8), RGB_HEX(0xe8c0ff)}, // dragon
+    {RGB_HEX(0x201820), RGB_HEX(0x605068), RGB_HEX(0xc8a8c8)}, // dark
+    {RGB_HEX(0x283848), RGB_HEX(0x708898), RGB_HEX(0xe0f0ff)}, // steel
 };
 
 battle_fx_style_t battle_fx_style(const battle_round_t *round)
@@ -58,7 +86,9 @@ battle_fx_style_t battle_fx_style(const battle_round_t *round)
         if (MOVE_STYLES[i].move_id == round->move_id)
             return (battle_fx_style_t)MOVE_STYLES[i].style;
     }
-    return round->move_type < BATTLE_TYPE_COUNT
+    if(round->move_type==TY_DARK)return BATTLE_FX_GHOST;
+    if(round->move_type==TY_STEEL)return BATTLE_FX_CUT;
+    return round->move_type < 15
         ? (battle_fx_style_t)round->move_type : BATTLE_FX_IMPACT;
 }
 
@@ -386,12 +416,19 @@ void battle_fx_draw_band(const battle_round_t *round, uint8_t frame, int band_y,
         }
         break;
     case BATTLE_FX_WHIP:
+        if(round->move_id==231&&phase>=4&&phase<=9){stamp(&ctx,FX_ART_CUT_LONG,dx+(phase-6)*5,dy,2,flip);if(impact)stamp(&ctx,FX_ART_HIT_BIG,dx,dy,2,flip);}
         if (phase >= 3) {
             stamp(&ctx, FX_ART_WHIP, lerp(ax, dx, (phase - 2) * 64), lerp(ay, dy, (phase - 2) * 64), 2, flip);
             if (impact) stamp(&ctx, FX_ART_HIT, dx, dy, 1, flip);
         }
         break;
     case BATTLE_FX_ORB:
+        if(round->move_id==247){
+            if(phase<4)stamp(&ctx,FX_ART_CORE,ax,ay,1,flip);
+            if(phase>=3&&phase<=8){int t=(phase-3)*256/5;stamp(&ctx,FX_ART_CORE,lerp(ax,dx,t),lerp(ay,dy,t),2,flip);}
+            if(impact){stamp(&ctx,FX_ART_HIT_BIG,dx,dy,2,flip);stamp(&ctx,FX_ART_ORB,dx-18,dy-12,3,flip);stamp(&ctx,FX_ART_ORB,dx+18,dy+12,3,flip);}
+            break;
+        }
         for (int i = 0; i < 2; i++) projectile(&ctx, FX_ART_ORB, ax, ay, dx, dy + i * 6, phase, i * 2, 3, 1, flip);
         break;
     case BATTLE_FX_LICK:

@@ -1,0 +1,21 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>招式验收 · PokeWalk</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f2efe5;color:#29302b;font:15px/1.6 system-ui}main{max-width:1080px;margin:auto;padding:24px}header{border-bottom:2px solid;padding-bottom:16px;margin-bottom:24px}h1{font-size:24px;margin:0}a{color:#355c3d}.layout{display:grid;grid-template-columns:300px 1fr;gap:32px}label{display:block;margin-top:14px}select,input,button{font:inherit;padding:8px;border:1px solid #899081;border-radius:3px;background:#fffdf5;color:inherit;width:100%}button{cursor:pointer}.row{display:flex;gap:8px;margin-top:12px}.screen{padding:16px;background:#363e35;border-radius:8px;display:inline-block}canvas{display:block;width:480px;height:640px;image-rendering:pixelated;max-width:100%}.note{font-size:13px;color:#555e54}#status{min-height:48px}button.active{background:#355c3d;color:white}#meta{white-space:pre-line} @media(max-width:850px){canvas{width:240px;height:320px}.layout{grid-template-columns:280px 1fr}}@media(max-width:600px){.layout{display:flex;flex-direction:column}main{padding:16px}}
+</style>
+<main><header><h1>招式动画验收</h1><a href="firmware.html">返回完整游戏预览</a><p class="note">全部已实现招式，直接运行固件的 C 战斗、精灵、血条和动画代码。共用动画不代表原作逐帧复刻。</p></header>
+<div class="layout"><aside>
+<label for="search">搜索名称或编号</label><input id="search" placeholder="例如：影子球 / 247">
+<label for="scope">范围</label><select id="scope"><option value="all">全部已实现招式</option><option value="new">本批新增招式</option></select>
+<label for="move">招式 <span id="count"></span></label><select id="move"></select>
+<div class="row"><button id="prev">上一招</button><button id="next">下一招</button></div>
+<p class="note" id="meta"></p>
+<label for="side">出招方</label><select id="side"><option value="0">我方（左下）</option><option value="1">对方（右上）</option></select>
+<div class="row"><label>我方编号<input id="pet" type="number" min="1" max="151" value="25"></label><label>对方编号<input id="wild" type="number" min="1" max="151" value="143"></label></div>
+<label for="mode">验收场景</label><select id="mode"><option value="1">命中动作展示</option><option value="0">实际结算（固定种子）</option><option value="2">未命中动作展示</option><option value="3">蓄力后释放（实际结算）</option></select>
+<p class="note">动作展示强制显示命中或闪避，不能据此判断伤害。实际结算使用半血出招方、睡眠目标和预置反击条件；属性免疫、蓄力、失败等按游戏规则显示。</p>
+<button id="load">重新载入双方</button><p id="status" role="status">正在载入…</p>
+</aside><section><div class="screen"><canvas id="canvas" width="240" height="320" aria-label="招式同源预览"></canvas></div>
+<div class="row"><button id="play" class="active">暂停</button><button id="restart">重播</button><button id="step">下一帧</button><button id="save">保存 PNG</button></div>
+<label for="frame">帧 <span id="frame-label">0 / 35</span></label><input id="frame" type="range" min="0" max="35" value="0">
+<p class="note">每帧对应硬件 90ms。支持拖动、暂停及逐帧。末尾保留干净画面便于检查残影；不同招式实际动画时长不同。</p>
+</section></div></main><script src="firmware-pixels.js"></script><script src="moves.js"></script></html>

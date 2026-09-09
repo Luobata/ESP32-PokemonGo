@@ -7,7 +7,7 @@ void sound_mixer_music(sound_mixer_t *m,music_id_t id) {
 }
 void sound_mixer_effect(sound_mixer_t *m,sfx_id_t id) { if((unsigned)id>=SFX_COUNT)return;m->effect=id;m->effect_at=0;m->active=true;m->is_move=false; }
 void sound_mixer_move(sound_mixer_t *m,uint16_t id,uint8_t type,bool missed) {
- m->move_id=id;m->move_type=type%15;m->missed=missed;m->is_move=m->active=true;m->effect_at=0;
+ m->move_id=id;m->move_type=type%17;m->missed=missed;m->is_move=m->active=true;m->effect_at=0;
 }
 static int16_t move_sample(const sound_mixer_t *m,uint32_t at) {
  uint32_t ms=at*1000u/AUDIO_SAMPLE_RATE;

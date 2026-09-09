@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "assets.h"
-#define COMBAT_MOVE_CAP 166
+#define COMBAT_MOVE_CAP 191
 #define COMBAT_MAX_MOVE_ID 250
 // Legacy prefix retained for readable save conversion; moves/pp are no longer used.
 typedef struct {

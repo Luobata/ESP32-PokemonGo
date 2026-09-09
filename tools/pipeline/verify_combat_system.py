@@ -6,13 +6,13 @@ static combat_mon_t a,d;static battle_round_t r;static uint32_t rng;
 static void pair(void){combat_init(&a,25,60,500);combat_init(&d,143,50,500);memset(&r,0,sizeof(r));rng=123;}
 static void hit(unsigned id){memset(&r,0,sizeof(r));r.by_pet=1;combat_turn(&a,&d,1024,&rng,50,id,&r);assert(combat_valid(&a)&&combat_valid(&d));}
 static void learned(void){unsigned max=0;
- for(unsigned sid=1;sid<=151;sid++){uint16_t previous[165],ids[165];int old=0;
-  for(unsigned lv=1;lv<=100;lv++){int n=combat_known_moves(sid,lv,ids,165);if((unsigned)n>max)max=n;assert(n>=old);
+ for(unsigned sid=1;sid<=151;sid++){uint16_t previous[COMBAT_MOVE_CAP],ids[COMBAT_MOVE_CAP];int old=0;
+  for(unsigned lv=1;lv<=100;lv++){int n=combat_known_moves(sid,lv,ids,COMBAT_MOVE_CAP);if((unsigned)n>max)max=n;assert(n>=old);
    for(int i=0;i<n;i++){move_t m;assert(combat_move(ids[i],&m)&&m.id==ids[i]);if(i)assert(ids[i]>ids[i-1]);assert(combat_learn_level(sid,ids[i])<=lv);}
    for(int i=0;i<old;i++){bool found=false;for(int j=0;j<n;j++)found|=previous[i]==ids[j];assert(found);}memcpy(previous,ids,n*2);old=n;
   }
  }
- uint16_t ids[165],evolved[165];int n=combat_known_moves(25,60,ids,165),nn=combat_known_moves(26,60,evolved,165);assert(n>4&&nn>=n);
+ uint16_t ids[COMBAT_MOVE_CAP],evolved[COMBAT_MOVE_CAP];int n=combat_known_moves(25,60,ids,COMBAT_MOVE_CAP),nn=combat_known_moves(26,60,evolved,COMBAT_MOVE_CAP);assert(n>4&&nn>=n);
  for(int i=0;i<n;i++){bool found=false;for(int j=0;j<nn;j++)found|=ids[i]==evolved[j];assert(found);}
  printf("\"max_learned\":%u,",max);tests++;
 }
@@ -40,14 +40,15 @@ static void effects(void){
  pair();hit(92);assert(d.status==1&&d.toxic==1);tmp=a;a=d;d=tmp;hit(150);unsigned first=500-a.hp;hit(150);assert(500-a.hp>2*first);
  pair();a.species=132;hit(144);assert(a.transform_species==143&&a.hp==500);
  pair();a.hp=200;d.status=0;hit(138);assert(r.no_effect&&d.hp==500&&a.hp==200);
- for(unsigned id=1;id<=165;id++)for(unsigned seed=1;seed<=25;seed++){
-  pair();rng=seed;a.hp=250;hit(id);assert(a.hp<=a.max_hp&&d.hp<=d.max_hp&&r.move_id>=1&&r.move_id<=165);
+ for(unsigned id=1;id<=250;id++)for(unsigned seed=1;seed<=25;seed++){
+  if(!combat_move(id,&(move_t){0}))continue;
+  pair();rng=seed;a.hp=250;hit(id);assert(a.hp<=a.max_hp&&d.hp<=d.max_hp&&r.move_id>=1&&combat_move(r.move_id,&(move_t){0}));
  }
  tests++;
 }
-static void ai(void){bool selected[166]={0};unsigned count=0;
- pair();for(unsigned seed=1;seed<=600;seed++){uint32_t random=seed;uint16_t id=combat_choose(&a,&d,&random);assert(id>=1&&id<=165);assert(combat_learn_level(a.species,id)<=a.level);selected[id]=true;}
- for(unsigned i=1;i<=165;i++)count+=selected[i];assert(count>=3);
+static void ai(void){bool selected[251]={0};unsigned count=0;
+ pair();for(unsigned seed=1;seed<=600;seed++){uint32_t random=seed;uint16_t id=combat_choose(&a,&d,&random);assert(combat_move(id,&(move_t){0}));assert(combat_learn_level(a.species,id)<=a.level);selected[id]=true;}
+ for(unsigned i=1;i<=250;i++)count+=selected[i];assert(count>=3);
  combat_mon_t copy=a;uint32_t x=42,y=42;assert(combat_choose(&a,&d,&x)==combat_choose(&copy,&d,&y)&&x==y);
  // Existing PP bytes no longer constrain or spend moves.
  trainer_store_t st={.wild_wins=1};mon_t member={.species_id=25,.level=60,.hp=100};assert(trainer_begin(&st,0,&member,1,1024,7));
@@ -68,7 +69,7 @@ static void migration(void){
  }
  tests++;
 }
-int main(void){assert(assets_init());printf("{");learned();effects();ai();migration();printf("\"cases\":%u,\"moves\":165,\"save_version\":%d,\"save_bytes\":%zu,\"sanitized\":true}\n",tests,SAVE_VERSION,sizeof(save_t));}
+int main(void){assert(assets_init());printf("{");learned();effects();ai();migration();printf("\"cases\":%u,\"moves\":191,\"save_version\":%d,\"save_bytes\":%zu,\"sanitized\":true}\n",tests,SAVE_VERSION,sizeof(save_t));}
 '''
 # Optional read-only real-device snapshot; never writes back to the hardware.
 if __name__ == '__main__':

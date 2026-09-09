@@ -762,3 +762,32 @@ void play_battle_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         break;
     }
 }
+
+#ifdef HOST_BUILD
+// Isolated acceptance fixture: same combat calculation, sprites, HUD and FX.
+// mode 0 is actual resolution; mode 1/2 are labelled visual hit/miss fixtures.
+bool play_battle_move_preview(unsigned id,unsigned side,unsigned frame,unsigned mode){
+ move_t m;if(!combat_move(id,&m)||side>1||mode>3)return false;
+ if(s_tick){lv_timer_delete(s_tick);s_tick=NULL;}
+ s_entering=s_exp_anim=s_wild_animating=s_done=false;s_playing=true;
+ s_escape_feedback=0;s_store_failed=s_loot_failed=s_settle_failed=false;
+ s_session.pet_hp_max=s_session.wild_hp_max=500;
+ combat_mon_t a,d;combat_init(&a,side?s_session.wild_species:s_pet_species,60,500);
+ combat_init(&d,side?s_pet_species:s_session.wild_species,60,500);
+ a.hp=250;if(mode==3){a.charge=1;a.charge_move=id;if(id==117){a.bide=1;a.bide_damage=30;}}d.status=4;d.sleep=2;a.last_damage=30;d.last_move=33;
+ battle_round_t r={.by_pet=!side};uint32_t rng=123;
+ combat_turn(&a,&d,1024,&rng,50,id,&r);
+ if(mode==1||mode==2){r.move_id=id;r.move_type=m.type;r.move_zh=m.name_zh;r.move_zh_len=m.name_zh_len;
+  r.missed=mode==2;r.no_effect=0;r.mult=100;r.damage=0;a.hp=250;d.hp=500;
+  if(mode==2)r.healed=0;
+  if(mode==1&&m.power&&!r.charging&&!r.self_target){r.damage=40;d.hp-=40;if(r.healed)r.healed=20;}
+  if(mode==1&&r.healed)a.hp+=r.healed;
+ }
+ s_session.pet_hp=side?d.hp:a.hp;s_session.wild_hp=side?a.hp:d.hp;
+ s_pet_hp_from=side?500:250;s_wild_hp_from=side?250:500;
+ r.pet_hp=s_session.pet_hp;r.wild_hp=s_session.wild_hp;
+ s_res.pet_hp_max=s_res.wild_hp_max=500;s_res.round_count=1;s_res.rounds[0]=r;
+ s_play_i=1;s_fx_frame=frame<battle_fx_frames(&r)?frame:battle_fx_frames(&r)-1;
+ draw_all();return true;
+}
+#endif

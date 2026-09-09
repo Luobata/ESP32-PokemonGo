@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Render actual combat outcomes for all 166 supported moves, both sides and varied actor sizes."""
+"""Render actual combat outcomes for all 191 supported moves, both sides and varied actor sizes."""
 import verify_trainer_campaign as h
 h.CASES=r'''
 #include "battle_fx.c"
@@ -49,8 +49,8 @@ static void fx_all(void){
   }
  }
  for(unsigned id=1;id<=250;id++){move_t supported;if(!combat_move(id,&supported))continue;if(covered[id])ids_with_pixels++;else{move_t m;combat_move(id,&m);assert(m.power>0);}}
- assert(ids_with_pixels==166);
- printf("{\"moves\":166,\"moves_with_effect_pixels\":%u,\"frames\":%u,\"self_targets_correct\":true,\"hud_protected\":true,\"clean_recovery\":true}\n",ids_with_pixels,frames_checked);
+ assert(ids_with_pixels==191);
+ printf("{\"moves\":191,\"moves_with_effect_pixels\":%u,\"frames\":%u,\"self_targets_correct\":true,\"hud_protected\":true,\"clean_recovery\":true}\n",ids_with_pixels,frames_checked);
 }
 static void readability(void){
  track_self=false;

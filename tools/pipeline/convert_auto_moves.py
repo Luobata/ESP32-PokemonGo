@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 data=json.loads((ROOT/'data/pokemon_moves/gold_silver.json').read_text());metadata={m['id']:m for m in data['moves']}
-SUPPORTED=set(range(1,166))|{250}
+SUPPORTED=set(range(1,166))|{m['id'] for m in json.loads((ROOT/'data/pokemon_moves/selected_gen2.json').read_text())}
 HM={15:15,19:25,57:25,70:20,148:10,250:20,127:35}
 learn=[];ranges=[];report=[]
 for p in data['pokemon']:

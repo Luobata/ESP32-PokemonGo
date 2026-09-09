@@ -46,7 +46,7 @@ static const combat_move_data_t COMBAT_DATA[165] = {
 {{41,11,25,100,20,false,"双针",6},EFFECT_POISON_MULTI_HIT,20},
 {{42,11,14,85,20,false,"飞弹针",9},EFFECT_MULTI_HIT,0},
 {{43,0,0,100,30,false,"瞪眼",6},EFFECT_DEFENSE_DOWN,0},
-{{44,0,60,100,25,false,"咬住",6},EFFECT_FLINCH_HIT,30},
+{{44,15,60,100,25,true,"咬住",6},EFFECT_FLINCH_HIT,30},
 {{45,0,0,100,40,false,"叫声",6},EFFECT_ATTACK_DOWN,0},
 {{46,0,0,100,20,false,"吼叫",6},EFFECT_FORCE_SWITCH,0},
 {{47,0,0,55,15,false,"唱歌",6},EFFECT_SLEEP,0},

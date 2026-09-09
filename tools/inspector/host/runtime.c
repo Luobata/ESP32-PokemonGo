@@ -633,6 +633,7 @@ static void state(void)
     fflush(stdout);
 }
 
+extern bool play_battle_move_preview(unsigned,unsigned,unsigned,unsigned);
 int main(void)
 {
     if (!assets_init() || !render_init()) return 2;
@@ -649,6 +650,8 @@ int main(void)
             pokemon_names_set_style((pokemon_name_style_t)names);
             fixture(b, c, d, e, f, g, a == 0 || a == 9, team != 0); nav_go(page_ids[a]); booted = true;
             if (!screen_idle_init(nav_screen_busy)) return 2;
+        } else if(booted&&!strcmp(cmd,"move_preview")&&sscanf(line,"%*s %u %u %u %u",&a,&b,&c,&d)==4){
+            if(!play_battle_move_preview(a,b,c,d)){fputs("invalid move fixture\n",stderr);return 2;}
         } else if (booted && !strcmp(cmd, "page") && sscanf(line, "%*s %u", &a) == 1 && valid_page(a)) {
             nav_go(page_ids[a]);
         } else if (booted && !strcmp(cmd,"nurture_fixture") && sscanf(line,"%*s %u %u %u %u",&a,&b,&c,&d)==4 && a<=100 && b<=100 && c<=100 && d<=100) {
