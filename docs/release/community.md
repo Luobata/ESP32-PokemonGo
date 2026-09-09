@@ -5,7 +5,7 @@
 ## 已备材料
 
 - 合并固件：本地 `release/community/FoloToy-AI-Passport-full.bin`，烧录地址 `0x0`。
-- 封面：发布目录中的 `pokewalk-cover.png`，3:4 竖版。
+- 封面：`reports/evidence/community-publisher-2026-09-09/cover.png`，1086×1448、3:4 竖版。发布时复制为 `release/community/pokewalk-cover.png`；生成来源与提示见同目录 `cover-generation.json`。
 - 真机证据：`release/community/device-screen.png` 及官方工具生成的 `.fap-capture.json` 回执。
 - 宣传片：`reports/video/pokewalk-story-red-2026-09-09/pokewalk-story-v3.mp4`，约3分43秒，包含完整博士转场与赤红片段。
 - 新片包含图鉴追踪、梦幻三段线索与成功捕获、队伍经验分享和强化道馆；演示存档章节在片中标注。
@@ -19,7 +19,7 @@ tools/device/fw.sh build
 python tools/release/package_firmware.py
 ```
 
-使用 ESP-IDF 5.5.3 / ESP32-C3 / 8MB。合并 bootloader、分区表和应用；不含真实设备 NVS、cardid 或 Recovery 内容。官方原样校验器检查组件一致性、分区 MD5、应用容量、恢复入口和保护区。来源及许可证见 `tools/release/README.md`。结果见 `reports/evidence/gold-animation-tracks-2026-09-09/community-artifact.json`。
+使用 ESP-IDF 5.5.3 / ESP32-C3 / 8MB。合并 bootloader、分区表和应用；不含真实设备 NVS、cardid 或 Recovery 内容。官方原样校验器检查组件一致性、分区 MD5、应用容量、恢复入口和保护区。来源及许可证见 `tools/release/README.md`。本次结果见 `reports/evidence/community-publisher-2026-09-09/release-verification.json`。
 
 这证明产物结构通过官方检查，不等同于已经通过社区 BLE 安装/更新实测。当前工程目录与官方模板不同，因此不声称跑过官方完整 `tools/validate.sh --firmware`。合并固件的 NVS 区是空白填充，原有设备保留存档应先备份并使用仅更新应用的流程，不能直接拿完整固件覆盖旧存档。
 
@@ -28,7 +28,7 @@ python tools/release/package_firmware.py
 按 [官方发布指南](https://github.com/FoloToy/ai-passport/blob/main/docs/development/release/publish-to-community.md)：
 
 1. 从官方地址加载 [publisher 工作流](https://ai-passport.folotoy.cn/skills/folotoy-ai-passport-publisher.zip)，由其检查上述产物和字段。
-2. 在 [AI Passport 社区](https://ai-passport.folotoy.cn) 登录，通过官方网页确认显示的授权码；无需把密码交给助手。
+2. 在 [AI Passport 社区](https://ai-passport.folotoy.cn) 登录，进入「发布新玩法」并展开「✦ 用 AI 辅助发布」，点击「确认连接发布助手」确认授权码；授权入口默认折叠，无需把密码交给助手。
 3. 通过 `FAP_SCREENSHOT_V1` 从当前设备读取截图，取得官方回执；该命令不切页、不唤醒、不修改存档，也不触发按键。
 4. 选择合并固件、3:4 封面（JPEG/PNG/WebP ≤10MiB）、公开 HTTPS 源码地址及 `submission.json` 中的双语介绍，预览后上传。
 5. 发布后取得社区页面，再考虑是否归档到上游 `plays/`；那是单独的双语文本 PR，不在此处上传固件或封面。

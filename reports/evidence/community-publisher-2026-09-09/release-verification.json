@@ -1,0 +1,20 @@
+{
+  "source_commit": "ca84a2d73837764d34093db5afea11746a342266",
+  "source_branch": "main",
+  "firmware": {
+    "artifact": "FoloToy-AI-Passport-full.bin",
+    "size": 3056720,
+    "sha256": "cfc0989d9b9ade786f0708b2a2adb759f8b90f593efebce081db024793f051c2",
+    "flash_address": "0x0",
+    "protected_layout_pass": true,
+    "checker_source": "FoloToy/ai-passport@df3990726e3751fadaaaa703a480dbba6e13c61b",
+    "application_size": 2991184,
+    "community_upload_performed": false,
+    "ble_install_tested": false
+  },
+  "application_flash_verified": true,
+  "partition_and_nvs_preserved": true,
+  "boot_version": "ca84a2d",
+  "components_ready": true,
+  "official_serial_capture_passed": true
+}

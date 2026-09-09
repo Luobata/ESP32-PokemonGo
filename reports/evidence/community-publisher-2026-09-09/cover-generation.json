@@ -1,0 +1,12 @@
+{
+  "tool": "built-in image_gen",
+  "mode": "edit",
+  "source_cover": "reports/video/pokewalk-promo-collection-2026-09-09/pokewalk-cover.jpg",
+  "runtime_evidence": "Official FAP_SCREENSHOT_V1 capture from ca84a2d; receipt kept locally.",
+  "output": "reports/evidence/community-publisher-2026-09-09/cover.png",
+  "dimensions": [
+    1086,
+    1448
+  ],
+  "prompt": "Edit the existing promotional cover into an exact 3:4 portrait community cover. Keep the warm ivory and dark forest-green graphic identity and the captured pixel-game battle. Preserve the battle UI, sprites, HP bars and dialogue; scale the entire gameplay frame proportionally without cropping. Remove 09/20 and the progress indicator. Top title: PokeWalk. Subtitle: 随身宝可梦探索. Bottom: 探索 · 捕获 · 养成 · 对战. Footer: 非官方同人作品 · 游戏实录. No physical hardware, invented game mechanics or new characters. The fresh device screen corroborates style; keep the battle as the primary scene."
+}
