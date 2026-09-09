@@ -16,6 +16,7 @@ void play_opening_key(bsp_btn_t btn, bsp_btn_ev_t ev);
 bool play_opening_screen_busy(void);
 
 // P9 选择初始伙伴：御三家或皮卡丘，保存成功后才进入 P1。
+void play_starter_prepare_intro(void);
 void play_starter_enter(void);
 void play_starter_exit(void);
 void play_starter_key(bsp_btn_t btn, bsp_btn_ev_t ev);

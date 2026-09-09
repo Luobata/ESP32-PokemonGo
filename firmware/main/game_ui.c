@@ -142,3 +142,10 @@ void game_ui_moves(int y,uint16_t species,uint8_t level,unsigned selected,bool i
  game_ui_text_centered(y,16,250,208,16,"升级自动学会 永不遗忘",GAME_UI_MUTED);
  game_ui_footer(y,in_battle?"[A]继续 [B]下一 [C]返回":"[B]下一 长B上一 [C]返回");
 }
+
+void game_ui_fade_background(int band_y,unsigned amount) {
+ static const uint8_t rank[4][4]={{0,8,2,10},{12,4,14,6},{3,11,1,9},{15,7,13,5}};
+ if(amount>16)amount=16;
+ for(int y=0;y<SCREEN_BAND_H;y++)for(int x=0;x<SCREEN_W;x++)
+  if(rank[(band_y+y)&3][x&3]<amount)screen_px(x,y,GAME_UI_BG);
+}

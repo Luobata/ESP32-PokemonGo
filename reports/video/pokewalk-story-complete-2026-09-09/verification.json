@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "files": [
+    {
+      "file": "pokewalk-story.mp4",
+      "frames": 5719,
+      "video_seconds": "190.633008",
+      "audio_seconds": "190.616000",
+      "full_decode": "PASS",
+      "sha256": "a40d16e637d735f476bf9ff814608c286b4794e7fe8159477e28e18dbdd021d0"
+    },
+    {
+      "file": "pokewalk-story-clean.mp4",
+      "frames": 5719,
+      "video_seconds": "190.633333",
+      "audio_seconds": "190.616000",
+      "full_decode": "PASS",
+      "sha256": "09b5a661f6af116a8ad5ef19237d3c3648a5b60e412e34d97037bd38154e7473"
+    }
+  ],
+  "all_source_frames_preserved": true,
+  "opening_seconds": 30.966666666666665,
+  "full_gym_seconds": 48.833333333333336,
+  "two_successful_captures": true,
+  "final_party_species": [
+    30,
+    25,
+    123
+  ],
+  "all_scenes_have_audio": true,
+  "frame_checks": 191
+}

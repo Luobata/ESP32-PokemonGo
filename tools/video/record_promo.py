@@ -11,7 +11,7 @@ from native import build,Renderer,rgb888
 p=argparse.ArgumentParser();p.add_argument('--check-only',action='store_true');p.add_argument('--out',type=Path,default=ROOT/'reports/video/pokewalk-promo-collection-2026-09-09');args=p.parse_args();OUT=args.out;OUT.mkdir(parents=True,exist_ok=True)
 FPS=30
 scenes=[
- dict(name='opening',title='你好，宝可梦的世界。',sub='全新存档 · 从大木博士的邀请开始',duration=22,boot='0 25 12 74 3 123 0 0 0',events={i*90:['key 0 1'] for i in range(1,8)}),
+ dict(name='opening',title='你好，宝可梦的世界。',sub='全新存档 · 从大木博士的邀请开始',duration=26,boot='0 25 12 74 3 123 0 0 0',events={i*90:['key 0 1'] for i in range(1,8)}),
  dict(name='starter',title='选择你的第一位伙伴。',sub='妙蛙种子 · 小火龙 · 杰尼龟 · 皮卡丘',duration=7,events={30:['key 1 1'],60:['key 1 1'],90:['key 1 1'],150:['key 0 1']}),
  dict(name='idle',title='把冒险，装进口袋。',sub='伙伴已就位，旅程正式开始',duration=3,events={}),
  dict(name='menu',title='一颗按钮，展开冒险。',sub='图鉴 · 队伍 · 道具 · 照料 · 挑战 · 成就',duration=3,setup=['page 11'],events={20:['key 1 1'],40:['key 1 1'],60:['key 1 1'],80:['key 1 1']}),

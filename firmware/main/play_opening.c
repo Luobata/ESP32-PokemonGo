@@ -49,6 +49,7 @@ static bool s_oak_ok;
 static uint8_t s_oak_zoom_frame;
 static uint8_t s_text_slide_frame;
 static uint8_t s_oak_breath_frame;
+static unsigned s_handoff; // 1..96: invitation, then fade into partner selection.
 
 // 从 UTF-8 字符串复制前 n 个码点。台词最长 11 个汉字，64B 足够。
 static void utf8_prefix(char *out, size_t cap, const char *s, uint16_t n)
@@ -139,6 +140,18 @@ static void draw_band(int band_y)
     #define Y(v) ((v) - band_y)
 
     char buf[64];
+    if(s_handoff>12){
+        game_ui_title(band_y,"大木博士","");
+        if(s_oak_ok)draw_ui_scaled_centered(120,Y(92),&s_oak_art,8,8,0,OAK_PALETTE);
+        game_ui_box(band_y,0,TEXT_BOX_Y,240,112);
+        render_text(MARGIN,Y(176),"接下来，请选择",GAME_UI_INK);
+        render_text(MARGIN,Y(200),"陪你出发的伙伴。",GAME_UI_INK);
+        render_text(MARGIN,Y(232),"它们都在等着你！",GAME_UI_INK);
+        game_ui_footer(band_y,"即将选择初始伙伴");
+        if(s_handoff<=24)game_ui_fade_background(band_y,16-(s_handoff-12)*16/12);
+        else if(s_handoff>84)game_ui_fade_background(band_y,(s_handoff-84)*16/12);
+        screen_push_band(band_y);return;
+    }
 
     buf[0] = '\0';
     if (s_opening.box < OPENING_BOXES) {
@@ -190,6 +203,7 @@ static void draw_band(int band_y)
     game_ui_footer(band_y, "[A]继续 [C]跳过");
 
     #undef Y
+    if(s_handoff)game_ui_fade_background(band_y,s_handoff*16/12);
     screen_push_band(band_y);
 }
 
@@ -215,6 +229,10 @@ static void redraw_for_dump(void) { draw_all(); }
 static void tick(lv_timer_t *t)
 {
     (void)t;
+    if(s_handoff){
+        if(s_handoff>=96){play_starter_prepare_intro();nav_go(PAGE_STARTER);return;}
+        s_handoff++;draw_all();return;
+    }
     uint16_t before = s_opening.typed;
     opening_tick(&s_opening);
 
@@ -249,6 +267,7 @@ static void tick(lv_timer_t *t)
 
 void play_opening_enter(void)
 {
+    s_handoff=0;
     opening_init(&s_opening);
     s_oak_ok = assets_ui("oak", &s_oak_art);
     s_oak_zoom_frame = 1;
@@ -271,7 +290,7 @@ void play_opening_exit(void)
 
 bool play_opening_screen_busy(void)
 {
-    return opening_typing(&s_opening) || s_oak_zoom_frame < OAK_ZOOM_FRAMES ||
+    return s_handoff || opening_typing(&s_opening) || s_oak_zoom_frame < OAK_ZOOM_FRAMES ||
            s_text_slide_frame < TEXT_SLIDE_FRAMES ||
            (s_opening.box == OAK_BREATH_BOX && s_oak_breath_frame < OAK_BREATH_FRAMES);
 }
@@ -279,7 +298,7 @@ bool play_opening_screen_busy(void)
 void play_opening_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
     if (btn == BSP_BTN_DOWN && ev == BSP_BTN_LONG) { screen_dump(); return; }
-    if (ev != BSP_BTN_CLICK) return;
+    if (ev != BSP_BTN_CLICK || s_handoff) return;
 
     char key = 0;
     if (btn == BSP_BTN_UP) key = 'A';
@@ -287,13 +306,15 @@ void play_opening_key(bsp_btn_t btn, bsp_btn_ev_t ev)
     if (btn == BSP_BTN_OK) key = 'C';
     if (!key) return;
 
+    opening_t before=s_opening;
     uint8_t before_box = s_opening.box;
     opening_press(&s_opening, key);
     if (s_opening.done) {
         if (!save_mark_opening_seen()) {
             ESP_LOGE(TAG, "opening flag save failed; starter commit will retry it");
         }
-        nav_go(world_needs_starter() ? PAGE_STARTER : PAGE_IDLE);
+        if(world_needs_starter()){s_opening=before;s_handoff=1;draw_all();}
+        else nav_go(PAGE_IDLE);
         return;
     }
     if (s_opening.box != before_box) {

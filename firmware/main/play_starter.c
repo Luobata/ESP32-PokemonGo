@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "assets.h"
+#include "lvgl.h"
 #include "game_ui.h"
 #include "nav.h"
 #include "play.h"
@@ -26,6 +27,9 @@ SCREEN_ASSERT_WITHIN_BAND(starter_detail, DETAIL_Y, 16);
 static uint8_t s_selection;
 static world_starter_result_t s_result;
 static bool s_saving;
+static bool s_intro_requested;
+static unsigned s_reveal;
+static lv_timer_t *s_intro_timer;
 
 static void draw_band(int band_y)
 {
@@ -66,6 +70,7 @@ static void draw_band(int band_y)
     game_ui_text_centered(band_y, 16, NOTE_Y, 208, 16, note, GAME_UI_INK);
     game_ui_text_centered(band_y, 16, DETAIL_Y, 208, 16, detail, GAME_UI_MUTED);
     game_ui_footer(band_y, "[A]确认 [B]下一个 [C]上一个");
+    if(s_reveal)game_ui_fade_background(band_y,s_reveal);
     screen_push_band(band_y);
 }
 
@@ -74,8 +79,16 @@ static void draw_all(void)
     for (int y = 0; y < SCREEN_H; y += SCREEN_BAND_H) draw_band(y);
 }
 
+static void intro_tick(lv_timer_t *t) {
+    if(s_reveal)s_reveal--;
+    draw_all();
+    if(!s_reveal){s_intro_timer=NULL;lv_timer_delete(t);}
+}
+void play_starter_prepare_intro(void){s_intro_requested=true;}
 void play_starter_enter(void)
 {
+    s_reveal=s_intro_requested?16:0;s_intro_requested=false;
+    if(s_reveal)s_intro_timer=lv_timer_create(intro_tick,33,NULL);
     s_selection = 0;
     s_result = WORLD_STARTER_OK;
     s_saving = false;
@@ -83,14 +96,14 @@ void play_starter_enter(void)
     draw_all();
 }
 
-void play_starter_exit(void) { }
+void play_starter_exit(void) { if(s_intro_timer){lv_timer_delete(s_intro_timer);s_intro_timer=NULL;}s_reveal=0; }
 
-bool play_starter_screen_busy(void) { return s_saving; }
+bool play_starter_screen_busy(void) { return s_saving || s_reveal; }
 
 void play_starter_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
     if (btn == BSP_BTN_DOWN && ev == BSP_BTN_LONG) { screen_dump(); return; }
-    if (ev != BSP_BTN_CLICK || s_saving) return;
+    if (ev != BSP_BTN_CLICK || s_saving || s_reveal) return;
     if (btn == BSP_BTN_DOWN || btn == BSP_BTN_OK) {
         s_selection = btn == BSP_BTN_DOWN ? (s_selection + 1) % STARTER_COUNT
                                          : (s_selection + STARTER_COUNT - 1) % STARTER_COUNT;

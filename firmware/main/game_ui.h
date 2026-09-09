@@ -31,3 +31,6 @@ void game_ui_cursor(int band_y, int x, int y);
 void game_ui_text_fitted(int band_y, int x, int y, int width, const char *text, uint16_t color);
 
 void game_ui_moves(int band_y,uint16_t species,uint8_t level,unsigned selected,bool in_battle);
+
+// Ordered pixel fade to the page background; amount 0..16.
+void game_ui_fade_background(int band_y,unsigned amount);

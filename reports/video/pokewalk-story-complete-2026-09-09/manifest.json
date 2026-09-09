@@ -1,0 +1,1533 @@
+{
+  "renderer": "b7de52363be338f0284e",
+  "duration": 190.63333333333333,
+  "fps": 30,
+  "fresh_opening": true,
+  "growth_time_jumps_labelled": true,
+  "scenes": [
+    {
+      "name": "opening",
+      "act": 1,
+      "start": 0.0,
+      "duration": 30.966666666666665,
+      "source_seconds": 30.966666666666665,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 31,
+      "rms": 461.02,
+      "music_ids": [
+        1,
+        2
+      ],
+      "party_before": [],
+      "party_after": [],
+      "defeated": 0,
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      }
+    },
+    {
+      "name": "starter",
+      "act": 1,
+      "start": 30.966666666666665,
+      "duration": 10.0,
+      "source_seconds": 10.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 10,
+      "rms": 504.33,
+      "music_ids": [
+        2,
+        3
+      ],
+      "party_before": [],
+      "party_after": [
+        {
+          "species": 25,
+          "level": 1,
+          "exp": 0,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 0,
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      }
+    },
+    {
+      "name": "depart",
+      "act": 2,
+      "start": 40.96666666666667,
+      "duration": 3.0,
+      "source_seconds": 3.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 3,
+      "rms": 424.07,
+      "music_ids": [
+        3,
+        5
+      ],
+      "party_before": [
+        {
+          "species": 25,
+          "level": 1,
+          "exp": 0,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 25,
+          "level": 1,
+          "exp": 0,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 0,
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      }
+    },
+    {
+      "name": "explore",
+      "act": 2,
+      "start": 43.96666666666667,
+      "duration": 4.0,
+      "source_seconds": 4.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 4,
+      "rms": 576.57,
+      "music_ids": [
+        5
+      ],
+      "party_before": [
+        {
+          "species": 25,
+          "level": 1,
+          "exp": 0,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 25,
+          "level": 1,
+          "exp": 0,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 1,
+          "flags": 0
+        }
+      ],
+      "defeated": 0,
+      "exploration": {
+        "route": 0,
+        "energy": 2,
+        "steps": 1,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 7,
+        "elite_left": 29
+      }
+    },
+    {
+      "name": "meet",
+      "act": 2,
+      "start": 47.96666666666667,
+      "duration": 3.8333333333333335,
+      "source_seconds": 3.8333333333333335,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 4,
+      "rms": 535.81,
+      "music_ids": [
+        7
+      ],
+      "party_before": [
+        {
+          "species": 25,
+          "level": 1,
+          "exp": 0,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 1,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 25,
+          "level": 1,
+          "exp": 0,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 1,
+          "flags": 0
+        }
+      ],
+      "defeated": 0,
+      "exploration": {
+        "route": 0,
+        "energy": 2,
+        "steps": 1,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 7,
+        "elite_left": 29
+      }
+    },
+    {
+      "name": "capture",
+      "act": 2,
+      "start": 51.8,
+      "duration": 8.0,
+      "source_seconds": 8.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 8,
+      "rms": 405.49,
+      "music_ids": [
+        0,
+        7,
+        16
+      ],
+      "party_before": [
+        {
+          "species": 25,
+          "level": 1,
+          "exp": 0,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 1,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 25,
+          "level": 4,
+          "exp": 118,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 1,
+          "flags": 0
+        },
+        {
+          "species": 30,
+          "level": 20,
+          "exp": 12000,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 0,
+      "exploration": {
+        "route": 0,
+        "energy": 2,
+        "steps": 1,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 7,
+        "elite_left": 29
+      }
+    },
+    {
+      "name": "party",
+      "act": 3,
+      "start": 59.8,
+      "duration": 4.0,
+      "source_seconds": 4.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 4,
+      "rms": 364.8,
+      "music_ids": [
+        3
+      ],
+      "party_before": [
+        {
+          "species": 25,
+          "level": 4,
+          "exp": 118,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 1,
+          "flags": 0
+        },
+        {
+          "species": 30,
+          "level": 20,
+          "exp": 12000,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 25,
+          "level": 4,
+          "exp": 118,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 1,
+          "flags": 0
+        },
+        {
+          "species": 30,
+          "level": 20,
+          "exp": 12000,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 0,
+      "exploration": {
+        "route": 0,
+        "energy": 2,
+        "steps": 1,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 7,
+        "elite_left": 29
+      }
+    },
+    {
+      "name": "care",
+      "act": 3,
+      "start": 63.8,
+      "duration": 5.0,
+      "source_seconds": 5.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 5,
+      "rms": 552.46,
+      "music_ids": [
+        4
+      ],
+      "party_before": [
+        {
+          "species": 25,
+          "level": 4,
+          "exp": 118,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 1,
+          "flags": 0
+        },
+        {
+          "species": 30,
+          "level": 20,
+          "exp": 12000,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 25,
+          "level": 4,
+          "exp": 118,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 1,
+          "flags": 0
+        },
+        {
+          "species": 30,
+          "level": 20,
+          "exp": 12000,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 0,
+      "exploration": {
+        "route": 0,
+        "energy": 2,
+        "steps": 1,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          1,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 7,
+        "elite_left": 29
+      }
+    },
+    {
+      "name": "growth",
+      "act": 3,
+      "start": 68.8,
+      "duration": 4.0,
+      "source_seconds": 4.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 4,
+      "rms": 364.8,
+      "music_ids": [
+        3
+      ],
+      "party_before": [
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 500,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 500,
+          "flags": 0
+        }
+      ],
+      "defeated": 0,
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      }
+    },
+    {
+      "name": "skills",
+      "act": 3,
+      "start": 72.8,
+      "duration": 4.0,
+      "source_seconds": 4.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 4,
+      "rms": 373.68,
+      "music_ids": [
+        3
+      ],
+      "party_before": [
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 500,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 500,
+          "flags": 0
+        }
+      ],
+      "defeated": 0,
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      }
+    },
+    {
+      "name": "partner",
+      "act": 4,
+      "start": 76.8,
+      "duration": 4.0,
+      "source_seconds": 4.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 4,
+      "rms": 437.03,
+      "music_ids": [
+        3
+      ],
+      "party_before": [
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 500,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 500,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 0,
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      }
+    },
+    {
+      "name": "gym",
+      "act": 4,
+      "start": 80.8,
+      "duration": 48.833333333333336,
+      "source_seconds": 48.833333333333336,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 49,
+      "rms": 578.2,
+      "music_ids": [
+        9,
+        15
+      ],
+      "party_before": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 500,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64562,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 500,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64362,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 1,
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      }
+    },
+    {
+      "name": "victory",
+      "act": 4,
+      "start": 129.63333333333333,
+      "duration": 6.0,
+      "source_seconds": 6.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 6,
+      "rms": 500.14,
+      "music_ids": [
+        13
+      ],
+      "party_before": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64562,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 500,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64362,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64562,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 500,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64362,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 1,
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      }
+    },
+    {
+      "name": "unlock",
+      "act": 5,
+      "start": 135.63333333333333,
+      "duration": 6.0,
+      "source_seconds": 6.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 6,
+      "rms": 521.85,
+      "music_ids": [
+        5
+      ],
+      "party_before": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64562,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 500,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64362,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64562,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 500,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64362,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 1,
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      }
+    },
+    {
+      "name": "tracking",
+      "act": 5,
+      "start": 141.63333333333333,
+      "duration": 5.0,
+      "source_seconds": 5.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 5,
+      "rms": 572.83,
+      "music_ids": [
+        5
+      ],
+      "party_before": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64562,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 500,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64362,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64562,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 500,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64362,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 1,
+      "exploration": {
+        "route": 0,
+        "energy": 3,
+        "steps": 0,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 30
+      }
+    },
+    {
+      "name": "clues",
+      "act": 5,
+      "start": 146.63333333333333,
+      "duration": 17.0,
+      "source_seconds": 17.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 17,
+      "rms": 630.93,
+      "music_ids": [
+        5
+      ],
+      "party_before": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64562,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 500,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64362,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64562,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 507,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64362,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 1,
+      "exploration": {
+        "route": 0,
+        "energy": 17,
+        "steps": 7,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 26
+      }
+    },
+    {
+      "name": "target",
+      "act": 5,
+      "start": 163.63333333333333,
+      "duration": 4.0,
+      "source_seconds": 4.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 4,
+      "rms": 605.44,
+      "music_ids": [
+        5
+      ],
+      "party_before": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64562,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 507,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64362,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64562,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 507,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64362,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 1,
+      "exploration": {
+        "route": 0,
+        "energy": 17,
+        "steps": 7,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 26
+      }
+    },
+    {
+      "name": "second_meet",
+      "act": 6,
+      "start": 167.63333333333333,
+      "duration": 4.0,
+      "source_seconds": 4.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 4,
+      "rms": 535.55,
+      "music_ids": [
+        7
+      ],
+      "party_before": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64562,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 507,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64362,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64562,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 507,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64362,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 1,
+      "exploration": {
+        "route": 0,
+        "energy": 17,
+        "steps": 7,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 26
+      }
+    },
+    {
+      "name": "second_capture",
+      "act": 6,
+      "start": 171.63333333333333,
+      "duration": 8.0,
+      "source_seconds": 8.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 8,
+      "rms": 406.26,
+      "music_ids": [
+        0,
+        7,
+        16
+      ],
+      "party_before": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64562,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 507,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64362,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64770,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 507,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64403,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 123,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 1,
+      "exploration": {
+        "route": 0,
+        "energy": 17,
+        "steps": 7,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 26
+      }
+    },
+    {
+      "name": "new_party",
+      "act": 6,
+      "start": 179.63333333333333,
+      "duration": 6.0,
+      "source_seconds": 6.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 6,
+      "rms": 368.69,
+      "music_ids": [
+        3
+      ],
+      "party_before": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64770,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 507,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64403,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 123,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64770,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 507,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64403,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 123,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 1,
+      "exploration": {
+        "route": 0,
+        "energy": 17,
+        "steps": 7,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 26
+      }
+    },
+    {
+      "name": "outro",
+      "act": 6,
+      "start": 185.63333333333333,
+      "duration": 5.0,
+      "source_seconds": 5.0,
+      "source_cuts": [
+        0.0
+      ],
+      "complete_source": true,
+      "checks": 5,
+      "rms": 396.83,
+      "music_ids": [
+        3
+      ],
+      "party_before": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64770,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 507,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64403,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 123,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "party_after": [
+        {
+          "species": 30,
+          "level": 35,
+          "exp": 64770,
+          "hp": 100,
+          "intimacy": 60,
+          "explore": 507,
+          "flags": 0
+        },
+        {
+          "species": 25,
+          "level": 35,
+          "exp": 64403,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        },
+        {
+          "species": 123,
+          "level": 35,
+          "exp": 64312,
+          "hp": 100,
+          "intimacy": 0,
+          "explore": 0,
+          "flags": 0
+        }
+      ],
+      "defeated": 1,
+      "exploration": {
+        "route": 0,
+        "energy": 17,
+        "steps": 7,
+        "clues": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "pulse": [
+          0,
+          0,
+          0,
+          0
+        ],
+        "rare_left": 8,
+        "elite_left": 26
+      }
+    }
+  ],
+  "frames": 5719,
+  "source_commit": "3bf14de3b61b84d5f1f2fdd46ba020e4efcfbebc",
+  "script_sha256": "4890f48bf7dfb0d6ecd72fd710feb093f53f5c576d17c250dcece77a7e506b0c",
+  "audio_sha256": "982e87cc870e4cd3aae656635c9d623ff992a564430f84786c5288348e95705b"
+}
