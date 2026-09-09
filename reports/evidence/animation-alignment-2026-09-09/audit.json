@@ -1,0 +1,2380 @@
+{
+  "source_commit": "656583c939d30f920a316177311a502dd222b57c",
+  "graphics_source": "pokecrystal@7a7881d0d62e0ddbd82dcf10e7116807487ac651",
+  "moves": [
+    {
+      "id": 1,
+      "name": "拍击",
+      "original_script": "BattleAnim_Pound",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "PALM",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 2,
+      "name": "空手劈",
+      "original_script": "BattleAnim_KarateChop",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "PALM",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 3,
+      "name": "连环巴掌",
+      "original_script": "BattleAnim_Doubleslap",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "PALM",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 4,
+      "name": "连续拳",
+      "original_script": "BattleAnim_CometPunch",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 5,
+      "name": "百万吨重拳",
+      "original_script": "BattleAnim_MegaPunch",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 6,
+      "name": "聚宝功",
+      "original_script": "BattleAnim_PayDay",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 7,
+      "name": "火焰拳",
+      "original_script": "BattleAnim_FirePunch",
+      "original_direct_background_effects": [],
+      "original_calls": [
+        "BattleAnimSub_Fire"
+      ],
+      "current_animation": "FIRE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 8,
+      "name": "冰冻拳",
+      "original_script": "BattleAnim_IcePunch",
+      "original_direct_background_effects": [],
+      "original_calls": [
+        "BattleAnimSub_Ice"
+      ],
+      "current_animation": "ICE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 9,
+      "name": "雷电拳",
+      "original_script": "BattleAnim_Thunderpunch",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "ELECTRIC",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 10,
+      "name": "抓",
+      "original_script": "BattleAnim_Scratch",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "CUT",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 11,
+      "name": "夹住",
+      "original_script": "BattleAnim_Vicegrip",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 12,
+      "name": "断头钳",
+      "original_script": "BattleAnim_Guillotine",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 13,
+      "name": "旋风刀",
+      "original_script": "BattleAnim_RazorWind",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 14,
+      "name": "剑舞",
+      "original_script": "BattleAnim_SwordsDance",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 15,
+      "name": "居合斩",
+      "original_script": "BattleAnim_Cut",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 16,
+      "name": "起风",
+      "original_script": "BattleAnim_Gust",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "WIND",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 17,
+      "name": "翅膀攻击",
+      "original_script": "BattleAnim_WingAttack",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "WIND",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 18,
+      "name": "吹飞",
+      "original_script": "BattleAnim_Whirlwind",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_REMOVE_MON"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 19,
+      "name": "飞翔",
+      "original_script": "BattleAnim_Fly",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHOW_MON",
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW",
+        "BATTLE_BG_EFFECT_HIDE_MON"
+      ],
+      "original_calls": [
+        "BattleAnimSub_WarpAway"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 20,
+      "name": "绑紧",
+      "original_script": "BattleAnim_Bind",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "BIND",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 21,
+      "name": "摔打",
+      "original_script": "BattleAnim_Slam",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 22,
+      "name": "藤鞭",
+      "original_script": "BattleAnim_VineWhip",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "WHIP",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 23,
+      "name": "踩踏",
+      "original_script": "BattleAnim_Stomp",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "KICK",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 24,
+      "name": "二连踢",
+      "original_script": "BattleAnim_DoubleKick",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "KICK",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 25,
+      "name": "百万吨重踢",
+      "original_script": "BattleAnim_MegaKick",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 26,
+      "name": "飞踢",
+      "original_script": "BattleAnim_JumpKick",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 27,
+      "name": "回旋踢",
+      "original_script": "BattleAnim_RollingKick",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 28,
+      "name": "泼沙",
+      "original_script": "BattleAnim_SandAttack",
+      "original_direct_background_effects": [],
+      "original_calls": [
+        "BattleAnimSub_SandOrMud"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 29,
+      "name": "头锤",
+      "original_script": "BattleAnim_Headbutt",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X",
+        "BATTLE_BG_EFFECT_TACKLE"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "LUNGE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 30,
+      "name": "角撞",
+      "original_script": "BattleAnim_HornAttack",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "HORN",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 31,
+      "name": "乱击",
+      "original_script": "BattleAnim_FuryAttack",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "HORN",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 32,
+      "name": "角钻",
+      "original_script": "BattleAnim_HornDrill",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 33,
+      "name": "撞击",
+      "original_script": "BattleAnim_Tackle",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_TACKLE"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "LUNGE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 34,
+      "name": "泰山压顶",
+      "original_script": "BattleAnim_BodySlam",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_BOUNCE_DOWN",
+        "BATTLE_BG_EFFECT_TACKLE"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_2Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "LUNGE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 35,
+      "name": "紧束",
+      "original_script": "BattleAnim_Wrap",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "BIND",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 36,
+      "name": "猛撞",
+      "original_script": "BattleAnim_TakeDown",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_TACKLE",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 37,
+      "name": "大闹一番",
+      "original_script": "BattleAnim_Thrash",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 38,
+      "name": "舍身冲撞",
+      "original_script": "BattleAnim_DoubleEdge",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_TACKLE"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 39,
+      "name": "摇尾巴",
+      "original_script": "BattleAnim_TailWhip",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_WOBBLE_MON"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 40,
+      "name": "毒针",
+      "original_script": "BattleAnim_PoisonSting",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "NEEDLE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 41,
+      "name": "双针",
+      "original_script": "BattleAnim_Twineedle",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 42,
+      "name": "飞弹针",
+      "original_script": "BattleAnim_PinMissile",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 43,
+      "name": "瞪眼",
+      "original_script": "BattleAnim_Leer",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "original_calls": [
+        "BattleAnimSub_EyeBeams"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 44,
+      "name": "咬住",
+      "original_script": "BattleAnim_Bite",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "BITE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 45,
+      "name": "叫声",
+      "original_script": "BattleAnim_Growl",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW",
+        "BATTLE_BG_EFFECT_BATTLEROBJ_1ROW",
+        "BATTLE_BG_EFFECT_FADE_MON_TO_BLACK_REPEATING",
+        "BATTLE_BG_EFFECT_SHOW_MON"
+      ],
+      "original_calls": [
+        "BattleAnimSub_Sound"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 46,
+      "name": "吼叫",
+      "original_script": "BattleAnim_Roar",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW",
+        "BATTLE_BG_EFFECT_REMOVE_MON"
+      ],
+      "original_calls": [
+        "BattleAnimSub_Sound"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 47,
+      "name": "唱歌",
+      "original_script": "BattleAnim_Sing",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 48,
+      "name": "超音波",
+      "original_script": "BattleAnim_Supersonic",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 49,
+      "name": "音爆",
+      "original_script": "BattleAnim_Sonicboom",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "SONIC_BOOM",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 50,
+      "name": "定身法",
+      "original_script": "BattleAnim_Disable",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 51,
+      "name": "溶解液",
+      "original_script": "BattleAnim_Acid",
+      "original_direct_background_effects": [],
+      "original_calls": [
+        "BattleAnimSub_Acid"
+      ],
+      "current_animation": "POISON",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 52,
+      "name": "火花",
+      "original_script": "BattleAnim_Ember",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "FIRE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 53,
+      "name": "喷射火焰",
+      "original_script": "BattleAnim_Flamethrower",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 54,
+      "name": "白雾",
+      "original_script": "BattleAnim_Mist",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 55,
+      "name": "水枪",
+      "original_script": "BattleAnim_WaterGun",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_START_WATER",
+        "BATTLE_BG_EFFECT_WATER",
+        "BATTLE_BG_EFFECT_WATER",
+        "BATTLE_BG_EFFECT_WATER",
+        "BATTLE_BG_EFFECT_END_WATER"
+      ],
+      "original_calls": [
+        "BattleAnim_UserObj_2Row",
+        "BattleAnim_ShowMon_1"
+      ],
+      "current_animation": "WATER",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 56,
+      "name": "水炮",
+      "original_script": "BattleAnim_HydroPump",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_START_WATER",
+        "BATTLE_BG_EFFECT_WATER",
+        "BATTLE_BG_EFFECT_WATER",
+        "BATTLE_BG_EFFECT_WATER",
+        "BATTLE_BG_EFFECT_WATER",
+        "BATTLE_BG_EFFECT_WATER",
+        "BATTLE_BG_EFFECT_WATER",
+        "BATTLE_BG_EFFECT_WATER",
+        "BATTLE_BG_EFFECT_END_WATER"
+      ],
+      "original_calls": [
+        "BattleAnim_UserObj_2Row",
+        "BattleAnim_ShowMon_1"
+      ],
+      "current_animation": "HYDRO_PUMP",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 57,
+      "name": "冲浪",
+      "original_script": "BattleAnim_Surf",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SURF"
+      ],
+      "original_calls": [],
+      "current_animation": "SURF",
+      "alignment": "source-informed-adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 58,
+      "name": "冰冻光束",
+      "original_script": "BattleAnim_IceBeam",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 59,
+      "name": "暴风雪",
+      "original_script": "BattleAnim_Blizzard",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_WHITE_HUES"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 60,
+      "name": "幻象光线",
+      "original_script": "BattleAnim_Psybeam",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW",
+        "BATTLE_BG_EFFECT_CYCLE_BGPALS_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 61,
+      "name": "泡沫光线",
+      "original_script": "BattleAnim_Bubblebeam",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_START_WATER",
+        "BATTLE_BG_EFFECT_WATER",
+        "BATTLE_BG_EFFECT_END_WATER"
+      ],
+      "original_calls": [
+        "BattleAnim_UserObj_2Row",
+        "BattleAnim_ShowMon_1"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 62,
+      "name": "极光束",
+      "original_script": "BattleAnim_AuroraBeam",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW",
+        "BATTLE_BG_EFFECT_ALTERNATE_HUES"
+      ],
+      "original_calls": [
+        "BattleAnimSub_Beam"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 63,
+      "name": "破坏光线",
+      "original_script": "BattleAnim_HyperBeam",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "original_calls": [
+        "BattleAnimSub_Beam"
+      ],
+      "current_animation": "HYPER_BEAM",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 64,
+      "name": "啄",
+      "original_script": "BattleAnim_Peck",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "HORN",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 65,
+      "name": "啄钻",
+      "original_script": "BattleAnim_DrillPeck",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "HORN",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 66,
+      "name": "地狱翻滚",
+      "original_script": "BattleAnim_Submission",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_WOBBLE_MON"
+      ],
+      "original_calls": [
+        "BattleAnim_UserObj_1Row",
+        "BattleAnim_ShowMon_1"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 67,
+      "name": "踢倒",
+      "original_script": "BattleAnim_LowKick",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "KICK",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 68,
+      "name": "双倍奉还",
+      "original_script": "BattleAnim_Counter",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 69,
+      "name": "地球上投",
+      "original_script": "BattleAnim_SeismicToss",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_Y"
+      ],
+      "original_calls": [],
+      "current_animation": "SEISMIC_TOSS",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 70,
+      "name": "怪力",
+      "original_script": "BattleAnim_Strength",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_Y"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 71,
+      "name": "吸取",
+      "original_script": "BattleAnim_Absorb",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "DRAIN",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 72,
+      "name": "超级吸取",
+      "original_script": "BattleAnim_MegaDrain",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FADE_MONS_TO_BLACK_REPEATING"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "DRAIN",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 73,
+      "name": "寄生种子",
+      "original_script": "BattleAnim_LeechSeed",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 74,
+      "name": "生长",
+      "original_script": "BattleAnim_Growth",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_WHITE_HUES"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 75,
+      "name": "飞叶快刀",
+      "original_script": "BattleAnim_RazorLeaf",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "LEAF",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 76,
+      "name": "日光束",
+      "original_script": "BattleAnim_Solarbeam",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_WHITE",
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "original_calls": [
+        "BattleAnimSub_Beam"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 77,
+      "name": "毒粉",
+      "original_script": "BattleAnim_Poisonpowder",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 78,
+      "name": "麻痹粉",
+      "original_script": "BattleAnim_StunSpore",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 79,
+      "name": "催眠粉",
+      "original_script": "BattleAnim_SleepPowder",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 80,
+      "name": "花瓣舞",
+      "original_script": "BattleAnim_PetalDance",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 81,
+      "name": "吐丝",
+      "original_script": "BattleAnim_StringShot",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_MID_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 82,
+      "name": "龙之怒",
+      "original_script": "BattleAnim_DragonRage",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "DRAGON_RAGE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 83,
+      "name": "火焰旋涡",
+      "original_script": "BattleAnim_FireSpin",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 84,
+      "name": "电击",
+      "original_script": "BattleAnim_Thundershock",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "ELECTRIC",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 85,
+      "name": "十万伏特",
+      "original_script": "BattleAnim_Thunderbolt",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "ELECTRIC",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 86,
+      "name": "电磁波",
+      "original_script": "BattleAnim_ThunderWave",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 87,
+      "name": "打雷",
+      "original_script": "BattleAnim_Thunder",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "THUNDER",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 88,
+      "name": "落石",
+      "original_script": "BattleAnim_RockThrow",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X"
+      ],
+      "original_calls": [],
+      "current_animation": "ROCK",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 89,
+      "name": "地震",
+      "original_script": "BattleAnim_Earthquake",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 90,
+      "name": "地裂",
+      "original_script": "BattleAnim_Fissure",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 91,
+      "name": "挖洞",
+      "original_script": "BattleAnim_Dig",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_DIG",
+        "BATTLE_BG_EFFECT_HIDE_MON",
+        "BATTLE_BG_EFFECT_ENTER_MON"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_2Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 92,
+      "name": "剧毒",
+      "original_script": "BattleAnim_Toxic",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_BLACK_HUES"
+      ],
+      "original_calls": [
+        "BattleAnimSub_Acid",
+        "BattleAnimSub_Sludge"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 93,
+      "name": "念力",
+      "original_script": "BattleAnim_Confusion",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_NIGHT_SHADE"
+      ],
+      "original_calls": [
+        "BattleAnim_UserObj_2Row",
+        "BattleAnim_ShowMon_1"
+      ],
+      "current_animation": "PSYCHIC",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 94,
+      "name": "精神强念",
+      "original_script": "BattleAnim_PsychicM",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_ALTERNATE_HUES",
+        "BATTLE_BG_EFFECT_PSYCHIC"
+      ],
+      "original_calls": [],
+      "current_animation": "PSYCHIC",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 95,
+      "name": "催眠术",
+      "original_script": "BattleAnim_Hypnosis",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 96,
+      "name": "瑜伽姿势",
+      "original_script": "BattleAnim_Meditate",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_WAVE_DEFORM_MON"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 97,
+      "name": "高速移动",
+      "original_script": "BattleAnim_Agility",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FADE_MON_TO_LIGHT_REPEATING"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 98,
+      "name": "电光一闪",
+      "original_script": "BattleAnim_QuickAttack",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_HIDE_MON",
+        "BATTLE_BG_EFFECT_SHOW_MON"
+      ],
+      "original_calls": [],
+      "current_animation": "LUNGE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 99,
+      "name": "愤怒",
+      "original_script": "BattleAnim_Rage",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_MON_LIGHT_DARK_REPEATING"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 100,
+      "name": "瞬间移动",
+      "original_script": "BattleAnim_Teleport",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_TELEPORT",
+        "BATTLE_BG_EFFECT_HIDE_MON",
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0",
+        "BattleAnimSub_WarpAway"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 101,
+      "name": "黑夜魔影",
+      "original_script": "BattleAnim_NightShade",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_NIGHT_SHADE"
+      ],
+      "original_calls": [
+        "BattleAnim_UserObj_2Row",
+        "BattleAnim_ShowMon_1"
+      ],
+      "current_animation": "NIGHT_SHADE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 102,
+      "name": "模仿",
+      "original_script": "BattleAnim_Mimic",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 103,
+      "name": "刺耳声",
+      "original_script": "BattleAnim_Screech",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 104,
+      "name": "影子分身",
+      "original_script": "BattleAnim_DoubleTeam",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_DOUBLE_TEAM"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 105,
+      "name": "自我再生",
+      "original_script": "BattleAnim_Recover",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FADE_MON_TO_LIGHT_REPEATING"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 106,
+      "name": "变硬",
+      "original_script": "BattleAnim_Harden",
+      "original_direct_background_effects": [],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnimSub_Metallic",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 107,
+      "name": "变小",
+      "original_script": "BattleAnim_Minimize",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_WAVE_DEFORM_MON"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_2Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 108,
+      "name": "烟幕",
+      "original_script": "BattleAnim_Smokescreen",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 109,
+      "name": "奇异之光",
+      "original_script": "BattleAnim_ConfuseRay",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW",
+        "BATTLE_BG_EFFECT_CYCLE_BGPALS_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 110,
+      "name": "缩入壳中",
+      "original_script": "BattleAnim_Withdraw",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_WITHDRAW"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_2Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 111,
+      "name": "变圆",
+      "original_script": "BattleAnim_DefenseCurl",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FADE_MON_TO_LIGHT_REPEATING"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 112,
+      "name": "屏障",
+      "original_script": "BattleAnim_Barrier",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 113,
+      "name": "光墙",
+      "original_script": "BattleAnim_LightScreen",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 114,
+      "name": "黑雾",
+      "original_script": "BattleAnim_Haze",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 115,
+      "name": "反射壁",
+      "original_script": "BattleAnim_Reflect",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 116,
+      "name": "聚气",
+      "original_script": "BattleAnim_FocusEnergy",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FADE_MON_TO_LIGHT",
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 117,
+      "name": "忍耐",
+      "original_script": "BattleAnim_Bide",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_MON_LIGHT_DARK_REPEATING"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 118,
+      "name": "挥指",
+      "original_script": "BattleAnim_Metronome",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 119,
+      "name": "鹦鹉学舌",
+      "original_script": "BattleAnim_MirrorMove",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 120,
+      "name": "自爆",
+      "original_script": "BattleAnim_Selfdestruct",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_HIDE_MON"
+      ],
+      "original_calls": [
+        "BattleAnimSub_Explosion2",
+        "BattleAnimSub_Explosion1"
+      ],
+      "current_animation": "EXPLOSION",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 121,
+      "name": "炸蛋",
+      "original_script": "BattleAnim_EggBomb",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 122,
+      "name": "舌舔",
+      "original_script": "BattleAnim_Lick",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "LICK",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 123,
+      "name": "浊雾",
+      "original_script": "BattleAnim_Smog",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 124,
+      "name": "污泥攻击",
+      "original_script": "BattleAnim_Sludge",
+      "original_direct_background_effects": [],
+      "original_calls": [
+        "BattleAnimSub_Sludge"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 125,
+      "name": "骨棒",
+      "original_script": "BattleAnim_BoneClub",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 126,
+      "name": "大字爆炎",
+      "original_script": "BattleAnim_FireBlast",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 127,
+      "name": "攀瀑",
+      "original_script": "BattleAnim_Waterfall",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_TACKLE"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 128,
+      "name": "贝壳夹击",
+      "original_script": "BattleAnim_Clamp",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 129,
+      "name": "高速星星",
+      "original_script": "BattleAnim_Swift",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "STARS",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 130,
+      "name": "火箭头锤",
+      "original_script": "BattleAnim_SkullBash",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_TACKLE"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 131,
+      "name": "尖刺加农炮",
+      "original_script": "BattleAnim_SpikeCannon",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 132,
+      "name": "缠绕",
+      "original_script": "BattleAnim_Constrict",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 133,
+      "name": "瞬间失忆",
+      "original_script": "BattleAnim_Amnesia",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 134,
+      "name": "折弯汤匙",
+      "original_script": "BattleAnim_Kinesis",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 135,
+      "name": "生蛋",
+      "original_script": "BattleAnim_Softboiled",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FADE_MON_TO_LIGHT_REPEATING"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 136,
+      "name": "飞膝踢",
+      "original_script": "BattleAnim_HiJumpKick",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 137,
+      "name": "大蛇瞪眼",
+      "original_script": "BattleAnim_Glare",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "original_calls": [
+        "BattleAnimSub_EyeBeams"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 138,
+      "name": "食梦",
+      "original_script": "BattleAnim_DreamEater",
+      "original_direct_background_effects": [],
+      "original_calls": [
+        "BattleAnimSub_Drain"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 139,
+      "name": "毒瓦斯",
+      "original_script": "BattleAnim_PoisonGas",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 140,
+      "name": "投球",
+      "original_script": "BattleAnim_Barrage",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "ORB",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 141,
+      "name": "吸血",
+      "original_script": "BattleAnim_LeechLife",
+      "original_direct_background_effects": [],
+      "original_calls": [
+        "BattleAnimSub_Drain"
+      ],
+      "current_animation": "DRAIN",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 142,
+      "name": "恶魔之吻",
+      "original_script": "BattleAnim_LovelyKiss",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_MID_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 143,
+      "name": "神鸟猛击",
+      "original_script": "BattleAnim_SkyAttack",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_REMOVE_MON",
+        "BATTLE_BG_EFFECT_ALTERNATE_HUES",
+        "BATTLE_BG_EFFECT_SHOW_MON"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 144,
+      "name": "变身",
+      "original_script": "BattleAnim_Transform",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_WAVE_DEFORM_MON"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_2Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 145,
+      "name": "泡沫",
+      "original_script": "BattleAnim_Bubble",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "BUBBLE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 146,
+      "name": "迷昏拳",
+      "original_script": "BattleAnim_DizzyPunch",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 147,
+      "name": "蘑菇孢子",
+      "original_script": "BattleAnim_Spore",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 148,
+      "name": "闪光",
+      "original_script": "BattleAnim_Flash",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 149,
+      "name": "精神波",
+      "original_script": "BattleAnim_Psywave",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_PSYCHIC"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 150,
+      "name": "跃起",
+      "original_script": "BattleAnim_Splash",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_BOUNCE_DOWN"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_2Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 151,
+      "name": "溶化",
+      "original_script": "BattleAnim_AcidArmor",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_ACID_ARMOR"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_2Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 152,
+      "name": "蟹钳锤",
+      "original_script": "BattleAnim_Crabhammer",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 153,
+      "name": "大爆炸",
+      "original_script": "BattleAnim_Explosion",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_HIDE_MON"
+      ],
+      "original_calls": [
+        "BattleAnimSub_Explosion2",
+        "BattleAnimSub_Explosion1"
+      ],
+      "current_animation": "EXPLOSION",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 154,
+      "name": "乱抓",
+      "original_script": "BattleAnim_FurySwipes",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "MULTICUT",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 155,
+      "name": "骨头回力镖",
+      "original_script": "BattleAnim_Bonemerang",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 156,
+      "name": "睡觉",
+      "original_script": "BattleAnim_Rest",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 157,
+      "name": "岩崩",
+      "original_script": "BattleAnim_RockSlide",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 158,
+      "name": "必杀门牙",
+      "original_script": "BattleAnim_HyperFang",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X"
+      ],
+      "original_calls": [],
+      "current_animation": "BITE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 159,
+      "name": "棱角化",
+      "original_script": "BattleAnim_Sharpen",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FADE_MON_TO_LIGHT_REPEATING"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 160,
+      "name": "纹理",
+      "original_script": "BattleAnim_Conversion",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_ALTERNATE_HUES"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 161,
+      "name": "三重攻击",
+      "original_script": "BattleAnim_TriAttack",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [
+        "BattleAnimSub_Fire",
+        "BattleAnimSub_Ice"
+      ],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 162,
+      "name": "愤怒门牙",
+      "original_script": "BattleAnim_SuperFang",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "SUPER_FANG",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 163,
+      "name": "劈开",
+      "original_script": "BattleAnim_Slash",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "CUT",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 164,
+      "name": "替身",
+      "original_script": "BattleAnim_Substitute",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_REMOVE_MON",
+        "BATTLE_BG_EFFECT_ENTER_MON",
+        "BATTLE_BG_EFFECT_REMOVE_MON",
+        "BATTLE_BG_EFFECT_SHOW_MON",
+        "BATTLE_BG_EFFECT_REMOVE_MON",
+        "BATTLE_BG_EFFECT_SHOW_MON",
+        "BATTLE_BG_EFFECT_HIDE_MON",
+        "BATTLE_BG_EFFECT_SHOW_MON"
+      ],
+      "original_calls": [],
+      "current_animation": "属性/状态共用动画",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 165,
+      "name": "挣扎",
+      "original_script": "BattleAnim_Struggle",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "IMPACT",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 172,
+      "name": "火焰轮",
+      "original_script": "BattleAnim_FlameWheel",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_TACKLE",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED",
+        "BATTLE_BG_EFFECT_SHOW_MON"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row"
+      ],
+      "current_animation": "FIRE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 181,
+      "name": "细雪",
+      "original_script": "BattleAnim_PowderSnow",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_WHITE_HUES"
+      ],
+      "original_calls": [
+        "BattleAnimSub_Ice"
+      ],
+      "current_animation": "ICE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 183,
+      "name": "音速拳",
+      "original_script": "BattleAnim_MachPunch",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_HIDE_MON",
+        "BATTLE_BG_EFFECT_SHOW_MON"
+      ],
+      "original_calls": [],
+      "current_animation": "PALM",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 185,
+      "name": "出奇一击",
+      "original_script": "BattleAnim_FaintAttack",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FADE_MON_TO_WHITE_WAIT_FADE_BACK"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "LUNGE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 186,
+      "name": "天使之吻",
+      "original_script": "BattleAnim_SweetKiss",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_MID_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "original_calls": [],
+      "current_animation": "PSYCHIC",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 188,
+      "name": "污泥炸弹",
+      "original_script": "BattleAnim_SludgeBomb",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_BLACK_HUES"
+      ],
+      "original_calls": [
+        "BattleAnimSub_Sludge"
+      ],
+      "current_animation": "POISON",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 189,
+      "name": "掷泥",
+      "original_script": "BattleAnim_MudSlap",
+      "original_direct_background_effects": [],
+      "original_calls": [
+        "BattleAnimSub_SandOrMud"
+      ],
+      "current_animation": "GROUND",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 192,
+      "name": "电磁炮",
+      "original_script": "BattleAnim_ZapCannon",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "THUNDER",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 196,
+      "name": "冰冻之风",
+      "original_script": "BattleAnim_IcyWind",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW",
+        "BATTLE_BG_EFFECT_ALTERNATE_HUES",
+        "BATTLE_BG_EFFECT_BATTLEROBJ_2ROW",
+        "BATTLE_BG_EFFECT_NIGHT_SHADE",
+        "BATTLE_BG_EFFECT_SHOW_MON"
+      ],
+      "original_calls": [],
+      "current_animation": "ICE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 198,
+      "name": "骨棒乱打",
+      "original_script": "BattleAnim_BoneRush",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "MULTICUT",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 200,
+      "name": "逆鳞",
+      "original_script": "BattleAnim_Outrage",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_MON_LIGHT_DARK_REPEATING",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "DRAGON_RAGE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 202,
+      "name": "终极吸取",
+      "original_script": "BattleAnim_GigaDrain",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FADE_MONS_TO_BLACK_REPEATING",
+        "BATTLE_BG_EFFECT_CYCLE_MID_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnimSub_Drain",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "DRAIN",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 204,
+      "name": "撒娇",
+      "original_script": "BattleAnim_Charm",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_WOBBLE_MON"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "PSYCHIC",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 206,
+      "name": "点到为止",
+      "original_script": "BattleAnim_FalseSwipe",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_MID_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "original_calls": [],
+      "current_animation": "CUT",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 211,
+      "name": "钢翼",
+      "original_script": "BattleAnim_SteelWing",
+      "original_direct_background_effects": [],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnimSub_Metallic",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "WIND",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 223,
+      "name": "爆裂拳",
+      "original_script": "BattleAnim_Dynamicpunch",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [
+        "BattleAnimSub_Explosion2"
+      ],
+      "current_animation": "PALM",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 225,
+      "name": "龙息",
+      "original_script": "BattleAnim_Dragonbreath",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "DRAGON",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 231,
+      "name": "铁尾",
+      "original_script": "BattleAnim_IronTail",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_WOBBLE_MON"
+      ],
+      "original_calls": [
+        "BattleAnim_TargetObj_1Row",
+        "BattleAnimSub_Metallic",
+        "BattleAnim_ShowMon_0"
+      ],
+      "current_animation": "WHIP",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 238,
+      "name": "十字劈",
+      "original_script": "BattleAnim_CrossChop",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X",
+        "BATTLE_BG_EFFECT_FLASH_INVERTED"
+      ],
+      "original_calls": [],
+      "current_animation": "CUT",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 239,
+      "name": "龙卷风",
+      "original_script": "BattleAnim_Twister",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "WIND",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 242,
+      "name": "咬碎",
+      "original_script": "BattleAnim_Crunch",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_SHAKE_SCREEN_X"
+      ],
+      "original_calls": [],
+      "current_animation": "BITE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 245,
+      "name": "神速",
+      "original_script": "BattleAnim_Extremespeed",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_HIDE_MON",
+        "BATTLE_BG_EFFECT_SHOW_MON"
+      ],
+      "original_calls": [],
+      "current_animation": "LUNGE",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 246,
+      "name": "原始之力",
+      "original_script": "BattleAnim_Ancientpower",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "ROCK",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 247,
+      "name": "影子球",
+      "original_script": "BattleAnim_ShadowBall",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "ORB",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 249,
+      "name": "碎岩",
+      "original_script": "BattleAnim_RockSmash",
+      "original_direct_background_effects": [],
+      "original_calls": [],
+      "current_animation": "PALM",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    },
+    {
+      "id": 250,
+      "name": "潮旋",
+      "original_script": "BattleAnim_Whirlpool",
+      "original_direct_background_effects": [
+        "BATTLE_BG_EFFECT_WHIRLPOOL"
+      ],
+      "original_calls": [],
+      "current_animation": "BIND",
+      "alignment": "adaptation",
+      "full_script_emulation": false
+    }
+  ],
+  "fully_verified_original_animations": 0,
+  "notes": "Direct background commands only; callees not expanded. Asset, timing, palette and layer equivalence are not implied by pixel-consistency tests."
+}

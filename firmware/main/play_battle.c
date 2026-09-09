@@ -288,7 +288,7 @@ static void draw_band(int band_y)
     }
 
     // -- 野怪 front sprite -----------------------------------------------
-    if (wild_sprite && has_wild) {
+    if (wild_sprite && has_wild && battle_fx_actor_visible(round,s_fx_frame,false)) {
         uint16_t pal[4];
         assets_palette_variant(wild_art.palette, c->enc.is_shiny, pal);
         render_sprite_2bpp(wild_layout.x + pose.wild_dx, Y(wild_layout.y),
@@ -314,7 +314,7 @@ static void draw_band(int band_y)
 
     // -- 主宠 ------------------------------------------------------------
     sprite_asset_t pet_spr;
-    if (has_pet && assets_back_sprite_info(pet_art_id, &pet_spr)) {
+    if (has_pet && battle_fx_actor_visible(round,s_fx_frame,true) && assets_back_sprite_info(pet_art_id, &pet_spr)) {
         uint16_t pal[4];
         species_t drawn=pet_sp;assets_species(pet_art_id,&drawn);
         assets_palette_variant(drawn.palette, s_pet_shiny, pal);

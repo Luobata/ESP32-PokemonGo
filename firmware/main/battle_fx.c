@@ -8,6 +8,7 @@
 
 typedef struct { uint16_t move_id; uint8_t style; } move_style_t;
 static const move_style_t MOVE_STYLES[] = {
+    {57, BATTLE_FX_SURF},
     {172, BATTLE_FX_FIRE},
     {181, BATTLE_FX_ICE},
     {183, BATTLE_FX_PALM},
@@ -102,6 +103,7 @@ bool battle_fx_has_dedicated(uint16_t move_id)
 uint8_t battle_fx_frames(const battle_round_t *round)
 {
     if (!round || round->missed) return 20;
+    if(round->move_id==57&&!round->no_effect&&!round->charging&&!round->skipped)return 36;
     if(round->charging||round->self_target||round->healed||round->skipped)return 20;
     if(round->hits>1)return 24+round->hits*2;
     switch (battle_fx_style(round)) {
@@ -121,6 +123,12 @@ uint8_t battle_fx_frames(const battle_round_t *round)
     default:
         return 22;
     }
+}
+
+bool battle_fx_actor_visible(const battle_round_t *round,uint8_t frame,bool pet){
+    if(!round||!round->damage||round->missed||round->no_effect||round->self_target||round->charging||round->skipped||pet==(bool)round->by_pet)return true;
+    unsigned active=battle_fx_frames(round)-2,start=active>6?active-6:0;
+    return frame<start||frame>=active||((frame-start)&1u);
 }
 
 // Keep impact phases visible for at least 540 ms on the 90 ms device timer.
@@ -260,7 +268,7 @@ void battle_fx_draw_band(const battle_round_t *round, uint8_t frame, int band_y,
     if (!round || band_y < 0 || band_y >= 240 ||
         pet.w <= 0 || pet.h <= 0 || wild.w <= 0 || wild.h <= 0) return;
     int phase = phase_of(round, frame);
-    if (phase >= 10) return;
+    if (round->move_id==57&&!round->missed&&!round->no_effect ? frame>=battle_fx_frames(round)-2 : phase>=10) return;
     // An immune target can see the attempted projectile, never a damage burst.
     // Zero damage also includes recovery, buffs, barriers and status moves.
     battle_fx_style_t style = battle_fx_style(round);
@@ -268,6 +276,19 @@ void battle_fx_draw_band(const battle_round_t *round, uint8_t frame, int band_y,
     if (style == BATTLE_FX_STARS) type = TY_ELECTRIC;
     if (style == BATTLE_FX_SONIC_BOOM) type = TY_FLYING;
     draw_ctx_t ctx = {band_y, TYPE_PAL[type]};
+    if(round->move_id==57&&!round->missed&&!round->no_effect&&!round->charging&&!round->skipped){
+        // GS Surf: rise, crest hold, then descend; adapted 184 GB ticks to 34
+        // active LCD frames. Pixel guard preserves text/HP in the tall layout.
+        int top=frame<18?240-(int)frame*210/18:frame<24?30:30+((int)frame-24)*210/10;
+        for(int y=band_y;y<band_y+SCREEN_BAND_H&&y<236;y++)for(int x=0;x<SCREEN_W;x++){
+            int wave=((x+(int)frame*4)%32);wave=wave<16?wave:32-wave;
+            int crest=top+wave/2-4;
+            if(y<crest)continue;
+            unsigned shade=y<crest+3?2:y<crest+7?0:(((y-top+(int)frame*3)/10)%3==0?0:1);
+            effect_px(&ctx,x,y,shade);
+        }
+        return;
+    }
     battle_fx_pose_t pose = battle_fx_pose_for_rects(round, frame, pet, wild);
     pet.x += pose.pet_dx;
     wild.x += pose.wild_dx;

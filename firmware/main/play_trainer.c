@@ -97,6 +97,8 @@ static void battle_stage(int y){
  if(s_mode==FIGHT&&(s_event.kind==TRAINER_ATTACK||s_event.kind==TRAINER_STATUS))pose=battle_fx_pose_for_rects(&s_event.attack,s_frame,pet,wild);
  species_t sp;uint16_t palette[4];uint8_t size;const uint8_t *front=assets_front_sprite(e->transform_species?e->transform_species:e->species,&size);
  if(s_mode==SENDOUT&&(s_sendout_mask&2)&&s_motion.sprite.data){front=s_motion.sprite.data;size=s_motion.sprite.w;}
+ const battle_round_t *hit_round=s_mode==FIGHT&&(s_event.kind==TRAINER_ATTACK||s_event.kind==TRAINER_STATUS)?&s_event.attack:NULL;
+ bool pet_visible=battle_fx_actor_visible(hit_round,s_frame,true),wild_visible=battle_fx_actor_visible(hit_round,s_frame,false);
  bool pet_revealing=s_mode!=SENDOUT||!(s_sendout_mask&1)||s_hold>=10;
  bool wild_revealing=s_mode!=SENDOUT||!(s_sendout_mask&2)||s_hold>=10;
  if(!pet_revealing||!wild_revealing){
@@ -106,9 +108,9 @@ static void battle_stage(int y){
    if(!pet_revealing)render_sprite_2bpp_wh(pet.x+s_hold*3,pet.y+42-s_hold*3-y,ball.data,ball.w,ball.h,1,ball_assets_palette(0));
   }
  }
- if(wild_revealing&&front&&assets_species(e->transform_species?e->transform_species:e->species,&sp)){assets_palette_variant(sp.palette,false,palette);game_ui_sprite_centered(y,wild.x+pose.wild_dx,wild.y,112,112,front,size,size,2,palette);}
+ if(wild_revealing&&wild_visible&&front&&assets_species(e->transform_species?e->transform_species:e->species,&sp)){assets_palette_variant(sp.palette,false,palette);game_ui_sprite_centered(y,wild.x+pose.wild_dx,wild.y,112,112,front,size,size,2,palette);}
  sprite_asset_t back;
- if(pet_revealing&&assets_back_sprite_info(p->transform_species?p->transform_species:p->species,&back)&&assets_species(p->transform_species?p->transform_species:p->species,&sp)){unsigned slot=s_store.session.sides[0].active;bool shiny=slot<s_campaign_party.count&&(s_campaign_party.members[slot].flags&1);assets_palette_variant(sp.palette,shiny,palette);game_ui_sprite_centered(y,pet.x+pose.pet_dx,pet.y,96,96,back.data,back.w,back.h,2,palette);}
+ if(pet_revealing&&pet_visible&&assets_back_sprite_info(p->transform_species?p->transform_species:p->species,&back)&&assets_species(p->transform_species?p->transform_species:p->species,&sp)){unsigned slot=s_store.session.sides[0].active;bool shiny=slot<s_campaign_party.count&&(s_campaign_party.members[slot].flags&1);assets_palette_variant(sp.palette,shiny,palette);game_ui_sprite_centered(y,pet.x+pose.pet_dx,pet.y,96,96,back.data,back.w,back.h,2,palette);}
  if(s_mode==FIGHT&&(s_event.kind==TRAINER_ATTACK||s_event.kind==TRAINER_STATUS))battle_fx_draw_band(&s_event.attack,s_frame,y,pet,wild);
  name(p->species,label,sizeof(label));render_text(120,156-y,label,GAME_UI_INK);
  snprintf(text,sizeof(text),"Lv%u %s",p->level,status_names[p->status]);render_text(120,176-y,text,GAME_UI_MUTED);

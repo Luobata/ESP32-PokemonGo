@@ -69,6 +69,24 @@ static void readability(void){
  }
  printf("{\"readability_moves\":8,\"both_sides\":true,\"min_visible_ms\":%u,\"min_peak_contrast_pixels\":%u}\n",minimum*BATTLE_FX_TICK_MS,peak_min);
 }
-int main(void){assert(assets_init());fx_all();readability();}
+static void surf_and_hit(void){
+ track_self=false;battle_round_t r={.move_id=57,.move_type=TY_WATER,.by_pet=true,.damage=40};
+ unsigned counts[36]={0};
+ for(unsigned f=0;f<36;f++){
+  pixels=0;for(unsigned p=0;p<240*320;p++)raster[p]=0xffff;
+  for(band=0;band<240;band+=80)battle_fx_draw_band(&r,f,band,(battle_fx_rect_t){8,140,96,96},(battle_fx_rect_t){148,40,64,64});
+  counts[f]=pixels;
+  if(f==18)for(unsigned x=0;x<240;x++)assert(raster[130*240+x]!=0xffff);
+ }
+ assert(!counts[0]&&counts[9]>0&&counts[18]>counts[9]);
+ assert(counts[23]>counts[28]&&counts[28]>counts[33]&&counts[33]>0&&!counts[34]&&!counts[35]);
+ for(unsigned side=0;side<2;side++){
+  r.by_pet=!side;unsigned hidden=0;
+  for(unsigned f=0;f<36;f++){assert(battle_fx_actor_visible(&r,f,r.by_pet));hidden+=!battle_fx_actor_visible(&r,f,!r.by_pet);}
+  assert(hidden==3);r.missed=true;for(unsigned f=0;f<36;f++)assert(battle_fx_actor_visible(&r,f,!r.by_pet));r.missed=false;
+ }
+ printf("{\"surf_full_width\":true,\"rise_hold_fall\":true,\"three_target_flashes\":true,\"clean_last_frames\":true}\n");
+}
+int main(void){assert(assets_init());fx_all();readability();surf_and_hit();}
 '''
 h.run()

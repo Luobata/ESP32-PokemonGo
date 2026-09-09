@@ -1,0 +1,15 @@
+{
+  "renderer": "1154bd6da4a2c891f032",
+  "all_moves": 191,
+  "pixel_checks": 6112,
+  "surf_rise_hold_fall": true,
+  "both_targets_three_flashes": true,
+  "unchanged_attacker": true,
+  "clean_recovery": true,
+  "trainer_sendout_checks": 118,
+  "firmware_build": "pass",
+  "community_package": "pass",
+  "hardware_flashed": false,
+  "browser_checked": "Surf selected, all 191 moves available, frames 2 and 18 visually inspected",
+  "original_frame_equivalence_verified": false
+}

@@ -29,11 +29,14 @@ typedef enum {
     BATTLE_FX_SONIC_BOOM, BATTLE_FX_SEISMIC_TOSS, BATTLE_FX_DRAGON_RAGE,
     BATTLE_FX_NIGHT_SHADE, BATTLE_FX_SUPER_FANG, BATTLE_FX_HYDRO_PUMP,
     BATTLE_FX_HYPER_BEAM, BATTLE_FX_EXPLOSION,
+    BATTLE_FX_SURF,
     BATTLE_FX_STYLE_COUNT
 } battle_fx_style_t;
 
 battle_fx_style_t battle_fx_style(const battle_round_t *round);
 bool battle_fx_has_dedicated(uint16_t move_id);
+// Shared target-only hit flash; HUD and attacker remain visible.
+bool battle_fx_actor_visible(const battle_round_t *round, uint8_t frame, bool pet);
 
 // Frame 0..N-1, one frame every BATTLE_FX_TICK_MS. Last two frames are clean
 // (zero displacement and no overlay); replay them to remove the previous pose.
