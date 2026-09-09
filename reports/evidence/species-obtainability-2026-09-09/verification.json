@@ -1,0 +1,44 @@
+{
+  "chapters": [
+    {
+      "chapter": 0,
+      "directly_encountered_species": 140
+    },
+    {
+      "chapter": 1,
+      "directly_encountered_species": 140
+    },
+    {
+      "chapter": 2,
+      "directly_encountered_species": 144
+    },
+    {
+      "chapter": 3,
+      "directly_encountered_species": 145
+    },
+    {
+      "chapter": 4,
+      "directly_encountered_species": 145
+    },
+    {
+      "chapter": 5,
+      "directly_encountered_species": 147
+    },
+    {
+      "chapter": 6,
+      "directly_encountered_species": 149
+    },
+    {
+      "chapter": 7,
+      "directly_encountered_species": 150
+    },
+    {
+      "chapter": 8,
+      "directly_encountered_species": 151
+    }
+  ],
+  "species": 151,
+  "campaign_steps": 180000,
+  "catchable_with_basic_ball": 151,
+  "minimum_window_px": 3
+}

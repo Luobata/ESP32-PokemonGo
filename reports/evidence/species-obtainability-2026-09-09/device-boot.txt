@@ -1,0 +1,6 @@
+I (512) app_init: App version:      857df73
+I (512) app_init: Compile time:     Sep  9 2026 12:20:13
+I (513) app_init: ELF file SHA256:  2a5b92f2e...
+I (820) main: Audio preference: muted=1
+I (1034) idle: P1：#129 Lv8  提示行 184 px  横带 240x80×4 条
+I (1035) main: 就绪:Display=1 Button=1 Audio=1 Battery=1 World=1 → 进入玩法
