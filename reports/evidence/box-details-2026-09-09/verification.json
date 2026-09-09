@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "renderer": "01922d30f0e5ea7530c6",
+  "checks": 28,
+  "font_glyphs": 179,
+  "details_read_only": true,
+  "same_species_individuals": true,
+  "return_row_preserved": true,
+  "long_B_previous": true,
+  "details_exchange_save_retry": true
+}

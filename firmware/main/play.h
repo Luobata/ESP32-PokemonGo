@@ -66,6 +66,8 @@ void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev);
 typedef struct {
     uint8_t selected;
     bool details;
+    bool box, skills;
+    uint8_t box_row;
     uint16_t species;
     const char *feedback;
 } play_party_view_t;

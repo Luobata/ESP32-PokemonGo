@@ -605,9 +605,10 @@ static void state(void)
     if (nav_current() == PAGE_PARTY) {
         play_party_view_t view;
         play_party_presentation_snapshot(&view);
-        printf("{\"selected\":%u,\"details\":%s,\"species\":%u,\"feedback\":\"%s\"}",
+        printf("{\"selected\":%u,\"details\":%s,\"species\":%u,\"feedback\":\"%s\",\"box\":%s,\"box_row\":%u,\"skills\":%s}",
                view.selected, view.details ? "true" : "false", view.species,
-               view.feedback ? view.feedback : "");
+               view.feedback ? view.feedback : "", view.box ? "true" : "false",
+               view.box_row, view.skills ? "true" : "false");
     } else printf("null");
     printf(",\"inventory\":[");
     for (unsigned i = 0; i < ITEM_COUNT; i++) printf("%s%u", i ? "," : "", inventory.quantity[i]);

@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "renderer": "01922d30f0e5ea7530c6",
+  "checks": 15,
+  "collision_swap": true,
+  "save_retry": true,
+  "distinct_shiny_selection": true
+}
