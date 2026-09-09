@@ -42,7 +42,7 @@ reports/**/*.wav
 reports/**/*silent.mp4
 reports/**/music_preview
 reports/**/music_preview.c
-release/
+/release/
 
 # Required runtime snapshot: a fresh checkout must build without private asset caches.
 !assets/gen1.bin

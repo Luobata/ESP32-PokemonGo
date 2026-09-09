@@ -1,7 +1,7 @@
 {
   "renderer_build": "1b4ad5276979ab5dc716",
   "fps": 30,
-  "duration": 133,
+  "duration": 129,
   "resolution": [
     720,
     1280
@@ -113,7 +113,7 @@
     {
       "name": "capture",
       "start": 53.0,
-      "duration": 6,
+      "duration": 8,
       "pages": [
         4
       ],
@@ -122,32 +122,15 @@
         7,
         16
       ],
-      "audio_samples": 132300,
+      "audio_samples": 176400,
       "ending_page": 4,
       "caught": 2,
       "evolutions": 0,
-      "checks": 6
-    },
-    {
-      "name": "capture-fail",
-      "start": 59.0,
-      "duration": 6,
-      "pages": [
-        4
-      ],
-      "music_ids": [
-        0,
-        7
-      ],
-      "audio_samples": 132300,
-      "ending_page": 3,
-      "caught": 1,
-      "evolutions": 0,
-      "checks": 6
+      "checks": 8
     },
     {
       "name": "party",
-      "start": 65.0,
+      "start": 61.0,
       "duration": 5,
       "pages": [
         12
@@ -163,7 +146,7 @@
     },
     {
       "name": "skills",
-      "start": 70.0,
+      "start": 66.0,
       "duration": 5,
       "pages": [
         12
@@ -179,7 +162,7 @@
     },
     {
       "name": "care",
-      "start": 75.0,
+      "start": 71.0,
       "duration": 5,
       "pages": [
         5
@@ -195,7 +178,7 @@
     },
     {
       "name": "evolve",
-      "start": 80.0,
+      "start": 76.0,
       "duration": 5,
       "pages": [
         1,
@@ -214,7 +197,7 @@
     },
     {
       "name": "dex",
-      "start": 85.0,
+      "start": 81.0,
       "duration": 4,
       "pages": [
         6
@@ -230,7 +213,7 @@
     },
     {
       "name": "bag",
-      "start": 89.0,
+      "start": 85.0,
       "duration": 4,
       "pages": [
         10
@@ -246,7 +229,7 @@
     },
     {
       "name": "achievements",
-      "start": 93.0,
+      "start": 89.0,
       "duration": 4,
       "pages": [
         14
@@ -262,7 +245,7 @@
     },
     {
       "name": "gym",
-      "start": 97.0,
+      "start": 93.0,
       "duration": 10,
       "pages": [
         13
@@ -280,7 +263,7 @@
     },
     {
       "name": "league",
-      "start": 107.0,
+      "start": 103.0,
       "duration": 7,
       "pages": [
         13
@@ -298,7 +281,7 @@
     },
     {
       "name": "journal",
-      "start": 114.0,
+      "start": 110.0,
       "duration": 5,
       "pages": [
         15
@@ -314,7 +297,7 @@
     },
     {
       "name": "red",
-      "start": 119.0,
+      "start": 115.0,
       "duration": 7,
       "pages": [
         13
@@ -332,7 +315,7 @@
     },
     {
       "name": "settings",
-      "start": 126.0,
+      "start": 122.0,
       "duration": 4,
       "pages": [
         11
@@ -348,7 +331,7 @@
     },
     {
       "name": "outro",
-      "start": 130.0,
+      "start": 126.0,
       "duration": 3,
       "pages": [
         1
@@ -363,6 +346,6 @@
       "checks": 3
     }
   ],
-  "audio_sha256": "38cc6910f20e86a40621356bdc1a27fc8e2b4ddb775023dae0dd10766fe7b193",
-  "frames": 3990
+  "audio_sha256": "3b80c0ce1e62c511f6334d3c94ac58d4fd3b207b3160f68e06e06be6705f7fa4",
+  "frames": 3870
 }
