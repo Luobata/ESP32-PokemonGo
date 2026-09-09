@@ -1541,13 +1541,7 @@ bool world_challenge_settle(void)
     exp_share_party(&s_starter_party,((1u<<s_starter_party.party_count)-1)&~s_challenge.session.participated,reward);
     party_serialize(&s_starter_party, s_save_buf.party);
     s_save_buf.exp=s_starter_party.party[0].exp;s_save_buf.level=s_starter_party.party[0].level;
-    bool first = !(s_challenge.defeated & (1u<<s_challenge.session.trainer));
-    if (s_challenge.session.won && first) {
-        unsigned milk=s_save_buf.inventory.quantity[ITEM_MILK]+2;
-        s_save_buf.inventory.quantity[ITEM_MILK]=milk>items_capacity(ITEM_MILK)?items_capacity(ITEM_MILK):milk;
-    }
-    uint8_t prize=trainer_rematch_prize(&s_challenge);
-    if(prize!=ITEM_NONE&&s_save_buf.inventory.quantity[prize]<items_capacity(prize))s_save_buf.inventory.quantity[prize]++;
+    trainer_grant_items(&s_challenge,&s_save_buf.inventory);
     if (!s_challenge.session.won && !s_challenge.session.retired) {
         s_save_buf.pet.stamina = s_save_buf.pet.stamina>20*NURT_Q?s_save_buf.pet.stamina-20*NURT_Q:0;
         s_save_buf.pet.mood = s_save_buf.pet.mood>15*NURT_Q?s_save_buf.pet.mood-15*NURT_Q:0;

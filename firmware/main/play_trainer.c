@@ -25,6 +25,8 @@ static trainer_store_t s_store;
 static world_party_t s_campaign_party;
 static uint32_t s_result_exp;
 static bool s_new_chapter;
+static uint8_t s_result_stage;
+static inventory_t s_result_items;
 static trainer_event_t s_event;
 static uint8_t s_mode,s_selected,s_slot,s_menu,s_frame,s_hold;
 static uint8_t s_sendout_mask;
@@ -110,7 +112,7 @@ static void battle_stage(int y){
  }
  if(wild_revealing&&wild_visible&&front&&assets_species(e->transform_species?e->transform_species:e->species,&sp)){assets_palette_variant(sp.palette,false,palette);game_ui_sprite_centered(y,wild.x+pose.wild_dx,wild.y,112,112,front,size,size,2,palette);}
  sprite_asset_t back;
- if(pet_revealing&&pet_visible&&assets_back_sprite_info(p->transform_species?p->transform_species:p->species,&back)&&assets_species(p->transform_species?p->transform_species:p->species,&sp)){unsigned slot=s_store.session.sides[0].active;bool shiny=slot<s_campaign_party.count&&(s_campaign_party.members[slot].flags&1);assets_palette_variant(sp.palette,shiny,palette);game_ui_sprite_centered(y,pet.x+pose.pet_dx,pet.y,96,96,back.data,back.w,back.h,2,palette);}
+ if(pet_revealing&&pet_visible&&assets_back_sprite_info(p->transform_species?p->transform_species:p->species,&back)&&assets_species(p->transform_species?p->transform_species:p->species,&sp)){unsigned slot=s_store.session.sides[0].active;bool shiny=slot<s_campaign_party.count&&(s_campaign_party.members[slot].flags&1);assets_palette_variant(sp.palette,shiny,palette);game_ui_sprite_centered(y,pet.x+pose.pet_dx+(s_mode==SENDOUT&&(s_sendout_mask&1)&&s_hold>=10?pokemon_back_entrance_offset((s_hold-10)*90):0),pet.y,96,96,back.data,back.w,back.h,2,palette);}
  name(p->species,label,sizeof(label));render_text(120,156-y,label,GAME_UI_INK);
  snprintf(text,sizeof(text),"Lv%u %s",p->level,status_names[p->status]);render_text(120,176-y,text,GAME_UI_MUTED);
  battle_hud_draw_hp(rectangle,&y,120,196,4,2,BATTLE_HUD_PET,visible_hp(0),p->max_hp,GAME_UI_BG);
@@ -166,13 +168,32 @@ static void draw_all(void){
    trainer_mon_t *p=mon(0);game_ui_moves(y,p->transform_species?p->transform_species:p->species,p->transform_species?p->transform_level:p->level,s_slot,true);
   }else if(s_mode==RESULT){
    const trainer_info_t *t=trainer_info(s_store.session.trainer);game_ui_title(y,s_store.session.won?"挑战胜利":"挑战结束",t->name);
-   portrait(y,s_store.session.trainer,64,42,2);
-   game_ui_text_centered(y,8,174,224,16,s_store.session.won?t->badge:s_store.session.retired?"已经认输":"去照料伙伴再来",GAME_UI_INK);
-   char b[48];snprintf(b,sizeof(b),"获得经验 %lu",(unsigned long)s_result_exp);
-   game_ui_text_centered(y,8,200,224,16,s_store.session.retired?"不扣经验 不降等级":b,GAME_UI_MUTED);
-   uint8_t prize=trainer_rematch_prize(&s_store);if(prize!=ITEM_NONE){snprintf(b,sizeof(b),"再战奖励：%s",items_info(prize)->name);game_ui_text_centered(y,8,222,224,16,b,GAME_UI_INK);}
-   game_ui_text_centered(y,8,244,224,16,s_failed?"保存失败 按A重试":"经验与奖励已保存",GAME_UI_MUTED);
-   game_ui_footer(y,"[A]继续 [C]挑战大厅");
+   if(s_store.session.won&&s_result_stage==2&&s_store.session.trainer<8){
+    const uint16_t badge_pal[4]={0,0x52aa,0xad55,0xffff};
+    render_sprite_2bpp(88,64-y,trainer_badge_art(s_store.session.trainer),16,4,badge_pal);
+   }else portrait(y,s_store.session.trainer,64,42,2);
+   if(s_failed){
+    game_ui_text_centered(y,8,200,224,16,"保存失败 按A重试",GAME_UI_INK);
+   }else if(s_store.session.won && s_result_stage==0){
+    game_ui_box(y,8,168,224,100);
+    game_ui_text_centered(y,16,182,208,16,trainer_victory_line(s_store.session.trainer),GAME_UI_INK);
+    game_ui_text_centered(y,16,212,208,16,"这是你与伙伴努力的证明。",GAME_UI_INK);
+    game_ui_text_centered(y,16,242,208,16,"收下奖励，继续前进吧！",GAME_UI_INK);
+   }else if(s_store.session.won && s_result_stage==1){
+    unsigned row=0;char b[64];
+    for(unsigned i=0;i<ITEM_COUNT&&row<5;i++)if(s_result_items.quantity[i]){
+     snprintf(b,sizeof(b),"%s ×%u",items_info(i)->name,s_result_items.quantity[i]);
+     game_ui_text_centered(y,8,158+row++*22,224,16,b,GAME_UI_INK);
+    }
+    if(!row)game_ui_text_centered(y,8,194,224,16,"背包已满，奖励无法放入",GAME_UI_MUTED);
+   }else{
+    game_ui_text_centered(y,8,174,224,16,s_store.session.won?t->badge:s_store.session.retired?"已经认输":"去照料伙伴再来",GAME_UI_INK);
+    char b[48];snprintf(b,sizeof(b),"获得经验 %lu",(unsigned long)s_result_exp);
+    game_ui_text_centered(y,8,200,224,16,s_store.session.retired?"不扣经验 不降等级":b,GAME_UI_MUTED);
+    game_ui_text_centered(y,8,226,224,16,s_new_chapter?"解锁新探索情报":"继续下一段旅程",GAME_UI_INK);
+   }
+   if(!s_failed&&(!s_store.session.won||s_result_stage==2))game_ui_text_centered(y,8,254,224,16,"经验与奖励已保存",GAME_UI_MUTED);
+   game_ui_footer(y,s_store.session.won&&s_result_stage<2?"[A/C]继续":"[A/C]挑战大厅");
   }else if(s_mode==CONFIRM){game_ui_title(y,"结束挑战","");game_ui_text_centered(y,8,112,224,16,s_failed?"保存失败 按A重试":"确定认输吗？",GAME_UI_INK);game_ui_text_centered(y,8,144,224,16,"联盟连战将重新开始",GAME_UI_MUTED);game_ui_footer(y,"[A]认输 [B/C]取消");}
   else if(s_mode==TACTICS){
    game_ui_title(y,"战术","");static const char *options[]={"继续交锋","查看技能","更换伙伴","牛奶回复","认输"};
@@ -180,16 +201,20 @@ static void draw_all(void){
  if(s_menu==i)game_ui_cursor(y,24,60+i*36);}
    game_ui_footer(y,"[A]选中 [B]下一 [C]继续");
   }else battle_stage(y);
+  if(s_mode==RESULT&&!s_failed&&s_frame<8)game_ui_fade_background(y,16-s_frame*2);
   screen_push_band(y);
  }
 }
 static void result(void){
- refresh();s_mode=RESULT;
+ refresh();s_mode=RESULT;s_result_stage=0;s_frame=0;
  unsigned chapter_before=exploration_chapter_current(s_store.defeated);
+ inventory_t bag_before,bag_after;world_inventory_snapshot(&bag_before);
  world_party_t before,after;world_party_snapshot(&before);
  s_failed=!world_challenge_settle();world_party_snapshot(&after);s_result_exp=0;
  if(!s_failed)for(unsigned i=0;i<before.count&&i<after.count;i++)
   if(after.members[i].exp>=before.members[i].exp)s_result_exp+=after.members[i].exp-before.members[i].exp;
+ world_inventory_snapshot(&bag_after);memset(&s_result_items,0,sizeof(s_result_items));
+ if(!s_failed)for(unsigned i=0;i<ITEM_COUNT;i++)s_result_items.quantity[i]=bag_after.quantity[i]>=bag_before.quantity[i]?bag_after.quantity[i]-bag_before.quantity[i]:0;
  refresh();s_new_chapter=!s_failed&&exploration_chapter_current(s_store.defeated)>chapter_before;
  music_director_play(s_store.session.won?(trainer_info(s_store.session.trainer)->kind==0?MUSIC_LEADER_WIN:MUSIC_TRAINER_WIN):MUSIC_HOME);
  draw_all();
@@ -214,10 +239,11 @@ static void tick(lv_timer_t *t){
  static unsigned slow_phase;
  if(s_mode!=FIGHT&&++slow_phase%2)return;
  if(s_failed||screen_idle_is_off())return;
+ if(s_mode==RESULT){if(s_frame<8){s_frame++;draw_all();}return;}
  if(s_mode==INTRO){if(++s_frame>=18)sendout(3);else draw_all();}
  else if(s_mode==SENDOUT){
-  if(s_sendout_mask&2)pokemon_idle_step(&s_motion,90);
-  if(++s_hold>=24)next_action();else draw_all();
+  if((s_sendout_mask&2)&&s_hold>=10)pokemon_idle_step(&s_motion,90);
+  if(++s_hold>=32)next_action();else draw_all();
  }else if(s_mode==FIGHT){
   unsigned frames=battle_fx_frames(&s_event.attack);
   unsigned hit=battle_fx_hit_frame(&s_event.attack),hp_end=hit+BATTLE_PRESENTATION_HP_FRAMES+1;
@@ -249,7 +275,7 @@ void play_trainer_key(bsp_btn_t b,bsp_btn_ev_t e){
    if(world_challenge_begin(s_selected)){refresh();s_mode=INTRO;s_frame=0;music_director_play(MUSIC_ENCOUNTER);}
    else snprintf(s_hint,sizeof(s_hint),"未解锁或存档暂不可用");
   }
- }else if(s_mode==RESULT){if(b==BSP_BTN_UP||b==BSP_BTN_OK){if(s_failed){result();return;}if(!world_challenge_settle()){s_failed=true;}else{refresh();if(s_new_chapter)snprintf(s_hint,sizeof(s_hint),"新探索情报见冒险笔记");else s_hint[0]=0;s_failed=false;s_mode=HALL;s_selected=s_store.league_active?s_store.league_stage:s_selected;music_director_play(MUSIC_GYM);}}}
+ }else if(s_mode==RESULT){if(b==BSP_BTN_UP||b==BSP_BTN_OK){if(s_failed){result();return;}if(s_store.session.won&&s_result_stage<2){s_result_stage++;s_frame=0;draw_all();return;}if(!world_challenge_settle()){s_failed=true;}else{refresh();if(s_new_chapter)snprintf(s_hint,sizeof(s_hint),"新探索情报见冒险笔记");else s_hint[0]=0;s_failed=false;s_mode=HALL;s_selected=s_store.league_active?s_store.league_stage:s_selected;music_director_play(MUSIC_GYM);}}}
  else if(s_mode==CONFIRM){
   if(b==BSP_BTN_UP){if(world_challenge_retire())result();else{s_failed=true;snprintf(s_hint,sizeof(s_hint),"保存失败 请重试");}}
   else{s_mode=TACTICS;s_menu=0;s_failed=false;}

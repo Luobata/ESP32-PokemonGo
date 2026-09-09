@@ -78,7 +78,11 @@ item_loot_t items_roll_loot(uint8_t rarity, uint32_t seed)
     // Separately mixed stream, unrelated to the battle's xorshift state.
     uint32_t rng = seed ^ 0xA511E9B3u;
     if (!rng) rng = 0x6D2B79F5u;
-    if (next_random(&rng) % 100 >= items_drop_chance(rarity)) return out;
+    if (next_random(&rng) % 100 >= items_drop_chance(rarity)) {
+        out.item_id=next_random(&rng)%4?ITEM_POKE:ITEM_BERRY;
+        out.quantity=out.item_id==ITEM_POKE?2:1;
+        return out;
+    }
     static const uint8_t weights[5][ITEM_COUNT] = {
         {40,12, 2,0, 2,2,2,2, 1,1,1,1,1, 0,0, 24,5,12,5},
         {32,17, 5,0, 3,3,3,3, 2,2,2,2,2, 1,1, 18,6,12,6},

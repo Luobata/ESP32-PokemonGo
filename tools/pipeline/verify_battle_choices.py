@@ -61,9 +61,9 @@ def penalty_and_care(f):
     f.key('A');assert f.state()['page']==5 and f.active() is None
     assert f.state()['nurture']==expected
     f.key('B');f.key('B');f.key('A');f.tick(1200)
-    assert f.state()['nurture']['stamina']==100
+    assert f.state()['nurture']['stamina']==70  # Rest is time-only, not an instant refill.
     f.key('B');f.key('B');f.key('B');f.key('A');f.tick(1200)
-    assert f.state()['nurture']['mood']==70 and f.state()['nurture']['stamina']==95
+    assert f.state()['nurture']['mood']==70 and f.state()['nurture']['stamina']==65
     assert f.state()['exp']==s['exp']
 
 def save_failure(f):

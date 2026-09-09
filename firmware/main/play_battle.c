@@ -167,7 +167,7 @@ static void sample_wild_motion(void)
             s_wild_anim_frame = sample.frame;
         } else sample.finished = true;
     }
-    if (sample.finished) s_wild_animating = false;
+    if (sample.finished && s_wild_anim_ms>=900) s_wild_animating = false;
 }
 
 static battle_presentation_exp_t visible_exp(void)
@@ -319,7 +319,7 @@ static void draw_band(int band_y)
         species_t drawn=pet_sp;assets_species(pet_art_id,&drawn);
         assets_palette_variant(drawn.palette, s_pet_shiny, pal);
         scene_screen_p3_pet_back(band_y, pet_spr.data, pet_spr.w, pet_spr.h,
-                                  pose.pet_dx, pal);
+                                  pose.pet_dx+(s_wild_animating?pokemon_back_entrance_offset(s_wild_anim_ms):0), pal);
     }
     if (!s_entering) {
     if (has_pet) {
@@ -565,7 +565,7 @@ static void tick(lv_timer_t *t)
     if (s_entering) {
         if (++s_entry_frame >= BATTLE_PRESENTATION_ENTRY_FRAMES) {
             s_entering = false;
-            s_wild_animating = s_wild_anim_info.duration_ticks > 0;
+            s_wild_animating = true;
             s_wild_anim_ms = 0;
             if (s_wild_animating) sample_wild_motion();
         }

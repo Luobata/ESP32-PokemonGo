@@ -4,6 +4,7 @@
 #include "party.h"
 #include "battle.h"
 #include "combat.h"
+#include "items.h"
 #define TRAINER_COUNT 14
 #define TRAINER_SLOTS 6
 #define TRAINER_MOVES 4
@@ -58,3 +59,6 @@ void trainer_settle(trainer_store_t *store);
 bool trainer_rematch(const trainer_store_t *,uint8_t id);
 
 uint8_t trainer_rematch_prize(const trainer_store_t *);
+
+const char *trainer_victory_line(uint8_t trainer);
+void trainer_grant_items(const trainer_store_t *store,inventory_t *bag);

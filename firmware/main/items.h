@@ -42,7 +42,7 @@ const item_info_t *items_info(uint8_t item_id);
 uint16_t items_capacity(uint8_t item_id);
 void items_inventory_init(inventory_t *inventory);
 bool items_inventory_valid(const inventory_t *inventory);
-uint8_t items_drop_chance(uint8_t rarity); // Percent, 25/35/45/55/65.
+uint8_t items_drop_chance(uint8_t rarity); // Special-loot roll percent, 25/35/45/55/65; otherwise basic supplies.
 // Deterministic independent loot stream. Does not access battle's RNG.
 item_loot_t items_roll_loot(uint8_t rarity, uint32_t seed);
 uint32_t items_loot_seed(uint16_t uid, uint32_t ts, uint16_t species, uint8_t rarity);

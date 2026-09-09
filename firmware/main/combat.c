@@ -77,18 +77,23 @@ static bool has_type(const combat_mon_t *m,unsigned type){species_t s;return spe
 static bool immune_status(const combat_mon_t *d,unsigned status){return d->status||d->substitute||(status==1&&(has_type(d,TY_POISON)||has_type(d,TY_STEEL)))||(status==2&&has_type(d,TY_FIRE))||(status==5&&has_type(d,TY_ICE));}
 static bool fixed(unsigned effect){return effect==EFFECT_STATIC_DAMAGE||effect==EFFECT_LEVEL_DAMAGE||effect==EFFECT_PSYWAVE||effect==EFFECT_SUPER_FANG;}
 static unsigned effectiveness(const combat_mon_t *d,const move_t *m){species_t sp;species_info(d,&sp);return m->id==165?100:battle_effectiveness(m->type,sp.type1,sp.type2);}
-static unsigned estimate(const combat_mon_t *a,const combat_mon_t *d,const combat_move_data_t *data,unsigned ability,unsigned divisor){
+static unsigned estimate(const combat_mon_t *a,const combat_mon_t *d,const combat_move_data_t *data,unsigned ability,unsigned divisor,bool critical){
  const move_t *m=&data->move;unsigned mult=effectiveness(d,m);if(!mult)return 0;
  switch(data->effect){case EFFECT_STATIC_DAMAGE:return m->power;case EFFECT_LEVEL_DAMAGE:return a->level;case EFFECT_SUPER_FANG:return d->hp/2?d->hp/2:1;case EFFECT_PSYWAVE:return a->level*3/4+1;case EFFECT_OHKO:return a->level>=d->level?d->hp:0;case EFFECT_COUNTER:return a->last_damage*2;case EFFECT_BIDE:return a->bide_damage*2;default:break;}
  species_t as,ds;species_info(a,&as);species_info(d,&ds);
- unsigned A=scaled(m->special?as.special:as.attack,learn_level(a),m->special?a->special:a->attack),D=scaled(m->special?ds.special:ds.defense,learn_level(d),m->special?d->special:d->defense);
- if(a->status==2&&!m->special)A/=2;
+ int astage=m->special?a->special:a->attack,dstage=m->special?d->special:d->defense;
+ bool ignore=critical&&astage<=dstage;
+ unsigned A=scaled(m->special?as.special:as.attack,learn_level(a),ignore?0:astage),D=scaled(m->special?ds.special:ds.defense,learn_level(d),ignore?0:dstage);
+ if(!ignore&&a->status==2&&!m->special)A/=2;
  A=A*ability/1024;if(!A)A=1;
  if(data->effect==EFFECT_SELFDESTRUCT)D/=2;
  if(!D)D=1;
- unsigned value=((2u*a->level/5+2)*A*m->power/D/divisor+2)*mult/100;
- if(as.type1==m->type||as.type2==m->type)value=value*3/2;
- if((m->special&&d->light_screen)||(!m->special&&d->reflect))value/=2;
+ if(!ignore&&((m->special&&d->light_screen)||(!m->special&&d->reflect)))D*=2;
+ unsigned value=(uint64_t)(2u*a->level/5+2)*A*m->power/D/divisor;
+ value=value*(critical?2:1)+2;
+ if(m->id!=165&&(as.type1==m->type||as.type2==m->type))value=value*3/2;
+ value=value*mult/100;
+
  return value?value:1;
 }
 static unsigned utility(const combat_mon_t *a,const combat_mon_t *d,const combat_move_data_t *m){
@@ -124,7 +129,7 @@ static unsigned utility(const combat_mon_t *a,const combat_mon_t *d,const combat
  if(e==EFFECT_DREAM_EATER&&d->status!=4)return 0;
  if(e==EFFECT_COUNTER){move_t last;if(!a->last_damage||!combat_move(d->last_move,&last)||last.special)return 0;}
  if(e==EFFECT_BIDE)return a->hp>a->max_hp/2?10:0;
- unsigned score=estimate(a,d,m,1024,50);if(e==EFFECT_FALSE_SWIPE&&!d->substitute)score=minimum(score,d->hp?d->hp-1:0);if(!score)return 0;
+ unsigned score=estimate(a,d,m,1024,50,false);if(e==EFFECT_FALSE_SWIPE&&!d->substitute)score=minimum(score,d->hp?d->hp-1:0);if(!score)return 0;
  if(e==EFFECT_MULTI_HIT)score*=3;
  if(e==EFFECT_DOUBLE_HIT||e==EFFECT_POISON_MULTI_HIT)score*=2;
  if(e==EFFECT_FLY||e==EFFECT_SOLARBEAM||e==EFFECT_SKY_ATTACK||e==EFFECT_SKULL_BASH||e==EFFECT_RAZOR_WIND||e==EFFECT_HYPER_BEAM)score=score*2/3;
@@ -241,12 +246,13 @@ void combat_turn(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint32_t *rng,
  if(effect==EFFECT_DREAM_EATER&&d->status!=4)r->no_effect=1;
  if(effect==EFFECT_COUNTER){move_t last;if(!a->last_damage||!combat_move(d->last_move,&last)||last.special)r->no_effect=1;}
  if(!r->mult||r->no_effect){if(effect==EFFECT_SELFDESTRUCT)a->hp=0;r->no_effect=1;residual(a,d);return;}
- unsigned value=estimate(a,d,data,ability,divisor);
+ bool variable=!fixed(effect)&&effect!=EFFECT_OHKO&&effect!=EFFECT_COUNTER&&effect!=EFFECT_BIDE;
+ if(variable){unsigned crit=a->focus||id==2||id==75||id==152||id==163||id==238?4:16;r->critical=roll(rng,crit)==0;}
+ unsigned value=estimate(a,d,data,ability,divisor,r->critical);
  if(!value){r->no_effect=1;residual(a,d);return;}
  if(effect==EFFECT_PSYWAVE)value=1+roll(rng,a->level*3/2?a->level*3/2:1);
- if(!fixed(effect)&&effect!=EFFECT_OHKO&&effect!=EFFECT_COUNTER&&effect!=EFFECT_BIDE){
-  unsigned crit=a->focus||id==2||id==75||id==152||id==163||id==238?4:16;r->critical=roll(rng,crit)==0;if(r->critical)value=value*2;
-  value=value*(85+roll(rng,16))/100;if(!value)value=1;
+ if(variable){
+  value=value*(217+roll(rng,39))/255;if(!value)value=1;
  }else r->mult=100;
  if(d->charge&&((d->charge_move==19&&(id==16||id==239))||(d->charge_move==91&&id==89)))value*=2;
  unsigned hits=1;

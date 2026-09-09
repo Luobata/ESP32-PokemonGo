@@ -84,3 +84,8 @@ bool pokemon_idle_step(pokemon_idle_t *idle, uint32_t delta_ms)
     pokemon_anim_decode(idle->species, frame, idle->buffer, sizeof(idle->buffer), &idle->sprite);
     return true;
 }
+
+int pokemon_back_entrance_offset(uint32_t elapsed_ms){
+ static const int8_t offsets[]={0,-4,-7,-4,0,4,7,4,0};
+ return elapsed_ms<900?offsets[elapsed_ms/100]:0;
+}

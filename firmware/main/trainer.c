@@ -157,3 +157,17 @@ uint8_t trainer_rematch_prize(const trainer_store_t *st){
  if(!st||!st->session.finished||!st->session.won||!trainer_rematch(st,st->session.trainer))return ITEM_NONE;
  return prizes[st->session.trainer];
 }
+
+const char *trainer_victory_line(uint8_t id){
+ static const char *lines[]={"你的意志比岩石还坚定！","你们配合得真好！","好一场充满力量的对战！","我感受到了伙伴的信赖。","你的判断突破了我的战术。","你与伙伴的心意相通。","你们的热情胜过火焰！","这份实力，值得我认可。"};
+ return id<8?lines[id]:id==13?"……！": "你已经证明了自己的实力。";
+}
+void trainer_grant_items(const trainer_store_t *st,inventory_t *bag){
+ if(!st||!bag||!st->session.active||!st->session.finished||!st->session.won)return;
+ bool first=!(st->defeated&(1u<<st->session.trainer));
+ unsigned gift[ITEM_COUNT]={0};gift[ITEM_POKE]=first?5:2;gift[ITEM_BERRY]=first?3:1;gift[ITEM_MILK]=first?2:1;
+ static const uint8_t stones[]={ITEM_MOON_STONE,ITEM_WATER_STONE,ITEM_THUNDER_STONE,ITEM_LEAF_STONE,ITEM_LINK_MACHINE,ITEM_GROWTH_MACHINE,ITEM_FIRE_STONE,ITEM_MOON_STONE};
+ if(first&&st->session.trainer<8)gift[stones[st->session.trainer]]=1;
+ uint8_t prize=trainer_rematch_prize(st);if(prize!=ITEM_NONE)gift[prize]++;
+ for(unsigned i=0;i<ITEM_COUNT;i++){unsigned n=bag->quantity[i]+gift[i];bag->quantity[i]=n>items_capacity(i)?items_capacity(i):n;}
+}

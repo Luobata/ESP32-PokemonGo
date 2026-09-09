@@ -186,7 +186,7 @@ static void win(uint16_t uid,battle_session_t *session) {
     assert(world_battle_set_uid(uid,session));
 }
 static void loot_transactions(void) {
-    const int wants[]={ITEM_NONE,ITEM_POKE,ITEM_MASTER};
+    const int wants[]={ITEM_BERRY,ITEM_POKE,ITEM_MASTER};
     for(unsigned i=0;i<3;i++)for(unsigned j=0;j<3;j++) {
         ready(1,20);battle_session_t session;
         uint16_t uid=begin_encounter(5,wants[i],&session);win(uid,&session);
@@ -230,7 +230,7 @@ static void balls_and_capture(void) {
         reboot();assert(!s_inventory.quantity[ball]&&!s_queue.count&&!s_active.encounter.uid);tests++;
     }
     ready(1,20);stock(ITEM_MASTER,1);battle_session_t s;
-    uint16_t uid=begin_encounter(5,ITEM_NONE,&s);win(uid,&s);item_loot_t loot;
+    uint16_t uid=begin_encounter(5,ITEM_BERRY,&s);win(uid,&s);item_loot_t loot;
     assert(world_battle_loot_uid(uid,&loot));assert(world_battle_get_uid(uid,&s));
     battle_session_t before=s;s.capture_used_after_win=true;
     failure=4;assert(!world_capture_ball_spend_uid(uid,ITEM_MASTER,&s));failure=0;
@@ -286,8 +286,7 @@ static void distribution(void) {
             dropped++;master+=a.item_id==ITEM_MASTER;
             advanced+=(a.item_id>=ITEM_ULTRA&&a.item_id<=ITEM_GROWTH_MACHINE);
         }
-        unsigned expected=items_drop_chance(rarity)*1000;
-        assert(dropped>expected-700&&dropped<expected+700);
+        assert(dropped==100000); // Failed special rolls now provide basic supplies.
         if(rarity<5)assert(!master);else assert(master>0&&master<1000);
         printf("rarity %u drops %u/100000 master %u advanced %u\n",rarity,dropped,master,advanced);
     }

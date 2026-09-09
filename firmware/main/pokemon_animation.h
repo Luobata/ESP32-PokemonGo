@@ -46,3 +46,6 @@ typedef struct {
 } pokemon_idle_t;
 void pokemon_idle_reset(pokemon_idle_t *idle, uint16_t species);
 bool pokemon_idle_step(pokemon_idle_t *idle, uint32_t delta_ms);
+
+// Back pictures have no original frame scripts: use a small entrance sway.
+int pokemon_back_entrance_offset(uint32_t elapsed_ms);

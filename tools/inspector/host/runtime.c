@@ -808,8 +808,7 @@ bool world_challenge_settle(void) {
  party.party[i].level=exp_to_level(party.party[i].exp,100);}
  exp_share_party(&party,((1u<<party.party_count)-1)&~challenge.session.participated,reward);
  world.exp=party.party[0].exp;world.level=party.party[0].level;
- if(challenge.session.won&&!(challenge.defeated&(1u<<challenge.session.trainer))){unsigned milk=inventory.quantity[ITEM_MILK]+2;inventory.quantity[ITEM_MILK]=milk>items_capacity(ITEM_MILK)?items_capacity(ITEM_MILK):milk;}
- uint8_t prize=trainer_rematch_prize(&challenge);if(prize!=ITEM_NONE&&inventory.quantity[prize]<items_capacity(prize))inventory.quantity[prize]++;
+ trainer_grant_items(&challenge,&inventory);
  if(!challenge.session.won&&!challenge.session.retired){world.pet.stamina=world.pet.stamina>20*NURT_Q?world.pet.stamina-20*NURT_Q:0;world.pet.mood=world.pet.mood>15*NURT_Q?world.pet.mood-15*NURT_Q:0;}
  trainer_settle(&challenge);return true;
 }

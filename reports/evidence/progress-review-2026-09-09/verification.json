@@ -1,0 +1,51 @@
+{
+  "status": "PASS",
+  "reference_commit": "7a7881d0d62e0ddbd82dcf10e7116807487ac651",
+  "firmware_build": "PASS",
+  "hp_exp_entry_samples": 4738,
+  "combat": {
+    "max_learned": 42,
+    "ai_distinct_moves": 25,
+    "cases": 4,
+    "moves": 191,
+    "save_version": 12,
+    "save_bytes": 3664,
+    "sanitized": true
+  },
+  "stalemate": {
+    "status": "PASS",
+    "groups": 3,
+    "wild_seeds": 100,
+    "save_bytes": 3664,
+    "sanitized": true
+  },
+  "trainer": {
+    "campaign_actions": 678,
+    "replacements": 10,
+    "cases": 4,
+    "save_bytes": 3664,
+    "sanitized": true
+  },
+  "preview": {
+    "build": "02c0cb99a3c7a3cbc80f",
+    "trainers_completed": 10,
+    "wins": 10,
+    "losses": 0,
+    "dirty_full_checks": 4942,
+    "moves_read_only": true,
+    "party_skill_pages": true
+  },
+  "sendout": {
+    "checks": 142,
+    "version": "02c0cb99a3c7a3cbc80f",
+    "initial_mask": 3,
+    "manual_and_fainted_mask": 1,
+    "enemy_mask": 2,
+    "unchanged_side_stays_visible": true
+  },
+  "rewards_damage": {
+    "status": "PASS",
+    "groups": 2
+  },
+  "common_win_ball_mean_rounded": 1.338
+}

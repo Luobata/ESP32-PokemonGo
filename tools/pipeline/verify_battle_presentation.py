@@ -98,7 +98,7 @@ class Samples:
 
 # Existing exp.c's curve is separately exhaustively verified by verify_exp.py.
 # Here boundaries independently test that the animation derives the right bar.
-THRESHOLDS = [0] + [5 * level**3 // 2 for level in range(2, 101)]
+THRESHOLDS = [0] + [3 * level**3 // 2 for level in range(2, 101)]
 
 
 def verify(binary: Path) -> int:

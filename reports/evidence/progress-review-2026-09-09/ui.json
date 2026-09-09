@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "renderer": "e396bde17a224010f7fd",
+  "dirty_full_checks": 70,
+  "player_back_motion": true,
+  "dialogue_items_badge": true,
+  "actual_inventory_deltas": true,
+  "no_duplicate_reward": true
+}
