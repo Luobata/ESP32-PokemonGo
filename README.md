@@ -4,6 +4,8 @@
 
 [宣传片（2分17秒）](reports/video/pokewalk-promo-collection-2026-09-09/pokewalk-promo.mp4) · [玩法与架构文档](docs/) · [金银学习表核查](docs/systems/S21-auto-learning.md) · [社区发布准备](docs/release/community.md)
 
+[故事版试剪（1分59秒）](reports/video/pokewalk-story-2026-09-09/pokewalk-story.mp4) · 以皮卡丘和尼多娜的冒险串联捕获、成长、道馆与探索解锁。
+
 ## 已实现
 
 - 四条探索路线：Wi-Fi 环境变化积累探索机会；体力随设备运行时间恢复。不是 GPS 定位，也不是实际计步。

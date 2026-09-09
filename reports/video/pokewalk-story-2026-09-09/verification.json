@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "files": [
+    {
+      "file": "pokewalk-story.mp4",
+      "duration": "119.000000",
+      "audio_duration": "119.000000",
+      "frames": "3570",
+      "width": 720,
+      "height": 1280,
+      "full_decode": "PASS",
+      "sha256": "761aa55625f14fd17aa2343258d42104705451ebfd1e7f360b3fa7f099fc17d4"
+    },
+    {
+      "file": "pokewalk-story-clean.mp4",
+      "duration": "119.000000",
+      "audio_duration": "119.000000",
+      "frames": "3570",
+      "width": 480,
+      "height": 640,
+      "full_decode": "PASS",
+      "sha256": "abf486ee6d11dbcbf7d4b41ede46581335b15887c86258df1c937f9585c3b210"
+    }
+  ],
+  "continuity_pairs": 5,
+  "first_capture": "Nidorina / ordinary ball / single successful throw",
+  "gym_real_source_seconds": 48.833333333333336,
+  "gym_edited_seconds": 18,
+  "badge_unlock_from_same_result": true,
+  "all_chapters_have_audio": true,
+  "frame_checks": 150
+}
