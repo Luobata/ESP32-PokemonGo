@@ -167,3 +167,19 @@ unsigned exploration_team_bonus(const party_t *party,unsigned route) {
  }
  return matches>3?30:matches*10;
 }
+
+void exploration_research_progress(unsigned route,const dex_t *dex,uint8_t *seen,uint8_t *caught){
+ *seen=*caught=0;if(route>=4||!dex)return;
+ bool counted[152]={0};
+ for(unsigned tier=0;tier<5;tier++)for(unsigned i=0;i<16&&POOLS[route][tier][i];i++){
+  unsigned id=POOLS[route][tier][i];if(counted[id])continue;counted[id]=true;
+  *seen+=dex_is_seen(dex,id);*caught+=dex_is_caught(dex,id);
+ }
+}
+exploration_kind_t exploration_research_claim(exploration_state_t *s,const dex_t *dex,unsigned route){
+ if(!s||route>=4)return EXPLORE_BLOCKED;
+ if(s->research_flags&(1u<<route))return EXPLORE_RESEARCH_CLAIMED;
+ uint8_t seen,caught;exploration_research_progress(route,dex,&seen,&caught);
+ if(seen<5||caught<3||!(s->research_flags&(16u<<route)))return EXPLORE_RESEARCH_LOCKED;
+ s->research_flags|=1u<<route;return EXPLORE_NONE;
+}

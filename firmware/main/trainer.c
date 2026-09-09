@@ -3,6 +3,8 @@
 #include "trainer_assets.h"
 #include "combat.h"
 #include "items.h"
+#include "exp.h"
+#include "route_trainer_assets.h"
 static const trainer_info_t CATALOG[TRAINER_COUNT] = {
  {"小刚","灰色徽章",{74,95},{10,12},2,0},
  {"小霞","蓝色徽章",{120,121},{17,19},2,0},
@@ -19,8 +21,16 @@ static const trainer_info_t CATALOG[TRAINER_COUNT] = {
  {"青绿","联盟冠军",{18,65,112,6,130,103},{60,60,61,61,62,63},6,2},
  {"赤红","最终挑战",{25,131,143,3,6,9},{81,75,75,77,77,77},6,3},
 };
-const trainer_info_t *trainer_info(uint8_t id) { return id<TRAINER_COUNT?&CATALOG[id]:0; }
+static const trainer_info_t ROUTE_TRAINERS[TRAINER_ROUTE_COUNT]={
+ {"捕虫少年","森林切磋",{10},{0},1,4},{"森林巡护员","林间伙伴",{12,17},{0},2,4},{"森林高手","森林特训",{123,45,127},{0},3,4},
+ {"登山少年","山洞切磋",{74},{0},1,4},{"登山客","岩壁伙伴",{75,42},{0},2,4},{"山地高手","山地特训",{76,95,68},{0},3,4},
+ {"钓鱼少年","海边切磋",{60},{0},1,4},{"钓鱼好手","潮汐伙伴",{61,117},{0},2,4},{"海边高手","海边特训",{62,131,130},{0},3,4},
+ {"电站学徒","电站切磋",{81},{0},1,4},{"电站研究员","电流伙伴",{82,101},{0},2,4},{"电站高手","电站特训",{125,135,110},{0},3,4}
+};
+bool trainer_is_route(unsigned id){return id>=TRAINER_ROUTE_FIRST&&id<TRAINER_TOTAL;}
+const trainer_info_t *trainer_info(uint8_t id) {return id<TRAINER_COUNT?&CATALOG[id]:trainer_is_route(id)?&ROUTE_TRAINERS[id-TRAINER_ROUTE_FIRST]:NULL;}
 void trainer_art(uint8_t id,const uint8_t **data,uint16_t palette[4]) {
+ if(trainer_is_route(id)){unsigned r=(id-TRAINER_ROUTE_FIRST)/3;*data=ROUTE_TRAINER_ART[r];memcpy(palette,ROUTE_TRAINER_PAL[r],8);return;}
  if(id>=TRAINER_COUNT){*data=0;return;}*data=TRAINER_ART[id];memcpy(palette,TRAINER_PAL[id],8);
 }
 const uint8_t *trainer_badge_art(uint8_t id) { return id<8?BADGE_ART[id]:0; }
@@ -31,7 +41,8 @@ static void init_mon(trainer_mon_t *mon,uint8_t species,uint8_t level) {
  combat_init(mon,species,level,combat_max_hp(species,level));
 }
 bool trainer_unlocked(const trainer_store_t *st,uint8_t id) {
- if(!st||id>=TRAINER_COUNT)return false;
+ if(!st||id>=TRAINER_TOTAL)return false;
+ if(trainer_is_route(id)){unsigned badges=0;for(unsigned i=0;i<8;i++)badges+=!!(st->defeated&(1u<<i));return !st->league_active&&badges>=(unsigned[]){0,2,5}[(id-TRAINER_ROUTE_FIRST)%3];}
  if(st->league_active)return id==st->league_stage;
  if(id<8)return id==0?st->wild_wins>0:(st->defeated&(1u<<(id-1)))!=0;
  if(id<13)return st->league_active?st->league_stage==id:id==8&&(st->defeated&255u)==255u;
@@ -49,6 +60,14 @@ static const uint8_t REMATCH[8][6]={
  {76,95,112,142,139,141},{121,130,131,134,73,9},{26,101,82,125,135,25},{45,71,103,114,3,47},
  {110,89,42,49,73,94},{65,97,122,103,80,124},{59,78,126,136,6,38},{112,31,34,51,105,76}
 };
+unsigned trainer_route_level(unsigned id,const trainer_store_t *st,const mon_t *party,unsigned count){
+ if(!trainer_is_route(id)||!st||!party||!count)return 0;
+ unsigned highest=1,badges=0;for(unsigned i=0;i<count;i++)if(party[i].level>highest)highest=party[i].level;
+ for(unsigned i=0;i<8;i++)badges+=!!(st->defeated&(1u<<i));
+ unsigned cap=(st->defeated&(1u<<12))?100:12+badges*7;
+ unsigned level=highest*9/10+2*((id-TRAINER_ROUTE_FIRST)%3);
+ return level<2?2:level>cap?cap:level;
+}
 bool trainer_begin(trainer_store_t *st,uint8_t id,const mon_t *party,uint8_t count,uint16_t ability,uint32_t seed) {
  if(!st||!party||!count||count>6||st->session.active||!trainer_unlocked(st,id))return false;
  for(unsigned i=0;i<count;i++)if(!party[i].species_id||party[i].species_id>151||!party[i].level||party[i].level>100)return false;
@@ -61,8 +80,11 @@ bool trainer_begin(trainer_store_t *st,uint8_t id,const mon_t *party,uint8_t cou
   for(unsigned i=0;i<retained.count;i++){trainer_mon_t *m=&s->sides[0].mons[i];combat_reset_volatile(m);}
  }
  if(id==8){st->league_active=1;st->league_stage=8;}
- const trainer_info_t *t=&CATALOG[id];s->sides[1].count=t->count;
- if(trainer_rematch(st,id)){
+ const trainer_info_t *t=trainer_info(id);s->sides[1].count=t->count;
+ if(trainer_is_route(id)){
+  unsigned level=trainer_route_level(id,st,party,count);
+  for(unsigned i=0;i<t->count;i++)init_mon(&s->sides[1].mons[i],t->species[i],level);
+ }else if(trainer_rematch(st,id)){
   s->sides[1].count=6;unsigned rotate=s->rng%6;
   for(unsigned i=0;i<6;i++)init_mon(&s->sides[1].mons[i],REMATCH[id][(i+rotate)%6],65+id+i/2);
  }else for(unsigned i=0;i<t->count;i++)init_mon(&s->sides[1].mons[i],t->species[i],t->levels[i]);
@@ -118,13 +140,14 @@ void trainer_retire(trainer_store_t *st) { if(st->session.active){st->session.re
 uint16_t trainer_reward(const trainer_store_t *st) {
  if(!st->session.finished||st->session.retired)return 0;
  const trainer_info_t *t=trainer_info(st->session.trainer);unsigned reward=0;
- for(unsigned i=0;i<st->session.sides[1].count;i++)reward+=st->session.sides[1].mons[i].level*8+20;
+ for(unsigned i=0;i<st->session.sides[1].count;i++)
+  if(st->session.won||i<=st->session.sides[1].active)reward+=exp_battle_base(st->session.sides[1].mons[i].level);
  return st->session.won?reward:reward*30/100;
 }
 void trainer_settle(trainer_store_t *st) {
  trainer_session_t *s=&st->session;
  if(!s->active||!s->finished)return;
- if(s->won)st->defeated|=1u<<s->trainer;
+ if(s->won&&!trainer_is_route(s->trainer))st->defeated|=1u<<s->trainer;
  if(s->trainer>=8&&s->trainer<=12) {
   if(s->won&&s->trainer<12)st->league_stage=s->trainer+1;
   else {st->league_active=0;st->league_stage=0;}
@@ -138,7 +161,7 @@ bool trainer_store_valid(const trainer_store_t *st) {
  if(st->league_active&&(st->league_stage<8||st->league_stage>12))return false;
  if(s->active>1||s->finished>1||s->won>1||s->awaiting_replacement>1||s->retired>1||s->acted>3||s->pending_move>4)return false;
  if(!s->active&&!st->league_active&&!s->finished)return true;
- if(s->trainer>=TRAINER_COUNT||s->active>1||s->finished>1||s->won>1||s->next>1||s->ability>2048||s->turns>400)return false;
+ if(s->trainer>=TRAINER_TOTAL||(trainer_is_route(s->trainer)&&st->league_active)||s->active>1||s->finished>1||s->won>1||s->next>1||s->ability>2048||s->turns>400)return false;
  for(unsigned side=0;side<2;side++) {
   const trainer_side_t *t=&s->sides[side];
  if(!t->count||t->count>6||t->active>=t->count||t->reflect>5||t->light_screen>5)return false;
@@ -159,12 +182,13 @@ uint8_t trainer_rematch_prize(const trainer_store_t *st){
 
 const char *trainer_victory_line(uint8_t id){
  static const char *lines[]={"你的意志比岩石还坚定！","你们配合得真好！","好一场充满力量的对战！","我感受到了伙伴的信赖。","你的判断突破了我的战术。","你与伙伴的心意相通。","你们的热情胜过火焰！","这份实力，值得我认可。"};
- return id<8?lines[id]:id==13?"……！": "你已经证明了自己的实力。";
+ return trainer_is_route(id)?"下次再与伙伴一起来切磋！":id<8?lines[id]:id==13?"……！": "你已经证明了自己的实力。";
 }
 void trainer_grant_items(const trainer_store_t *st,inventory_t *bag){
  if(!st||!bag||!st->session.active||!st->session.finished||!st->session.won)return;
- bool first=!(st->defeated&(1u<<st->session.trainer));
- unsigned gift[ITEM_COUNT]={0};gift[ITEM_POKE]=first?5:2;gift[ITEM_BERRY]=first?3:1;gift[ITEM_MILK]=first?2:1;
+ bool route=trainer_is_route(st->session.trainer);
+ bool first=!route&&!(st->defeated&(1u<<st->session.trainer));
+ unsigned gift[ITEM_COUNT]={0};gift[ITEM_POKE]=route?1:first?5:2;gift[ITEM_BERRY]=first?3:1;gift[ITEM_MILK]=route?0:first?2:1;
  static const uint8_t stones[]={ITEM_MOON_STONE,ITEM_WATER_STONE,ITEM_THUNDER_STONE,ITEM_LEAF_STONE,ITEM_LINK_MACHINE,ITEM_GROWTH_MACHINE,ITEM_FIRE_STONE,ITEM_MOON_STONE};
  if(first&&st->session.trainer<8)gift[stones[st->session.trainer]]=1;
  uint8_t prize=trainer_rematch_prize(st);if(prize!=ITEM_NONE)gift[prize]++;

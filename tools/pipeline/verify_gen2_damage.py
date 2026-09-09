@@ -74,7 +74,7 @@ static void migration(void){
   }
  }
  assert(trainer_store_valid(st));memcpy(disk,&current,sizeof(current));disk_len=sizeof(current);
- save_t next;assert(save_read_status(&next)==SAVE_READ_MIGRATED&&next.version==13);
+ save_t next;assert(save_read_status(&next)==SAVE_READ_MIGRATED&&next.version==SAVE_VERSION);
  assert(!memcmp(next.party,current.party,PARTY_BYTES));assert(next.challenge.defeated==255&&next.challenge.league_stage==9&&next.challenge.session.rng==123);
  for(unsigned side=0;side<2;side++)for(unsigned i=0;i<3;i++){
   const combat_mon_t *m=&next.challenge.session.sides[side].mons[i];assert(m->max_hp==110&&m->hp==((unsigned[]){55,1,0})[i]);

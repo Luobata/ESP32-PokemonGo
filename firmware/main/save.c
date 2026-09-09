@@ -109,9 +109,10 @@ save_read_result_t save_read_status(save_t *out)
     if (e == ESP_OK) (void)nvs_get_u8(h, KEY_OPENING, &opening_seen);
     nvs_close(h);
     if (e != ESP_OK || len != expected_len) return SAVE_READ_ERROR;
+    bool version13 = len == sizeof(*out) && out->version == 13;
     bool version12 = len == sizeof(*out) && out->version == 12;
     bool version11 = len == sizeof(*out) && out->version == 11;
-    if (out->version != (legacy ? SAVE_LEGACY_VERSION : version6 ? 6 : version7 ? 7 : version8 ? 8 : version9 ? 9 : version10 ? 10 : version11 ? 11 : version12 ? 12 : SAVE_VERSION)) {
+    if (out->version != (legacy ? SAVE_LEGACY_VERSION : version6 ? 6 : version7 ? 7 : version8 ? 8 : version9 ? 9 : version10 ? 10 : version11 ? 11 : version12 ? 12 : version13 ? 13 : SAVE_VERSION)) {
         ESP_LOGW(TAG, "存档版本 %u ≠ %d —— 保留原档，禁止新游戏覆盖",
                  out->version, SAVE_VERSION);
         return SAVE_READ_ERROR;
@@ -123,7 +124,7 @@ save_read_result_t save_read_status(save_t *out)
             if(id && id!=i+1)return SAVE_READ_ERROR;
         }
     }
-    if(version11||version12)out->version=SAVE_VERSION;
+    if(version11||version12||version13)out->version=SAVE_VERSION;
     // A raw blob can contain an invalid _Bool representation. Compare its bytes
     // before evaluating it so malformed data is rejected without undefined reads.
     const bool no = false, yes = true;
@@ -185,7 +186,8 @@ save_read_result_t save_read_status(save_t *out)
             }
         }
     }
-    return migrated ? SAVE_READ_MIGRATED : SAVE_READ_OK;
+    if(migrated||version13)out->exploration.research_flags=0;
+    return migrated||version13 ? SAVE_READ_MIGRATED : SAVE_READ_OK;
 }
 
 bool save_read(save_t *out) {

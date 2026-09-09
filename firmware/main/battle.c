@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "battle.h"
+#include "exp.h"
 
 // ---------------------------------------------------------------------------
 // 属性相克
@@ -108,7 +109,7 @@ uint8_t battle_session_hp_ratio(const battle_session_t *s)
 uint16_t battle_session_exp(const battle_session_t *s)
 {
     return s && s->initialized && s->finished
-        ? (uint16_t)((s->wild_level * 8 + 20) * (s->won ? 100 : 30) / 100) : 0;
+        ? (uint16_t)(exp_battle_base(s->wild_level) * (s->won ? 100 : 30) / 100) : 0;
 }
 
 bool battle_session_can_capture(const battle_session_t *s)

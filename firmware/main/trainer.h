@@ -5,7 +5,10 @@
 #include "battle.h"
 #include "combat.h"
 #include "items.h"
-#define TRAINER_COUNT 14
+#define TRAINER_COUNT 14 // Persistent campaign bits, never include route trainers.
+#define TRAINER_ROUTE_FIRST TRAINER_COUNT
+#define TRAINER_ROUTE_COUNT 12
+#define TRAINER_TOTAL (TRAINER_COUNT+TRAINER_ROUTE_COUNT)
 #define TRAINER_SLOTS 6
 #define TRAINER_MOVES 4
 
@@ -62,3 +65,6 @@ uint8_t trainer_rematch_prize(const trainer_store_t *);
 
 const char *trainer_victory_line(uint8_t trainer);
 void trainer_grant_items(const trainer_store_t *store,inventory_t *bag);
+
+bool trainer_is_route(unsigned id);
+unsigned trainer_route_level(unsigned id,const trainer_store_t *,const mon_t *,unsigned count);

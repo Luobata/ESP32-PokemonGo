@@ -27,10 +27,35 @@ void exp_progress(uint32_t exp, uint8_t level, uint32_t *got, uint32_t *need)
 
 uint16_t exp_scaled(uint16_t base,uint8_t percent) { uint32_t n=(uint32_t)base*percent/100;return n>UINT16_MAX?UINT16_MAX:(uint16_t)n; }
 
-void exp_share_party(party_t *party,unsigned eligible,uint16_t award) {
- unsigned bonus=award/5;if(!bonus)return;
- for(unsigned i=0;i<party->party_count;i++)if(eligible&(1u<<i)){
-  mon_t *m=&party->party[i];uint32_t base=exp_for_level(m->level);if(m->exp<base)m->exp=base;
-  m->exp=m->exp>UINT32_MAX-bonus?UINT32_MAX:m->exp+bonus;m->level=exp_to_level(m->exp,LEVEL_MAX);
+void exp_share_party(party_t *p,unsigned eligible,uint16_t award){exp_award_party(p,0,eligible,award);}
+
+uint16_t exp_battle_base(uint8_t level){
+ if(!level)return 0;
+ if(level>100)level=100;
+ uint32_t need=exp_for_level(level+1)-exp_for_level(level);
+ unsigned paced=(need+7)/8,legacy=level*8u+20;
+ return paced>legacy?paced:legacy;
+}
+unsigned exp_party_percent(uint8_t level,uint8_t highest,bool participant){
+ unsigned gap=highest>level?highest-level:0;
+ unsigned extra=highest?gap*(participant?200u:160u)/highest:0;
+ unsigned cap=participant?100:80;if(extra>cap)extra=cap;
+ return (participant?100:20)+extra;
+}
+void exp_award_party(party_t *p,unsigned participants,unsigned eligible,uint16_t award){
+ if(!p||!award)return;
+ unsigned highest=1,n=0;for(unsigned i=0;i<p->party_count;i++){
+  if(p->party[i].level>highest)highest=p->party[i].level;
+  if((participants&eligible)&(1u<<i))n++;
+ }
+ unsigned remainder=n?award%n:0;
+ for(unsigned i=0;i<p->party_count;i++)if(eligible&(1u<<i)){
+  mon_t *m=&p->party[i];bool fought=!!(participants&(1u<<i));
+  unsigned base=fought?(n?award/n:0):award;
+  if(fought&&remainder){base++;remainder--;}
+  uint32_t gain=base*exp_party_percent(m->level,highest,fought)/100;
+  uint32_t minimum=exp_for_level(m->level);if(m->exp<minimum)m->exp=minimum;
+  m->exp=m->exp>UINT32_MAX-gain?UINT32_MAX:m->exp+gain;
+  m->level=exp_to_level(m->exp,LEVEL_MAX);
  }
 }

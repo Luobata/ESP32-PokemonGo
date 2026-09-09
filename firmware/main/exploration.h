@@ -7,7 +7,7 @@
 
 typedef struct {
  uint8_t route, energy, clues[EXPLORATION_ROUTES], pulse[EXPLORATION_ROUTES];
- uint8_t tracked_species, reserved; // V11 reserved bytes; zero keeps chapter tracking.
+ uint8_t tracked_species, research_flags; // Low 4: claimed; high 4: target traced.
  uint32_t steps;
 } exploration_state_t;
 static inline void exploration_init(exploration_state_t *s) {
@@ -25,7 +25,7 @@ typedef struct {
 } exploration_route_t;
 const exploration_route_t *exploration_route(unsigned id);
 typedef enum { EXPLORE_NONE, EXPLORE_ENCOUNTER, EXPLORE_CLUE, EXPLORE_TARGET,
- EXPLORE_NO_ENERGY, EXPLORE_NO_STAMINA, EXPLORE_BLOCKED, EXPLORE_BUSY, EXPLORE_SAVE_FAILED } exploration_kind_t;
+ EXPLORE_RESEARCH_LOCKED, EXPLORE_RESEARCH_CLAIMED, EXPLORE_NO_ENERGY, EXPLORE_NO_STAMINA, EXPLORE_BLOCKED, EXPLORE_BUSY, EXPLORE_SAVE_FAILED } exploration_kind_t;
 typedef struct {
  exploration_kind_t kind;
  uint16_t uid,species;
@@ -33,6 +33,7 @@ typedef struct {
  bool shiny;
  uint8_t item,quantity;
  bool item_full;
+ uint16_t exp; // Actual leader gain after the durable discovery settlement.
 } exploration_event_t;
 typedef struct {
  exploration_state_t state;
@@ -40,6 +41,7 @@ typedef struct {
  uint16_t defeated;
  uint8_t stamina,exp_percent,rare_bonus,party_bonus;
  uint8_t rare_left,elite_left,pending;
+ uint8_t research_seen,research_caught;
 } exploration_view_t;
 // Candidate-only operation. Publish all state and the event after NVS commits.
 exploration_event_t exploration_step(exploration_state_t *s,enc_refresh_state_t *r,
@@ -71,3 +73,6 @@ exploration_event_t exploration_step_team(exploration_state_t*,enc_refresh_state
 
 #include "party.h"
 unsigned exploration_team_bonus(const party_t *,unsigned route);
+
+void exploration_research_progress(unsigned route,const dex_t *,uint8_t *seen,uint8_t *caught);
+exploration_kind_t exploration_research_claim(exploration_state_t *,const dex_t *,unsigned route);

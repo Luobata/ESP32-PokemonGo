@@ -14,6 +14,7 @@
 #include "pokemon_animation.h"
 #include "world.h"
 #include "combat.h"
+#include "exp.h"
 
 #define ROW_Y 36
 #define ROW_H 36
@@ -85,6 +86,7 @@ static void draw_list(int band_y)
     char text[64], name[48];
     snprintf(text, sizeof(text), "%u/%u", s_party.count, PARTY_MAX);
     game_ui_title(band_y, "队伍", text);
+    unsigned highest=1;for(unsigned i=0;i<s_party.count;i++)if(s_party.members[i].level>highest)highest=s_party.members[i].level;
     for (unsigned index = 0; index < PARTY_MAX; index++) {
         int y = ROW_Y + index * ROW_H;
         if (index >= s_party.count) {
@@ -97,7 +99,8 @@ static void draw_list(int band_y)
         render_text(64, y + 2 - band_y, name, GAME_UI_INK);
         snprintf(text, sizeof(text), "Lv%u", member->level);
         render_text(228 - render_text_width(text), y + 2 - band_y, text, GAME_UI_INK);
-        snprintf(text, sizeof(text), index?"经验分享20%%":"亲密 %u", member->intimacy);
+        if(index)snprintf(text,sizeof(text),"分享%u%%",exp_party_percent(member->level,highest,false));
+        else snprintf(text,sizeof(text),"亲密 %u",member->intimacy);
         render_text(64, y + 20 - band_y, text, GAME_UI_MUTED);
         if (index == 0) render_text(196, y + 20 - band_y, "出战", GAME_UI_ACCENT);
         if (index == s_selected) game_ui_cursor(band_y, 10, y + 14);

@@ -1,0 +1,14 @@
+{
+  "cases": 15,
+  "members_checked_per_load": 157,
+  "pidgeotto_level": 12,
+  "repaired_exp": 2592,
+  "after_reward_exp": 2652,
+  "save_version": 14,
+  "save_bytes": 3664,
+  "erase_calls": 0,
+  "sanitized": true,
+  "scope": "Actual world/save/party/exp C with simulated NVS/device boundary",
+  "negative_checks": [],
+  "world_sha256": "8cb01c7d66ee9c906267ddb4745083c246162612748cc59d372b66a47111c8dd"
+}

@@ -250,3 +250,5 @@ void world_box_snapshot(mon_t out[BOX_SPECIES]);
 world_switch_result_t world_box_exchange(uint8_t slot,const mon_t *outgoing,const mon_t *incoming);
 
 exploration_kind_t world_exploration_track(uint16_t species);
+
+exploration_kind_t world_research_claim(uint8_t route,uint16_t *gain);

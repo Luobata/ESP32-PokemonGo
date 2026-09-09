@@ -9,8 +9,8 @@ static uint16_t encounter(void){encounter_t e={.species_id=133,.rarity=3,.hp_rat
 static void capture(void){
  ready();uint16_t uid=encounter();uint32_t before=s_w.exp;mon_t m={.species_id=133,.level=10,.hp=100,.exp=exp_for_level(10)};
  for(int f=1;f<=4;f++){if(f==3)continue;party_t old=s_party;failure=f;assert(!world_capture_uid(uid,&m));failure=0;assert(s_w.exp==before&&!memcmp(&old,&s_party,sizeof(old))&&enc_queue_find(&s_queue,uid));}
- assert(world_capture_uid(uid,&m));assert(s_w.exp==before+60);assert(!world_capture_uid(uid,&m)&&s_w.exp==before+60);
- reboot();assert(s_w.exp==before+60&&s_party.party_count==2);tests+=5;
+ assert(world_capture_uid(uid,&m));assert(s_w.exp==before+110);assert(!world_capture_uid(uid,&m)&&s_w.exp==before+110);
+ reboot();assert(s_w.exp==before+110&&s_party.party_count==2);tests+=5;
 }
 static void rewards(void){
  for(unsigned won=0;won<2;won++){

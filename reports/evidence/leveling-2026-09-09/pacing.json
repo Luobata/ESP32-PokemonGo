@@ -1,0 +1,34 @@
+[
+  {
+    "level": 20,
+    "required": 1891,
+    "before": 180,
+    "after": 237,
+    "wins_before": 11,
+    "wins_after": 8
+  },
+  {
+    "level": 50,
+    "required": 11476,
+    "before": 420,
+    "after": 1435,
+    "wins_before": 28,
+    "wins_after": 8
+  },
+  {
+    "level": 80,
+    "required": 29161,
+    "before": 660,
+    "after": 3646,
+    "wins_before": 45,
+    "wins_after": 8
+  },
+  {
+    "level": 99,
+    "required": 44552,
+    "before": 812,
+    "after": 5569,
+    "wins_before": 55,
+    "wins_after": 8
+  }
+]

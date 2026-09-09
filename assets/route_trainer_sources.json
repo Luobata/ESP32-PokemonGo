@@ -1,0 +1,22 @@
+[
+  {
+    "class": "bug_catcher",
+    "url": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/bug_catcher.png",
+    "sha256": "5bfbe1c63132b6b9129415d2fdbfb1f9192e587e35ae94e693dcd877833e496a"
+  },
+  {
+    "class": "hiker",
+    "url": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/hiker.png",
+    "sha256": "522c64a7ae74d7056bc8840dfdb49cc3313be50e2ffb6b22070cd9535886f6f5"
+  },
+  {
+    "class": "fisher",
+    "url": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/fisher.png",
+    "sha256": "4de2c5eb898f45ed336a0bf68f16dd3a86db66bb0066152e2813932a8ba1d5b3"
+  },
+  {
+    "class": "scientist",
+    "url": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/scientist.png",
+    "sha256": "3dd6b2ff2c4195bd1cd0f6f3eae956ff7b8dd7231bd0a29e3dff4eebbd8f2ecc"
+  }
+]

@@ -58,12 +58,13 @@ static void seed_legacy(bool v5) {
     expected_party=raw_party;
     for(unsigned i=0;i<PARTY_MAX+BOX_SPECIES;i++) {
         mon_t *m=i<PARTY_MAX?&expected_party.party[i]:&expected_party.box[i-PARTY_MAX];
-        uint32_t minimum=threshold(m->level);if(m->exp<minimum)m->exp=minimum;
+        uint32_t minimum=exp_for_level(m->level);if(m->exp<minimum)m->exp=minimum;
+        uint8_t earned=exp_to_level(m->exp,LEVEL_MAX);if(earned>m->level)m->level=earned;
     }
 }
 static void repaired(void) {
     assert(!memcmp(&s_party,&expected_party,sizeof(s_party)));
-    assert(s_w.level==21&&s_w.exp==23152&&s_w.species==30);
+    assert(s_w.level==21&&s_w.exp==13891&&s_w.species==30);
     assert(s_w.pet.intimacy==27*NURT_Q&&s_w.explore_value==200);
     assert(s_inventory.quantity[ITEM_BERRY]==2&&s_inventory.quantity[ITEM_POKE]==12);
 }
@@ -71,7 +72,7 @@ static void all_slots_and_restart(void) {
     for(unsigned v5=0;v5<2;v5++) {
         seed_legacy(v5);unsigned before=commits;reboot();repaired();
         assert(commits==before+1&&!s_dirty&&disk_len==sizeof(save_t));
-        save_t saved;assert(save_read_status(&saved)==SAVE_READ_OK&&saved.version==6);
+        save_t saved;assert(save_read_status(&saved)==SAVE_READ_OK&&saved.version==SAVE_VERSION);
         party_t persisted;assert(party_deserialize(&persisted,saved.party,PARTY_BYTES));
         assert(!memcmp(&persisted,&expected_party,sizeof(persisted)));
         unsigned once=commits;reboot();repaired();assert(commits==once&&!s_dirty&&erase_calls==0);tests++;
@@ -79,11 +80,11 @@ static void all_slots_and_restart(void) {
 }
 static void missing_exp_switch_win(void) {
     seed_legacy(false);reboot();world_party_t view;world_party_snapshot(&view);
-    assert(view.members[1].species_id==17&&view.members[1].level==12&&view.members[1].exp==4320);
+    assert(view.members[1].species_id==17&&view.members[1].level==12&&view.members[1].exp==2592);
     assert(world_set_leader(1,&view.members[1],NULL)==WORLD_SWITCH_OK);
-    world_grant_exp(60);assert(s_w.species==17&&s_w.level==12&&s_w.exp==4380);
+    world_grant_exp(60);assert(s_w.species==17&&s_w.level==12&&s_w.exp==2652);
     reboot();world_party_snapshot(&view);
-    assert(view.members[0].species_id==17&&view.members[0].level==12&&view.members[0].exp==4380);
+    assert(view.members[0].species_id==17&&view.members[0].level==12&&view.members[0].exp==2652);
     assert(view.members[0].hp==41&&view.members[0].intimacy==27&&view.members[0].flags==1);tests++;
 }
 static void repair_save_failures(void) {
@@ -99,8 +100,8 @@ static void repair_save_failures(void) {
 static void runtime_guards(void) {
     fresh();assert(world_choose_starter(1)==WORLD_STARTER_OK);
     s_w.species=17;s_w.level=12;s_w.exp=0;s_party.party[0].species_id=17;
-    world_grant_exp(60);assert(s_w.level==12&&s_w.exp==4380);reboot();
-    assert(s_w.level==12&&s_w.exp==4380);tests++;
+    world_grant_exp(60);assert(s_w.level==12&&s_w.exp==2652);reboot();
+    assert(s_w.level==12&&s_w.exp==2652);tests++;
     s_w.level=100;s_w.exp=UINT32_MAX-5;world_grant_exp(60);
     assert(s_w.level==100&&s_w.exp==UINT32_MAX);reboot();assert(s_w.exp==UINT32_MAX);tests++;
     fresh();assert(world_choose_starter(1)==WORLD_STARTER_OK);
@@ -109,11 +110,11 @@ static void runtime_guards(void) {
     world_party_t view;world_party_snapshot(&view);party_t before=s_party;
     failure=4;assert(world_set_leader(1,&view.members[1],NULL)==WORLD_SWITCH_SAVE_FAILED);failure=0;
     assert(!memcmp(&before,&s_party,sizeof(before)));
-    assert(world_set_leader(1,&view.members[1],NULL)==WORLD_SWITCH_OK&&s_w.exp==4320&&s_w.level==12);tests++;
+    assert(world_set_leader(1,&view.members[1],NULL)==WORLD_SWITCH_OK&&s_w.exp==2592&&s_w.level==12);tests++;
     fresh();assert(world_choose_starter(1)==WORLD_STARTER_OK);enc_queue_init(&s_queue);
     encounter_t e={.species_id=17,.rarity=3,.hp_ratio=100,.ts=1};enc_queue_push(&s_queue,&e);
-    assert(world_capture_uid(1,&missing)&&s_party.party[1].exp==4320&&s_party.party[1].level==12);
-    reboot();assert(s_party.party[1].exp==4320&&s_party.party[1].intimacy==40);tests++;
+    assert(world_capture_uid(1,&missing)&&s_party.party[1].exp==2592&&s_party.party[1].level==12);
+    reboot();assert(s_party.party[1].exp==2592&&s_party.party[1].intimacy==40);tests++;
 }
 static void malformed_protection(void) {
     for(unsigned mode=0;mode<2;mode++) {
@@ -126,7 +127,7 @@ static void malformed_protection(void) {
 }
 int main(void) {
     all_slots_and_restart();missing_exp_switch_win();repair_save_failures();runtime_guards();malformed_protection();
-    printf("{\"cases\":%u,\"members_checked_per_load\":157,\"pidgeotto_level\":12,\"repaired_exp\":4320,\"after_reward_exp\":4380,\"save_version\":%u,\"save_bytes\":%zu,\"erase_calls\":%u}\n",
+    printf("{\"cases\":%u,\"members_checked_per_load\":157,\"pidgeotto_level\":12,\"repaired_exp\":2592,\"after_reward_exp\":2652,\"save_version\":%u,\"save_bytes\":%zu,\"erase_calls\":%u}\n",
         tests,SAVE_VERSION,sizeof(save_t),erase_calls);
     return 0;
 }

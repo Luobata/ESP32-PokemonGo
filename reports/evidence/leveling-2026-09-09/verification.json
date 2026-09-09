@@ -1,0 +1,19 @@
+{
+  "status": "PASS",
+  "route_trainers": 12,
+  "research_routes": 4,
+  "save_version": 14,
+  "save_bytes": 3664,
+  "old_hp_not_rescaled": true,
+  "source_sha256": {
+    "firmware/main/exp.c": "fc760f35e5b063040e7e15beb4056bb861cb7e0b2e8194a33772d62174a5f9eb",
+    "firmware/main/exploration.c": "ee06c1b8d4abd933c68a213a282564a74d134d538064c4a8342d2a170e5864f2",
+    "firmware/main/trainer.c": "6b0253a40e0e15045d6457a12e9e578560f18e4803a1e3d4fe41b8f6b0fc08ec",
+    "firmware/main/world.c": "8cb01c7d66ee9c906267ddb4745083c246162612748cc59d372b66a47111c8dd",
+    "firmware/main/save.c": "e5cbd62e6fd874c14ef29c98f885c91253ab9aeee96c44dfa357904c794436a0",
+    "firmware/main/play_exploration.c": "8ed628f7ab9b853db923381ebfe56ac524bdd4d48b292c8b960ee9ab8a1fe078",
+    "firmware/main/play_trainer.c": "a9a06a7bbad94d6813f5dd5f399fdc7bc64c443f7459cc9caa98b99876d69823",
+    "firmware/main/play_party.c": "bb95fca6709252549c00f2f31a93599bfe0b42cebff9d2a3dab435259db86d3c"
+  },
+  "scope": "Actual C gameplay/NVS transaction harness plus native shared-renderer UI; hardware verification recorded locally at flash time."
+}

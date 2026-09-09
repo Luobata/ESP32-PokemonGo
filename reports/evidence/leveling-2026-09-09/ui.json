@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "renderer": "da20c098446d7da6374f",
+  "dirty_full_checks": 398,
+  "four_route_battles": true,
+  "hidden_locked_tiers": true,
+  "research_retry_and_once_only": true,
+  "returns_to_exploration": true
+}

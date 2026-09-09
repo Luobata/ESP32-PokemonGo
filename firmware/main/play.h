@@ -131,3 +131,5 @@ void play_exploration_key(bsp_btn_t,bsp_btn_ev_t);
 bool play_exploration_screen_busy(void);
 
 unsigned play_trainer_sendout_mask(void);
+
+void play_trainer_open_route(uint8_t route);

@@ -91,7 +91,7 @@ static void migration(const char *path){
  save_v10_t old=current.v10;old.version=10;old.refresh.hunt_q10=768;old.refresh.since_rare=6;old.refresh.since_elite=20;
  if(path){FILE*f=fopen(path,"rb");assert(f);assert(fread(&old,1,sizeof(old),f)==sizeof(old));assert(fgetc(f)==EOF);fclose(f);assert(old.version==10);}
  memcpy(disk,&old,sizeof(old));disk_len=sizeof(old);
- save_t next;assert(save_read_status(&next)==SAVE_READ_MIGRATED&&next.version==11);
+ save_t next;assert(save_read_status(&next)==SAVE_READ_MIGRATED&&next.version==SAVE_VERSION);
  for(unsigned i=2;i<sizeof(old);i++)if(i!=offsetof(save_v10_t,opening_seen))assert(((uint8_t*)&next)[i]==((uint8_t*)&old)[i]);
  assert(next.exploration.energy==3&&next.exploration.steps==0);assert(save_write(&next));
  next.exploration.energy=1;next.exploration.clues[2]=2;assert(save_write(&next));
