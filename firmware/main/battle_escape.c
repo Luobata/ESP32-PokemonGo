@@ -1,6 +1,6 @@
 // Reference: pret/pokecrystal 7a7881d0d62e0ddbd82dcf10e7116807487ac651,
-// engine/battle/core.asm::TryToRunAwayFromBattle. This game's effective stats
-// replace the original stat formula; the successful-byte threshold is retained.
+// engine/battle/core.asm::TryToRunAwayFromBattle. Uses Gen-II non-HP stats
+// with fixed DV 15 / stat EXP 0 and the original successful-byte threshold.
 #include "battle_escape.h"
 #include <string.h>
 

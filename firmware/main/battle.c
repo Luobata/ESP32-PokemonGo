@@ -1,29 +1,4 @@
-// main/battle.c —— S3 自动战斗。
-//
-// PC 侧是 sim/systems.py 的 auto_battle。这份移植有一处**刻意的偏离**：
-// 随机源不同。
-//
-// ## 为什么不复刻 Python 的随机序列
-//
-// sim 用 `random.Random(seed)`，那是 Mersenne Twister ——
-// 在 C 里重写要上百行状态机，且一处写错就全错（而「全错」表现为
-// 「战斗结果不一样」，很难反查到是 PRNG）。
-//
-// 战斗的观感取决于**胜率分布**，不取决于第 7 场第 3 回合的伤害。
-// 所以这里用 xorshift32，对账相应改成两层：
-//   · 确定性部分逐值对账 —— 相克表、伤害公式、effective_stat、
-//     wild_level。这是大头，82/225 个相克格子全部逐个比对
-//   · 随机部分对统计分布 —— 1000 场胜率在容差内
-// 见 tools/pipeline/verify_battle.py。
-//
-// ## 伤害公式的分母是 25 不是 50
-//
-// 初代原式 `((2*Lv/5+2) * Atk * Power / Def) / 50 + 2` 配合的是
-// 原版的等级成长曲线。本项目主宠等级偏低而野怪种族值可能很高 ——
-// 实测 Lv12 打 Lv10 鸭嘴火兽只有 3 伤害/回合，要 46 回合才打完。
-// 压到 25 让战斗落在 4~8 回合，符合「30 秒会话」的预算，
-// 也让 HP 条的逐步扣减看得出变化。（sim/systems.py:780 记的同一件事）
-
+// Wild battles share the generation-II stats and damage core with trainer battles.
 #include <string.h>
 
 #include "battle.h"
@@ -76,12 +51,8 @@ const char *battle_eff_label(uint16_t mult)
 
 uint16_t battle_effective_stat(uint8_t base, uint8_t level)
 {
-    // sim: int(base * (1.0 + level / 50.0))
-    // 整数版：base + base*level/50。C3 无 FPU，且这个函数每回合都调。
-    //
-    // 截断方向与 Python 的 int() 一致（都是向零截断，而两边都是正数）。
-    uint32_t v = (uint32_t)base + (uint32_t)base * level / 50;
-    return (uint16_t)(v < 1 ? 1 : v);
+    // Generation II, fixed DV 15 and no stat experience on either side.
+    return (2u * (base + 15u) * level) / 100u + 5u;
 }
 
 uint8_t battle_wild_level(uint8_t rarity)
@@ -102,43 +73,27 @@ uint8_t battle_wild_level_for_pet(uint8_t rarity, uint8_t pet_level)
     return level > 100 ? 100 : level;
 }
 
-typedef struct {
-    uint16_t hp, atk, def, spc, spd;
-} stats_t;
-
-static void load_stats(const species_t *sp, uint8_t lv, stats_t *out)
-{
-    out->hp  = battle_effective_stat(sp->hp, lv);
-    out->atk = battle_effective_stat(sp->attack, lv);
-    out->def = battle_effective_stat(sp->defense, lv);
-    out->spc = battle_effective_stat(sp->special, lv);
-    out->spd = battle_effective_stat(sp->speed, lv);
-}
-
 bool battle_session_init(battle_session_t *s,
                           uint16_t pet_species, uint8_t pet_level,
                           uint16_t wild_species, uint8_t wild_level,
                           uint16_t ability_factor_q10, uint32_t seed)
 {
-    if (!s) return false;
+    if (!s || !pet_level || pet_level>100 || !wild_level || wild_level>100) return false;
     memset(s, 0, sizeof(*s));
     species_t pet_sp, wild_sp;
     if (!assets_species(pet_species, &pet_sp) ||
         !assets_species(wild_species, &wild_sp)) return false;
-    stats_t ps, ws;
-    load_stats(&pet_sp, pet_level, &ps);
-    load_stats(&wild_sp, wild_level, &ws);
     s->pet_species = pet_species;
     s->wild_species = wild_species;
     s->pet_level = pet_level;
     s->wild_level = wild_level;
-    s->pet_hp = s->pet_hp_max = ps.hp * 2 + pet_level;
-    s->wild_hp = s->wild_hp_max = ws.hp * 2 + wild_level;
+    s->pet_hp = s->pet_hp_max = combat_max_hp(pet_species,pet_level);
+    s->wild_hp = s->wild_hp_max = combat_max_hp(wild_species,wild_level);
     s->ability_factor_q10 = ability_factor_q10;
     s->rng = seed ? seed : 1;
-    s->next_by_pet = ps.spd >= ws.spd;
     combat_init(&s->fighters[0],pet_species,pet_level,s->pet_hp_max);
     combat_init(&s->fighters[1],wild_species,wild_level,s->wild_hp_max);
+    s->next_by_pet = combat_speed(&s->fighters[0]) >= combat_speed(&s->fighters[1]);
     s->initialized = true;
     return true;
 }
@@ -171,9 +126,6 @@ bool battle_session_step(battle_session_t *s, battle_round_t *out)
     if (!assets_species(s->pet_species, &pet_sp) ||
         !assets_species(s->wild_species, &wild_sp)) return false;
     if (!s->pet_hp || !s->wild_hp || s->attack_count >= BATTLE_MAX_ROUNDS) return false;
-    stats_t ps, ws;
-    load_stats(&pet_sp, s->pet_level, &ps);
-    load_stats(&wild_sp, s->wild_level, &ws);
     s->fighters[0].hp=s->pet_hp;s->fighters[1].hp=s->wild_hp;
     if((s->acted==0||s->acted==3)&&!s->retaliation_pending){
         s->planned[0]=combat_choose(&s->fighters[0],&s->fighters[1],&s->rng);

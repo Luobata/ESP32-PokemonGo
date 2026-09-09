@@ -1,0 +1,2 @@
+{"supported":191,"selected_added":25,"type_chart":"Gold/Silver","mechanics_pass":true,"save_bytes":3664}
+

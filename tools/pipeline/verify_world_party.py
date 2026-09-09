@@ -240,7 +240,7 @@ static void duplicate_box_exchange(void) {
 }
 static void box_migration_and_capacity(void) {
     seed_team();party_t before=s_party;((save_t*)disk)->version=11;
-    reboot();assert(((save_t*)disk)->version==12&&!memcmp(&before,&s_party,sizeof(before)));
+    reboot();assert(((save_t*)disk)->version==SAVE_VERSION&&!memcmp(&before,&s_party,sizeof(before)));
     seed_team();((save_t*)disk)->version=11;((save_t*)disk)->party[2+(PARTY_MAX+148)*MON_BYTES]=150;
     save_t invalid;assert(save_read_status(&invalid)==SAVE_READ_ERROR);
     party_t p;party_init(&p);p.party_count=6;
@@ -279,7 +279,7 @@ def run(root: Path) -> dict:
                    '-ffunction-sections', '-fdata-sections', '-pthread', '-I', str(temp),
                    '-I', str(root / 'firmware/main'), str(temp / 'driver.c'),
                    *[str(root / 'firmware/main' / name) for name in
-                     ('party.c', 'encounter.c', 'exploration.c', 'battle.c', 'nurture.c', 'exp.c', 'items.c')], '-lz',
+                     ('party.c', 'encounter.c', 'exploration.c', 'battle.c', 'combat.c', 'nurture.c', 'exp.c', 'items.c')], '-lz',
                    '-Wl,-dead_strip' if sys.platform == 'darwin' else '-Wl,--gc-sections',
                    '-o', str(temp / 'probe')]
         subprocess.run(command, check=True, capture_output=True, text=True)

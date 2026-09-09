@@ -95,7 +95,7 @@ uint16_t battle_effectiveness(uint8_t atk, uint8_t def1, uint8_t def2);
 // 每回合都弹「效果一般」会把「效果绝佳」的分量冲掉，见 P3 页面文档）。
 const char *battle_eff_label(uint16_t mult);
 
-// 种族值 → 实际能力值（含等级成长）。与 sim 的 effective_stat 同式。
+// Gen-II non-HP stat; fixed DV 15, stat experience 0 (same policy as combat_stat).
 uint16_t battle_effective_stat(uint8_t base, uint8_t level);
 
 // Baseline bands and progression-aware level (freeze in battle_session_t).

@@ -1,0 +1,21 @@
+{
+  "cases": 39,
+  "party_slots": 6,
+  "box_slots": 151,
+  "mon_bytes": 12,
+  "save_version": 13,
+  "save_bytes": 3664,
+  "erase_calls": 0,
+  "sanitized": true,
+  "concurrent_care": true,
+  "scope": "Actual world/save/party/nurture C; pthread locks; simulated NVS/device boundary",
+  "negative_checks": [],
+  "source_sha256": {
+    "firmware/main/world.c": "6066bb63eff0cda3436f8628b9a9832b75a6df45ac4906cb4c7ce09556cdb27e",
+    "firmware/main/world.h": "618f1e9aa500f96a66caa3d98b4fbf071c63f148fb4a4a6e4149fdda3c410a17",
+    "firmware/main/party.c": "41eb0c33a6bab6338479622198f348daa9a736a2c31621983111fa2d6e44816f",
+    "firmware/main/party.h": "fbe5b8206287f4fbab7b3219b1bbdf604d897111405b6adcedfadb2a3937a33f",
+    "firmware/main/save.c": "85f10cee5ca118070f000751c6246561b34b94bf93a033330b403027030276aa",
+    "firmware/main/save.h": "fc9d30893095d8bad7d7931080fcdbbe3735bf209f1078e60dd8795d2296b79b"
+  }
+}

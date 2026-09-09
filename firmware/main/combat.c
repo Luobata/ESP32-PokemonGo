@@ -3,6 +3,7 @@
 #include "battle.h"
 #include "combat_moves.h"
 #include "combat_auto_moves.h"
+#include "combat_gen2_stats.h"
 #include <stddef.h>
 #include "combat_selected_moves.h"
 static const combat_move_data_t *move_data(unsigned id){
@@ -15,9 +16,13 @@ static bool stored_move(unsigned id){return !id||move_data(id)!=NULL;}
 static uint32_t roll(uint32_t *rng,unsigned n){uint32_t x=*rng?*rng:1;x^=x<<13;x^=x>>17;x^=x<<5;*rng=x;return n?x%n:0;}
 static unsigned minimum(unsigned a,unsigned b){return a<b?a:b;}
 static void hurt(combat_mon_t *m,unsigned n){m->hp-=minimum(n,m->hp);}
-#define SAFETY_MARKER 0x5347
+#define SAFETY_MARKER_V12 0x5347
+#define SAFETY_MARKER 0x5348
+int8_t combat_sp_def_stage(const combat_mon_t *m){return m->safety.marker==SAFETY_MARKER?m->safety.special_defense:m->special;}
 static void safety_init(combat_mon_t *m){
- if(m->safety.marker!=SAFETY_MARKER){memset(m->moves,0,sizeof(m->moves));m->safety.marker=SAFETY_MARKER;m->safety.low_hp=m->hp;}
+ if(m->safety.marker==SAFETY_MARKER)return;
+ if(m->safety.marker!=SAFETY_MARKER_V12){memset(m->moves,0,sizeof(m->moves));m->safety.low_hp=m->hp;}
+ m->safety.marker=SAFETY_MARKER;m->safety.special_defense=m->special;
 }
 static unsigned fatigue(const combat_mon_t *m){return m->safety.marker==SAFETY_MARKER?minimum(m->safety.fatigue,10):0;}
 static unsigned heal(combat_mon_t *m,unsigned n){n=n*(10-fatigue(m))/10;n=minimum(n,m->max_hp-m->hp);m->hp+=n;return n;}
@@ -62,13 +67,35 @@ int combat_known_moves(uint16_t species,uint8_t level,uint16_t *out,int capacity
  int count=0;for(unsigned id=1;id<=COMBAT_MAX_MOVE_ID&&count<capacity;id++)if(combat_learn_level(species,id)<=level)out[count++]=id;
  return count;
 }
-static uint16_t scaled(unsigned base,unsigned level,int st){unsigned v=battle_effective_stat(base,level);return st>=0?v*(2+st)/2:v*2/(2-st);}
-uint16_t combat_speed(const combat_mon_t *m){species_t s;if(!species_info(m,&s))return 1;unsigned v=scaled(s.speed,learn_level(m),m->speed);return m->status==3?v/4:v;}
-void combat_init(combat_mon_t *m,uint8_t species,uint8_t level,uint16_t hp){memset(m,0,sizeof(*m));m->species=species;m->level=level;m->hp=m->max_hp=hp;}
-void combat_reset_volatile(combat_mon_t *m){uint16_t hp=m->hp,max=m->max_hp;uint8_t sp=m->species,lv=m->level,status=m->status,sleep=m->sleep;combat_init(m,sp,lv,max);m->hp=hp;m->status=status;m->sleep=sleep;}
+uint16_t combat_stat(uint8_t species,uint8_t level,unsigned stat){
+ if(!species||species>151||!level||level>100||stat>COMBAT_SP_DEFENSE)return 0;
+ unsigned v=2u*(COMBAT_GEN2_STATS[species-1][stat]+15u)*level/100u;
+ return v+(stat==COMBAT_HP?level+10u:5u);
+}
+uint16_t combat_max_hp(uint8_t species,uint8_t level){return combat_stat(species,level,COMBAT_HP);}
+static uint16_t scaled(const combat_mon_t *m,unsigned stat,int st){
+ unsigned v=combat_stat(identity(m),learn_level(m),stat);
+ v=st>=0?v*(2+st)/2:v*2/(2-st);
+ return v<1?1:minimum(v,999);
+}
+uint16_t combat_speed(const combat_mon_t *m){unsigned v=scaled(m,COMBAT_SPEED,m->speed);v=m->status==3?v/4:v;return v?v:1;}
+void combat_init(combat_mon_t *m,uint8_t species,uint8_t level,uint16_t hp){memset(m,0,sizeof(*m));m->species=species;m->level=level;m->hp=m->max_hp=hp;safety_init(m);}
+void combat_migrate_gen2(combat_mon_t *m){
+ if(!m->max_hp)return;
+ safety_init(m);
+ unsigned old=m->max_hp,next=combat_max_hp(m->species,m->level);
+ // Round surviving HP upward: a save upgrade must never faint a living partner.
+ m->hp=m->hp?((uint32_t)m->hp*next+old-1)/old:0;
+ m->substitute=(uint32_t)m->substitute*next/old;
+ m->last_damage=(uint32_t)m->last_damage*next/old;
+ m->bide_damage=(uint32_t)m->bide_damage*next/old;
+ m->safety.low_hp=(uint32_t)m->safety.low_hp*next/old;
+ m->max_hp=next;
+}
+void combat_reset_volatile(combat_mon_t *m){uint16_t hp=m->hp,max=m->max_hp;uint8_t sp=m->species,lv=m->level,status=m->status,sleep=m->sleep;combat_init(m,sp,lv,max);m->hp=hp;m->safety.low_hp=hp;m->status=status;m->sleep=sleep;}
 bool combat_valid(const combat_mon_t *m){
  if(!m->species||m->species>151||!m->level||m->level>100||!m->max_hp||m->hp>m->max_hp||m->status>5||m->sleep>4||m->seeded>1)return false;
- const int8_t stages[]={m->attack,m->defense,m->special,m->speed,m->accuracy,m->evasion};for(unsigned i=0;i<6;i++)if(stages[i]<-6||stages[i]>6)return false;
+ const int8_t stages[]={m->attack,m->defense,m->special,combat_sp_def_stage(m),m->speed,m->accuracy,m->evasion};for(unsigned i=0;i<7;i++)if(stages[i]<-6||stages[i]>6)return false;
  return m->converted<=1&&m->converted_type<BATTLE_TYPE_COUNT&&stored_move(m->mimic_move)&&stored_move(m->last_move)&&stored_move(m->charge_move)&&stored_move(m->disabled_move)&&m->transform_species<=151&&m->transform_level<=100&&m->confusion<=4&&m->toxic<=15&&m->trap<=5&&m->recharge<=1&&m->charge<=1&&m->bide<=3&&m->flinch<=1&&m->reflect<=5&&m->light_screen<=5&&m->disable_turns<=5&&m->substitute<=m->max_hp/4;
 }
 static bool self_effect(unsigned e){switch(e){
@@ -80,17 +107,21 @@ static unsigned effectiveness(const combat_mon_t *d,const move_t *m){species_t s
 static unsigned estimate(const combat_mon_t *a,const combat_mon_t *d,const combat_move_data_t *data,unsigned ability,unsigned divisor,bool critical){
  const move_t *m=&data->move;unsigned mult=effectiveness(d,m);if(!mult)return 0;
  switch(data->effect){case EFFECT_STATIC_DAMAGE:return m->power;case EFFECT_LEVEL_DAMAGE:return a->level;case EFFECT_SUPER_FANG:return d->hp/2?d->hp/2:1;case EFFECT_PSYWAVE:return a->level*3/4+1;case EFFECT_OHKO:return a->level>=d->level?d->hp:0;case EFFECT_COUNTER:return a->last_damage*2;case EFFECT_BIDE:return a->bide_damage*2;default:break;}
- species_t as,ds;species_info(a,&as);species_info(d,&ds);
- int astage=m->special?a->special:a->attack,dstage=m->special?d->special:d->defense;
+ species_t as;species_info(a,&as);
+ int astage=m->special?a->special:a->attack,dstage=m->special?combat_sp_def_stage(d):d->defense;
  bool ignore=critical&&astage<=dstage;
- unsigned A=scaled(m->special?as.special:as.attack,learn_level(a),ignore?0:astage),D=scaled(m->special?ds.special:ds.defense,learn_level(d),ignore?0:dstage);
+ unsigned A=scaled(a,m->special?COMBAT_SP_ATTACK:COMBAT_ATTACK,ignore?0:astage),D=scaled(d,m->special?COMBAT_SP_DEFENSE:COMBAT_DEFENSE,ignore?0:dstage);
  if(!ignore&&a->status==2&&!m->special)A/=2;
  A=A*ability/1024;if(!A)A=1;
+ if(!ignore&&((m->special&&d->light_screen)||(!m->special&&d->reflect)))D*=2;
+ // Original damage operands are reduced together when either exceeds a byte.
+ // Keep wide intermediates rather than reproducing the Game Boy overflow bugs.
+ while(A>255||D>255){A=A/4?A/4:1;D=D/4?D/4:1;}
+ if(!A)A=1;
  if(data->effect==EFFECT_SELFDESTRUCT)D/=2;
  if(!D)D=1;
- if(!ignore&&((m->special&&d->light_screen)||(!m->special&&d->reflect)))D*=2;
  unsigned value=(uint64_t)(2u*a->level/5+2)*A*m->power/D/divisor;
- value=value*(critical?2:1)+2;
+ value=minimum(value*(critical?2:1),997)+2;
  if(m->id!=165&&(as.type1==m->type||as.type2==m->type))value=value*3/2;
  value=value*mult/100;
 
@@ -108,7 +139,8 @@ static unsigned utility(const combat_mon_t *a,const combat_mon_t *d,const combat
  if(e==EFFECT_DISABLE)return !d->last_move||d->disable_turns||d->substitute?0:20;
  if(e==EFFECT_ATTACK_UP||e==EFFECT_ATTACK_UP_2)return a->attack>=2?0:30;
  if(e==EFFECT_DEFENSE_UP||e==EFFECT_DEFENSE_UP_2||e==EFFECT_DEFENSE_CURL)return a->defense>=2?0:25;
- if(e==EFFECT_SP_ATK_UP||e==EFFECT_SP_DEF_UP_2)return a->special>=2?0:30;
+ if(e==EFFECT_SP_ATK_UP)return a->special>=2?0:30;
+ if(e==EFFECT_SP_DEF_UP_2)return combat_sp_def_stage(a)>=2?0:30;
  if(e==EFFECT_SPEED_UP_2)return combat_speed(a)>=combat_speed(d)||a->speed>=2?0:25;
  if(e==EFFECT_EVASION_UP)return a->evasion>=2?0:25;
  if(e==EFFECT_ACCURACY_DOWN)return d->accuracy<=-2||d->mist||d->substitute?0:25;
@@ -124,7 +156,7 @@ static unsigned utility(const combat_mon_t *a,const combat_mon_t *d,const combat
  if(e==EFFECT_MIMIC)return a->mimic_move||!d->last_move?0:20;
  if(e==EFFECT_MIRROR_MOVE)return d->last_move&&d->last_move!=m->move.id?20:0;
  if(e==EFFECT_METRONOME)return 35;
- if(e==EFFECT_RESET_STATS)return d->attack+d->defense+d->special+d->speed>0||a->attack+a->defense+a->special+a->speed<0?35:0;
+ if(e==EFFECT_RESET_STATS)return d->attack+d->defense+d->special+combat_sp_def_stage(d)+d->speed>0||a->attack+a->defense+a->special+combat_sp_def_stage(a)+a->speed<0?35:0;
  if(e==EFFECT_SUBSTITUTE)return a->substitute||a->hp<=a->max_hp/2?0:25;
  if(e==EFFECT_DREAM_EATER&&d->status!=4)return 0;
  if(e==EFFECT_COUNTER){move_t last;if(!a->last_damage||!combat_move(d->last_move,&last)||last.special)return 0;}
@@ -183,7 +215,7 @@ static bool status_effect(combat_mon_t *a,combat_mon_t *d,const combat_move_data
  case EFFECT_DISABLE:if(!d->last_move||d->disable_turns)return false;d->disabled_move=d->last_move;d->disable_turns=3+roll(rng,3);return true;
  case EFFECT_ATTACK_UP:return stage(&a->attack,1);case EFFECT_ATTACK_UP_2:return stage(&a->attack,2);
  case EFFECT_DEFENSE_UP:case EFFECT_DEFENSE_CURL:return stage(&a->defense,1);case EFFECT_DEFENSE_UP_2:return stage(&a->defense,2);
- case EFFECT_SP_ATK_UP:return stage(&a->special,1);case EFFECT_SP_DEF_UP_2:return stage(&a->special,2);
+ case EFFECT_SP_ATK_UP:return stage(&a->special,1);case EFFECT_SP_DEF_UP_2:return stage(&a->safety.special_defense,2);
  case EFFECT_SPEED_UP_2:return stage(&a->speed,2);case EFFECT_EVASION_UP:return stage(&a->evasion,1);
  case EFFECT_ACCURACY_DOWN:return !d->mist&&stage(&d->accuracy,-1);case EFFECT_ATTACK_DOWN:return !d->mist&&stage(&d->attack,-1);
  case EFFECT_DEFENSE_DOWN:return !d->mist&&stage(&d->defense,-1);case EFFECT_DEFENSE_DOWN_2:return !d->mist&&stage(&d->defense,-2);
@@ -193,11 +225,11 @@ static bool status_effect(combat_mon_t *a,combat_mon_t *d,const combat_move_data
  case EFFECT_LIGHT_SCREEN:if(a->light_screen)return false;a->light_screen=5;return true;
  case EFFECT_MIST:if(a->mist)return false;a->mist=1;return true;
  case EFFECT_FOCUS_ENERGY:if(a->focus)return false;a->focus=1;return true;
- case EFFECT_RESET_STATS:a->attack=a->defense=a->special=a->speed=a->accuracy=a->evasion=0;d->attack=d->defense=d->special=d->speed=d->accuracy=d->evasion=0;return true;
+ case EFFECT_RESET_STATS:a->safety.special_defense=d->safety.special_defense=0;a->attack=a->defense=a->special=a->speed=a->accuracy=a->evasion=0;d->attack=d->defense=d->special=d->speed=d->accuracy=d->evasion=0;return true;
  case EFFECT_SUBSTITUTE:if(a->substitute||a->hp<=a->max_hp/4)return false;a->substitute=a->max_hp/4;hurt(a,a->substitute);return true;
  case EFFECT_MIMIC:if(!d->last_move||d->last_move==102||d->last_move==165)return false;a->mimic_move=d->last_move;return true;
  case EFFECT_CONVERSION:{uint16_t ids[COMBAT_MOVE_CAP];int n=combat_known_moves(identity(a),learn_level(a),ids,COMBAT_MOVE_CAP);for(int i=0;i<n;i++){unsigned type=move_data(ids[i])->move.type;if(!has_type(a,type)){a->converted=1;a->converted_type=type;return true;}}return false;}
- case EFFECT_TRANSFORM:if(a->transform_species||d->transform_species)return false;a->transform_species=d->species;a->transform_level=d->level;a->attack=d->attack;a->defense=d->defense;a->special=d->special;a->speed=d->speed;return true;
+ case EFFECT_TRANSFORM:if(a->transform_species||d->transform_species)return false;a->transform_species=d->species;a->transform_level=d->level;a->attack=d->attack;a->defense=d->defense;a->special=d->special;a->safety.special_defense=combat_sp_def_stage(d);a->speed=d->speed;return true;
  default:return false;
  }
 }
@@ -247,7 +279,11 @@ void combat_turn(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint32_t *rng,
  if(effect==EFFECT_COUNTER){move_t last;if(!a->last_damage||!combat_move(d->last_move,&last)||last.special)r->no_effect=1;}
  if(!r->mult||r->no_effect){if(effect==EFFECT_SELFDESTRUCT)a->hp=0;r->no_effect=1;residual(a,d);return;}
  bool variable=!fixed(effect)&&effect!=EFFECT_OHKO&&effect!=EFFECT_COUNTER&&effect!=EFFECT_BIDE;
- if(variable){unsigned crit=a->focus||id==2||id==75||id==152||id==163||id==238?4:16;r->critical=roll(rng,crit)==0;}
+ if(variable){
+  static const uint8_t crit_chance[]={17,32,64,85,128};
+  unsigned crit=(a->focus?1:0)+((id==2||id==75||id==152||id==163||id==238)?2:0);
+  r->critical=roll(rng,256)<crit_chance[crit];
+ }
  unsigned value=estimate(a,d,data,ability,divisor,r->critical);
  if(!value){r->no_effect=1;residual(a,d);return;}
  if(effect==EFFECT_PSYWAVE)value=1+roll(rng,a->level*3/2?a->level*3/2:1);
@@ -270,7 +306,7 @@ void combat_turn(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint32_t *rng,
  if(id==165)hurt(a,a->max_hp/4?a->max_hp/4:1);
  if(effect==EFFECT_SELFDESTRUCT)a->hp=0;
  if(effect==EFFECT_RAMPAGE){if(!a->charge_move){a->charge_move=id;a->charge=1;}else{a->charge=0;a->charge_move=0;a->confusion=2+roll(rng,3);}}
- if(actual&&(effect==EFFECT_DEFENSE_UP_HIT||effect==EFFECT_ALL_UP_HIT)&&roll(rng,100)<data->chance){stage(&a->defense,1);if(effect==EFFECT_ALL_UP_HIT){stage(&a->attack,1);stage(&a->special,1);stage(&a->speed,1);}}
+ if(actual&&(effect==EFFECT_DEFENSE_UP_HIT||effect==EFFECT_ALL_UP_HIT)&&roll(rng,100)<data->chance){stage(&a->defense,1);if(effect==EFFECT_ALL_UP_HIT){stage(&a->attack,1);stage(&a->special,1);stage(&a->safety.special_defense,1);stage(&a->speed,1);}}
  if(d->hp&&!shielded){
   if(effect==EFFECT_TRAP_TARGET)d->trap=2+roll(rng,4);
   if(data->chance&&roll(rng,100)<data->chance){switch(effect){
@@ -282,7 +318,7 @@ void combat_turn(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint32_t *rng,
    case EFFECT_ATTACK_DOWN_HIT:if(!d->mist)stage(&d->attack,-1);break;
    case EFFECT_DEFENSE_DOWN_HIT:if(!d->mist)stage(&d->defense,-1);break;
    case EFFECT_SPEED_DOWN_HIT:if(!d->mist)stage(&d->speed,-1);break;
-   case EFFECT_SP_DEF_DOWN_HIT:if(!d->mist)stage(&d->special,-1);break;
+   case EFFECT_SP_DEF_DOWN_HIT:if(!d->mist)stage(&d->safety.special_defense,-1);break;
    case EFFECT_TRI_ATTACK:apply_status(d,(unsigned[]){2,3,5}[roll(rng,3)],rng);break;
    default:break;
   }}
@@ -297,7 +333,7 @@ const char *combat_description(uint16_t id){
  case EFFECT_ATTACK_DOWN_2:return "大幅降低对手攻击";
  case EFFECT_ACCURACY_DOWN_HIT:return "攻击并降低对手命中";
  case EFFECT_DEFENSE_UP_HIT:return "攻击时可能提升自身防御";
- case EFFECT_ALL_UP_HIT:return "可能提升攻防特殊和速度";
+ case EFFECT_ALL_UP_HIT:return "可能提升五项战斗能力";
  case EFFECT_FALSE_SWIPE:return "至少给对手保留一点体力";
  case EFFECT_TWISTER:return "可能畏缩 对飞翔伤害翻倍";
  case EFFECT_SLEEP:return "使对手睡眠";case EFFECT_PARALYZE:case EFFECT_PARALYZE_HIT:case EFFECT_THUNDER:return "可能使对手麻痹";
@@ -315,10 +351,10 @@ const char *combat_description(uint16_t id){
  case EFFECT_OHKO:return "等级不低时概率一击倒下";
  case EFFECT_COUNTER:return "双倍返还受到的物理伤害";case EFFECT_BIDE:return "忍耐后返还累计伤害";
  case EFFECT_ATTACK_UP:case EFFECT_ATTACK_UP_2:return "提升自身攻击";case EFFECT_DEFENSE_UP:case EFFECT_DEFENSE_UP_2:case EFFECT_DEFENSE_CURL:return "提升自身防御";
- case EFFECT_SP_ATK_UP:case EFFECT_SP_DEF_UP_2:return "提升自身特殊能力";case EFFECT_SPEED_UP_2:return "提升速度 改变出手顺序";
+ case EFFECT_SP_ATK_UP:return "提升自身特攻";case EFFECT_SP_DEF_UP_2:return "大幅提升自身特防";case EFFECT_SPEED_UP_2:return "提升速度 改变出手顺序";
  case EFFECT_DEFENSE_DOWN:case EFFECT_DEFENSE_DOWN_2:case EFFECT_DEFENSE_DOWN_HIT:return "降低对手防御";
  case EFFECT_ATTACK_DOWN:case EFFECT_ATTACK_DOWN_HIT:return "降低对手攻击";
- case EFFECT_SPEED_DOWN:case EFFECT_SPEED_DOWN_HIT:return "降低对手速度";case EFFECT_SP_DEF_DOWN_HIT:return "可能降低对手特殊能力";
+ case EFFECT_SPEED_DOWN:case EFFECT_SPEED_DOWN_HIT:return "降低对手速度";case EFFECT_SP_DEF_DOWN_HIT:return "可能降低对手特防";
  case EFFECT_ACCURACY_DOWN:return "降低对手命中";case EFFECT_EVASION_UP:return "提高自身闪避";
  case EFFECT_REFLECT:return "暂时减半物理伤害";case EFFECT_LIGHT_SCREEN:return "暂时减半特殊伤害";
  case EFFECT_MIST:return "防止能力被对手降低";case EFFECT_RESET_STATS:return "清除双方能力变化";case EFFECT_FOCUS_ENERGY:return "提高击中要害概率";

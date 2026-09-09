@@ -42,7 +42,7 @@
 
 // 存档版本。**加字段时必须 +1** —— load 会拒绝不认识的版本，
 // 那比读到错位的字段好（错位不报错，只是数值离谱）。
-#define SAVE_VERSION 12
+#define SAVE_VERSION 13 // Gen-II HP and split Special stages; unchanged byte layout.
 #define SAVE_LEGACY_VERSION 5
 
 typedef struct {

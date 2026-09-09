@@ -11,7 +11,7 @@ typedef struct {
  // Legacy IDs never equal the safety marker; old battles initialize lazily.
  union {
   uint16_t moves[4];
-  struct {uint16_t marker,low_hp;uint8_t stalled,fatigue,status_streak,reserved;} safety;
+  struct {uint16_t marker,low_hp;uint8_t stalled,fatigue,status_streak;int8_t special_defense;} safety;
  };
  uint8_t species,level,pp[4],status,sleep,seeded;
  int8_t attack,defense,special,speed;
@@ -28,6 +28,12 @@ int combat_known_moves(uint16_t species,uint8_t level,uint16_t *out,int capacity
 uint8_t combat_learn_level(uint16_t species,uint16_t move);
 void combat_init(combat_mon_t *m,uint8_t species,uint8_t level,uint16_t hp);
 uint16_t combat_speed(const combat_mon_t *m);
+enum { COMBAT_HP,COMBAT_ATTACK,COMBAT_DEFENSE,COMBAT_SPEED,COMBAT_SP_ATTACK,COMBAT_SP_DEFENSE };
+uint16_t combat_stat(uint8_t species,uint8_t level,unsigned stat);
+uint16_t combat_max_hp(uint8_t species,uint8_t level);
+int8_t combat_sp_def_stage(const combat_mon_t *m);
+// V12 and older saved trainer battles: preserve HP fraction and fainted state.
+void combat_migrate_gen2(combat_mon_t *m);
 void combat_reset_volatile(combat_mon_t *m);
 bool combat_valid(const combat_mon_t *m);
 uint16_t combat_choose(const combat_mon_t *a,const combat_mon_t *d,uint32_t *rng);

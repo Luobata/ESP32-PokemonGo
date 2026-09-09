@@ -101,7 +101,7 @@ def species_motion(f):
 def main():
     exe,version=build();checks=0;passed=[]
     cases=[('safe escape has no reward or penalty',safe_escape,{}),
-           ('failed escape costs exactly one reply then capture remains available',failed_escape,dict(pet=9,level=30,wild=150,rarity=5,seed=4)),
+           ('failed escape costs exactly one reply then capture remains available',failed_escape,dict(pet=9,level=50,wild=150,rarity=5,seed=4)),
            ('auto escape is processed after current move once',escape_after_move,dict(pet=9,level=100,wild=150,rarity=5,seed=4)),
            ('lethal reply applies one penalty then care restores it',penalty_and_care,dict(pet=11,level=1,wild=150,rarity=5,seed=1)),
            ('escape save failure leaves attempt and encounter intact',save_failure,{}),

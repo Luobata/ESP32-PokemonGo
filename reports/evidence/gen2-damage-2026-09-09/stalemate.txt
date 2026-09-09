@@ -1,0 +1,3 @@
+attack choices: 1695/2000
+{"status":"PASS","groups":3,"wild_seeds":100,"save_bytes":3664,"sanitized":true}
+

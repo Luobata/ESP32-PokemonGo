@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "source_commit": "7a7881d0d62e0ddbd82dcf10e7116807487ac651",
+  "sources_sha256": {
+    "firmware/main/combat.c": "c8080ab465049441dd73a79c4133be6d5ee6834d772cf3e2d74d31c5fcf6009d",
+    "firmware/main/combat.h": "257cdb0d31c556b121b9a04fdec6e02b391585423dbc907f8b2fce75e3b11bbe",
+    "firmware/main/combat_gen2_stats.h": "8259d029e99610f5728df20bbf2e8c13124d450c4e28e4a71fc0567892c08934",
+    "firmware/main/battle.c": "c761cd2552f37d3181ad05e9a83462b755bf9a488902c81669ed2bbaf9937167",
+    "firmware/main/trainer.c": "591b5e24928d7e6217d4781c05c87467bbf3bde015edc484d47ca4d23ca4de92",
+    "firmware/main/save.c": "85f10cee5ca118070f000751c6246561b34b94bf93a033330b403027030276aa",
+    "firmware/main/save.h": "fc9d30893095d8bad7d7931080fcdbbe3735bf209f1078e60dd8795d2296b79b"
+  },
+  "checks": [
+    "15100 species/level HP initializations",
+    "7800 golden damage seeds",
+    "V5-V8 and V12 save migrations, V13 read idempotence",
+    "39 party/world/save cases",
+    "14 trainer campaign progression",
+    "100 no-attack wild battles",
+    "191 supported move effects",
+    "10 complete native trainer fights",
+    "142 side-specific sendout checks",
+    "778 escape/capture/care/defeat UI checks"
+  ],
+  "limits": "DV fixed at 15, stat experience 0; no weather/held items/badge multipliers; game care and anti-stall mechanics retained."
+}

@@ -1,0 +1,10 @@
+{
+  "baseline_commit": "0c0129b",
+  "battles": 800,
+  "mean_actions_before": 10.6,
+  "mean_actions_after": 4.51,
+  "reduction_percent": 57.45,
+  "timeouts_before": 25,
+  "timeouts_after": 0,
+  "meaning": "One action is one combatant acting or skipping; fixed 8 matchups, 100 seeds each; not a census of all species or levels."
+}

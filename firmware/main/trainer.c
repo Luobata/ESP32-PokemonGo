@@ -28,8 +28,7 @@ const uint8_t *trainer_player_art(void) { return TRAINER_ART[14]; }
 bool trainer_move(uint16_t id,move_t *out) {return combat_move(id,out);}
 static trainer_mon_t *actor(trainer_session_t *s,unsigned side) { return &s->sides[side].mons[s->sides[side].active]; }
 static void init_mon(trainer_mon_t *mon,uint8_t species,uint8_t level) {
- species_t sp;assets_species(species,&sp);
- combat_init(mon,species,level,2*battle_effective_stat(sp.hp,level)+level);
+ combat_init(mon,species,level,combat_max_hp(species,level));
 }
 bool trainer_unlocked(const trainer_store_t *st,uint8_t id) {
  if(!st||id>=TRAINER_COUNT)return false;

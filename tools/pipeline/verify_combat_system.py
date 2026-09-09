@@ -63,7 +63,7 @@ static void migration(void){
   for(unsigned side=0;side<2;side++){trainer_side_v8_t *s=&old.challenge.session.sides[side];s->count=1;s->mons[0]=(trainer_mon_v8_t){.species=25,.level=30,.hp=70,.max_hp=100,.moves={84,98},.pp={0,0},.status=1,.attack=2};}
   disk_len=v==5?sizeof(save_v5_t):v==6?sizeof(save_v6_t):v==7?sizeof(save_v7_t):sizeof(save_v8_t);memcpy(disk,&old,disk_len);
   save_t next;assert(save_read_status(&next)==SAVE_READ_MIGRATED&&next.version==SAVE_VERSION);assert(!memcmp(next.party,old.party,PARTY_BYTES));
-  if(v>=7){assert(next.challenge.session.active&&next.challenge.session.sides[0].mons[0].hp==70&&next.challenge.session.sides[0].mons[0].attack==2&&next.challenge.session.rng==123&&next.challenge.defeated==3);}
+  if(v>=7){assert(next.challenge.session.active&&next.challenge.session.sides[0].mons[0].hp==49&&next.challenge.session.sides[0].mons[0].max_hp==70&&next.challenge.session.sides[0].mons[0].attack==2&&next.challenge.session.rng==123&&next.challenge.defeated==3);}
   if(v==8)assert(next.achievements.evolutions==4&&next.achievements.claimed==17);
   assert(save_write(&next));save_t after;assert(save_read(&after));assert(!memcmp(&next,&after,sizeof(next)));
  }

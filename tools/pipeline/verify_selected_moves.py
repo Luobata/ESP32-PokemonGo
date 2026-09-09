@@ -25,8 +25,8 @@ int main(void){assert(assets_init());
  unsigned steel=0,ancient=0,shadow=0;
  for(unsigned seed=1;seed<200;seed++){
   setup(&a,&d);r=turn(211,&a,&d,seed);steel+=a.defense==1;
-  setup(&a,&d);r=turn(246,&a,&d,seed);if(a.attack){assert(a.attack==1&&a.defense==1&&a.special==1&&a.speed==1);ancient++;}
-  setup(&a,&d);d.species=65;r=turn(247,&a,&d,seed);assert(r.mult==200);shadow+=d.special==-1;
+  setup(&a,&d);r=turn(246,&a,&d,seed);if(a.attack){assert(a.attack==1&&a.defense==1&&a.special==1&&combat_sp_def_stage(&a)==1&&a.speed==1);ancient++;}
+  setup(&a,&d);d.species=65;r=turn(247,&a,&d,seed);assert(r.mult==200);shadow+=combat_sp_def_stage(&d)==-1;assert(d.special==0);
  }
  assert(steel&&ancient&&shadow);
  setup(&a,&d);d.charge=1;d.charge_move=19;r=turn(239,&a,&d,1);assert(!r.missed&&r.damage);
