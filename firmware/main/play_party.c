@@ -236,7 +236,7 @@ void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         }else if(ev==BSP_BTN_CLICK&&btn==BSP_BTN_OK){s_box_mode=false;s_feedback[0]=0;}
         else if(ev==BSP_BTN_CLICK&&btn==BSP_BTN_UP&&s_box_count){
             world_switch_result_t result=world_box_exchange(s_selected,&s_party.members[s_selected],&s_box[s_box_ids[s_box_row]]);
-            const char *message=result==WORLD_SWITCH_OK?"队伍已更换":result==WORLD_SWITCH_BUSY?"请先结束当前对战":result==WORLD_SWITCH_SAVE_FAILED?"保存失败 请重试":result==WORLD_SWITCH_INVALID?"仓库同类占位 请先换出":"伙伴已变 请重试";
+            const char *message=result==WORLD_SWITCH_OK?"队伍已更换":result==WORLD_SWITCH_BUSY?"请先结束当前对战":result==WORLD_SWITCH_SAVE_FAILED?"保存失败 请重试":result==WORLD_SWITCH_INVALID?"仓库选择无效 请重试":"伙伴已变 请重试";
             snprintf(s_feedback,sizeof(s_feedback),"%s",message);refresh_snapshot();load_box();
             if(result==WORLD_SWITCH_OK){s_box_mode=false;reset_motion();}
         }

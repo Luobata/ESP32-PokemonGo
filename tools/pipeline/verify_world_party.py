@@ -216,9 +216,43 @@ static void easier_curve_preserves_progress(void) {
     assert(s_w.level==expected.party[0].level&&s_w.exp==expected.party[0].exp);
     reboot();assert(!memcmp(&s_party,&expected,sizeof(expected)));tests++;
 }
+static void duplicate_box_exchange(void) {
+    seed_team();world_party_t view;world_party_snapshot(&view);
+    mon_t outgoing=view.members[5],incoming=s_party.box[148],duplicate=s_party.box[149];
+    party_t before=s_party;uint8_t stored[sizeof(disk)];memcpy(stored,disk,sizeof(stored));
+    failure=4;assert(world_box_exchange(5,&outgoing,&incoming)==WORLD_SWITCH_SAVE_FAILED);failure=0;
+    assert(!memcmp(&before,&s_party,sizeof(before))&&!memcmp(stored,disk,sizeof(stored)));
+    assert(world_box_exchange(5,&outgoing,&incoming)==WORLD_SWITCH_OK);
+    assert(!memcmp(&s_party.party[5],&incoming,sizeof(incoming)));
+    assert(!memcmp(&s_party.box[148],&outgoing,sizeof(outgoing))&&!memcmp(&s_party.box[149],&duplicate,sizeof(duplicate)));
+    assert(party_total(&s_party)==9);party_t swapped=s_party;reboot();assert(!memcmp(&s_party,&swapped,sizeof(swapped)));
+    assert(world_box_exchange(5,&outgoing,&incoming)==WORLD_SWITCH_STALE);
+    // Choose the second individual of the same species, not the first match.
+    world_party_snapshot(&view);assert(world_box_exchange(5,&view.members[5],&duplicate)==WORLD_SWITCH_OK);
+    assert(!memcmp(&s_party.party[5],&duplicate,sizeof(duplicate))&&!memcmp(&s_party.box[148],&outgoing,sizeof(outgoing)));
+    // A partially occupied party follows exactly the same non-destructive swap.
+    seed_team();s_party.party_count=1;memset(&s_party.party[1],0,5*sizeof(mon_t));
+    s_party.box[0]=s_party.party[0];s_party.box[0].flags^=1;world_debug_save();world_party_snapshot(&view);
+    outgoing=view.members[0];incoming=s_party.box[148];duplicate=s_party.box[0];
+    assert(world_box_exchange(0,&outgoing,&incoming)==WORLD_SWITCH_OK);
+    assert(s_party.party_count==1&&!memcmp(&s_party.box[0],&duplicate,sizeof(duplicate))&&!memcmp(&s_party.box[148],&outgoing,sizeof(outgoing)));
+    swapped=s_party;reboot();assert(!memcmp(&s_party,&swapped,sizeof(swapped)));tests+=7;
+}
+static void box_migration_and_capacity(void) {
+    seed_team();party_t before=s_party;((save_t*)disk)->version=11;
+    reboot();assert(((save_t*)disk)->version==12&&!memcmp(&before,&s_party,sizeof(before)));
+    seed_team();((save_t*)disk)->version=11;((save_t*)disk)->party[2+(PARTY_MAX+148)*MON_BYTES]=150;
+    save_t invalid;assert(save_read_status(&invalid)==SAVE_READ_ERROR);
+    party_t p;party_init(&p);p.party_count=6;
+    for(unsigned i=0;i<6;i++)p.party[i]=(mon_t){.species_id=25,.level=10,.exp=exp_for_level(10)+i};
+    for(unsigned i=0;i<BOX_SPECIES;i++)p.box[i]=(mon_t){.species_id=(uint8_t)(i+1),.level=20,.exp=exp_for_level(20)+i};
+    before=p;assert(party_exchange_at(&p,0,150)&&party_total(&p)==157);
+    uint8_t raw[PARTY_BYTES];party_serialize(&p,raw);party_t restored;assert(party_deserialize(&restored,raw,sizeof(raw))&&!memcmp(&p,&restored,sizeof(p)));
+    assert(party_exchange_at(&restored,0,150)&&!memcmp(&restored,&before,sizeof(before)));tests+=4;
+}
 int main(void) {
     snapshot_readonly();every_position();failures_and_stale();battle_lock();individual_bond();
-    legacy_and_protection();concurrent_care();easier_curve_preserves_progress();
+    legacy_and_protection();concurrent_care();easier_curve_preserves_progress();duplicate_box_exchange();box_migration_and_capacity();
     printf("{\"cases\":%u,\"party_slots\":%d,\"box_slots\":%d,\"mon_bytes\":%zu,\"save_version\":%d,\"save_bytes\":%zu,\"erase_calls\":%u}\n",
         tests,PARTY_MAX,BOX_SPECIES,sizeof(mon_t),SAVE_VERSION,sizeof(save_t),erase_calls);
     return 0;

@@ -109,11 +109,20 @@ save_read_result_t save_read_status(save_t *out)
     if (e == ESP_OK) (void)nvs_get_u8(h, KEY_OPENING, &opening_seen);
     nvs_close(h);
     if (e != ESP_OK || len != expected_len) return SAVE_READ_ERROR;
-    if (out->version != (legacy ? SAVE_LEGACY_VERSION : version6 ? 6 : version7 ? 7 : version8 ? 8 : version9 ? 9 : version10 ? 10 : SAVE_VERSION)) {
+    bool version11 = len == sizeof(*out) && out->version == 11;
+    if (out->version != (legacy ? SAVE_LEGACY_VERSION : version6 ? 6 : version7 ? 7 : version8 ? 8 : version9 ? 9 : version10 ? 10 : version11 ? 11 : SAVE_VERSION)) {
         ESP_LOGW(TAG, "存档版本 %u ≠ %d —— 保留原档，禁止新游戏覆盖",
                  out->version, SAVE_VERSION);
         return SAVE_READ_ERROR;
     }
+    // V5-V11 used species-indexed cells. Validate before adopting physical slots.
+    if (out->version < 12) {
+        for(unsigned i=0;i<BOX_SPECIES;i++) {
+            uint8_t id=out->party[2+(PARTY_MAX+i)*MON_BYTES];
+            if(id && id!=i+1)return SAVE_READ_ERROR;
+        }
+    }
+    if(version11)out->version=SAVE_VERSION;
     // A raw blob can contain an invalid _Bool representation. Compare its bytes
     // before evaluating it so malformed data is rejected without undefined reads.
     const bool no = false, yes = true;
@@ -164,7 +173,7 @@ save_read_result_t save_read_status(save_t *out)
     if (!exploration_valid(&out->exploration)) return SAVE_READ_ERROR;
     if (!enc_refresh_valid(&out->refresh)) return SAVE_READ_ERROR;
     if (!trainer_store_valid(&out->challenge)) return SAVE_READ_ERROR;
-    return legacy || version6 || version7 || version8 || version9 || version10 ? SAVE_READ_MIGRATED : SAVE_READ_OK;
+    return legacy || version6 || version7 || version8 || version9 || version10 || version11 ? SAVE_READ_MIGRATED : SAVE_READ_OK;
 }
 
 bool save_read(save_t *out) {

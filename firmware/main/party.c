@@ -79,7 +79,15 @@ bool party_receive(party_t *p, const mon_t *m)
         return true;
     }
 
-    mon_t *slot = &p->box[m->species_id - 1];
+    int index = party_box_find(p, m->species_id);
+    if (index < 0) {
+        index = m->species_id - 1;
+        if (p->box[index].species_id) {
+            for (index = 0; index < BOX_SPECIES && p->box[index].species_id; index++) {}
+            if (index == BOX_SPECIES) return false;
+        }
+    }
+    mon_t *slot = &p->box[index];
     if (slot->species_id == 0 || party_better(m, slot)) *slot = *m;
     return true;
 }
@@ -152,7 +160,7 @@ bool party_deserialize(party_t *p, const uint8_t *in, uint16_t len)
         mon_t m;
         mon_deserialize(&m, box_in + (size_t)i * MON_BYTES);
         if (m.species_id >= 1 && m.species_id <= BOX_SPECIES) {
-            next.box[m.species_id - 1] = m;
+            next.box[i] = m;
         }
     }
 
@@ -160,9 +168,21 @@ bool party_deserialize(party_t *p, const uint8_t *in, uint16_t len)
     return true;
 }
 
-bool party_exchange(party_t *p,uint8_t slot,uint16_t species){
- if(!p||slot>=p->party_count||species<1||species>BOX_SPECIES||!p->box[species-1].species_id)return false;
- mon_t outgoing=p->party[slot],incoming=p->box[species-1];
- if(outgoing.species_id!=species&&p->box[outgoing.species_id-1].species_id)return false;
- memset(&p->box[species-1],0,sizeof(mon_t));p->box[outgoing.species_id-1]=outgoing;p->party[slot]=incoming;return true;
+int party_box_find(const party_t *p, uint16_t species) {
+ if (!p || species < 1 || species > BOX_SPECIES) return -1;
+ for (unsigned i=0;i<BOX_SPECIES;i++) if(p->box[i].species_id==species)return i;
+ return -1;
+}
+int party_box_match(const party_t *p,const mon_t *mon) {
+ if(!p||!mon||!mon->species_id)return -1;
+ for(unsigned i=0;i<BOX_SPECIES;i++)if(!memcmp(&p->box[i],mon,sizeof(*mon)))return i;
+ return -1;
+}
+bool party_exchange_at(party_t *p,uint8_t slot,uint16_t box_slot) {
+ if(!p||slot>=p->party_count||box_slot>=BOX_SPECIES||!p->box[box_slot].species_id)return false;
+ mon_t outgoing=p->party[slot];p->party[slot]=p->box[box_slot];p->box[box_slot]=outgoing;
+ return true;
+}
+bool party_exchange(party_t *p,uint8_t slot,uint16_t species) {
+ int index=party_box_find(p,species);return index>=0&&party_exchange_at(p,slot,index);
 }

@@ -42,11 +42,11 @@ static void stamina(void){
 static void boxes(void){
  ready();s_party.box[132]=(mon_t){.species_id=133,.level=12,.hp=70,.flags=1,.intimacy=61,.exp=exp_for_level(12)};world_debug_save();world_party_t v;world_party_snapshot(&v);mon_t old=v.members[0],in=s_party.box[132];
  failure=4;assert(world_box_exchange(0,&old,&in)==WORLD_SWITCH_SAVE_FAILED);failure=0;assert(s_w.species==25&&s_party.box[132].species_id==133);
- assert(world_box_exchange(0,&old,&in)==WORLD_SWITCH_OK);assert(s_w.species==133&&s_w.pet.intimacy==61*NURT_Q&&s_party.box[24].species_id==25&&s_party.party[0].flags==1);
- int32_t energy=s_w.pet.stamina;reboot();assert(s_w.species==133&&s_party.box[24].species_id==25&&s_w.pet.stamina==energy);
+ assert(world_box_exchange(0,&old,&in)==WORLD_SWITCH_OK);assert(s_w.species==133&&s_w.pet.intimacy==61*NURT_Q&&s_party.box[132].species_id==25&&s_party.party[0].flags==1);
+ int32_t energy=s_w.pet.stamina;reboot();assert(s_w.species==133&&s_party.box[132].species_id==25&&s_w.pet.stamina==energy);
  assert(world_box_exchange(0,&old,&in)==WORLD_SWITCH_STALE);
- party_t p=s_party;p.box[132]=(mon_t){.species_id=133,.level=3};party_t before=p;assert(!party_exchange(&p,0,25)&&!memcmp(&p,&before,sizeof(p)));
- uint16_t uid=encounter();battle_session_t battle={.initialized=true,.started=true,.pet_species=133,.wild_species=133};assert(world_battle_set_uid(uid,&battle));world_party_snapshot(&v);in=s_party.box[24];assert(world_box_exchange(0,&v.members[0],&in)==WORLD_SWITCH_BUSY);tests+=5;
+ party_t p=s_party;p.box[24]=(mon_t){.species_id=133,.level=3};party_t before=p;assert(party_exchange(&p,0,25)&&p.party[0].species_id==25&&!memcmp(&p.box[24],&before.box[24],sizeof(mon_t))&&p.box[132].species_id==133);
+ uint16_t uid=encounter();battle_session_t battle={.initialized=true,.started=true,.pet_species=133,.wild_species=133};assert(world_battle_set_uid(uid,&battle));world_party_snapshot(&v);in=s_party.box[132];assert(world_box_exchange(0,&v.members[0],&in)==WORLD_SWITCH_BUSY);tests+=5;
 }
 int main(void){capture();rewards();stamina();boxes();printf("{\"cases\":%u,\"paired_rarity_steps\":3000,\"save_version\":%d,\"save_bytes\":%zu}\n",tests,SAVE_VERSION,sizeof(save_t));return 0;}
 '''

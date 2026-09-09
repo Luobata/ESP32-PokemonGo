@@ -1300,9 +1300,6 @@ static bool loaded_party_valid(const save_t *saved)
             if (mon[0] < 1 || mon[0] > BOX_SPECIES || mon[1] < 1 || mon[1] > LEVEL_MAX)
                 return false;
             if (i >= PARTY_MAX) {
-                // party_deserialize relocates valid box IDs and drops invalid
-                // ones; reject either case before those bytes can be rewritten.
-                if (mon[0] != i - PARTY_MAX + 1) return false;
                 box_count++;
             }
         }
@@ -1726,10 +1723,11 @@ world_switch_result_t world_box_exchange(uint8_t slot,const mon_t *outgoing,cons
  if(!lock_encounter_change())return WORLD_SWITCH_STORAGE_UNAVAILABLE;
  if(!s_storage_ready||s_starter_pending){unlock_encounter_change();return WORLD_SWITCH_STORAGE_UNAVAILABLE;}
  if(s_active.encounter.uid||s_challenge.session.active||s_challenge.league_active){unlock_encounter_change();return WORLD_SWITCH_BUSY;}
+ int box_slot=party_box_match(&s_party,&in);
  mon_t actual=slot?s_party.party[slot]:leader_view_locked();
- if(slot>=s_party.party_count||memcmp(&old,&actual,sizeof(old))||memcmp(&in,&s_party.box[in.species_id-1],sizeof(in))){unlock_encounter_change();return WORLD_SWITCH_STALE;}
- collect_save_locked(&s_save_buf);s_starter_party=s_party;
- if(!party_exchange(&s_starter_party,slot,in.species_id)){unlock_encounter_change();return WORLD_SWITCH_INVALID;}
+ if(slot>=s_party.party_count||memcmp(&old,&actual,sizeof(old))||box_slot<0){unlock_encounter_change();return WORLD_SWITCH_STALE;}
+ collect_save_locked(&s_save_buf);s_starter_party=s_party;s_starter_party.party[slot]=actual;
+ if(!party_exchange_at(&s_starter_party,slot,box_slot)){unlock_encounter_change();return WORLD_SWITCH_INVALID;}
  normalize_party_exp(&s_starter_party);mon_t next=s_starter_party.party[0];
  party_serialize(&s_starter_party,s_save_buf.party);s_save_buf.species=next.species_id;s_save_buf.level=next.level;s_save_buf.exp=next.exp;
  if(!slot)s_save_buf.pet.intimacy=next.intimacy*NURT_Q;

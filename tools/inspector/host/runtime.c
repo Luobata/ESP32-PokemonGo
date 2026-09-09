@@ -884,9 +884,10 @@ world_switch_result_t world_box_exchange(uint8_t slot,const mon_t *outgoing,cons
  if(!outgoing||!incoming||slot>=party.party_count||incoming->species_id<1||incoming->species_id>BOX_SPECIES)return WORLD_SWITCH_INVALID;
  if(active_valid||challenge.session.active||challenge.league_active)return WORLD_SWITCH_BUSY;
  world_party_t v;world_party_snapshot(&v);
- if(memcmp(outgoing,&v.members[slot],sizeof(mon_t))||memcmp(incoming,&party.box[incoming->species_id-1],sizeof(mon_t)))return WORLD_SWITCH_STALE;
+ int box_slot=party_box_match(&party,incoming);
+ if(memcmp(outgoing,&v.members[slot],sizeof(mon_t))||box_slot<0)return WORLD_SWITCH_STALE;
  party_t next=party;memcpy(next.party,v.members,sizeof(next.party));
- if(!party_exchange(&next,slot,incoming->species_id))return WORLD_SWITCH_INVALID;
+ if(!party_exchange_at(&next,slot,box_slot))return WORLD_SWITCH_INVALID;
  normalize_party_exp(&next);if(host_save_fails())return WORLD_SWITCH_SAVE_FAILED;
  party=next;world.species=party.party[0].species_id;world.level=party.party[0].level;world.exp=party.party[0].exp;
  if(!slot){world.pet.intimacy=party.party[0].intimacy*NURT_Q;world.explore_value=party.party[0].explore_value;}

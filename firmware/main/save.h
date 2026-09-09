@@ -42,7 +42,7 @@
 
 // 存档版本。**加字段时必须 +1** —— load 会拒绝不认识的版本，
 // 那比读到错位的字段好（错位不报错，只是数值离谱）。
-#define SAVE_VERSION 11
+#define SAVE_VERSION 12
 #define SAVE_LEGACY_VERSION 5
 
 typedef struct {
@@ -56,7 +56,7 @@ typedef struct {
     uint8_t level;
     uint32_t exp;
 
-    // 队伍 6 格 + 按物种索引的仓库 151 格，布局由 party.c 统一编解码。
+    // 队伍 6 格 + 仓库 151 格（V12起按实际格子保留同类），布局由 party.c 统一编解码。
     uint8_t party[PARTY_BYTES];
 
     // 遭遇队列（S1）与图鉴（S5/S8）
