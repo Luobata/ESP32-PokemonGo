@@ -1,0 +1,2 @@
+# Offline extraction only; firmware and preview server do not require PyBoy.
+pyboy==2.7.0

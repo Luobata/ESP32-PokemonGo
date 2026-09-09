@@ -8,8 +8,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "PALM",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 2,
@@ -20,8 +20,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "PALM",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 3,
@@ -32,8 +32,8 @@
     "effect": "EFFECT_MULTI_HIT",
     "chance": 0,
     "new": false,
-    "animation": "PALM",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 4,
@@ -44,8 +44,8 @@
     "effect": "EFFECT_MULTI_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 5,
@@ -56,8 +56,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 6,
@@ -68,8 +68,8 @@
     "effect": "EFFECT_PAY_DAY",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 7,
@@ -80,8 +80,8 @@
     "effect": "EFFECT_BURN_HIT",
     "chance": 10,
     "new": false,
-    "animation": "FIRE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 8,
@@ -92,8 +92,8 @@
     "effect": "EFFECT_FREEZE_HIT",
     "chance": 10,
     "new": false,
-    "animation": "ICE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 9,
@@ -104,8 +104,8 @@
     "effect": "EFFECT_PARALYZE_HIT",
     "chance": 10,
     "new": false,
-    "animation": "ELECTRIC",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 10,
@@ -116,8 +116,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "CUT",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 11,
@@ -128,8 +128,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 12,
@@ -140,8 +140,8 @@
     "effect": "EFFECT_OHKO",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 13,
@@ -152,8 +152,8 @@
     "effect": "EFFECT_RAZOR_WIND",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 14,
@@ -164,8 +164,8 @@
     "effect": "EFFECT_ATTACK_UP_2",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 15,
@@ -176,8 +176,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 16,
@@ -188,8 +188,8 @@
     "effect": "EFFECT_GUST",
     "chance": 0,
     "new": false,
-    "animation": "WIND",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 17,
@@ -200,8 +200,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "WIND",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 18,
@@ -212,8 +212,8 @@
     "effect": "EFFECT_FORCE_SWITCH",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 19,
@@ -224,8 +224,8 @@
     "effect": "EFFECT_FLY",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 20,
@@ -236,8 +236,8 @@
     "effect": "EFFECT_TRAP_TARGET",
     "chance": 0,
     "new": false,
-    "animation": "BIND",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 21,
@@ -248,8 +248,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 22,
@@ -260,8 +260,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "WHIP",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 23,
@@ -272,8 +272,8 @@
     "effect": "EFFECT_STOMP",
     "chance": 30,
     "new": false,
-    "animation": "KICK",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 24,
@@ -284,8 +284,8 @@
     "effect": "EFFECT_DOUBLE_HIT",
     "chance": 0,
     "new": false,
-    "animation": "KICK",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 25,
@@ -296,8 +296,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 26,
@@ -308,8 +308,8 @@
     "effect": "EFFECT_JUMP_KICK",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 27,
@@ -320,8 +320,8 @@
     "effect": "EFFECT_FLINCH_HIT",
     "chance": 30,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 28,
@@ -332,8 +332,8 @@
     "effect": "EFFECT_ACCURACY_DOWN",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 29,
@@ -344,8 +344,8 @@
     "effect": "EFFECT_FLINCH_HIT",
     "chance": 30,
     "new": false,
-    "animation": "LUNGE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 30,
@@ -356,8 +356,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "HORN",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 31,
@@ -368,8 +368,8 @@
     "effect": "EFFECT_MULTI_HIT",
     "chance": 0,
     "new": false,
-    "animation": "HORN",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 32,
@@ -380,8 +380,8 @@
     "effect": "EFFECT_OHKO",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 33,
@@ -392,8 +392,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "LUNGE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 34,
@@ -404,8 +404,8 @@
     "effect": "EFFECT_PARALYZE_HIT",
     "chance": 30,
     "new": false,
-    "animation": "LUNGE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 35,
@@ -416,8 +416,8 @@
     "effect": "EFFECT_TRAP_TARGET",
     "chance": 0,
     "new": false,
-    "animation": "BIND",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 36,
@@ -428,8 +428,8 @@
     "effect": "EFFECT_RECOIL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 37,
@@ -440,8 +440,8 @@
     "effect": "EFFECT_RAMPAGE",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 38,
@@ -452,8 +452,8 @@
     "effect": "EFFECT_RECOIL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 39,
@@ -464,8 +464,8 @@
     "effect": "EFFECT_DEFENSE_DOWN",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 40,
@@ -476,8 +476,8 @@
     "effect": "EFFECT_POISON_HIT",
     "chance": 30,
     "new": false,
-    "animation": "NEEDLE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 41,
@@ -488,8 +488,8 @@
     "effect": "EFFECT_POISON_MULTI_HIT",
     "chance": 20,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 42,
@@ -500,8 +500,8 @@
     "effect": "EFFECT_MULTI_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 43,
@@ -512,8 +512,8 @@
     "effect": "EFFECT_DEFENSE_DOWN",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 44,
@@ -524,8 +524,8 @@
     "effect": "EFFECT_FLINCH_HIT",
     "chance": 30,
     "new": false,
-    "animation": "BITE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 45,
@@ -536,8 +536,8 @@
     "effect": "EFFECT_ATTACK_DOWN",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 46,
@@ -548,8 +548,8 @@
     "effect": "EFFECT_FORCE_SWITCH",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 47,
@@ -560,8 +560,8 @@
     "effect": "EFFECT_SLEEP",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 48,
@@ -572,8 +572,8 @@
     "effect": "EFFECT_CONFUSE",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 49,
@@ -584,8 +584,8 @@
     "effect": "EFFECT_STATIC_DAMAGE",
     "chance": 0,
     "new": false,
-    "animation": "SONIC_BOOM",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 50,
@@ -596,8 +596,8 @@
     "effect": "EFFECT_DISABLE",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 51,
@@ -608,8 +608,8 @@
     "effect": "EFFECT_DEFENSE_DOWN_HIT",
     "chance": 10,
     "new": false,
-    "animation": "POISON",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 52,
@@ -620,8 +620,8 @@
     "effect": "EFFECT_BURN_HIT",
     "chance": 10,
     "new": false,
-    "animation": "FIRE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 53,
@@ -632,8 +632,8 @@
     "effect": "EFFECT_BURN_HIT",
     "chance": 10,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 54,
@@ -644,8 +644,8 @@
     "effect": "EFFECT_MIST",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 55,
@@ -656,8 +656,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "WATER",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 56,
@@ -668,8 +668,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "HYDRO_PUMP",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 57,
@@ -680,8 +680,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "SURF",
-    "animation_note": "参照金银脚本：浪面上升、停留、回落（时序适配）"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 58,
@@ -692,8 +692,8 @@
     "effect": "EFFECT_FREEZE_HIT",
     "chance": 10,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 59,
@@ -704,8 +704,8 @@
     "effect": "EFFECT_FREEZE_HIT",
     "chance": 10,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 60,
@@ -716,8 +716,8 @@
     "effect": "EFFECT_CONFUSE_HIT",
     "chance": 10,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 61,
@@ -728,8 +728,8 @@
     "effect": "EFFECT_SPEED_DOWN_HIT",
     "chance": 10,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 62,
@@ -740,8 +740,8 @@
     "effect": "EFFECT_ATTACK_DOWN_HIT",
     "chance": 10,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 63,
@@ -752,8 +752,8 @@
     "effect": "EFFECT_HYPER_BEAM",
     "chance": 0,
     "new": false,
-    "animation": "HYPER_BEAM",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 64,
@@ -764,8 +764,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "HORN",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 65,
@@ -776,8 +776,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "HORN",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 66,
@@ -788,8 +788,8 @@
     "effect": "EFFECT_RECOIL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 67,
@@ -800,8 +800,8 @@
     "effect": "EFFECT_FLINCH_HIT",
     "chance": 30,
     "new": false,
-    "animation": "KICK",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 68,
@@ -812,8 +812,8 @@
     "effect": "EFFECT_COUNTER",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 69,
@@ -824,8 +824,8 @@
     "effect": "EFFECT_LEVEL_DAMAGE",
     "chance": 0,
     "new": false,
-    "animation": "SEISMIC_TOSS",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 70,
@@ -836,8 +836,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 71,
@@ -848,8 +848,8 @@
     "effect": "EFFECT_LEECH_HIT",
     "chance": 0,
     "new": false,
-    "animation": "DRAIN",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 72,
@@ -860,8 +860,8 @@
     "effect": "EFFECT_LEECH_HIT",
     "chance": 0,
     "new": false,
-    "animation": "DRAIN",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 73,
@@ -872,8 +872,8 @@
     "effect": "EFFECT_LEECH_SEED",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 74,
@@ -884,8 +884,8 @@
     "effect": "EFFECT_SP_ATK_UP",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 75,
@@ -896,8 +896,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "LEAF",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 76,
@@ -908,8 +908,8 @@
     "effect": "EFFECT_SOLARBEAM",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 77,
@@ -920,8 +920,8 @@
     "effect": "EFFECT_POISON",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 78,
@@ -932,8 +932,8 @@
     "effect": "EFFECT_PARALYZE",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 79,
@@ -944,8 +944,8 @@
     "effect": "EFFECT_SLEEP",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 80,
@@ -956,8 +956,8 @@
     "effect": "EFFECT_RAMPAGE",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 81,
@@ -968,8 +968,8 @@
     "effect": "EFFECT_SPEED_DOWN",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 82,
@@ -980,8 +980,8 @@
     "effect": "EFFECT_STATIC_DAMAGE",
     "chance": 0,
     "new": false,
-    "animation": "DRAGON_RAGE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 83,
@@ -992,8 +992,8 @@
     "effect": "EFFECT_TRAP_TARGET",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 84,
@@ -1004,8 +1004,8 @@
     "effect": "EFFECT_PARALYZE_HIT",
     "chance": 10,
     "new": false,
-    "animation": "ELECTRIC",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 85,
@@ -1016,8 +1016,8 @@
     "effect": "EFFECT_PARALYZE_HIT",
     "chance": 10,
     "new": false,
-    "animation": "ELECTRIC",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 86,
@@ -1028,8 +1028,8 @@
     "effect": "EFFECT_PARALYZE",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 87,
@@ -1040,8 +1040,8 @@
     "effect": "EFFECT_THUNDER",
     "chance": 30,
     "new": false,
-    "animation": "THUNDER",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 88,
@@ -1052,8 +1052,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "ROCK",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 89,
@@ -1064,8 +1064,8 @@
     "effect": "EFFECT_EARTHQUAKE",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 90,
@@ -1076,8 +1076,8 @@
     "effect": "EFFECT_OHKO",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 91,
@@ -1088,8 +1088,8 @@
     "effect": "EFFECT_FLY",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 92,
@@ -1100,8 +1100,8 @@
     "effect": "EFFECT_TOXIC",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 93,
@@ -1112,8 +1112,8 @@
     "effect": "EFFECT_CONFUSE_HIT",
     "chance": 10,
     "new": false,
-    "animation": "PSYCHIC",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 94,
@@ -1124,8 +1124,8 @@
     "effect": "EFFECT_SP_DEF_DOWN_HIT",
     "chance": 10,
     "new": false,
-    "animation": "PSYCHIC",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 95,
@@ -1136,8 +1136,8 @@
     "effect": "EFFECT_SLEEP",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 96,
@@ -1148,8 +1148,8 @@
     "effect": "EFFECT_ATTACK_UP",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 97,
@@ -1160,8 +1160,8 @@
     "effect": "EFFECT_SPEED_UP_2",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 98,
@@ -1172,8 +1172,8 @@
     "effect": "EFFECT_PRIORITY_HIT",
     "chance": 0,
     "new": false,
-    "animation": "LUNGE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 99,
@@ -1184,8 +1184,8 @@
     "effect": "EFFECT_RAGE",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 100,
@@ -1196,8 +1196,8 @@
     "effect": "EFFECT_TELEPORT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 101,
@@ -1208,8 +1208,8 @@
     "effect": "EFFECT_LEVEL_DAMAGE",
     "chance": 0,
     "new": false,
-    "animation": "NIGHT_SHADE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 102,
@@ -1220,8 +1220,8 @@
     "effect": "EFFECT_MIMIC",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 103,
@@ -1232,8 +1232,8 @@
     "effect": "EFFECT_DEFENSE_DOWN_2",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 104,
@@ -1244,8 +1244,8 @@
     "effect": "EFFECT_EVASION_UP",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 105,
@@ -1256,8 +1256,8 @@
     "effect": "EFFECT_HEAL",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 106,
@@ -1268,8 +1268,8 @@
     "effect": "EFFECT_DEFENSE_UP",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 107,
@@ -1280,8 +1280,8 @@
     "effect": "EFFECT_EVASION_UP",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 108,
@@ -1292,8 +1292,8 @@
     "effect": "EFFECT_ACCURACY_DOWN",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 109,
@@ -1304,8 +1304,8 @@
     "effect": "EFFECT_CONFUSE",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 110,
@@ -1316,8 +1316,8 @@
     "effect": "EFFECT_DEFENSE_UP",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 111,
@@ -1328,8 +1328,8 @@
     "effect": "EFFECT_DEFENSE_CURL",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 112,
@@ -1340,8 +1340,8 @@
     "effect": "EFFECT_DEFENSE_UP_2",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 113,
@@ -1352,8 +1352,8 @@
     "effect": "EFFECT_LIGHT_SCREEN",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 114,
@@ -1364,8 +1364,8 @@
     "effect": "EFFECT_RESET_STATS",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 115,
@@ -1376,8 +1376,8 @@
     "effect": "EFFECT_REFLECT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 116,
@@ -1388,8 +1388,8 @@
     "effect": "EFFECT_FOCUS_ENERGY",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 117,
@@ -1400,8 +1400,8 @@
     "effect": "EFFECT_BIDE",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 118,
@@ -1412,8 +1412,8 @@
     "effect": "EFFECT_METRONOME",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 119,
@@ -1424,8 +1424,8 @@
     "effect": "EFFECT_MIRROR_MOVE",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 120,
@@ -1436,8 +1436,8 @@
     "effect": "EFFECT_SELFDESTRUCT",
     "chance": 0,
     "new": false,
-    "animation": "EXPLOSION",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 121,
@@ -1448,8 +1448,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 122,
@@ -1460,8 +1460,8 @@
     "effect": "EFFECT_PARALYZE_HIT",
     "chance": 30,
     "new": false,
-    "animation": "LICK",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 123,
@@ -1472,8 +1472,8 @@
     "effect": "EFFECT_POISON_HIT",
     "chance": 40,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 124,
@@ -1484,8 +1484,8 @@
     "effect": "EFFECT_POISON_HIT",
     "chance": 30,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 125,
@@ -1496,8 +1496,8 @@
     "effect": "EFFECT_FLINCH_HIT",
     "chance": 10,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 126,
@@ -1508,8 +1508,8 @@
     "effect": "EFFECT_BURN_HIT",
     "chance": 10,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 127,
@@ -1520,8 +1520,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 128,
@@ -1532,8 +1532,8 @@
     "effect": "EFFECT_TRAP_TARGET",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 129,
@@ -1544,8 +1544,8 @@
     "effect": "EFFECT_ALWAYS_HIT",
     "chance": 0,
     "new": false,
-    "animation": "STARS",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 130,
@@ -1556,8 +1556,8 @@
     "effect": "EFFECT_SKULL_BASH",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 131,
@@ -1568,8 +1568,8 @@
     "effect": "EFFECT_MULTI_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 132,
@@ -1580,8 +1580,8 @@
     "effect": "EFFECT_SPEED_DOWN_HIT",
     "chance": 10,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 133,
@@ -1592,8 +1592,8 @@
     "effect": "EFFECT_SP_DEF_UP_2",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 134,
@@ -1604,8 +1604,8 @@
     "effect": "EFFECT_ACCURACY_DOWN",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 135,
@@ -1616,8 +1616,8 @@
     "effect": "EFFECT_HEAL",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 136,
@@ -1628,8 +1628,8 @@
     "effect": "EFFECT_JUMP_KICK",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 137,
@@ -1640,8 +1640,8 @@
     "effect": "EFFECT_PARALYZE",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 138,
@@ -1652,8 +1652,8 @@
     "effect": "EFFECT_DREAM_EATER",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 139,
@@ -1664,8 +1664,8 @@
     "effect": "EFFECT_POISON",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 140,
@@ -1676,8 +1676,8 @@
     "effect": "EFFECT_MULTI_HIT",
     "chance": 0,
     "new": false,
-    "animation": "ORB",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 141,
@@ -1688,8 +1688,8 @@
     "effect": "EFFECT_LEECH_HIT",
     "chance": 0,
     "new": false,
-    "animation": "DRAIN",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 142,
@@ -1700,8 +1700,8 @@
     "effect": "EFFECT_SLEEP",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 143,
@@ -1712,8 +1712,8 @@
     "effect": "EFFECT_SKY_ATTACK",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 144,
@@ -1724,8 +1724,8 @@
     "effect": "EFFECT_TRANSFORM",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 145,
@@ -1736,8 +1736,8 @@
     "effect": "EFFECT_SPEED_DOWN_HIT",
     "chance": 10,
     "new": false,
-    "animation": "BUBBLE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 146,
@@ -1748,8 +1748,8 @@
     "effect": "EFFECT_CONFUSE_HIT",
     "chance": 20,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 147,
@@ -1760,8 +1760,8 @@
     "effect": "EFFECT_SLEEP",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 148,
@@ -1772,8 +1772,8 @@
     "effect": "EFFECT_ACCURACY_DOWN",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 149,
@@ -1784,8 +1784,8 @@
     "effect": "EFFECT_PSYWAVE",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 150,
@@ -1796,8 +1796,8 @@
     "effect": "EFFECT_SPLASH",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 151,
@@ -1808,8 +1808,8 @@
     "effect": "EFFECT_DEFENSE_UP_2",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 152,
@@ -1820,8 +1820,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 153,
@@ -1832,8 +1832,8 @@
     "effect": "EFFECT_SELFDESTRUCT",
     "chance": 0,
     "new": false,
-    "animation": "EXPLOSION",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 154,
@@ -1844,8 +1844,8 @@
     "effect": "EFFECT_MULTI_HIT",
     "chance": 0,
     "new": false,
-    "animation": "MULTICUT",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 155,
@@ -1856,8 +1856,8 @@
     "effect": "EFFECT_DOUBLE_HIT",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 156,
@@ -1868,8 +1868,8 @@
     "effect": "EFFECT_HEAL",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 157,
@@ -1880,8 +1880,8 @@
     "effect": "EFFECT_FLINCH_HIT",
     "chance": 30,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 158,
@@ -1892,8 +1892,8 @@
     "effect": "EFFECT_FLINCH_HIT",
     "chance": 10,
     "new": false,
-    "animation": "BITE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 159,
@@ -1904,8 +1904,8 @@
     "effect": "EFFECT_ATTACK_UP",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 160,
@@ -1916,8 +1916,8 @@
     "effect": "EFFECT_CONVERSION",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 161,
@@ -1928,8 +1928,8 @@
     "effect": "EFFECT_TRI_ATTACK",
     "chance": 20,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 162,
@@ -1940,8 +1940,8 @@
     "effect": "EFFECT_SUPER_FANG",
     "chance": 0,
     "new": false,
-    "animation": "SUPER_FANG",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 163,
@@ -1952,8 +1952,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "CUT",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 164,
@@ -1964,8 +1964,8 @@
     "effect": "EFFECT_SUBSTITUTE",
     "chance": 0,
     "new": false,
-    "animation": "属性/状态共用动画",
-    "animation_note": "属性/状态通用演出，未还原该招原版脚本"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 165,
@@ -1976,8 +1976,8 @@
     "effect": "EFFECT_RECOIL_HIT",
     "chance": 0,
     "new": false,
-    "animation": "IMPACT",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 172,
@@ -1988,8 +1988,8 @@
     "effect": "EFFECT_FLAME_WHEEL",
     "chance": 10,
     "new": true,
-    "animation": "FIRE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 181,
@@ -2000,8 +2000,8 @@
     "effect": "EFFECT_FREEZE_HIT",
     "chance": 10,
     "new": true,
-    "animation": "ICE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 183,
@@ -2012,8 +2012,8 @@
     "effect": "EFFECT_PRIORITY_HIT",
     "chance": 0,
     "new": true,
-    "animation": "PALM",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 185,
@@ -2024,8 +2024,8 @@
     "effect": "EFFECT_ALWAYS_HIT",
     "chance": 0,
     "new": true,
-    "animation": "LUNGE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 186,
@@ -2036,8 +2036,8 @@
     "effect": "EFFECT_CONFUSE",
     "chance": 0,
     "new": true,
-    "animation": "PSYCHIC",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 188,
@@ -2048,8 +2048,8 @@
     "effect": "EFFECT_POISON_HIT",
     "chance": 30,
     "new": true,
-    "animation": "POISON",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 189,
@@ -2060,8 +2060,8 @@
     "effect": "EFFECT_ACCURACY_DOWN_HIT",
     "chance": 100,
     "new": true,
-    "animation": "GROUND",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 192,
@@ -2072,8 +2072,8 @@
     "effect": "EFFECT_PARALYZE_HIT",
     "chance": 100,
     "new": true,
-    "animation": "THUNDER",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 196,
@@ -2084,8 +2084,8 @@
     "effect": "EFFECT_SPEED_DOWN_HIT",
     "chance": 100,
     "new": true,
-    "animation": "ICE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 198,
@@ -2096,8 +2096,8 @@
     "effect": "EFFECT_MULTI_HIT",
     "chance": 0,
     "new": true,
-    "animation": "MULTICUT",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 200,
@@ -2108,8 +2108,8 @@
     "effect": "EFFECT_RAMPAGE",
     "chance": 0,
     "new": true,
-    "animation": "DRAGON_RAGE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 202,
@@ -2120,8 +2120,8 @@
     "effect": "EFFECT_LEECH_HIT",
     "chance": 0,
     "new": true,
-    "animation": "DRAIN",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 204,
@@ -2132,8 +2132,8 @@
     "effect": "EFFECT_ATTACK_DOWN_2",
     "chance": 0,
     "new": true,
-    "animation": "PSYCHIC",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 206,
@@ -2144,8 +2144,8 @@
     "effect": "EFFECT_FALSE_SWIPE",
     "chance": 0,
     "new": true,
-    "animation": "CUT",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 211,
@@ -2156,8 +2156,8 @@
     "effect": "EFFECT_DEFENSE_UP_HIT",
     "chance": 10,
     "new": true,
-    "animation": "WIND",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 223,
@@ -2168,8 +2168,8 @@
     "effect": "EFFECT_CONFUSE_HIT",
     "chance": 100,
     "new": true,
-    "animation": "PALM",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 225,
@@ -2180,8 +2180,8 @@
     "effect": "EFFECT_PARALYZE_HIT",
     "chance": 30,
     "new": true,
-    "animation": "DRAGON",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 231,
@@ -2192,8 +2192,8 @@
     "effect": "EFFECT_DEFENSE_DOWN_HIT",
     "chance": 30,
     "new": true,
-    "animation": "WHIP",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 238,
@@ -2204,8 +2204,8 @@
     "effect": "EFFECT_NORMAL_HIT",
     "chance": 0,
     "new": true,
-    "animation": "CUT",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 239,
@@ -2216,8 +2216,8 @@
     "effect": "EFFECT_TWISTER",
     "chance": 20,
     "new": true,
-    "animation": "WIND",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 242,
@@ -2228,8 +2228,8 @@
     "effect": "EFFECT_SP_DEF_DOWN_HIT",
     "chance": 20,
     "new": true,
-    "animation": "BITE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 245,
@@ -2240,8 +2240,8 @@
     "effect": "EFFECT_PRIORITY_HIT",
     "chance": 0,
     "new": true,
-    "animation": "LUNGE",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 246,
@@ -2252,8 +2252,8 @@
     "effect": "EFFECT_ALL_UP_HIT",
     "chance": 10,
     "new": true,
-    "animation": "ROCK",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 247,
@@ -2264,8 +2264,8 @@
     "effect": "EFFECT_SP_DEF_DOWN_HIT",
     "chance": 20,
     "new": true,
-    "animation": "ORB",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 249,
@@ -2276,8 +2276,8 @@
     "effect": "EFFECT_DEFENSE_DOWN_HIT",
     "chance": 50,
     "new": true,
-    "animation": "PALM",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
     "id": 250,
@@ -2288,7 +2288,7 @@
     "effect": "EFFECT_TRAP_TARGET",
     "chance": 0,
     "new": false,
-    "animation": "BIND",
-    "animation_note": "项目适配动作，尚未逐帧对齐原版"
+    "animation": "GOLD_TRACK",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   }
 ]

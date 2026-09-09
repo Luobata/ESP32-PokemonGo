@@ -1,12 +1,13 @@
 // Shared, integer-only move presentation. The gameplay result remains read-only.
-// Timing/trajectories are this project's short adaptations, not GSC emulation.
+// Gold machine-code display tracks are sampled offline; portrait compositing
+// and non-hit fallbacks are adaptations, not a full Game Boy renderer.
 #pragma once
 
 #include <stdbool.h>
 #include <stdint.h>
 #include "battle.h"
 
-#define BATTLE_FX_TICK_MS 90
+#define BATTLE_FX_TICK_MS 45
 
 typedef struct {
     int16_t x, y, w, h;   // Absolute unshifted display bounds; wild uses its visible bbox.
@@ -15,6 +16,19 @@ typedef struct {
 typedef struct {
     int16_t pet_dx, wild_dx;
 } battle_fx_pose_t;
+
+typedef struct {
+    const uint8_t *data;
+    uint8_t w, h;
+    uint16_t palette[4];
+} battle_fx_actor_t;
+
+// Full-scene entry point for source-derived animation tracks, including
+// actor tile masks and background motion. Null actors are valid in FX tests.
+void battle_fx_draw_scene_band(const battle_round_t *round, uint8_t frame, int band_y,
+                               battle_fx_rect_t pet, battle_fx_rect_t wild,
+                               const battle_fx_actor_t *pet_art,
+                               const battle_fx_actor_t *wild_art);
 
 // Stable styles are exposed for diagnostics, not stored in saves.
 typedef enum {
@@ -41,6 +55,7 @@ bool battle_fx_actor_visible(const battle_round_t *round, uint8_t frame, bool pe
 // Frame 0..N-1, one frame every BATTLE_FX_TICK_MS. Last two frames are clean
 // (zero displacement and no overlay); replay them to remove the previous pose.
 uint8_t battle_fx_frames(const battle_round_t *round);
+uint8_t battle_fx_hit_frame(const battle_round_t *round);
 battle_fx_pose_t battle_fx_pose(const battle_round_t *round, uint8_t frame);
 
 // Use the same unshifted bounds for the actor and draw_band(). Pet movement

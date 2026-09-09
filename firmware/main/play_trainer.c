@@ -73,7 +73,7 @@ static void hall(int y){
 static uint16_t visible_hp(unsigned side){
  trainer_mon_t *m=mon(side);
  if(s_mode!=FIGHT || (s_event.kind!=TRAINER_ATTACK&&s_event.kind!=TRAINER_STATUS))return m->hp;
- unsigned hit=battle_presentation_hit_frame(battle_fx_frames(&s_event.attack));
+ unsigned hit=battle_fx_hit_frame(&s_event.attack);
  if(s_frame<=hit)return s_event.before_hp[side];
  unsigned n=s_frame-hit;
  if(n>BATTLE_PRESENTATION_HP_FRAMES)n=BATTLE_PRESENTATION_HP_FRAMES;
@@ -116,7 +116,19 @@ static void battle_stage(int y){
  battle_hud_draw_hp(rectangle,&y,120,196,4,2,BATTLE_HUD_PET,visible_hp(0),p->max_hp,GAME_UI_BG);
  snprintf(text,sizeof(text),"%u/%u",visible_hp(0),p->max_hp);
  render_text(232-render_text_width(text),216-y,text,GAME_UI_INK);
- if(s_mode==FIGHT&&(s_event.kind==TRAINER_ATTACK||s_event.kind==TRAINER_STATUS))battle_fx_draw_band(&s_event.attack,s_frame,y,pet,wild);
+ if(s_mode==FIGHT&&(s_event.kind==TRAINER_ATTACK||s_event.kind==TRAINER_STATUS)){
+  battle_fx_actor_t pa={0},wa={.data=front,.w=size,.h=size};
+  sprite_asset_t back_art;species_t art_sp;
+  if(assets_back_sprite_info(p->transform_species?p->transform_species:p->species,&back_art)){
+   pa.data=back_art.data;pa.w=back_art.w;pa.h=back_art.h;
+   if(assets_species(p->transform_species?p->transform_species:p->species,&art_sp)){
+    unsigned slot=s_store.session.sides[0].active;
+    assets_palette_variant(art_sp.palette,slot<s_campaign_party.count&&(s_campaign_party.members[slot].flags&1),pa.palette);
+   }
+  }
+  if(assets_species(e->transform_species?e->transform_species:e->species,&art_sp))assets_palette_variant(art_sp.palette,false,wa.palette);
+  battle_fx_draw_scene_band(&s_event.attack,s_frame,y,pet,wild,&pa,&wa);
+ }
  battle_hud_draw_message_box(rectangle,&y,0,240,15,5,2,GAME_UI_BG);
  if(s_failed){game_ui_text_fitted(y,16,256,208,"保存失败 按A重试",GAME_UI_INK);}
  else if(s_mode==FIGHT){
@@ -198,6 +210,8 @@ static void next_action(void){
 }
 static void tick(lv_timer_t *t){
  (void)t;
+ static unsigned slow_phase;
+ if(s_mode!=FIGHT&&++slow_phase%2)return;
  if(s_failed||screen_idle_is_off())return;
  if(s_mode==INTRO){if(++s_frame>=18)sendout(3);else draw_all();}
  else if(s_mode==SENDOUT){
@@ -205,12 +219,12 @@ static void tick(lv_timer_t *t){
   if(++s_hold>=24)next_action();else draw_all();
  }else if(s_mode==FIGHT){
   unsigned frames=battle_fx_frames(&s_event.attack);
-  unsigned hit=battle_presentation_hit_frame(frames),hp_end=hit+BATTLE_PRESENTATION_HP_FRAMES+1;
+  unsigned hit=battle_fx_hit_frame(&s_event.attack),hp_end=hit+BATTLE_PRESENTATION_HP_FRAMES+1;
   if(frames<hp_end)frames=hp_end;
   if(s_frame+1<frames){s_frame++;
  if(s_event.kind==TRAINER_ATTACK&&s_frame==hit)sfx_move(s_event.attack.move_id,s_event.attack.move_type,s_event.attack.missed);
  draw_all();}
-  else if(++s_hold>=8)next_action();
+  else if(++s_hold>=16)next_action();
  }
 }
 void play_trainer_enter(void){
@@ -219,7 +233,7 @@ void play_trainer_enter(void){
  if(s_store.session.finished)result();}
  else{s_mode=HALL;for(unsigned i=0;i<TRAINER_COUNT;i++)if(trainer_unlocked(&s_store,i)&&!(s_store.defeated&(1u<<i))){s_selected=i;break;}}
  if(s_mode!=RESULT)music_director_play(s_store.session.active?MUSIC_ENCOUNTER:MUSIC_GYM);
- screen_set_redraw(draw_all);draw_all();s_tick=lv_timer_create(tick,90,NULL);
+ screen_set_redraw(draw_all);draw_all();s_tick=lv_timer_create(tick,BATTLE_FX_TICK_MS,NULL);
 }
 void play_trainer_exit(void){if(s_tick){lv_timer_delete(s_tick);s_tick=NULL;}}
 bool play_trainer_screen_busy(void){return !s_failed&&(s_mode==INTRO||s_mode==SENDOUT||s_mode==FIGHT);}

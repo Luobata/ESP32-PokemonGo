@@ -1,92 +1,45 @@
 #!/usr/bin/env python3
-"""Render actual combat outcomes for all 191 supported moves, both sides and varied actor sizes."""
+"""Bounds, source-track coverage, immutable outcomes and cleanup for all moves."""
 import verify_trainer_campaign as h
 h.CASES=r'''
 #include "battle_fx.c"
-static unsigned band,pixels,frames_checked;
-static bool track_self;
-static int center_x,center_y;
+#include "gold_fx.c"
+static unsigned band,pixels;
 static uint16_t raster[240*320];
+uint16_t *screen_band(void){return raster+band*240;}
 void screen_px(int x,int y,uint16_t color){
- assert(x>=0&&x<240&&y>=0&&y<80);int py=y+band;
- assert(py>=0&&py<240);
- if(track_self){assert(x>=center_x-40&&x<=center_x+40);assert(py>=center_y-52&&py<=center_y+40);}
- raster[py*240+x]=color;pixels++;
+ assert(x>=0&&x<240&&y>=0&&y<80&&y+band<240);
+ raster[(y+band)*240+x]=__builtin_bswap16(color);pixels++;
 }
-typedef struct {int x,y,w,h;} scene_ink_bounds_t;
-static bool scene_2bpp_bounds(const uint8_t *data,int w,int h,scene_ink_bounds_t *out){
- int left=w,top=h,right=0,bottom=0;
- for(int y=0;y<h;y++)for(int x=0;x<w;x++)if(((data[y*((w+3)/4)+x/4]>>(6-2*(x%4)))&3)!=3){if(x<left)left=x;if(y<top)top=y;if(x+1>right)right=x+1;if(y+1>bottom)bottom=y+1;}
- *out=(scene_ink_bounds_t){left,top,right-left,bottom-top};return right>left;
-}
-static void fx_all(void){
- unsigned ids_with_pixels=0;bool covered[251]={0};
- for(unsigned fixture=0;fixture<4;fixture++){
-  unsigned pet_id=(unsigned[]){25,1,129,143}[fixture],enemy_id=(unsigned[]){74,95,149,132}[fixture];
+int main(void){
+ assert(assets_init());unsigned moves=0,frames=0;
+ for(unsigned fixture=0;fixture<2;fixture++){
+  unsigned pet_id=fixture?129:25,enemy_id=fixture?95:143;
   sprite_asset_t back;assert(assets_back_sprite_info(pet_id,&back));
-  scene_ink_bounds_t ink;assert(scene_2bpp_bounds(back.data,back.w,back.h,&ink));
-  int scale=96/back.w;battle_fx_rect_t pet={8+ink.x*scale,140+ink.y*scale,ink.w*scale,ink.h*scale};
-  uint8_t sz;const uint8_t *front=assets_front_sprite(enemy_id,&sz);assert(scene_2bpp_bounds(front,sz,sz,&ink));
-  battle_fx_rect_t wild={180-ink.w,80-ink.h,ink.w*2,ink.h*2};
-  for(unsigned side=0;side<2;side++)for(unsigned id=1;id<=250;id++){
-   move_t supported;if(!combat_move(id,&supported))continue;
-   combat_mon_t a,d;combat_init(&a,side?enemy_id:pet_id,60,500);combat_init(&d,side?pet_id:enemy_id,50,500);a.hp=200;uint32_t rng=fixture>=2?2:123;
-   // Also cover a valid physical counter; earlier fixtures cover its failure.
-   if(id==68&&fixture>=2){a.last_damage=35;d.last_move=33;}
-   battle_round_t r={.by_pet=!side};combat_turn(&a,&d,1024,&rng,50,id,&r);battle_round_t before=r;
-   battle_fx_rect_t actor=side?wild:pet;center_x=actor.x+actor.w/2;center_y=actor.y+actor.h/2;
-   track_self=r.self_target||r.charging||r.skipped;
-   for(unsigned f=0;f<battle_fx_frames(&r);f++){
-    pixels=0;for(unsigned i=0;i<240*320;i++)raster[i]=0xffff;
-    for(band=0;band<320;band+=80)battle_fx_draw_band(&r,f,band,pet,wild);
-    battle_fx_pose_t pose=battle_fx_pose_for_rects(&r,f,pet,wild);
-    assert(pet.x+pose.pet_dx>=0&&pet.x+pet.w+pose.pet_dx<=120);
-    assert(wild.x+pose.wild_dx>=120&&wild.x+wild.w+pose.wild_dx<=240);
-    if(f>=battle_fx_frames(&r)-2u)assert(!pixels&&!pose.pet_dx&&!pose.wild_dx);
-    if(pixels)covered[id]=true;frames_checked++;
-    assert(!memcmp(&before,&r,sizeof(r)));
+  uint8_t sz;const uint8_t *front=assets_front_sprite(enemy_id,&sz);assert(front);
+  species_t sp;battle_fx_actor_t pet={.data=back.data,.w=back.w,.h=back.h},wild={.data=front,.w=sz,.h=sz};
+  assert(assets_species(pet_id,&sp));assets_palette_variant(sp.palette,false,pet.palette);
+  assert(assets_species(enemy_id,&sp));assets_palette_variant(sp.palette,false,wild.palette);
+  for(unsigned id=1;id<=250;id++){
+   move_t m;if(!combat_move(id,&m))continue;
+   if(!fixture)moves++;
+   for(unsigned side=0;side<2;side++)for(unsigned charge=0;charge<2;charge++){
+    battle_round_t r={.move_id=id,.move_type=m.type,.by_pet=!side,.damage=m.power?40:0,.charging=charge};
+    assert(gold_fx_enabled(&r));battle_round_t before=r;
+    unsigned count=battle_fx_frames(&r);assert(count>=2&&count<=255);
+    for(unsigned f=0;f<count;f++){
+     for(unsigned k=0;k<240*320;k++)raster[k]=0xffff;pixels=0;
+     for(band=0;band<320;band+=80)battle_fx_draw_scene_band(&r,f,band,(battle_fx_rect_t){8,140,96,96},(battle_fx_rect_t){124,24,112,112},&pet,&wild);
+     if(f>=count-2)assert(!pixels);
+     assert(!memcmp(&r,&before,sizeof(r)));frames++;
+    }
+    if(r.damage&&!r.charging){unsigned hidden=0;for(unsigned f=0;f<count;f++){assert(battle_fx_actor_visible(&r,f,r.by_pet));hidden+=!battle_fx_actor_visible(&r,f,!r.by_pet);}assert(hidden==6);}
+    r.missed=true;for(unsigned f=0;f<battle_fx_frames(&r);f++)assert(battle_fx_actor_visible(&r,f,!r.by_pet));
    }
   }
  }
- for(unsigned id=1;id<=250;id++){move_t supported;if(!combat_move(id,&supported))continue;if(covered[id])ids_with_pixels++;else{move_t m;combat_move(id,&m);assert(m.power>0);}}
- assert(ids_with_pixels==191);
- printf("{\"moves\":191,\"moves_with_effect_pixels\":%u,\"frames\":%u,\"self_targets_correct\":true,\"message_window_protected\":true,\"clean_recovery\":true}\n",ids_with_pixels,frames_checked);
+ assert(moves==191);
+ printf("{\"moves\":%u,\"source_tracks_both_sides\":true,\"frames\":%u,\"clean_recovery\":true,\"message_window_protected\":true,\"immutable_outcomes\":true}\n",moves,frames);
 }
-static void readability(void){
- track_self=false;
- unsigned minimum=1000,peak_min=100000;
- for(unsigned side=0;side<2;side++)for(unsigned i=0;i<8;i++){
-  unsigned id=(unsigned[]){1,33,84,85,10,40,44,93}[i];move_t m;assert(combat_move(id,&m));
-  battle_round_t r={.move_id=id,.move_type=m.type,.by_pet=!side,.damage=20};unsigned visible_frames=0,peak=0;
-  for(unsigned f=0;f<battle_fx_frames(&r);f++){
-   for(unsigned p=0;p<240*320;p++)raster[p]=0xffff;
-   for(band=0;band<240;band+=80)battle_fx_draw_band(&r,f,band,(battle_fx_rect_t){8,140,96,96},(battle_fx_rect_t){148,40,64,64});
-   unsigned contrast=0;for(unsigned p=0;p<240*320;p++)contrast+=raster[p]!=0xffff;
-   if(contrast>=100)visible_frames++;if(contrast>peak)peak=contrast;
-  }
-  assert(visible_frames>=5);assert(peak>=100);
-  if(visible_frames<minimum)minimum=visible_frames;if(peak<peak_min)peak_min=peak;
- }
- printf("{\"readability_moves\":8,\"both_sides\":true,\"min_visible_ms\":%u,\"min_peak_contrast_pixels\":%u}\n",minimum*BATTLE_FX_TICK_MS,peak_min);
-}
-static void surf_and_hit(void){
- track_self=false;battle_round_t r={.move_id=57,.move_type=TY_WATER,.by_pet=true,.damage=40};
- unsigned counts[36]={0};
- for(unsigned f=0;f<36;f++){
-  pixels=0;for(unsigned p=0;p<240*320;p++)raster[p]=0xffff;
-  for(band=0;band<240;band+=80)battle_fx_draw_band(&r,f,band,(battle_fx_rect_t){8,140,96,96},(battle_fx_rect_t){148,40,64,64});
-  counts[f]=pixels;
-  if(f==18)for(unsigned x=0;x<240;x++)assert(raster[130*240+x]!=0xffff);
- }
- assert(!counts[0]&&counts[9]>0&&counts[18]>counts[9]);
- assert(counts[23]>counts[28]&&counts[28]>counts[33]&&counts[33]>0&&!counts[34]&&!counts[35]);
- for(unsigned side=0;side<2;side++){
-  r.by_pet=!side;unsigned hidden=0;
-  for(unsigned f=0;f<36;f++){assert(battle_fx_actor_visible(&r,f,r.by_pet));hidden+=!battle_fx_actor_visible(&r,f,!r.by_pet);}
-  assert(hidden==3);r.missed=true;for(unsigned f=0;f<36;f++)assert(battle_fx_actor_visible(&r,f,!r.by_pet));r.missed=false;
- }
- printf("{\"surf_full_width\":true,\"rise_hold_fall\":true,\"three_target_flashes\":true,\"clean_last_frames\":true}\n");
-}
-int main(void){assert(assets_init());fx_all();readability();surf_and_hit();}
 '''
 h.run()

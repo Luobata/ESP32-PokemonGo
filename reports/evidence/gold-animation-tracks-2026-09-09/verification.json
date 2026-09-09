@@ -1,0 +1,21 @@
+{
+  "renderer": "d753c2da0aaf74194cd2",
+  "moves": 191,
+  "executed_cases": 764,
+  "full_frame_checks": 78536,
+  "native_pixel_checks": 6112,
+  "tick_ms": 45,
+  "hardware_flashed": false,
+  "visual_original_equivalence_certified": false,
+  "visual_checked": [
+    53,
+    57,
+    58,
+    85,
+    105,
+    107,
+    144,
+    164,
+    247
+  ]
+}

@@ -185,7 +185,7 @@ void play_battle_presentation_snapshot(play_battle_view_t *out)
         const battle_round_t *r = &s_res.rounds[0];
         out->move_id = r->move_id;
         out->by_pet = r->by_pet;
-        uint16_t hit = battle_presentation_hit_frame(battle_fx_frames(r));
+        uint16_t hit = battle_fx_hit_frame(r);
         uint16_t elapsed = s_fx_frame > hit ? s_fx_frame - hit : 0;
         out->pet_hp = battle_presentation_hp(s_pet_hp_from, s_session.pet_hp, false, elapsed);
         out->wild_hp = battle_presentation_hp(s_wild_hp_from, s_session.wild_hp, false, elapsed);
@@ -335,7 +335,15 @@ static void draw_band(int band_y)
     }
 
     if (round) {
-        battle_fx_draw_band(round, s_fx_frame, band_y, pet, wild);
+        battle_fx_actor_t pa={0},wa={.data=wild_sprite,.w=wild_size,.h=wild_size};
+        sprite_asset_t back_art;
+        if(assets_back_sprite_info(pet_art_id,&back_art)){
+            pa.data=back_art.data;pa.w=back_art.w;pa.h=back_art.h;
+            species_t art_sp=pet_sp;assets_species(pet_art_id,&art_sp);
+            assets_palette_variant(art_sp.palette,s_pet_shiny,pa.palette);
+        }
+        assets_palette_variant(wild_art.palette,c->enc.is_shiny,wa.palette);
+        battle_fx_draw_scene_band(round,s_fx_frame,band_y,pet,wild,&pa,&wa);
     }
 
     battle_hud_draw_message_box(scene_screen_rect, &band_y,
@@ -550,6 +558,9 @@ static void attempt_escape(void)
 static void tick(lv_timer_t *t)
 {
     (void)t;
+    static unsigned slow_phase;
+    bool active_move=s_playing&&s_play_i&&!s_between_moves&&!s_entering&&!s_wild_animating&&!s_escape_feedback&&!s_exp_anim;
+    if(!active_move&&++slow_phase%2)return;
     if(s_settle_failed)return;
     if (s_entering) {
         if (++s_entry_frame >= BATTLE_PRESENTATION_ENTRY_FRAMES) {
@@ -562,7 +573,7 @@ static void tick(lv_timer_t *t)
         return;
     }
     if (s_wild_animating) {
-        s_wild_anim_ms += BATTLE_FX_TICK_MS;
+        s_wild_anim_ms += 90;
         sample_wild_motion();
         draw_all();
         return;
@@ -588,7 +599,7 @@ static void tick(lv_timer_t *t)
     if (s_play_i) {
         const battle_round_t *r = &s_res.rounds[0];
         uint16_t frames = battle_fx_frames(r);
-        uint16_t hp_end = battle_presentation_hit_frame(frames) + BATTLE_PRESENTATION_HP_FRAMES + 1;
+        uint16_t hp_end = battle_fx_hit_frame(r) + BATTLE_PRESENTATION_HP_FRAMES + 1;
         if (hp_end > frames) frames = hp_end;
         if (s_fx_frame + 1 < frames) {
             s_fx_frame++;

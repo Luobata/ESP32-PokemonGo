@@ -17,6 +17,7 @@ idf_component_register(
          "battle_presentation.c"
          "pokemon_animation.c"
          "battle_fx.c"
+         "gold_fx.c"
          "battle_hud.c"
          "game_ui.c"
          "capture.c"

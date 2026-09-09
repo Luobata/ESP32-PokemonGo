@@ -128,7 +128,7 @@ class Handler(SimpleHTTPRequestHandler):
                         supported = {m["id"] for m in json.loads((HERE / "move-catalog.json").read_text())}
                         if integer(data, "move", 1, 1, 250) not in supported:
                             raise ValueError("此招式尚未实现")
-                        command = f"move_preview {integer(data, 'move', 1, 1, 250)} {integer(data, 'side', 0, 0, 1)} {integer(data, 'frame', 0, 0, 63)} {integer(data, 'mode', 0, 0, 3)}"
+                        command = f"move_preview {integer(data, 'move', 1, 1, 250)} {integer(data, 'side', 0, 0, 1)} {integer(data, 'frame', 0, 0, 255)} {integer(data, 'mode', 0, 0, 3)}"
                     elif action == "check":
                         command = "check"
                     elif action == "names":
