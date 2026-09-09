@@ -1,0 +1,4544 @@
+{
+  "status": "PASS",
+  "source": "reports/video/pokewalk-story-transition-2026-09-09/pokewalk-story-v2.mp4",
+  "renderer": "b0314747f7225b599135",
+  "source_commit": "783a3b4e996f75c29386f43fc4e9f6073bda509c",
+  "fps": 30,
+  "duration": 223.266016,
+  "frames": 6698,
+  "red_gameplay_seconds": 27.133333333333333,
+  "red_epilogue_seconds": 32.63333333333333,
+  "trainer_id": 13,
+  "completed_actions": 7,
+  "cut_before_action": 8,
+  "audio_rms": 543.5008855935995,
+  "audio_source": "synchronous production game mixer",
+  "fixture": "isolated postgame demonstration; player saves untouched",
+  "states": [
+    {
+      "frame": 0,
+      "music": 6,
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "frame": 30,
+      "music": 6,
+      "challenge": {
+        "mode": 0,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 0,
+        "active": 0,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 0,
+        "sides": [
+          {
+            "active": 0,
+            "mons": []
+          },
+          {
+            "active": 0,
+            "mons": []
+          }
+        ]
+      }
+    },
+    {
+      "frame": 60,
+      "music": 15,
+      "challenge": {
+        "mode": 1,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 2549536925,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 263,
+                "max_hp": 263,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 90,
+      "music": 15,
+      "challenge": {
+        "mode": 1,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 2549536925,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 263,
+                "max_hp": 263,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 120,
+      "music": 10,
+      "challenge": {
+        "mode": 2,
+        "sendout_mask": 3,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 2549536925,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 263,
+                "max_hp": 263,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 150,
+      "music": 10,
+      "challenge": {
+        "mode": 2,
+        "sendout_mask": 3,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 0,
+        "rng": 2549536925,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 263,
+                "max_hp": 263,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 180,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 1,
+        "rng": 525720900,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 78,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 210,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 1,
+        "rng": 525720900,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 78,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 240,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 1,
+        "rng": 525720900,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 78,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 270,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 1,
+        "rng": 525720900,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 78,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 300,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 2,
+        "rng": 525720900,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 46,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 330,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 2,
+        "rng": 525720900,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 46,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 360,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 2,
+        "rng": 525720900,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 46,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 390,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 3,
+        "rng": 3061691174,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 0,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 420,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 3,
+        "rng": 3061691174,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 0,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 450,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 3,
+        "rng": 3061691174,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 0,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 480,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 3,
+        "rng": 3061691174,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 0,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 510,
+      "music": 10,
+      "challenge": {
+        "mode": 2,
+        "sendout_mask": 2,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 3,
+        "rng": 2609693841,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 1,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 0,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 540,
+      "music": 10,
+      "challenge": {
+        "mode": 2,
+        "sendout_mask": 2,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 3,
+        "rng": 2609693841,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 1,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 0,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 725,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 570,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 4,
+        "rng": 1199864396,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 1,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 0,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 638,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 600,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 4,
+        "rng": 1199864396,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 1,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 0,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 638,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 630,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 5,
+        "rng": 3514719082,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 1,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 0,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 638,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 660,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 5,
+        "rng": 3514719082,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 1,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 0,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 638,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 690,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 6,
+        "rng": 244908493,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 526,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 1,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 0,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 638,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 720,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 7,
+        "rng": 1344569897,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 307,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 1,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 0,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 638,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 750,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 7,
+        "rng": 1344569897,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 307,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 1,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 0,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 638,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 780,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 7,
+        "rng": 1344569897,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 307,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 1,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 0,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 638,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "frame": 810,
+      "music": 10,
+      "challenge": {
+        "mode": 3,
+        "sendout_mask": 0,
+        "defeated": 8191,
+        "league": 0,
+        "trainer": 13,
+        "active": 1,
+        "finished": 0,
+        "won": 0,
+        "turns": 7,
+        "rng": 1344569897,
+        "sides": [
+          {
+            "active": 0,
+            "mons": [
+              {
+                "species": 6,
+                "hp": 307,
+                "max_hp": 526,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 1,
+                "hp": 103,
+                "max_hp": 103,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 4,
+                "hp": 95,
+                "max_hp": 95,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 7,
+                "hp": 111,
+                "max_hp": 111,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 133,
+                "hp": 145,
+                "max_hp": 145,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 147,
+                "hp": 115,
+                "max_hp": 115,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          },
+          {
+            "active": 1,
+            "mons": [
+              {
+                "species": 25,
+                "hp": 0,
+                "max_hp": 263,
+                "status": 2,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 131,
+                "hp": 638,
+                "max_hp": 725,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 143,
+                "hp": 875,
+                "max_hp": 875,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 3,
+                "hp": 483,
+                "max_hp": 483,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 6,
+                "hp": 473,
+                "max_hp": 473,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              {
+                "species": 9,
+                "hp": 477,
+                "max_hp": 477,
+                "status": 0,
+                "pp": [
+                  0,
+                  0,
+                  0,
+                  0
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "sha256": "564ce82b2f90e00c9f46dc2da9a71c1479c4e4fdeff4f6cce98353bfddb9b571"
+}

@@ -4,7 +4,7 @@
 
 [宣传片（2分17秒）](reports/video/pokewalk-promo-collection-2026-09-09/pokewalk-promo.mp4) · [玩法与架构文档](docs/) · [金银学习表核查](docs/systems/S21-auto-learning.md) · [社区发布准备](docs/release/community.md)
 
-[完整流程故事版 V2（约3分11秒）](reports/video/pokewalk-story-transition-2026-09-09/pokewalk-story-v2.mp4) · [博士转场预览（10秒）](reports/video/pokewalk-story-transition-2026-09-09/oak-to-starter-preview.mp4) · [故事版试剪（1分59秒）](reports/video/pokewalk-story-2026-09-09/pokewalk-story.mp4) · 以皮卡丘和尼多娜的冒险串联捕获、成长、道馆与探索解锁。
+[完整流程故事版 V3（约3分43秒，含赤红彩蛋）](reports/video/pokewalk-story-red-2026-09-09/pokewalk-story-v3.mp4) · [赤红片段](reports/video/pokewalk-story-red-2026-09-09/red-epilogue.mp4) · [博士转场预览（10秒）](reports/video/pokewalk-story-transition-2026-09-09/oak-to-starter-preview.mp4) · [故事版试剪（1分59秒）](reports/video/pokewalk-story-2026-09-09/pokewalk-story.mp4) · 以皮卡丘和尼多娜的冒险串联捕获、成长、道馆与探索解锁。
 
 ## 已实现
 
