@@ -7,6 +7,7 @@
 #define ENC_AP_COOLDOWN_S 3600u
 #define ENC_BASE_INTERVAL_S 14400u
 #define ENC_HUNT_CREDIT_MAX 4096u
+#define ENC_HUNT_CREDIT_STEP 1024u
 
 typedef struct { uint32_t key, last_s; } enc_ap_history_t;
 typedef struct {

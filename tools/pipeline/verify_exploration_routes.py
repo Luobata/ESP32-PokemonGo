@@ -54,7 +54,7 @@ static void credits(void){
  reboot();radio(1);assert(refresh_from_scan(false,0)==0&&s_exploration.energy==4);
  radio(2);assert(refresh_from_scan(true,512)==0);world_debug_save();reboot();assert(s_refresh.hunt_q10==512);
  radio(2);assert(refresh_from_scan(true,512)==1&&s_exploration.energy==5&&s_refresh.hunt_q10==0);
- assert(refresh_from_scan(true,1024)==0);test_time+=3600000000LL;assert(refresh_from_scan(true,0)==1);
+ assert(refresh_from_scan(true,1024)==1);test_time+=3600000000LL;assert(refresh_from_scan(true,0)==0);
  // Full capacity does not consume cooldown/serial or flood the pending queue.
  s_exploration.energy=24;enc_refresh_state_t old=s_refresh;radio(3);
  assert(refresh_from_scan(true,4096)==0&&s_exploration.energy==24&&s_queue.count==0);
@@ -66,6 +66,39 @@ static void credits(void){
   assert(!memcmp(&x,&s_exploration,sizeof(x))&&!memcmp(&old,&s_refresh,sizeof(old)));
  }
  tests+=7;
+}
+static void supply_loop(void){
+ fresh();assert(world_choose_starter(25)==WORLD_STARTER_OK);radio(1);
+ assert(refresh_from_scan(false,0)==1);unsigned energy=s_exploration.energy;
+ // An AP cooling down must not strand a completed movement meter.
+ assert(refresh_from_scan(true,256)==0&&s_refresh.hunt_q10==256);
+ assert(refresh_from_scan(true,512)==0&&s_refresh.hunt_q10==768);
+ exploration_view_t view;world_exploration_snapshot(&view);
+ assert(view.supply_q10==768&&view.state.energy==energy);
+ reboot();radio(1);assert(s_refresh.hunt_q10==768);
+ assert(refresh_from_scan(true,356)==1&&s_refresh.hunt_q10==100&&s_exploration.energy==energy+1);
+ assert(refresh_from_scan(true,924)==1&&s_refresh.hunt_q10==0&&s_exploration.energy==energy+2);
+ assert(s_refresh.discoveries==0); // Repeated APs do not farm new-place bonuses.
+ // Stationary WiFi changes alone supply no movement credit or extra base gift.
+ for(unsigned i=0;i<100;i++){radio(i+2);assert(refresh_from_scan(false,4096)==0);}
+ assert(s_exploration.energy==energy+2&&s_refresh.hunt_q10==0);
+ // At capacity, bank at most four bars. Spending frees a slot on the next
+ // valid scan even without further movement; the durable remainder survives.
+ s_exploration.energy=EXPLORATION_CAPACITY;radio(1);
+ assert(refresh_from_scan(true,65535)==0&&s_refresh.hunt_q10==4096);
+ reboot();assert(s_exploration.energy==EXPLORATION_CAPACITY&&s_refresh.hunt_q10==4096);
+ s_exploration.energy--;world_debug_save();radio(1);
+ for(int f=1;f<=4;f++){if(f==3)continue;failure=f;
+  assert(refresh_from_scan(false,0)==0&&s_exploration.energy==23&&s_refresh.hunt_q10==4096);failure=0;
+ }
+ assert(refresh_from_scan(false,0)==1&&s_exploration.energy==24&&s_refresh.hunt_q10==3072);
+ reboot();assert(s_exploration.energy==24&&s_refresh.hunt_q10==3072);
+ for(unsigned i=0;i<3;i++){
+  s_exploration.energy--;assert(refresh_from_scan(false,0)==1&&s_exploration.energy==24);
+ }
+ assert(s_refresh.hunt_q10==0&&refresh_from_scan(false,0)==0);
+ world_exploration_snapshot(&view);assert(view.state.energy==24&&view.supply_q10==0);
+ assert(s_queue.count==0&&enc_refresh_valid(&s_refresh));tests+=8;
 }
 static void concurrent_seen(void){extra_commit_hook=NULL;world_mark_seen(150,true);}
 static void transactions(void){
@@ -100,7 +133,7 @@ static void migration(const char *path){
  next.exploration.route=4;memcpy(disk,&next,sizeof(next));disk_len=sizeof(next);assert(save_read_status(&next)==SAVE_READ_ERROR);
  assert(!erase_calls);tests+=4;
 }
-int main(void){core();credits();transactions();migration(REAL_SAVE);printf("{\"cases\":%u,\"sequence_steps\":20000,\"species_reachable\":151,\"save_version\":%u,\"save_bytes\":%zu,\"erase_calls\":%u}\n",tests,SAVE_VERSION,sizeof(save_t),erase_calls);return 0;}
+int main(void){core();credits();supply_loop();transactions();migration(REAL_SAVE);printf("{\"cases\":%u,\"sequence_steps\":20000,\"species_reachable\":151,\"save_version\":%u,\"save_bytes\":%zu,\"erase_calls\":%u}\n",tests,SAVE_VERSION,sizeof(save_t),erase_calls);return 0;}
 '''
 def main():
  p=argparse.ArgumentParser();p.add_argument('--save',type=Path);a=p.parse_args()

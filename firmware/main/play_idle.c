@@ -24,7 +24,7 @@
 //
 // 金银白底：完整名称/等级在标题行，心情/亲密度在 y40 两端。
 // 96px 背图居中于 y58；呼吸只影响带 0/1。三条养成轴完整落在
-// 带 2，今日行程与 y280 消息框落在带 3，文字不跨脏带边界。
+// 带 2，探索补给与 y280 消息框落在带 3，文字不跨脏带边界。
 
 #include <inttypes.h>
 #include <stdio.h>
@@ -65,7 +65,8 @@ static uint8_t s_breath_i;
 #define AXIS_Y0 168
 #define AXIS_STEP 24
 #define AXIS_Y(i) (AXIS_Y0 + (i) * AXIS_STEP)
-#define PROGRESS_Y 248
+#define PROGRESS_Y 244
+#define SUPPLY_HINT_Y 264
 #define TEXT_H 16
 #define BAR_H 16
 #define AXIS_BAR_X 88
@@ -81,11 +82,14 @@ SCREEN_ASSERT_WITHIN_BAND(idle_stamina_label, AXIS_Y(2), TEXT_H);
 SCREEN_ASSERT_WITHIN_BAND(idle_stamina_bar, AXIS_Y(2), BAR_H);
 SCREEN_ASSERT_WITHIN_BAND(idle_progress_label, PROGRESS_Y, TEXT_H);
 SCREEN_ASSERT_WITHIN_BAND(idle_progress_bar, PROGRESS_Y, BAR_H);
+SCREEN_ASSERT_WITHIN_BAND(idle_supply_hint, SUPPLY_HINT_Y, TEXT_H);
 SCREEN_ASSERT_WITHIN_BAND(idle_footer, 280, 40);
 
 // 世界快照。每次重画前刷一次 —— **一帧之内不再变**，
 // 否则同一帧里四条轴可能读到不同时刻的值（后台任务随时在改）。
 static world_t s_w;
+static exploration_view_t s_exploration;
+static uint8_t s_supply_gain, s_supply_hold;
 static bool s_shiny;
 
 // 每条横带使用同一世界快照，所有坐标都相对整屏。
@@ -132,18 +136,33 @@ static void draw_band(int band_y, int8_t breath)
                                  spr.data, spr.w, spr.h, SPRITE_SIZE / spr.w, pal);
     }
 
-    // 四行共同留出最长标签“今日行程”的 64px，再留 12px 净空。
-    static const char *AXIS[4] = {"饱食", "心情", "体能", "今日行程"};
-    const uint8_t value[4] = {
+    static const char *AXIS[3] = {"饱食", "心情", "体能"};
+    const uint8_t value[3] = {
         nurture_pct(s_w.pet.satiety), nurture_pct(s_w.pet.mood),
-        nurture_pct(s_w.pet.stamina), s_w.progress,
+        nurture_pct(s_w.pet.stamina),
     };
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 3; i++) {
         int y = AXIS_Y(i);
-        if (i == 3) y = PROGRESS_Y;
         render_text(12, Y(y), AXIS[i], GAME_UI_INK);
         game_ui_meter(band_y, AXIS_BAR_X, y, 228 - AXIS_BAR_X, value[i]);
     }
+
+    // Count and progress come from one committed exploration snapshot. The
+    // legacy lifetime-motion counter is no longer presented as a daily goal.
+    bool full = s_exploration.state.energy >= EXPLORATION_CAPACITY;
+    unsigned progress = s_exploration.supply_q10 * 100u / ENC_HUNT_CREDIT_STEP;
+    if (full || progress > 100) progress = 100;
+    render_text(12, Y(PROGRESS_Y), "探索补给", GAME_UI_INK);
+    game_ui_meter(band_y, AXIS_BAR_X, PROGRESS_Y, 88, progress);
+    snprintf(buf, sizeof(buf), "%u/%u", s_exploration.state.energy, EXPLORATION_CAPACITY);
+    render_text(228 - render_text_width(buf), Y(PROGRESS_Y), buf, GAME_UI_INK);
+    if (s_supply_hold) {
+        snprintf(buf, sizeof(buf), full ? "探索次数+%u 已满" : "探索次数+%u", s_supply_gain);
+    } else {
+        snprintf(buf, sizeof(buf), "%s", full ? "次数已满 先去探索" :
+                 progress == 100 ? "补给就绪 等待扫描" : "走动攒满增加1次");
+    }
+    game_ui_text_centered(band_y, 12, SUPPLY_HINT_Y, 216, TEXT_H, buf, GAME_UI_MUTED);
 
     // 角标随呼吸相位闪烁；与消息框同在带 3，不另起定时器。
     const char *hint = "[A]照料 [B]菜单 [C]遭遇";
@@ -186,6 +205,12 @@ static void tick(lv_timer_t *t)
     // 这里只是把后台算好的值取一份出来画。
     world_t before = s_w;
     world_snapshot(&s_w);
+    uint8_t energy_before = s_exploration.state.energy;
+    world_exploration_snapshot(&s_exploration);
+    if (s_exploration.state.energy > energy_before) {
+        s_supply_gain = s_exploration.state.energy - energy_before;
+        s_supply_hold = 12; // Three seconds of feedback after a durable grant.
+    } else if (s_supply_hold) s_supply_hold--;
     bool axes_changed = nurture_pct(before.pet.satiety) != nurture_pct(s_w.pet.satiety) ||
                         nurture_pct(before.pet.mood) != nurture_pct(s_w.pet.mood) ||
                         nurture_pct(before.pet.stamina) != nurture_pct(s_w.pet.stamina);
@@ -229,7 +254,9 @@ void play_idle_enter(void)
     // 那正是切页时闪的那一下（见 screen.h）。
 
     s_breath_i = 0;
+    s_supply_gain = s_supply_hold = 0;
     world_snapshot(&s_w);          // 先取一份，别用零值画第一帧
+    world_exploration_snapshot(&s_exploration);
     world_party_t party;
     world_party_snapshot(&party);
     s_shiny = party.count && (party.members[0].flags & 1u);

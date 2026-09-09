@@ -1603,6 +1603,7 @@ void world_exploration_snapshot(exploration_view_t *out)
     memset(out,0,sizeof(*out));
     if(!s_lock||xSemaphoreTake(s_lock,portMAX_DELAY)!=pdTRUE)return;
     out->state=s_exploration;out->discoveries=s_refresh.discoveries;out->defeated=s_challenge.defeated;
+    out->supply_q10=s_refresh.hunt_q10;
     out->rare_left=8-s_refresh.since_rare;out->elite_left=30-s_refresh.since_elite;
     out->pending=s_queue.count;out->stamina=nurture_pct(s_w.pet.stamina);out->exp_percent=nurture_exp_percent(&s_w.pet);out->rare_bonus=nurture_rare_bonus(&s_w.pet);out->party_bonus=exploration_team_bonus(&s_party,s_exploration.route);
     exploration_research_progress(s_exploration.route,&s_dex,&out->research_seen,&out->research_caught);

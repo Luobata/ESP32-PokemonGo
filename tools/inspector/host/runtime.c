@@ -630,7 +630,7 @@ static void state(void)
         for(unsigned i=0;i<s->count;i++){trainer_mon_t *m=&s->mons[i];printf("%s{\"species\":%u,\"hp\":%u,\"max_hp\":%u,\"status\":%u,\"pp\":[%u,%u,%u,%u]}",i?",":"",m->species,m->hp,m->max_hp,m->status,m->pp[0],m->pp[1],m->pp[2],m->pp[3]);}
         printf("]}");
     }
-    printf("]},\"exploration\":{\"route\":%u,\"energy\":%u,\"steps\":%lu,\"clues\":[%u,%u,%u,%u],\"pulse\":[%u,%u,%u,%u],\"rare_left\":%u,\"elite_left\":%u,\"research_flags\":%u}",exploration.route,exploration.energy,(unsigned long)exploration.steps,exploration.clues[0],exploration.clues[1],exploration.clues[2],exploration.clues[3],exploration.pulse[0],exploration.pulse[1],exploration.pulse[2],exploration.pulse[3],8-refresh.since_rare,30-refresh.since_elite,exploration.research_flags);
+    printf("]},\"exploration\":{\"route\":%u,\"energy\":%u,\"steps\":%lu,\"clues\":[%u,%u,%u,%u],\"pulse\":[%u,%u,%u,%u],\"rare_left\":%u,\"elite_left\":%u,\"research_flags\":%u,\"supply_q10\":%lu}",exploration.route,exploration.energy,(unsigned long)exploration.steps,exploration.clues[0],exploration.clues[1],exploration.clues[2],exploration.clues[3],exploration.pulse[0],exploration.pulse[1],exploration.pulse[2],exploration.pulse[3],8-refresh.since_rare,30-refresh.since_elite,exploration.research_flags,(unsigned long)refresh.hunt_q10);
     printf(",\"music\":%u,\"muted\":%s,\"volume\":%u,\"achievement_claimed\":%u,\"evolutions\":%u,\"encounter_alert\":%u}", (unsigned)music_director_current(), host_muted?"true":"false",host_volume,achievements.claimed,achievements.evolutions,host_alert);
     putchar('\n');
     fflush(stdout);
@@ -662,6 +662,18 @@ int main(void)
         } else if (booted && !strcmp(cmd, "exploration_fixture") && sscanf(line,"%*s %u %u %u %u",&a,&b,&c,&d)==4 && a<4 && b<=24 && c<=3 && d<=1) {
             exploration.route=a;exploration.energy=b;exploration.clues[a]=c;exploration.pulse[a]=d;
             if(nav_current()==PAGE_EXPLORATION)nav_go(PAGE_EXPLORATION);
+        } else if (booted && !strcmp(cmd, "supply_scan") &&
+                   sscanf(line,"%*s %u %u %u",&a,&b,&c)==3 &&
+                   a>=1 && a<=65535 && b<=1 && c<=65535) {
+            enc_refresh_ap_t ap={.bssid={2,0,0,(a>>8)&255,a&255,1},
+                                 .rssi=-50,.auth=0,.has_ssid=true};
+            enc_refresh_state_t next=refresh;
+            next.online_s=(uint32_t)(esp_timer_get_time()/1000000);
+            uint8_t made=enc_refresh_collect(&next,&ap,1,b!=0,c,
+                                             EXPLORATION_CAPACITY-exploration.energy);
+            if (!world_needs_starter() && !host_save_fails()) {
+                refresh=next;exploration.energy+=made;
+            }
         } else if (booted && !strcmp(cmd, "names") && sscanf(line, "%*s %u", &a) == 1 && a < POKEMON_NAMES_STYLE_COUNT) {
             pokemon_names_set_style((pokemon_name_style_t)a);
             host_redraw();
@@ -821,7 +833,7 @@ achievement_claim_t world_achievement_claim(unsigned id){
 }
 
 void world_exploration_snapshot(exploration_view_t *out){
- if(out)*out=(exploration_view_t){.state=exploration,.discoveries=refresh.discoveries,.defeated=challenge.defeated,
+ if(out)*out=(exploration_view_t){.state=exploration,.discoveries=refresh.discoveries,.defeated=challenge.defeated,.supply_q10=refresh.hunt_q10,
  .rare_left=8-refresh.since_rare,.elite_left=30-refresh.since_elite,.pending=queue.count,.stamina=nurture_pct(world.pet.stamina),.exp_percent=nurture_exp_percent(&world.pet),.rare_bonus=nurture_rare_bonus(&world.pet),.party_bonus=exploration_team_bonus(&party,exploration.route)};
  if(out)exploration_research_progress(exploration.route,&dex,&out->research_seen,&out->research_caught);
 }

@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "save_version": 14,
+  "save_bytes": 3664,
+  "capacity": 24,
+  "banked_bars_max": 4,
+  "build_bytes": 2990240,
+  "source_sha256": {
+    "firmware/main/encounter.c": "a7743bcbd5083308e0794f04b40249e2a79799d79dda26e3ee2820477fcd82db",
+    "firmware/main/encounter_refresh.h": "a56b93a807297e81ab07c9777104991fe3ab5983d396aac6c9dafa9aed57ce43",
+    "firmware/main/exploration.h": "65592424813f28973b22bc47ac4ed81741c84bc70841e1f99ac81d1e53884284",
+    "firmware/main/world.c": "f168621ab101bf39bf3316c4158d3329153f2cde14ab5c4beabd433827602e81",
+    "firmware/main/play_idle.c": "4f9a643dd354dc459c31f45e6c3b99c567d5bf19ce089edbbccfd575437a2e3d",
+    "tools/inspector/host/runtime.c": "74949cd9dcdb67b9638dbf1c905aff58761ec163cb76d489c5c93e328a269afb",
+    "assets/font16.bin": "f3f14eeac7e1a7ac99a98817afcf79a54095cda3ec89b63543a2b84b28c20ce3"
+  }
+}

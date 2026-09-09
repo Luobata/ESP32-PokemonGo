@@ -502,9 +502,13 @@ uint8_t enc_refresh_collect(enc_refresh_state_t *s,const enc_refresh_ap_t *aps,u
         s->hunt_q10=credit>ENC_HUNT_CREDIT_MAX?ENC_HUNT_CREDIT_MAX:credit;
     }
     uint8_t made=0;
-    while(exploring && s->hunt_q10>=1024 && made<4 && made<room) {
-        if(!refresh_collect_one(s,aps,n,true))break;
-        s->hunt_q10-=1024;made++;
+    // Movement has already been filtered by sensing. A completed supply meter
+    // pays once even if the current AP is still cooling down; that cooldown
+    // only limits new-place credit and the separate passive supply below.
+    // Banked movement can also pay on the next stationary scan after spending.
+    while(s->hunt_q10>=ENC_HUNT_CREDIT_STEP && made<4 && made<room) {
+        if(!refresh_collect_one(s,aps,n,true))s->serial++;
+        s->hunt_q10-=ENC_HUNT_CREDIT_STEP;made++;
     }
     if(made<room && (!s->base_started||s->online_s>=s->next_base_s) &&
         refresh_collect_one(s,aps,n,false)) {

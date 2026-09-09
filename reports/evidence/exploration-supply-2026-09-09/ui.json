@@ -1,0 +1,10 @@
+{
+  "status": "PASS",
+  "renderer": "0e3e5f4a5909602125cb",
+  "dirty_full_checks": 41,
+  "loop_and_remainder": true,
+  "saved_grant_feedback": true,
+  "save_failure_retry": true,
+  "full_capacity_banked": true,
+  "stationary_refill_after_real_exploration": true
+}
