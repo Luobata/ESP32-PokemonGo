@@ -4,9 +4,15 @@
 #include "assets.h"
 #define COMBAT_MOVE_CAP 191
 #define COMBAT_MAX_MOVE_ID 250
-// Legacy prefix retained for readable save conversion; moves/pp are no longer used.
+// Legacy prefix retained for save compatibility; no stored repertoire or PP economy.
 typedef struct {
- uint16_t hp,max_hp,moves[4];
+ uint16_t hp,max_hp;
+ // Reuse the retired move slots without changing the persisted struct layout.
+ // Legacy IDs never equal the safety marker; old battles initialize lazily.
+ union {
+  uint16_t moves[4];
+  struct {uint16_t marker,low_hp;uint8_t stalled,fatigue,status_streak,reserved;} safety;
+ };
  uint8_t species,level,pp[4],status,sleep,seeded;
  int8_t attack,defense,special,speed;
  uint16_t substitute,last_damage,last_move,charge_move,bide_damage,disabled_move;
@@ -32,3 +38,5 @@ const char *combat_description(uint16_t id);
 const char *combat_feedback(const struct battle_round *round);
 
 int combat_priority(uint16_t move);
+
+void combat_finish_round(combat_mon_t *a,combat_mon_t *d,struct battle_round *out);

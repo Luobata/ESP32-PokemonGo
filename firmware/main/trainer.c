@@ -96,6 +96,7 @@ bool trainer_step(trainer_store_t *st,trainer_event_t *e) {
  a->reflect=s->sides[side].reflect;a->light_screen=s->sides[side].light_screen;
  d->reflect=s->sides[side^1].reflect;d->light_screen=s->sides[side^1].light_screen;
  combat_turn(a,d,side?1024:s->ability,&s->rng,50,s->planned[side],r);
+ if(s->acted==3)combat_finish_round(actor(s,0),actor(s,1),r);
  if(s->acted&(1u<<(side^1)))d->flinch=0;
  s->sides[side].reflect=a->reflect;s->sides[side].light_screen=a->light_screen;
  s->pending_move=0;

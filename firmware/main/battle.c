@@ -188,8 +188,9 @@ bool battle_session_step(battle_session_t *s, battle_round_t *out)
     s->fighters[0].hp=s->pet_hp;s->fighters[1].hp=s->wild_hp;
     out->by_pet=by_pet;
     combat_turn(a,d,by_pet?s->ability_factor_q10:1024,&s->rng,25,retaliation?0:s->planned[by_pet?0:1],out);
-    s->pet_hp=s->fighters[0].hp;s->wild_hp=s->fighters[1].hp;
     s->acted|=by_pet?1:2;
+    if(!retaliation&&s->acted==3)combat_finish_round(&s->fighters[0],&s->fighters[1],out);
+    s->pet_hp=s->fighters[0].hp;s->wild_hp=s->fighters[1].hp;
     if(s->acted&(by_pet?2:1))d->flinch=0;
     if(retaliation)s->acted=0;
     s->next_by_pet = !by_pet;

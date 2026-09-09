@@ -38,6 +38,7 @@ typedef struct battle_round {
     bool missed;
     uint8_t self_target, no_effect, charging, skipped, hits, critical;
     uint16_t healed;
+    uint8_t fatigue;
 } battle_round_t;
 
 typedef struct {

@@ -15,7 +15,28 @@ static bool stored_move(unsigned id){return !id||move_data(id)!=NULL;}
 static uint32_t roll(uint32_t *rng,unsigned n){uint32_t x=*rng?*rng:1;x^=x<<13;x^=x>>17;x^=x<<5;*rng=x;return n?x%n:0;}
 static unsigned minimum(unsigned a,unsigned b){return a<b?a:b;}
 static void hurt(combat_mon_t *m,unsigned n){m->hp-=minimum(n,m->hp);}
-static unsigned heal(combat_mon_t *m,unsigned n){n=minimum(n,m->max_hp-m->hp);m->hp+=n;return n;}
+#define SAFETY_MARKER 0x5347
+static void safety_init(combat_mon_t *m){
+ if(m->safety.marker!=SAFETY_MARKER){memset(m->moves,0,sizeof(m->moves));m->safety.marker=SAFETY_MARKER;m->safety.low_hp=m->hp;}
+}
+static unsigned fatigue(const combat_mon_t *m){return m->safety.marker==SAFETY_MARKER?minimum(m->safety.fatigue,10):0;}
+static unsigned heal(combat_mon_t *m,unsigned n){n=n*(10-fatigue(m))/10;n=minimum(n,m->max_hp-m->hp);m->hp+=n;return n;}
+// Called once after both sides act, never for a failed-capture retaliation.
+void combat_finish_round(combat_mon_t *a,combat_mon_t *d,struct battle_round *r){
+ safety_init(a);safety_init(d);
+ if(!a->hp||!d->hp)return; // A decisive attack keeps its normal outcome.
+ bool progress=a->hp<a->safety.low_hp||d->hp<d->safety.low_hp;
+ a->safety.low_hp=minimum(a->safety.low_hp,a->hp);d->safety.low_hp=minimum(d->safety.low_hp,d->hp);
+ unsigned stalled=progress?0:minimum(a->safety.stalled,d->safety.stalled)+1;
+ a->safety.stalled=d->safety.stalled=minimum(stalled,8);
+ unsigned level=fatigue(a)>fatigue(d)?fatigue(a):fatigue(d);
+ if(level||stalled>=8){
+  level=minimum(level+1,10);a->safety.fatigue=d->safety.fatigue=level;
+  hurt(a,(a->max_hp*level/20)?a->max_hp*level/20:1);
+  hurt(d,(d->max_hp*level/20)?d->max_hp*level/20:1);
+  r->fatigue=level;
+ }
+}
 static bool stage(int8_t *s,int n){int old=*s,value=old+n;*s=value>6?6:value<-6?-6:value;return *s!=old;}
 static uint8_t identity(const combat_mon_t *m){return m->transform_species?m->transform_species:m->species;}
 static bool species_info(const combat_mon_t *m,species_t *out){
@@ -113,17 +134,32 @@ static unsigned utility(const combat_mon_t *a,const combat_mon_t *d,const combat
  score=score*(m->move.accuracy==255?100:m->move.accuracy)/100;
  return score;
 }
+static bool direct_attack(const combat_mon_t *a,const combat_mon_t *d,const combat_move_data_t *m){
+ if(!(m->move.power||fixed(m->effect)||m->effect==EFFECT_OHKO||m->effect==EFFECT_COUNTER))return false;
+ return utility(a,d,m)>0;
+}
 uint16_t combat_choose(const combat_mon_t *a,const combat_mon_t *d,uint32_t *rng){
  if(a->charge)return a->charge_move;
  if(a->bide)return 117;
  uint16_t ids[COMBAT_MOVE_CAP],selected=165;int count=combat_known_moves(identity(a),learn_level(a),ids,COMBAT_MOVE_CAP);
+ bool can_attack=false,can_transform=false;
+ for(int i=0;i<count;i++){
+  unsigned id=ids[i]==102&&a->mimic_move?a->mimic_move:ids[i];
+  if(a->disable_turns&&a->disabled_move==id)continue;
+  can_attack|=direct_attack(a,d,move_data(id));
+  can_transform|=id==144&&!a->transform_species;
+ }
+ if(!can_attack)return can_transform?144:165;
+ bool must_attack=a->safety.marker==SAFETY_MARKER&&a->safety.status_streak>=2;
  uint32_t total=0;
  for(int i=0;i<count;i++){
   unsigned id=ids[i]==102&&a->mimic_move?a->mimic_move:ids[i];if(a->disable_turns&&a->disabled_move==id)continue;
+  if(must_attack&&!direct_attack(a,d,move_data(id)))continue;
   unsigned score=utility(a,d,move_data(id));if(!score)continue;
   if(a->last_move==id)score=score*3/4+1;
   if(score>500)score=500;
-  unsigned weight=score*score;total+=weight;
+  // Effective attacks get 3x the lottery weight; utility still distinguishes tactics.
+  unsigned weight=score*score*(direct_attack(a,d,move_data(id))?3u:1u);total+=weight;
   if(roll(rng,total)<weight)selected=id;
  }
  // Retain truly non-damaging moves in the catalogue without trapping gameplay forever.
@@ -133,7 +169,7 @@ static void apply_status(combat_mon_t *d,unsigned status,uint32_t *rng){if(immun
 static bool status_effect(combat_mon_t *a,combat_mon_t *d,const combat_move_data_t *m,uint32_t *rng){
  unsigned e=m->effect;if(!self_effect(e)&&d->substitute)return false;
  switch(e){
- case EFFECT_HEAL:if(a->hp==a->max_hp&&!(m->move.id==156&&a->status))return false;if(m->move.id==156){a->hp=a->max_hp;a->status=4;a->sleep=2;a->toxic=0;}else heal(a,a->max_hp/2);return true;
+ case EFFECT_HEAL:if(a->hp==a->max_hp&&!(m->move.id==156&&a->status))return false;if(m->move.id==156){heal(a,a->max_hp);a->status=4;a->sleep=2;a->toxic=0;}else heal(a,a->max_hp/2);return true;
  case EFFECT_SLEEP:if(immune_status(d,4))return false;apply_status(d,4,rng);return true;
  case EFFECT_POISON:case EFFECT_TOXIC:if(immune_status(d,1))return false;apply_status(d,1,rng);d->toxic=e==EFFECT_TOXIC?1:0;return true;
  case EFFECT_PARALYZE:if(immune_status(d,3)||(m->move.id==86&&has_type(d,TY_GROUND)))return false;apply_status(d,3,rng);return true;
@@ -169,6 +205,7 @@ static void residual(combat_mon_t *a,combat_mon_t *d){
  if(a->disable_turns)a->disable_turns--;
 }
 void combat_turn(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint32_t *rng,unsigned divisor,uint16_t forced_move,struct battle_round *r){
+ safety_init(a);safety_init(d);
  r->mult=100;unsigned before=a->hp;bool skip=false;
  d->last_damage=0;
  if(a->recharge){a->recharge=0;skip=true;r->skipped=6;}
@@ -183,6 +220,8 @@ void combat_turn(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint32_t *rng,
  if(effect==EFFECT_METRONOME){do{id=1+roll(rng,COMBAT_MOVE_CAP);if(id>165)id=COMBAT_EXTRA[id-166].move.id;effect=move_data(id)->effect;}while(effect==EFFECT_METRONOME||effect==EFFECT_MIMIC||effect==EFFECT_MIRROR_MOVE||effect==EFFECT_FORCE_SWITCH||effect==EFFECT_TELEPORT||effect==EFFECT_CONVERSION);}
  else if(effect==EFFECT_MIRROR_MOVE){if(d->last_move&&d->last_move!=102&&d->last_move!=119&&d->last_move!=118)id=d->last_move;else r->no_effect=1;}
  const combat_move_data_t *data=move_data(id);const move_t *m=&data->move;effect=data->effect;
+ bool is_attack=m->power||fixed(effect)||effect==EFFECT_COUNTER||effect==EFFECT_BIDE||effect==EFFECT_OHKO;
+ a->safety.status_streak=is_attack?0:minimum(a->safety.status_streak+1,2);
  r->move_id=id;r->move_type=m->type;r->move_zh=m->name_zh;r->move_zh_len=m->name_zh_len;r->self_target=self_effect(effect);a->last_move=id;
  if(r->no_effect){residual(a,d);return;}
  bool charging=effect==EFFECT_FLY||effect==EFFECT_SOLARBEAM||effect==EFFECT_SKY_ATTACK||effect==EFFECT_SKULL_BASH||effect==EFFECT_RAZOR_WIND;
@@ -292,6 +331,7 @@ const char *combat_description(uint16_t id){
  }
 }
 const char *combat_feedback(const struct battle_round *r){
+ if(r->fatigue)return r->fatigue==1?"陷入苦战 体力开始消耗":"苦战加剧 回复效果降低";
  if(r->skipped){static const char *messages[]={"","正在睡眠","身体被冻住了","麻痹 无法行动","畏缩 无法行动","混乱中伤到了自己","正在恢复行动"};return r->skipped<=6?messages[r->skipped]:"无法行动";}
  if(r->charging)return "正在积蓄力量";
  if(r->missed)return "攻击没有命中";

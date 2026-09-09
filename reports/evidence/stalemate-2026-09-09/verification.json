@@ -1,0 +1,35 @@
+{
+  "stalemate": {
+    "status": "PASS",
+    "groups": 3,
+    "wild_seeds": 100,
+    "save_bytes": 3664,
+    "sanitized": true
+  },
+  "combat": {
+    "max_learned": 42,
+    "ai_distinct_moves": 25,
+    "cases": 4,
+    "moves": 191,
+    "save_version": 12,
+    "save_bytes": 3664,
+    "sanitized": true
+  },
+  "trainer": {
+    "campaign_actions": 961,
+    "replacements": 7,
+    "cases": 4,
+    "save_bytes": 3664,
+    "sanitized": true
+  },
+  "preview": {
+    "build": "25956f8e94dcc960167a",
+    "trainers_completed": 10,
+    "wins": 10,
+    "losses": 0,
+    "dirty_full_checks": 3819,
+    "moves_read_only": true,
+    "party_skill_pages": true
+  },
+  "firmware_build": "PASS"
+}
