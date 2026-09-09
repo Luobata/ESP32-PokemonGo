@@ -1,0 +1,27 @@
+{
+  "project_id": 234,
+  "revision_id": 378,
+  "status": "pending",
+  "state_version": 7,
+  "updated_at": "2026-09-09T16:26:31+00:00",
+  "creator_url": "https://ai-passport.folotoy.cn/account/?project=234",
+  "cover": "reports/evidence/community-cover-2026-09-10/cover.png",
+  "cover_sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6",
+  "cover_size": 61861,
+  "dimensions": [
+    480,
+    640
+  ],
+  "source_video": "reports/video/pokewalk-promo-collection-2026-09-09/pokewalk-gameplay-clean.mp4",
+  "source_seconds": 78.5,
+  "frame_description": "Pikachu facing a fully visible Gyarados before battle, without Double Team or attack effects.",
+  "method": "Unaltered frame extracted with ffmpeg; no image generation used in the final cover.",
+  "remote_image_path": "/api/me/revisions/378/images/0?v=7",
+  "remote_dimensions": [
+    480,
+    640
+  ],
+  "firmware_unchanged": true,
+  "firmware_sha256": "cfc0989d9b9ade786f0708b2a2adb759f8b90f593efebce081db024793f051c2",
+  "text_and_category_unchanged": true
+}

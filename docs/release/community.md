@@ -4,10 +4,12 @@
 
 公开源码：https://github.com/Luobata/ESP32-PokemonGo 。发布分支为 `main`。最新双语标题与介绍以 [submission.json](submission.json) 为准，包含探索补给、12 位地图训练家、经验追赶和路线研究。社区项目地址与审核状态以官方提交回执为准。
 
+2026-09-10 已将封面更换为清晰的原始战斗帧，项目 `234` / 版本 `378` 仍为待审核；固件、分类与双语介绍不变。
+
 ## 已备材料
 
 - 合并固件：本地 `release/community/FoloToy-AI-Passport-full.bin`，烧录地址 `0x0`。
-- 封面：`reports/evidence/community-publisher-2026-09-09/cover.png`，1086×1448、3:4 竖版。发布时复制为 `release/community/pokewalk-cover.png`；生成来源与提示见同目录 `cover-generation.json`。
+- 封面：`reports/evidence/community-cover-2026-09-10/cover.png`，480×640、3:4 竖版。取自游戏录屏 78.5 秒，双方精灵完整可见，无影分身遮挡。发布副本为 `release/community/pokewalk-cover.png`，来源与更新回执见同目录 `cover-update.json`。
 - 真机证据：`release/community/device-screen.png` 及官方工具生成的 `.fap-capture.json` 回执。
 - 宣传片：`reports/video/pokewalk-story-red-2026-09-09/pokewalk-story-v3.mp4`，约3分43秒，包含完整博士转场与赤红片段。
 - 新片包含图鉴追踪、梦幻三段线索与成功捕获、队伍经验分享和强化道馆；演示存档章节在片中标注。
@@ -44,3 +46,5 @@ python tools/release/package_firmware.py
 ## 发布工具兼容性
 
 本次官方 publisher 脚本未提供分类参数，首次提交默认为「开发者实验」。已通过官网对同一项目撤回编辑，保留原封面和固件、改为「游戏与互动」后重新提交；项目和版本编号均未变化，固件 SHA-256 与校验产物一致。后续更新应使用项目 `234`，并核对分类，避免新建重复项目。
+
+更换审核中版本的封面时，先在官网「撤回并修改」，再在编辑表单替换图片、沿用固件并提交。当前 Agent resubmit 接口即使在撤回后也可能返回「已有版本正在审核」，本次通过官网表单完成；不要因此另建项目。
