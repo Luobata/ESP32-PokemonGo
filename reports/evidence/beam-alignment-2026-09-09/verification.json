@@ -1,0 +1,10 @@
+{
+  "renderer": "315a78b9332a1002de49",
+  "unmodified_moves": 188,
+  "unchanged_frame_checks": 6014,
+  "beam_reference_cases": 10,
+  "beam_reference_frames": 442,
+  "full_frame_bounds_checks": 78536,
+  "native_pixel_checks": 6112,
+  "hardware_flashed": false
+}

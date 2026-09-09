@@ -56,6 +56,12 @@ static void clear_actor(int band,bool pet,uint16_t background) {
 }
 static int map_x(int x){return 56+(x-40)*124/84;}
 static int map_y(int y){return 188+(y-72)*108/44;}
+// BattleAnimSub_Beam joins four separate objects into one continuous beam.
+// Project their pixels in one coordinate space: mapping each object's origin
+// while keeping its tiles at 2x introduces overlapping, offset beam segments.
+static bool joined_beam(const battle_round_t *r) {
+    return r->move_id==62||r->move_id==63||(r->move_id==76&&!r->charging);
+}
 void gold_fx_draw(const battle_round_t *r,uint8_t frame,int band,
                   const battle_fx_actor_t *pet,const battle_fx_actor_t *wild) {
     const gold_span_t *clip=clip_for(r);
@@ -111,6 +117,7 @@ void gold_fx_draw(const battle_round_t *r,uint8_t frame,int band,
     // original object origin, preserving the shape of multi-tile composites.
     for(int j=(int)span->count-1;j>=0;j--){
         const gold_object_t *o=&gold_objects[span->offset+j];
+        bool project=joined_beam(r)&&o->tile<0x8000;
         int x=map_x((int)o->x-o->dx-8)+o->dx*2;
         int y=map_y((int)o->y-o->dy-16)+o->dy*2;
         if(o->tile>=0x8000){
@@ -118,15 +125,21 @@ void gold_fx_draw(const battle_round_t *r,uint8_t frame,int band,
             x=(is_pet?8:124)+((int)o->x-8-(is_pet?16:96))*2;
             y=(is_pet?140:24)+((int)o->y-16-(is_pet?48:0))*2;
         }
-        if(y+16<=band||y>=band+80||x+16<=0||x>=240)continue;
+        if(project){x=map_x((int)o->x-8);y=map_y((int)o->y-16);}
+        int right=project?map_x(o->x):x+16;
+        int bottom=project?map_y((int)o->y-8):y+16;
+        if(bottom<=band||y>=band+80||right<=0||x>=240)continue;
         for(unsigned yy=0;yy<8;yy++)for(unsigned xx=0;xx<8;xx++){
             unsigned sx=o->flags&0x20?7-xx:xx,sy=o->flags&0x40?7-yy:yy;
             uint16_t color;
             if(o->tile>=0x8000){unsigned tile=o->tile&0x7fff;const battle_fx_actor_t *art=tile<49?wild:pet;unsigned mapping=actor_mapping(f,o->flags&7);
                 if(!actor_pixel(art,tile,sx,sy,&color,mapping))continue;}
             else{unsigned index=raw_index(o->tile,sx,sy);if(!index)continue;color=rgb555(&gold_palettes[f->palette][(o->flags&7)*8+index*2]);}
-            for(int py=0;py<2;py++)for(int px=0;px<2;px++){
-                int dx=x+xx*2+px,dy=y+yy*2+py;
+            int left=project?map_x((int)o->x-8+(int)xx):x+xx*2;
+            int top=project?map_y((int)o->y-16+(int)yy):y+yy*2;
+            int end_x=project?map_x((int)o->x-7+(int)xx):left+2;
+            int end_y=project?map_y((int)o->y-15+(int)yy):top+2;
+            for(int dy=top;dy<end_y;dy++)for(int dx=left;dx<end_x;dx++){
                 if(dx<0||dx>=240||dy<band||dy>=band+80||dy>=240)continue;
                 unsigned at=(dy-band)*240+dx;
                 if((o->flags&0x80)&&(background_ink[at/8]&(1u<<(at%8))))continue;
