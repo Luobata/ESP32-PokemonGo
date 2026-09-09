@@ -38,6 +38,11 @@ int battle_hud_hp_width(uint8_t fill_tiles, uint8_t scale);
 // >=24 green / >=10 yellow thresholds, even when the displayed bar is shorter.
 uint16_t battle_hud_hp_color(uint16_t cur, uint16_t max);
 
+// Original wild ownership tile $5d (expbar.png tile 8), distinct from the
+// trainer party/status balls. The caller checks the Pokédex caught bit.
+bool battle_hud_draw_caught(battle_hud_rect_fn rect, void *ctx, int x, int y,
+                            uint8_t scale, uint16_t background);
+
 // DrawBattleHPBar's actual 8x8 tiles, including its minimum live-HP sliver.
 // Whole component bounds are cleared to background before drawing the tiles.
 // Passing ORIGINAL_FILL_TILES and scale=1 reproduces the original 72x8 bar;

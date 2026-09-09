@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "renderer": "6fb3eb5f32b7fe353265",
+  "pixel_exact_original_tile": true,
+  "source": "pret/pokecrystal@7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/battle/expbar.png tile 8",
+  "source_sha256": "61303808ff6b2e7168807489cbb3ddfd9ecb2e0798f5ee01a00058e3321ca355",
+  "caught_checks": 9,
+  "seen_only_hidden": true,
+  "caught_normal_and_shiny_visible": true,
+  "boxed_ownership_visible": true,
+  "battle_result_visible": true,
+  "layout": {
+    "species": 151,
+    "compared_rgb565_pixels": 2355600,
+    "opaque_scaled_pixels_preserved": 661080,
+    "visible_bounds_union": [
+      120,
+      30,
+      232,
+      142
+    ],
+    "negative_controls_rejected": [
+      "opaque source pixel clipped at left",
+      "opaque source pixel clipped at top",
+      "opaque source pixel clipped at right",
+      "opaque source pixel clipped at bottom",
+      "one visible native RGB565 sprite pixel removed"
+    ],
+    "status": "PASS"
+  },
+  "esp32_build": "PASS"
+}

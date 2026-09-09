@@ -32,6 +32,11 @@ static const uint8_t s_pet_cap[8] = {
     0x00, 0xf0, 0xf8, 0xfc, 0xfe, 0xfe, 0xfe, 0x1e,
 };
 
+// DrawEnemyHUDBorder uses $5d: LoadHPBar maps expbar.png tile 8 here.
+static const uint8_t s_caught_ball[8] = {
+    0x00, 0x78, 0xdc, 0xfc, 0x84, 0x84, 0x78, 0x00,
+};
+
 // $79 top-left, $7a horizontal, $7b top-right, $7c vertical,
 // $7d bottom-left, $7e bottom-right. Top/bottom use the SAME horizontal tile.
 static const uint8_t s_frame_tiles[6][8] = {
@@ -106,6 +111,15 @@ static void draw_tile_1bpp(battle_hud_rect_fn rect, void *ctx, int x, int y,
                  (sx - start) * scale, scale, C_INK);
         }
     }
+}
+
+bool battle_hud_draw_caught(battle_hud_rect_fn rect, void *ctx, int x, int y,
+                            uint8_t scale, uint16_t background)
+{
+    if (!rect || !valid_scale(scale)) return false;
+    rect(ctx, x, y, 8 * scale, 8 * scale, background);
+    draw_tile_1bpp(rect, ctx, x, y, s_caught_ball, scale);
+    return true;
 }
 
 bool battle_hud_draw_hp(battle_hud_rect_fn rect, void *ctx, int x, int y,

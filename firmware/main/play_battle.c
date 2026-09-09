@@ -28,7 +28,6 @@
 #include "battle_fx.h"
 #include "battle_presentation.h"
 #include "game_ui.h"
-#include "party_ball_assets.h"
 #include "exp.h"
 #include "nav.h"
 #include "play.h"
@@ -56,6 +55,9 @@ extern uint32_t dbg_battle_seed;
 // together, while the complete 240x80 message box owns the bottom band.
 #define WILD_NAME_Y 8
 #define WILD_BAR_Y SCENE_P3_WILD_TOP
+#define WILD_CAUGHT_X 8
+#define WILD_BAR_X (WILD_CAUGHT_X + BATTLE_HUD_TILE_SIZE * BATTLE_HUD_SCALE)
+#define WILD_FILL_TILES 3
 #define WILD_RARITY_Y 50
 #define WILD_SHINY_Y 68
 #define PET_SPRITE_Y SCENE_P3_PET_BACK_Y
@@ -73,6 +75,9 @@ extern uint32_t dbg_battle_seed;
 
 SCREEN_ASSERT_WITHIN_BAND(battle_wild_name, WILD_NAME_Y, 16);
 SCREEN_ASSERT_WITHIN_BAND(battle_wild_bar, WILD_BAR_Y, BATTLE_HUD_HP_HEIGHT);
+_Static_assert(WILD_BAR_X + (WILD_FILL_TILES + 3) * BATTLE_HUD_TILE_SIZE *
+               BATTLE_HUD_SCALE <= SCENE_P3_WILD_HUD_RIGHT,
+               "Wild caught marker and HP must stay outside the front sprite");
 SCREEN_ASSERT_WITHIN_BAND(battle_wild_rarity, WILD_RARITY_Y, 16);
 SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_wild_sprite_box,
                           SCENE_P3_WILD_TOP, SCENE_P3_WILD_MAX_SIZE);
@@ -275,15 +280,17 @@ static void draw_band(int band_y)
             n += 3;
         }
         st[n] = '\0';
-        // Reserve the same left slot for every species, keeping stars aligned.
-        render_text(28, Y(WILD_RARITY_Y), st, C_INK);
+        render_text(8, Y(WILD_RARITY_Y), st, C_INK);
         if (dex_is_caught(world_dex(), c->enc.species_id)) {
-            const uint16_t pal[4] = {C_INK, 0x52aa, 0xad55, SCENE_P3_BG};
-            render_sprite_2bpp(8, Y(WILD_RARITY_Y), PARTY_BALLS[0], 8, 2, pal);
+            battle_hud_draw_caught(scene_screen_rect, &band_y,
+                                  WILD_CAUGHT_X, WILD_BAR_Y,
+                                  BATTLE_HUD_SCALE, SCENE_P3_BG);
         }
     }
-    battle_hud_draw_hp(scene_screen_rect, &band_y, 8, WILD_BAR_Y,
-                       BATTLE_HUD_HP_COMPACT_FILL_TILES, BATTLE_HUD_SCALE,
+    // Always reserve the caught slot; changing species never shifts the HP.
+    // A three-tile fill keeps the right edge at 120, outside all front sprites.
+    battle_hud_draw_hp(scene_screen_rect, &band_y, WILD_BAR_X, WILD_BAR_Y,
+                       WILD_FILL_TILES, BATTLE_HUD_SCALE,
                        BATTLE_HUD_WILD, w_hp, s_res.wild_hp_max, SCENE_P3_BG);
     }
 
