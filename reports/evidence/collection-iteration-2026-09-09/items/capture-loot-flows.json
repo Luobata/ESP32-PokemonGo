@@ -1,6 +1,6 @@
 {
   "status": "PASS",
-  "build": "40fb517ab012dd3a66c1",
+  "build": "93a579699fba37b9c280",
   "cases": [
     "ball 0: one spent, one catch, intimacy correct",
     "ball 1: one spent, one catch, intimacy correct",
@@ -50,6 +50,6 @@
       "quantity": 1
     }
   ],
-  "dirty_full_checks": 1083,
+  "dirty_full_checks": 1514,
   "scope": "actual C pages/rules/assets; host world/NVS fixture, storage verified separately"
 }
