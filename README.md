@@ -60,7 +60,7 @@ python3 tools/pipeline/verify_system_links.py
 
 固件应用在 `firmware/build/PokeWalk.bin`，应用地址 `0x10000`。现有设备增量更新前备份 NVS，不能把应用文件当成从 `0x0` 烧写的合并固件。存档版本 V14，3664字节；真实设备备份、扫描原始数据与凭证不进入 Git。
 
-社区上架需要另行验证的 `0x0` 合并固件、封面、源码地址和双语介绍，见发布说明。本仓库 push 不代表已经发布到社区。
+已向 AI Passport 社区提交项目 `234`（PokeWalk），当前待审核，见[创作者工作台](https://ai-passport.folotoy.cn/account/?project=234)与[发布回执](reports/evidence/community-publisher-2026-09-09/submission-receipt.json)。社区上传使用通过官方校验的 `0x0` 合并固件、3:4 封面和双语介绍；审核通过后才公开展示。
 
 ## 来源与验证边界
 

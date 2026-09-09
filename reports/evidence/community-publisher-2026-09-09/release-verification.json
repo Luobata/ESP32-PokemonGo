@@ -9,7 +9,7 @@
     "protected_layout_pass": true,
     "checker_source": "FoloToy/ai-passport@df3990726e3751fadaaaa703a480dbba6e13c61b",
     "application_size": 2991184,
-    "community_upload_performed": false,
+    "community_upload_performed": true,
     "ble_install_tested": false
   },
   "application_flash_verified": true,
