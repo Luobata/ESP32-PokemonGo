@@ -84,8 +84,8 @@ static void draw_band(int band_y)
         unsigned chapter=exploration_unlock_chapter(s_species);bool open=exploration_species_open(s_species,view.defeated);
         game_ui_text_centered(band_y,8,208,224,16,open?"已开放：可追踪获取":exploration_chapter(chapter)->condition,GAME_UI_MUTED);
         game_ui_text_centered(band_y,8,232,224,16,s_feedback?s_feedback:dex_is_caught(d,s_species)?"已捕获 仍可追踪闪光":"未捕获 追踪可确保遇到",GAME_UI_MUTED);
-        game_ui_text_centered(band_y,8,256,224,16,"长按B上一只",GAME_UI_MUTED);
-        game_ui_footer(band_y,view.state.tracked_species==s_species?"[A]取消 [B]下只 [C]返回":"[A]追踪 [B]下只 [C]返回");
+        game_ui_text_centered(band_y,8,256,224,16,"上下切换 长按B返回",GAME_UI_MUTED);
+        game_ui_footer(band_y,view.state.tracked_species==s_species?"上下切换 确认取消追踪":"上下切换 确认追踪");
         screen_push_band(band_y);return;
     }
     // Static grid: every page/selection update calls draw_all(). A thumbnail
@@ -129,7 +129,7 @@ static void draw_band(int band_y)
              (DEX_SPECIES + PER_PAGE - 1) / PER_PAGE);
     render_text(228 - render_text_width(buf), Y(PAGE_Y), buf, GAME_UI_MUTED);
 
-    game_ui_footer(band_y, "[A]详情 [B]下页 [C]返回");
+    game_ui_footer(band_y, "A上 B下 C详情 长按B返回");
 
     #undef Y
     screen_push_band(band_y);
@@ -165,10 +165,10 @@ void play_dex_exit(void)
 void play_dex_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
     if(s_detail){
-        if(btn==BSP_BTN_DOWN&&(ev==BSP_BTN_CLICK||ev==BSP_BTN_LONG)){
-            s_species=(s_species+150+(ev==BSP_BTN_LONG?-1:1))%151+1;s_feedback=NULL;
-        }else if(ev==BSP_BTN_CLICK&&btn==BSP_BTN_OK){s_page=(s_species-1)/PER_PAGE;s_detail=false;}
-        else if(ev==BSP_BTN_CLICK&&btn==BSP_BTN_UP){
+        if(nav_direction(btn,ev)!=0){
+            s_species=(s_species+150+nav_direction(btn,ev))%151+1;s_feedback=NULL;
+        }else if(nav_return(btn,ev)){s_page=(s_species-1)/PER_PAGE;s_detail=false;}
+        else if(nav_confirm(btn,ev)){
             exploration_view_t view;world_exploration_snapshot(&view);bool cancel=view.state.tracked_species==s_species;
             exploration_kind_t result=world_exploration_track(cancel?0:s_species);
             if(result==EXPLORE_NONE&&!cancel){nav_open(PAGE_EXPLORATION);return;}
@@ -176,28 +176,15 @@ void play_dex_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         }else return;
         draw_all();return;
     }
-    if(btn==BSP_BTN_DOWN&&ev==BSP_BTN_LONG){s_page=(s_page+7)%8;draw_all();return;}
-    if (ev != BSP_BTN_CLICK) return;
-
-    switch (btn) {
-    case BSP_BTN_UP: {                     // A 上一页
-        s_species=s_page*PER_PAGE+1;s_detail=true;s_feedback=NULL;
-        draw_all();
-        break;
+    if (nav_return(btn, ev)) { nav_back(PAGE_IDLE); return; }
+    int direction = nav_direction(btn, ev);
+    if (direction) {
+        unsigned pages = (DEX_SPECIES + PER_PAGE - 1) / PER_PAGE;
+        s_page = (s_page + pages + direction) % pages;
+        draw_all(); return;
     }
-
-    case BSP_BTN_DOWN: {                   // B 下一页
-        uint8_t pages = (DEX_SPECIES + PER_PAGE - 1) / PER_PAGE;
-        s_page = (uint8_t)((s_page + 1) % pages);
+    if (nav_confirm(btn, ev)) {
+        s_species = s_page * PER_PAGE + 1; s_detail = true; s_feedback = NULL;
         draw_all();
-        break;
-    }
-
-    case BSP_BTN_OK:                       // C 返回
-        nav_back(PAGE_IDLE);
-        break;
-
-    default:
-        break;
     }
 }

@@ -1,0 +1,15 @@
+{
+  "build": "40d9fe255c43cb0777f1",
+  "dirty_full_checks": 165,
+  "learned_moves_5_to_11": 5,
+  "party_notices": [
+    25,
+    1,
+    4,
+    7,
+    133,
+    147
+  ],
+  "save_schema_unchanged": true,
+  "passed": true
+}

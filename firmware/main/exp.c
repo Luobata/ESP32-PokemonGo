@@ -1,4 +1,5 @@
 #include "exp.h"
+#include <string.h>
 
 uint32_t exp_for_level(uint8_t n)
 {
@@ -58,4 +59,25 @@ void exp_award_party(party_t *p,unsigned participants,unsigned eligible,uint16_t
   m->exp=m->exp>UINT32_MAX-gain?UINT32_MAX:m->exp+gain;
   m->level=exp_to_level(m->exp,LEVEL_MAX);
  }
+}
+
+void exp_growth_record(exp_growth_queue_t *q,const mon_t *before,unsigned nb,const mon_t *after,unsigned na) {
+ if(!q||!before||!after)return;
+ for(unsigned i=0;i<nb&&i<na&&i<PARTY_MAX;i++) {
+  const mon_t *a=&before[i],*b=&after[i];
+  if(!a->species_id||a->species_id!=b->species_id||b->level<=a->level||b->exp<=a->exp)continue;
+  bool merged=false;
+  for(unsigned j=0;j<q->count;j++) {
+   exp_growth_t *e=&q->events[j];
+   if(e->slot==i&&e->species==b->species_id&&e->after==a->level){e->after=b->level;merged=true;break;}
+  }
+  if(merged)continue;
+  if(q->count==EXP_GROWTH_CAP){memmove(q->events,q->events+1,(EXP_GROWTH_CAP-1)*sizeof(q->events[0]));q->count--;}
+  q->events[q->count++]=(exp_growth_t){b->species_id,a->level,b->level,b->flags,i};
+ }
+}
+bool exp_growth_pop(exp_growth_queue_t *q,exp_growth_t *out) {
+ if(!q||!out||!q->count)return false;
+ *out=q->events[0];q->count--;
+ memmove(q->events,q->events+1,q->count*sizeof(q->events[0]));return true;
 }

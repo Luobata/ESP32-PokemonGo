@@ -10,8 +10,12 @@
 #include "esp_log.h"
 #include "esp_timer.h"
 #include <stdbool.h>
+#include <stdatomic.h>
 
 static const char *TAG = "bsp_btn";
+static atomic_bool s_observe_only;
+static atomic_bool s_observed_gesture[BSP_BTN_COUNT];
+void bsp_button_observe_only(bool enabled) { atomic_store(&s_observe_only, enabled); }
 
 static const uint16_t BTN_MV[BSP_BTN_COUNT][2] = BSP_BTN_MV_TABLE;
 
@@ -35,7 +39,14 @@ static adc_cali_handle_t         s_cali;
 static void on_event(void *arg, void *usr_data, bsp_btn_ev_t ev) {
     (void)arg;
     if (!s_cb) return;
-    s_cb((bsp_btn_t)(intptr_t)usr_data, ev, s_user);
+    unsigned index = (unsigned)(intptr_t)usr_data;
+    if (atomic_load(&s_observe_only)) atomic_store(&s_observed_gesture[index], true);
+    if (atomic_load(&s_observed_gesture[index])) {
+        ESP_LOGI(TAG, "@@BUTTON_PROBE_EVENT key=%u event=%u", index, (unsigned)ev);
+        if (ev == BSP_BTN_GESTURE_END) atomic_store(&s_observed_gesture[index], false);
+        if (ev != BSP_BTN_RELEASE && ev != BSP_BTN_GESTURE_END) return;
+    }
+    s_cb((bsp_btn_t)index, ev, s_user);
 }
 static void cb_press(void *a, void *u) {
     if (!s_cb) return;

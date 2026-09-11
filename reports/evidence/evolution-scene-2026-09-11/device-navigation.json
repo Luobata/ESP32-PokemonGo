@@ -1,0 +1,41 @@
+[
+  {
+    "label": "boot-home",
+    "off": 0,
+    "brightness": 100,
+    "page": 0,
+    "scans": 11885,
+    "pending": 0,
+    "pet": 2,
+    "level": 16,
+    "exp": 6580,
+    "stamina_q10": 22384,
+    "mood_q10": 97060
+  },
+  {
+    "label": "care",
+    "off": 0,
+    "brightness": 100,
+    "page": 6,
+    "scans": 11885,
+    "pending": 0,
+    "pet": 2,
+    "level": 16,
+    "exp": 6580,
+    "stamina_q10": 22434,
+    "mood_q10": 97057
+  },
+  {
+    "label": "return-home",
+    "off": 0,
+    "brightness": 100,
+    "page": 0,
+    "scans": 11885,
+    "pending": 0,
+    "pet": 2,
+    "level": 16,
+    "exp": 6580,
+    "stamina_q10": 22434,
+    "mood_q10": 97057
+  }
+]

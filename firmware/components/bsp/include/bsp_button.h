@@ -3,6 +3,7 @@
 #pragma once
 
 #include "esp_err.h"
+#include <stdbool.h>
 
 // A/B 的网页按住阈值也使用 600 ms；硬件在去抖确认按下后计时。
 #define BSP_BTN_LONG_PRESS_MS 600
@@ -36,3 +37,7 @@ esp_err_t bsp_button_init(bsp_btn_cb_t cb, void *user);
 // ★ 换了分压/上拉阻值后,用它测出自己的三档电压,再改 bsp_pins.h 的 BSP_BTN_MV_TABLE。
 // 读取失败返回 -1。
 int bsp_button_read_mv(void);
+
+// Diagnostic observation: suppress game actions while preserving release/end
+// cleanup. A gesture that starts during observation remains suppressed to END.
+void bsp_button_observe_only(bool enabled);

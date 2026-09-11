@@ -99,11 +99,13 @@ void nurture_feed(nurture_t *n)
     n->mood = clamp_axis((int64_t)n->mood + NURT_FEED_MOOD);
 }
 
-void nurture_play(nurture_t *n)
+bool nurture_play(nurture_t *n)
 {
+    if (!n || n->stamina < NURT_PLAY_STAMINA) return false;
     n->mood = clamp_axis((int64_t)n->mood + NURT_PLAY_MOOD);
     n->stamina = clamp_axis((int64_t)n->stamina - NURT_PLAY_STAMINA);
     n->intimacy = clamp_axis((int64_t)n->intimacy + NURT_PLAY_INTIMACY);
+    return true;
 }
 
 void nurture_rest(nurture_t *n)
@@ -123,6 +125,26 @@ uint16_t nurture_ability_factor(const nurture_t *n)
     return n && nurture_mood(n) == NURT_MOOD_DESPONDENT ? 614 : 1024;
 }
 
+void nurture_challenge_defeat(nurture_t *n)
+{
+    if (n) n->mood = clamp_axis((int64_t)n->mood - NURT_CHALLENGE_DEFEAT_MOOD);
+}
+
+unsigned nurture_wait_minutes(const nurture_t *n, unsigned cost)
+{
+    if (!n || !cost) return 0;
+    int64_t missing = (int64_t)cost * NURT_Q - n->stamina;
+    if (missing <= 0) return 0;
+    return (unsigned)((missing * 60 + NURT_STAMINA_RECOVER_PH - 1) / NURT_STAMINA_RECOVER_PH);
+}
+
+uint8_t nurture_stamina_points(const nurture_t *n)
+{
+    if (!n || n->stamina <= 0) return 0;
+    unsigned points = n->stamina / NURT_Q;
+    return points > 100 ? 100 : points;
+}
+
 uint8_t nurture_pct(int32_t q)
 {
     // 四舍五入而非截断 —— 截断会让 99.9 显示成 99，
@@ -133,11 +155,9 @@ uint8_t nurture_pct(int32_t q)
 
 nurt_mood_t nurture_mood(const nurture_t *n)
 {
-    // 顺序与 sim/gameplay.py 的 mood_label 完全一致：
-    // 先判消沉（任一轴 < 25），再按 mood 分档。
+    // 体能是行动预算，不参与战斗能力；饱食与心情继续关联养成。
     int32_t lo = n->satiety;
     if (n->mood < lo) lo = n->mood;
-    if (n->stamina < lo) lo = n->stamina;
     if (lo < NURT_LOW_THRESHOLD) return NURT_MOOD_DESPONDENT;
 
     if (n->mood >= 80 * NURT_Q) return NURT_MOOD_HAPPY;

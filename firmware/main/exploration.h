@@ -6,6 +6,7 @@
 #define EXPLORATION_CLUES 3
 
 typedef struct {
+ // energy retains the V14 byte: optional exploration intel, never an entry fee.
  uint8_t route, energy, clues[EXPLORATION_ROUTES], pulse[EXPLORATION_ROUTES];
  uint8_t tracked_species, research_flags; // Low 4: claimed; high 4: target traced.
  uint32_t steps;
@@ -42,7 +43,7 @@ typedef struct {
  uint8_t stamina,exp_percent,rare_bonus,party_bonus;
  uint8_t rare_left,elite_left,pending;
  uint8_t research_seen,research_caught;
- uint16_t supply_q10; // Saved movement towards the next banked opportunity.
+ uint16_t supply_q10; // Saved movement towards the next optional intel bonus.
 } exploration_view_t;
 // Candidate-only operation. Publish all state and the event after NVS commits.
 exploration_event_t exploration_step(exploration_state_t *s,enc_refresh_state_t *r,

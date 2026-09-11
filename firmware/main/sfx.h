@@ -19,3 +19,5 @@ void sfx_move(uint16_t move_id, uint8_t type, bool missed);
 
 // Coalesce simultaneous spawns: shiny > rare > ordinary; never wake the screen.
 void sfx_encounter(uint8_t rarity, bool shiny);
+
+void sfx_cry(uint16_t species);

@@ -142,6 +142,18 @@ static void battle_lock(void) {
     assert(world_set_leader(1,&view.members[1],NULL)==WORLD_SWITCH_BUSY);
     world_end_active_encounter();assert(world_set_leader(1,&view.members[1],NULL)==WORLD_SWITCH_OK);tests++;
 }
+static void play_stamina_boundary(void) {
+    const int32_t stamina[]={0,1,4*NURT_Q,5*NURT_Q-1,5*NURT_Q,6*NURT_Q};
+    for(unsigned i=0;i<sizeof(stamina)/sizeof(stamina[0]);i++) {
+        seed_team();s_w.pet.stamina=stamina[i];s_w.pet.mood=20*NURT_Q;s_w.pet.intimacy=10*NURT_Q;s_dirty=false;
+        nurture_t before=s_w.pet;unsigned writes=commits;
+        bool ok=world_play();
+        assert(ok==(stamina[i]>=5*NURT_Q));
+        if(!ok){assert(!memcmp(&before,&s_w.pet,sizeof(before)));assert(!s_dirty);}
+        else {assert(s_w.pet.stamina==before.stamina-5*NURT_Q);assert(s_w.pet.mood==35*NURT_Q);assert(s_w.pet.intimacy==11*NURT_Q);assert(s_dirty);}
+        assert(commits==writes);tests++;
+    }
+}
 static void individual_bond(void) {
     seed_team();world_party_t view;world_party_snapshot(&view);nurture_t shared=s_w.pet;
     for(unsigned i=0;i<20;i++) {
@@ -251,7 +263,7 @@ static void box_migration_and_capacity(void) {
     assert(party_exchange_at(&restored,0,150)&&!memcmp(&restored,&before,sizeof(before)));tests+=4;
 }
 int main(void) {
-    snapshot_readonly();every_position();failures_and_stale();battle_lock();individual_bond();
+    snapshot_readonly();every_position();failures_and_stale();battle_lock();play_stamina_boundary();individual_bond();
     legacy_and_protection();concurrent_care();easier_curve_preserves_progress();duplicate_box_exchange();box_migration_and_capacity();
     printf("{\"cases\":%u,\"party_slots\":%d,\"box_slots\":%d,\"mon_bytes\":%zu,\"save_version\":%d,\"save_bytes\":%zu,\"erase_calls\":%u}\n",
         tests,PARTY_MAX,BOX_SPECIES,sizeof(mon_t),SAVE_VERSION,sizeof(save_t),erase_calls);
@@ -292,6 +304,7 @@ def run(root: Path) -> dict:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--negative', action='store_true')
+    parser.add_argument('--evidence-dir', type=Path, default=ROOT/'reports/evidence/party-2026-09-08')
     args = parser.parse_args()
     result = run(ROOT)
     result.update(sanitized=True, concurrent_care=True,
@@ -301,7 +314,7 @@ def main() -> None:
         changes = [
             ('rollback', 'bool ok = save_write(&s_save_buf);', 'bool ok = (save_write(&s_save_buf), true);'),
             ('stale member', 'if (memcmp(&wanted, &selected, sizeof(wanted)) != 0)', 'if (false)'),
-            ('active lock', 'if (s_active.encounter.uid)', 'if (false)'),
+            ('active lock', 'if (s_active.encounter.uid || s_challenge.session.active || s_challenge.league_active)', 'if (false)'),
             ('individual intimacy', 's_w.pet.intimacy = s_save_buf.pet.intimacy;', 's_w.pet.intimacy = s_w.pet.intimacy;'),
             ('shared axes', 's_w.species = next_leader.species_id;', 's_w.pet.stamina = NURT_MAX; s_w.species = next_leader.species_id;'),
             ('pending stats', 'memset(s_battles, 0, sizeof(s_battles));', '(void)s_battles;'),
@@ -327,7 +340,7 @@ def main() -> None:
         name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest() for name in
         ('firmware/main/world.c', 'firmware/main/world.h', 'firmware/main/party.c',
          'firmware/main/party.h', 'firmware/main/save.c', 'firmware/main/save.h')}
-    output = ROOT / 'reports/evidence/party-2026-09-08'
+    output = args.evidence_dir
     output.mkdir(parents=True, exist_ok=True)
     (output / 'world-save.json').write_text(json.dumps(result, indent=2) + '\n')
     print(json.dumps(result, indent=2))

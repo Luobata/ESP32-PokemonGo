@@ -1,0 +1,17 @@
+{
+  "build": "f081d05f199b630d7db5",
+  "passed": [
+    "home-and-lists",
+    "settings-and-wake",
+    "party-and-box",
+    "exploration",
+    "starter",
+    "capture-and-counter",
+    "wild-escape-and-fight",
+    "trainer",
+    "care-stamina",
+    "adaptive-party"
+  ],
+  "dirty_vs_full_redraw_checks": 820,
+  "scope": "production game C with host world/save fixtures; physical ADC gestures checked separately"
+}

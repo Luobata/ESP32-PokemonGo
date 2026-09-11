@@ -40,6 +40,30 @@ void game_ui_footer(int band_y, const char *hint)
     game_ui_text_centered(band_y, 5, 287, 229, 28, hint, GAME_UI_INK);
 }
 
+void game_ui_action_row(int band_y, int x, int y, int width,
+                        const char *const *labels, unsigned count, unsigned selected)
+{
+    if (!count) return;
+    int cell = width / count;
+    for (unsigned i = 0; i < count; i++) {
+        int left = x + i * cell;
+        game_ui_text_centered(band_y, left + 10, y, cell - 10, 16,
+                              labels[i], i == selected ? GAME_UI_INK : GAME_UI_MUTED);
+        if (i == selected) game_ui_cursor(band_y, left, y + 4);
+    }
+}
+void game_ui_actions(int band_y, const char *const *labels, unsigned count, unsigned selected)
+{
+    game_ui_box(band_y, 0, 280, 240, 40);
+    game_ui_action_row(band_y, 8, 294, 224, labels, count, selected);
+}
+const char *game_ui_list_hint(unsigned count) {
+    return count ? GAME_UI_NAV_HINT : GAME_UI_BACK_HINT;
+}
+void game_ui_list_marker(int band_y, int x, int y, unsigned index, unsigned count, unsigned selected) {
+    if (index < count && index == selected) game_ui_cursor(band_y, x, y + 4);
+}
+
 void game_ui_text_centered(int band_y, int x, int y, int w, int h,
                            const char *text, uint16_t color)
 {
@@ -129,18 +153,18 @@ void game_ui_text_fitted(int band_y, int x, int y, int width, const char *text, 
 void game_ui_moves(int y,uint16_t species,uint8_t level,unsigned selected,bool in_battle){
  uint16_t ids[COMBAT_MOVE_CAP];int count=combat_known_moves(species,level,ids,COMBAT_MOVE_CAP);char text[80];
  snprintf(text,sizeof(text),"已学会 %d",count);game_ui_title(y,"技能",text);
- if(!count){game_ui_text_centered(y,16,112,208,16,"暂时没有已学招式",GAME_UI_MUTED);return;}
+ if(!count){game_ui_text_centered(y,16,112,208,16,"暂时没有已学招式",GAME_UI_MUTED);game_ui_footer(y,GAME_UI_BACK_HINT);return;}
  selected%=count;unsigned top=selected/5*5;
  for(unsigned row=0;row<5&&top+row<(unsigned)count;row++){
   unsigned index=top+row;move_t m;combat_move(ids[index],&m);int sy=44+row*34;
   snprintf(text,sizeof(text),"%.*s",m.name_zh_len,m.name_zh);render_text(32,sy-y,text,GAME_UI_INK);
   snprintf(text,sizeof(text),"Lv%u",combat_learn_level(species,m.id));render_text(228-render_text_width(text),sy-y,text,GAME_UI_MUTED);
-  if(index==selected)game_ui_cursor(y,12,sy+4);
+  game_ui_list_marker(y,8,sy,index,count,selected);
  }
  game_ui_box(y,8,216,224,56);
  game_ui_text_fitted(y,16,228,208,combat_description(ids[selected]),GAME_UI_INK);
  game_ui_text_centered(y,16,250,208,16,"升级自动学会 永不遗忘",GAME_UI_MUTED);
- game_ui_footer(y,in_battle?"[A]继续 [B]下一 [C]返回":"[B]下一 长B上一 [C]返回");
+ game_ui_footer(y,in_battle?"A上 B下 C继续 长按B返回":GAME_UI_NAV_HINT);
 }
 
 void game_ui_fade_background(int band_y,unsigned amount) {

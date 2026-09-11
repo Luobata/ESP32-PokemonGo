@@ -1,0 +1,127 @@
+{
+  "scope": "Flashed ESP32 application, serial events through actual navigation dispatcher; no progression or items spent.",
+  "checks": [
+    {
+      "label": "boot-home",
+      "off": 0,
+      "brightness": 100,
+      "page": 0,
+      "scans": 11547,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5620
+    },
+    {
+      "label": "B-only-moves-home-cursor",
+      "off": 0,
+      "brightness": 100,
+      "page": 0,
+      "scans": 11547,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5620
+    },
+    {
+      "label": "C-confirms-menu",
+      "off": 0,
+      "brightness": 100,
+      "page": 9,
+      "scans": 11547,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5620
+    },
+    {
+      "label": "C-confirms-dex",
+      "off": 0,
+      "brightness": 100,
+      "page": 4,
+      "scans": 11547,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5620
+    },
+    {
+      "label": "long-B-menu",
+      "off": 0,
+      "brightness": 100,
+      "page": 9,
+      "scans": 11547,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5620
+    },
+    {
+      "label": "long-B-home",
+      "off": 0,
+      "brightness": 100,
+      "page": 0,
+      "scans": 11547,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5620
+    },
+    {
+      "label": "C-confirms-care",
+      "off": 0,
+      "brightness": 100,
+      "page": 6,
+      "scans": 11547,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5620
+    },
+    {
+      "label": "long-B-home-from-care",
+      "off": 0,
+      "brightness": 100,
+      "page": 0,
+      "scans": 11547,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5620
+    },
+    {
+      "label": "A-only-moves-home-cursor",
+      "off": 0,
+      "brightness": 100,
+      "page": 0,
+      "scans": 11547,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5620
+    },
+    {
+      "label": "C-confirms-encounters",
+      "off": 0,
+      "brightness": 100,
+      "page": 1,
+      "scans": 11547,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5620
+    },
+    {
+      "label": "long-B-home-final",
+      "off": 0,
+      "brightness": 100,
+      "page": 0,
+      "scans": 11547,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5620
+    }
+  ],
+  "save_progress_preserved": true
+}

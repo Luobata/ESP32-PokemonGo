@@ -181,6 +181,16 @@ int main(int argc, char **argv) {
  assert(bsp_button_init(on_key,(void *)3)==ESP_ERR_INVALID_STATE);
  assert(adc_units==1 && adc_channels==1 && "BSP and ADC keys must share ADC1");
  run(3300,300); assert(count==0 && bsp_button_read_mv()==3300);
+ if(argc>1 && !strcmp(argv[1],"observe")) {
+  bsp_button_observe_only(true);
+  run(300,700);bsp_button_observe_only(false);run(3300,500);
+  const int cleanup[]={BSP_BTN_RELEASE,BSP_BTN_GESTURE_END};expect(0,1,cleanup,2);
+  int begin=count;run(300,100);run(3300,300);
+  const int click[]={BSP_BTN_PRESS,BSP_BTN_RELEASE,BSP_BTN_CLICK,BSP_BTN_GESTURE_END};expect(begin,1,click,4);
+  begin=count;run(595,100);bsp_button_observe_only(true);run(3300,300);bsp_button_observe_only(false);
+  const int started[]={BSP_BTN_PRESS,BSP_BTN_RELEASE,BSP_BTN_GESTURE_END};expect(begin,2,started,3);
+  puts("{\"observation_suppresses_actions\":true,\"gesture_finishes_after_probe\":true}");return 0;
+ }
  if(argc>1 && !strcmp(argv[1],"hold")) {
   run(300,3000); run(3300,500);
   printf("{\"events\":[");
@@ -291,6 +301,7 @@ def main():
         hold = json.loads(subprocess.check_output([executable, 'hold'], text=True))['events']
         assert [event[:2] for event in hold] == [[1, 0], [1, 3], [1, 4], [1, 5]]
         evidence['three_second_B_hold_events'] = hold
+        evidence['observation'] = json.loads(subprocess.check_output([executable, 'observe'], text=True))
         evidence['failure_recovery'] = []
         for mode, label in (
             ('fail1', 'timer creation error: clean partial init and retry'),
@@ -339,12 +350,12 @@ def main():
                         continue
                     renderer.command(f'key {key} {event}')
                     assert renderer.command('check')['mismatch'] == 0
-                assert renderer.inspect()['bag_selected'] == 18, 'real B hold did not select previous item'
+                assert renderer.inspect()['page'] == 5, 'real DOWN hold did not return to care'
                 renderer.command('tick 1000')
-                assert renderer.inspect()['bag_selected'] == 18, 'release/timer undid previous item'
+                assert renderer.inspect()['page'] == 5, 'release/timer changed the returned page'
                 renderer.command('key 1 1')
-                assert renderer.inspect()['bag_selected'] == 0, 'click after hold must advance once'
-                evidence['native_P10'] = {'build': version, 'after_hold_and_release': 18, 'after_next_click': 0}
+                assert renderer.inspect()['page'] == 5, 'click after hold must select on care without navigation'
+                evidence['native_P10'] = {'build': version, 'after_hold_and_release_page': 5, 'after_next_click_page': 5}
             finally:
                 renderer.close()
         evidence['scope'] = 'Actual BSP + installed ADC/button C with ideal voltages and timer ticks; hardware voltage noise/LVGL task timing not measured.'

@@ -34,7 +34,7 @@ int main(void){
 def main():
  with tempfile.TemporaryDirectory() as folder:
   t=Path(folder);(t/'probe.c').write_text(C)
-  command=['cc','-std=c11','-O1','-g','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-I',str(ROOT/'firmware/main'),str(t/'probe.c')]+[str(ROOT/'firmware/main'/n) for n in ('music.c','sound_mixer.c','audio.c')]+['-o',str(t/'probe')]
+  command=['cc','-std=c11','-O1','-g','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-I',str(ROOT/'firmware/main'),str(t/'probe.c')]+[str(ROOT/'firmware/main'/n) for n in ('music.c','sound_mixer.c','cry.c','audio.c')]+['-o',str(t/'probe')]
   r=subprocess.run(command,capture_output=True,text=True);assert not r.returncode,r.stderr
   r=subprocess.run([str(t/'probe')],capture_output=True,text=True,timeout=60);assert not r.returncode,r.stdout+r.stderr;print(r.stdout)
 if __name__=='__main__':main()

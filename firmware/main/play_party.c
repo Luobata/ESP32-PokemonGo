@@ -28,7 +28,7 @@ SCREEN_ASSERT_WITHIN_BAND(party_detail_feedback, 244, 16);
 SCREEN_ASSERT_WITHIN_BAND(party_box_count, 260, 16);
 
 static world_party_t s_party;
-static uint8_t s_selected;
+static uint8_t s_selected, s_action;
 static bool s_details,s_skills;
 static unsigned s_skill;
 static bool s_box_mode,s_box_details;
@@ -43,7 +43,7 @@ static int s_sway;
 
 static const mon_t *view_member(void)
 {
-    if (s_box_mode && s_box_count) return &s_box[s_box_ids[s_box_row]];
+    if (s_box_mode) return s_box_count ? &s_box[s_box_ids[s_box_row]] : NULL;
     return s_selected < s_party.count ? &s_party.members[s_selected] : NULL;
 }
 
@@ -94,22 +94,24 @@ static void draw_list(int band_y)
             continue;
         }
         const mon_t *member = &s_party.members[index];
-        draw_front(band_y, member, 24, y + 2, THUMB_SIZE, THUMB_SIZE, true);
+        int sprite_x = 24;
+        int text_x = 64;
+        draw_front(band_y, member, sprite_x, y + 2, THUMB_SIZE, THUMB_SIZE, true);
         member_name(member, name, sizeof(name));
-        render_text(64, y + 2 - band_y, name, GAME_UI_INK);
+        render_text(text_x, y + 2 - band_y, name, GAME_UI_INK);
         snprintf(text, sizeof(text), "Lv%u", member->level);
         render_text(228 - render_text_width(text), y + 2 - band_y, text, GAME_UI_INK);
         if(index)snprintf(text,sizeof(text),"分享%u%%",exp_party_percent(member->level,highest,false));
         else snprintf(text,sizeof(text),"亲密 %u",member->intimacy);
-        render_text(64, y + 20 - band_y, text, GAME_UI_MUTED);
+        render_text(text_x, y + 20 - band_y, text, GAME_UI_MUTED);
         if (index == 0) render_text(196, y + 20 - band_y, "出战", GAME_UI_ACCENT);
-        if (index == s_selected) game_ui_cursor(band_y, 10, y + 14);
+        game_ui_list_marker(band_y, 8, y + 10, index, s_party.count, s_selected);
     }
-    if(!s_feedback[0]) { render_text(12, 260 - band_y, "长A换入", GAME_UI_MUTED);
+    if(!s_feedback[0]) { render_text(12, 260 - band_y, "C查看详情", GAME_UI_MUTED);
     snprintf(text, sizeof(text), "仓库%u只", s_party.box_count);
     render_text(228 - render_text_width(text), 260 - band_y, text, GAME_UI_MUTED);
     } else game_ui_text_centered(band_y,8,260,224,16,s_feedback,GAME_UI_ACCENT);
-    game_ui_footer(band_y, "[A]详情 [B]下一 [C]返回");
+    game_ui_footer(band_y, game_ui_list_hint(s_party.count));
 }
 
 static void draw_detail(int band_y)
@@ -135,11 +137,14 @@ static void draw_detail(int band_y)
     render_text(12, 208 - band_y, text, GAME_UI_MUTED);
     if (member->flags & 1) render_text(196, 208 - band_y, "闪光", GAME_UI_ACCENT);
     game_ui_box(band_y, 8, 232, 224, 40);
-    const char *hint = s_feedback[0] ? s_feedback : s_box_mode ? "长A或B查看全部技能" : s_party.switch_locked
-        ? "请先结束当前对战" : s_selected ? "长A查看全部技能" : "长A查看全部技能";
+    const char *hint = s_feedback[0] ? s_feedback : s_box_mode ? GAME_UI_BACK_HINT : GAME_UI_NAV_HINT;
     game_ui_text_centered(band_y, 16, 244, 208, 16, hint,
                          s_success ? GAME_UI_ACCENT : GAME_UI_INK);
-    game_ui_footer(band_y, s_box_mode ? "[A]换入 [B]技能 [C]列表" : "[A]出战 [B]道具 [C]列表");
+    static const char *const party_actions[] = {"出战", "道具", "技能", "换入"};
+    static const char *const box_actions[] = {"换入", "技能"};
+    game_ui_actions(band_y, s_box_mode ? box_actions : party_actions,
+                    s_box_mode ? 2 : 4, s_action);
+
 }
 
 static void load_box(void){
@@ -155,11 +160,11 @@ static void draw_box(int band){
   mon_t *m=&s_box[s_box_ids[top+i]];int y=52+i*32;member_name(m,name,sizeof(name));render_text(54,y-band,name,GAME_UI_INK);
   if(m->flags&1)render_text(34,y-band,"★",GAME_UI_ACCENT);
   snprintf(text,sizeof(text),"Lv%u",m->level);render_text(216-render_text_width(text),y-band,text,GAME_UI_INK);
-  if(top+i==s_box_row)game_ui_cursor(band,18,y+4);
+  game_ui_list_marker(band,8,y,top+i,s_box_count,s_box_row);
  }
  member_name(&s_party.members[s_selected],name,sizeof(name));snprintf(text,sizeof(text),"换出 %s",name);game_ui_text_centered(band,8,230,224,16,text,GAME_UI_INK);
- game_ui_text_centered(band,8,254,224,16,s_feedback[0]?s_feedback:"★闪光  长A详情",GAME_UI_MUTED);
- game_ui_footer(band,"[A]换入 [B]下一 [C]返回");
+ game_ui_text_centered(band,8,254,224,16,s_feedback[0]?s_feedback:"★闪光 C查看详情",GAME_UI_MUTED);
+ game_ui_footer(band,game_ui_list_hint(s_box_count));
 }
 static void draw_all(void)
 {
@@ -182,7 +187,7 @@ static bool refresh_snapshot(void)
     world_party_snapshot(&fresh);
     bool changed = memcmp(&fresh, &s_party, sizeof(fresh)) != 0;
     s_party = fresh;
-    if (s_selected >= s_party.count) { s_selected = 0; s_details = false; s_skills = false; }
+    if (s_selected >= s_party.count) { s_selected = s_action = 0; s_details = false; s_skills = false; }
     return changed;
 }
 
@@ -202,7 +207,7 @@ static void refresh_tick(lv_timer_t *timer)
 
 void play_party_enter(void)
 {
-    if (!nav_is_returning()) { s_selected = 0; s_details = false; s_skills = false; }
+    if (!nav_is_returning()) { s_selected = s_action = 0; s_details = false; s_skills = false; }
     s_feedback[0] = '\0';
     s_box_mode=s_box_details=false;
     s_success = false;
@@ -246,71 +251,51 @@ static void select_leader(void)
 
 void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
-    if(s_box_mode){
-        if(s_skills){
-            if(btn==BSP_BTN_OK && ev==BSP_BTN_CLICK)s_skills=false;
-            else if(btn==BSP_BTN_DOWN && (ev==BSP_BTN_CLICK || ev==BSP_BTN_LONG) && view_member()){
-                uint16_t ids[COMBAT_MOVE_CAP];
-                int count=combat_known_moves(view_member()->species_id,view_member()->level,ids,COMBAT_MOVE_CAP);
-                if(count)s_skill=(s_skill+count+(ev==BSP_BTN_LONG?-1:1))%count;
-            }
-            draw_all();return;
+    int direction = nav_direction(btn, ev);
+    bool confirm = nav_confirm(btn, ev), back = nav_return(btn, ev);
+    if (!direction && !confirm && !back) return;
+    if (s_skills) {
+        if (back) s_skills = false;
+        else if (ev==BSP_BTN_CLICK && view_member()) {
+            uint16_t ids[COMBAT_MOVE_CAP];
+            int count = combat_known_moves(view_member()->species_id, view_member()->level, ids, COMBAT_MOVE_CAP);
+            if (count) s_skill = nav_list_selection(btn,ev,count,s_skill);
         }
-        if(s_box_count && ((btn==BSP_BTN_UP && ev==BSP_BTN_LONG) ||
-                          (s_box_details && btn==BSP_BTN_DOWN && ev==BSP_BTN_CLICK))){
-            if(s_box_details){s_skills=true;s_skill=0;}
-            else{s_box_details=true;s_feedback[0]=0;reset_motion();}
-            draw_all();return;
-        }
-        if(!s_box_details && btn==BSP_BTN_DOWN&&(ev==BSP_BTN_CLICK||ev==BSP_BTN_LONG)){
-            if(s_box_count)s_box_row=(s_box_row+s_box_count+(ev==BSP_BTN_LONG?-1:1))%s_box_count;
-            s_feedback[0]=0;reset_motion();
-        }else if(ev==BSP_BTN_CLICK&&btn==BSP_BTN_OK){
-            if(s_box_details)s_box_details=false;
-            else{s_box_mode=false;reset_motion();}
-            s_feedback[0]=0;
-        }
-        else if(ev==BSP_BTN_CLICK&&btn==BSP_BTN_UP&&s_box_count){
-            world_switch_result_t result=world_box_exchange(s_selected,&s_party.members[s_selected],&s_box[s_box_ids[s_box_row]]);
-            const char *message=result==WORLD_SWITCH_OK?"队伍已更换":result==WORLD_SWITCH_BUSY?"请先结束当前对战":result==WORLD_SWITCH_SAVE_FAILED?"保存失败 请重试":result==WORLD_SWITCH_INVALID?"仓库选择无效 请重试":"伙伴已变 请重试";
-            snprintf(s_feedback,sizeof(s_feedback),"%s",message);refresh_snapshot();load_box();
-            if(result==WORLD_SWITCH_OK){s_box_mode=s_box_details=false;reset_motion();}
-        }
-        draw_all();return;
+        draw_all(); return;
     }
-    if(!s_details&&btn==BSP_BTN_UP&&ev==BSP_BTN_LONG&&s_party.count){s_box_mode=true;s_box_details=s_skills=false;s_box_row=0;s_feedback[0]=0;load_box();reset_motion();draw_all();return;}
-
-    if(s_skills){
-        if(btn==BSP_BTN_OK&&ev==BSP_BTN_CLICK)s_skills=false;
-        else if(btn==BSP_BTN_DOWN&&(ev==BSP_BTN_CLICK||ev==BSP_BTN_LONG)){
-            uint16_t ids[COMBAT_MOVE_CAP];int count=combat_known_moves(s_party.members[s_selected].species_id,s_party.members[s_selected].level,ids,COMBAT_MOVE_CAP);
-            if(count)s_skill=(s_skill+count+(ev==BSP_BTN_LONG?-1:1))%count;
+    if (back) {
+        if (s_box_details) { s_box_details = false; s_action = 0; }
+        else if (s_box_mode) { s_box_mode = false; s_action = 3; reset_motion(); }
+        else if (s_details) s_details = false;
+        else { nav_back(PAGE_MENU); return; }
+        s_feedback[0] = 0; draw_all(); return;
+    }
+    bool detail = s_box_mode ? s_box_details : s_details;
+    unsigned count = detail ? (s_box_mode ? 2 : 4) : s_box_mode ? s_box_count : s_party.count;
+    unsigned choice = detail ? s_action : s_box_mode ? s_box_row : s_selected;
+    choice = nav_list_selection(btn, ev, count, choice);
+    if (detail) s_action = choice; else if (s_box_mode) s_box_row = choice; else s_selected = choice;
+    if (!nav_list_activate(btn, ev, count)) {
+        s_feedback[0] = 0; s_success = false; reset_motion(); draw_all(); return;
+    }
+    if (!view_member()) return;
+    if (!detail) {
+        if (s_box_mode) s_box_details = true; else s_details = true;
+        s_action = 0; s_feedback[0] = 0; reset_motion(); draw_all(); return;
+    }
+    if (s_box_mode) {
+        if (s_action == 1) { s_skills = true; s_skill = 0; }
+        else {
+            world_switch_result_t result = world_box_exchange(s_selected, &s_party.members[s_selected], &s_box[s_box_ids[s_box_row]]);
+            const char *message = result == WORLD_SWITCH_OK ? "队伍已更换" : result == WORLD_SWITCH_BUSY ? "请先结束当前对战" : result == WORLD_SWITCH_SAVE_FAILED ? "保存失败 请重试" : result == WORLD_SWITCH_INVALID ? "仓库选择无效 请重试" : "伙伴已变 请重试";
+            snprintf(s_feedback, sizeof(s_feedback), "%s", message); refresh_snapshot(); load_box();
+            if (result == WORLD_SWITCH_OK) { s_box_mode = s_box_details = false; s_action = 3; reset_motion(); }
         }
-        draw_all();return;
-    }
-    if(s_details&&s_party.count&&btn==BSP_BTN_UP&&ev==BSP_BTN_LONG){s_skills=true;s_skill=0;draw_all();return;}
-    if (!s_details && btn == BSP_BTN_DOWN && (ev == BSP_BTN_CLICK || ev == BSP_BTN_LONG)) {
-        if (s_party.count)
-            s_selected = (s_selected + s_party.count + (ev == BSP_BTN_LONG ? -1 : 1)) % s_party.count;
-        s_feedback[0] = '\0';
-        s_success = false;
-        reset_motion();
-        draw_all();
-        return;
-    }
-    if (ev != BSP_BTN_CLICK) return;
-    if (btn == BSP_BTN_OK) {
-        if (s_details) { s_details = false; s_feedback[0] = '\0'; draw_all(); }
-        else nav_back(PAGE_MENU);
-    } else if (btn == BSP_BTN_UP && s_party.count) {
-        if (s_details) select_leader();
-        else { s_details = true; s_feedback[0] = '\0'; s_success = false; }
-        draw_all();
-    } else if (btn == BSP_BTN_DOWN && s_details) {
-        if (s_selected) {
-            s_success = false;
-            snprintf(s_feedback, sizeof(s_feedback), "先按A设为出战");
-            draw_all();
-        } else nav_open(PAGE_BAG);
-    }
+    } else if (s_action == 0) select_leader();
+    else if (s_action == 1) {
+        if (s_selected) { s_success = false; snprintf(s_feedback, sizeof(s_feedback), "请先设为出战伙伴"); }
+        else { nav_open(PAGE_BAG); return; }
+    } else if (s_action == 2) { s_skills = true; s_skill = 0; }
+    else { s_box_mode = true; s_box_details = false; s_box_row = s_action = 0; s_feedback[0] = 0; load_box(); reset_motion(); }
+    draw_all();
 }

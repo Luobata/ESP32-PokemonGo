@@ -28,6 +28,9 @@
 #include <unistd.h>
 
 #include "bsp_audio.h"
+#include "bsp_button.h"
+#include "soc/gpio_reg.h"
+#include "soc/soc.h"
 #include "esp_log.h"
 #include "esp_timer.h"
 #include "esp_vfs_dev.h"
@@ -44,6 +47,22 @@
 #include "sfx.h"
 
 static const char *TAG = "dbg";
+static int64_t s_button_probe_until, s_button_probe_next;
+static void button_probe_poll(void)
+{
+    if (!s_button_probe_until) return;
+    int64_t now = esp_timer_get_time();
+    if (now >= s_button_probe_until) {
+        s_button_probe_until = 0; bsp_button_observe_only(false);
+        ESP_LOGI(TAG, "@@BUTTON_PROBE end"); return;
+    }
+    if (now < s_button_probe_next) return;
+    s_button_probe_next = now + 100000;
+    // Passive reads only: no GPIO direction/pull/mux changes, no register writes.
+    // Disabled digital inputs read zero; that cannot prove a pin is disconnected.
+    ESP_LOGI(TAG, "@@BUTTON_PROBE sample ms=%" PRId64 " adc_mv=%d gpio_in=0x%06" PRIx32,
+             now / 1000, bsp_button_read_mv(), REG_READ(GPIO_IN_REG) & 0x3fffffu);
+}
 
 // 战斗种子覆盖。0 = 不覆盖（用 enc.ts，与正常路径一致）。
 // play_battle.c 在 battle_run() 前读这个值。
@@ -144,6 +163,18 @@ static void dispatch(char c)
     case 'A': btn = BSP_BTN_UP;   ev = BSP_BTN_DOUBLE; break;
     case 'B': btn = BSP_BTN_DOWN; ev = BSP_BTN_DOUBLE; break;
     case 'C': btn = BSP_BTN_OK;   ev = BSP_BTN_DOUBLE; break;
+    case 'g': btn = BSP_BTN_DOWN; ev = BSP_BTN_LONG; break;
+    case 'h':
+        if (s_button_probe_until) {
+            s_button_probe_until = 0; bsp_button_observe_only(false);
+            ESP_LOGI(TAG, "@@BUTTON_PROBE end");
+        } else {
+            bsp_button_observe_only(true);
+            s_button_probe_until = esp_timer_get_time() + 30000000;
+            s_button_probe_next = 0;
+            ESP_LOGI(TAG, "@@BUTTON_PROBE start duration_ms=30000");
+        }
+        return;
     case 's':                       // 截图，不经过按键
         if (bsp_lvgl_lock(2000)) { screen_dump(); bsp_lvgl_unlock(); }
         return;
@@ -157,10 +188,10 @@ static void dispatch(char c)
         if (bsp_lvgl_lock(2000)) {
             world_t view;
             world_snapshot(&view);
-            ESP_LOGI(TAG, "@@DISPLAY_STATE off=%d brightness=%u page=%u scans=%lu pending=%u pet=%u level=%u exp=%lu",
+            ESP_LOGI(TAG, "@@DISPLAY_STATE off=%d brightness=%u page=%u scans=%lu pending=%u pet=%u level=%u exp=%lu stamina_q10=%ld mood_q10=%ld",
                      screen_idle_is_off(), bsp_display_get_backlight(), (unsigned)nav_current(),
                      (unsigned long)view.scans, view.pending, view.species, view.level,
-                     (unsigned long)view.exp);
+                     (unsigned long)view.exp, (long)view.pet.stamina, (long)view.pet.mood);
             bsp_lvgl_unlock();
         }
         return;
@@ -195,6 +226,7 @@ static void dbg_task(void *arg)
     uint32_t seed_val = 0;
     serial_capture_parser_t capture = {0};
     for (;;) {
+        button_probe_poll();
         int c = fgetc(stdin);
         if (c == EOF) {
             vTaskDelay(pdMS_TO_TICKS(30));
@@ -265,8 +297,8 @@ void dbg_start(void)
 
     xTaskCreate(dbg_task, "dbg", 3072, NULL, 3, NULL);
 #ifdef CONFIG_POKEWALK_DEBUG_KEYS
-    ESP_LOGI(TAG, "按键注入已开：a/b/c 单击 A/B/C 双击 s 截图 e 造遭遇 w 存档 v evo-ready p <id> 音效 m <seed> 战斗种子 r 回采");
+    ESP_LOGI(TAG, "按键注入已开：a/b/c 上/下/确认 g 长下返回 h 按键观察 s 截图 e 造遭遇 w 存档 v evo-ready p <id> 音效 m <seed> 战斗种子 r 回采");
 #else
-    ESP_LOGI(TAG, "按键注入已开：a/b/c 单击 A/B/C 双击 s 截图 e 造遭遇 w 存档 p <id> 音效 m <seed> 战斗种子 r 回采");
+    ESP_LOGI(TAG, "按键注入已开：a/b/c 上/下/确认 g 长下返回 h 按键观察 s 截图 e 造遭遇 w 存档 p <id> 音效 m <seed> 战斗种子 r 回采");
 #endif
 }

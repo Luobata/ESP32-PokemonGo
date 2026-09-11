@@ -8123,6 +8123,52 @@ static const music_track_t MUSIC_TRACK_15[] = {
     {MUSIC_15_2, 10, 10, 3},
     {MUSIC_15_3, 2, 2, 4},
 };
+static const music_note_t MUSIC_16_0[] = {
+    {21,72,11,2,3},
+    {21,69,11,2,3},
+    {42,65,11,2,3},
+    {7,75,11,2,1},
+    {7,75,11,2,1},
+    {7,75,11,2,1},
+    {7,75,11,2,1},
+    {7,75,11,2,1},
+    {7,79,11,2,1},
+    {42,77,11,2,3},
+};
+static const music_note_t MUSIC_16_1[] = {
+    {21,81,12,2,3},
+    {21,77,12,2,3},
+    {42,72,12,2,3},
+    {7,82,12,2,1},
+    {7,82,12,2,1},
+    {7,82,12,2,1},
+    {7,79,12,2,1},
+    {7,79,12,2,1},
+    {7,82,12,2,1},
+    {42,81,12,2,3},
+};
+static const music_note_t MUSIC_16_2[] = {
+    {42,48,2,2,5},
+    {21,48,2,2,5},
+    {7,45,2,2,5},
+    {7,48,2,2,5},
+    {7,53,2,2,5},
+    {21,55,2,2,5},
+    {21,58,2,2,5},
+    {21,57,2,2,5},
+    {10,57,3,2,5},
+    {11,-1,3,2,5},
+};
+static const music_note_t MUSIC_16_3[] = {
+    {84,37,12,2,2},
+    {84,-1,12,2,2},
+};
+static const music_track_t MUSIC_TRACK_16[] = {
+    {MUSIC_16_0, 10, 10, 1},
+    {MUSIC_16_1, 10, 10, 2},
+    {MUSIC_16_2, 10, 10, 3},
+    {MUSIC_16_3, 2, 2, 4},
+};
 static const music_score_t MUSIC_SCORES[] = {{0},
     {"profoak", MUSIC_TRACK_0, sizeof(MUSIC_TRACK_0) / sizeof(MUSIC_TRACK_0[0])},
     {"elmslab", MUSIC_TRACK_1, sizeof(MUSIC_TRACK_1) / sizeof(MUSIC_TRACK_1[0])},
@@ -8140,4 +8186,5 @@ static const music_score_t MUSIC_SCORES[] = {{0},
     {"evolution", MUSIC_TRACK_13, sizeof(MUSIC_TRACK_13) / sizeof(MUSIC_TRACK_13[0])},
     {"lookhiker", MUSIC_TRACK_14, sizeof(MUSIC_TRACK_14) / sizeof(MUSIC_TRACK_14[0])},
     {"caughtmon", MUSIC_TRACK_15, sizeof(MUSIC_TRACK_15) / sizeof(MUSIC_TRACK_15[0])},
+    {"evolved", MUSIC_TRACK_16, sizeof(MUSIC_TRACK_16) / sizeof(MUSIC_TRACK_16[0])},
 };

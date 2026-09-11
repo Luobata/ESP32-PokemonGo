@@ -84,11 +84,13 @@ static exploration_event_t step(exploration_state_t *s,enc_refresh_state_t *r,
  exploration_event_t e={.kind=EXPLORE_NONE,.item=ITEM_NONE};
  if(!s||!r||!q||!dex||!exploration_valid(s)||!enc_refresh_valid(r))return e;
  e.route=s->route;e.clues=s->clues[s->route];
- if(!s->energy){e.kind=EXPLORE_NO_ENERGY;return e;}
+ // One stored intel boosts a successful discovery; zero intel never blocks entry.
+ if(s->energy)nurture_bonus+=100;
  unsigned route=s->route;
  // Clue events are discoveries, not battles: do not advance rarity pity.
  if(s->clues[route]<3 && s->pulse[route]) {
-  s->energy--;s->steps++;s->pulse[route]=0;s->clues[route]++;
+  if(s->energy){s->energy--;}
+ s->steps++;s->pulse[route]=0;s->clues[route]++;
   e.kind=EXPLORE_CLUE;e.clues=s->clues[route];return e;
  }
  bool target=s->clues[route]>=3;
@@ -126,7 +128,8 @@ static exploration_event_t step(exploration_state_t *s,enc_refresh_state_t *r,
  while(!q->next_uid||q->next_uid==active_uid||enc_queue_find(q,q->next_uid))q->next_uid++;
  enc_queue_push(q,&encounter);
  dex_mark_seen(dex,species,encounter.is_shiny);
- s->energy--;s->steps++;
+ if(s->energy){s->energy--;}
+ s->steps++;
  if(target){s->clues[route]=0;s->pulse[route]=0;}else s->pulse[route]=1;
  r->since_rare=rarity>=4?0:r->since_rare+1;
  r->since_elite=rarity>=5?0:r->since_elite+1;
@@ -138,11 +141,12 @@ static exploration_event_t step(exploration_state_t *s,enc_refresh_state_t *r,
 // Baseline rule harness retained for V11 regression. Runtime uses progress API.
 exploration_event_t exploration_step(exploration_state_t *s,enc_refresh_state_t *r,enc_queue_t *q,dex_t *d,uint16_t active){return step(s,r,q,d,active,0,false,0);}
 exploration_event_t exploration_step_team(exploration_state_t *s,enc_refresh_state_t *r,enc_queue_t *q,dex_t *d,uint16_t active,uint16_t defeated,inventory_t *bag,const nurture_t *pet,unsigned team_bonus){
+ bool intel=s && s->energy>0;
  exploration_event_t e=step(s,r,q,d,active,defeated,true,nurture_rare_bonus(pet)+(team_bonus>30?30:team_bonus));
  if(e.kind!=EXPLORE_CLUE||!bag)return e;
  unsigned chapter=exploration_chapter_current(defeated);
  uint32_t roll=mix(s->steps^r->serial*0x9e3779b9u^s->route*0x85ebca6bu^0x18b479u);
- if(roll%100>=40)return e;
+ if(roll%100>=(intel?60u:40u))return e;
  // Previously unlocked supplies remain available. Master Balls remain uncommon among
  // clue discoveries after Red, and never replace the champion reward.
  unsigned reward=(roll/100)%(chapter+1);

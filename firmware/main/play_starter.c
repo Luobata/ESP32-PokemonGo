@@ -57,10 +57,10 @@ static void draw_band(int band_y)
     }
 
     const char *note = "一起开始冒险吧";
-    const char *detail = "选好后按A确认";
+    const char *detail = "选好后按确认键";
     if (s_saving) { note = "正在保存"; detail = "请稍候"; }
     else if (s_result == WORLD_STARTER_SAVE_FAILED) {
-        note = "保存失败"; detail = "按A重试，B/C更换";
+        note = "保存失败"; detail = "确认重试 上下更换";
     } else if (s_result == WORLD_STARTER_STORAGE_UNAVAILABLE) {
         note = "存档不可用"; detail = "请重启后再试";
     } else if (s_result == WORLD_STARTER_INVALID) {
@@ -69,7 +69,7 @@ static void draw_band(int band_y)
     game_ui_box(band_y, 8, 216, 224, 56);
     game_ui_text_centered(band_y, 16, NOTE_Y, 208, 16, note, GAME_UI_INK);
     game_ui_text_centered(band_y, 16, DETAIL_Y, 208, 16, detail, GAME_UI_MUTED);
-    game_ui_footer(band_y, "[A]确认 [B]下一个 [C]上一个");
+    game_ui_footer(band_y, GAME_UI_NAV_HINT);
     if(s_reveal)game_ui_fade_background(band_y,s_reveal);
     screen_push_band(band_y);
 }
@@ -102,14 +102,14 @@ bool play_starter_screen_busy(void) { return s_saving || s_reveal; }
 
 void play_starter_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
-    if (btn == BSP_BTN_DOWN && ev == BSP_BTN_LONG) { screen_dump(); return; }
+    if (nav_return(btn, ev) && !s_saving && !s_reveal) { nav_go(PAGE_OPENING); return; }
     if (ev != BSP_BTN_CLICK || s_saving || s_reveal) return;
-    if (btn == BSP_BTN_DOWN || btn == BSP_BTN_OK) {
+    if (nav_direction(btn, ev) != 0) {
         s_selection = btn == BSP_BTN_DOWN ? (s_selection + 1) % STARTER_COUNT
                                          : (s_selection + STARTER_COUNT - 1) % STARTER_COUNT;
         s_result = WORLD_STARTER_OK;
         draw_all();
-    } else if (btn == BSP_BTN_UP) {
+    } else if (nav_confirm(btn, ev)) {
         s_saving = true;
         draw_all();
         s_result = world_choose_starter(STARTERS[s_selection]);

@@ -456,6 +456,37 @@
           "frames": 168
         }
       ]
+    },
+    {
+      "id": 17,
+      "name": "evolved",
+      "sha256": "e72aff1a4a0a119b3df73121598f2635e6d3a09d597cf706bd9668f503edb451",
+      "channels": [
+        {
+          "channel": 1,
+          "loop": 10,
+          "notes": 10,
+          "frames": 168
+        },
+        {
+          "channel": 2,
+          "loop": 10,
+          "notes": 10,
+          "frames": 168
+        },
+        {
+          "channel": 3,
+          "loop": 10,
+          "notes": 10,
+          "frames": 168
+        },
+        {
+          "channel": 4,
+          "loop": 2,
+          "notes": 2,
+          "frames": 168
+        }
+      ]
     }
   ]
 }

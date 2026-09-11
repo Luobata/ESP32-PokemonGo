@@ -200,7 +200,7 @@ static void draw_band(int band_y)
         left = left > len ? (uint16_t)(left - len) : 0;
     }
 
-    game_ui_footer(band_y, "[A]继续 [C]跳过");
+    game_ui_footer(band_y, "C继续 长按B跳过");
 
     #undef Y
     if(s_handoff)game_ui_fade_background(band_y,s_handoff*16/12);
@@ -297,13 +297,12 @@ bool play_opening_screen_busy(void)
 
 void play_opening_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
-    if (btn == BSP_BTN_DOWN && ev == BSP_BTN_LONG) { screen_dump(); return; }
-    if (ev != BSP_BTN_CLICK || s_handoff) return;
+
+    if (s_handoff) return;
 
     char key = 0;
-    if (btn == BSP_BTN_UP) key = 'A';
-    if (btn == BSP_BTN_DOWN) key = 'B';
-    if (btn == BSP_BTN_OK) key = 'C';
+    if (nav_confirm(btn, ev)) key = 'A';
+    if (nav_return(btn, ev)) key = 'C';
     if (!key) return;
 
     opening_t before=s_opening;

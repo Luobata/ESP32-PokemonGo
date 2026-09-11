@@ -10,6 +10,8 @@
 #include "screen.h"
 #include "screen_idle.h"
 #include "music_director.h"
+#include "growth_ui.h"
+#include "evolution_ui.h"
 
 static const char *TAG = "nav";
 
@@ -83,6 +85,7 @@ static void transition(page_id_t p, bool returning)
     ESP_LOGI(TAG, "→ %s", PAGES[p].name);
     music_director_page(p);
     if (PAGES[p].enter) PAGES[p].enter();
+    growth_ui_start();
     s_returning = false;
 }
 
@@ -113,6 +116,8 @@ void nav_back(page_id_t fallback)
 void nav_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
     if (screen_idle_filter_key(btn, ev)) return;
+    if (evolution_ui_key(btn, ev)) return;
+    if (growth_ui_key(btn, ev)) return;
     if (s_entered && PAGES[s_cur].key) PAGES[s_cur].key(btn, ev);
 }
 
@@ -129,6 +134,7 @@ bool nav_can_leave(void)
 
 bool nav_screen_busy(void)
 {
+    if(evolution_ui_active())return true;
     if (!s_entered) return false;
     switch (s_cur) {
     case PAGE_EXPLORATION: return play_exploration_screen_busy();
@@ -145,6 +151,8 @@ bool nav_screen_busy(void)
 
 void nav_exit_current(void)
 {
+    evolution_ui_stop();
+    growth_ui_stop();
     if (s_entered && PAGES[s_cur].exit) PAGES[s_cur].exit();
     if (s_entered && encounter_page(s_cur)) world_end_active_encounter();
     s_entered = false;

@@ -1,0 +1,1 @@
+I (1046) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=11446 pending=0 pet=1 level=13 exp=3843

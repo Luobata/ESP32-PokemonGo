@@ -66,7 +66,7 @@ static void draw_options(int band_y)
     const char *hint;
     if (s_option_selected == OPTION_MUTE) {
         snprintf(value, sizeof(value), "%s", audio_settings_muted() ? "音乐和音效已关闭" : "音乐和音效已开启");
-        hint = s_audio_save_failed ? "保存失败 按A重试" : "按A切换 重启后保留";
+        hint = s_audio_save_failed ? "保存失败 按确认重试" : "按确认切换 重启后保留";
     } else if (s_option_selected == OPTION_VOLUME) {
         snprintf(value, sizeof(value), "%s", audio_settings_muted() ? "静音开启 调整后仍静音" : "音乐 音效 遇敌提示");
         hint = s_audio_save_failed ? "保存失败 请重试" : "音量设置重启后保留";
@@ -75,17 +75,17 @@ static void draw_options(int band_y)
         hint = "译名设置本次运行有效";
     } else {
         snprintf(value, sizeof(value), "%lu秒无操作自动熄屏", (unsigned long)(screen_idle_timeout_ms() / 1000));
-        hint = s_option_selected == OPTION_SCREEN_OFF ? "按A熄屏 任意键亮屏" : "返回上一级菜单";
+        hint = s_option_selected == OPTION_SCREEN_OFF ? "按确认熄屏 任意键亮屏" : "返回上一级菜单";
     }
     game_ui_text_centered(band_y, 12, 224, 216, 16, value, GAME_UI_MUTED);
     game_ui_text_centered(band_y, 12, 248, 216, 16, hint, GAME_UI_INK);
-    game_ui_footer(band_y, s_volume_edit ? "[A]加大 [B]减小 [C]完成" : "[A]确定 [B]下一 [C]返回");
+    game_ui_footer(band_y, s_volume_edit ? "[A]加 [B]减 [C]完成" : GAME_UI_NAV_HINT);
 }
 
 static void draw_main(int band_y)
 {
     char name[48], text[48];
-    game_ui_title(band_y, "菜单", "长B上一项");
+    game_ui_title(band_y, "菜单", "长按B返回");
     species_t species;
     bool found = assets_species(s_world.species, &species);
     if (found) snprintf(name, sizeof(name), "%.*s", species.name_zh_len, species.name_zh);
@@ -115,7 +115,7 @@ static void draw_main(int band_y)
     }
     if(s_selected==6&&s_claimable){snprintf(text,sizeof(text),"可领取 %u 项奖励",s_claimable);game_ui_text_centered(band_y,8,252,224,16,text,GAME_UI_INK);}
     else game_ui_text_centered(band_y, 8, 252, 224, 16, DESCRIPTIONS[s_selected], GAME_UI_MUTED);
-    game_ui_footer(band_y, "[A]选择 [B]下一 [C]关闭");
+    game_ui_footer(band_y, GAME_UI_NAV_HINT);
 }
 
 static void draw_all(void)
@@ -157,6 +157,7 @@ void play_menu_presentation_snapshot(play_menu_view_t *out)
 void play_menu_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
     if (s_volume_edit) {
+        if (nav_return(btn, ev)) { s_volume_edit = false; draw_all(); return; }
         if (ev != BSP_BTN_CLICK) return;
         if (btn == BSP_BTN_OK) s_volume_edit = false;
         else {
@@ -167,18 +168,18 @@ void play_menu_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         }
         draw_all(); return;
     }
-    if (btn == BSP_BTN_DOWN && (ev == BSP_BTN_CLICK || ev == BSP_BTN_LONG)) {
+    if (nav_direction(btn, ev) != 0) {
         if (s_options)
-            s_option_selected = (s_option_selected + OPTION_COUNT + (ev == BSP_BTN_LONG ? -1 : 1)) % OPTION_COUNT;
-        else s_selected = (s_selected + MENU_COUNT + (ev == BSP_BTN_LONG ? -1 : 1)) % MENU_COUNT;
+            s_option_selected = (s_option_selected + OPTION_COUNT + nav_direction(btn, ev)) % OPTION_COUNT;
+        else s_selected = (s_selected + MENU_COUNT + nav_direction(btn, ev)) % MENU_COUNT;
         draw_all();
         return;
     }
-    if (ev != BSP_BTN_CLICK) return;
-    if (btn == BSP_BTN_OK) {
+    if (ev != BSP_BTN_CLICK && !nav_return(btn, ev)) return;
+    if (nav_return(btn, ev)) {
         if (s_options) { s_options = false; draw_all(); }
         else nav_back(PAGE_IDLE);
-    } else if (btn == BSP_BTN_UP) {
+    } else if (nav_confirm(btn, ev)) {
         if (s_options) {
             if (s_option_selected == OPTION_SCREEN_OFF) {
                 screen_idle_request_off();

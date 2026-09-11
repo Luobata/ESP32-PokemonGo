@@ -1,0 +1,19 @@
+{
+  "build": "d06344c1f038594a4253",
+  "frames": 20,
+  "passed": true,
+  "events": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "invalid_rejected": [
+    -1,
+    6,
+    true
+  ],
+  "scope": "actual HTTP handler + native production C frame comparison"
+}

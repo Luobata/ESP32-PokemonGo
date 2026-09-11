@@ -1,0 +1,71 @@
+{
+  "scope": "Flashed ESP32 boot and navigation with real framebuffer; no paid challenge, artificial reward or item consumption.",
+  "checks": [
+    {
+      "label": "boot-home",
+      "off": 0,
+      "brightness": 100,
+      "page": 0,
+      "scans": 11610,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5748,
+      "stamina_q10": 11128,
+      "mood_q10": 93162
+    },
+    {
+      "label": "menu",
+      "off": 0,
+      "brightness": 100,
+      "page": 9,
+      "scans": 11610,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5748,
+      "stamina_q10": 11140,
+      "mood_q10": 93159
+    },
+    {
+      "label": "challenge-hall",
+      "off": 0,
+      "brightness": 100,
+      "page": 11,
+      "scans": 11610,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5748,
+      "stamina_q10": 11152,
+      "mood_q10": 93156
+    },
+    {
+      "label": "return-menu",
+      "off": 0,
+      "brightness": 100,
+      "page": 9,
+      "scans": 11610,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5748,
+      "stamina_q10": 11152,
+      "mood_q10": 93156
+    },
+    {
+      "label": "return-home",
+      "off": 0,
+      "brightness": 100,
+      "page": 0,
+      "scans": 11610,
+      "pending": 0,
+      "pet": 1,
+      "level": 15,
+      "exp": 5748,
+      "stamina_q10": 11152,
+      "mood_q10": 93156
+    }
+  ],
+  "save_progress_preserved": true
+}

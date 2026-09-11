@@ -1,0 +1,51 @@
+[
+  {
+    "label": "home",
+    "expected_internal_page": 0,
+    "state": [
+      "I (2101) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=11446 pending=0 pet=1 level=13 exp=3843"
+    ]
+  },
+  {
+    "label": "care",
+    "expected_internal_page": 6,
+    "state": [
+      "I (2986) dbg: @@DISPLAY_STATE off=0 brightness=100 page=6 scans=11446 pending=0 pet=1 level=13 exp=3843"
+    ]
+  },
+  {
+    "label": "back-home",
+    "expected_internal_page": 0,
+    "state": [
+      "I (4278) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=11447 pending=0 pet=1 level=13 exp=3843"
+    ]
+  },
+  {
+    "label": "menu",
+    "expected_internal_page": 9,
+    "state": [
+      "I (5572) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=11447 pending=0 pet=1 level=13 exp=3843"
+    ]
+  },
+  {
+    "label": "dex",
+    "expected_internal_page": 4,
+    "state": [
+      "I (6944) dbg: @@DISPLAY_STATE off=0 brightness=100 page=4 scans=11447 pending=0 pet=1 level=13 exp=3843"
+    ]
+  },
+  {
+    "label": "back-menu",
+    "expected_internal_page": 9,
+    "state": [
+      "I (7806) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=11447 pending=0 pet=1 level=13 exp=3843"
+    ]
+  },
+  {
+    "label": "return-home",
+    "expected_internal_page": 0,
+    "state": [
+      "I (8664) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=11447 pending=0 pet=1 level=13 exp=3843"
+    ]
+  }
+]

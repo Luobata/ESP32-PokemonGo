@@ -26,6 +26,8 @@
 #include "battle.h"
 #include "battle_escape.h"
 #include "battle_fx.h"
+#include "esp_timer.h"
+static uint32_t s_move_started_ms;
 #include "battle_presentation.h"
 #include "game_ui.h"
 #include "exp.h"
@@ -105,6 +107,9 @@ static bool s_counter_anim;
 static uint8_t s_play_i;         // 播到第几回合
 static bool s_playing;
 static bool s_done;
+enum { ACTION_CAPTURE, ACTION_FIGHT, ACTION_ESCAPE };
+static uint8_t s_choice, s_escape_choice;
+static bool s_escape_prompt;
 
 // Read-only presentation of the recorded move. Each entry resets the phase;
 // no static hold counter can leak into the next battle after leaving a page.
@@ -361,9 +366,12 @@ static void draw_band(int band_y)
     // 第二行 MSG_DETAIL_Y：做了什么 + 伤害数字
     // 单行最坏 256px 超 232px 上限（野生多刺菊石兽 + 尖刺加农炮），
     // 拆两行后最坏 144px（「使用了尖刺加农炮！」）。
-    if(s_settle_failed){
+    if (s_escape_prompt) {
+        render_text(MSG_X, Y(MSG_Y), "要尝试逃跑吗？", C_INK);
+        render_text(MSG_X, Y(MSG_DETAIL_Y), "失败后对方会反击", GAME_UI_MUTED);
+    } else if(s_settle_failed){
         render_text(MSG_X,Y(MSG_Y),"结算保存失败",C_INK);
-        render_text(MSG_X,Y(MSG_DETAIL_Y),"按A重试 奖励不会重复",GAME_UI_MUTED);
+        render_text(MSG_X,Y(MSG_DETAIL_Y),"按C重试 奖励不会重复",GAME_UI_MUTED);
     } else if (s_escape_feedback) {
         render_text(MSG_X, Y(MSG_Y), s_escape_feedback == ESCAPE_SUCCESS
                     ? "成功逃跑了！" : "没能逃跑！", C_INK);
@@ -430,22 +438,28 @@ static void draw_band(int band_y)
     const char *hint = s_escape_feedback ? ""
         : (s_entering || s_wild_animating) ? "宝可梦出场中"
         : s_exp_anim ? "正在获得经验"
-        : (s_loot_failed||s_settle_failed) ? "[A]重试保存"
+        : (s_loot_failed||s_settle_failed) ? "[C]重试保存"
         : s_counter_anim ? (s_counter_escape ? "逃跑失败，对方反击" : "野生宝可梦正在反击")
-        : s_done ? (s_session.won ? "[A]最后投球 [C]返回" : "[A]照料 [C]返回")
+        : s_done ? (s_session.won ? "选择投球或返回" : "选择照料或返回")
         : s_escape_requested ? "招式结束后尝试逃跑"
-        : s_playing ? "战斗进行中 [C]逃跑" : "[A]捕获 [B]战斗 [C]逃跑";
+        : s_playing ? "长按B逃跑" : "A上 B下 C确认 长按B返回";
     char attack_hint[80];
     if (!s_done && s_playing && !s_escape_requested && s_play_i > 0 && s_play_i <= s_res.round_count) {
         const battle_round_t *r = &s_res.rounds[s_play_i-1];
         const char *effect = combat_feedback(r);
-        if(r->charging||r->skipped||r->self_target||r->no_effect||!r->damage)snprintf(attack_hint,sizeof(attack_hint),"%s",effect?effect:"[C]逃跑");
-        else if (r->missed) snprintf(attack_hint,sizeof(attack_hint),"[C]逃跑");
-        else snprintf(attack_hint,sizeof(attack_hint),"%s -%uHP [C]逃跑",effect?effect:"",r->damage);
+        if(r->charging||r->skipped||r->self_target||r->no_effect||!r->damage)snprintf(attack_hint,sizeof(attack_hint),"%s",effect?effect:"长按B逃跑");
+        else if (r->missed) snprintf(attack_hint,sizeof(attack_hint),"长按B逃跑");
+        else snprintf(attack_hint,sizeof(attack_hint),"%s -%uHP 长按B逃跑",effect?effect:"",r->damage);
         hint = attack_hint;
     }
-    game_ui_text_centered(band_y, MSG_X, MSG_HINT_Y, MSG_RIGHT - MSG_X, 16,
-                           hint, C_INK);
+    if (s_escape_prompt) {
+        static const char *const labels[] = {"继续", "逃跑"};
+        game_ui_action_row(band_y, MSG_X, MSG_HINT_Y, MSG_RIGHT - MSG_X, labels, 2, s_escape_choice);
+    } else if (!s_entering && !s_wild_animating && !s_exp_anim && !s_playing &&
+               !s_escape_feedback && !s_settle_failed && !s_loot_failed) {
+        const char *const labels[] = {s_done ? (s_session.won ? "投球" : "照料") : "捕获", s_done ? "返回" : "战斗", "逃跑"};
+        game_ui_action_row(band_y, MSG_X, MSG_HINT_Y, MSG_RIGHT - MSG_X, labels, s_done ? 2 : 3, s_choice);
+    } else game_ui_text_centered(band_y, MSG_X, MSG_HINT_Y, MSG_RIGHT - MSG_X, 16, hint, C_INK);
 
     #undef Y
     screen_push_band(band_y);
@@ -486,6 +500,7 @@ static void settle_loot(void)
 static bool settle_battle(void)
 {
     s_playing = false;
+    s_escape_prompt = false; s_choice = 0;
     s_done = true;
     s_counter_anim = false;
     s_play_i = 0;
@@ -534,6 +549,7 @@ static bool begin_attack(void)
     s_res.round_count = 1;
     s_play_i = 1;
     s_fx_frame = 0;
+    s_move_started_ms = (uint32_t)(esp_timer_get_time()/1000);
     return true;
 }
 
@@ -609,8 +625,12 @@ static void tick(lv_timer_t *t)
         uint16_t hp_end = battle_fx_hit_frame(r) + BATTLE_PRESENTATION_HP_FRAMES + 1;
         if (hp_end > frames) frames = hp_end;
         if (s_fx_frame + 1 < frames) {
-            s_fx_frame++;
-            if (s_fx_frame == battle_presentation_hit_frame(battle_fx_frames(r)))
+            unsigned elapsed_frame = ((uint32_t)(esp_timer_get_time()/1000)-s_move_started_ms)/BATTLE_FX_TICK_MS;
+            if (elapsed_frame <= s_fx_frame) return;
+            unsigned previous = s_fx_frame;
+            s_fx_frame = elapsed_frame < frames ? elapsed_frame : frames-1;
+            unsigned hit = battle_fx_hit_frame(r);
+            if (previous < hit && s_fx_frame >= hit)
                 if(r->move_id) sfx_move(r->move_id, r->move_type, r->missed);
             draw_band(0);
             draw_band(BAND_H);
@@ -639,9 +659,11 @@ static void tick(lv_timer_t *t)
 
 void play_battle_enter(void)
 {
+    s_choice = s_escape_choice = 0; s_escape_prompt = false;
     memset(&s_res, 0, sizeof(s_res));
     s_play_i = 0;
     s_fx_frame = 0;
+    s_move_started_ms = (uint32_t)(esp_timer_get_time()/1000);
     s_between_moves = 0;
     s_counter_anim = false;
     s_counter_escape = s_escape_requested = s_wild_animating = false;
@@ -719,15 +741,13 @@ bool play_battle_screen_busy(void)
     return !can_choose() || s_play_i != 0 || s_escape_requested;
 }
 
-void play_battle_key(bsp_btn_t btn, bsp_btn_ev_t ev)
+static void perform_battle_action(unsigned action)
 {
-    if (btn == BSP_BTN_DOWN && ev == BSP_BTN_LONG) { screen_dump(); return; }
-    if (ev != BSP_BTN_CLICK) return;
     if(s_settle_failed){
-        if(btn==BSP_BTN_UP){s_settle_failed=!settle_battle();draw_all();}
+        if(action==ACTION_CAPTURE){s_settle_failed=!settle_battle();draw_all();}
         return;
     }
-    if (btn == BSP_BTN_OK && s_playing && !s_session.finished &&
+    if (action == ACTION_ESCAPE && s_playing && !s_session.finished &&
         !s_entering && !s_wild_animating && !s_counter_anim &&
         !s_escape_feedback && !s_session.retaliation_pending) {
         s_escape_requested = true;
@@ -738,18 +758,18 @@ void play_battle_key(bsp_btn_t btn, bsp_btn_ev_t ev)
     // another throw nor returning to the list may skip its attack animation.
     if (!can_choose()) return;
     if (s_loot_failed) {
-        if (btn == BSP_BTN_UP) { settle_loot(); draw_all(); }
+        if (action == ACTION_CAPTURE) { settle_loot(); draw_all(); }
         return;
     }
-    switch (btn) {
-    case BSP_BTN_UP:
+    switch (action) {
+    case ACTION_CAPTURE:
         if (s_done && !s_session.won) { nav_go(PAGE_CARE); break; }
         if (battle_session_can_capture(&s_session)) {
             if (!store_session()) { encounter_gone(); return; }
             nav_go(PAGE_CAPTURE);
         }
         break;
-    case BSP_BTN_DOWN:
+    case ACTION_FIGHT:
         if (!s_playing && !s_done) {
             battle_session_t previous = s_session;
             if (!s_session.started) {
@@ -773,13 +793,48 @@ void play_battle_key(bsp_btn_t btn, bsp_btn_ev_t ev)
             draw_all();
         }
         break;
-    case BSP_BTN_OK:
+    case ACTION_ESCAPE:
         if (s_done) nav_end_encounter();
         else attempt_escape();
         break;
     default:
         break;
     }
+}
+
+void play_battle_key(bsp_btn_t btn, bsp_btn_ev_t ev)
+{
+    bool back = nav_return(btn, ev), confirm = nav_confirm(btn, ev);
+    int direction = nav_direction(btn, ev);
+    if (!direction && !confirm && !back) return;
+    if (s_settle_failed || s_loot_failed) {
+        if (confirm) perform_battle_action(ACTION_CAPTURE);
+        return;
+    }
+    if (s_escape_prompt) {
+        if (direction) s_escape_choice = nav_list_selection(btn, ev, 2, s_escape_choice);
+        else if (back) s_escape_prompt = false;
+        else if (confirm) {
+            s_escape_prompt = false;
+            if (s_escape_choice) perform_battle_action(ACTION_ESCAPE);
+        }
+        draw_all(); return;
+    }
+    if (back && !s_done) {
+        if (!s_entering && !s_wild_animating && !s_counter_anim &&
+            !s_escape_feedback && !s_session.retaliation_pending) {
+            s_escape_prompt = true; s_escape_choice = 0; draw_all();
+        }
+        return;
+    }
+    if (!can_choose()) return;
+    if (back) { perform_battle_action(ACTION_ESCAPE); return; }
+    if (direction) { s_choice = nav_list_selection(btn, ev, s_done ? 2 : 3, s_choice); draw_all(); return; }
+    if (s_done && s_choice == 1) { perform_battle_action(ACTION_ESCAPE); return; }
+    if (!s_done && s_choice == ACTION_ESCAPE) {
+        s_escape_prompt = true; s_escape_choice = 0; draw_all(); return;
+    }
+    perform_battle_action(s_choice);
 }
 
 #ifdef HOST_BUILD

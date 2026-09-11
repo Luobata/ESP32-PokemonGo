@@ -345,7 +345,7 @@ def roll_encounter(
 # 每小时衰减速率。这些值需要用真实数据调 —— 见 docs/07-roadmap.md#71
 SATIETY_DECAY_PER_HOUR = 4.0
 MOOD_DECAY_PER_HOUR = 3.0
-STAMINA_RECOVER_PER_HOUR = 12.0
+STAMINA_RECOVER_PER_HOUR = 50.0
 STAMINA_COST_PER_MOTION_EVENT = 0.0
 
 LOW_THRESHOLD = 25.0     # 低于此值进入消沉
@@ -383,8 +383,8 @@ class PetState:
 
     @property
     def is_despondent(self) -> bool:
-        """消沉：任一状态轴过低。"""
-        return min(self.satiety, self.mood, self.stamina) < LOW_THRESHOLD
+        """消沉：饱食或心情过低；体能只控制行动次数。"""
+        return min(self.satiety, self.mood) < LOW_THRESHOLD
 
     @property
     def ability_factor(self) -> float:
@@ -440,10 +440,13 @@ class PetState:
         self.satiety = min(100.0, self.satiety + amount)
         self.mood = min(100.0, self.mood + 5.0)
 
-    def play(self) -> None:
+    def play(self) -> bool:
+        if self.stamina < 5.0:
+            return False
         self.mood = min(100.0, self.mood + 15.0)
         self.stamina = max(0.0, self.stamina - 5.0)
         self.intimacy = min(100.0, self.intimacy + 1.0)
+        return True
 
     def rest(self, hours: float = 8.0) -> None:
         pass  # Only elapsed tick time restores stamina; no instant rest credit.

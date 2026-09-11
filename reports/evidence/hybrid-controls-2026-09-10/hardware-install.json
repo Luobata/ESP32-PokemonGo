@@ -1,0 +1,31 @@
+{
+  "application": "firmware/build/PokeWalk.bin",
+  "bytes": 2993472,
+  "sha256": "5dae9ff970f7d8c0b77565fe46c66efb008aa69e7d6bcc21d764eb90d38f3a1f",
+  "address": "0x10000",
+  "flash_verified": true,
+  "backup": {
+    "path": ".device-backup/hybrid-controls-2026-09-10/before-full.bin",
+    "bytes": 8388608,
+    "sha256": "4278d74b4cd2c7efe765d19b4efc091a59a601f9d6bf3123f7eaafb19d7a9b69"
+  },
+  "updated_partitions": [
+    "factory"
+  ],
+  "save_progress_preserved": {
+    "pet": 1,
+    "level": 14,
+    "exp": 4489
+  },
+  "device_navigation_passed": true,
+  "low_stamina_play": {
+    "stamina_before": 3,
+    "stamina_after": 3,
+    "mood_before": 94,
+    "mood_after": 94,
+    "intimacy_before": 4,
+    "intimacy_after": 4,
+    "feedback": "体能不足5点 请先休息",
+    "evidence": "device-care-no-stamina.png"
+  }
+}

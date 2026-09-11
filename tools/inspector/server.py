@@ -117,7 +117,7 @@ class Handler(SimpleHTTPRequestHandler):
                         self.wfile.write(pcm)
                         return
                     if action == "key":
-                        command = f"key {integer(data, 'key', 0, 0, 2)} {integer(data, 'event', 1, 1, 3)}"
+                        command = f"key {integer(data, 'key', 0, 0, 2)} {integer(data, 'event', 1, 0, 5)}"
                     elif action == "tick":
                         command = f"tick {integer(data, 'ms', 60, 0, 60000)}"
                     elif action == "page":

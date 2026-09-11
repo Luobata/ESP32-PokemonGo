@@ -1,0 +1,24 @@
+{
+  "app_size": 2998688,
+  "app_sha256": "466ec4fc3b42f44e0a7dceecc6205f5a5413f0840e1c524350763d056af50c04",
+  "app_address": "0x10000",
+  "flash_verified": true,
+  "backup_sha256": "0a3fde11726bd9131b498616251b6ae3488be3c7a71845e580f95bfe20d1825b",
+  "preserved_partitions": [
+    "nvs",
+    "cardid",
+    "recovery"
+  ],
+  "before": {
+    "off": 0,
+    "brightness": 100,
+    "page": 0,
+    "scans": 11846,
+    "pending": 0,
+    "pet": 2,
+    "level": 16,
+    "exp": 6580,
+    "stamina_q10": 5296,
+    "mood_q10": 98083
+  }
+}

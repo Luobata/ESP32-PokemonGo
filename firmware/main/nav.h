@@ -54,6 +54,25 @@ void nav_open(page_id_t p);
 void nav_back(page_id_t fallback);
 bool nav_is_returning(void); // During enter(): retain the previous selection.
 
+// All game pages use the same physical controls. DOWN long is exclusive of
+// DOWN click (the BSP suppresses the click after a completed hold).
+static inline int nav_direction(bsp_btn_t button, bsp_btn_ev_t event) {
+    return event == BSP_BTN_CLICK ? (button == BSP_BTN_UP ? -1 : button == BSP_BTN_DOWN ? 1 : 0) : 0;
+}
+static inline bool nav_confirm(bsp_btn_t button, bsp_btn_ev_t event) {
+    return button == BSP_BTN_OK && event == BSP_BTN_CLICK;
+}
+static inline bool nav_return(bsp_btn_t button, bsp_btn_ev_t event) {
+    return button == BSP_BTN_DOWN && event == BSP_BTN_LONG;
+}
+// Every list uses A/B navigation and C confirmation, independent of length.
+static inline unsigned nav_list_selection(bsp_btn_t button, bsp_btn_ev_t event, unsigned count, unsigned current) {
+    return count ? (current + count + nav_direction(button, event)) % count : 0;
+}
+static inline bool nav_list_activate(bsp_btn_t button, bsp_btn_ev_t event, unsigned count) {
+    return count && nav_confirm(button, event);
+}
+
 // 分发按键给当前页
 void nav_key(bsp_btn_t btn, bsp_btn_ev_t ev);
 

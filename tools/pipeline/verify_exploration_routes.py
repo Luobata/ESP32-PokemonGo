@@ -27,7 +27,7 @@ static void core(void){
  exploration_state_t x={.energy=1,.clues={3}};enc_refresh_state_t r={0};enc_queue_t q;enc_queue_init(&q);dex_t d;dex_init(&d);
  encounter_t e={.species_id=25,.rarity=2,.hp_ratio=100};enc_queue_push(&q,&e);
  exploration_state_t old=x;assert(exploration_step(&x,&r,&q,&d,0).kind==EXPLORE_BLOCKED&&!memcmp(&old,&x,sizeof(x)));
- x.energy=0;old=x;assert(exploration_step(&x,&r,&q,&d,0).kind==EXPLORE_NO_ENERGY&&!memcmp(&old,&x,sizeof(x)));
+ x.energy=0;enc_queue_init(&q);assert(exploration_step(&x,&r,&q,&d,0).kind==EXPLORE_TARGET && x.energy==0);
  // Long play: clues never consume rarity pity; route changes do not reset it.
  unsigned rare=0,elite=0,seen[152]={0},monsters=0;
  exploration_init(&x);memset(&r,0,sizeof(r));

@@ -8,7 +8,7 @@ const flush=()=>new Promise(setImmediate);
 function harness(code=source,savedNameStyle=null,storageBlocked=false,hash=''){
   const nodes={},keys=[],events={},documentEvents={},calls=[],pending=[],timers=new Map();
   const storage=new Map(savedNameStyle===null?[]:[['pokewalk.nameStyle.v1',savedNameStyle]]);
-  let nextTimer=0,inFlight=0,maxInFlight=0;
+  let nextTimer=0,inFlight=0,maxInFlight=0,now=0;
   for(const id of ['firmware-canvas','play','page','pet','level','wild','rarity','seed','shiny',
     'reset','step','check','gesture','bands','guides','zoom','screen-wrap','download','status','clock-state','names','team']){
     nodes[id]={value:'0',dataset:{},style:{},disabled:false,attributes:{},reportValidity:()=>true,
@@ -23,7 +23,7 @@ function harness(code=source,savedNameStyle=null,storageBlocked=false,hash=''){
     querySelectorAll:s=>s==='[data-key]'?keys:s==='input[type=number]'?[]:[],
     addEventListener:(name,fn)=>listen(documentEvents,name,fn)};
   vm.runInNewContext(code,{
-    document,window:{addEventListener:(name,fn)=>listen(events,name,fn)},innerHeight:900,innerWidth:1000,location:{hash},
+    performance:{now:()=>now},document,window:{addEventListener:(name,fn)=>listen(events,name,fn)},innerHeight:900,innerWidth:1000,location:{hash},
     localStorage:{getItem(key){if(storageBlocked)throw Error('storage disabled');return storage.get(key)??null;},
       setItem(key,value){if(storageBlocked)throw Error('storage disabled');storage.set(key,value);}},
     setTimeout:(fn,delay)=>{const id=++nextTimer;timers.set(id,{fn,delay});return id;},
@@ -37,6 +37,7 @@ function harness(code=source,savedNameStyle=null,storageBlocked=false,hash=''){
   });
   const clockTimers=()=>[...timers].filter(([,timer])=>timer.delay===60);
   return {nodes,keys,calls,pending,timers,clockTimers,storage,
+    elapse(ms){now+=ms;},
     get maxInFlight(){return maxInFlight;},
     async reply({session='fixture-session',ms=0,page='P2',mismatch=-1,names='0'}={}){
       const response=pending.shift();assert(response,'expected an in-flight request');inFlight--;
@@ -49,10 +50,11 @@ function harness(code=source,savedNameStyle=null,storageBlocked=false,hash=''){
     },
     async tick(){
       const scheduled=clockTimers();assert.strictEqual(scheduled.length,1,'one automatic clock timer required');
-      timers.delete(scheduled[0][0]);scheduled[0][1].fn();await flush();
+      now+=60;timers.delete(scheduled[0][0]);scheduled[0][1].fn();await flush();
     },
     keyEvent(name,key,extra={}){dispatch(events,name,{repeat:false,target:{tagName:'BODY'},key,preventDefault(){},...extra});},
-    key(key){this.keyEvent('keydown',key);this.keyEvent('keyup',key);},
+    // Clock tests use accessible single activation; physical sequences have their own gate.
+    key(key){keys['abc'.indexOf(key.toLowerCase())].onclick({detail:0});},
     pointer(key,name,extra={}){keys[key]['on'+name]({button:0,isPrimary:true,pointerId:key+1,detail:1,preventDefault(){},...extra});},
     async advanceTimer(delay){
       const scheduled=[...timers].filter(([,timer])=>timer.delay===delay);
@@ -259,8 +261,14 @@ async function bagScene(){
   assert.strictEqual(h.calls.at(-1).page,5);await h.reply({page:'P5',names:'1'});
 }
 
+async function delayedClock(){
+ const h=await ready();await h.tick();assert.strictEqual(h.calls.at(-1).ms,60);
+ h.elapse(180);await h.reply();await h.tick();assert.strictEqual(h.calls.at(-1).ms,240,'request latency must not slow simulation time');
+ await h.reply();h.toggle();h.elapse(5000);h.toggle();await h.tick();assert.strictEqual(h.calls.at(-1).ms,60,'paused time must not catch up');
+ await h.reply();h.toggle();
+}
 async function main(){
-  const cases=[defaultClock,inputQueue,queuedTickCancellation,resumedQueuedTick,rapidResume,pausedSceneAndSingleStep,hiddenClock,activeSceneChanges,freshSceneSelection,savedNamePreference,queuedNamePreference,hardwareNamePreference,bagScene];
+  const cases=[delayedClock,defaultClock,inputQueue,queuedTickCancellation,resumedQueuedTick,rapidResume,pausedSceneAndSingleStep,hiddenClock,activeSceneChanges,freshSceneSelection,savedNamePreference,queuedNamePreference,hardwareNamePreference,bagScene];
   for(const run of cases)await run();
   const mutations=[
     ['default pause','paused=false','paused=true',defaultClock,/default clock must advance/],

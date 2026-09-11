@@ -1,0 +1,1 @@
+{"passed":["clicks","returnHold","keyboard","cancellation","queue","explicitAndIgnored"],"negativeCaught":["click after long return"],"scope":"production firmware.js, complete PRESS/RELEASE/CLICK/LONG/END events and queued responses"}

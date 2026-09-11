@@ -8,6 +8,8 @@
 #include "bsp_display.h"
 #include "assets.h"
 #include "exp.h"
+#include "growth_ui.h"
+#include "evolution_ui.h"
 #include "evolution.h"
 #include "nav.h"
 #include "play.h"
@@ -274,7 +276,7 @@ const enc_queue_t *world_queue(void) { return &queue; }
 void world_queue_snapshot(enc_queue_t *out) { if (out) *out = queue; }
 const dex_t *world_dex(void) { return &dex; }
 void world_feed(void) { item_use_result_t out; (void)world_item_use(world.species, ITEM_BERRY, &out); }
-void world_play(void) { nurture_play(&world.pet); }
+bool world_play(void) { return nurture_play(&world.pet); }
 void world_rest(void) { nurture_rest(&world.pet); }
 void world_inventory_snapshot(inventory_t *out) { if (out) *out = inventory; }
 item_use_status_t world_item_use(uint16_t expected, uint8_t id, item_use_result_t *out)
@@ -362,8 +364,12 @@ bool world_apply_defeat_uid(uint16_t uid)
     }
     return true;
 }
+static exp_growth_queue_t growth;
+bool world_growth_pop(exp_growth_t *out) { return exp_growth_pop(&growth,out); }
+static void record_growth(const party_t *next) { exp_growth_record(&growth,party.party,party.party_count,next->party,next->party_count); }
 void world_grant_exp(uint16_t amount)
 {
+    mon_t before=party.party[0];
     uint32_t floor = exp_for_level(world.level);
     if (world.exp < floor) world.exp = floor;
     world.exp = amount > UINT32_MAX - world.exp ? UINT32_MAX : world.exp + amount;
@@ -371,6 +377,7 @@ void world_grant_exp(uint16_t amount)
     if (party.party_count) {
         party.party[0].exp = world.exp;
         party.party[0].level = world.level;
+        exp_growth_record(&growth,&before,1,party.party,1);
     }
 }
 bool world_take_encounter(uint8_t i, encounter_t *out) { return enc_queue_take(&queue, i, out); }
@@ -408,7 +415,7 @@ bool world_capture_uid(uint16_t uid, const mon_t *m)
     uint16_t gain=exp_scaled(exp_scaled(exp_battle_base(m->level),dex_is_caught(&dex,m->species_id)?60:110),nurture_exp_percent(&world.pet));
     exp_award_party(&next,1,(1u<<party.party_count)-1,gain);
     if (host_save_fails()) return false;
-    party = next;world.exp=party.party[0].exp;world.level=party.party[0].level;
+    record_growth(&next);party = next;world.exp=party.party[0].exp;world.level=party.party[0].level;
     dex_mark_caught(&dex, m->species_id, (m->flags & 1) != 0);
     world_take_uid(uid, NULL);
     return true;
@@ -416,14 +423,11 @@ bool world_capture_uid(uint16_t uid, const mon_t *m)
 bool world_evolve_leader(uint16_t from, uint16_t to)
 {
     species_t sp;
-    evo_check_t check;
     if (active_valid || from < 1 || from > BOX_SPECIES || to < 1 || to > BOX_SPECIES ||
         !party.party_count || party.party[0].species_id != from ||
         world.species != from || !assets_species(from, &sp) || sp.evolve_to != to ||
         sp.evolve_trigger != EVO_TRIGGER_LEVEL) return false;
-    evo_check(nurture_pct(world.pet.intimacy), world.explore_value,
-              sp.evolve_trigger, sp.evolve_to, sp.evolve_level, &check);
-    if (!check.can || host_save_fails()) return false;
+    if (!evo_level_ready(world.level, sp.evolve_trigger, sp.evolve_to, sp.evolve_level) || host_save_fails()) return false;
     if(achievements.evolutions<UINT16_MAX)achievements.evolutions++;
     party.party[0].species_id = to;
     party.party[0].intimacy = nurture_pct(world.pet.intimacy);
@@ -448,6 +452,7 @@ bool audio_settings_muted(void) {return host_muted;}
 void audio_settings_init(void) {host_muted=true;}
 bool audio_settings_set_muted(bool muted) {if(host_save_fails())return false;host_muted=muted;host_mixer.active=false;host_alert=0;return true;}
 void sfx_play(sfx_id_t id) { if(host_muted)return; sound_mixer_effect(&host_mixer,id); }
+void sfx_cry(uint16_t species) { if(!host_muted)sound_mixer_cry(&host_mixer,species); }
 void sfx_music_play(music_id_t id) { sound_mixer_music(&host_mixer,id); }
 void sfx_move(uint16_t id, uint8_t type, bool missed) { if(host_muted)return; sound_mixer_move(&host_mixer,id,type,missed); }
 
@@ -559,6 +564,8 @@ static void encounter_state(const encounter_t *e)
 }
 static void state(void)
 {
+    exp_growth_t ge;unsigned gp=0,gm=0;bool growth_visible=growth_ui_view(&ge,&gp,&gm);
+
     printf("STATE {\"page\":%d,\"pet\":%u,\"level\":%u,\"exp\":%lu,"
            "\"party_count\":%u,\"caught\":%u,\"needs_starter\":%s,"
            "\"opening_seen\":%s,\"uid\":%u,\"queue\":[",
@@ -571,6 +578,7 @@ static void state(void)
     }
     printf("],\"dropped\":%u,\"active\":", queue.dropped);
     if (active_valid) encounter_state(&active_enc); else printf("null");
+    printf(",\"evolution_ui\":{\"active\":%s,\"frame\":%u}",evolution_ui_active()?"true":"false",evolution_ui_frame());
     extern unsigned play_battle_move_preview_frames(void);
     printf(",\"move_animation_frames\":%u", nav_current() == PAGE_BATTLE ? play_battle_move_preview_frames() : 0);
     printf(",\"presentation\":");
@@ -585,7 +593,9 @@ static void state(void)
     } else printf("null");
     printf(",\"nurture\":{\"satiety\":%u,\"mood\":%u,\"stamina\":%u,\"intimacy\":%u}",
            nurture_pct(world.pet.satiety), nurture_pct(world.pet.mood),
-           nurture_pct(world.pet.stamina), nurture_pct(world.pet.intimacy));
+           nurture_stamina_points(&world.pet), nurture_pct(world.pet.intimacy));
+    if(growth_visible)printf(",\"growth\":{\"species\":%u,\"before\":%u,\"after\":%u,\"page\":%u,\"moves\":%u}",ge.species,ge.before,ge.after,gp,gm);
+    else printf(",\"growth\":null");
     printf(",\"can_leave\":%s", nav_can_leave() ? "true" : "false");
     printf(",\"display\":{\"off\":%s,\"timeout_ms\":%u,\"backlight\":%u,\"busy\":%s}",
            screen_idle_is_off() ? "true" : "false", screen_idle_timeout_ms(), backlight,
@@ -738,6 +748,8 @@ int main(void)
             party_receive(&party, &member);
             dex_mark_caught(&dex, a, e != 0);
             host_redraw();
+        } else if (booted && !strcmp(cmd,"grant_exp") && sscanf(line,"%*s %u",&a)==1 && a<=65535) {
+            world_grant_exp(a);host_redraw();
         } else if (booted && !strcmp(cmd, "party_exp") &&
                    sscanf(line, "%*s %u %u", &a, &b) == 2 && a < party.party_count) {
             // Reproduce legacy capture records that stored LvN with EXP=0.
@@ -759,17 +771,18 @@ int main(void)
             world.pet.mood = b * NURT_Q;
             world.pet.stamina = c * NURT_Q;
             host_redraw();
+        } else if (booted && !strcmp(cmd, "stall") && sscanf(line, "%*s %u", &a) == 1 && a <= 60000) {
+            // Simulate a blocked display task: overdue callbacks run once at real time.
+            now_ms += a;
+            for (size_t i=0;i<sizeof(timers)/sizeof(*timers);i++) {
+                lv_timer_t *t=&timers[i];
+                if(t->active && t->due<=now_ms){t->due=now_ms+t->period;t->callback(t);}
+            }
         } else if (booted && !strcmp(cmd, "tick") && sscanf(line, "%*s %u", &a) == 1 && a <= 60000) {
             advance(a);
         } else if (booted && !strcmp(cmd, "key") && sscanf(line, "%*s %u %u", &a, &b) == 2 &&
                    a < 3 && b <= BSP_BTN_GESTURE_END) {
-            /* Forward gameplay holds; omit debug screenshot and demo-shell exits. */
-            if (b != BSP_BTN_LONG || a == BSP_BTN_UP ||
-                (a == BSP_BTN_DOWN && (nav_current() == PAGE_ENCOUNTER || nav_current() == PAGE_BAG || nav_current() == PAGE_DEX ||
-                                      nav_current() == PAGE_MENU || nav_current() == PAGE_PARTY ||
-                                      nav_current() == PAGE_TRAINER || nav_current() == PAGE_ACHIEVEMENTS ||
-                                      nav_current() == PAGE_EXPLORATION))) nav_key(a, b);
-            else screen_idle_filter_key(a, b);
+            nav_key(a, b);
         } else if (booted && !strcmp(cmd, "check")) {
             uint8_t before[sizeof(lcd)]; memcpy(before, lcd, sizeof(lcd));
             /* P4 computes its pointer from the clock when drawing. Compare at
@@ -789,11 +802,17 @@ int main(void)
 }
 
 void world_challenge_snapshot(trainer_store_t *out) { *out=challenge; }
-bool world_challenge_begin(uint8_t id) {
+world_challenge_result_t world_challenge_start(uint8_t id) {
+ if(world_needs_starter())return WORLD_CHALLENGE_UNAVAILABLE;
+ if(active_valid||challenge.session.active)return WORLD_CHALLENGE_BUSY;
  trainer_store_t candidate=challenge;
- if(active_valid||!trainer_begin(&candidate,id,party.party,party.party_count,nurture_ability_factor(&world.pet),dbg_battle_seed)||host_save_fails())return false;
- challenge=candidate;return true;
+ unsigned cost=trainer_stamina_cost(&challenge,id);
+ if(!trainer_begin(&candidate,id,party.party,party.party_count,nurture_ability_factor(&world.pet),dbg_battle_seed))return WORLD_CHALLENGE_LOCKED;
+ if(world.pet.stamina<(int32_t)(cost*NURT_Q))return WORLD_CHALLENGE_NO_STAMINA;
+ if(host_save_fails())return WORLD_CHALLENGE_SAVE_FAILED;
+ challenge=candidate;world.pet.stamina-=cost*NURT_Q;return WORLD_CHALLENGE_OK;
 }
+bool world_challenge_begin(uint8_t id) { return world_challenge_start(id)==WORLD_CHALLENGE_OK; }
 bool world_challenge_step(trainer_event_t *out) {
  trainer_store_t candidate=challenge;trainer_event_t event;
  if(!trainer_step(&candidate,&event)||host_save_fails())return false;
@@ -812,10 +831,12 @@ bool world_challenge_settle(void) {
  if(!challenge.session.active)return true;
  if(!challenge.session.finished||host_save_fails())return false;
  uint16_t reward=exp_scaled(trainer_reward(&challenge),nurture_exp_percent(&world.pet));
+ mon_t before[PARTY_MAX];memcpy(before,party.party,sizeof(before));
  exp_award_party(&party,challenge.session.participated,(1u<<party.party_count)-1,reward);
+ exp_growth_record(&growth,before,party.party_count,party.party,party.party_count);
  world.exp=party.party[0].exp;world.level=party.party[0].level;
  trainer_grant_items(&challenge,&inventory);
- if(!challenge.session.won&&!challenge.session.retired){world.pet.stamina=world.pet.stamina>20*NURT_Q?world.pet.stamina-20*NURT_Q:0;world.pet.mood=world.pet.mood>15*NURT_Q?world.pet.mood-15*NURT_Q:0;}
+ if(!challenge.session.won&&!challenge.session.retired)nurture_challenge_defeat(&world.pet);
  trainer_settle(&challenge);return true;
 }
 bool world_challenge_recover(uint8_t slot) {
@@ -836,7 +857,7 @@ achievement_claim_t world_achievement_claim(unsigned id){
 
 void world_exploration_snapshot(exploration_view_t *out){
  if(out)*out=(exploration_view_t){.state=exploration,.discoveries=refresh.discoveries,.defeated=challenge.defeated,.supply_q10=refresh.hunt_q10,
- .rare_left=8-refresh.since_rare,.elite_left=30-refresh.since_elite,.pending=queue.count,.stamina=nurture_pct(world.pet.stamina),.exp_percent=nurture_exp_percent(&world.pet),.rare_bonus=nurture_rare_bonus(&world.pet),.party_bonus=exploration_team_bonus(&party,exploration.route)};
+ .rare_left=8-refresh.since_rare,.elite_left=30-refresh.since_elite,.pending=queue.count,.stamina=nurture_stamina_points(&world.pet),.exp_percent=nurture_exp_percent(&world.pet),.rare_bonus=nurture_rare_bonus(&world.pet),.party_bonus=exploration_team_bonus(&party,exploration.route)};
  if(out)exploration_research_progress(exploration.route,&dex,&out->research_seen,&out->research_caught);
 }
 exploration_kind_t world_exploration_select(uint8_t route){
@@ -872,7 +893,7 @@ exploration_event_t world_explore(void){
   exp_award_party(&next,1,(1u<<next.party_count)-1,gain);e.exp=next.party[0].exp-party.party[0].exp;
  }
  if(host_save_fails()){e.kind=EXPLORE_SAVE_FAILED;e.exp=0;return e;}
- party=next;world.exp=party.party[0].exp;world.level=party.party[0].level;
+ record_growth(&next);party=next;world.exp=party.party[0].exp;world.level=party.party[0].level;
  exploration=x;refresh=r;queue=q;dex=d;inventory=bag;world.pet.stamina-=NURT_EXPLORE_COST;
  if(world.explore_value<UINT16_MAX)world.explore_value++;
  party.party[0].explore_value=world.explore_value;
@@ -887,7 +908,9 @@ bool world_battle_reward_uid(uint16_t uid,uint16_t *amount){
  if(active_battle.reward_settled||active_enc.exp_granted)return true;
  uint16_t gain=exp_scaled(battle_session_exp(&active_battle),nurture_exp_percent(&world.pet));
  if(host_save_fails())return false;
+ mon_t before[PARTY_MAX];memcpy(before,party.party,sizeof(before));
  exp_award_party(&party,1,(1u<<party.party_count)-1,gain);gain=party.party[0].exp-world.exp;
+ exp_growth_record(&growth,before,party.party_count,party.party,party.party_count);
  world.exp=party.party[0].exp;world.level=party.party[0].level;active_battle.reward_settled=true;active_enc.exp_granted=true;
  if(amount)*amount=gain;
  return true;
@@ -916,5 +939,5 @@ exploration_kind_t world_research_claim(uint8_t route,uint16_t *gain){
  exp_award_party(&p,1,(1u<<p.party_count)-1,award);
  if(host_save_fails())return EXPLORE_SAVE_FAILED;
  if(gain)*gain=p.party[0].exp-world.exp;
- party=p;world.exp=p.party[0].exp;world.level=p.party[0].level;exploration=next;return EXPLORE_NONE;
+ record_growth(&p);party=p;world.exp=p.party[0].exp;world.level=p.party[0].level;exploration=next;return EXPLORE_NONE;
 }

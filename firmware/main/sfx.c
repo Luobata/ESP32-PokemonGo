@@ -6,6 +6,7 @@
 // Keep every gameplay, background and debug caller safe without creating a
 // queue/task or touching the codec. Rebuilding with the option off restores SFX.
 void sfx_start(void) {}
+void sfx_cry(uint16_t species) {(void)species;}
 void sfx_encounter(uint8_t rarity, bool shiny) {(void)rarity;(void)shiny;}
 void sfx_music_play(music_id_t id) { (void)id; }
 void sfx_move(uint16_t id, uint8_t type, bool missed) { (void)id; (void)type; (void)missed; }
@@ -66,7 +67,8 @@ static void sfx_task(void *arg) {
    bsp_audio_set_volume(desired);volume=desired;
   }
   if(pending && !off) {
-   if(request.kind)sound_mixer_move(&s_mixer,request.id,request.type,request.missed);
+   if(request.kind==2)sound_mixer_cry(&s_mixer,request.id);
+   else if(request.kind==1)sound_mixer_move(&s_mixer,request.id,request.type,request.missed);
    else sound_mixer_effect(&s_mixer,(sfx_id_t)request.id);
   }
   if(!alert && !pending && !s_mixer.active)alert=atomic_exchange(&s_alert,0);
@@ -91,6 +93,10 @@ void sfx_music_play(music_id_t id) { if((unsigned)id<MUSIC_COUNT)atomic_store(&s
 void sfx_move(uint16_t id,uint8_t type,bool missed) {
  if(!s_queue||audio_settings_muted()||screen_idle_is_off())return;
  request_t request={.id=id,.type=type,.kind=1,.missed=missed};xQueueSend(s_queue,&request,0);
+}
+void sfx_cry(uint16_t species) {
+ if(species>151||!s_queue||audio_settings_muted()||screen_idle_is_off())return;
+ request_t request={.id=species,.kind=2};xQueueSend(s_queue,&request,0);
 }
 void sfx_encounter(uint8_t rarity,bool shiny) {
  if(!s_queue||audio_settings_muted())return;

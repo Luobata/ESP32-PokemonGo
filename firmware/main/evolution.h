@@ -8,6 +8,10 @@
 #define EVO_TRIGGER_TRADE 2
 #define EVO_TRIGGER_NONE  0xFF
 
+// Production natural evolution uses actual level; no nurture prerequisites.
+bool evo_level_ready(uint8_t level, uint8_t trigger, uint16_t target, uint8_t required);
+
+// Legacy simulator compatibility only.
 // 已知简化：ITEM 当前与 LEVEL 共用默认的亲密度/探索值门槛。
 // sim 侧还有 biome 驻留条件，但固件的 biome 判定尚未移植；在它可用前
 // 不实现一条永久不可达的分支。补全时需要扩展本接口传入 biome/dwell。

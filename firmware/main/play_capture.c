@@ -332,8 +332,8 @@ static void draw_band(int band_y)
         render_text(12, Y(MSG_Y), s_last.caught ? "命中" : "未命中", GAME_UI_INK);
     }
 
-    game_ui_footer(band_y, s_animating ? "捕获中……" : s_capture_pending ? "[A]重试保存" : s_hold_active ? "按任意键继续"
-        : (s_caught || s_fled ? "[A]返回 [B]— [C]返回" : "[A]投球 [B]换球 [C]取消"));
+    game_ui_footer(band_y, s_animating ? "捕获中……" : s_capture_pending ? "[C]重试保存" : s_hold_active ? "[C]继续"
+        : (s_caught || s_fled ? "[C]继续" : "A上 B下 C投球 长按B返回"));
 
     #undef Y
     screen_push_band(band_y);
@@ -483,25 +483,28 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
     // Hardware CLICK waits for release and double-click classification. Throw
     // on PRESS; semantic browser/debug CLICK remains supported. Consume the
     // delayed CLICK even if the immediate attempt failed to save/spend a ball.
-    if (btn == BSP_BTN_UP && ev == BSP_BTN_CLICK && s_press_handled) {
+    if (btn == BSP_BTN_OK && ev == BSP_BTN_CLICK && s_press_handled) {
         s_press_handled = false;
         return;
     }
-    if (btn == BSP_BTN_UP && ev == BSP_BTN_PRESS && !s_thrown) {
+    if (btn == BSP_BTN_OK && ev == BSP_BTN_PRESS && !s_thrown) {
         s_press_handled = true;
         ev = BSP_BTN_CLICK;
     }
     if (s_animating) return;
     // 停留期任何页面按键都只加速同一条 timer 导航路径。
     if (s_hold_active) {
-        if (ev == BSP_BTN_CLICK) s_hold = (s_caught ? 80 : HOLD_TICKS) - 1;
+        if (nav_confirm(btn, ev)) s_hold = (s_caught ? 80 : HOLD_TICKS) - 1;
         return;
     }
-    if (btn == BSP_BTN_DOWN && ev == BSP_BTN_LONG) { screen_dump(); return; }
+    if (nav_return(btn, ev)) {
+        if (!s_thrown && !s_capture_pending) nav_go(PAGE_BATTLE);
+        return;
+    }
     if (ev != BSP_BTN_CLICK) return;
 
     if (s_capture_pending) {
-        if (btn == BSP_BTN_UP) {
+        if (btn == BSP_BTN_OK) {
             if (save_caught_result()) { capture_reveal(); s_hold_active = true; s_hold = 0; }
             draw_all();
         }
@@ -511,7 +514,7 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
     nav_ctx_t *c = nav_ctx();
 
     switch (btn) {
-    case BSP_BTN_UP: {                     // A 投球
+    case BSP_BTN_OK: {                     // Confirm throws immediately
         if (s_thrown) return;
         if (!world_battle_get_uid(c->uid, &s_session)) {
             c->valid = false; nav_end_encounter(); return;
@@ -593,11 +596,12 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         break;
     }
 
-    case BSP_BTN_DOWN:                     // B 换球
+    case BSP_BTN_UP:
+    case BSP_BTN_DOWN:                     // Previous/next available ball
         if (s_thrown) break;
         world_inventory_snapshot(&s_inventory);
         for (unsigned i = 0; i < CAP_BALL_COUNT; i++) {
-            s_ball = (cap_ball_t)((s_ball + 1) % CAP_BALL_COUNT);
+            s_ball = (cap_ball_t)((s_ball + CAP_BALL_COUNT + nav_direction(btn, ev)) % CAP_BALL_COUNT);
             if (s_inventory.quantity[s_ball]) break;
         }
         s_thrown = false;
@@ -606,9 +610,6 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         draw_all();
         break;
 
-    case BSP_BTN_OK:                       // An unthrown ball does not spend a chance.
-        nav_go(PAGE_BATTLE);
-        break;
 
     default:
         break;

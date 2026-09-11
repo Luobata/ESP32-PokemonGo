@@ -30,16 +30,16 @@
 // 每小时衰减/恢复速率，Q10。与 sim/gameplay.py 的常量逐个对应：
 //   SATIETY_DECAY_PER_HOUR   = 4.0
 //   MOOD_DECAY_PER_HOUR      = 3.0
-//   STAMINA_RECOVER_PER_HOUR = 12.0
+//   STAMINA_RECOVER_PER_HOUR = 50.0
 #define NURT_SATIETY_DECAY_PH  (4 * NURT_Q)
 #define NURT_MOOD_DECAY_PH     (3 * NURT_Q)
-#define NURT_STAMINA_RECOVER_PH (12 * NURT_Q)
+#define NURT_STAMINA_RECOVER_PH (50 * NURT_Q)
 #define NURT_STAMINA_COST_PER_MOTION 0
 
 // 亲密度：陪伴时长累积，0.5/小时（sim 侧 intimacy += hours * 0.5）
 #define NURT_INTIMACY_PH (NURT_Q / 2)
 
-// 低于此值进入「消沉」，能力打折（sim 侧 LOW_THRESHOLD / DESPONDENT_PENALTY）
+// 饱食或心情低于此值进入「消沉」；体能不影响能力。
 #define NURT_LOW_THRESHOLD (25 * NURT_Q)
 
 // 互动增量（sim 侧 feed(30) / play()）
@@ -51,6 +51,7 @@
 #define NURT_REST_STAMINA  0
 #define NURT_DEFEAT_STAMINA (20 * NURT_Q)
 #define NURT_DEFEAT_MOOD    (15 * NURT_Q)
+#define NURT_CHALLENGE_DEFEAT_MOOD (5 * NURT_Q)
 
 typedef struct {
     int32_t satiety;      // Q10，0~NURT_MAX
@@ -81,9 +82,16 @@ void nurture_tick(nurture_t *n, int64_t now_us, int motion_events,
                   bool is_night);
 
 void nurture_feed(nurture_t *n);
-void nurture_play(nurture_t *n);
+// Returns false without changing any axis when the full stamina cost is unavailable.
+bool nurture_play(nurture_t *n);
 void nurture_rest(nurture_t *n);
 void nurture_defeat(nurture_t *n);
+// Paid trainer battles keep their entry cost; defeat only affects mood.
+void nurture_challenge_defeat(nurture_t *n);
+// Cost is in whole stamina points. Use the exact Q10 balance, not its display rounding.
+unsigned nurture_wait_minutes(const nurture_t *n, unsigned cost);
+// Spendable whole points; a 4.9 balance must not be advertised as enough for 5.
+uint8_t nurture_stamina_points(const nurture_t *n);
 uint16_t nurture_ability_factor(const nurture_t *n);
 
 // 三条轴取整成 0~100 —— 上屏用。

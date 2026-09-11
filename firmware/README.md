@@ -24,7 +24,7 @@ python3 tools/device/monitor.py    # 看日志
 | `main/ui_pixel*.{c,h}` | 上游 | 原样照抄。像素风 UI 组件 |
 | `main/demo_{button,battery,wifi,radio}.*` | 上游 | 原样照抄。保留三个：Button 标定 ADC 分压、Battery 看电量、Wi-Fi 作扫描对照 |
 | `main/demo.h` | 上游 | **删掉未编译的声明**（display/audio/ble/low_power）—— 留着会让链接错误晚到链接期才暴露 |
-| `main/main.c` | 上游 | **只改 DEMOS[] 表**与启动日志。按键锁、OK 长按返回菜单等逻辑照用 |
+| `main/main.c` | 上游 | 负责启动与按键分发；所有页面使用 A 上/B 下/C 确认；长按 B 返回，长按 C 熄屏 |
 | `partitions.csv` `sdkconfig.defaults` | 上游 | 原样照抄 |
 | `main/play*.{c,h}` | **我们的** | 玩法实现 |
 | `CMakeLists.txt` `main/CMakeLists.txt` | 我们的 | 基于上游，去掉 BLE 依赖 |

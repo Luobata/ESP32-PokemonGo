@@ -24,13 +24,13 @@ for species in (25,133,150):
      expected=left<=pointers[0]<=right
      before=r.inspect()
      r.command(f'save_delay {delay}')
-     r.command(f'key 0 {event}')
+     r.command(f'key 2 {event}')
      after=r.inspect()
      assert (after['party_count']>before['party_count'])==expected,(species,elapsed,delay,event,left,right,pointers)
      assert after['inventory'][0]==before['inventory'][0]-1
      # Hardware's eventual release/click must not repeat a press-time attempt.
      if event==0:
-      r.command('tick 180');r.command('key 0 4');r.command('key 0 1');r.command('key 0 5')
+      r.command('tick 180');r.command('key 2 4');r.command('key 2 1');r.command('key 2 5')
       assert r.inspect()['party_count']==after['party_count']
       assert r.inspect()['inventory']==after['inventory']
      assert r.command('check')['mismatch']==0
@@ -43,14 +43,15 @@ for species in (25,133,150):
 r=Renderer(exe)
 try:
  r.command('boot 4 25 30 133 4 123 0 0 0');r.command('tick 280')
- before=r.inspect();r.command('save_fail 1');r.command('key 0 0')
- r.command('tick 180');r.command('key 0 4');r.command('key 0 1');r.command('key 0 5')
+ before=r.inspect();r.command('save_fail 1');r.command('key 2 0')
+ r.command('tick 180');r.command('key 2 4');r.command('key 2 1');r.command('key 2 5')
  assert r.inspect()['inventory']==before['inventory']
  assert r.inspect()['party_count']==before['party_count']
- r.command('key 0 0')
+ r.command('key 2 0')
  assert r.inspect()['inventory'][0]==before['inventory'][0]-1
 finally:r.close()
 assert hits and misses and old_mismatches
 report=dict(build=version,cases=cases,visible_hits=hits,visible_misses=misses,old_clock_rule_disagreed=old_mismatches,duplicate_save_retry=False)
-path=ROOT/'reports/evidence/capture-animation-2026-09-08/timing-verification.json'
+path=ROOT/'reports/evidence/controls-growth-2026-09-10/capture-timing.json'
+path.parent.mkdir(parents=True,exist_ok=True)
 path.write_text(json.dumps(report,indent=2)+'\n');print(json.dumps(report))

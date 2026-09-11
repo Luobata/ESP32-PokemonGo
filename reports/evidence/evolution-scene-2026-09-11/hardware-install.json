@@ -1,0 +1,11 @@
+{
+  "app_size": 3007952,
+  "app_sha256": "9c963a648617119860be274a54ba0942125cf0f3138c40d4ac349769dbf68ad3",
+  "app_address": "0x10000",
+  "port": "/dev/cu.usbmodem1101",
+  "device": "ESP32-C3 4C:11:AE:32:3C:F8",
+  "backup_address": "0x9000",
+  "backup_size": 3174400,
+  "backup_sha256": "673fec4dba0b810c3efa4f18c682affdffbc365f47a926b02b8dc1ae00b1af99",
+  "flash_hash_verified": true
+}

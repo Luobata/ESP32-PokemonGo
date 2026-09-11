@@ -1,0 +1,24 @@
+{
+  "port": "/dev/cu.usbmodem2101",
+  "app_address": "0x10000",
+  "app_bytes": 2996912,
+  "app_sha256": "dc28802a1c26720af4c4934acc8891f56a5329ff01cecf886a4418fb419957da",
+  "backup_address": "0x9000",
+  "backup_bytes": 3174400,
+  "backup_sha256": "1022a154bebc9dae11cfc3c24298d5e5e5f2df74edc787b00e1e8d1498b005ac",
+  "save_version": 14,
+  "save_bytes": 3664,
+  "preserved_partitions": [
+    "nvs",
+    "cardid",
+    "recovery"
+  ],
+  "flash_verified": true,
+  "device_navigation_checks": 10,
+  "device_progress": {
+    "pet": 1,
+    "level": 15,
+    "exp": 5620
+  },
+  "preview_build": "03c9c1ba321fecfa31f8"
+}

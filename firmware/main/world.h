@@ -142,18 +142,21 @@ world_starter_result_t world_choose_starter(uint16_t species);
 // 照料。**由按键触发，走 world 而不是页面自己改** ——
 // 状态的唯一所有者是 world，页面只读。
 void world_feed(void);
-void world_play(void);
+bool world_play(void);
 void world_rest(void);
 
 // 发放主宠经验并立即存档。战斗页只调用一次，状态与持久化由 world 管。
 void world_grant_exp(uint16_t amount);
 
+#include "exp.h"
+bool world_growth_pop(exp_growth_t *out);
+
 // Once per defeated active battle: stamina -20, mood -15, no EXP reduction.
 // Updates the runtime guard in the same lock, then saves existing nurture axes.
 bool world_apply_defeat_uid(uint16_t uid);
 
-// 原子完成队首进化并立即存档。会在锁内重新核对物种进化目标与两条
-// 进度线；expected_species 防止页面快照过期后把另一只误进化。
+// 原子完成队首进化并立即存档。会在锁内重新核对物种进化目标与实际
+// 等级；expected_species 防止页面快照过期后把另一只误进化。
 bool world_evolve_leader(uint16_t expected_species, uint16_t evolve_to);
 
 // 一次提交捕获：收容、点亮图鉴、按 uid 出队在同一个临界区完成，
@@ -227,6 +230,11 @@ uint8_t world_progress_from_motion(uint32_t motion_units);
 
 // Transactional trainer campaign, separate from the five pending wild encounters.
 void world_challenge_snapshot(trainer_store_t *out);
+typedef enum {
+    WORLD_CHALLENGE_OK, WORLD_CHALLENGE_UNAVAILABLE, WORLD_CHALLENGE_BUSY,
+    WORLD_CHALLENGE_LOCKED, WORLD_CHALLENGE_NO_STAMINA, WORLD_CHALLENGE_SAVE_FAILED
+} world_challenge_result_t;
+world_challenge_result_t world_challenge_start(uint8_t id);
 bool world_challenge_begin(uint8_t id);
 bool world_challenge_step(trainer_event_t *out);
 bool world_challenge_move(uint8_t slot);

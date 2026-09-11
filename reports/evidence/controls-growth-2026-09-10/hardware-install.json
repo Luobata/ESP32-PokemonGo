@@ -1,0 +1,23 @@
+{
+  "application": "firmware/build/PokeWalk.bin",
+  "bytes": 2995520,
+  "sha256": "40e29e189949e6dc98a81a5828ca58a651e587cf98a75af4797b907dfeedff2b",
+  "address": "0x10000",
+  "flash_verified": true,
+  "backup": {
+    "path": ".device-backup/controls-growth-2026-09-10/before-data-app.bin",
+    "address": "0x9000",
+    "bytes": 3174400,
+    "sha256": "4b168755a1f9ff4061ce4c59c0ffbbd84ff7e8ba36a5003b7da0cbcbbbc190a8"
+  },
+  "updated_partitions": [
+    "factory"
+  ],
+  "save_progress_preserved": {
+    "pet": 1,
+    "level": 15,
+    "exp": 5620
+  },
+  "device_navigation_passed": true,
+  "device_exp_percent": 51
+}

@@ -48,6 +48,12 @@ bool trainer_unlocked(const trainer_store_t *st,uint8_t id) {
  if(id<13)return st->league_active?st->league_stage==id:id==8&&(st->defeated&255u)==255u;
  return (st->defeated&(1u<<12))!=0;
 }
+unsigned trainer_stamina_cost(const trainer_store_t *st,uint8_t id) {
+ if(!st||id>=TRAINER_TOTAL)return 0;
+ if(trainer_is_route(id))return 5;
+ if(id>=8&&id<=12)return st->league_active&&id==st->league_stage&&id>8?0:20;
+ return 10;
+}
 static void choose_first(trainer_session_t *s) {
  s->planned[0]=combat_choose(actor(s,0),actor(s,1),&s->rng);
  s->planned[1]=combat_choose(actor(s,1),actor(s,0),&s->rng);

@@ -53,3 +53,6 @@ reports/**/music_preview.c
 !assets/font16_charset.txt
 !assets/moves.bin
 !assets/ui.bin
+
+# Raw device observations may contain nearby Wi-Fi identifiers.
+/reports/evidence/directional-controls-2026-09-10/power-key-*.txt

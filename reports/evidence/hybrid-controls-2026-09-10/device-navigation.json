@@ -1,0 +1,94 @@
+{
+  "scope": "Flashed ESP32 application; serial debug keys enter the production button dispatcher. No care item or stamina spent. Physical press timing covered separately by BSP tests.",
+  "checks": [
+    {
+      "label": "boot-home",
+      "off": 0,
+      "brightness": 100,
+      "page": 0,
+      "scans": 11491,
+      "pending": 0,
+      "pet": 1,
+      "level": 14,
+      "exp": 4489
+    },
+    {
+      "label": "A-direct-care",
+      "off": 0,
+      "brightness": 100,
+      "page": 6,
+      "scans": 11491,
+      "pending": 0,
+      "pet": 1,
+      "level": 14,
+      "exp": 4489
+    },
+    {
+      "label": "B-care-next",
+      "off": 0,
+      "brightness": 100,
+      "page": 6,
+      "scans": 11491,
+      "pending": 0,
+      "pet": 1,
+      "level": 14,
+      "exp": 4489
+    },
+    {
+      "label": "long-B-home",
+      "off": 0,
+      "brightness": 100,
+      "page": 0,
+      "scans": 11491,
+      "pending": 0,
+      "pet": 1,
+      "level": 14,
+      "exp": 4489
+    },
+    {
+      "label": "B-direct-menu",
+      "off": 0,
+      "brightness": 100,
+      "page": 9,
+      "scans": 11491,
+      "pending": 0,
+      "pet": 1,
+      "level": 14,
+      "exp": 4489
+    },
+    {
+      "label": "C-menu-confirm-dex",
+      "off": 0,
+      "brightness": 100,
+      "page": 4,
+      "scans": 11491,
+      "pending": 0,
+      "pet": 1,
+      "level": 14,
+      "exp": 4489
+    },
+    {
+      "label": "long-B-menu",
+      "off": 0,
+      "brightness": 100,
+      "page": 9,
+      "scans": 11491,
+      "pending": 0,
+      "pet": 1,
+      "level": 14,
+      "exp": 4489
+    },
+    {
+      "label": "long-B-home-final",
+      "off": 0,
+      "brightness": 100,
+      "page": 0,
+      "scans": 11491,
+      "pending": 0,
+      "pet": 1,
+      "level": 14,
+      "exp": 4489
+    }
+  ],
+  "save_progress_preserved": true
+}

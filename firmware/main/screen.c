@@ -126,8 +126,12 @@ static void wait_dma_done(void)
     if (io) esp_lcd_panel_io_tx_param(io, 0x00, NULL, 0);   // NOP
 }
 
+static void (*s_overlay)(int);
+void screen_set_overlay(void (*draw_band)(int)) { s_overlay = draw_band; }
+
 void screen_push_band(int band_y)
 {
+    if (s_overlay) s_overlay(band_y);
     if (s_fap_capture) {
         // Logical RGB565 in the existing little-endian band buffer. No extra
         // 150 KiB framebuffer and no panel/backlight writes during capture.

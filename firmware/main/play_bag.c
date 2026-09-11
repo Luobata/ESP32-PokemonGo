@@ -14,6 +14,7 @@
 #include "screen.h"
 #include "sfx.h"
 #include "world.h"
+#include "evolution_ui.h"
 
 #define BAG_ROWS 4
 #define BAG_ROW_Y 64
@@ -207,7 +208,7 @@ static void draw_band(int band_y)
         snprintf(text, sizeof(text), "x%u", s_inventory.quantity[item]);
         render_text(228 - render_text_width(text), y - band_y, text, color);
     }
-    render_text(12, 164 - band_y, "长按B上一项", GAME_UI_MUTED);
+    render_text(12, 164 - band_y, "长按B返回", GAME_UI_MUTED);
     snprintf(text, sizeof(text), "%02u/%u", s_selected + 1, ITEM_COUNT);
     render_text(228 - render_text_width(text), 164 - band_y, text, GAME_UI_MUTED);
 
@@ -220,7 +221,7 @@ static void draw_band(int band_y)
     game_ui_text_centered(band_y, BAG_TEXT_X, BAG_FEEDBACK_Y, BAG_TEXT_W, BAG_TEXT_H,
                           feedback, s_success ? GAME_UI_ACCENT : s_feedback[0] ? GAME_UI_INK : GAME_UI_MUTED);
     game_ui_footer(band_y, s_selected < ITEM_BALL_COUNT
-                              ? "[A]说明 [B]下项 [C]返回" : "[A]使用 [B]下项 [C]返回");
+                              ? GAME_UI_NAV_HINT : GAME_UI_NAV_HINT);
     screen_push_band(band_y);
 }
 
@@ -255,6 +256,15 @@ static void use_selected(void)
     s_success = false;
     if (s_selected < ITEM_BALL_COUNT) {
         snprintf(s_feedback, sizeof(s_feedback), "请在捕获页选球使用");
+        return;
+    }
+    item_use_result_t preview;
+    if(items_apply(s_selected,s_world.species,s_world.level,&s_world.pet,&preview)==ITEM_USE_OK &&
+       preview.species_after!=preview.species_before) {
+        inventory_t inventory;world_inventory_snapshot(&inventory);
+        if(!inventory.quantity[s_selected]){snprintf(s_feedback,sizeof(s_feedback),"道具不足");return;}
+        if(!evolution_ui_begin(preview.species_before,preview.species_after,s_selected))
+            snprintf(s_feedback,sizeof(s_feedback),"无法开始进化");
         return;
     }
     item_use_result_t result;
@@ -320,17 +330,17 @@ uint8_t play_bag_selected_item(void) { return s_selected; }
 
 void play_bag_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
-    if (btn == BSP_BTN_DOWN && (ev == BSP_BTN_CLICK || ev == BSP_BTN_LONG)) {
-        s_selected = (s_selected + ITEM_COUNT + (ev == BSP_BTN_LONG ? -1 : 1)) % ITEM_COUNT;
+    if (nav_direction(btn, ev) != 0) {
+        s_selected = (s_selected + ITEM_COUNT + nav_direction(btn, ev)) % ITEM_COUNT;
         s_feedback[0] = '\0';
         s_success = false;
         refresh_snapshot();
         select_description();
         draw_all();
-    } else if (ev == BSP_BTN_CLICK && btn == BSP_BTN_UP) {
+    } else if (nav_confirm(btn, ev)) {
         use_selected();
         draw_all();
-    } else if (ev == BSP_BTN_CLICK && btn == BSP_BTN_OK) {
+    } else if (nav_return(btn, ev)) {
         nav_back(PAGE_CARE);
     }
 }

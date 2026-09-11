@@ -1,0 +1,23 @@
+{
+  "app_address": "0x10000",
+  "app_bytes": 2997760,
+  "app_sha256": "9db84ecb780cdb96467f2ed372c5aa5cd2fe247aa309f32495cbb3fdfae96a95",
+  "backup_address": "0x9000",
+  "backup_bytes": 3174400,
+  "backup_sha256": "2adb17459c51dfe7a8876c44daf6249ac3c85947601fcd6429969aa6f6449840",
+  "flash_verified": true,
+  "save_version": 14,
+  "save_bytes": 3664,
+  "preserved_partitions": [
+    "nvs",
+    "cardid",
+    "recovery"
+  ],
+  "device_progress": {
+    "pet": 1,
+    "level": 15,
+    "exp": 5748
+  },
+  "device_checks": 5,
+  "preview_build": "8c8d727c68678fa6fb85"
+}

@@ -1,5 +1,11 @@
 #include "evolution.h"
 
+bool evo_level_ready(uint8_t level, uint8_t trigger, uint16_t target, uint8_t required)
+{
+    return trigger == EVO_TRIGGER_LEVEL && target > 0 && target <= 151 &&
+           required > 0 && required <= 100 && level >= required;
+}
+
 #define DEFAULT_INTIMACY 60
 #define DEFAULT_EXPLORE_MIN 10
 #define DEFAULT_EXPLORE_MULT 2

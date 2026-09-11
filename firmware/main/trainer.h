@@ -49,6 +49,8 @@ typedef struct {
 } trainer_event_t;
 
 bool trainer_unlocked(const trainer_store_t *store,uint8_t id);
+// Charged only when a new challenge commits. Later league stages are prepaid.
+unsigned trainer_stamina_cost(const trainer_store_t *store, uint8_t id);
 bool trainer_begin(trainer_store_t *store,uint8_t id,const mon_t *party,uint8_t count,uint16_t ability,uint32_t seed);
 bool trainer_step(trainer_store_t *store,trainer_event_t *event);
 bool trainer_choose_move(trainer_store_t *store,uint8_t slot);

@@ -131,7 +131,7 @@ static void draw_band(int band_y)
         const encounter_t *e = &q->items[idx];
         int y = ROW0_Y + i * ROW_H;
 
-        if (idx == s_sel) game_ui_cursor(band_y, 12, y + 3);
+        game_ui_list_marker(band_y, 8, y, idx, q->count, s_sel);
 
         // 物种名
         if (assets_species(e->species_id, &sp)) {
@@ -139,7 +139,7 @@ static void draw_band(int band_y)
         } else {
             snprintf(buf, sizeof(buf), "#%03u", e->species_id);
         }
-        render_text(24, Y(y), buf, GAME_UI_INK);
+        render_text(q->count<=3?32:24, Y(y), buf, GAME_UI_INK);
 
         // 稀有度星 —— 右对齐到 x=200，名字最长 5 字（80px）不会撞
         draw_stars(112, Y(y), e->rarity, C_INK);
@@ -166,7 +166,7 @@ static void draw_band(int band_y)
 
     // -- 提示与三键 ------------------------------------------------------
     render_text(12, Y(248), "稀有度越高越难捕获", GAME_UI_MUTED);
-    game_ui_footer(band_y, "[A]选中 [B]下条 [C]返回");
+    game_ui_footer(band_y, game_ui_list_hint(q->count));
 
     if (s_trans_flash_black) {
         screen_band_clear(C_BLACK);
@@ -351,64 +351,16 @@ static void on_select(void)
     start_transition();
 }
 
-// 丢弃会不可逆地移除遭遇，放在 B 长按，避免和主流程三键争抢单击语义。
-// C 长按由 main.c 全局用于退出玩法，不能作为页面手势；截图仍可走 dbg 的 s。
-static void discard_selected(void)
-{
-    if (s_sel >= s_view.count) {
-        if (refresh_list()) draw_all();
-        return;
-    }
-
-    const encounter_t *shown = &s_view.items[s_sel];
-    encounter_t dropped, current;
-    if (world_get_encounter_uid(shown->uid, &current) && current.ts == shown->ts &&
-        world_take_uid(shown->uid, &dropped)) {
-        ESP_LOGI(TAG, "丢弃 #%u ★%u", dropped.species_id,
-                 dropped.rarity);
-    }
-
-    refresh_list();
-    draw_all();
-}
-
 bool play_enc_screen_busy(void) { return s_trans_tick != NULL; }
 
 void play_enc_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
-    // 转场期间冻结菜单输入；调试截图仍由 dbg.c 的 s 命令处理。
     if (s_trans_tick) return;
-
-    // 破坏性操作使用长按保护，不占用提示行里的三种主操作。
-    if (btn == BSP_BTN_DOWN && ev == BSP_BTN_LONG) {
-        discard_selected();
-        return;
-    }
-
+    if (nav_return(btn, ev)) { nav_go(PAGE_IDLE); return; }
     if (ev != BSP_BTN_CLICK) return;
-
-    switch (btn) {
-    case BSP_BTN_UP:                       // A 选中
-        on_select();
-        break;
-
-    case BSP_BTN_DOWN:                     // B 下移一条
-        refresh_list();
-        if (s_view.count == 0) { draw_all(); break; }
-        s_sel = (uint8_t)((s_sel + 1) % s_view.count);
-        // 滚动窗口跟着选中项走
-        if (s_sel < s_top) s_top = s_sel;
-        if (s_sel >= s_top + VISIBLE_ROWS) {
-            s_top = (uint8_t)(s_sel - VISIBLE_ROWS + 1);
-        }
-        draw_all();
-        break;
-
-    case BSP_BTN_OK:                       // C 返回
-        nav_go(PAGE_IDLE);
-        break;
-
-    default:
-        break;
-    }
+    s_sel = nav_list_selection(btn, ev, s_view.count, s_sel);
+    if (s_sel < s_top) s_top = s_sel;
+    if (s_sel >= s_top + VISIBLE_ROWS) s_top = s_sel - VISIBLE_ROWS + 1;
+    if (nav_list_activate(btn, ev, s_view.count)) { on_select(); return; }
+    draw_all();
 }

@@ -28,16 +28,17 @@ label{display:block;font-size:12px;margin:14px 0 4px}select,input,button{font:in
 <p class="small">旧译含“肥大”等早期金银民间汉化名，缺条目时使用官方名。<a href="https://tiebac.baidu.com/p/612037835?fr=good" target="_blank" rel="noreferrer">原帖</a> / <a href="https://moegirl.uk/index.php?title=%E5%AE%9D%E5%8F%AF%E6%A2%A6%E7%B3%BB%E5%88%97/%E4%BF%97%E7%A7%B0&amp;variant=zh-hans" target="_blank" rel="noreferrer">分版本资料</a>。游戏内「菜单 → 选项」也可切换。</p>
 <button id="reset" class="primary">载入场景</button>
 <p class="small">切换页面会载入新场景；修改其它条件后点击载入。P0 / P9 从未选伙伴的新游戏开始，不预置队伍。需要逐帧复现时，先暂停再用单步推进。</p>
-<label for="gesture">按键手势</label><select id="gesture"><option value="1">自动（单击 / 按住 A / B / C）</option><option value="2">双击</option><option value="3">长按（A / B / C）</option></select>
-<p class="small">A / B 按住 0.6 秒；C 按住 1.5 秒熄屏，任意键唤醒。支持键盘 A / B / C。</p>
+<label for="gesture">按键手势</label><select id="gesture"><option value="1">自动（短按 / 长按）</option><option value="2">双击测试</option><option value="3">长按测试</option></select>
+<p class="small">长按B 0.6 秒返回；长按C 1.5 秒熄屏，任意键唤醒。支持键盘 ↑ / ↓ / Enter，也兼容 A / B / C。</p>
 <label class="inline"><input id="bands" type="checkbox">显示 80px 横带参考线</label>
 <label for="zoom">像素缩放</label><select id="zoom"><option value="0" selected>自动 · 整数倍</option><option value="2">2 倍</option><option value="1">1 倍</option></select>
-<details><summary>预览范围</summary><p class="small">P0–P6、P9–P14 的布局、字体、精灵解码、RGB565 字节序、导航和战斗逻辑直接编译自固件。默认实时推进，可暂停后逐帧检查；世界状态来自测试场景。音乐与音效同样来自 C 混音器，需手动开启试听。WiFi、存档与 LCD 实际传输耗时需要真机验证。</p></details>
+<details><summary>预览范围</summary><p class="small">P0–P6、P9–P15 的布局、字体、精灵解码、RGB565 字节序、导航和战斗逻辑直接编译自固件。默认实时推进，可暂停后逐帧检查；世界状态来自测试场景。音乐与音效同样来自 C 混音器，需手动开启试听。WiFi、存档与 LCD 实际传输耗时需要真机验证。</p></details>
 <p class="small note">P7 / P8 仍可在页面模拟器查看设计稿。它们尚未进入固件。</p>
 </aside>
 <section class="stage">
 <div class="shell"><div class="screen" id="screen-wrap"><canvas id="firmware-canvas" width="240" height="320" aria-label="固件像素画面"></canvas><div class="guides" id="guides"></div></div></div>
-<div class="keys"><button data-key="0">A</button><button data-key="1">B</button><button data-key="2">C</button></div>
+<div class="keys"><button data-key="0">A 上</button><button data-key="1" title="长按B返回">B 下</button><button data-key="2">C 确认</button></div>
+<p class="small">所有页面：A上 / B下 / C确认。长按B返回。</p>
 <p id="clock-state" class="small" role="status">正在载入场景…</p>
 <div class="controls"><button id="play">暂停</button><button id="step">单步 60ms</button><button id="check">检查横带重绘</button><button id="download">保存 PNG</button></div>
 <div class="controls"><button id="audio-toggle" aria-pressed="false">开启试听</button><span class="small" id="audio-state">浏览器试听默认关闭；游戏静音在「选项」切换</span></div>

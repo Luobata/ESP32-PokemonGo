@@ -24,7 +24,7 @@
 //
 // 金银白底：完整名称/等级在标题行，心情/亲密度在 y40 两端。
 // 96px 背图居中于 y58；呼吸只影响带 0/1。三条养成轴完整落在
-// 带 2，探索补给与 y280 消息框落在带 3，文字不跨脏带边界。
+// 带 2，探索情报与 y280 消息框落在带 3，文字不跨脏带边界。
 
 #include <inttypes.h>
 #include <stdio.h>
@@ -38,6 +38,7 @@
 #include "game_ui.h"
 #include "nav.h"
 #include "world.h"
+#include "exp.h"
 #include "bsp_battery.h"
 #include "bsp_display.h"
 #include "play.h"
@@ -65,8 +66,8 @@ static uint8_t s_breath_i;
 #define AXIS_Y0 168
 #define AXIS_STEP 24
 #define AXIS_Y(i) (AXIS_Y0 + (i) * AXIS_STEP)
-#define PROGRESS_Y 244
-#define SUPPLY_HINT_Y 264
+#define EXP_Y 240
+#define PROGRESS_Y 260
 #define TEXT_H 16
 #define BAR_H 16
 #define AXIS_BAR_X 88
@@ -82,13 +83,14 @@ SCREEN_ASSERT_WITHIN_BAND(idle_stamina_label, AXIS_Y(2), TEXT_H);
 SCREEN_ASSERT_WITHIN_BAND(idle_stamina_bar, AXIS_Y(2), BAR_H);
 SCREEN_ASSERT_WITHIN_BAND(idle_progress_label, PROGRESS_Y, TEXT_H);
 SCREEN_ASSERT_WITHIN_BAND(idle_progress_bar, PROGRESS_Y, BAR_H);
-SCREEN_ASSERT_WITHIN_BAND(idle_supply_hint, SUPPLY_HINT_Y, TEXT_H);
+SCREEN_ASSERT_WITHIN_BAND(idle_exp, EXP_Y, TEXT_H);
 SCREEN_ASSERT_WITHIN_BAND(idle_footer, 280, 40);
 
 // 世界快照。每次重画前刷一次 —— **一帧之内不再变**，
 // 否则同一帧里四条轴可能读到不同时刻的值（后台任务随时在改）。
 static world_t s_w;
 static exploration_view_t s_exploration;
+static uint8_t s_action;
 static uint8_t s_supply_gain, s_supply_hold;
 static bool s_shiny;
 
@@ -139,7 +141,7 @@ static void draw_band(int band_y, int8_t breath)
     static const char *AXIS[3] = {"饱食", "心情", "体能"};
     const uint8_t value[3] = {
         nurture_pct(s_w.pet.satiety), nurture_pct(s_w.pet.mood),
-        nurture_pct(s_w.pet.stamina),
+        nurture_stamina_points(&s_w.pet),
     };
     for (int i = 0; i < 3; i++) {
         int y = AXIS_Y(i);
@@ -152,26 +154,23 @@ static void draw_band(int band_y, int8_t breath)
     bool full = s_exploration.state.energy >= EXPLORATION_CAPACITY;
     unsigned progress = s_exploration.supply_q10 * 100u / ENC_HUNT_CREDIT_STEP;
     if (full || progress > 100) progress = 100;
-    render_text(12, Y(PROGRESS_Y), "探索补给", GAME_UI_INK);
-    game_ui_meter(band_y, AXIS_BAR_X, PROGRESS_Y, 88, progress);
+    uint32_t got, need; exp_progress(s_w.exp, s_w.level, &got, &need);
+    unsigned xp = s_w.level >= LEVEL_MAX ? 100 : (unsigned)((uint64_t)got * 100 / need);
+    if (xp > 100) xp = 100;
+    render_text(12, Y(EXP_Y), "经验", GAME_UI_INK);
+    game_ui_meter(band_y, AXIS_BAR_X, EXP_Y, 80, xp);
+    if (s_w.level >= LEVEL_MAX) snprintf(buf, sizeof(buf), "满级");
+    else snprintf(buf, sizeof(buf), "%u%%", xp);
+    render_text(228-render_text_width(buf), Y(EXP_Y), buf, GAME_UI_INK);
+    if(s_supply_hold)snprintf(buf,sizeof(buf),"情报+%u",s_supply_gain);
+    else snprintf(buf,sizeof(buf),"探索情报");
+    render_text(12, Y(PROGRESS_Y), buf, GAME_UI_INK);
+    game_ui_meter(band_y, AXIS_BAR_X, PROGRESS_Y, 80, progress);
     snprintf(buf, sizeof(buf), "%u/%u", s_exploration.state.energy, EXPLORATION_CAPACITY);
     render_text(228 - render_text_width(buf), Y(PROGRESS_Y), buf, GAME_UI_INK);
-    if (s_supply_hold) {
-        snprintf(buf, sizeof(buf), full ? "探索次数+%u 已满" : "探索次数+%u", s_supply_gain);
-    } else {
-        snprintf(buf, sizeof(buf), "%s", full ? "次数已满 先去探索" :
-                 progress == 100 ? "补给就绪 等待扫描" : "走动攒满增加1次");
-    }
-    game_ui_text_centered(band_y, 12, SUPPLY_HINT_Y, 216, TEXT_H, buf, GAME_UI_MUTED);
 
-    // 角标随呼吸相位闪烁；与消息框同在带 3，不另起定时器。
-    const char *hint = "[A]照料 [B]菜单 [C]遭遇";
-    if (s_w.pending && s_breath_i < BREATH_FRAMES / 2) {
-        snprintf(buf, sizeof(buf), "%s %u", hint, s_w.pending);
-    } else {
-        snprintf(buf, sizeof(buf), "%s", hint);
-    }
-    game_ui_footer(band_y, buf);
+    static const char *const actions[] = {"照料", "菜单", "遭遇"};
+    game_ui_actions(band_y, actions, 3, s_action);
     #undef Y
     screen_push_band(band_y);
 }
@@ -213,7 +212,7 @@ static void tick(lv_timer_t *t)
     } else if (s_supply_hold) s_supply_hold--;
     bool axes_changed = nurture_pct(before.pet.satiety) != nurture_pct(s_w.pet.satiety) ||
                         nurture_pct(before.pet.mood) != nurture_pct(s_w.pet.mood) ||
-                        nurture_pct(before.pet.stamina) != nurture_pct(s_w.pet.stamina);
+                        nurture_stamina_points(&before.pet) != nurture_stamina_points(&s_w.pet);
 
     s_breath_i = (uint8_t)((s_breath_i + 1) % BREATH_FRAMES);
 
@@ -243,7 +242,7 @@ static void tick(lv_timer_t *t)
         ESP_LOGI(TAG, "@@AXES %lld %u %u %u %u",
                  (long long)esp_timer_get_time(),
                  nurture_pct(s_w.pet.satiety), nurture_pct(s_w.pet.mood),
-                 nurture_pct(s_w.pet.stamina), nurture_pct(s_w.pet.intimacy));
+                 nurture_stamina_points(&s_w.pet), nurture_pct(s_w.pet.intimacy));
     }
 }
 
@@ -253,6 +252,7 @@ void play_idle_enter(void)
     // 五个页面共用 —— 每页新建/载入会让 LVGL 刷一遍它自己的空背景，
     // 那正是切页时闪的那一下（见 screen.h）。
 
+    if (!nav_is_returning()) s_action = 0;
     s_breath_i = 0;
     s_supply_gain = s_supply_hold = 0;
     world_snapshot(&s_w);          // 先取一份，别用零值画第一帧
@@ -275,7 +275,7 @@ void play_idle_enter(void)
 
     ESP_LOGI(TAG, "P1：#%u Lv%u  提示行 %d px  横带 %dx%d×%d 条",
              s_w.species, s_w.level,
-             render_text_width("[A]照料 [B]菜单 [C]遭遇"),
+             render_text_width("上下选择 确认执行"),
              SCR_W, BAND_H, SCR_H / BAND_H);
 }
 
@@ -292,26 +292,12 @@ void play_idle_exit(void)
 
 void play_idle_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
-    // B 长按 = 截图。**渲染类问题必须看屏幕**，而拍照效率太低
-    // 且有反光偏色 —— 这条通道让 PC 侧拿到像素级准确的画面。
-    // 收图：python3 tools/device/screenshot.py
-    if (btn == BSP_BTN_DOWN && ev == BSP_BTN_LONG) {
-        screen_dump();
-        return;
+    if (nav_direction(btn, ev)) {
+        s_action = nav_list_selection(btn, ev, 3, s_action);
+        draw_band(240, BREATH[s_breath_i]); return;
     }
-    if (ev != BSP_BTN_CLICK) return;
-
-    switch (btn) {
-    case BSP_BTN_UP:                       // A 照料
-        nav_open(PAGE_CARE);
-        break;
-    case BSP_BTN_DOWN:                     // B 菜单
-        nav_open(PAGE_MENU);
-        break;
-    case BSP_BTN_OK:                       // C 遭遇
-        nav_go(PAGE_ENCOUNTER);
-        break;
-    default:
-        break;
-    }
+    if (!nav_confirm(btn, ev)) return;
+    if (s_action == 0) nav_open(PAGE_CARE);
+    else if (s_action == 1) nav_open(PAGE_MENU);
+    else nav_go(PAGE_ENCOUNTER);
 }

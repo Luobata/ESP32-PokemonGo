@@ -5,9 +5,12 @@
 // 下次同步上游会冲突。
 #pragma once
 
+
 #include <stdbool.h>
 #include <stdint.h>
 #include "bsp_button.h"
+
+bool play_trainer_growth_ready(void);
 
 // P0 开场页（S11/S16）—— 仅首次冷启动进入，大木博士 7 框台词。
 void play_opening_enter(void);

@@ -1,0 +1,96 @@
+{
+  "method": "Passive ADC and GPIO_IN_REG reads; no direction/pull/mux changes",
+  "rounds": [
+    {
+      "file": "power-key-observation-retry.txt",
+      "user_confirmed_press_sequence": true,
+      "samples": 480,
+      "adc_mv_range": [
+        6,
+        2894
+      ],
+      "adc_non_idle": [
+        6,
+        305,
+        600
+      ],
+      "gpio_changed": [
+        1,
+        8,
+        9,
+        21
+      ],
+      "gpio21_low_samples": 1,
+      "events": [
+        {
+          "key": 0,
+          "event": 0
+        },
+        {
+          "key": 0,
+          "event": 4
+        },
+        {
+          "key": 0,
+          "event": 1
+        },
+        {
+          "key": 0,
+          "event": 5
+        },
+        {
+          "key": 1,
+          "event": 0
+        },
+        {
+          "key": 1,
+          "event": 4
+        },
+        {
+          "key": 1,
+          "event": 1
+        },
+        {
+          "key": 1,
+          "event": 5
+        },
+        {
+          "key": 2,
+          "event": 0
+        },
+        {
+          "key": 2,
+          "event": 4
+        },
+        {
+          "key": 2,
+          "event": 1
+        },
+        {
+          "key": 2,
+          "event": 5
+        }
+      ]
+    },
+    {
+      "file": "power-key-only.txt",
+      "user_confirmed_press_sequence": true,
+      "samples": 477,
+      "adc_mv_range": [
+        2894,
+        2894
+      ],
+      "adc_non_idle": [],
+      "gpio_changed": [
+        1,
+        8,
+        9,
+        10
+      ],
+      "gpio21_low_samples": 0,
+      "events": [],
+      "requested_sequence": "Power key only: three short presses, approximately three seconds apart"
+    }
+  ],
+  "interpretation": "No power-key event identified in the currently configured input paths. This does not prove that the physical power key is unprogrammable."
+}

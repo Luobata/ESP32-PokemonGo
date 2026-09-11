@@ -1,0 +1,17 @@
+{
+  "application": "firmware/build/PokeWalk.bin",
+  "bytes": 2992656,
+  "sha256": "f98cca145c42d709bc8ded37111852bf9e6ca8b2b713a40422c58ed7c49c52fa",
+  "address": "0x10000",
+  "flash_verified": true,
+  "backup": {
+    "path": ".device-backup/directional-controls-2026-09-10/before-full.bin",
+    "bytes": 8388608,
+    "sha256": "ce8043ff6905b22b1833f74120843a637633b8b6daeaede014df5b26ad4e450f"
+  },
+  "updated_partitions": [
+    "factory"
+  ],
+  "state_observed": "I (1046) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=11446 pending=0 pet=1 level=13 exp=3843",
+  "notes": "Application-only update. NVS/cardid/recovery not included in write command; raw backup remains local and ignored by git."
+}

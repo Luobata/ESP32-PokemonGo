@@ -3,6 +3,8 @@
  const $=id=>document.getElementById(id),canvas=$('canvas'),ctx=canvas.getContext('2d');
  const types='一般 火 水 电 草 冰 格斗 毒 地面 飞行 超能 虫 岩石 幽灵 龙 恶 钢'.split(' ');
  let catalog=[],sources=null,session=null,frame=0,frameCount=36,playing=true,busy=false,revision=0,timer=null,queue=Promise.resolve();
+ let clockAt=performance.now(),clockRemainder=0;
+ function resetClock(){clockAt=performance.now();clockRemainder=0;}
  function enqueue(fn){queue=queue.then(fn).catch(e=>{playing=false;$('play').textContent='播放';$('status').textContent=e.message;});return queue;}
  async function request(action,args={},expected=null){
   const res=await fetch('/api/firmware',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session,action,...args})});
@@ -21,17 +23,24 @@
   $('source-summary').textContent=`原作依赖：${row.objects.length} 种对象、${row.functions.length} 种运动、${row.background_effects.length} 种背景效果。原作轨迹已接入；竖屏合成仍需逐招与原版画面对照。`;
   $('source-commands').textContent=row.command_indices.map(i=>sources.commands[i]).map(c=>`${c.line}: ${c.op} ${c.args.join(', ')}`).join('\n');
  }
- function filter(){revision++;const old=$('move').value,q=$('search').value.trim();const rows=catalog.filter(m=>($('scope').value!=='new'||m.new)&&(!q||m.name.includes(q)||String(m.id).includes(q)));$('move').replaceChildren(...rows.map(m=>new Option(`${m.id} · ${m.name}`,m.id)));if(rows.some(m=>String(m.id)===old))$('move').value=old;$('count').textContent=`(${rows.length} / ${catalog.length})`;$('prev').disabled=$('next').disabled=rows.length<2;$('move').disabled=!rows.length;$('clear-filters').disabled=!q&&$('scope').value==='all';$('filter-note').textContent=q?`搜索“${q}”：${rows.length} 条结果。想选择其他招式，可修改搜索或清除筛选。`:$('scope').value==='new'?`当前仅显示本批新增的 ${rows.length} 招。`:`显示全部 ${rows.length} 招，可下拉选择或按名称搜索。`;info();frame=0;enqueue(render);}
- async function load(){await request('reset',{page:3,pet:Number($('pet').value),wild:Number($('wild').value),level:60,rarity:3,seed:123,team:0});frame=0;await render();}
- $('move').onchange=()=>{revision++;info();frame=0;enqueue(render);};$('search').oninput=filter;$('scope').onchange=()=>{$('search').value='';filter();};
+ function filter(){revision++;const old=$('move').value,q=$('search').value.trim();const rows=catalog.filter(m=>($('scope').value!=='new'||m.new)&&(!q||m.name.includes(q)||String(m.id).includes(q)));$('move').replaceChildren(...rows.map(m=>new Option(`${m.id} · ${m.name}`,m.id)));if(rows.some(m=>String(m.id)===old))$('move').value=old;$('count').textContent=`(${rows.length} / ${catalog.length})`;$('prev').disabled=$('next').disabled=rows.length<2;$('move').disabled=!rows.length;$('clear-filters').disabled=!q&&$('scope').value==='all';$('filter-note').textContent=q?`搜索“${q}”：${rows.length} 条结果。想选择其他招式，可修改搜索或清除筛选。`:$('scope').value==='new'?`当前仅显示本批新增的 ${rows.length} 招。`:`显示全部 ${rows.length} 招，可下拉选择或按名称搜索。`;info();frame=0;resetClock();enqueue(render);}
+ async function load(){await request('reset',{page:3,pet:Number($('pet').value),wild:Number($('wild').value),level:60,rarity:3,seed:123,team:0});frame=0;resetClock();await render();}
+ $('move').onchange=()=>{revision++;info();frame=0;resetClock();enqueue(render);};$('search').oninput=filter;$('scope').onchange=()=>{$('search').value='';filter();};
  $('clear-filters').onclick=()=>{$('search').value='';$('scope').value='all';filter();};
- for(const id of ['side','mode'])$(id).onchange=()=>{revision++;frame=0;enqueue(render);};
+ for(const id of ['side','mode'])$(id).onchange=()=>{revision++;frame=0;resetClock();enqueue(render);};
  $('load').onclick=()=>enqueue(load);
  for(const [id,dir] of [['prev',-1],['next',1]])$(id).onclick=()=>{const s=$('move');if(!s.options.length)return;s.selectedIndex=(s.selectedIndex+dir+s.options.length)%s.options.length;s.onchange();};
- $('play').onclick=()=>{playing=!playing;$('play').textContent=playing?'暂停':'播放';$('play').classList.toggle('active',playing);};
- $('restart').onclick=()=>{revision++;frame=0;enqueue(render);};$('step').onclick=()=>{revision++;playing=false;$('play').textContent='播放';frame=(frame+1)%frameCount;enqueue(render);};
+ $('play').onclick=()=>{playing=!playing;resetClock();$('play').textContent=playing?'暂停':'播放';$('play').classList.toggle('active',playing);};
+ $('restart').onclick=()=>{revision++;frame=0;resetClock();enqueue(render);};$('step').onclick=()=>{revision++;playing=false;$('play').textContent='播放';frame=(frame+1)%frameCount;enqueue(render);};
  $('frame').oninput=()=>{revision++;playing=false;$('play').textContent='播放';frame=Number($('frame').value);enqueue(render);};
  $('save').onclick=()=>{const a=document.createElement('a');a.download=`move-${$('move').value}-side${$('side').value}-frame${frame}.png`;a.href=canvas.toDataURL();a.click();};
  try{const res=await fetch('move-catalog.json');if(!res.ok)throw Error('无法载入招式表');catalog=await res.json();const refs=await fetch('move-animation-sources.json');if(!refs.ok)throw Error('无法载入金银原作对照表');sources=await refs.json();filter();await enqueue(load);}catch(e){$('status').textContent=e.message;}
- timer=setInterval(()=>{if(!playing||busy||document.hidden||!session)return;busy=true;enqueue(async()=>{frame=(frame+1)%frameCount;await render();}).finally(()=>busy=false);},45);
+ document.addEventListener('visibilitychange',resetClock);
+ timer=setInterval(()=>{
+  if(!playing||document.hidden||!session){resetClock();return;}
+  if(busy)return;
+  const now=performance.now();clockRemainder+=now-clockAt;clockAt=now;
+  const steps=Math.floor(clockRemainder/45);if(!steps)return;clockRemainder-=steps*45;
+  busy=true;enqueue(async()=>{frame=(frame+steps)%frameCount;await render();}).finally(()=>busy=false);
+ },45);
 })();

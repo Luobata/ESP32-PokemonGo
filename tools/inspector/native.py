@@ -19,11 +19,12 @@ MAIN = ROOT / "firmware/main"
 HOST = HERE / "host"
 SOURCES = [
     "pokemon_names.c",
+    "growth_ui.c", "evolution_ui.c",
     "assets.c", "render.c", "nav.c", "combat.c", "trainer.c", "achievements.c", "play_achievements.c", "battle.c", "battle_escape.c", "battle_presentation.c", "pokemon_animation.c", "battle_fx.c", "gold_fx.c", "battle_hud.c", "game_ui.c", "capture.c", "encounter.c", "exploration.c", "play_exploration.c",
     "nurture.c", "items.c", "party.c", "exp.c", "evolution.c", "opening.c", "transition.c",
     "play_idle.c", "play_enc.c", "play_battle.c", "play_capture.c",
     "play_care.c", "play_bag.c", "play_dex.c", "play_opening.c", "play_starter.c",
-    "play_menu.c", "play_party.c", "play_trainer.c", "screen_idle.c", "audio.c", "music.c", "sound_mixer.c", "music_director.c",
+    "play_menu.c", "play_party.c", "play_trainer.c", "screen_idle.c", "audio.c", "music.c", "cry.c", "sound_mixer.c", "music_director.c",
 ]
 ASSETS = ["gen1.bin", "gen1_front.bin", "gen1_back.bin", "palettes.bin",
           "font16.bin", "moves.bin", "ui.bin"]

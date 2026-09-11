@@ -80,6 +80,8 @@ void screen_push_band(int band_y);
 
 // 注册页面的重画函数。截图靠它 —— 见 screen_dump。
 void screen_set_redraw(screen_redraw_cb_t cb);
+// Optional final opaque UI layer, shared by device output and screenshots.
+void screen_set_overlay(void (*draw_band)(int band_y));
 // Restore the current page before revealing the backlight after screen idle.
 void screen_redraw_current(void);
 
