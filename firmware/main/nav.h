@@ -38,6 +38,7 @@ typedef enum {
     PAGE_TRAINER,       // P13 道馆与联盟挑战
     PAGE_ACHIEVEMENTS,   // P14 成就与奖励
     PAGE_EXPLORATION,    // P15 路线探索
+    PAGE_DUNGEON,       // P16 isolated roguelike playtest
     PAGE_COUNT,
 } page_id_t;
 

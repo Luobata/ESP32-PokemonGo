@@ -518,3 +518,12 @@ uint8_t enc_refresh_collect(enc_refresh_state_t *s,const enc_refresh_ap_t *aps,u
     }
     return made;
 }
+
+// Current runtime: observe new places without earning or banking a currency.
+bool enc_refresh_observe(enc_refresh_state_t *s,const enc_refresh_ap_t *aps,unsigned n,
+    bool moving,uint16_t distance_q10)
+{
+    if(!s||!aps||!n||n>64||!enc_refresh_valid(s))return false;
+    s->hunt_q10=0; // Discard obsolete banked movement; never redeem it later.
+    return moving&&distance_q10>0&&refresh_collect_one(s,aps,n,true);
+}

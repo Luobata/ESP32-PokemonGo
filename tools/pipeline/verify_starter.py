@@ -160,6 +160,11 @@ void sfx_encounter(uint8_t rarity, bool shiny) { alert_count++;alert_rarity=rari
 #define TAG starter_save_tag
 #include "save.c"
 #include "achievements.c"
+#include "dungeon_rewards.c"
+#ifndef TEST_REAL_DUNGEON
+bool dungeon_party_locked(void){return false;}
+unsigned dungeon_recipients(uint32_t id,uint8_t slots[3]){(void)id;(void)slots;return 0;}
+#endif
 #undef TAG
 
 static void fresh(void) {

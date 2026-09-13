@@ -6,6 +6,7 @@
 
 #include "nav.h"
 #include "play.h"
+#include "dungeon.h"
 #include "world.h"
 #include "screen.h"
 #include "screen_idle.h"
@@ -25,6 +26,7 @@ typedef struct {
 // **顺序必须与 page_id_t 一致** —— 用下标索引，错位不会报错，
 // 只会「按 C 进了图鉴」。加页面时两处一起改。
 static const page_t PAGES[PAGE_COUNT] = {
+    [PAGE_DUNGEON] = {"P16 秘境", play_dungeon_enter, play_dungeon_exit, play_dungeon_key},
     [PAGE_EXPLORATION] = {"P15 探索", play_exploration_enter, play_exploration_exit, play_exploration_key},
     [PAGE_ACHIEVEMENTS] = {"P14 成就", play_achievements_enter, play_achievements_exit, play_achievements_key},
     [PAGE_TRAINER] = {"P13 挑战", play_trainer_enter, play_trainer_exit, play_trainer_key},
@@ -137,6 +139,7 @@ bool nav_screen_busy(void)
     if(evolution_ui_active())return true;
     if (!s_entered) return false;
     switch (s_cur) {
+    case PAGE_DUNGEON: return play_dungeon_screen_busy();
     case PAGE_EXPLORATION: return play_exploration_screen_busy();
     case PAGE_OPENING: return play_opening_screen_busy();
     case PAGE_STARTER: return play_starter_screen_busy();

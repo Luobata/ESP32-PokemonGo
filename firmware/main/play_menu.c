@@ -14,13 +14,13 @@
 #include "world.h"
 #include "audio_settings.h"
 
-#define MENU_COUNT 9
+#define MENU_COUNT 10
 #define MENU_X 120
 #define MENU_Y 40
 #define MENU_W 112
 #define MENU_H 208
 #define ROW_Y 56
-#define ROW_STEP 21
+#define ROW_STEP 19
 #define OPTION_Y 72
 #define OPTION_STEP 28
 enum { OPTION_NAMES, OPTION_SCREEN_OFF, OPTION_MUTE, OPTION_VOLUME, OPTION_RETURN, OPTION_COUNT };
@@ -32,10 +32,10 @@ SCREEN_ASSERT_ALLOW_CROSS_BAND(menu_option_names, OPTION_Y, 16);
 SCREEN_ASSERT_WITHIN_BAND(menu_option_screen, OPTION_Y + OPTION_STEP, 16);
 SCREEN_ASSERT_ALLOW_CROSS_BAND(menu_option_return, OPTION_Y + OPTION_STEP * 3, 16);
 
-static const char *LABELS[MENU_COUNT] = {"图鉴", "队伍", "道具", "照料", "挑战", "选项", "成就", "探索", "关闭"};
+static const char *LABELS[MENU_COUNT] = {"图鉴", "队伍", "道具", "照料", "挑战", "选项", "成就", "探索", "秘境", "关闭"};
 static const char *DESCRIPTIONS[MENU_COUNT] = {
     "查看见过和捕获的伙伴", "查看伙伴 选择出战队首", "查看和使用随身道具",
-    "喂食 玩耍 等待体力恢复", "道馆 徽章 联盟 赤红", "译名 声音与屏幕设置", "查看成长 领取成就奖励", "选择路线 追踪野生伙伴", "回到冒险中",
+    "喂食 玩耍 等待体力恢复", "道馆 徽章 联盟 赤红", "译名 声音与屏幕设置", "查看成长 领取成就奖励", "选择路线 追踪野生伙伴", "租借伙伴闯关 获取奖励", "回到冒险中",
 };
 static uint8_t s_selected;
 static bool s_options;
@@ -202,7 +202,8 @@ void play_menu_key(bsp_btn_t btn, bsp_btn_ev_t ev)
             case 5: s_options = true; s_option_selected = 0; draw_all(); break;
             case 6: nav_open(PAGE_ACHIEVEMENTS); break;
             case 7: nav_open(PAGE_EXPLORATION); break;
-            case 8: nav_back(PAGE_IDLE); break;
+            case 8: nav_open(PAGE_DUNGEON); break;
+            case 9: nav_back(PAGE_IDLE); break;
             default: break;
             }
         }

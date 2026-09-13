@@ -139,7 +139,7 @@
   function zoom(){const wanted=Number($('zoom').value)||Math.min(2,Math.max(1,Math.floor((innerHeight-280)/320)));const available=document.querySelector('.stage').clientWidth-34;const scale=Math.min(wanted,Math.max(1,Math.floor(available/240)));$('screen-wrap').style.width=(240*scale)+'px';$('screen-wrap').style.height=(320*scale)+'px';}
   $('zoom').onchange=zoom;window.addEventListener('resize',zoom);zoom();
   $('download').onclick=()=>{const a=document.createElement('a');a.download=`firmware-${lastPage}-${canvas.dataset.ms}ms.png`;a.href=canvas.toDataURL('image/png');a.click();};
-  const hash=location.hash.match(/^#P([0-6]|9|1[0-2])$/);if(hash)$('page').value=hash[1];
+  const hash=location.hash.match(/^#P([0-6]|9|1[0-6])$/);if(hash)$('page').value=hash[1];
   document.addEventListener('visibilitychange',()=>{suspendClock();scheduleClock();});
   reset();
 })();

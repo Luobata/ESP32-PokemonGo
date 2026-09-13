@@ -1,0 +1,14 @@
+{
+  "routes_cases": 38,
+  "sequence_steps": 20000,
+  "species_reachable": 151,
+  "stamina_cases": 110,
+  "samples_per_legacy_balance": 10000,
+  "rare_with_0": 1069,
+  "rare_with_24": 1069,
+  "items_with_0": 5954,
+  "items_with_24": 5954,
+  "save_version": 14,
+  "build_passed": true,
+  "flashed": false
+}

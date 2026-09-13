@@ -47,7 +47,7 @@ bool save_init(void)
 
 bool save_write(const save_t *s)
 {
-    if (!s || s->version != SAVE_VERSION || !items_inventory_valid(&s->inventory) || !trainer_store_valid(&s->challenge) || !enc_refresh_valid(&s->refresh) || !exploration_valid(&s->exploration)) return false;
+    if (!s || s->version != SAVE_VERSION || !items_inventory_valid(&s->inventory) || !trainer_store_valid(&s->challenge) || !enc_refresh_valid(&s->refresh) || !exploration_valid(&s->exploration) || !dungeon_progress_valid(&s->dungeon)) return false;
     nvs_handle_t h;
     esp_err_t e = nvs_open(NS, NVS_READWRITE, &h);
     if (e != ESP_OK) {
@@ -95,7 +95,7 @@ save_read_result_t save_read_status(save_t *out)
     bool version8 = len == sizeof(save_v8_t);
     bool version9 = len == sizeof(save_v9_t);
     bool version10 = len == sizeof(save_v10_t);
-    if (e != ESP_OK || (!legacy && !version6 && !version7 && !version8 && !version9 && !version10 && len != sizeof(*out))) {
+    if (e != ESP_OK || (!legacy && !version6 && !version7 && !version8 && !version9 && !version10 && len != sizeof(save_v14_t) && len != sizeof(*out))) {
         ESP_LOGW(TAG, "存档 %u 字节 ≠ 结构体 %u，或读取失败 —— 保留原档",
                  (unsigned)len, (unsigned)sizeof(*out));
         nvs_close(h);
@@ -109,10 +109,12 @@ save_read_result_t save_read_status(save_t *out)
     if (e == ESP_OK) (void)nvs_get_u8(h, KEY_OPENING, &opening_seen);
     nvs_close(h);
     if (e != ESP_OK || len != expected_len) return SAVE_READ_ERROR;
-    bool version13 = len == sizeof(*out) && out->version == 13;
-    bool version12 = len == sizeof(*out) && out->version == 12;
-    bool version11 = len == sizeof(*out) && out->version == 11;
-    if (out->version != (legacy ? SAVE_LEGACY_VERSION : version6 ? 6 : version7 ? 7 : version8 ? 8 : version9 ? 9 : version10 ? 10 : version11 ? 11 : version12 ? 12 : version13 ? 13 : SAVE_VERSION)) {
+    bool version14 = len == sizeof(save_v14_t) && out->version == 14;
+    bool version13 = len == sizeof(save_v14_t) && out->version == 13;
+    bool version12 = len == sizeof(save_v14_t) && out->version == 12;
+    bool version11 = len == sizeof(save_v14_t) && out->version == 11;
+    if(len==sizeof(save_v14_t)&&!(version11||version12||version13||version14))return SAVE_READ_ERROR;
+    if (out->version != (legacy ? SAVE_LEGACY_VERSION : version6 ? 6 : version7 ? 7 : version8 ? 8 : version9 ? 9 : version10 ? 10 : version11 ? 11 : version12 ? 12 : version13 ? 13 : version14 ? 14 : SAVE_VERSION)) {
         ESP_LOGW(TAG, "存档版本 %u ≠ %d —— 保留原档，禁止新游戏覆盖",
                  out->version, SAVE_VERSION);
         return SAVE_READ_ERROR;
@@ -124,7 +126,7 @@ save_read_result_t save_read_status(save_t *out)
             if(id && id!=i+1)return SAVE_READ_ERROR;
         }
     }
-    if(version11||version12||version13)out->version=SAVE_VERSION;
+    if(version11||version12||version13||version14)out->version=SAVE_VERSION;
     // A raw blob can contain an invalid _Bool representation. Compare its bytes
     // before evaluating it so malformed data is rejected without undefined reads.
     const bool no = false, yes = true;
@@ -187,7 +189,8 @@ save_read_result_t save_read_status(save_t *out)
         }
     }
     if(migrated||version13)out->exploration.research_flags=0;
-    return migrated||version13 ? SAVE_READ_MIGRATED : SAVE_READ_OK;
+    if(!dungeon_progress_valid(&out->dungeon))return SAVE_READ_ERROR;
+    return migrated||version13||version14 ? SAVE_READ_MIGRATED : SAVE_READ_OK;
 }
 
 bool save_read(save_t *out) {
@@ -227,7 +230,7 @@ bool save_exists(void)
     size_t len = 0;
     esp_err_t e = nvs_get_blob(h, KEY, NULL, &len);
     nvs_close(h);
-    return e == ESP_OK && (len == sizeof(save_t) || len == sizeof(save_v8_t) || len == sizeof(save_v7_t) || len == sizeof(save_v6_t) || len == sizeof(save_v5_t));
+    return e == ESP_OK && (len == sizeof(save_t) || len == sizeof(save_v14_t) || len == sizeof(save_v10_t) || len == sizeof(save_v9_t) || len == sizeof(save_v8_t) || len == sizeof(save_v7_t) || len == sizeof(save_v6_t) || len == sizeof(save_v5_t));
 }
 
 bool save_erase(void)

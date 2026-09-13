@@ -80,7 +80,6 @@ static const char *error_text(exploration_kind_t kind){
  case EXPLORE_RESEARCH_LOCKED:return "研究条件还未完成";
  case EXPLORE_RESEARCH_CLAIMED:return "本路线奖励已领取";
  case EXPLORE_NO_STAMINA:return "体力不足 请等待恢复";
- case EXPLORE_NO_ENERGY:return "情报为空 仍可探索";
  case EXPLORE_BLOCKED:return "先处理列表中的同类伙伴";
  case EXPLORE_BUSY:return "请先完成当前对战";
  case EXPLORE_SAVE_FAILED:return "保存失败 资源未扣除";
@@ -90,7 +89,7 @@ static const char *error_text(exploration_kind_t kind){
 static void draw_all(void){
  char text[96];unsigned route=view.state.route;const exploration_route_t *r=exploration_route(route);
  for(int band=0;band<SCREEN_H;band+=SCREEN_BAND_H){
-  screen_band_clear(GAME_UI_BG);snprintf(text,sizeof(text),"情报 %u/24",view.state.energy);game_ui_title(band,routes?"选择路线":"探索",text);
+  screen_band_clear(GAME_UI_BG);snprintf(text,sizeof(text),"体能 %u/100",view.stamina);game_ui_title(band,routes?"选择路线":"探索",text);
   if(activities){
    center(band,44,r->name,GAME_UI_INK);game_ui_box(band,8,76,224,150);
    static const char *const options[]={"训练家切磋","路线研究","冒险笔记"};
@@ -150,7 +149,7 @@ static void draw_all(void){
    center(band,164,exploration_chapter(exploration_chapter_current(view.defeated))->name,GAME_UI_INK);progress(band,view.state.clues[route]);
    species_t target;uint16_t target_id=exploration_focus(&view.state,view.defeated);
    if(assets_species(target_id,&target))snprintf(text,sizeof(text),"%.*s 线索%u/3",target.name_zh_len,target.name_zh,view.state.clues[route]);else snprintf(text,sizeof(text),"线索 %u/3",view.state.clues[route]);center(band,214,text,GAME_UI_INK);
-   const char *hint=feedback?feedback:(view.pending==5?"遭遇已满 将替换最早一只":view.state.energy?"情报增强本次稀有与道具":"无情报也可正常探索");
+   const char *hint=feedback?feedback:(view.pending==5?"遭遇已满 将替换最早一只":"探索只消耗体能");
    center(band,238,hint,GAME_UI_MUTED);
    snprintf(text,sizeof(text),"体能%u 探索消耗5",view.stamina);center(band,258,text,GAME_UI_MUTED);
    static const char *const choices[]={"探索", "路线", "活动"};game_ui_actions(band,choices,3,action_selected);
@@ -161,7 +160,7 @@ static void draw_all(void){
 static void tick(lv_timer_t *t){
  (void)t;
  if(animating){if(millis()-started>=600)animating=false;draw_all();}
- else {exploration_view_t next;world_exploration_snapshot(&next);if(next.state.energy!=view.state.energy||next.pending!=view.pending||next.stamina!=view.stamina){view=next;draw_all();}}
+ else {exploration_view_t next;world_exploration_snapshot(&next);if(next.pending!=view.pending||next.stamina!=view.stamina){view=next;draw_all();}}
 }
 void play_exploration_enter(void){
  world_exploration_snapshot(&view);selected=view.state.route;action_selected=0;routes=animating=journal=activities=research=false;research_note[0]=0;event=(exploration_event_t){0};feedback=NULL;

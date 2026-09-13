@@ -23,6 +23,7 @@
 #include "sound_mixer.h"
 #include "music_director.h"
 #include "world.h"
+#include "dungeon.h"
 
 static uint64_t now_ms;
 static uint8_t backlight = 100;
@@ -146,7 +147,7 @@ void world_party_snapshot(world_party_t *out)
         leader->intimacy = (uint8_t)(intimacy < 0 ? 0 : intimacy > 100 ? 100 : intimacy);
     }
     out->box_count = (uint8_t)(party_total(&party) - party.party_count);
-    out->switch_locked = active_valid || challenge.session.active || challenge.league_active || world_needs_starter();
+    out->switch_locked = active_valid || challenge.session.active || challenge.league_active || world_needs_starter() || dungeon_party_locked();
 }
 world_switch_result_t world_set_leader(uint8_t index, const mon_t *expected,
                                       world_party_t *out)
@@ -154,7 +155,7 @@ world_switch_result_t world_set_leader(uint8_t index, const mon_t *expected,
     if (!expected || index >= PARTY_MAX) return WORLD_SWITCH_INVALID;
     const mon_t wanted = *expected;
     if (out) memset(out, 0, sizeof(*out));
-    if (active_valid || challenge.session.active || challenge.league_active) return WORLD_SWITCH_BUSY;
+    if (active_valid || challenge.session.active || challenge.league_active || dungeon_party_locked()) return WORLD_SWITCH_BUSY;
     if (world_needs_starter()) return WORLD_SWITCH_STORAGE_UNAVAILABLE;
     if (index >= party.party_count) return WORLD_SWITCH_INVALID;
     world_party_t current;
@@ -459,7 +460,7 @@ void sfx_move(uint16_t id, uint8_t type, bool missed) { if(host_muted)return; so
 static const page_id_t page_ids[] = {
     PAGE_OPENING, PAGE_IDLE, PAGE_ENCOUNTER, PAGE_BATTLE,
     PAGE_CAPTURE, PAGE_CARE, PAGE_DEX, PAGE_COUNT, PAGE_COUNT, PAGE_STARTER, PAGE_BAG,
-    PAGE_MENU, PAGE_PARTY, PAGE_TRAINER, PAGE_ACHIEVEMENTS, PAGE_EXPLORATION,
+    PAGE_MENU, PAGE_PARTY, PAGE_TRAINER, PAGE_ACHIEVEMENTS, PAGE_EXPLORATION, PAGE_DUNGEON,
 };
 static bool valid_page(unsigned page)
 {
@@ -542,6 +543,9 @@ static void frame(int mismatch)
 }
 
 // Read-only test observability; excluded from the browser HTTP action surface.
+#include "dungeon.h"
+#include "rogue_host.h"
+
 static void encounter_state(const encounter_t *e)
 {
     battle_session_t b;
@@ -641,6 +645,9 @@ static void state(void)
         printf("]}");
     }
     printf("]},\"exploration\":{\"route\":%u,\"energy\":%u,\"steps\":%lu,\"clues\":[%u,%u,%u,%u],\"pulse\":[%u,%u,%u,%u],\"rare_left\":%u,\"elite_left\":%u,\"research_flags\":%u,\"supply_q10\":%lu}",exploration.route,exploration.energy,(unsigned long)exploration.steps,exploration.clues[0],exploration.clues[1],exploration.clues[2],exploration.clues[3],exploration.pulse[0],exploration.pulse[1],exploration.pulse[2],exploration.pulse[3],8-refresh.since_rare,30-refresh.since_elite,exploration.research_flags,(unsigned long)refresh.hunt_q10);
+    rogue_state();
+    const dungeon_t *dr=dungeon_get();printf(",\"dungeon\":{\"phase\":%u,\"node\":%u,\"cards\":%u,\"wins\":%u,\"playing\":%u,\"mode\":%u}",dr->phase,dr->node,dr->cards,dr->wins,dungeon_playing(),play_trainer_mode());
+    printf(",\"dungeon_team\":[");for(unsigned i=0;i<dr->count;i++){if(i)putchar(',');printf("{\"slot\":%u,\"species\":%u,\"level\":%u,\"shiny\":%u}",dr->slots[i],dr->members[i].species_id,dr->members[i].level,dr->members[i].flags&1);}putchar(']');
     printf(",\"music\":%u,\"muted\":%s,\"volume\":%u,\"achievement_claimed\":%u,\"evolutions\":%u,\"encounter_alert\":%u}", (unsigned)music_director_current(), host_muted?"true":"false",host_volume,achievements.claimed,achievements.evolutions,host_alert);
     putchar('\n');
     fflush(stdout);
@@ -650,7 +657,7 @@ extern bool play_battle_move_preview(unsigned,unsigned,unsigned,unsigned);
 int main(void)
 {
     if (!assets_init() || !render_init()) return 2;
-    char line[256], cmd[24];
+    char line[8192], cmd[24];
     bool booted = false;
     while (fgets(line, sizeof(line), stdin)) {
         if (sscanf(line, "%23s", cmd) != 1) return 2;
@@ -663,6 +670,11 @@ int main(void)
             pokemon_names_set_style((pokemon_name_style_t)names);
             fixture(b, c, d, e, f, g, a == 0 || a == 9, team != 0); nav_go(page_ids[a]); booted = true;
             if (!screen_idle_init(nav_screen_busy)) return 2;
+        } else if(booted&&!strcmp(cmd,"rogue_setup")){
+            if(!rogue_setup(line))return 2;
+        } else if(booted&&!strcmp(cmd,"rogue_restore")){
+            char *hex=strchr(line,' ');if(!hex)return 2;hex++;hex[strcspn(hex,"\r\n")]=0;if(!rogue_restore(hex))return 2;
+        } else if(booted&&!strcmp(cmd,"rogue_guards")&&sscanf(line,"%*s %u",&a)==1&&a<8){rogue_guards=a;
         } else if(booted&&!strcmp(cmd,"move_preview")&&sscanf(line,"%*s %u %u %u %u",&a,&b,&c,&d)==4){
             if(!play_battle_move_preview(a,b,c,d)){fputs("invalid move fixture\n",stderr);return 2;}
         } else if (booted && !strcmp(cmd, "page") && sscanf(line, "%*s %u", &a) == 1 && valid_page(a)) {
@@ -681,10 +693,9 @@ int main(void)
                                  .rssi=-50,.auth=0,.has_ssid=true};
             enc_refresh_state_t next=refresh;
             next.online_s=(uint32_t)(esp_timer_get_time()/1000000);
-            uint8_t made=enc_refresh_collect(&next,&ap,1,b!=0,c,
-                                             EXPLORATION_CAPACITY-exploration.energy);
+            enc_refresh_observe(&next,&ap,1,b!=0,c);
             if (!world_needs_starter() && !host_save_fails()) {
-                refresh=next;exploration.energy+=made;
+                refresh=next;
             }
         } else if (booted && !strcmp(cmd, "names") && sscanf(line, "%*s %u", &a) == 1 && a < POKEMON_NAMES_STYLE_COUNT) {
             pokemon_names_set_style((pokemon_name_style_t)a);
@@ -814,7 +825,7 @@ world_challenge_result_t world_challenge_start(uint8_t id) {
 }
 bool world_challenge_begin(uint8_t id) { return world_challenge_start(id)==WORLD_CHALLENGE_OK; }
 bool world_challenge_step(trainer_event_t *out) {
- trainer_store_t candidate=challenge;trainer_event_t event;
+ trainer_store_t candidate=challenge;trainer_event_t event;rogue_before_step(&candidate);
  if(!trainer_step(&candidate,&event)||host_save_fails())return false;
  challenge=candidate;*out=event;return true;
 }
@@ -822,7 +833,7 @@ bool world_challenge_move(uint8_t slot) {
  trainer_store_t candidate=challenge;if(!trainer_choose_move(&candidate,slot)||host_save_fails())return false;challenge=candidate;return true;
 }
 bool world_challenge_switch(uint8_t slot,bool forced) {
- trainer_store_t candidate=challenge;if(!trainer_switch(&candidate,slot,forced)||host_save_fails())return false;challenge=candidate;return true;
+ trainer_store_t candidate=challenge;if(!trainer_switch(&candidate,slot,forced)||host_save_fails())return false;rogue_after_switch(&candidate,slot);challenge=candidate;return true;
 }
 bool world_challenge_retire(void) {
  if(!challenge.session.active||host_save_fails())return false;trainer_retire(&challenge);return true;
@@ -918,7 +929,7 @@ bool world_battle_reward_uid(uint16_t uid,uint16_t *amount){
 void world_box_snapshot(mon_t out[BOX_SPECIES]){if(out)memcpy(out,party.box,sizeof(party.box));}
 world_switch_result_t world_box_exchange(uint8_t slot,const mon_t *outgoing,const mon_t *incoming){
  if(!outgoing||!incoming||slot>=party.party_count||incoming->species_id<1||incoming->species_id>BOX_SPECIES)return WORLD_SWITCH_INVALID;
- if(active_valid||challenge.session.active||challenge.league_active)return WORLD_SWITCH_BUSY;
+ if(active_valid||challenge.session.active||challenge.league_active||dungeon_party_locked())return WORLD_SWITCH_BUSY;
  world_party_t v;world_party_snapshot(&v);
  int box_slot=party_box_match(&party,incoming);
  if(memcmp(outgoing,&v.members[slot],sizeof(mon_t))||box_slot<0)return WORLD_SWITCH_STALE;
@@ -941,3 +952,36 @@ exploration_kind_t world_research_claim(uint8_t route,uint16_t *gain){
  if(gain)*gain=p.party[0].exp-world.exp;
  record_growth(&p);party=p;world.exp=p.party[0].exp;world.level=p.party[0].level;exploration=next;return EXPLORE_NONE;
 }
+
+
+static dungeon_progress_t dungeon_progress;
+void world_dungeon_progress(dungeon_progress_t *out){*out=dungeon_progress;}
+bool world_dungeon_ready(void){return !world_needs_starter()&&!active_valid&&!challenge.session.active&&!challenge.league_active&&world.pet.stamina>=DUNGEON_ENTRY_COST*NURT_Q;}
+bool world_dungeon_admit(uint32_t id){
+ if(!id)return false;
+ if(id==dungeon_progress.run_id)return true;
+ if(id!=dungeon_progress.run_id+1||active_valid||challenge.session.active||challenge.league_active||world.pet.stamina<DUNGEON_ENTRY_COST*NURT_Q||host_save_fails())return false;
+ dungeon_progress.run_id=id;dungeon_progress.paid_nodes=0;dungeon_progress.last_node=0;memset(&dungeon_progress.receipt,0,sizeof(dungeon_progress.receipt));world.pet.stamina-=DUNGEON_ENTRY_COST*NURT_Q;return true;
+}
+bool world_dungeon_award(uint32_t id,unsigned node,uint32_t seed,dungeon_receipt_t *out){
+ if(!id||id!=dungeon_progress.run_id||node>7||node==3||node==6)return false;
+ if(dungeon_progress.paid_nodes&(1u<<node)){if(dungeon_progress.last_node!=node)return false;*out=dungeon_progress.receipt;return true;}
+ if(host_save_fails())return false;
+ uint8_t slots[3];unsigned count=dungeon_recipients(id,slots),mask=0;if(!count)return false;
+ for(unsigned i=0;i<count;i++){if(slots[i]>=party.party_count||(mask&(1u<<slots[i])))return false;mask|=1u<<slots[i];}
+ dungeon_reward_plan(node,seed,&dungeon_progress,out);party_t before=party;
+ exp_award_party(&party,mask,mask,exp_scaled(out->xp,nurture_exp_percent(&world.pet)));out->xp=0;
+ for(unsigned i=0;i<party.party_count;i++)out->xp+=party.party[i].exp-before.party[i].exp;
+ exp_growth_record(&growth,before.party,before.party_count,party.party,party.party_count);
+ for(unsigned i=0;i<ITEM_COUNT;i++){unsigned room=items_capacity(i)-inventory.quantity[i];if(out->items.quantity[i]>room){out->items.quantity[i]=room;out->full=1;}inventory.quantity[i]+=out->items.quantity[i];}
+ world.exp=party.party[0].exp;world.level=party.party[0].level;
+ dungeon_progress.paid_nodes|=1u<<node;dungeon_progress.last_node=node;dungeon_progress.receipt=*out;
+ if(node==4)dungeon_progress.elite_seen=1;
+ if(node==7&&dungeon_progress.clears<UINT16_MAX)dungeon_progress.clears++;
+ return true;
+}
+
+static unsigned char dungeon_disk[4096];
+static size_t dungeon_disk_size;
+bool dungeon_host_commit(const void *data,size_t len){if(len>sizeof(dungeon_disk)||host_save_fails())return false;memcpy(dungeon_disk,data,len);dungeon_disk_size=len;return true;}
+bool dungeon_host_load(void *data,size_t len){if(len!=dungeon_disk_size)return false;memcpy(data,dungeon_disk,len);return true;}

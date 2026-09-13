@@ -78,17 +78,19 @@ static void edge_cases(void){
 }
 int main(void){assert(assets_init());seed();printf("{");campaign();transactions();migration();edge_cases();printf("\"cases\":%u,\"save_bytes\":%zu,\"sanitized\":true}\n",tests,sizeof(save_t));return 0;}
 '''
+REAL_DUNGEON = False
 def run():
  stubs,driver=lifecycle.harness();driver=driver[:driver.index('// Only species statistics')]+CASES
+ if REAL_DUNGEON:driver='#define TEST_REAL_DUNGEON 1\n'+driver
  with tempfile.TemporaryDirectory() as d:
   t=Path(d);(t/'device_stubs.h').write_text(stubs)
-  for n in ('esp_event.h','esp_log.h','esp_timer.h','esp_wifi.h','nvs.h','nvs_flash.h','bsp_battery.h','freertos/FreeRTOS.h','freertos/semphr.h','freertos/task.h'):
+  for n in ('esp_err.h','esp_event.h','esp_log.h','esp_timer.h','esp_wifi.h','nvs.h','nvs_flash.h','bsp_battery.h','freertos/FreeRTOS.h','freertos/semphr.h','freertos/task.h'):
    p=t/n;p.parent.mkdir(exist_ok=True,parents=True);p.write_text('#include "device_stubs.h"\n')
   (t/'driver.c').write_text(driver);asm=[]
   for n in ('gen1.bin','gen1_front.bin','gen1_back.bin','palettes.bin','font16.bin','moves.bin','ui.bin'):
    sy='_binary_'+n.replace('.','_');asm += ['.balign 4',f'.global {sy}_start',f'.global {sy}_end',f'{sy}_start:',f'.incbin "{ROOT/"assets"/n}"',f'{sy}_end:']
   (t/'assets.S').write_text('\n'.join(asm)+'\n')
-  cmd=['cc','-std=gnu11','-DHOST_BUILD','-O1','-g','-Wall','-Wextra','-Werror','-Wno-unused-variable','-Wno-unused-function','-Wno-unused-parameter','-fsanitize=address,undefined','-fno-omit-frame-pointer','-pthread','-I',str(t),'-I',str(ROOT/'firmware/main'),str(t/'driver.c'),str(t/'assets.S')]+[str(ROOT/'firmware/main'/n) for n in ('party.c','encounter.c','exploration.c','nurture.c','exp.c','items.c','evolution.c','trainer.c','combat.c','battle.c','assets.c','pokemon_names.c')]+['-lz','-Wl,-dead_strip','-o',str(t/'probe')]
+  cmd=['cc','-std=gnu11','-DHOST_BUILD','-O1','-g','-Wall','-Wextra','-Werror','-Wno-unused-variable','-Wno-unused-function','-Wno-unused-parameter','-fsanitize=address,undefined','-fno-omit-frame-pointer','-pthread','-I',str(t),'-I',str(ROOT/'firmware/main'),'-I',str(ROOT/'firmware/components/bsp/include'),str(t/'driver.c'),str(t/'assets.S')]+[str(ROOT/'firmware/main'/n) for n in ('party.c','encounter.c','exploration.c','nurture.c','exp.c','items.c','evolution.c','trainer.c','combat.c','battle.c','assets.c','pokemon_names.c')]+['-lz','-Wl,-dead_strip','-o',str(t/'probe')]
   c=subprocess.run(cmd,capture_output=True,text=True);assert c.returncode==0,c.stderr
   c=subprocess.run([str(t/'probe')],capture_output=True,text=True,timeout=40);assert c.returncode==0,c.stdout+c.stderr
   print(c.stdout)

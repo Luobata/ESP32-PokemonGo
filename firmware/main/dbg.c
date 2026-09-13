@@ -41,6 +41,8 @@
 #include "dbg.h"
 #include "nav.h"
 #include "world.h"
+#include "dungeon.h"
+#include "esp_system.h"
 #include "screen.h"
 #include "screen_idle.h"
 #include "serial_capture.h"
@@ -192,6 +194,8 @@ static void dispatch(char c)
                      screen_idle_is_off(), bsp_display_get_backlight(), (unsigned)nav_current(),
                      (unsigned long)view.scans, view.pending, view.species, view.level,
                      (unsigned long)view.exp, (long)view.pet.stamina, (long)view.pet.mood);
+            const dungeon_t *d=dungeon_get();
+            ESP_LOGI(TAG,"@@DUNGEON_STATE phase=%u node=%u count=%u run=%lu pending=%u reset_reason=%d stack_free=%u",d->phase,d->node,d->count,(unsigned long)d->run_id,d->pending,esp_reset_reason(),(unsigned)uxTaskGetStackHighWaterMark(NULL));
             bsp_lvgl_unlock();
         }
         return;

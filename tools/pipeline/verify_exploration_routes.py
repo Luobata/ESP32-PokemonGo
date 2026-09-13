@@ -17,7 +17,7 @@ static void core(void){
   for(unsigned step=0;step<7;step++){
    exploration_event_t e=exploration_step(&x,&r,&q,&d,1);
    assert(e.kind==(step==6?EXPLORE_TARGET:step%2?EXPLORE_CLUE:EXPLORE_ENCOUNTER));
-   assert(x.energy==23-step&&x.steps==step+1);
+   assert(x.energy==24&&x.steps==step+1);
    if(e.species){assert(e.uid!=1&&dex_is_seen(&d,e.species));enc_queue_init(&q);}
    if(step==5)assert(x.clues[route]==3);
    if(step==6)assert(e.species==exploration_route(route)->target&&e.rarity>=3&&!x.clues[route]);
@@ -49,56 +49,29 @@ static void core(void){
 }
 static void credits(void){
  fresh();radio(1);assert(refresh_from_scan(false,0)==0);assert(world_choose_starter(25)==WORLD_STARTER_OK);
- unsigned notices=alert_count;assert(s_exploration.energy==3);
- assert(refresh_from_scan(false,0)==1&&s_exploration.energy==4&&s_queue.count==0&&alert_count==notices);
- reboot();radio(1);assert(refresh_from_scan(false,0)==0&&s_exploration.energy==4);
- radio(2);assert(refresh_from_scan(true,512)==0);world_debug_save();reboot();assert(s_refresh.hunt_q10==512);
- radio(2);assert(refresh_from_scan(true,512)==1&&s_exploration.energy==5&&s_refresh.hunt_q10==0);
- assert(refresh_from_scan(true,1024)==1);test_time+=3600000000LL;assert(refresh_from_scan(true,0)==0);
- // Full capacity does not consume cooldown/serial or flood the pending queue.
- s_exploration.energy=24;enc_refresh_state_t old=s_refresh;radio(3);
- assert(refresh_from_scan(true,4096)==0&&s_exploration.energy==24&&s_queue.count==0);
- assert(s_refresh.serial==old.serial&&s_refresh.hunt_q10==4096);
- // Save errors must not expose opportunities or consume radio cooldowns.
- for(int f=1;f<=4;f++){if(f==3)continue;s_exploration.energy=1;radio(100+f);
-  old=s_refresh;exploration_state_t x=s_exploration;failure=f;
-  assert(refresh_from_scan(true,1024)==0);failure=0;
-  assert(!memcmp(&x,&s_exploration,sizeof(x))&&!memcmp(&old,&s_refresh,sizeof(old)));
- }
- tests+=7;
+ assert(s_exploration.energy==0);unsigned notices=alert_count;
+ assert(refresh_from_scan(false,0)==0&&s_queue.count==0&&alert_count==notices);
+ s_exploration.energy=24;s_refresh.hunt_q10=4096;world_debug_save();reboot();radio(1);
+ assert(refresh_from_scan(false,0)==0&&s_exploration.energy==24&&s_refresh.hunt_q10==0);
+ reboot();assert(s_refresh.hunt_q10==0&&s_exploration.energy==24);
+ unsigned discoveries=s_refresh.discoveries;radio(2);failure=4;
+ assert(refresh_from_scan(true,512)==0&&s_refresh.discoveries==discoveries);failure=0;
+ assert(refresh_from_scan(true,512)==1&&s_refresh.discoveries==discoveries+1&&s_exploration.energy==24);
+ reboot();assert(s_refresh.discoveries==discoveries+1&&s_exploration.energy==24);
+ for(unsigned i=0;i<100;i++){radio(i+3);assert(refresh_from_scan(false,4096)==0);}
+ assert(s_refresh.discoveries==discoveries+1&&s_refresh.hunt_q10==0&&s_queue.count==0);
+ tests+=8;
 }
 static void supply_loop(void){
  fresh();assert(world_choose_starter(25)==WORLD_STARTER_OK);radio(1);
- assert(refresh_from_scan(false,0)==1);unsigned energy=s_exploration.energy;
- // An AP cooling down must not strand a completed movement meter.
- assert(refresh_from_scan(true,256)==0&&s_refresh.hunt_q10==256);
- assert(refresh_from_scan(true,512)==0&&s_refresh.hunt_q10==768);
- exploration_view_t view;world_exploration_snapshot(&view);
- assert(view.supply_q10==768&&view.state.energy==energy);
- reboot();radio(1);assert(s_refresh.hunt_q10==768);
- assert(refresh_from_scan(true,356)==1&&s_refresh.hunt_q10==100&&s_exploration.energy==energy+1);
- assert(refresh_from_scan(true,924)==1&&s_refresh.hunt_q10==0&&s_exploration.energy==energy+2);
- assert(s_refresh.discoveries==0); // Repeated APs do not farm new-place bonuses.
- // Stationary WiFi changes alone supply no movement credit or extra base gift.
- for(unsigned i=0;i<100;i++){radio(i+2);assert(refresh_from_scan(false,4096)==0);}
- assert(s_exploration.energy==energy+2&&s_refresh.hunt_q10==0);
- // At capacity, bank at most four bars. Spending frees a slot on the next
- // valid scan even without further movement; the durable remainder survives.
- s_exploration.energy=EXPLORATION_CAPACITY;radio(1);
- assert(refresh_from_scan(true,65535)==0&&s_refresh.hunt_q10==4096);
- reboot();assert(s_exploration.energy==EXPLORATION_CAPACITY&&s_refresh.hunt_q10==4096);
- s_exploration.energy--;world_debug_save();radio(1);
+ s_exploration.energy=24;s_refresh.hunt_q10=4096;world_debug_save();
  for(int f=1;f<=4;f++){if(f==3)continue;failure=f;
-  assert(refresh_from_scan(false,0)==0&&s_exploration.energy==23&&s_refresh.hunt_q10==4096);failure=0;
+  assert(refresh_from_scan(false,0)==0&&s_refresh.hunt_q10==4096);failure=0;
  }
- assert(refresh_from_scan(false,0)==1&&s_exploration.energy==24&&s_refresh.hunt_q10==3072);
- reboot();assert(s_exploration.energy==24&&s_refresh.hunt_q10==3072);
- for(unsigned i=0;i<3;i++){
-  s_exploration.energy--;assert(refresh_from_scan(false,0)==1&&s_exploration.energy==24);
- }
- assert(s_refresh.hunt_q10==0&&refresh_from_scan(false,0)==0);
- world_exploration_snapshot(&view);assert(view.state.energy==24&&view.supply_q10==0);
- assert(s_queue.count==0&&enc_refresh_valid(&s_refresh));tests+=8;
+ assert(refresh_from_scan(false,0)==0&&s_refresh.hunt_q10==0);
+ s_exploration.energy=23;world_debug_save();
+ for(unsigned i=0;i<10;i++){radio(i+1);assert(refresh_from_scan(false,0)==0&&s_exploration.energy==23);}
+ reboot();assert(s_exploration.energy==23&&s_refresh.hunt_q10==0&&s_queue.count==0);tests+=8;
 }
 static void concurrent_seen(void){extra_commit_hook=NULL;world_mark_seen(150,true);}
 static void transactions(void){
@@ -108,13 +81,13 @@ static void transactions(void){
   failure=f;assert(world_explore().kind==EXPLORE_SAVE_FAILED);failure=0;
   assert(!memcmp(&x,&s_exploration,sizeof(x))&&!memcmp(&q,&s_queue,sizeof(q))&&!memcmp(&d,&s_dex,sizeof(d))&&!memcmp(&r,&s_refresh,sizeof(r)));
  }
- exploration_event_t e=world_explore();assert(e.kind==EXPLORE_ENCOUNTER&&s_exploration.energy==2);uint16_t uid=e.uid;
- reboot();assert(s_exploration.energy==2&&enc_queue_find(&s_queue,uid));
+ exploration_event_t e=world_explore();assert(e.kind==EXPLORE_ENCOUNTER&&s_exploration.energy==0);uint16_t uid=e.uid;
+ reboot();assert(s_exploration.energy==0&&enc_queue_find(&s_queue,uid));
  failure=4;assert(world_exploration_select(2)==EXPLORE_SAVE_FAILED&&s_exploration.route==0);failure=0;
  assert(world_exploration_select(2)==EXPLORE_NONE);reboot();assert(s_exploration.route==2);
  assert(world_exploration_select(0)==EXPLORE_NONE);
- extra_commit_hook=concurrent_seen;e=world_explore();assert(e.kind==EXPLORE_CLUE&&s_exploration.clues[0]==1&&s_exploration.energy==1&&dex_is_seen(&s_dex,150));
- world_debug_save();reboot();assert(dex_is_seen(&s_dex,150)&&s_exploration.clues[0]==1&&s_exploration.energy==1);
+ extra_commit_hook=concurrent_seen;e=world_explore();assert(e.kind==EXPLORE_CLUE&&s_exploration.clues[0]==1&&s_exploration.energy==0&&dex_is_seen(&s_dex,150));
+ world_debug_save();reboot();assert(dex_is_seen(&s_dex,150)&&s_exploration.clues[0]==1&&s_exploration.energy==0);
  battle_session_t session={.initialized=true,.started=true,.pet_species=25,.wild_species=s_queue.items[0].species_id,.pet_level=5,.wild_level=5};assert(world_battle_set_uid(uid,&session));assert(world_explore().kind==EXPLORE_BUSY&&world_exploration_select(1)==EXPLORE_BUSY);world_end_active_encounter();
  s_challenge.session.active=true;assert(world_explore().kind==EXPLORE_BUSY);s_challenge.session.active=false;
  tests+=8;
@@ -126,7 +99,7 @@ static void migration(const char *path){
  memcpy(disk,&old,sizeof(old));disk_len=sizeof(old);
  save_t next;assert(save_read_status(&next)==SAVE_READ_MIGRATED&&next.version==SAVE_VERSION);
  for(unsigned i=2;i<sizeof(old);i++)if(i!=offsetof(save_v10_t,opening_seen))assert(((uint8_t*)&next)[i]==((uint8_t*)&old)[i]);
- assert(next.exploration.energy==3&&next.exploration.steps==0);assert(save_write(&next));
+ assert(next.exploration.energy==0&&next.exploration.steps==0);assert(save_write(&next));
  next.exploration.energy=1;next.exploration.clues[2]=2;assert(save_write(&next));
  assert(save_read_status(&next)==SAVE_READ_OK&&next.exploration.energy==1&&next.exploration.clues[2]==2);
  // Malformed route state is rejected without erase or new-game overwrite.

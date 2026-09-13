@@ -24,7 +24,7 @@
 //
 // 金银白底：完整名称/等级在标题行，心情/亲密度在 y40 两端。
 // 96px 背图居中于 y58；呼吸只影响带 0/1。三条养成轴完整落在
-// 带 2，探索情报与 y280 消息框落在带 3，文字不跨脏带边界。
+// 带 2，体能恢复提示与 y280 消息框落在带 3，文字不跨脏带边界。
 
 #include <inttypes.h>
 #include <stdio.h>
@@ -89,9 +89,7 @@ SCREEN_ASSERT_WITHIN_BAND(idle_footer, 280, 40);
 // 世界快照。每次重画前刷一次 —— **一帧之内不再变**，
 // 否则同一帧里四条轴可能读到不同时刻的值（后台任务随时在改）。
 static world_t s_w;
-static exploration_view_t s_exploration;
 static uint8_t s_action;
-static uint8_t s_supply_gain, s_supply_hold;
 static bool s_shiny;
 
 // 每条横带使用同一世界快照，所有坐标都相对整屏。
@@ -149,11 +147,6 @@ static void draw_band(int band_y, int8_t breath)
         game_ui_meter(band_y, AXIS_BAR_X, y, 228 - AXIS_BAR_X, value[i]);
     }
 
-    // Count and progress come from one committed exploration snapshot. The
-    // legacy lifetime-motion counter is no longer presented as a daily goal.
-    bool full = s_exploration.state.energy >= EXPLORATION_CAPACITY;
-    unsigned progress = s_exploration.supply_q10 * 100u / ENC_HUNT_CREDIT_STEP;
-    if (full || progress > 100) progress = 100;
     uint32_t got, need; exp_progress(s_w.exp, s_w.level, &got, &need);
     unsigned xp = s_w.level >= LEVEL_MAX ? 100 : (unsigned)((uint64_t)got * 100 / need);
     if (xp > 100) xp = 100;
@@ -162,12 +155,10 @@ static void draw_band(int band_y, int8_t breath)
     if (s_w.level >= LEVEL_MAX) snprintf(buf, sizeof(buf), "满级");
     else snprintf(buf, sizeof(buf), "%u%%", xp);
     render_text(228-render_text_width(buf), Y(EXP_Y), buf, GAME_UI_INK);
-    if(s_supply_hold)snprintf(buf,sizeof(buf),"情报+%u",s_supply_gain);
-    else snprintf(buf,sizeof(buf),"探索情报");
-    render_text(12, Y(PROGRESS_Y), buf, GAME_UI_INK);
-    game_ui_meter(band_y, AXIS_BAR_X, PROGRESS_Y, 80, progress);
-    snprintf(buf, sizeof(buf), "%u/%u", s_exploration.state.energy, EXPLORATION_CAPACITY);
-    render_text(228 - render_text_width(buf), Y(PROGRESS_Y), buf, GAME_UI_INK);
+    unsigned wait=nurture_wait_minutes(&s_w.pet,100);
+    if(!wait)snprintf(buf,sizeof(buf),"体能已满 可以去探索");
+    else snprintf(buf,sizeof(buf),"体能回满约%u分钟",wait);
+    game_ui_text_centered(band_y,12,PROGRESS_Y,216,16,buf,GAME_UI_MUTED);
 
     static const char *const actions[] = {"照料", "菜单", "遭遇"};
     game_ui_actions(band_y, actions, 3, s_action);
@@ -204,12 +195,6 @@ static void tick(lv_timer_t *t)
     // 这里只是把后台算好的值取一份出来画。
     world_t before = s_w;
     world_snapshot(&s_w);
-    uint8_t energy_before = s_exploration.state.energy;
-    world_exploration_snapshot(&s_exploration);
-    if (s_exploration.state.energy > energy_before) {
-        s_supply_gain = s_exploration.state.energy - energy_before;
-        s_supply_hold = 12; // Three seconds of feedback after a durable grant.
-    } else if (s_supply_hold) s_supply_hold--;
     bool axes_changed = nurture_pct(before.pet.satiety) != nurture_pct(s_w.pet.satiety) ||
                         nurture_pct(before.pet.mood) != nurture_pct(s_w.pet.mood) ||
                         nurture_stamina_points(&before.pet) != nurture_stamina_points(&s_w.pet);
@@ -254,9 +239,7 @@ void play_idle_enter(void)
 
     if (!nav_is_returning()) s_action = 0;
     s_breath_i = 0;
-    s_supply_gain = s_supply_hold = 0;
     world_snapshot(&s_w);          // 先取一份，别用零值画第一帧
-    world_exploration_snapshot(&s_exploration);
     world_party_t party;
     world_party_snapshot(&party);
     s_shiny = party.count && (party.members[0].flags & 1u);
