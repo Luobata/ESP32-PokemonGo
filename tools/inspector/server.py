@@ -12,13 +12,17 @@ import time
 from urllib.parse import urlparse
 
 from native import HERE, Renderer, build
+import dungeon
 
 sessions = {}
 lock = threading.Lock()
-PAGES = (*range(7), 9, 10, 11, 12, 13, 14, 15)
+PAGES = (*range(7), 9, 10, 11, 12, 13, 14, 15, 16)
 
 
 def close_all():
+    for run in dungeon.RUNS.values():
+        run.close()
+    dungeon.RUNS.clear()
     for renderer, _ in sessions.values():
         renderer.close()
     sessions.clear()
@@ -35,9 +39,9 @@ def integer(data, name, default, lo, hi):
 
 
 def page_value(data):
-    value = integer(data, "page", 3, 0, 15)
+    value = integer(data, "page", 3, 0, 16)
     if value not in PAGES:
-        raise ValueError("页面必须是 P0–P6 或 P9–P15")
+        raise ValueError("页面必须是 P0–P6 或 P9–P16")
     return value
 
 
@@ -64,7 +68,7 @@ class Handler(SimpleHTTPRequestHandler):
             super().do_GET()
 
     def do_POST(self):
-        if self.path != "/api/firmware":
+        if self.path not in ("/api/firmware", "/api/dungeon"):
             return self.json_response(404, {"error": "未知接口"})
         host = self.headers.get("Host", "")
         origin = self.headers.get("Origin")
@@ -78,6 +82,8 @@ class Handler(SimpleHTTPRequestHandler):
             data = json.loads(self.rfile.read(length))
             if not isinstance(data, dict):
                 raise ValueError("请求必须是 JSON 对象")
+            if self.path == "/api/dungeon":
+                return self.json_response(200, dungeon.request(data))
             action = data.get("action")
             session = data.get("session")
             if session is not None and not isinstance(session, str):

@@ -6,6 +6,7 @@
 #include "lvgl.h"
 #include "assets.h"
 #include "game_ui.h"
+#include "dungeon.h"
 #include "nav.h"
 #include "play.h"
 #include "render.h"
@@ -240,7 +241,7 @@ static void select_leader(void)
     switch (result) {
     case WORLD_SWITCH_OK: s_selected = 0; message = "已设为出战伙伴"; break;
     case WORLD_SWITCH_ALREADY_LEADER: s_selected = 0; message = "已经是出战伙伴"; break;
-    case WORLD_SWITCH_BUSY: message = "请先结束当前对战"; break;
+    case WORLD_SWITCH_BUSY: message = dungeon_party_locked()?"请先结束秘境旅程":"请先结束当前对战"; break;
     case WORLD_SWITCH_SAVE_FAILED: message = "保存失败 请重试"; break;
     case WORLD_SWITCH_STORAGE_UNAVAILABLE: message = "存档暂不可用"; break;
     default: break;
@@ -287,7 +288,7 @@ void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         if (s_action == 1) { s_skills = true; s_skill = 0; }
         else {
             world_switch_result_t result = world_box_exchange(s_selected, &s_party.members[s_selected], &s_box[s_box_ids[s_box_row]]);
-            const char *message = result == WORLD_SWITCH_OK ? "队伍已更换" : result == WORLD_SWITCH_BUSY ? "请先结束当前对战" : result == WORLD_SWITCH_SAVE_FAILED ? "保存失败 请重试" : result == WORLD_SWITCH_INVALID ? "仓库选择无效 请重试" : "伙伴已变 请重试";
+            const char *message = result == WORLD_SWITCH_OK ? "队伍已更换" : result == WORLD_SWITCH_BUSY ? (dungeon_party_locked()?"请先结束秘境旅程":"请先结束当前对战") : result == WORLD_SWITCH_SAVE_FAILED ? "保存失败 请重试" : result == WORLD_SWITCH_INVALID ? "仓库选择无效 请重试" : "伙伴已变 请重试";
             snprintf(s_feedback, sizeof(s_feedback), "%s", message); refresh_snapshot(); load_box();
             if (result == WORLD_SWITCH_OK) { s_box_mode = s_box_details = false; s_action = 3; reset_motion(); }
         }

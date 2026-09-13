@@ -43,6 +43,10 @@
 #include "exp.h"
 #include "save.h"
 #include "world.h"
+// The dungeon owns the persisted reservation of participating party slots.
+extern bool dungeon_party_locked(void);
+extern unsigned dungeon_recipients(uint32_t id,uint8_t slots[3]);
+
 #include "sfx.h"
 
 static const char *TAG = "world";
@@ -109,6 +113,7 @@ static save_t s_save_buf;
 static bool s_dirty;
 static enc_refresh_state_t s_refresh;
 static exploration_state_t s_exploration;
+static dungeon_progress_t s_dungeon;
 static int64_t s_refresh_clock_us;
 static enc_refresh_ap_t s_refresh_aps[MAX_APS];
 
@@ -227,6 +232,7 @@ static void collect_save_locked(save_t *sv)
     refresh_clock_locked();
     sv->refresh = s_refresh;
     sv->exploration = s_exploration;
+    sv->dungeon = s_dungeon;
 }
 
 // 状态锁内只生成不可变快照，真正的 NVS 写入在锁外。
@@ -363,7 +369,7 @@ static void party_snapshot_locked(world_party_t *out)
     // Use the same integer representation as the switch's expected check.
     if (out->count) out->members[0] = leader_view_locked();
     out->box_count = (uint8_t)(party_total(&s_party) - s_party.party_count);
-    out->switch_locked = !s_storage_ready || s_starter_pending || s_active.encounter.uid != 0 || s_challenge.session.active || s_challenge.league_active;
+    out->switch_locked = !s_storage_ready || s_starter_pending || s_active.encounter.uid != 0 || s_challenge.session.active || s_challenge.league_active || dungeon_party_locked();
 }
 
 void world_party_snapshot(world_party_t *out)
@@ -405,7 +411,7 @@ world_switch_result_t world_set_leader(uint8_t index, const mon_t *expected,
     if (!s_storage_ready || s_starter_pending) {
         unlock_encounter_change(); return WORLD_SWITCH_STORAGE_UNAVAILABLE;
     }
-    if (s_active.encounter.uid || s_challenge.session.active || s_challenge.league_active) { unlock_encounter_change(); return WORLD_SWITCH_BUSY; }
+    if (s_active.encounter.uid || s_challenge.session.active || s_challenge.league_active || dungeon_party_locked()) { unlock_encounter_change(); return WORLD_SWITCH_BUSY; }
     if (index >= s_party.party_count) { unlock_encounter_change(); return WORLD_SWITCH_INVALID; }
     const mon_t outgoing = leader_view_locked();
     const mon_t selected = index ? s_party.party[index] : outgoing;
@@ -1092,9 +1098,8 @@ static uint8_t refresh_from_scan(bool exploring,uint16_t distance_q10)
         refresh_clock_locked();
         if(s_storage_ready && !s_starter_pending) {
             collect_save_locked(&s_save_buf);
-            made=enc_refresh_collect(&s_save_buf.refresh,s_refresh_aps,s_last_n,
-                exploring,distance_q10,EXPLORATION_CAPACITY-s_exploration.energy);
-            s_save_buf.exploration.energy+=made;
+            made=enc_refresh_observe(&s_save_buf.refresh,s_refresh_aps,s_last_n,
+                exploring,distance_q10);
             if(made || s_save_buf.refresh.hunt_q10!=s_refresh.hunt_q10) {
                 xSemaphoreGive(s_lock);
                 bool saved=save_write(&s_save_buf);
@@ -1109,8 +1114,7 @@ static uint8_t refresh_from_scan(bool exploring,uint16_t distance_q10)
         s_dirty=true;
         unlock_encounter_change();
     }
-    // Banked chances are intentionally quiet: rare/shiny alerts only happen
-    // when the player reveals an actual Pokémon in the exploration page.
+    // Observing places is quiet; rare/shiny alerts require an actual discovery.
     return made;
 }
 
@@ -1358,6 +1362,7 @@ bool world_start(void)
     s_motion_q10 = 0;
     memset(&s_refresh,0,sizeof(s_refresh));
     exploration_init(&s_exploration);
+    memset(&s_dungeon,0,sizeof(s_dungeon));
     s_refresh_clock_us=esp_timer_get_time();
     s_dirty = false;
     s_last_save_us = 0;
@@ -1409,6 +1414,7 @@ bool world_start(void)
         s_motion_q10 = s_save_buf.motion_q10;
         s_refresh=s_save_buf.refresh;
         s_exploration=s_save_buf.exploration;
+        s_dungeon=s_save_buf.dungeon;
         s_refresh_clock_us=esp_timer_get_time();
         s_w.scans = s_save_buf.scans;
         s_w.pending = s_queue.count;
@@ -1739,7 +1745,7 @@ world_switch_result_t world_box_exchange(uint8_t slot,const mon_t *outgoing,cons
  mon_t old=*outgoing,in=*incoming;
  if(!lock_encounter_change())return WORLD_SWITCH_STORAGE_UNAVAILABLE;
  if(!s_storage_ready||s_starter_pending){unlock_encounter_change();return WORLD_SWITCH_STORAGE_UNAVAILABLE;}
- if(s_active.encounter.uid||s_challenge.session.active||s_challenge.league_active){unlock_encounter_change();return WORLD_SWITCH_BUSY;}
+ if(s_active.encounter.uid||s_challenge.session.active||s_challenge.league_active||dungeon_party_locked()){unlock_encounter_change();return WORLD_SWITCH_BUSY;}
  int box_slot=party_box_match(&s_party,&in);
  mon_t actual=slot?s_party.party[slot]:leader_view_locked();
  if(slot>=s_party.party_count||memcmp(&old,&actual,sizeof(old))||box_slot<0){unlock_encounter_change();return WORLD_SWITCH_STALE;}
@@ -1771,4 +1777,65 @@ exploration_kind_t world_research_claim(uint8_t route,uint16_t *gain){
  xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
  if(ok){if(gain)*gain=s_save_buf.exp-s_w.exp;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;s_exploration=s_save_buf.exploration;s_last_save_us=esp_timer_get_time();}
  unlock_encounter_change();return ok?EXPLORE_NONE:EXPLORE_SAVE_FAILED;
+}
+
+
+void world_dungeon_progress(dungeon_progress_t *out)
+{
+    if (!out) return;
+    memset(out,0,sizeof(*out));
+    if (!s_lock || xSemaphoreTake(s_lock,portMAX_DELAY)!=pdTRUE) return;
+    *out=s_dungeon;xSemaphoreGive(s_lock);
+}
+bool world_dungeon_ready(void){
+ if(!s_lock||xSemaphoreTake(s_lock,portMAX_DELAY)!=pdTRUE)return false;
+ bool ok=s_storage_ready&&!s_starter_pending&&!s_active.encounter.uid&&!s_challenge.session.active&&!s_challenge.league_active&&s_w.pet.stamina>=DUNGEON_ENTRY_COST*NURT_Q;
+ xSemaphoreGive(s_lock);return ok;
+}
+bool world_dungeon_admit(uint32_t id)
+{
+    if(!id||!lock_encounter_change())return false;
+    if(!s_storage_ready||s_starter_pending){unlock_encounter_change();return false;}
+    if(id==s_dungeon.run_id){unlock_encounter_change();return true;}
+    if(s_dungeon.run_id==UINT32_MAX||id!=s_dungeon.run_id+1||s_active.encounter.uid||s_challenge.session.active||s_challenge.league_active||s_w.pet.stamina<DUNGEON_ENTRY_COST*NURT_Q){unlock_encounter_change();return false;}
+    collect_save_locked(&s_save_buf);s_save_buf.dungeon.run_id=id;s_save_buf.dungeon.paid_nodes=0;
+    memset(&s_save_buf.dungeon.receipt,0,sizeof(s_save_buf.dungeon.receipt));s_save_buf.dungeon.last_node=0;
+    s_save_buf.pet.stamina-=DUNGEON_ENTRY_COST*NURT_Q;
+    xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
+    if(ok){s_dungeon=s_save_buf.dungeon;s_w.pet.stamina-=DUNGEON_ENTRY_COST*NURT_Q;s_last_save_us=esp_timer_get_time();}
+    unlock_encounter_change();return ok;
+}
+bool world_dungeon_award(uint32_t id,unsigned node,uint32_t seed,dungeon_receipt_t *out)
+{
+    if(!out||node>7||node==3||node==6||!lock_encounter_change())return false;
+    if(!s_storage_ready||!id||id!=s_dungeon.run_id){unlock_encounter_change();return false;}
+    if(s_dungeon.paid_nodes&(1u<<node)){
+        bool ok=s_dungeon.last_node==node;if(ok)*out=s_dungeon.receipt;
+        unlock_encounter_change();return ok;
+    }
+    collect_save_locked(&s_save_buf);dungeon_receipt_t receipt;
+    dungeon_reward_plan(node,seed,&s_dungeon,&receipt);
+    s_starter_party=s_party;
+    uint8_t slots[3];unsigned count=dungeon_recipients(id,slots);
+    if(!count||count>3){unlock_encounter_change();return false;}
+    unsigned mask=0;
+    for(unsigned i=0;i<count;i++){
+        if(slots[i]>=s_party.party_count||(mask&(1u<<slots[i]))){unlock_encounter_change();return false;}
+        mask|=1u<<slots[i];
+    }
+    exp_award_party(&s_starter_party,mask,mask,exp_scaled(receipt.xp,nurture_exp_percent(&s_w.pet)));
+    receipt.xp=0;for(unsigned i=0;i<s_party.party_count;i++)receipt.xp+=s_starter_party.party[i].exp-s_party.party[i].exp;
+    for(unsigned i=0;i<ITEM_COUNT;i++){
+        unsigned room=items_capacity(i)-s_save_buf.inventory.quantity[i],n=receipt.items.quantity[i];
+        if(n>room){n=room;receipt.full=1;}
+        receipt.items.quantity[i]=n;s_save_buf.inventory.quantity[i]+=n;
+    }
+    party_serialize(&s_starter_party,s_save_buf.party);
+    s_save_buf.exp=s_starter_party.party[0].exp;s_save_buf.level=s_starter_party.party[0].level;
+    dungeon_progress_t *p=&s_save_buf.dungeon;p->paid_nodes|=1u<<node;p->last_node=node;p->receipt=receipt;
+    if(node==4)p->elite_seen=1;
+    if(node==7&&p->clears<UINT16_MAX)p->clears++;
+    xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
+    if(ok){s_dungeon=s_save_buf.dungeon;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_inventory=s_save_buf.inventory;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;s_last_save_us=esp_timer_get_time();*out=receipt;}
+    unlock_encounter_change();return ok;
 }

@@ -37,3 +37,5 @@ uint8_t enc_refresh_scan(enc_refresh_state_t *s, const enc_refresh_ap_t *aps,
 
 uint8_t enc_refresh_collect(enc_refresh_state_t *s,const enc_refresh_ap_t *aps,unsigned n,
     bool exploring,uint16_t distance_q10,uint8_t room);
+
+bool enc_refresh_observe(enc_refresh_state_t *,const enc_refresh_ap_t *,unsigned,bool,uint16_t);

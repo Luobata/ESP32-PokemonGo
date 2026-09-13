@@ -50,7 +50,7 @@ idf_component_register(
          "play_bag.c"
          "play_menu.c"
          "play_party.c"
-         "play_trainer.c"
+         "play_trainer.c" "dungeon.c" "dungeon_rewards.c" "play_dungeon.c"
          "play_collect.c"
          "demo_button.c"
          "demo_battery.c"
