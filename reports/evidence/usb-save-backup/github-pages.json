@@ -1,0 +1,37 @@
+{
+  "url": "https://luobata.github.io/ESP32-PokemonGo/",
+  "run_url": "https://github.com/Luobata/ESP32-PokemonGo/actions/runs/34771814962",
+  "commit": "f34b25ef0dea15b7f834f15994dd56e1d8278a0b",
+  "status": "deployed",
+  "https": true,
+  "web_files": {
+    "index.html": {
+      "sha256": "39f84424ea0f5521957304ca0c53f86b8fc65b285f59d35344b2cda2784c4c7a",
+      "mime": "text/html",
+      "matches_source": true
+    },
+    "app.mjs": {
+      "sha256": "c5cd3d6508df3effc4357531ea46a32c56a840dbf28ff6ec840cf07e8c32d168",
+      "mime": "text/javascript",
+      "matches_source": true
+    },
+    "backup.mjs": {
+      "sha256": "2d9340d1cac34941af470c870717396703574c608b4f86c4d16248aa196660f9",
+      "mime": "text/javascript",
+      "matches_source": true
+    },
+    "style.css": {
+      "sha256": "dd7ad1a2d55d8025c4990a6bb173d6342af46f2c0857f3f6cb5244a18182a831",
+      "mime": "text/css",
+      "matches_source": true
+    }
+  },
+  "download_files": 6,
+  "save_upload_api": false,
+  "browser_verified": {
+    "browser": "Chrome",
+    "folder_button_enabled": true,
+    "http_download_instructions_hidden": true,
+    "native_usb_and_folder_choosers_exercised": false
+  }
+}
