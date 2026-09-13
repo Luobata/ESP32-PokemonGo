@@ -1,0 +1,24 @@
+{
+  "images": [
+    {
+      "file": "reports/evidence/community-media-2026-09-13/reselection/03-hyper-beam.png",
+      "source": "reports/evidence/beam-alignment-2026-09-09/after-0.png",
+      "width": 240,
+      "height": 320,
+      "sha256": "d39d050ca080782476c278ea5242087b02b9cff8e07c4bc0b3b99e33f9f379ae"
+    },
+    {
+      "file": "reports/evidence/community-media-2026-09-13/reselection/04-red-challenge.png",
+      "source": "/tmp/pokewalk-gallery-red/red-12.png",
+      "width": 240,
+      "height": 320,
+      "sha256": "633c06ba98b0eddfabf7694caa298f7c1fb79d6da6b76bbc4d5385f2b79d6fda"
+    }
+  ],
+  "red_source": {
+    "renderer": "29239e1bd6082c4edb8b",
+    "fixture": "isolated postgame Red encounter, Charizard Lv90; production native renderer"
+  },
+  "red_sample_ms": 1200,
+  "purpose": "Replace previous third and fourth gallery images; other images and firmware unchanged"
+}

@@ -1,0 +1,17 @@
+{
+  "id": 234,
+  "revisionId": 613,
+  "status": "pending",
+  "stateVersion": 7,
+  "firmwareSha256": "d67974d037aa1cb305f5446891e57f1ada6dbbc2df48d044b47c464e07d6208d",
+  "updatedAt": "2026-09-13T14:05:16+00:00",
+  "image_count": 5,
+  "image_order": [
+    "wild battle",
+    "care",
+    "hyper beam",
+    "Red entrance",
+    "dungeon upgrades"
+  ],
+  "descriptions_unchanged": true
+}

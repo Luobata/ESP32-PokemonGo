@@ -11,3 +11,7 @@
 - 回执见 evidence/community-media-2026-09-13/submission-receipt.json。五图需要审核通过后才会替换线上展示。
 
 [创作者工作台](https://ai-passport.folotoy.cn/account/?project=234) · [社区页面](https://ai-passport.folotoy.cn/plays/234/)
+
+## 图片再次调整
+
+用户反馈第三、第四张缺少特色，已将进化成功与队伍选择替换为破坏光线发射、赤红登场。其余三张及双语介绍、视频链接、固件保留不变。按本次换图请求撤回同一待审版本 613，替换后重新提交，接口回读仍为 pending；stateVersion 7。赤红图取自当前同源渲染器的隔离演示场景，人物完整入镜；未操作设备或存档。图片与回执见 evidence/community-media-2026-09-13/reselection/。
