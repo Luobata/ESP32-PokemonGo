@@ -1,0 +1,18 @@
+{
+  "recovery_points_per_hour": 100,
+  "full_recovery_seconds": 3600,
+  "half_recovery_points": 50,
+  "half_recovery_seconds": 1800,
+  "capacity": 100,
+  "costs_changed": false,
+  "checks": {
+    "nurture_parity": "PASS: 3201 ticks, 40 actions",
+    "exploration_recovery": "PASS: half/full and before-full boundary",
+    "challenge_stamina": "PASS: 110 cases with save faults and reboot",
+    "dungeon_rewards": "PASS: 24 cases",
+    "box_browser": "PASS: 14 checks",
+    "party_dungeon_exit": "PASS: 11 checks",
+    "stamina_only_ui": "PASS"
+  },
+  "save_format_changed": false
+}

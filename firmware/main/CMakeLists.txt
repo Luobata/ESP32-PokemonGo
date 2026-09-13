@@ -10,6 +10,7 @@ idf_component_register(
          "exp.c"
          "evolution.c"
          "party.c"
+         "box_view.c"
          "world.c"
          "combat.c" "trainer.c" "achievements.c" "play_achievements.c"
          "battle.c"

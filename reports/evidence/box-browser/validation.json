@@ -1,0 +1,15 @@
+{
+  "gate": "pass",
+  "raw_gate": "pass",
+  "block_merge": false,
+  "execution_complete": true,
+  "quality_confidence": "full",
+  "incomplete_engines": [],
+  "mutation_status": "disabled",
+  "semantic_review": "not_executed: QualityGate MCP unavailable",
+  "rule_coverage": "no matching script rules for changed C/Python files",
+  "firmware_build": "PASS",
+  "device_flash": "PASS: app hash verified, NVS unchanged, existing save loaded, booted P1",
+  "native_ui": "PASS: 14 warehouse checks; 11 dungeon-exchange checks",
+  "world_save": "PASS: 24 ASan/UBSan cases"
+}

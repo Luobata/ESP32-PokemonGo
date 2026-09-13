@@ -1,0 +1,19 @@
+{
+  "gate": "pass",
+  "raw_gate": "pass",
+  "block_merge": false,
+  "execution_complete": true,
+  "quality_confidence": "full",
+  "incomplete_engines": [],
+  "mutation_status": "disabled",
+  "raw_mutation_status": "not_applicable",
+  "pre_edit_rule_context": "unavailable: no QualityGate MCP tools registered",
+  "semantic_review": "not_executed",
+  "matched_rule_coverage": "no matching C/Python script rules",
+  "independent_validation": [
+    "native UI regression PASS (11 checks)",
+    "real world/save/dungeon ASan/UBSan PASS (24 cases)",
+    "ESP-IDF build PASS",
+    "git diff --check PASS"
+  ]
+}

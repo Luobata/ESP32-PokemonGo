@@ -15,7 +15,11 @@ int main(void){
  failure=0;e=world_explore();assert(e.kind==EXPLORE_CLUE&&s_exploration.energy==17&&s_w.pet.stamina==5*NURT_Q);
  reboot();assert(s_exploration.energy==17&&s_w.pet.stamina==5*NURT_Q);
  nurture_t pet;nurture_init(&pet);pet.stamina=0;nurture_tick(&pet,0,0,false);
- for(unsigned second=1;second<=7200;second++)nurture_tick(&pet,(int64_t)second*1000000,0,false);
+ assert(nurture_wait_minutes(&pet,100)==60);
+ for(unsigned second=1;second<=1800;second++)nurture_tick(&pet,(int64_t)second*1000000,0,false);
+ assert(pet.stamina==50*NURT_Q);assert(nurture_wait_minutes(&pet,100)==30);
+ for(unsigned second=1801;second<3600;second++)nurture_tick(&pet,(int64_t)second*1000000,0,false);
+ assert(pet.stamina<NURT_MAX);nurture_tick(&pet,3600LL*1000000,0,false);
  assert(pet.stamina==NURT_MAX);assert(nurture_wait_minutes(&pet,100)==0);
  unsigned rare[2]={0},items[2]={0};
  for(unsigned n=0;n<10000;n++)for(unsigned intel=0;intel<2;intel++){
@@ -27,7 +31,7 @@ int main(void){
   assert(e.kind==EXPLORE_CLUE&&x.energy==intel);items[intel]+=e.quantity>0;
  }
  assert(rare[1]==rare[0]&&items[1]==items[0]);
- printf("{\"passed\":true,\"rare_without\":%u,\"rare_with\":%u,\"items_without\":%u,\"items_with\":%u,\"samples_each\":10000,\"recovery_seconds\":7200}\n",rare[0],rare[1],items[0],items[1]);return 0;
+ printf("{\"passed\":true,\"rare_without\":%u,\"rare_with\":%u,\"items_without\":%u,\"items_with\":%u,\"samples_each\":10000,\"recovery_seconds\":3600}\n",rare[0],rare[1],items[0],items[1]);return 0;
 }
 '''
 if __name__=='__main__':print(json.dumps(h.run(h.ROOT)))

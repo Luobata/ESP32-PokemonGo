@@ -1,0 +1,12 @@
+{
+  "app_offset": "0x10000",
+  "app_size": 3026208,
+  "app_sha256": "44dcbb2ea3bd5d2348ba80f645e3270f791f6621bb708d4e3873b7c061e0145a",
+  "nvs_identical_before_boot": true,
+  "flash_hash_verified": true,
+  "boot_page": "P1",
+  "app_version": "53b40ad-dirty",
+  "compile_time": "Sep 13 2026 22:20:08",
+  "boot_error_detected": false,
+  "save_backup": "private local backup; not uploaded"
+}

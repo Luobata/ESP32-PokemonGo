@@ -90,9 +90,9 @@ static void recover_during_write(void){
 }
 static void recovery(void){
  ready(0);assert(nurture_ability_factor(&s_w.pet)==1024);
- assert(nurture_wait_minutes(&s_w.pet,5)==6);
- assert(nurture_wait_minutes(&s_w.pet,10)==12);
- assert(nurture_wait_minutes(&s_w.pet,20)==24);
+ assert(nurture_wait_minutes(&s_w.pet,5)==3);
+ assert(nurture_wait_minutes(&s_w.pet,10)==6);
+ assert(nurture_wait_minutes(&s_w.pet,20)==12);
  nurture_tick(&s_w.pet,0,0,false);nurture_tick(&s_w.pet,7*60*1000000LL,0,false);
  assert(!nurture_wait_minutes(&s_w.pet,5)&&world_challenge_begin(14));
  nurture_t n=s_w.pet;n.stamina=0;n.satiety=n.mood=70*NURT_Q;

@@ -16,6 +16,8 @@
 #include "world.h"
 #include "combat.h"
 #include "exp.h"
+#include "box_view.h"
+#include "battle.h"
 
 #define ROW_Y 36
 #define ROW_H 36
@@ -33,8 +35,21 @@ static uint8_t s_selected, s_action;
 static bool s_details,s_skills;
 static unsigned s_skill;
 static bool s_box_mode,s_box_details;
+static bool s_end_dungeon;
+static unsigned s_end_choice;
 static mon_t s_box[BOX_SPECIES];
 static uint8_t s_box_ids[BOX_SPECIES],s_box_count,s_box_row;
+static box_view_options_t s_box_options;
+enum { BOX_MENU_CLOSED, BOX_MENU_OPTIONS, BOX_MENU_FILTER, BOX_MENU_TYPE, BOX_MENU_SORT };
+static unsigned s_box_menu, s_box_menu_row;
+static bool s_box_paging;
+static const char *const s_box_filters[] = {"全部", "闪光", "可进化"};
+static const char *const s_box_sorts[] = {"图鉴编号", "等级从高到低"};
+static const char *const s_box_types[] = {
+    "不限", "一般", "火", "水", "电", "草", "冰", "格斗", "毒", "地面",
+    "飞行", "超能力", "虫", "岩石", "幽灵", "龙", "恶", "钢"
+};
+_Static_assert(sizeof(s_box_types) / sizeof(s_box_types[0]) == BATTLE_TYPE_COUNT + 1, "box types");
 static char s_feedback[72];
 static bool s_success;
 static lv_timer_t *s_tick;
@@ -149,29 +164,89 @@ static void draw_detail(int band_y)
 }
 
 static void load_box(void){
- world_box_snapshot(s_box);s_box_count=0;
- for(unsigned i=0;i<BOX_SPECIES;i++)if(s_box[i].species_id)s_box_ids[s_box_count++]=i;
- if(s_box_row>=s_box_count)s_box_row=0;
+ unsigned previous = s_box_row < s_box_count ? s_box_ids[s_box_row] : BOX_SPECIES;
+ inventory_t inventory;
+ world_box_snapshot(s_box);
+ world_inventory_snapshot(&inventory);
+ s_box_count = box_view_build(s_box, &inventory, &s_box_options, s_box_ids);
+ s_box_row = 0;
+ for (unsigned i = 0; i < s_box_count; i++) if (s_box_ids[i] == previous) s_box_row = i;
+ if (!s_box_count) s_box_details = s_skills = false;
 }
 static void draw_box(int band){
  char text[72],name[48];snprintf(text,sizeof(text),"换入第%u位",s_selected+1);game_ui_title(band,"仓库",text);
- game_ui_box(band,8,40,224,176);
- if(!s_box_count)game_ui_text_centered(band,16,112,208,16,"仓库暂无伙伴",GAME_UI_MUTED);
+ snprintf(text,sizeof(text),"%s / %s / %s",s_box_filters[s_box_options.filter],s_box_types[s_box_options.type],s_box_options.sort==BOX_SORT_LEVEL?"等级":"编号");
+ game_ui_text_centered(band,8,36,224,16,text,GAME_UI_MUTED);
+ game_ui_box(band,8,56,224,168);
+ if(!s_box_count){
+  game_ui_text_centered(band,16,112,208,16,s_party.box_count?"没有符合条件的伙伴":"仓库暂无伙伴",GAME_UI_MUTED);
+  game_ui_text_centered(band,16,144,208,16,"长按A调整筛选",GAME_UI_MUTED);
+ }
  for(unsigned i=0,top=s_box_row/5*5;i<5&&top+i<s_box_count;i++){
-  mon_t *m=&s_box[s_box_ids[top+i]];int y=52+i*32;member_name(m,name,sizeof(name));render_text(54,y-band,name,GAME_UI_INK);
+  mon_t *m=&s_box[s_box_ids[top+i]];int y=68+i*32;member_name(m,name,sizeof(name));render_text(54,y-band,name,GAME_UI_INK);
   if(m->flags&1)render_text(34,y-band,"★",GAME_UI_ACCENT);
   snprintf(text,sizeof(text),"Lv%u",m->level);render_text(216-render_text_width(text),y-band,text,GAME_UI_INK);
-  game_ui_list_marker(band,8,y,top+i,s_box_count,s_box_row);
+  game_ui_list_marker(band,20,y,top+i,s_box_count,s_box_row);
  }
- member_name(&s_party.members[s_selected],name,sizeof(name));snprintf(text,sizeof(text),"换出 %s",name);game_ui_text_centered(band,8,230,224,16,text,GAME_UI_INK);
- game_ui_text_centered(band,8,254,224,16,s_feedback[0]?s_feedback:"★闪光 C查看详情",GAME_UI_MUTED);
- game_ui_footer(band,game_ui_list_hint(s_box_count));
+ member_name(&s_party.members[s_selected],name,sizeof(name));snprintf(text,sizeof(text),"换出 %s",name);game_ui_text_centered(band,8,236,224,16,text,GAME_UI_INK);
+ game_ui_text_centered(band,8,260,224,16,s_feedback[0]?s_feedback:s_box_paging?"快速翻页 C恢复逐只选择":"长按A筛选排序与翻页",s_box_paging?GAME_UI_ACCENT:GAME_UI_MUTED);
+ game_ui_footer(band,s_box_paging?"A上页 B下页 C选择":game_ui_list_hint(s_box_count));
+}
+
+static unsigned box_menu_count(void)
+{
+    return s_box_menu == BOX_MENU_OPTIONS ? 6 : s_box_menu == BOX_MENU_FILTER ? 3 :
+           s_box_menu == BOX_MENU_TYPE ? BATTLE_TYPE_COUNT + 1 : 2;
+}
+
+static void draw_box_menu(int band)
+{
+    char text[80];
+    snprintf(text, sizeof(text), "%u只匹配", s_box_count);
+    const char *title = s_box_menu == BOX_MENU_OPTIONS ? "仓库选项" :
+        s_box_menu == BOX_MENU_FILTER ? "筛选伙伴" : s_box_menu == BOX_MENU_TYPE ? "按属性筛选" : "排序方式";
+    game_ui_title(band, title, text);
+    unsigned top = s_box_menu == BOX_MENU_OPTIONS ? 0 : s_box_menu_row / 5 * 5;
+    for (unsigned i = top; i < box_menu_count() && i < top + (s_box_menu == BOX_MENU_OPTIONS ? 6 : 5); i++) {
+        const char *label;
+        if (s_box_menu == BOX_MENU_OPTIONS) {
+            switch (i) {
+            case 0: snprintf(text, sizeof(text), "范围 %s", s_box_filters[s_box_options.filter]); break;
+            case 1: snprintf(text, sizeof(text), "属性 %s", s_box_types[s_box_options.type]); break;
+            case 2: snprintf(text, sizeof(text), "排序 %s", s_box_options.sort == BOX_SORT_LEVEL ? "等级从高到低" : "图鉴编号"); break;
+            case 3: snprintf(text, sizeof(text), "快速翻页"); break;
+            case 4: snprintf(text, sizeof(text), "清除筛选"); break;
+            default: snprintf(text, sizeof(text), "返回仓库"); break;
+            }
+            label = text;
+        } else label = s_box_menu == BOX_MENU_FILTER ? s_box_filters[i] :
+                       s_box_menu == BOX_MENU_TYPE ? s_box_types[i] : s_box_sorts[i];
+        int y = 52 + (i - top) * 32;
+        game_ui_text_fitted(band, 36, y, 192, label, GAME_UI_INK);
+        game_ui_list_marker(band, 16, y, i, box_menu_count(), s_box_menu_row);
+    }
+    const char *hint = s_box_menu == BOX_MENU_FILTER ? "进化需等级达标或已有道具" :
+                       s_box_menu == BOX_MENU_TYPE ? "双属性任一匹配即可" : "只调整显示 不改变伙伴";
+    game_ui_text_fitted(band, 8, 252, 224, hint, GAME_UI_MUTED);
+    game_ui_footer(band, GAME_UI_NAV_HINT);
 }
 static void draw_all(void)
 {
     for (int y = 0; y < SCREEN_H; y += SCREEN_BAND_H) {
         screen_band_clear(GAME_UI_BG);
-        if(s_box_mode && s_skills && view_member())game_ui_moves(y,view_member()->species_id,view_member()->level,s_skill,false);
+        if (s_end_dungeon) {
+            game_ui_title(y, "结束秘境？", "换入伙伴");
+            game_ui_box(y, 8, 56, 224, 176);
+            game_ui_text_centered(y, 16, 76, 208, 16, "换入需要结束本局", GAME_UI_INK);
+            game_ui_text_centered(y, 16, 108, 208, 16, "已得经验和道具保留", GAME_UI_ACCENT);
+            game_ui_text_centered(y, 16, 140, 208, 16, "本局无法继续", GAME_UI_MUTED);
+            game_ui_text_centered(y, 16, 172, 208, 16, "入场体能不退还", GAME_UI_MUTED);
+            game_ui_text_centered(y, 8, 252, 224, 16, s_feedback, GAME_UI_INK);
+            static const char *const actions[] = {"取消", "结束并换入"};
+            game_ui_actions(y, actions, 2, s_end_choice);
+        }
+        else if (s_box_mode && s_box_menu) draw_box_menu(y);
+        else if(s_box_mode && s_skills && view_member())game_ui_moves(y,view_member()->species_id,view_member()->level,s_skill,false);
         else if(s_box_mode && s_box_details)draw_detail(y);
         else if(s_box_mode)draw_box(y);
         else if(s_skills && s_selected<s_party.count)game_ui_moves(y,s_party.members[s_selected].species_id,s_party.members[s_selected].level,s_skill,false);
@@ -211,6 +286,10 @@ void play_party_enter(void)
     if (!nav_is_returning()) { s_selected = s_action = 0; s_details = false; s_skills = false; }
     s_feedback[0] = '\0';
     s_box_mode=s_box_details=false;
+    s_box_menu = BOX_MENU_CLOSED;
+    s_box_paging = false;
+    s_end_dungeon = false;
+    s_end_choice = 0;
     s_success = false;
     s_tick = NULL;
     refresh_snapshot();
@@ -229,6 +308,9 @@ void play_party_presentation_snapshot(play_party_view_t *out)
 {
     if (out) *out = (play_party_view_t){.selected = s_selected, .details = s_box_mode ? s_box_details : s_details,
         .box = s_box_mode, .box_row = s_box_row, .skills = s_skills,
+        .box_matches = s_box_count, .box_slot = s_box_row < s_box_count ? s_box_ids[s_box_row] : 255,
+        .box_menu = s_box_menu, .box_filter = s_box_options.filter, .box_type = s_box_options.type,
+        .box_sort = s_box_options.sort, .box_paging = s_box_paging,
         .species = view_member() ? view_member()->species_id : 0,
         .feedback = s_feedback};
 }
@@ -250,11 +332,89 @@ static void select_leader(void)
     snprintf(s_feedback, sizeof(s_feedback), "%s", message);
 }
 
+static void exchange_member(void)
+{
+    world_switch_result_t result = world_box_exchange(s_selected, &s_party.members[s_selected], &s_box[s_box_ids[s_box_row]]);
+    if (result == WORLD_SWITCH_BUSY && dungeon_party_locked()) {
+        s_end_dungeon = true;
+        s_end_choice = 0;
+        s_feedback[0] = 0;
+        return;
+    }
+    const char *message = result == WORLD_SWITCH_OK ? "队伍已更换" : result == WORLD_SWITCH_BUSY ? "请先结束当前对战" : result == WORLD_SWITCH_SAVE_FAILED ? "保存失败 请重试" : result == WORLD_SWITCH_INVALID ? "仓库选择无效 请重试" : "伙伴已变 请重试";
+    snprintf(s_feedback, sizeof(s_feedback), "%s", message);
+    refresh_snapshot();
+    load_box();
+    if (result == WORLD_SWITCH_OK) {
+        s_box_mode = s_box_details = false;
+        s_action = 3;
+        reset_motion();
+    }
+}
+
 void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
     int direction = nav_direction(btn, ev);
     bool confirm = nav_confirm(btn, ev), back = nav_return(btn, ev);
+    if (s_box_mode && !s_box_details && !s_skills && !s_end_dungeon &&
+        btn == BSP_BTN_UP && ev == BSP_BTN_LONG) {
+        s_box_menu = BOX_MENU_OPTIONS;
+        s_box_menu_row = 0;
+        s_box_paging = false;
+        s_feedback[0] = 0;
+        draw_all();
+        return;
+    }
     if (!direction && !confirm && !back) return;
+    if (s_box_mode && s_box_menu) {
+        if (back) {
+            s_box_menu = s_box_menu == BOX_MENU_OPTIONS ? BOX_MENU_CLOSED : BOX_MENU_OPTIONS;
+            s_box_menu_row = 0;
+        } else if (direction) s_box_menu_row = nav_list_selection(btn, ev, box_menu_count(), s_box_menu_row);
+        else if (confirm) {
+            if (s_box_menu == BOX_MENU_OPTIONS) {
+                switch (s_box_menu_row) {
+                case 0: s_box_menu = BOX_MENU_FILTER; s_box_menu_row = s_box_options.filter; break;
+                case 1: s_box_menu = BOX_MENU_TYPE; s_box_menu_row = s_box_options.type; break;
+                case 2: s_box_menu = BOX_MENU_SORT; s_box_menu_row = s_box_options.sort; break;
+                case 3: s_box_paging = s_box_count > 0; s_box_menu = BOX_MENU_CLOSED; break;
+                case 4: s_box_options.filter = BOX_FILTER_ALL; s_box_options.type = 0; load_box(); s_box_menu = BOX_MENU_CLOSED; break;
+                default: s_box_menu = BOX_MENU_CLOSED; break;
+                }
+            } else {
+                if (s_box_menu == BOX_MENU_FILTER) s_box_options.filter = s_box_menu_row;
+                else if (s_box_menu == BOX_MENU_TYPE) s_box_options.type = s_box_menu_row;
+                else s_box_options.sort = s_box_menu_row;
+                load_box();
+                s_box_menu = BOX_MENU_CLOSED;
+            }
+        }
+        reset_motion(); draw_all(); return;
+    }
+    if (s_box_mode && s_box_paging && !s_box_details && !s_skills && !s_end_dungeon) {
+        if (back || confirm) s_box_paging = false;
+        else if (direction) s_box_row = box_view_turn(s_box_row, s_box_count, direction);
+        reset_motion(); draw_all(); return;
+    }
+    if (s_end_dungeon) {
+        s_end_choice = nav_list_selection(btn, ev, 2, s_end_choice);
+        if (back || (confirm && s_end_choice == 0)) {
+            s_end_dungeon = false;
+            s_feedback[0] = 0;
+        } else if (confirm) {
+            if (!dungeon_abandon()) {
+                snprintf(s_feedback, sizeof(s_feedback), "保存失败 请重试");
+            } else {
+                s_end_dungeon = false;
+                // Pending dungeon rewards may change the outgoing member's EXP.
+                // Refresh it after settlement, keeping the chosen warehouse row.
+                refresh_snapshot();
+                exchange_member();
+            }
+        }
+        draw_all();
+        return;
+    }
     if (s_skills) {
         if (back) s_skills = false;
         else if (ev==BSP_BTN_CLICK && view_member()) {
@@ -286,17 +446,12 @@ void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
     }
     if (s_box_mode) {
         if (s_action == 1) { s_skills = true; s_skill = 0; }
-        else {
-            world_switch_result_t result = world_box_exchange(s_selected, &s_party.members[s_selected], &s_box[s_box_ids[s_box_row]]);
-            const char *message = result == WORLD_SWITCH_OK ? "队伍已更换" : result == WORLD_SWITCH_BUSY ? (dungeon_party_locked()?"请先结束秘境旅程":"请先结束当前对战") : result == WORLD_SWITCH_SAVE_FAILED ? "保存失败 请重试" : result == WORLD_SWITCH_INVALID ? "仓库选择无效 请重试" : "伙伴已变 请重试";
-            snprintf(s_feedback, sizeof(s_feedback), "%s", message); refresh_snapshot(); load_box();
-            if (result == WORLD_SWITCH_OK) { s_box_mode = s_box_details = false; s_action = 3; reset_motion(); }
-        }
+        else exchange_member();
     } else if (s_action == 0) select_leader();
     else if (s_action == 1) {
         if (s_selected) { s_success = false; snprintf(s_feedback, sizeof(s_feedback), "请先设为出战伙伴"); }
         else { nav_open(PAGE_BAG); return; }
     } else if (s_action == 2) { s_skills = true; s_skill = 0; }
-    else { s_box_mode = true; s_box_details = false; s_box_row = s_action = 0; s_feedback[0] = 0; load_box(); reset_motion(); }
+    else { s_box_mode = true; s_box_details = false; s_box_menu = BOX_MENU_CLOSED; s_box_paging = false; s_box_row = s_action = 0; s_feedback[0] = 0; load_box(); reset_motion(); }
     draw_all();
 }

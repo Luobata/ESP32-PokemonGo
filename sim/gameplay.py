@@ -345,7 +345,7 @@ def roll_encounter(
 # 每小时衰减速率。这些值需要用真实数据调 —— 见 docs/07-roadmap.md#71
 SATIETY_DECAY_PER_HOUR = 4.0
 MOOD_DECAY_PER_HOUR = 3.0
-STAMINA_RECOVER_PER_HOUR = 50.0
+STAMINA_RECOVER_PER_HOUR = 100.0
 STAMINA_COST_PER_MOTION_EVENT = 0.0
 
 LOW_THRESHOLD = 25.0     # 低于此值进入消沉

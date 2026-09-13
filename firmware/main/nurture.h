@@ -30,10 +30,10 @@
 // 每小时衰减/恢复速率，Q10。与 sim/gameplay.py 的常量逐个对应：
 //   SATIETY_DECAY_PER_HOUR   = 4.0
 //   MOOD_DECAY_PER_HOUR      = 3.0
-//   STAMINA_RECOVER_PER_HOUR = 50.0
+//   STAMINA_RECOVER_PER_HOUR = 100.0
 #define NURT_SATIETY_DECAY_PH  (4 * NURT_Q)
 #define NURT_MOOD_DECAY_PH     (3 * NURT_Q)
-#define NURT_STAMINA_RECOVER_PH (50 * NURT_Q)
+#define NURT_STAMINA_RECOVER_PH (100 * NURT_Q)
 #define NURT_STAMINA_COST_PER_MOTION 0
 
 // 亲密度：陪伴时长累积，0.5/小时（sim 侧 intimacy += hours * 0.5）

@@ -618,10 +618,11 @@ static void state(void)
     if (nav_current() == PAGE_PARTY) {
         play_party_view_t view;
         play_party_presentation_snapshot(&view);
-        printf("{\"selected\":%u,\"details\":%s,\"species\":%u,\"feedback\":\"%s\",\"box\":%s,\"box_row\":%u,\"skills\":%s}",
+        printf("{\"selected\":%u,\"details\":%s,\"species\":%u,\"feedback\":\"%s\",\"box\":%s,\"box_row\":%u,\"skills\":%s,\"box_matches\":%u,\"box_slot\":%u,\"box_menu\":%u,\"box_filter\":%u,\"box_type\":%u,\"box_sort\":%u,\"box_paging\":%s}",
                view.selected, view.details ? "true" : "false", view.species,
                view.feedback ? view.feedback : "", view.box ? "true" : "false",
-               view.box_row, view.skills ? "true" : "false");
+               view.box_row, view.skills ? "true" : "false", view.box_matches, view.box_slot,
+               view.box_menu, view.box_filter, view.box_type, view.box_sort, view.box_paging ? "true" : "false");
     } else printf("null");
     printf(",\"inventory\":[");
     for (unsigned i = 0; i < ITEM_COUNT; i++) printf("%s%u", i ? "," : "", inventory.quantity[i]);

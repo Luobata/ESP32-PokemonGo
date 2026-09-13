@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "renderer": "6018768c964e72961eb1",
+  "font_characters": 251,
+  "checks": [
+    "default cancel",
+    "long B cancel",
+    "reopen resets choice",
+    "end and exchange shiny individual",
+    "no stamina charge/refund",
+    "abandon persistence",
+    "abandon save retry",
+    "exchange save retry",
+    "ordinary exchange unchanged",
+    "nonleader slot and warehouse row",
+    "band rendering"
+  ]
+}

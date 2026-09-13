@@ -71,6 +71,8 @@ typedef struct {
     bool details;
     bool box, skills;
     uint8_t box_row;
+    uint8_t box_matches, box_slot, box_menu, box_filter, box_type, box_sort;
+    bool box_paging;
     uint16_t species;
     const char *feedback;
 } play_party_view_t;

@@ -1,0 +1,10 @@
+{
+  "app_offset": "0x10000",
+  "app_size": 3029248,
+  "app_sha256": "04f63884ed57690dd0b740b40866ffcb8ac1454cc33d20a942434107f3b022ba",
+  "nvs_identical_before_boot": true,
+  "flash_hash_verified": true,
+  "boot_page": "P1",
+  "save_loaded": true,
+  "boot_error_detected": false
+}

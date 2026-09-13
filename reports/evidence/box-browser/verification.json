@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "renderer": "6018768c964e72961eb1",
+  "font_characters": 251,
+  "checks": [
+    "151 physical slots",
+    "stable dex/level order",
+    "selection preserved",
+    "shiny + type intersection",
+    "secondary type",
+    "empty recovery",
+    "level/item evolution eligibility",
+    "no item consumption",
+    "0/1/5/6/151 group boundaries",
+    "C leaves paging before details",
+    "long B returns",
+    "filtered save retry and exact individual exchange",
+    "no warehouse loss",
+    "band rendering"
+  ]
+}

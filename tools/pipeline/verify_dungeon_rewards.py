@@ -107,6 +107,26 @@ static void owned_partners(void){
  win(0);failure=4;assert(!dungeon_finish());assert(!dungeon_abandon()&&dungeon_party_locked());failure=0;
  assert(dungeon_abandon()&&!dungeon_party_locked());tests++;
 }
-int main(void){assert(assets_init());owned_partners();combos();admission();receipts();migration();rewards();printf("{\"cases\":%u,\"save_bytes\":%zu,\"sanitized\":true}\n",tests,sizeof(save_t));return 0;}
+static void abandon_then_exchange(void){
+ setup();assert(dungeon_new(chosen,3,21));
+ mon_t incoming={.species_id=25,.level=40,.exp=exp_for_level(40),.flags=1};s_party.box[0]=incoming;world_debug_save();
+ win(4);failure=4;assert(!dungeon_finish());failure=0;
+ world_party_t before,after;world_party_snapshot(&before);
+ // Save the earned reward, but fail to acknowledge it in the dungeon record.
+ run_fail_after=0;assert(!dungeon_abandon());assert(dungeon_party_locked());
+ party_t paid=s_party;inventory_t items=s_inventory;int32_t stamina=s_w.pet.stamina;
+ assert(paid.party[chosen[0]].exp>before.members[chosen[0]].exp);
+ restart();assert(dungeon_abandon());world_party_snapshot(&after);
+ assert(!after.switch_locked&&!memcmp(&paid,&s_party,sizeof(paid))&&!memcmp(&items,&s_inventory,sizeof(items)));
+ // The pre-confirmation member is stale after settlement; refreshed EXP must be used.
+ assert(world_box_exchange(chosen[0],&before.members[chosen[0]],&incoming)==WORLD_SWITCH_STALE);
+ assert(world_box_exchange(chosen[0],&after.members[chosen[0]],&incoming)==WORLD_SWITCH_OK);
+ assert(s_party.party[chosen[0]].flags&1);
+ int box=party_box_match(&s_party,&after.members[chosen[0]]);assert(box>=0);
+ restart();assert(!dungeon_party_locked()&&s_party.party[chosen[0]].flags&1);
+ assert(party_box_match(&s_party,&after.members[chosen[0]])>=0);
+ assert(!memcmp(&items,&s_inventory,sizeof(items))&&s_w.pet.stamina==stamina);tests++;
+}
+int main(void){assert(assets_init());abandon_then_exchange();owned_partners();combos();admission();receipts();migration();rewards();printf("{\"cases\":%u,\"save_bytes\":%zu,\"sanitized\":true}\n",tests,sizeof(save_t));return 0;}
 '''
 if __name__=='__main__':harness.run()
