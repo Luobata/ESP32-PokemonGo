@@ -1,0 +1,15 @@
+{
+  "commit": "ec9dc53",
+  "application_sha256": "3870ad8701f6ff540df6b20ecbbe2bcade5507c78eca6b6f49ea8c8d6f58d852",
+  "application_size": 3029248,
+  "offset": "0x10000",
+  "flash_verified": true,
+  "nvs_before_after_identical": true,
+  "nvs_bytes": 24576,
+  "boot_normal": true,
+  "boot_page": "P1",
+  "crash_detected": false,
+  "existing_save_loaded": true,
+  "party_count": 6,
+  "owned_total": 20
+}
