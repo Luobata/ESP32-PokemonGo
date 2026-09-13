@@ -1,6 +1,12 @@
 # AI Passport 社区发布
 
-## 最新提交：2026-09-13 晚间
+## 最新提交：2026-09-14 USB 存档管理
+
+项目 234 / pokewalk，版本 **631** 已提交审核（pending）。新增设备备份与确认导入、覆盖前自动备份、文件校验及重启恢复；当前仅支持同设备、同固件构建。代码已合并 main（`80ae06d`），英文说明按社区上限压缩（`f884933`）；五张原展示图、宣传片链接及历史更新说明保留。双语正文、分类 games、固件摘要和图库回读一致。[发布说明](../../reports/release-notes-2026-09-14.md) · [回执](../../reports/evidence/usb-save-backup/community-release.json)。上一版 624 已审核通过。
+
+开发存档服务已部署 devbox，运行于 127.0.0.1:8767，可通过 SSH 转发使用。推广评论尚未发送：等待可供其他同学访问的 HTTPS 域名或端口映射入口；localhost 不能作为共享服务链接，远端普通 HTTP 也不能调用浏览器 USB 接口。
+
+## 历史提交：2026-09-13 晚间
 
 社区项目 234 / pokewalk，版本 624 已提交审核（pending）。本版包含体能约 1 小时回满、仓库筛选排序与快速翻页、秘境换宠结束确认。代码提交 `ec9dc53`，双语说明、五张截图、宣传片链接均已回读核对；固件 SHA-256 见 [发布回执](../../reports/evidence/stamina-one-hour-2026-09-13/community-release.json)。烧录和存档验证见同目录 `device-flash.json`。以下内容保留历史发布记录。
 
@@ -40,7 +46,7 @@ python tools/release/package_firmware.py
 
 使用 ESP-IDF 5.5.3 / ESP32-C3 / 8MB。合并 bootloader、分区表和应用；不含真实设备 NVS、cardid 或 Recovery 内容。官方原样校验器检查组件一致性、分区 MD5、应用容量、恢复入口和保护区。来源及许可证见 `tools/release/README.md`。本次结果见 `reports/evidence/community-publisher-2026-09-09/release-verification.json`。
 
-这证明产物结构通过官方检查，不等同于已经通过社区 BLE 安装/更新实测。当前工程目录与官方模板不同，因此不声称跑过官方完整 `tools/validate.sh --firmware`。合并固件的 NVS 区是空白填充，原有设备保留存档应先备份并使用仅更新应用的流程，不能直接拿完整固件覆盖旧存档。
+这证明产物结构通过官方检查，不等同于已经通过社区 BLE 安装/更新实测。当前工程目录与官方模板不同，因此不声称跑过官方完整 `tools/validate.sh --firmware`。合并固件的 NVS 区是空白填充，原有设备保留存档应先备份并使用保留存档的组件更新流程（本次新增导入暂存区，需要同时更新分区表与应用），不能直接拿完整固件覆盖旧存档。
 
 ## 实际发布步骤
 
