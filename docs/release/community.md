@@ -1,6 +1,6 @@
 # AI Passport 社区发布
 
-2026-09-13：森林秘境与体能统一已通过 [PR #1](https://github.com/Luobata/ESP32-PokemonGo/pull/1) 合并 main，新增 [发布说明](../../reports/release-notes-2026-09-13.md)。最近三轮汇总评论已在原帖提交，页面确认“提交成功，审核通过后公开”。本次未上传新的社区固件版本。[操作记录](../../reports/community-update-2026-09-13.md)。
+2026-09-13：森林秘境与体能统一已合并 main，并上传原项目 **234 / pokewalk** 的新版本 **607**，当前 **pending（待审核）**。固件大小 3,091,152 字节，SHA-256 `d67974d037aa1cb305f5446891e57f1ada6dbbc2df48d044b47c464e07d6208d`。双语介绍、源码地址、分类 games 和固件摘要回读一致；沿用清晰战斗封面。最近三轮汇总评论此前已提交审核，本次不重复发送。[发布说明](../../reports/release-notes-2026-09-13.md) · [操作记录](../../reports/community-update-2026-09-13.md)。
 
 
 2026-09-11 已提交项目234 / pokewalk的新版本404，状态pending（待审核），分类games。双语正文、分类与固件SHA-256回读一致。新版包含动画时钟修复、探索情报合并、两小时体能恢复、换宠等级和完整进化演出与叫声，并保留9月10日历史说明。回执：reports/evidence/community-update-2026-09-11/project-receipt.json。社区评论草稿已整理，但电脑锁定，尚未发布，待解锁后继续。
@@ -19,7 +19,7 @@
 
 - 合并固件：本地 `release/community/FoloToy-AI-Passport-full.bin`，烧录地址 `0x0`。
 - 封面：`reports/evidence/community-cover-2026-09-10/cover.png`，480×640、3:4 竖版。取自游戏录屏 78.5 秒，双方精灵完整可见，无影分身遮挡。发布副本为 `release/community/pokewalk-cover.png`，来源与更新回执见同目录 `cover-update.json`。
-- 真机证据：`release/community/device-screen.png` 及官方工具生成的 `.fap-capture.json` 回执。
+- 历史真机证据：`release/community/device-screen.png` 及其回执属于此前版本；最新官方发布流程不要求设备截图，本次上传未将其作为新版证明。
 - 宣传片：`reports/video/pokewalk-story-red-2026-09-09/pokewalk-story-v3.mp4`，约3分43秒，包含完整博士转场与赤红片段。
 - 新片包含图鉴追踪、梦幻三段线索与成功捕获、队伍经验分享和强化道馆；演示存档章节在片中标注。
 - 介绍草稿如下。版本限制写明，不能宣传为金银全招式复刻。
@@ -42,7 +42,7 @@ python tools/release/package_firmware.py
 
 1. 从官方地址加载 [publisher 工作流](https://ai-passport.folotoy.cn/skills/folotoy-ai-passport-publisher.zip)，由其检查上述产物和字段。
 2. 在 [AI Passport 社区](https://ai-passport.folotoy.cn) 登录，进入「发布新玩法」并展开「✦ 用 AI 辅助发布」，点击「确认连接发布助手」确认授权码；授权入口默认折叠，无需把密码交给助手。
-3. 通过 `FAP_SCREENSHOT_V1` 从当前设备读取截图，取得官方回执；该命令不切页、不唤醒、不修改存档，也不触发按键。
+3. 先运行 `whoami` 与 `projects` 核对授权和项目 234 / pokewalk；如已有草稿或待审版本，停止并报告冲突。最新官方流程不要求设备截图，不为发布而重置或烧录设备。
 4. 选择合并固件、3:4 封面（JPEG/PNG/WebP ≤10MiB）、公开 HTTPS 源码地址及 `submission.json` 中的双语介绍，预览后上传。
 5. 发布后取得社区页面，再考虑是否归档到上游 `plays/`；那是单独的双语文本 PR，不在此处上传固件或封面。
 
@@ -53,6 +53,8 @@ python tools/release/package_firmware.py
 完整双语字段见 [submission.json](submission.json)。旧版宣传片仍保留在仓库中，社区介绍以本次实际功能为准。
 
 ## 发布工具兼容性
+
+2026-09-13：最新官方脚本已支持 `--category games`，并支持不附带设备截图的上传；本次直接更新原项目成功，无需撤回修改。下文保留早期工具行为记录，不能作为覆盖当前待审版本的操作指引。
 
 本次官方 publisher 脚本未提供分类参数，首次提交默认为「开发者实验」。已通过官网对同一项目撤回编辑，保留原封面和固件、改为「游戏与互动」后重新提交；项目和版本编号均未变化，固件 SHA-256 与校验产物一致。后续更新应使用项目 `234`，并核对分类，避免新建重复项目。
 

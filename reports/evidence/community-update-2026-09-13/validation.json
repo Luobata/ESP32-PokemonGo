@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "firmware": {
+    "path": "release/community/FoloToy-AI-Passport-full.bin",
+    "size": 3091152,
+    "sha256": "d67974d037aa1cb305f5446891e57f1ada6dbbc2df48d044b47c464e07d6208d",
+    "segments": 3
+  },
+  "cover": {
+    "path": "release/community/pokewalk-cover.png",
+    "size": 61861,
+    "sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6",
+    "width": 480,
+    "height": 640,
+    "aspectRatio": "3:4"
+  },
+  "screenCapture": null
+}
