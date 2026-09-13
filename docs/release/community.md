@@ -1,5 +1,8 @@
 # AI Passport 社区发布
 
+2026-09-13：森林秘境与体能统一已通过 [PR #1](https://github.com/Luobata/ESP32-PokemonGo/pull/1) 合并 main，新增 [发布说明](../../reports/release-notes-2026-09-13.md)。最近三轮汇总评论已在原帖提交，页面确认“提交成功，审核通过后公开”。本次未上传新的社区固件版本。[操作记录](../../reports/community-update-2026-09-13.md)。
+
+
 2026-09-11 已提交项目234 / pokewalk的新版本404，状态pending（待审核），分类games。双语正文、分类与固件SHA-256回读一致。新版包含动画时钟修复、探索情报合并、两小时体能恢复、换宠等级和完整进化演出与叫声，并保留9月10日历史说明。回执：reports/evidence/community-update-2026-09-11/project-receipt.json。社区评论草稿已整理，但电脑锁定，尚未发布，待解锁后继续。
 
 分类修正已完成：项目 234，新版本 401，分类 games（游戏与互动），状态 pending。此前版本 400 已审核通过；本次沿用其固件、封面及双语正文，仅修正分类。固件摘要和正文回读核对一致。回执：reports/evidence/community-update-2026-09-10/category-corrected-receipt.json。
