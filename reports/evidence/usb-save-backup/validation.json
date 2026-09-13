@@ -1,0 +1,50 @@
+{
+  "checks": {
+    "protocol": "PASS: ASan/UBSan; host expiry, save failure, malformed frames, request/session ACK, timeout",
+    "browser_decoder": "PASS: production C transcript; corrupt/missing/duplicate/truncated data",
+    "checkpoint": "PASS: current inventory and stamina, failed checkpoint prevents read, retry",
+    "restore": "PASS: simulated same-device NVS roundtrip, pre-restore backup; invalid file and wrong device rejected",
+    "native_ui": "PASS: seven settings rows, backup and import views, long B return, fonts, band equality; real device default-cancel screenshot",
+    "warehouse_regression": "PASS: 14 checks",
+    "dungeon_exchange_regression": "PASS: 11 checks",
+    "dungeon_save_regression": "PASS: 24 ASan/UBSan cases",
+    "firmware_build": "PASS",
+    "import_journal": "PASS: ASan/UBSan; 388 prepare + 483 apply interruption positions, partial writes/erase, corrupt new image, write-failure rollback, incompatible firmware",
+    "import_protocol": "PASS: physical confirmation/cancel, no upload before durable prebackup ACK, checksum/truncation/timeout, restart",
+    "browser_import": "PASS: production application against real serial hardware with Node Web Serial/directory adapters; file validation, saved prebackup, upload and reboot receipt"
+  },
+  "device": {
+    "app_size": 3056400,
+    "app_sha256": "1b8b7b4b25f8adfd87a5f2969de56a1d21b7d0612fbb1e0145193282fcfed3d7",
+    "flash_offset": [
+      "0x8000 partition table",
+      "0x10000 app"
+    ],
+    "nvs_before_after_identical": true,
+    "existing_save_loaded": true,
+    "export_bytes": 24576,
+    "decoder": "production app.mjs and backup.mjs run with local serial/filesystem adapters",
+    "completion_screen_verified": true,
+    "destructive_restore_on_real_device": true,
+    "browser_native_directory_and_serial_choosers_exercised": false,
+    "existing_partition_offsets_unchanged": true,
+    "restore_input": "freshly exported current save from this exact firmware build",
+    "default_cancel_verified": true,
+    "pre_import_backup_saved_and_readback_verified": true,
+    "restore_crc_receipt_verified": true
+  },
+  "deployment": {
+    "host": "devbox",
+    "remote_bind": "127.0.0.1:8767",
+    "service": "pokewalk-save-manager.service",
+    "state": "active",
+    "local_tunnel": "http://localhost:8767",
+    "web_files_sha256_match": true,
+    "saves_uploaded": false
+  },
+  "qualitygate": {
+    "gate": "pass",
+    "coverage": "No applicable Go rules/compile scope; semantic MCP unavailable. C/JS/Python validated by project tests, not QualityGate.",
+    "mutation_status": "disabled"
+  }
+}

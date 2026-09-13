@@ -270,6 +270,24 @@ static bool save_now(const char *why)
     return ok;
 }
 
+// Keep the durable world, dungeon and settings in one consistent NVS image.
+// UI lock is held by the caller. Only background world writes remain possible,
+// and those share s_save_lock. Do not hold s_lock during flash I/O.
+bool world_backup_snapshot(bool (*reader)(void *), void *out)
+{
+    if(!reader||!out||!s_lock||!s_save_lock||!s_storage_ready)return false;
+    if(xSemaphoreTake(s_save_lock,portMAX_DELAY)!=pdTRUE)return false;
+    xSemaphoreTake(s_lock,portMAX_DELAY);
+    collect_save_locked(&s_save_buf);s_dirty=false;
+    xSemaphoreGive(s_lock);
+    bool saved=save_write(&s_save_buf);
+    bool ok=saved&&reader(out);
+    xSemaphoreTake(s_lock,portMAX_DELAY);
+    if(saved)s_last_save_us=esp_timer_get_time();else s_dirty=true;
+    xSemaphoreGive(s_lock);xSemaphoreGive(s_save_lock);
+    return ok;
+}
+
 world_starter_result_t world_choose_starter(uint16_t species)
 {
     if (species != 1 && species != 4 && species != 7 && species != 25)

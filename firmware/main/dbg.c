@@ -39,6 +39,7 @@
 
 #include "bsp_display.h"
 #include "dbg.h"
+#include "usb_backup.h"
 #include "nav.h"
 #include "world.h"
 #include "dungeon.h"
@@ -231,11 +232,17 @@ static void dbg_task(void *arg)
     serial_capture_parser_t capture = {0};
     for (;;) {
         button_probe_poll();
+        if(bsp_lvgl_lock(100)) { usb_backup_tick((uint32_t)(esp_timer_get_time()/1000));bsp_lvgl_unlock(); }
         int c = fgetc(stdin);
         if (c == EOF) {
             vTaskDelay(pdMS_TO_TICKS(30));
             continue;
         }
+        // Reserve backup frames before any legacy single-key commands.
+        if (bsp_lvgl_lock(1000)) {
+            bool consumed=usb_backup_feed((char)c);bsp_lvgl_unlock();
+            if(consumed)continue;
+        } else continue;
         if (capture.active || (!sfx_command && !seed_command)) {
             int parsed = serial_capture_feed(&capture, (char)c);
             if (parsed == SERIAL_CAPTURE_READY && bsp_lvgl_lock(2000)) {
@@ -294,6 +301,7 @@ static void dbg_task(void *arg)
 void dbg_start(void)
 {
     sfx_start();
+    usb_backup_device_start();
 
     // stdin 默认是行缓冲且阻塞的；改成非阻塞，否则这个任务会卡住
     // 而不是轮询（表现为「注入没反应」，而日志一切正常）。

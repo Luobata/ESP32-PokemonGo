@@ -56,3 +56,6 @@ reports/**/music_preview.c
 
 # Raw device observations may contain nearby Wi-Fi identifiers.
 /reports/evidence/directional-controls-2026-09-10/power-key-*.txt
+
+# USB save-manager exports contain private device storage.
+*.pksave

@@ -217,6 +217,8 @@ bool world_debug_spawn(void);
 // 调试用：立刻存档。正常路径是捕获时立刻存 + 每 5 分钟节流存，
 // 而验证「拔电不丢」时不想等那 5 分钟。
 void world_debug_save(void);
+// Caller holds UI lock (dungeon/settings writers); checkpoint and copy under save lock.
+bool world_backup_snapshot(bool (*reader)(void *), void *out);
 
 // 调试用：把队首两条进化进度设到当前物种的门槛，不执行进化。
 // 仅供 CONFIG_POKEWALK_DEBUG_KEYS 的串口验收入口调用。

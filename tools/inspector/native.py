@@ -18,7 +18,7 @@ ROOT = HERE.parent.parent
 MAIN = ROOT / "firmware/main"
 HOST = HERE / "host"
 SOURCES = [
-    "pokemon_names.c",
+    "pokemon_names.c", "usb_backup.c", "restore_journal.c",
     "growth_ui.c", "evolution_ui.c",
     "assets.c", "render.c", "nav.c", "combat.c", "trainer.c", "achievements.c", "play_achievements.c", "battle.c", "battle_escape.c", "battle_presentation.c", "pokemon_animation.c", "battle_fx.c", "gold_fx.c", "battle_hud.c", "game_ui.c", "capture.c", "encounter.c", "exploration.c", "play_exploration.c",
     "nurture.c", "items.c", "party.c", "box_view.c", "exp.c", "evolution.c", "opening.c", "transition.c",

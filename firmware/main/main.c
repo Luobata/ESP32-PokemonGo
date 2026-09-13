@@ -24,6 +24,8 @@
 #include "screen.h"
 #include "screen_idle.h"
 #include "dbg.h"
+#include "usb_backup.h"
+#include "esp_system.h"
 #include "render.h"
 #include "ui_pixel.h"
 #include "lvgl.h"
@@ -139,6 +141,9 @@ void app_main(void) {
 #if CONFIG_POKEWALK_SILENT_BOOT
     ESP_LOGI(TAG, "Silent build: audio output disabled for this boot");
 #endif
+    if(!usb_backup_restore_before_boot()) {
+        vTaskDelay(pdMS_TO_TICKS(3000));esp_restart();return;
+    }
     ESP_LOGI(TAG, "PokeWalk on AI Passport 启动");
     esp_sleep_wakeup_cause_t wakeup = esp_sleep_get_wakeup_cause();
     if (wakeup != ESP_SLEEP_WAKEUP_UNDEFINED) {
