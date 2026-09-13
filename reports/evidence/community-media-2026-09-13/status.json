@@ -1,0 +1,17 @@
+{
+  "project_id": 234,
+  "public_revision": 607,
+  "public_status": "approved",
+  "draft_bilingual_video_link_saved": true,
+  "added_images_uploaded": true,
+  "video_comment_status": "submitted_for_moderation",
+  "video_comment_ui_receipt": "提交成功，审核通过后公开。",
+  "video_url": "https://github.com/Luobata/ESP32-PokemonGo/blob/main/reports/video/pokewalk-story-red-2026-09-09/pokewalk-story-v3.mp4",
+  "video_preexisting_public_asset": true,
+  "submitted_revision": 613,
+  "submitted_status": "pending",
+  "image_count": 5,
+  "file_upload_permission": "User enabled file URL access; upload succeeded",
+  "firmware_unchanged": true,
+  "bilingual_video_link_verified": true
+}

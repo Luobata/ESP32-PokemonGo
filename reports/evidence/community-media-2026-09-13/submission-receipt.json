@@ -1,0 +1,28 @@
+{
+  "id": 234,
+  "slug": "pokewalk",
+  "projectStatus": "published",
+  "revisionId": 613,
+  "status": "pending",
+  "stateVersion": 4,
+  "category": "games",
+  "firmwareSize": 3091152,
+  "firmwareSha256": "d67974d037aa1cb305f5446891e57f1ada6dbbc2df48d044b47c464e07d6208d",
+  "originalFilename": "FoloToy-AI-Passport-full.bin",
+  "githubUrl": "https://github.com/Luobata/ESP32-PokemonGo",
+  "updatedAt": "2026-09-13T13:49:27+00:00",
+  "verification": {
+    "title_zh": true,
+    "title_en": true,
+    "description_zh": true,
+    "description_en": true,
+    "source": true,
+    "category": true,
+    "firmware": true,
+    "revision": true,
+    "pending": true
+  },
+  "text_comparison": "Normalize CRLF to LF and strip outer whitespace",
+  "gallery_ui_count": 5,
+  "gallery_ui_label": "PokeWalk · 随身宝可梦探索 · 1/5"
+}

@@ -1,0 +1,37 @@
+[
+  {
+    "file": "reports/evidence/community-media-2026-09-13/01-wild-battle.png",
+    "source": "reports/evidence/community-cover-2026-09-10/cover.png",
+    "caption": "野生对战",
+    "kind": "existing gameplay render",
+    "sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6"
+  },
+  {
+    "file": "reports/evidence/community-media-2026-09-13/02-care.png",
+    "source": "reports/evidence/evolution-scene-2026-09-11/care-after.png",
+    "caption": "照料养成",
+    "kind": "existing gameplay render",
+    "sha256": "2fb8b11fa32a0194cd1723c813748671bb08a7017fd395fd3b7390a5cce006d1"
+  },
+  {
+    "file": "reports/evidence/community-media-2026-09-13/03-evolution.png",
+    "source": "reports/evidence/evolution-scene-2026-09-11/success.png",
+    "caption": "进化成功",
+    "kind": "existing gameplay render",
+    "sha256": "68c574f7b578436eb5aaa14a33c212b7af6d23d20079761aa105d0d11451fe74"
+  },
+  {
+    "file": "reports/evidence/community-media-2026-09-13/04-owned-party.png",
+    "source": "reports/evidence/dungeon-owned-2026-09-13/six-members-shiny.png",
+    "caption": "自选秘境伙伴与闪光",
+    "kind": "existing gameplay render",
+    "sha256": "f13e8c5ed1e50c97b206a22326104f67cc69dfb9b4343407b7b042f5d66747a9"
+  },
+  {
+    "file": "reports/evidence/community-media-2026-09-13/05-dungeon-upgrades.png",
+    "source": "reports/evidence/dungeon-owned-2026-09-13/phase-2.png",
+    "caption": "秘境强化",
+    "kind": "existing gameplay render",
+    "sha256": "348b54ef54844b65ec78f4028c94a72d8a6cb8b246d5efd5a9ad8e115019f9d3"
+  }
+]
