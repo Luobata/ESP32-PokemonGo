@@ -1,0 +1,43 @@
+name: Publish save manager
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tools/save-manager/**'
+      - 'tools/pipeline/verify_save_manager_distribution.py'
+      - '.github/workflows/save-manager-pages.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: save-manager-pages
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          sparse-checkout: |
+            tools/save-manager
+            tools/pipeline/verify_save_manager_distribution.py
+          sparse-checkout-cone-mode: false
+      - uses: actions/configure-pages@v5
+      - name: Verify public download and local server
+        run: python3 tools/pipeline/verify_save_manager_distribution.py
+      - name: Build public static site
+        run: python3 tools/save-manager/build_pages.py "$RUNNER_TEMP/pokewalk-pages"
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ runner.temp }}/pokewalk-pages
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

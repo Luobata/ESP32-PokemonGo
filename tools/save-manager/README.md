@@ -2,6 +2,14 @@
 
 USB 接在用户电脑。devbox 只提供静态网页；浏览器通过 Web Serial 直接收设备存档，通过目录授权保存到用户电脑，不上传任何存档。设备端需要包含 `usb_backup.c` 的新版固件。
 
+## GitHub Pages（直接使用）
+
+https://Luobata.github.io/ESP32-PokemonGo/
+
+桌面 Chrome / Edge 打开 HTTPS 页面即可选择目录、授权 USB，并在设备上备份或确认导入。不需要 Python、开发机网络或下载本地工具；存档仍只写入用户选择的本地目录。首次访问需要用户操作原生授权弹窗。
+
+`.github/workflows/save-manager-pages.yml` 在 main 的存档工具变更时自动发布，也可手动运行。构建只包含四个网页文件、`.nojekyll` 和可选的本地工具 ZIP；不发布源码树、固件或玩家存档。
+
 ## 本机开发
 
 ```sh

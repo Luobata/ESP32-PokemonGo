@@ -5,6 +5,8 @@ import io
 import json
 from pathlib import Path
 import shutil
+import subprocess
+import sys
 import tempfile
 import threading
 import urllib.request
@@ -46,4 +48,16 @@ with tempfile.TemporaryDirectory() as tmp:
             try:urllib.request.urlopen(urllib.request.Request(base+path,method=method));raise AssertionError(path)
             except urllib.error.HTTPError as e:assert e.code==status
     finally:server.shutdown();t.join();server.server_close()
-print(json.dumps({'passed':True,'scope':'public-file allowlist, extracted offline server, MIME, GET/HEAD, no save exposure or upload API'}))
+    site=temp/'site'/'ESP32-PokemonGo'
+    subprocess.run([sys.executable,str(source/'build_pages.py'),str(site)],check=True,capture_output=True)
+    assert {str(p.relative_to(site)) for p in site.rglob('*') if p.is_file()}=={
+        'index.html','style.css','app.mjs','backup.mjs','.nojekyll','download/PokeWalkSaveManager.zip'}
+    assert 'href="download/PokeWalkSaveManager.zip"' in (site/'index.html').read_text()
+    static=ThreadingHTTPServer(('127.0.0.1',0),partial(Quiet,directory=str(temp/'site')))
+    t=threading.Thread(target=static.serve_forever);t.start()
+    try:
+        base='http://127.0.0.1:'+str(static.server_port)+'/ESP32-PokemonGo/'
+        for name in ('index.html','style.css','app.mjs','backup.mjs','download/PokeWalkSaveManager.zip'):
+            with urllib.request.urlopen(base+name) as r:assert r.read()==(site/name).read_bytes()
+    finally:static.shutdown();t.join();static.server_close()
+print(json.dumps({'passed':True,'scope':'public-file allowlist, extracted offline server, MIME, GET/HEAD, no save exposure or upload API; Pages allowlist and repository subpath'}))
