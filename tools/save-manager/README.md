@@ -12,16 +12,22 @@ python3 tools/save-manager/server.py
 
 开发预览不会导出模拟存档；没有电脑接收端时设备会提示打开存档管理页。连接本身不会自动导出，必须在设备上确认。页面不下载任何外部依赖，也没有存档上传 API。
 
+## 字节内网访问入口
+
+访问 http://10.37.197.13:8767/ ，下载本地工具 ZIP。解压后在该文件夹打开终端：macOS / Linux 运行 `python3 server.py`，Windows 运行 `py -3 server.py`，再用 Chrome / Edge 打开 http://localhost:8767/ 。需要 Python 3.8 或以上，无需 pip 依赖，也不需要开发机 SSH 权限。保持终端运行；Ctrl+C 停止。端口占用时加 `--port 8768` 并打开 localhost:8768。
+
+内网 HTTP 页面仅作为下载入口，USB 操作在本机 localhost 完成，不需要关闭浏览器安全限制。ZIP 只包含明确列出的服务与网页文件，不包含任何存档。下载后无需持续连接 devbox，文件只写入用户授权的本地目录。
+
 ## 部署到 devbox
 
 ```sh
-tools/save-manager/deploy.sh devbox
+tools/save-manager/deploy.sh devbox 0.0.0.0
 ssh -N -L 8767:127.0.0.1:8767 devbox
 ```
 
 再访问 http://localhost:8767 。浏览器限制串口和目录接口必须通过 HTTPS 或 localhost；不能直接使用开发机的 HTTP IP 地址。首次选择设备、目录时需要在网页点击并授权，断开重连也要确认授权是否仍有效。
 
-服务在 `~/.local/share/pokewalk-save-manager`，用户级 systemd 单元 `pokewalk-save-manager.service`，只监听远端 127.0.0.1:8767。状态和日志：
+服务在 `~/.local/share/pokewalk-save-manager`，用户级 systemd 单元 `pokewalk-save-manager.service`，当前监听 0.0.0.0:8767，供内网下载和本机 SSH 转发使用（脚本不传第二参数时仅监听 127.0.0.1）。状态和日志：
 
 ```sh
 ssh devbox 'systemctl --user status pokewalk-save-manager.service'
@@ -71,6 +77,7 @@ python tools/save-manager/restore.py /path/to/backup.pksave \
 ```sh
 python3 tools/pipeline/verify_usb_backup.py
 python3 tools/pipeline/verify_usb_import.py
+python3 tools/pipeline/verify_save_manager_distribution.py
 python3 tools/pipeline/verify_usb_backup_checkpoint.py
 python3 tools/pipeline/verify_usb_backup_ui.py
 tools/device/fw.sh build

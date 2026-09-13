@@ -1,0 +1,8 @@
+{
+  "project_id": 234,
+  "url": "https://ai-passport.folotoy.cn/plays/234/",
+  "service_url": "http://10.37.197.13:8767/",
+  "status": "submitted_for_review",
+  "ui_confirmation": "提交成功，审核通过后公开。",
+  "text": "字节内部同学，如果想切换体验各种游戏，又想保留 PokeWalk 的冒险进度，可以访问这个内网入口：\nhttp://10.37.197.13:8767/\n\n页面提供本地存档工具下载。解压后在该文件夹打开终端，macOS / Linux 运行 python3 server.py，Windows 运行 py -3 server.py，再用桌面 Chrome / Edge 打开 http://localhost:8767/（需要 Python 3.8 或以上，无需额外依赖）。这是因为普通 HTTP 页面不能直接操作 USB；不需要开发机 SSH 权限。\n\nUSB 连接设备，在网页选择本地目录，再到设备「选项 → 备份存档 / 导入存档」操作。导入需在设备确认，覆盖前会自动备份当前进度；文件只保存在自己的电脑，不上传服务器。\n\n当前仅支持 PokeWalk 同一台设备、同一固件构建，不是所有游戏通用的存档工具。切换游戏前请先完成备份，并保留对应的 PokeWalk 安装文件，回来时装回同一构建再导入。新版固件已提交审核，安装时请以社区审核结果为准。"
+}

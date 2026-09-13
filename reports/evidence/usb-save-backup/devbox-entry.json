@@ -1,0 +1,9 @@
+{
+  "url": "http://10.37.197.13:8767/",
+  "download": "http://10.37.197.13:8767/download/PokeWalkSaveManager.zip",
+  "download_sha256": "246701837a290d28937306fa399245693decc0ea52fcf874852d86942cb3a4ad",
+  "download_files": 6,
+  "served_files_match_source": true,
+  "http_usage": "Download then start locally; Web Serial requires localhost or HTTPS",
+  "save_upload_api": false
+}

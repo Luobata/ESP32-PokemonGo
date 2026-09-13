@@ -16,7 +16,8 @@
   "promo_video_link_retained": true,
   "gallery_readback_count": 5,
   "gallery_verified_via": "refreshed creator workbench; save update text, 1/5 and pending",
-  "comment_status": "not_sent_missing_shared_https_url",
+  "comment_status": "submitted_for_review",
   "service_host": "devbox",
-  "service_bind": "127.0.0.1:8767"
+  "service_bind": "0.0.0.0:8767",
+  "service_url": "http://10.37.197.13:8767/"
 }

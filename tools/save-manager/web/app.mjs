@@ -108,4 +108,5 @@ $('import').onclick=async()=>{
     status('等待设备确认导入请求…');
   }catch(e){transfer=null;status(e.message,true);controls();}
 };
-if(!isSecureContext||!navigator.serial||!window.showDirectoryPicker){$('folder').disabled=true;status('请使用桌面 Chrome / Edge，通过 HTTPS 或 localhost 打开本页。',true);}
+$('local-start').hidden=isSecureContext;
+if(!isSecureContext||!navigator.serial||!window.showDirectoryPicker){$('folder').disabled=true;status('请使用桌面 Chrome / Edge。内网 HTTP 入口请先下载上方工具，在本机启动后通过 localhost 操作 USB。',true);}
