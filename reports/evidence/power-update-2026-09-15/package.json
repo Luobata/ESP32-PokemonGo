@@ -1,0 +1,11 @@
+{
+  "artifact": "FoloToy-AI-Passport-full.bin",
+  "size": 3207200,
+  "sha256": "1fc97eb7f6c44659ead7dcfe6c9ae8c8e81b1f1a9847ef8827abdb7548122d9b",
+  "flash_address": "0x0",
+  "protected_layout_pass": true,
+  "checker_source": "FoloToy/ai-passport@cd73a8a6f1f95e010bfd83a08e2b915e38408308 + PokeWalk data protection",
+  "application_size": 3141664,
+  "community_upload_performed": false,
+  "ble_install_tested": false
+}

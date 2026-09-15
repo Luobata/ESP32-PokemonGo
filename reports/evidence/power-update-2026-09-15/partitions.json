@@ -1,0 +1,2 @@
+Protected firmware layout: PASS (app 3141664 / 3407872 bytes)
+{"protected_partitions": ["nvs", "cardid", "save_restore", "wifi_config", "recovery", "factory"], "valid_md5_moves_rejected": true, "factory_bytes": 3407872}

@@ -339,7 +339,7 @@ def main() -> int:
         def run(exe: Path, mode: int, reject=False) -> None:
             result = subprocess.run([str(exe), str(mode)], capture_output=True, text=True)
             if reject:
-                assert result.returncode != 0 and 'Assertion failed' in result.stderr, result.stderr
+                assert result.returncode != 0 and re.search(r'assertion.*failed', result.stderr, re.I | re.S), result.stderr
             else:
                 assert result.returncode == 0 and result.stdout.strip() == 'PASS', result.stderr
 
