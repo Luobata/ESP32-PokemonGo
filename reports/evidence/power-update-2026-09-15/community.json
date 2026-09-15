@@ -1,0 +1,16 @@
+{
+  "id": 234,
+  "slug": "pokewalk",
+  "revisionId": 815,
+  "status": "pending",
+  "category": "games",
+  "firmwareSize": 3207200,
+  "firmwareSha256": "74d26fdafaa5be5750a71063ed70451466dd988e03c580e3b08a4ad793a624f9",
+  "updatedAt": "2026-09-15T13:54:23+00:00",
+  "firmware_code_commit": "eb9a5d0",
+  "ci_commit": "4fdaad9",
+  "bilingual_readback_matches": true,
+  "server_trims_trailing_newline": true,
+  "gallery_images_submitted": 5,
+  "promo_video_link_retained": true
+}

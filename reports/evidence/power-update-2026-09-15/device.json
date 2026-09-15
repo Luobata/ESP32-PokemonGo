@@ -1,0 +1,23 @@
+{
+  "code_commit": "eb9a5d0",
+  "flashed": true,
+  "elf_sha256": "1d2a33c64c823b866090cbc08cd8542c8f3d594bbd52ed45accd48b0f25f804d",
+  "device_elf_matches": true,
+  "codec_sleep_register_check": true,
+  "muted": true,
+  "save_preserved": {
+    "dex": 56,
+    "total": 52,
+    "party": 6,
+    "leader_species": 130,
+    "level": 27,
+    "exp": 31002
+  },
+  "full_flash_backup_bytes": 8388608,
+  "audible_recovery_tested": false,
+  "power_current_measured": false,
+  "panel_sleep_wake_smoke": true,
+  "final_page": "idle",
+  "flash_segments_verified": 3,
+  "application_sha256": "ba2abf69727d4ac55b3b94591e63e57c52e2a1d119272048f2a7567e58b61578"
+}
