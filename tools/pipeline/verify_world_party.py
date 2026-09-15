@@ -18,7 +18,8 @@ ROOT = starter.ROOT
 CASES = r'''
 // Scan metadata is outside this test. Party/save/nurture code is production C.
 bool assets_species(uint16_t id,species_t *out) {
-    if(id<1||id>151)return false;memset(out,0,sizeof(*out));out->id=id;
+    if(id<1||id>151) return false;
+    memset(out,0,sizeof(*out));out->id=id;
     out->hp=out->attack=out->defense=out->special=out->speed=40;return true;
 }
 uint32_t assets_species_count(void) {return 151;}
