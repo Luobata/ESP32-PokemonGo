@@ -1,0 +1,19 @@
+{
+  "code_commit": "449d6a3",
+  "flashed": true,
+  "device_elf_matches": true,
+  "elf_sha256": "e8faf6c214bbca24cdf95331262822c0bbf7d864d47ff4b2651f37f92cca2f9f",
+  "application_sha256": "59aa39f90b9c8afecb46461d904e0261532a93827c6f227e0576f9dbd04b9bb1",
+  "backup_bytes": 8388608,
+  "save_preserved": {
+    "dex": 56,
+    "party": 6,
+    "total": 52,
+    "leader": 130,
+    "level": 27,
+    "experience": 31002
+  },
+  "muted": true,
+  "boot_without_panic": true,
+  "flash_components_verified": 3
+}
