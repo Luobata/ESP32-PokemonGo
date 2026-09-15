@@ -1,0 +1,9 @@
+{
+  "firmware_size": 3063168,
+  "app_partition_size": 3145728,
+  "sha256": "b5670ab1d0ece80f2ae97bddca94d3a805c89000681977a5a8c1ee83d4052847",
+  "flashed": false,
+  "build": "ESP-IDF 5.5 ESP32-C3",
+  "native_preview": "269e7f561a688e076f4c",
+  "assets": "All assertions passed; 0 missing glyphs"
+}

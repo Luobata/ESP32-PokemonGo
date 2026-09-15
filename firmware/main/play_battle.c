@@ -687,7 +687,7 @@ void play_battle_enter(void)
         bool intro_seen = s_session.initialized && s_session.intro_seen;
         uint32_t seed = dbg_battle_seed ? dbg_battle_seed : (c->enc.ts ? c->enc.ts : 1u);
         if (!battle_session_init(&s_session, w.species, w.level,
-                                  c->enc.species_id, battle_wild_level_for_pet(c->enc.rarity, w.level),
+                                  c->enc.species_id, (c->enc.level ? c->enc.level : battle_wild_level_for_pet(c->enc.rarity, w.level)),
                                   nurture_ability_factor(&w.pet), seed)) { encounter_gone(); return; }
         s_session.intro_seen = intro_seen;
         // Existing weakened encounters retain their saved wild HP percentage.

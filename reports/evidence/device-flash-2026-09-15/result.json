@@ -1,0 +1,22 @@
+{
+  "flashed": true,
+  "firmware_bytes": 3137808,
+  "firmware_sha256": "993bd2e438a7259b30a67d344ab6c77a84b43f723c3465bb06805e71b2fea4b4",
+  "elf_sha256": "73175342414865997aeb7c0d8009f0d2991824ea67b7ac7b6e1364aea6cc742e",
+  "device_elf_matches": true,
+  "flash_segments_verified": 3,
+  "full_8mb_backup_verified": true,
+  "save_preserved": {
+    "dex": 47,
+    "party": 6,
+    "total_pokemon": 43,
+    "leader_species": 130,
+    "level": 25,
+    "experience": 23990
+  },
+  "panel_sleep_wake_smoke": true,
+  "wifi_softap_start_stop": true,
+  "phone_provisioning_and_ntp_tested": false,
+  "residual_light_visually_checked": false,
+  "final_page": "idle"
+}

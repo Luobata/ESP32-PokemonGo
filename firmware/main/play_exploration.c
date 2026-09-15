@@ -15,7 +15,10 @@ static exploration_view_t view;
 static exploration_event_t event;
 static unsigned selected, action_selected;
 static bool routes, animating, journal, activities, research;
-static unsigned activity_selected;
+static unsigned activity_selected, badge_selected;
+static bool badge_list, badge_detail;
+static unsigned badge_ids[8], badge_count;
+static void badge_options(void){badge_count=0;for(unsigned i=0;i<8;i++)if(exploration_activity_open(i,view.defeated))badge_ids[badge_count++]=i;if(badge_selected>=badge_count)badge_selected=0;}
 static char research_note[64];
 static unsigned chapter_selected;
 static uint64_t started;
@@ -87,13 +90,35 @@ static const char *error_text(exploration_kind_t kind){
  }
 }
 static void draw_all(void){
- char text[96];unsigned route=view.state.route;const exploration_route_t *r=exploration_route(route);
+ char text[96];unsigned route=event.kind==EXPLORE_ENCOUNTER?event.route:view.state.route;const exploration_route_t *r=exploration_route(route);
  for(int band=0;band<SCREEN_H;band+=SCREEN_BAND_H){
   screen_band_clear(GAME_UI_BG);snprintf(text,sizeof(text),"体能 %u/100",view.stamina);game_ui_title(band,routes?"选择路线":"探索",text);
-  if(activities){
+  if(badge_list){
+   center(band,44,"徽章活动",GAME_UI_INK);
+   if(!badge_count)center(band,124,"获得徽章后开放新活动",GAME_UI_MUTED);
+   unsigned first=badge_selected/4*4;
+   for(unsigned row=0;row<4&&first+row<badge_count;row++){
+    unsigned idx=first+row,id=badge_ids[idx];int y=76+row*46;
+    const exploration_activity_t *a=exploration_activity(id);
+    game_ui_box(band,8,y,224,42);if(idx==badge_selected)game_ui_cursor(band,16,y+12);
+    render_text(36,y+4-band,a->name,GAME_UI_INK);
+    snprintf(text,sizeof(text),"Lv%u-%u 进度%u/3",a->level,a->level+2,view.updates.activity_progress[id]);render_text(36,y+22-band,text,GAME_UI_MUTED);
+   }
+   center(band,264,"胜利或捕获推进活动",GAME_UI_MUTED);game_ui_footer(band,GAME_UI_NAV_HINT);
+  }else if(badge_detail){
+   unsigned id=badge_ids[badge_selected];const exploration_activity_t *a=exploration_activity(id);
+   center(band,44,a->name,GAME_UI_INK);scene(band,a->route);
+   center(band,166,a->story,GAME_UI_INK);
+   snprintf(text,sizeof(text),"推荐Lv%u-%u 进度%u/3",a->level,a->level+2,view.updates.activity_progress[id]);center(band,190,text,GAME_UI_INK);
+   if(view.updates.activity_claimed&(1u<<id))snprintf(text,sizeof(text),"再挑战：球类与稀有道具");
+   else snprintf(text,sizeof(text),"首次奖励：%s",items_info(a->item)->name);
+   center(band,216,text,GAME_UI_ACCENT);center(band,242,feedback?feedback:"每次寻找消耗5体能",GAME_UI_MUTED);
+   center(band,264,"完成三次胜利或捕获领奖",GAME_UI_MUTED);
+   game_ui_footer(band,view.updates.activity_progress[id]==3?"C领取奖励 长按B返回":"C寻找伙伴 长按B返回");
+  }else if(activities){
    center(band,44,r->name,GAME_UI_INK);game_ui_box(band,8,76,224,150);
-   static const char *const options[]={"训练家切磋","路线研究","冒险笔记"};
-   for(unsigned i=0;i<3;i++){render_text(44,96+i*40-band,options[i],GAME_UI_INK);game_ui_list_marker(band,16,96+i*40,i,3,activity_selected);}
+   static const char *const options[]={"训练家切磋","路线研究","冒险笔记","徽章活动"};
+   for(unsigned i=0;i<4;i++){render_text(44,88+i*34-band,options[i],GAME_UI_INK);game_ui_list_marker(band,16,88+i*34,i,4,activity_selected);}
    snprintf(text,sizeof(text),activity_selected==0?"切磋消耗5体能 当前%u":"当前体能%u/100",view.stamina);
    center(band,254,text,GAME_UI_MUTED);game_ui_footer(band,GAME_UI_NAV_HINT);
   }else if(research){
@@ -119,7 +144,7 @@ static void draw_all(void){
     render_text(32,y+8-band,row->name,GAME_UI_INK);
     static const char *const habitats[]={"草虫","岩地","水冰","电毒"};
     snprintf(text,sizeof(text),"%s 线索%u/3",habitats[i],view.state.clues[i]);render_text(32,y+26-band,text,GAME_UI_MUTED);
-    exploration_state_t focus=view.state;focus.route=i;unsigned target=exploration_focus(&focus,view.defeated);
+    exploration_state_t focus=view.state;focus.route=i;unsigned target=exploration_current_target(&focus,&view.updates,view.defeated);
     uint8_t size;species_t sp;const uint8_t *data=assets_front_sprite(target,&size);
     if(data&&assets_species(target,&sp)){uint16_t pal[4];assets_palette_variant(sp.palette,false,pal);game_ui_thumbnail_centered(band,182,y+6,40,36,data,size,32,pal);}
    }
@@ -133,23 +158,26 @@ static void draw_all(void){
    center(band,44,event.kind==EXPLORE_TARGET?"追踪目标出现了！":"发现野生宝可梦！",GAME_UI_INK);
    portrait(band,event.species,event.shiny,68,144,2);
    species_t sp;world_t w;world_snapshot(&w);
-   if(assets_species(event.species,&sp))snprintf(text,sizeof(text),"%.*s Lv%u",sp.name_zh_len,sp.name_zh,battle_wild_level_for_pet(event.rarity,w.level));else snprintf(text,sizeof(text),"#%03u",event.species);
+   if(assets_species(event.species,&sp))snprintf(text,sizeof(text),"%.*s Lv%u",sp.name_zh_len,sp.name_zh,(event.level ? event.level : battle_wild_level_for_pet(event.rarity,w.level)));else snprintf(text,sizeof(text),"#%03u",event.species);
    center(band,220,text,GAME_UI_INK);snprintf(text,sizeof(text),"稀有度 %u%s",event.rarity,event.shiny?" 闪光":"");center(band,244,text,GAME_UI_ACCENT);
    if(event.exp){snprintf(text,sizeof(text),"发现新种 经验+%u",event.exp);center(band,264,text,GAME_UI_INK);}
    static const char *const choices[]={"查看", "继续"};game_ui_actions(band,choices,2,action_selected);
   }else if(event.kind==EXPLORE_CLUE){
    center(band,44,r->name,GAME_UI_INK);scene(band,route);
    center(band,164,"发现新的线索",GAME_UI_INK);progress(band,event.clues);
-   center(band,218,exploration_story(exploration_focus(&view.state,view.defeated),event.clues-1),GAME_UI_INK);
+   center(band,218,exploration_story(exploration_current_target(&view.state,&view.updates,view.defeated),event.clues-1),GAME_UI_INK);
    if(event.item!=ITEM_NONE){snprintf(text,sizeof(text),event.item_full?"%s已满 未拾取":"发现 %s ×1",items_info(event.item)->name);center(band,248,text,GAME_UI_ACCENT);}
    else center(band,248,event.clues==3?"下次探索必定找到目标":"继续探索 追踪伙伴",GAME_UI_MUTED);
    static const char *const choices[]={"继续", "路线", "活动"};game_ui_actions(band,choices,3,action_selected);
   }else{
    center(band,44,r->name,GAME_UI_INK);scene(band,route);
-   center(band,164,exploration_chapter(exploration_chapter_current(view.defeated))->name,GAME_UI_INK);progress(band,view.state.clues[route]);
-   species_t target;uint16_t target_id=exploration_focus(&view.state,view.defeated);
+   unsigned tier=0;exploration_habitat(exploration_current_target(&view.state,&view.updates,view.defeated),&tier);
+   bool pinned=view.state.tracked_species&&exploration_habitat(view.state.tracked_species,NULL)==(int)route;
+   snprintf(text,sizeof(text),"%s 稀有度%u",pinned?"指定追踪":"随机追踪",tier);
+   center(band,164,text,GAME_UI_INK);progress(band,view.state.clues[route]);
+   species_t target;uint16_t target_id=exploration_current_target(&view.state,&view.updates,view.defeated);
    if(assets_species(target_id,&target))snprintf(text,sizeof(text),"%.*s 线索%u/3",target.name_zh_len,target.name_zh,view.state.clues[route]);else snprintf(text,sizeof(text),"线索 %u/3",view.state.clues[route]);center(band,214,text,GAME_UI_INK);
-   const char *hint=feedback?feedback:(view.pending==5?"遭遇已满 将替换最早一只":"探索只消耗体能");
+   const char *hint=feedback?feedback:(view.pending==5?"遭遇已满 将替换最早一只":"目标出现后更新追踪");
    center(band,238,hint,GAME_UI_MUTED);
    snprintf(text,sizeof(text),"体能%u 探索消耗5",view.stamina);center(band,258,text,GAME_UI_MUTED);
    static const char *const choices[]={"探索", "路线", "活动"};game_ui_actions(band,choices,3,action_selected);
@@ -163,7 +191,7 @@ static void tick(lv_timer_t *t){
  else {exploration_view_t next;world_exploration_snapshot(&next);if(next.pending!=view.pending||next.stamina!=view.stamina){view=next;draw_all();}}
 }
 void play_exploration_enter(void){
- world_exploration_snapshot(&view);selected=view.state.route;action_selected=0;routes=animating=journal=activities=research=false;research_note[0]=0;event=(exploration_event_t){0};feedback=NULL;
+ world_exploration_snapshot(&view);selected=view.state.route;action_selected=0;routes=animating=journal=activities=research=badge_list=badge_detail=false;badge_selected=0;badge_options();research_note[0]=0;event=(exploration_event_t){0};feedback=NULL;
  screen_set_redraw(draw_all);timer=lv_timer_create(tick,120,NULL);draw_all();
 }
 void play_exploration_exit(void){if(timer){lv_timer_delete(timer);timer=NULL;}animating=false;}
@@ -172,14 +200,37 @@ void play_exploration_key(bsp_btn_t btn,bsp_btn_ev_t ev){
  if(animating)return;
  int direction=nav_direction(btn,ev);bool confirm=nav_confirm(btn,ev),back=nav_return(btn,ev);
  if(!direction&&!confirm&&!back)return;
- if(activities){
-  if(direction)activity_selected=nav_list_selection(btn,ev,3,activity_selected);
+ if(badge_list){
+  if(direction&&badge_count)badge_selected=nav_list_selection(btn,ev,badge_count,badge_selected);
+  if(back){badge_list=false;activities=true;activity_selected=3;}
+  else if(confirm&&badge_count){badge_list=false;badge_detail=true;feedback=NULL;}
+ }else if(badge_detail){
+  if(back){badge_detail=false;badge_list=true;feedback=NULL;}
+  else if(confirm){
+   unsigned id=badge_ids[badge_selected];bool claim=view.updates.activity_progress[id]==3;
+   exploration_event_t result=world_exploration_activity(id,claim);
+   if(result.kind==EXPLORE_ENCOUNTER){
+    event=result;badge_detail=false;action_selected=0;feedback=NULL;
+   }else if(claim&&result.kind==EXPLORE_NONE){snprintf(research_note,sizeof(research_note),"获得 %s ×%u",items_info(result.item)->name,result.quantity);feedback=research_note;}
+   else if(result.item_full)feedback="背包已满 请先使用道具";
+   else if(result.kind==EXPLORE_BLOCKED){
+    // Reopen an outstanding activity encounter instead of charging another entry.
+    encounter_t enc;unsigned uid=view.updates.activity_uid[id];
+    if(uid&&world_get_encounter_uid(uid,&enc)){
+     nav_ctx_t *ctx=nav_ctx();*ctx=(nav_ctx_t){.enc=enc,.uid=enc.uid,.valid=true,.exploring=true};nav_go(PAGE_BATTLE);return;
+    }
+    feedback=error_text(result.kind);
+   }else feedback=error_text(result.kind);
+  }
+ }else if(activities){
+  if(direction)activity_selected=nav_list_selection(btn,ev,4,activity_selected);
   if(back)activities=false;
   else if(confirm){
    activities=false;
    if(activity_selected==0){play_trainer_open_route(view.state.route);return;}
    if(activity_selected==1){research=true;research_note[0]=0;}
-   else {journal=true;chapter_selected=exploration_chapter_current(view.defeated);}
+   else if(activity_selected==2){journal=true;chapter_selected=exploration_chapter_current(view.defeated);}
+   else {badge_options();badge_list=true;}
   }
  }else if(research){
   if(confirm){uint16_t gain=0;exploration_kind_t k=world_research_claim(view.state.route,&gain);if(k==EXPLORE_NONE)snprintf(research_note,sizeof(research_note),"已保存 经验+%u",gain);else snprintf(research_note,sizeof(research_note),"%s",error_text(k));}

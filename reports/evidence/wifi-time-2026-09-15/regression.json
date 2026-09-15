@@ -1,0 +1,15 @@
+{
+  "exploration": {
+    "checks": 92,
+    "rotation_samples": 48000,
+    "bias_samples": 20000,
+    "badge_activities": 8,
+    "save_version": 17,
+    "v15_migration": true,
+    "sanitizers": [
+      "ASan",
+      "UBSan"
+    ]
+  },
+  "usb_backup": "{'passed': True, 'checkpoint': 'live state, failed save blocks export, retry, read failure, unavailable storage'}"
+}

@@ -412,15 +412,18 @@ class BattleRound:
     missed: bool = False   # 未命中（招式命中率判定）
 
 
-# Baseline floors plus partial scaling; keep common encounters easier.
+# Legacy rarity-only levels remain available to the old simulation harness.
+# Live exploration uses gentle leader scaling without rarity floors.
 WILD_LEVEL_BAND = {1: 5, 2: 12, 3: 20, 4: 30, 5: 45}
-WILD_LEVEL_PERCENT = {1: 75, 2: 85, 3: 95, 4: 100, 5: 105}
+WILD_LEVEL_PERCENT = {1: 85, 2: 90, 3: 95, 4: 100, 5: 105}
 
 
 def wild_level(rarity: int, pet_level: int = 0) -> int:
     """Same curve as firmware; freeze the result for the encounter session."""
-    scaled = min(100, max(0, pet_level)) * WILD_LEVEL_PERCENT.get(rarity, 85) // 100
-    return min(100, max(WILD_LEVEL_BAND.get(rarity, 12), scaled))
+    if pet_level <= 0:
+        return WILD_LEVEL_BAND.get(rarity, 12)
+    scaled = min(100, pet_level) * WILD_LEVEL_PERCENT.get(rarity, 90) // 100
+    return min(100, max(2, scaled))
 
 
 @dataclass

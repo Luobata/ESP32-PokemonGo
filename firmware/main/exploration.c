@@ -79,7 +79,7 @@ static bool pending(const enc_queue_t *q,unsigned species) {
  return false;
 }
 static exploration_event_t step(exploration_state_t *s,enc_refresh_state_t *r,
- enc_queue_t *q,dex_t *dex,uint16_t active_uid,uint16_t defeated,bool campaign,unsigned nurture_bonus)
+ enc_queue_t *q,dex_t *dex,uint16_t active_uid,uint16_t defeated,bool campaign,unsigned nurture_bonus,unsigned target_override)
 {
  exploration_event_t e={.kind=EXPLORE_NONE,.item=ITEM_NONE};
  if(!s||!r||!q||!dex||!exploration_valid(s)||!enc_refresh_valid(r))return e;
@@ -102,7 +102,7 @@ static exploration_event_t step(exploration_state_t *s,enc_refresh_state_t *r,
  else if(r->since_rare>=7 && rarity<4)rarity=4;
  unsigned species=0;
  if(target) {
-  species=campaign?exploration_focus(s,defeated):ROUTES[route].target;
+  species=target_override?target_override:campaign?exploration_focus(s,defeated):ROUTES[route].target;
   unsigned native_rarity;if(exploration_habitat(species,&native_rarity)>=0&&rarity<native_rarity)rarity=native_rarity;
   if(pending(q,species)){e.kind=EXPLORE_BLOCKED;return e;}
  } else {
@@ -137,9 +137,9 @@ static exploration_event_t step(exploration_state_t *s,enc_refresh_state_t *r,
 }
 
 // Baseline rule harness retained for V11 regression. Runtime uses progress API.
-exploration_event_t exploration_step(exploration_state_t *s,enc_refresh_state_t *r,enc_queue_t *q,dex_t *d,uint16_t active){return step(s,r,q,d,active,0,false,0);}
-exploration_event_t exploration_step_team(exploration_state_t *s,enc_refresh_state_t *r,enc_queue_t *q,dex_t *d,uint16_t active,uint16_t defeated,inventory_t *bag,const nurture_t *pet,unsigned team_bonus){
- exploration_event_t e=step(s,r,q,d,active,defeated,true,nurture_rare_bonus(pet)+(team_bonus>30?30:team_bonus));
+exploration_event_t exploration_step(exploration_state_t *s,enc_refresh_state_t *r,enc_queue_t *q,dex_t *d,uint16_t active){return step(s,r,q,d,active,0,false,0,0);}
+exploration_event_t exploration_step_with_target(exploration_state_t *s,enc_refresh_state_t *r,enc_queue_t *q,dex_t *d,uint16_t active,uint16_t defeated,inventory_t *bag,const nurture_t *pet,unsigned team_bonus,unsigned target){
+ exploration_event_t e=step(s,r,q,d,active,defeated,true,nurture_rare_bonus(pet)+(team_bonus>30?30:team_bonus),target);
  if(e.kind!=EXPLORE_CLUE||!bag)return e;
  unsigned chapter=exploration_chapter_current(defeated);
  uint32_t roll=mix(s->steps^r->serial*0x9e3779b9u^s->route*0x85ebca6bu^0x18b479u);
@@ -183,4 +183,100 @@ exploration_kind_t exploration_research_claim(exploration_state_t *s,const dex_t
  uint8_t seen,caught;exploration_research_progress(route,dex,&seen,&caught);
  if(seen<5||caught<3||!(s->research_flags&(16u<<route)))return EXPLORE_RESEARCH_LOCKED;
  s->research_flags|=1u<<route;return EXPLORE_NONE;
+}
+
+// Trails rotate at encounter delivery, never on redraw, reboot or route selection.
+// Weights are per species: uncommon 12, rare 6, very rare 2, legendary 1.
+static unsigned target_weight(unsigned species,unsigned tier,const dex_t *dex) {
+ unsigned weight=tier<2?12:tier==2?6:2;
+ if(species>=144&&species<=151&&species!=147&&species!=148)weight=1;
+ return dex_is_caught(dex,species)?weight:weight*3;
+}
+static uint16_t pick_target(unsigned route,unsigned previous,uint32_t round,uint16_t defeated,const dex_t *dex,const enc_queue_t *queue) {
+ unsigned total=0;
+ for(unsigned tier=1;tier<5;tier++)for(unsigned i=0;i<16&&POOLS[route][tier][i];i++){
+  unsigned id=POOLS[route][tier][i];
+  if(id!=previous&&exploration_species_open(id,defeated)&&!pending(queue,id))total+=target_weight(id,tier,dex);
+ }
+ if(!total)return exploration_target(route,defeated);
+ unsigned roll=mix(round*0x9e3779b9u ^ route*0x85ebca6bu ^ defeated ^ 0x41c64e6du)%total;
+ for(unsigned tier=1;tier<5;tier++)for(unsigned i=0;i<16&&POOLS[route][tier][i];i++){
+  unsigned id=POOLS[route][tier][i];
+  if(id==previous||!exploration_species_open(id,defeated)||pending(queue,id))continue;
+  unsigned weight=target_weight(id,tier,dex);if(roll<weight)return id;roll-=weight;
+ }
+ return exploration_target(route,defeated);
+}
+void exploration_targets_sync(exploration_state_t *s,exploration_updates_t *u,const dex_t *d,const enc_queue_t *q,uint16_t defeated) {
+ unsigned chapter=exploration_chapter_current(defeated);
+ for(unsigned route=0;route<4;route++){
+  if(u->targets[route]&&exploration_species_open(u->targets[route],defeated)&&(u->chapters[route]==chapter||s->clues[route]||s->pulse[route]))continue;
+  unsigned previous=u->targets[route];
+  // Migration preserves a trail that was already started under the old rules.
+  u->targets[route]=!previous&&(s->clues[route]||s->pulse[route])?exploration_target(route,defeated):pick_target(route,previous,u->rounds[route],defeated,d,q);
+  u->chapters[route]=chapter;
+ }
+}
+uint16_t exploration_current_target(const exploration_state_t *s,const exploration_updates_t *u,uint16_t defeated) {
+ if(s->tracked_species&&exploration_species_open(s->tracked_species,defeated)&&exploration_habitat(s->tracked_species,NULL)==s->route)return s->tracked_species;
+ return u->targets[s->route]?u->targets[s->route]:exploration_target(s->route,defeated);
+}
+void exploration_target_completed(exploration_state_t *s,exploration_updates_t *u,const dex_t *d,const enc_queue_t *q,uint16_t defeated,unsigned route) {
+ // Explicit dex tracking remains pinned until the player cancels it.
+ if(s->tracked_species&&exploration_habitat(s->tracked_species,NULL)==(int)route)return;
+ u->rounds[route]++;
+ u->targets[route]=pick_target(route,u->targets[route],u->rounds[route],defeated,d,q);
+ u->chapters[route]=exploration_chapter_current(defeated);
+}
+bool exploration_updates_valid(const exploration_updates_t *u) {
+ for(unsigned i=0;i<4;i++)if(u->targets[i]>151||u->chapters[i]>=EXPLORATION_CHAPTERS)return false;
+ for(unsigned i=0;i<8;i++)if(u->activity_progress[i]>3)return false;
+ return true;
+}
+static const exploration_activity_t ACTIVITIES[8]={
+ {"洞穴寻宝","小刚：沿岩壁寻找伙伴",1,12,ITEM_MOON_STONE,{74,27,50,35,66,95,104,111}},
+ {"潮汐垂钓","小霞：退潮时有新的发现",2,19,ITEM_WATER_STONE,{60,54,72,98,116,90,138,140}},
+ {"电站抢修","马志士：追踪失控的电流",3,26,ITEM_THUNDER_STONE,{25,81,100,137,82,101,125,26}},
+ {"森林调查","莉佳：林中伙伴正在迁徙",0,32,ITEM_LEAF_STONE,{43,69,46,102,114,123,127,44}},
+ {"毒雾调查","阿桔：找出毒雾的源头",3,39,ITEM_ENERGY_ROOT,{23,88,109,48,24,89,110,49}},
+ {"幻影追踪","娜姿：感受幻影中的气息",3,43,ITEM_GROWTH_MACHINE,{63,96,92,64,97,93,122,65}},
+ {"火山远征","夏伯：山中留下了火焰足迹",1,48,ITEM_FIRE_STONE,{4,37,58,77,5,38,78,126}},
+ {"深层探险","坂木：深处还有强大的伙伴",1,53,ITEM_LINK_MACHINE,{95,112,31,34,76,142,115,143}}
+};
+const exploration_activity_t *exploration_activity(unsigned id){return id<8?&ACTIVITIES[id]:NULL;}
+bool exploration_activity_open(unsigned id,uint16_t defeated){return id<8&&(defeated&(1u<<id));}
+exploration_event_t exploration_activity_spawn(unsigned id,exploration_updates_t *u,enc_queue_t *q,dex_t *d,uint16_t defeated,uint32_t seed,uint16_t active) {
+ exploration_event_t e={.kind=EXPLORE_RESEARCH_LOCKED,.item=ITEM_NONE};
+ if(!exploration_activity_open(id,defeated)||u->activity_progress[id]>=3)return e;
+ if(u->activity_uid[id]&&enc_queue_find(q,u->activity_uid[id])){e.kind=EXPLORE_BLOCKED;return e;}
+ const exploration_activity_t *a=&ACTIVITIES[id];unsigned start=mix(seed^u->activity_runs[id]^id*7919u)%8;
+ unsigned species=0,rarity=2;
+ for(unsigned i=0;i<8;i++){unsigned candidate=a->species[(start+i)%8];if(exploration_species_open(candidate,defeated)&&!pending(q,candidate)){species=candidate;break;}}
+ if(!species){e.kind=EXPLORE_BLOCKED;return e;}
+ exploration_habitat(species,&rarity);
+ encounter_t enc={.species_id=species,.rarity=rarity,.level=a->level+u->activity_progress[id],.activity=id+1,.biome=a->route,.hp_ratio=100,.is_transient=true,.ts=seed,.is_shiny=mix(seed^0x735a91cdu)%512==0};
+ while(!q->next_uid||q->next_uid==active||enc_queue_find(q,q->next_uid))q->next_uid++;
+ enc_queue_push(q,&enc);u->activity_uid[id]=q->items[q->count-1].uid;
+ dex_mark_seen(d,species,enc.is_shiny);
+ e.kind=EXPLORE_ENCOUNTER;e.uid=u->activity_uid[id];e.species=species;e.rarity=rarity;e.level=enc.level;e.route=a->route;e.shiny=enc.is_shiny;return e;
+}
+void exploration_activity_credit(exploration_updates_t *u,const encounter_t *enc) {
+ if(!enc->activity||enc->activity>8)return;
+ unsigned id=enc->activity-1;
+ if(u->activity_uid[id]!=enc->uid)return;
+ u->activity_uid[id]=0;if(u->activity_progress[id]<3)u->activity_progress[id]++;
+}
+exploration_kind_t exploration_activity_claim(unsigned id,exploration_updates_t *u,inventory_t *bag,exploration_event_t *e) {
+ if(id>=8||u->activity_progress[id]!=3)return EXPLORE_RESEARCH_LOCKED;
+ bool first=!(u->activity_claimed&(1u<<id));
+ unsigned roll=mix(u->activity_runs[id]^id*7919u)%100;
+ unsigned item=first?ACTIVITIES[id].item:roll<50?ITEM_GREAT:roll<80?ITEM_BERRY:roll<95?ITEM_ULTRA:ACTIVITIES[id].item;
+ unsigned qty=first||roll>=95?1:3;
+ if(bag->quantity[item]+qty>items_capacity(item)){e->item_full=true;return EXPLORE_BLOCKED;}
+ bag->quantity[item]+=qty;u->activity_claimed|=1u<<id;u->activity_progress[id]=0;u->activity_uid[id]=0;u->activity_runs[id]++;
+ e->kind=EXPLORE_NONE;e->item=item;e->quantity=qty;return EXPLORE_NONE;
+}
+
+exploration_event_t exploration_step_team(exploration_state_t *s,enc_refresh_state_t *r,enc_queue_t *q,dex_t *d,uint16_t active,uint16_t defeated,inventory_t *bag,const nurture_t *pet,unsigned bonus) {
+ return exploration_step_with_target(s,r,q,d,active,defeated,bag,pet,bonus,0);
 }

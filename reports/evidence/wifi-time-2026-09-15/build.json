@@ -1,0 +1,10 @@
+{
+  "bytes": 3136720,
+  "application_free_bytes": 9008,
+  "sha256": "cc1d83e011ef8cbf135825a5eb6e4a07e0edd1c4d1a6cc39f8d97515be6f942d",
+  "partition_md5": true,
+  "partitions_do_not_overlap": true,
+  "save_partition_unchanged": true,
+  "firmware_built": true,
+  "flashed": false
+}

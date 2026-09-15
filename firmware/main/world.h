@@ -262,3 +262,8 @@ world_switch_result_t world_box_exchange(uint8_t slot,const mon_t *outgoing,cons
 exploration_kind_t world_exploration_track(uint16_t species);
 
 exploration_kind_t world_research_claim(uint8_t route,uint16_t *gain);
+
+exploration_event_t world_exploration_activity(unsigned id,bool claim);
+
+// Absolute UTC in microseconds, accepted only after network time synchronization.
+bool world_sync_time(int64_t utc_us,uint8_t *recovered);

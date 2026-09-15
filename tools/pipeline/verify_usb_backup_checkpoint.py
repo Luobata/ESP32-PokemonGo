@@ -10,7 +10,7 @@ int main(void){
  s_w.pet.stamina=37*NURT_Q;s_inventory.quantity[ITEM_BERRY]=7;s_dirty=true;
  save_t copy;unsigned before=commits;
  assert(world_backup_snapshot(reader,&copy));assert(commits>before&&reads==1);
- assert(copy.pet.stamina==37*NURT_Q&&copy.inventory.quantity[ITEM_BERRY]==7&&copy.version==15);
+ assert(copy.pet.stamina==37*NURT_Q&&copy.inventory.quantity[ITEM_BERRY]==7&&copy.version==SAVE_VERSION);
  assert(!s_dirty);failure=4;s_w.pet.stamina=12*NURT_Q;
  assert(!world_backup_snapshot(reader,&copy)&&reads==1&&s_dirty);failure=0;
  assert(world_backup_snapshot(reader,&copy)&&copy.pet.stamina==12*NURT_Q);

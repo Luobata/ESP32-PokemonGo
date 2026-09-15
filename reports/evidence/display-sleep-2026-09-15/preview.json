@@ -1,0 +1,48 @@
+{
+  "build": "121a3c15a649cd7eac13",
+  "results": [
+    {
+      "page": 1,
+      "wait_ms": 60100,
+      "wake_did_not_act": true,
+      "long_c_and_wake": true,
+      "band_checks": 12
+    },
+    {
+      "page": 2,
+      "wait_ms": 60100,
+      "wake_did_not_act": true,
+      "long_c_and_wake": true,
+      "band_checks": 12
+    },
+    {
+      "page": 5,
+      "wait_ms": 60100,
+      "wake_did_not_act": true,
+      "long_c_and_wake": true,
+      "band_checks": 12
+    },
+    {
+      "page": 6,
+      "wait_ms": 60100,
+      "wake_did_not_act": true,
+      "long_c_and_wake": true,
+      "band_checks": 12
+    },
+    {
+      "page": 11,
+      "wait_ms": 60100,
+      "wake_did_not_act": true,
+      "long_c_and_wake": true,
+      "band_checks": 12
+    },
+    {
+      "page": 12,
+      "wait_ms": 60100,
+      "wake_did_not_act": true,
+      "long_c_and_wake": true,
+      "band_checks": 12
+    }
+  ],
+  "old_full_page_suite": "Opening dialogue fixture uses legacy A navigation; stopped at busy-state assertion; not counted as passed."
+}

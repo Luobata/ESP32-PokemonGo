@@ -1,0 +1,6 @@
+{
+  "local_gate": "pass",
+  "mcp_semantic_review": "unavailable: no QualityGate MCP registered in this session",
+  "c_rule_coverage": "none; actual ESP-IDF build and focused C tests run separately",
+  "note": "Local gate pass is not a semantic review verdict."
+}

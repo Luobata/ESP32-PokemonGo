@@ -17,8 +17,10 @@ esp_lcd_panel_handle_t bsp_display_panel(void);
 // 取底层 panel io 句柄(LVGL 接入需要)。未初始化返回 NULL。
 esp_lcd_panel_io_handle_t bsp_display_io(void);
 
-// 背光亮度 0..100(%)。LEDC PWM,0=全灭。
+// 背光亮度 0..100(%)。0 停止 PWM 并将背光控制脚保持低电平。
 void bsp_display_backlight(uint8_t percent);
+// 面板显示开关 + SLPIN/SLPOUT；调用前保持背光关闭，成功唤醒后重绘。
+esp_err_t bsp_display_sleep(bool sleep);
 // Read the configured PWM duty (not a physical light/current measurement).
 uint8_t bsp_display_get_backlight(void);
 

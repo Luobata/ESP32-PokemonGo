@@ -1,0 +1,9 @@
+{
+  "network_boundary": "simulated",
+  "credential_validation": true,
+  "ap_only_http": true,
+  "credential_replace_after_ip": true,
+  "save_retry_backoff": true,
+  "reconnect_sntp": true,
+  "setup_timeout": true
+}

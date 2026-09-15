@@ -33,6 +33,9 @@ ROUTING = r'''
 static lv_timer_t idle_timer;
 static bool busy, fail_lv_timer, stall_button_task;
 static int brightness=100, redraws, backlight_changes, locks;
+static bool panel_sleeping;
+static int sleep_calls,wake_calls;
+static bool fail_sleep,fail_wake;
 static unsigned fail_events;
 static int dispatch_event=-1;
 static int actions, action_key[32], action_event[32], exits, menus, demo_calls;
@@ -49,7 +52,14 @@ lv_timer_t *lv_timer_create(void (*callback)(lv_timer_t *), uint32_t period, voi
 void bsp_display_backlight(uint8_t pct) {
  assert(pct==0 || pct==100);brightness=pct;backlight_changes++;
 }
+esp_err_t bsp_display_sleep(bool sleep) {
+ assert(brightness==0);if((sleep&&fail_sleep)||(!sleep&&fail_wake))return -1;
+ panel_sleeping=sleep;
+ if(sleep)sleep_calls++;else wake_calls++;
+ return ESP_OK;
+}
 void screen_redraw_current(void) {
+ assert(!panel_sleeping);
  assert(brightness==0 && "wake must redraw before revealing the backlight");redraws++;
 }
 static bool is_busy(void) { return busy; }
@@ -59,6 +69,8 @@ static bool bsp_lvgl_lock(int ms) {
  locks++;return true;
 }
 static void bsp_lvgl_unlock(void) { assert(locks==1);locks--; }
+static bool evolution_ui_key(bsp_btn_t b,bsp_btn_ev_t e){return false;}
+static bool growth_ui_key(bsp_btn_t b,bsp_btn_ev_t e){return false;}
 static bool world_needs_starter(void) { return false; }
 static bool nav_can_leave(void) { return true; }
 static void nav_exit_current(void) { exits++; }
@@ -100,7 +112,7 @@ static void run(int mv, int ms) {
 }
 static void idle_at(int64_t us) { now_us=us;idle_timer.callback(&idle_timer); }
 static void off(void) {
- screen_idle_request_off();assert(screen_idle_is_off() && brightness==0);
+ screen_idle_request_off();assert(screen_idle_is_off() && brightness==0 && panel_sleeping);
  int changes=backlight_changes;screen_idle_request_off();assert(changes==backlight_changes);
 }
 static void action(int n,int key,int event) {
@@ -112,7 +124,7 @@ static void click(int key) {
 }
 static void next_click(int key) { int before=actions;click(key);action(before+1,key,BSP_BTN_CLICK); }
 static void wake_clean(void) {
- assert(!screen_idle_is_off() && brightness==100 && redraws==1);
+ assert(!screen_idle_is_off() && brightness==100 && redraws==1 && !panel_sleeping && wake_calls==1);
  assert(!actions && !exits && !menus && "waking gesture reached a page or shell action");
 }
 static void print_result(const char *name) {
@@ -135,6 +147,12 @@ int main(int argc,char **argv) {
  if(!strcmp(name,"threshold") || !strcmp(name,"init-retry")) {
   idle_at(59999999);assert(!screen_idle_is_off() && brightness==100);
   idle_at(60000000);assert(screen_idle_is_off() && brightness==0 && "60 second threshold missed");
+ } else if(!strcmp(name,"panel-failure")) {
+  fail_sleep=true;screen_idle_request_off();assert(!screen_idle_is_off()&&brightness==100);
+  fail_wake=true;screen_idle_request_off();assert(screen_idle_is_off()&&brightness==0);
+  screen_idle_filter_key(BSP_BTN_UP,BSP_BTN_CLICK);assert(screen_idle_is_off()&&brightness==0&&!redraws);
+  fail_sleep=fail_wake=false;screen_idle_filter_key(BSP_BTN_UP,BSP_BTN_CLICK);
+  assert(!screen_idle_is_off()&&brightness==100&&redraws==1);
  } else if(!strcmp(name,"activity")) {
   idle_at(29000000);screen_idle_note_activity();
   idle_at(88999999);assert(!screen_idle_is_off());
@@ -241,7 +259,7 @@ def setup(directory: Path, main_route: str, nav_route: str):
     (directory / 'sdkconfig.h').write_text('#pragma once\n#define CONFIG_IDF_TARGET_ESP32C3 1\n' +
         ''.join(f'#define {name} {value}\n' for name, value in selected))
     (directory / 'lvgl.h').write_text(LVGL)
-    (directory / 'bsp_display.h').write_text('#include <stdint.h>\nvoid bsp_display_backlight(uint8_t pct);\n')
+    (directory / 'bsp_display.h').write_text('#include <stdint.h>\n#include <stdbool.h>\n#include "esp_err.h"\nvoid bsp_display_backlight(uint8_t pct);\nesp_err_t bsp_display_sleep(bool sleep);\n')
     (directory / 'adc_driver.c').write_text('#define iot_button_new_adc_device real_iot_button_new_adc_device\n'
                                          f'#include "{button.BUTTON / "button_adc.c"}"\n')
     platform_driver = button.DRIVER.split('static void on_key(')[0]
@@ -274,7 +292,7 @@ def main():
     main_route = c_function((MAIN / 'main.c').read_text(), 'static void on_key(')
     nav_route = c_function((MAIN / 'nav.c').read_text(), 'void nav_key(')
     cases = ['threshold', 'activity', 'held', 'busy', 'init-retry', 'c-long-main',
-             'demo-release', 'off-action', 'cross-key', 'semantic', 'delayed-classification',
+             'panel-failure', 'demo-release', 'off-action', 'cross-key', 'semantic', 'delayed-classification',
              'dropped-release-end', 'dropped-end-next-press']
     cases += [f'wake-{gesture}-{key}' for gesture in ('short', 'double', 'triple', 'long', 'taphold', 'medium')
               for key in range(3)]

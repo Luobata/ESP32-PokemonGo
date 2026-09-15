@@ -274,7 +274,7 @@ static void start_transition(void)
     world_snapshot(&w);
 
     uint8_t idx;
-    uint8_t wild_level = battle_wild_level_for_pet(c->enc.rarity, w.level);
+    uint8_t wild_level = (c->enc.level ? c->enc.level : battle_wild_level_for_pet(c->enc.rarity, w.level));
     // biome 顺序与 sensing 的 dwell_by_biome 一致：0 野外、4 交通枢纽。
     bool open_biome = c->enc.biome == 0 || c->enc.biome == 4;
     trans_pick(false, wild_level, w.level, open_biome, &idx);

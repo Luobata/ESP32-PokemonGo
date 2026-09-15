@@ -42,6 +42,7 @@
 #include "evolution.h"
 #include "exp.h"
 #include "save.h"
+#include "wifi_time.h"
 #include "world.h"
 // The dungeon owns the persisted reservation of participating party slots.
 extern bool dungeon_party_locked(void);
@@ -113,6 +114,9 @@ static save_t s_save_buf;
 static bool s_dirty;
 static enc_refresh_state_t s_refresh;
 static exploration_state_t s_exploration;
+static exploration_updates_t s_exploration_updates;
+static rest_clock_t s_rest_clock;
+static int64_t s_rest_started_us;
 static dungeon_progress_t s_dungeon;
 static int64_t s_refresh_clock_us;
 static enc_refresh_ap_t s_refresh_aps[MAX_APS];
@@ -226,12 +230,14 @@ static void collect_save_locked(save_t *sv)
     sv->motion_q10 = s_motion_q10;
     sv->scans = s_w.scans;
     sv->last_uptime_us = esp_timer_get_time();
+    sv->rest_clock=rest_clock_snapshot(s_rest_clock,sv->last_uptime_us-s_rest_started_us);
     sv->inventory = s_inventory;
     sv->challenge = s_challenge;
     sv->achievements = s_achievements;
     refresh_clock_locked();
     sv->refresh = s_refresh;
     sv->exploration = s_exploration;
+    sv->exploration_updates = s_exploration_updates;
     sv->dungeon = s_dungeon;
 }
 
@@ -715,6 +721,7 @@ bool world_capture_uid(uint16_t uid, const mon_t *mon)
     s_starter_party = s_party;
     if (!party_receive(&s_starter_party, mon)) { unlock_encounter_change(); return false; }
     normalize_party_exp(&s_starter_party);
+    exploration_activity_credit(&s_save_buf.exploration_updates,entry);
     uint16_t earned=exp_scaled(exp_scaled(exp_battle_base(mon->level),dex_is_caught(&s_dex,mon->species_id)?60:110),nurture_exp_percent(&s_w.pet));
     exp_award_party(&s_starter_party,1,(1u<<s_party.party_count)-1,earned);
     mon_t *leader=&s_starter_party.party[0];
@@ -730,6 +737,7 @@ bool world_capture_uid(uint16_t uid, const mon_t *mon)
     if (ok) {
         record_growth_locked(&s_starter_party);s_party=s_starter_party;
         s_w.exp = s_party.party[0].exp;s_w.level=s_party.party[0].level;
+        s_exploration_updates=s_save_buf.exploration_updates;
         take_encounter_uid_locked(uid, NULL);
         dex_mark_caught(&s_dex, mon->species_id, (mon->flags & 1u) != 0);
         s_last_save_us = esp_timer_get_time();
@@ -969,7 +977,14 @@ static esp_err_t wifi_bring_up(void)
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+    // Credentials live in a separate partition, outside exported game saves.
+#ifndef HOST_BUILD
+    ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
+#endif
     ESP_ERROR_CHECK(esp_wifi_start());
+#ifndef HOST_BUILD
+    wifi_time_start();
+#endif
     return ESP_OK;
 }
 
@@ -1079,6 +1094,7 @@ static void spawn_one(uint32_t ts, bool transient, uint8_t *made)
     e.biome = 0;                  // TODO: classify_biome 还没移植
 
     if (lock_encounter_change()) {
+        e.level=battle_wild_level_for_pet(e.rarity,s_w.level);
         // The active uid is outside the queue; reserve it as well when the
         // 16-bit sequence wraps. enc_queue_push also skips pending identities.
         do {
@@ -1203,7 +1219,13 @@ static void world_task(void *arg)
             unlock_encounter_change();
         }
 
-        if (s_wifi_ok && now >= next_scan) {
+#ifndef HOST_BUILD
+        if(s_wifi_ok)wifi_time_poll();
+        bool scan_allowed=wifi_time_scan_allowed();
+#else
+        bool scan_allowed=true;
+#endif
+        if (s_wifi_ok && scan_allowed && now >= next_scan) {
             scan_once();
             next_scan = esp_timer_get_time() + SCAN_INTERVAL_MS * 1000LL;
         }
@@ -1380,6 +1402,8 @@ bool world_start(void)
     s_motion_q10 = 0;
     memset(&s_refresh,0,sizeof(s_refresh));
     exploration_init(&s_exploration);
+    memset(&s_exploration_updates,0,sizeof(s_exploration_updates));
+    s_rest_clock=(rest_clock_t){0};s_rest_started_us=esp_timer_get_time();
     memset(&s_dungeon,0,sizeof(s_dungeon));
     s_refresh_clock_us=esp_timer_get_time();
     s_dirty = false;
@@ -1396,7 +1420,7 @@ bool world_start(void)
     // 而本次开机从 0 重新计。直接沿用会让 dt 变成巨大的负数，
     // nurture_tick 里 `dt <= 0` 会挡住，但那等于「时间不流动」。
     // 置 -1 让它下一拍重新起算（与首次开机同）。
-    // 代价是**关机期间不衰减** —— 那要墙钟时间，S10 日切一起做。
+    // 关机期间不扣饥饿与心情；体能在 Wi-Fi 校时后由 world_sync_time 补回。
     // **先初始化 NVS 再读档** —— 这条依赖搞反过一次：
     // nvs_flash_init 当时藏在 wifi_bring_up 里，而那个在读档之后，
     // 结果每次开机都是「新游戏」而存档其实写成功了。
@@ -1433,6 +1457,9 @@ bool world_start(void)
         s_refresh=s_save_buf.refresh;
         s_exploration=s_save_buf.exploration;
         s_dungeon=s_save_buf.dungeon;
+        s_exploration_updates=s_save_buf.exploration_updates;
+        s_rest_clock=s_save_buf.rest_clock;
+        for(unsigned i=0;i<s_queue.count;i++)if(!s_queue.items[i].level){s_queue.items[i].level=battle_wild_level_for_pet(s_queue.items[i].rarity,s_w.level);s_dirty=true;}
         s_refresh_clock_us=esp_timer_get_time();
         s_w.scans = s_save_buf.scans;
         s_w.pending = s_queue.count;
@@ -1652,7 +1679,9 @@ void world_exploration_snapshot(exploration_view_t *out)
     if(!out)return;
     memset(out,0,sizeof(*out));
     if(!s_lock||xSemaphoreTake(s_lock,portMAX_DELAY)!=pdTRUE)return;
-    out->state=s_exploration;out->discoveries=s_refresh.discoveries;out->defeated=s_challenge.defeated;
+    out->state=s_exploration;out->updates=s_exploration_updates;
+    exploration_targets_sync(&out->state,&out->updates,&s_dex,&s_queue,s_challenge.defeated);
+    out->discoveries=s_refresh.discoveries;out->defeated=s_challenge.defeated;
     out->supply_q10=s_refresh.hunt_q10;
     out->rare_left=8-s_refresh.since_rare;out->elite_left=30-s_refresh.since_elite;
     out->pending=s_queue.count;out->stamina=nurture_stamina_points(&s_w.pet);out->exp_percent=nurture_exp_percent(&s_w.pet);out->rare_bonus=nurture_rare_bonus(&s_w.pet);out->party_bonus=exploration_team_bonus(&s_party,s_exploration.route);
@@ -1702,17 +1731,25 @@ exploration_event_t world_explore(void)
     }
     collect_save_locked(&s_save_buf);
     if(s_w.pet.stamina<NURT_EXPLORE_COST){event.kind=EXPLORE_NO_STAMINA;unlock_encounter_change();return event;}
-    event=exploration_step_team(&s_save_buf.exploration,&s_save_buf.refresh,&s_save_buf.queue,&s_save_buf.dex,s_active.encounter.uid,s_challenge.defeated,&s_save_buf.inventory,&s_w.pet,exploration_team_bonus(&s_party,s_exploration.route));
+    exploration_targets_sync(&s_save_buf.exploration,&s_save_buf.exploration_updates,&s_dex,&s_queue,s_challenge.defeated);
+    unsigned target=exploration_current_target(&s_save_buf.exploration,&s_save_buf.exploration_updates,s_challenge.defeated);
+    event=exploration_step_with_target(&s_save_buf.exploration,&s_save_buf.refresh,&s_save_buf.queue,&s_save_buf.dex,s_active.encounter.uid,s_challenge.defeated,&s_save_buf.inventory,&s_w.pet,exploration_team_bonus(&s_party,s_exploration.route),target);
     if(event.kind!=EXPLORE_ENCOUNTER&&event.kind!=EXPLORE_CLUE&&event.kind!=EXPLORE_TARGET) {
         unlock_encounter_change();return event;
     }
+    if(event.uid){
+        encounter_t *enc=enc_queue_find(&s_save_buf.queue,event.uid);
+        event.level=battle_wild_level_for_pet(event.rarity,s_w.level);
+        if(enc)enc->level=event.level;
+    }
+    if(event.kind==EXPLORE_TARGET)exploration_target_completed(&s_save_buf.exploration,&s_save_buf.exploration_updates,&s_save_buf.dex,&s_save_buf.queue,s_challenge.defeated,event.route);
     s_save_buf.pet.stamina-=NURT_EXPLORE_COST;
     // Map discoveries advance the same individual exploration stat as walking.
     // Serialize the candidate first: failed storage must not advance evolution.
     s_starter_party=s_party;
     if(event.kind==EXPLORE_TARGET)s_save_buf.exploration.research_flags|=16u<<event.route;
     if(event.species&&!dex_is_seen(&s_dex,event.species)){
-        uint16_t gain=exp_scaled(exp_scaled(exp_battle_base(battle_wild_level_for_pet(event.rarity,s_w.level)),25),nurture_exp_percent(&s_w.pet));
+        uint16_t gain=exp_scaled(exp_scaled(exp_battle_base(event.level),25),nurture_exp_percent(&s_w.pet));
         exp_award_party(&s_starter_party,1,(1u<<s_starter_party.party_count)-1,gain);
         event.exp=s_starter_party.party[0].exp-s_party.party[0].exp;
     }
@@ -1722,7 +1759,7 @@ exploration_event_t world_explore(void)
     xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
     if(ok) {
         s_w.pet.stamina=s_w.pet.stamina>NURT_EXPLORE_COST?s_w.pet.stamina-NURT_EXPLORE_COST:0;
-        s_exploration=s_save_buf.exploration;s_refresh=s_save_buf.refresh;s_queue=s_save_buf.queue;s_inventory=s_save_buf.inventory;
+        s_exploration=s_save_buf.exploration;s_exploration_updates=s_save_buf.exploration_updates;s_refresh=s_save_buf.refresh;s_queue=s_save_buf.queue;s_inventory=s_save_buf.inventory;
         record_growth_locked(&s_starter_party);s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;
         s_w.explore_value=s_party.party[0].explore_value;
         sync_leader_locked();
@@ -1742,11 +1779,13 @@ bool world_battle_reward_uid(uint16_t uid,uint16_t *amount) {
  if(b->reward_settled||s_active.encounter.exp_granted){unlock_encounter_change();return true;}
  uint16_t gain=exp_scaled(battle_session_exp(b),nurture_exp_percent(&s_w.pet));
  collect_save_locked(&s_save_buf);s_starter_party=s_party;
+ if(b->won)exploration_activity_credit(&s_save_buf.exploration_updates,&s_active.encounter);
  exp_award_party(&s_starter_party,1,(1u<<s_starter_party.party_count)-1,gain);
  mon_t *leader=&s_starter_party.party[0];gain=leader->exp-s_party.party[0].exp;party_serialize(&s_starter_party,s_save_buf.party);
  s_save_buf.exp=leader->exp;s_save_buf.level=leader->level;
  xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
  if(ok){record_growth_locked(&s_starter_party);s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;
+  s_exploration_updates=s_save_buf.exploration_updates;
   s_active.session.reward_settled=true;s_active.encounter.exp_granted=true;s_last_save_us=esp_timer_get_time();if(amount)*amount=gain;}
  else s_dirty=true;
  unlock_encounter_change();return ok;
@@ -1856,4 +1895,60 @@ bool world_dungeon_award(uint32_t id,unsigned node,uint32_t seed,dungeon_receipt
     xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
     if(ok){s_dungeon=s_save_buf.dungeon;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_inventory=s_save_buf.inventory;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;s_last_save_us=esp_timer_get_time();*out=receipt;}
     unlock_encounter_change();return ok;
+}
+
+// Badge expeditions reuse wild combat and capture. Entry, progress and rewards
+// share normal NVS transactions; failed writes never spend stamina or a reward.
+exploration_event_t world_exploration_activity(unsigned id,bool claim) {
+ exploration_event_t e={.kind=EXPLORE_SAVE_FAILED,.item=ITEM_NONE};
+ if(!lock_encounter_change())return e;
+ if(!s_storage_ready||s_starter_pending){unlock_encounter_change();return e;}
+ if(s_active.encounter.uid||s_challenge.session.active||s_challenge.league_active){e.kind=EXPLORE_BUSY;unlock_encounter_change();return e;}
+ if(!exploration_activity_open(id,s_challenge.defeated)){e.kind=EXPLORE_RESEARCH_LOCKED;unlock_encounter_change();return e;}
+ collect_save_locked(&s_save_buf);
+ if(claim){
+  e.kind=exploration_activity_claim(id,&s_save_buf.exploration_updates,&s_save_buf.inventory,&e);
+  if(e.kind!=EXPLORE_NONE){unlock_encounter_change();return e;}
+ }else{
+  if(s_w.pet.stamina<NURT_EXPLORE_COST){e.kind=EXPLORE_NO_STAMINA;unlock_encounter_change();return e;}
+  uint32_t seed=s_refresh.serial+s_refresh.online_s+s_exploration.steps*7919u+1u;
+  e=exploration_activity_spawn(id,&s_save_buf.exploration_updates,&s_save_buf.queue,&s_save_buf.dex,s_challenge.defeated,seed,s_active.encounter.uid);
+  if(e.kind!=EXPLORE_ENCOUNTER){unlock_encounter_change();return e;}
+  s_save_buf.pet.stamina-=NURT_EXPLORE_COST;
+  s_save_buf.exploration.steps++;
+ }
+ xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
+ if(ok){
+  s_exploration_updates=s_save_buf.exploration_updates;s_inventory=s_save_buf.inventory;
+  if(!claim){
+   s_w.pet.stamina=s_w.pet.stamina>NURT_EXPLORE_COST?s_w.pet.stamina-NURT_EXPLORE_COST:0;
+   s_exploration=s_save_buf.exploration;s_queue=s_save_buf.queue;
+   if(e.species)dex_mark_seen(&s_dex,e.species,e.shiny);
+   s_w.pending=s_queue.count;prune_battles_locked();
+  }
+  s_last_save_us=esp_timer_get_time();
+ }else {e=(exploration_event_t){.kind=EXPLORE_SAVE_FAILED,.item=ITEM_NONE};s_dirty=true;}
+ unlock_encounter_change();if(ok&&e.species)sfx_encounter(e.rarity,e.shiny);return e;
+}
+
+// NTP supplies UTC only. This transaction owns offline recovery and its receipt.
+bool world_sync_time(int64_t utc_us,uint8_t *recovered) {
+ if(recovered)*recovered=0;
+ if(!lock_encounter_change())return false;
+ if(!s_storage_ready){unlock_encounter_change();return false;}
+ int64_t now=esp_timer_get_time();
+ if(!s_starter_pending)nurture_tick(&s_w.pet,now,0,false);
+ collect_save_locked(&s_save_buf);
+ int32_t award=0;
+ if(!rest_clock_sync(&s_save_buf.rest_clock,utc_us,&award)){unlock_encounter_change();return false;}
+ if(s_starter_pending)award=0;
+ int32_t room=NURT_MAX-s_save_buf.pet.stamina;if(award>room)award=room;if(award<0)award=0;
+ s_save_buf.pet.stamina+=award;
+ xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
+ if(ok){
+  int64_t stamina=(int64_t)s_w.pet.stamina+award;s_w.pet.stamina=stamina>NURT_MAX?NURT_MAX:stamina;
+  s_rest_clock=s_save_buf.rest_clock;s_rest_started_us=s_save_buf.last_uptime_us;
+  s_last_save_us=esp_timer_get_time();if(recovered)*recovered=award/NURT_Q;
+ }else s_dirty=true;
+ unlock_encounter_change();return ok;
 }

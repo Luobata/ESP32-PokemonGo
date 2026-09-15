@@ -50,7 +50,7 @@ static void receipts(void){
 static void migration(void){
  setup();save_t saved;assert(save_read_status(&saved)==SAVE_READ_OK);saved.version=14;saved.exploration.research_flags=3;
  memcpy(disk,&saved,sizeof(save_v14_t));disk_len=sizeof(save_v14_t);save_t next;assert(save_read_status(&next)==SAVE_READ_MIGRATED);
- assert(next.version==15&&next.exploration.research_flags==3&&next.dungeon.run_id==0);assert(!memcmp(next.party,saved.party,PARTY_BYTES));tests++;
+ assert(next.version==SAVE_VERSION&&next.exploration.research_flags==3&&next.dungeon.run_id==0);assert(!memcmp(next.party,saved.party,PARTY_BYTES));tests++;
  saved.version=15;memcpy(disk,&saved,sizeof(save_v14_t));assert(save_read_status(&next)==SAVE_READ_ERROR);tests++;
 }
 static void rewards(void){

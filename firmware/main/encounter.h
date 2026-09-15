@@ -30,6 +30,8 @@ typedef struct {
     // 实测症状：打的是 #64，抓到的却是 #23；连打三轮只有第一轮
     // 真的捕获，另外两轮的 take 落在别的条目上，队列还越攒越多。
     uint16_t uid;
+    uint8_t level;            // V16: fixed at discovery; zero only for legacy callers.
+    uint8_t activity;         // V16: badge activity 1..8, zero for ordinary encounters.
 
     uint32_t ts;
     uint16_t species_id;

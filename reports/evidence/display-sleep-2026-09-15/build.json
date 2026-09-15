@@ -1,0 +1,7 @@
+{
+  "bytes": 3137808,
+  "sha256": "993bd2e438a7259b30a67d344ab6c77a84b43f723c3465bb06805e71b2fea4b4",
+  "flashed": false,
+  "local_gate": "pass",
+  "semantic_coverage": "QualityGate MCP unavailable; local C rules absent. Focused production C tests and ESP-IDF build used."
+}

@@ -30,14 +30,25 @@ typedef enum { EXPLORE_NONE, EXPLORE_ENCOUNTER, EXPLORE_CLUE, EXPLORE_TARGET,
 typedef struct {
  exploration_kind_t kind;
  uint16_t uid,species;
- uint8_t route,clues,rarity;
+ uint8_t route,clues,rarity,level;
  bool shiny;
  uint8_t item,quantity;
  bool item_full;
  uint16_t exp; // Actual leader gain after the durable discovery settlement.
 } exploration_event_t;
+// Separate save extension: never enlarge the V11-V15 exploration prefix.
+#define EXPLORATION_ACTIVITIES 8
+typedef struct {
+ uint32_t rounds[4];
+ uint8_t targets[4], chapters[4];
+ uint8_t activity_progress[8], activity_claimed;
+ uint16_t activity_runs[8];
+ uint16_t activity_uid[8]; // Outstanding encounter or zero; stale queue entries are reconciled.
+} exploration_updates_t;
+
 typedef struct {
  exploration_state_t state;
+ exploration_updates_t updates;
  uint32_t discoveries;
  uint16_t defeated;
  uint8_t stamina,exp_percent,rare_bonus,party_bonus;
@@ -78,3 +89,20 @@ unsigned exploration_team_bonus(const party_t *,unsigned route);
 
 void exploration_research_progress(unsigned route,const dex_t *,uint8_t *seen,uint8_t *caught);
 exploration_kind_t exploration_research_claim(exploration_state_t *,const dex_t *,unsigned route);
+
+// Snapshot sync is pure on the caller's copy; world persists it with the next action.
+void exploration_targets_sync(exploration_state_t *,exploration_updates_t *,const dex_t *,const enc_queue_t *,uint16_t);
+uint16_t exploration_current_target(const exploration_state_t *,const exploration_updates_t *,uint16_t);
+void exploration_target_completed(exploration_state_t *,exploration_updates_t *,const dex_t *,const enc_queue_t *,uint16_t,unsigned);
+bool exploration_updates_valid(const exploration_updates_t *);
+typedef struct {
+ const char *name,*story;
+ uint8_t route,level,item,species[8];
+} exploration_activity_t;
+const exploration_activity_t *exploration_activity(unsigned);
+bool exploration_activity_open(unsigned,uint16_t);
+exploration_event_t exploration_activity_spawn(unsigned,exploration_updates_t *,enc_queue_t *,dex_t *,uint16_t,uint32_t,uint16_t);
+void exploration_activity_credit(exploration_updates_t *,const encounter_t *);
+exploration_kind_t exploration_activity_claim(unsigned,exploration_updates_t *,inventory_t *,exploration_event_t *);
+
+exploration_event_t exploration_step_with_target(exploration_state_t*,enc_refresh_state_t*,enc_queue_t*,dex_t*,uint16_t,uint16_t,inventory_t*,const nurture_t*,unsigned,unsigned);

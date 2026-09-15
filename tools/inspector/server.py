@@ -93,6 +93,7 @@ class Handler(SimpleHTTPRequestHandler):
                     if time.monotonic() - renderer.updated > 1800:
                         renderer.close(); del sessions[stale]
                 if action == "reset":
+                    progress = integer(data, "progress", 0, 0, 11)
                     values = [page_value(data), integer(data, "pet", 25, 1, 151),
                               integer(data, "level", 12, 1, 100), integer(data, "wild", 74, 1, 151),
                               integer(data, "rarity", 3, 1, 5), integer(data, "seed", 1, 0, 2**32 - 1),
@@ -142,6 +143,10 @@ class Handler(SimpleHTTPRequestHandler):
                     else:
                         raise ValueError("未知操作")
                 result = renderer.command(command)
+                if action == "reset" and progress and values[0] not in (0, 9):
+                    masks = (0, 1, 3, 7, 15, 31, 63, 127, 255, 4095, 8191, 16383)
+                    renderer.command(f"challenge_unlock {masks[progress]}")
+                    result = renderer.command(f"page {values[0]}")
                 state = renderer.inspect()
                 name_style = state["names"]
             self.send_response(200)

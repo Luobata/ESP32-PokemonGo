@@ -64,12 +64,12 @@ uint8_t battle_wild_level(uint8_t rarity)
 
 uint8_t battle_wild_level_for_pet(uint8_t rarity, uint8_t pet_level)
 {
-    // Low tiers remain easier as the player grows. Existing early-game level
-    // floors are retained; high tiers provide useful late-game EXP and moves.
-    static const uint8_t PERCENT[6] = {85, 75, 85, 95, 100, 105};
+    // Ordinary exploration scales gently, including rare early-game finds.
+    // Badge expeditions have their own explicit recommended levels.
+    static const uint8_t PERCENT[6] = {90, 85, 90, 95, 100, 105};
     uint8_t tier = rarity <= 5 ? rarity : 0;
     unsigned level = (pet_level > 100 ? 100 : pet_level) * PERCENT[tier] / 100;
-    unsigned floor = battle_wild_level(rarity);
+    unsigned floor = 2;
     if (level < floor) level = floor;
     return level > 100 ? 100 : level;
 }

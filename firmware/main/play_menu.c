@@ -14,6 +14,7 @@
 #include "world.h"
 #include "audio_settings.h"
 #include "usb_backup.h"
+#include "wifi_time.h"
 #include "lvgl.h"
 
 #define MENU_COUNT 10
@@ -23,9 +24,9 @@
 #define MENU_H 208
 #define ROW_Y 56
 #define ROW_STEP 19
-#define OPTION_Y 64
-#define OPTION_STEP 22
-enum { OPTION_NAMES, OPTION_SCREEN_OFF, OPTION_MUTE, OPTION_VOLUME, OPTION_BACKUP, OPTION_IMPORT, OPTION_RETURN, OPTION_COUNT };
+#define OPTION_Y 60
+#define OPTION_STEP 19
+enum { OPTION_NAMES, OPTION_SCREEN_OFF, OPTION_MUTE, OPTION_VOLUME, OPTION_BACKUP, OPTION_IMPORT, OPTION_WIFI, OPTION_RETURN, OPTION_COUNT };
 
 SCREEN_ASSERT_WITHIN_BAND(menu_title, 8, 16);
 SCREEN_ASSERT_ALLOW_CROSS_BAND(menu_portrait, 88, 96);
@@ -42,6 +43,8 @@ static const char *DESCRIPTIONS[MENU_COUNT] = {
 static uint8_t s_selected;
 static bool s_options;
 static bool s_backup_view;
+static bool s_wifi_view;
+static wifi_time_view_t s_wifi_shown;
 static bool s_import_accept;
 static lv_timer_t *s_backup_timer;
 static usb_backup_state_t s_backup_shown;
@@ -69,7 +72,8 @@ static void draw_options(int band_y)
     render_text(212-render_text_width(value), OPTION_Y + OPTION_STEP * 3-band_y, value, GAME_UI_ACCENT);
     render_text(40, OPTION_Y + OPTION_STEP * 4 - band_y, "备份存档", GAME_UI_INK);
     render_text(40, OPTION_Y + OPTION_STEP * 5 - band_y, "导入存档", GAME_UI_INK);
-    render_text(40, OPTION_Y + OPTION_STEP * 6 - band_y, "返回菜单", GAME_UI_INK);
+    render_text(40, OPTION_Y + OPTION_STEP * 6 - band_y, "Wi-Fi校时", GAME_UI_INK);
+    render_text(40, OPTION_Y + OPTION_STEP * 7 - band_y, "返回菜单", GAME_UI_INK);
     game_ui_cursor(band_y, 20, OPTION_Y + s_option_selected * OPTION_STEP + 4);
     const char *hint;
     if (s_option_selected == OPTION_MUTE) {
@@ -81,6 +85,9 @@ static void draw_options(int band_y)
     } else if (s_option_selected == OPTION_BACKUP || s_option_selected == OPTION_IMPORT) {
         snprintf(value,sizeof(value),"USB连接电脑管理存档");
         hint=s_option_selected==OPTION_IMPORT?"电脑选文件 设备确认覆盖":"先打开电脑存档管理页";
+    } else if (s_option_selected == OPTION_WIFI) {
+        snprintf(value,sizeof(value),"联网补回关机期间的体能");
+        hint="首次请设置家庭Wi-Fi";
     } else if (s_option_selected == OPTION_NAMES) {
         snprintf(value, sizeof(value), "设置只影响显示名称");
         hint = "译名设置本次运行有效";
@@ -124,6 +131,37 @@ static void draw_backup(int band_y)
     game_ui_footer(band_y,busy?"请等待操作完成":importing?"长按B返回":"[C]备份 长按B返回");
 }
 
+static void draw_wifi(int band_y)
+{
+    wifi_time_view_t v;wifi_time_view(&v);char text[64];
+    game_ui_title(band_y,"Wi-Fi校时","长按B返回");
+    if(v.setup){
+        game_ui_text_centered(band_y,8,48,224,16,"手机连接以下临时热点",GAME_UI_INK);
+        game_ui_box(band_y,8,76,224,112);
+        game_ui_text_centered(band_y,12,92,216,16,v.ssid,GAME_UI_INK);
+        snprintf(text,sizeof(text),"密码 %s",v.password);
+        game_ui_text_centered(band_y,12,120,216,16,text,GAME_UI_INK);
+        game_ui_text_centered(band_y,12,156,216,16,"192.168.4.1",GAME_UI_ACCENT);
+        game_ui_text_centered(band_y,8,204,224,16,"浏览器打开上方地址",GAME_UI_INK);
+        game_ui_text_centered(band_y,8,232,224,16,"填写家庭Wi-Fi和密码",GAME_UI_MUTED);
+        game_ui_footer(band_y,"[C]关闭 长按B返回");return;
+    }
+    const char *status="尚未设置网络";
+    if(v.state==WIFI_TIME_CONNECTING)status="正在连接Wi-Fi";
+    else if(v.state==WIFI_TIME_WAITING)status="已联网 等待校时";
+    else if(v.state==WIFI_TIME_READY)status="时间已同步";
+    else if(v.state==WIFI_TIME_OFFLINE)status="未连上网络 将自动重试";
+    else if(v.state==WIFI_TIME_ERROR)status="校时或保存失败 请重试";
+    game_ui_box(band_y,8,56,224,88);
+    game_ui_text_centered(band_y,12,72,216,16,status,GAME_UI_INK);
+    snprintf(text,sizeof(text),"本次补回体能 %u",v.recovered);
+    game_ui_text_centered(band_y,12,108,216,16,text,GAME_UI_ACCENT);
+    game_ui_text_centered(band_y,8,168,224,16,"开机联网后补回离线体能",GAME_UI_INK);
+    game_ui_text_centered(band_y,8,196,224,16,"约一小时恢复满",GAME_UI_MUTED);
+    game_ui_text_centered(band_y,8,224,224,16,"首次校时后开始计算",GAME_UI_MUTED);
+    game_ui_footer(band_y,"[A]重试 [C]配网");
+}
+
 static void draw_main(int band_y)
 {
     char name[48], text[48];
@@ -164,7 +202,8 @@ static void draw_all(void)
 {
     for (int band_y = 0; band_y < SCREEN_H; band_y += SCREEN_BAND_H) {
         screen_band_clear(GAME_UI_BG);
-        if (s_backup_view) draw_backup(band_y);
+        if (s_wifi_view) draw_wifi(band_y);
+        else if (s_backup_view) draw_backup(band_y);
         else if (s_options) draw_options(band_y);
         else draw_main(band_y);
         screen_push_band(band_y);
@@ -174,6 +213,7 @@ static void draw_all(void)
 static void backup_refresh(lv_timer_t *timer)
 {
     (void)timer;
+    if(s_wifi_view){wifi_time_view_t v;wifi_time_view(&v);if(memcmp(&v,&s_wifi_shown,sizeof(v))){s_wifi_shown=v;draw_all();}}
     if(s_backup_view&&s_backup_shown!=usb_backup_state()) {
         s_backup_shown=usb_backup_state();
         if(s_backup_shown==USB_RESTORE_OFFER)s_import_accept=false;
@@ -187,6 +227,7 @@ void play_menu_enter(void)
         s_selected = 0;
         s_options = false;
         s_backup_view = false;
+        s_wifi_view = false;
         s_volume_edit = false;
         s_option_selected = 0;
         s_audio_save_failed = false;
@@ -201,7 +242,7 @@ void play_menu_enter(void)
     draw_all();
 }
 
-void play_menu_exit(void) { if(s_backup_timer) {lv_timer_delete(s_backup_timer);s_backup_timer=NULL;} }
+void play_menu_exit(void) { if(s_wifi_view){wifi_time_setup_request(false);s_wifi_view=false;} if(s_backup_timer) {lv_timer_delete(s_backup_timer);s_backup_timer=NULL;} }
 
 void play_menu_presentation_snapshot(play_menu_view_t *out)
 {
@@ -211,6 +252,13 @@ void play_menu_presentation_snapshot(play_menu_view_t *out)
 
 void play_menu_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
+    if(s_wifi_view){
+        wifi_time_view_t v;wifi_time_view(&v);
+        if(nav_return(btn,ev)){wifi_time_setup_request(false);s_wifi_view=false;}
+        else if(nav_confirm(btn,ev))wifi_time_setup_request(!v.setup);
+        else if(btn==BSP_BTN_UP&&ev==BSP_BTN_CLICK&&!v.setup)wifi_time_retry();
+        draw_all();return;
+    }
     if(s_backup_view) {
         usb_backup_state_t st=usb_backup_state();
         if(st==USB_BACKUP_SENDING||st==USB_BACKUP_WAIT_ACK||st==USB_RESTORE_RECEIVING||st==USB_RESTORE_STAGED)return;
@@ -258,6 +306,7 @@ void play_menu_key(bsp_btn_t btn, bsp_btn_ev_t ev)
             } else if (s_option_selected == OPTION_VOLUME) s_volume_edit = true;
             else if (s_option_selected == OPTION_BACKUP) {usb_backup_import_mode(false);s_backup_view=true;usb_backup_request();}
             else if (s_option_selected == OPTION_IMPORT) {usb_backup_import_mode(true);s_import_accept=false;s_backup_view=true;}
+            else if (s_option_selected == OPTION_WIFI) {s_wifi_view=true;wifi_time_view(&s_wifi_shown);}
             else if (s_option_selected == OPTION_RETURN) s_options = false;
             else pokemon_names_set_style(pokemon_names_get_style() == POKEMON_NAMES_OFFICIAL
                                              ? POKEMON_NAMES_GS_LEGACY : POKEMON_NAMES_OFFICIAL);

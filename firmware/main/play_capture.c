@@ -418,7 +418,7 @@ void play_capture_enter(void)
         world_t w; world_snapshot(&w);
         uint32_t seed = dbg_battle_seed ? dbg_battle_seed : (c->enc.ts ? c->enc.ts : 1u);
         if (!battle_session_init(&s_session, w.species, w.level,
-                                  c->enc.species_id, battle_wild_level_for_pet(c->enc.rarity, w.level),
+                                  c->enc.species_id, (c->enc.level ? c->enc.level : battle_wild_level_for_pet(c->enc.rarity, w.level)),
                                   nurture_ability_factor(&w.pet), seed)) { nav_end_encounter(); return; }
         if (c->enc.hp_ratio && c->enc.hp_ratio < 100) {
             s_session.wild_hp = (uint32_t)s_session.wild_hp_max * c->enc.hp_ratio / 100;

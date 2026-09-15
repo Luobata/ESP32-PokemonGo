@@ -28,6 +28,7 @@
 static uint64_t now_ms;
 static uint8_t backlight = 100;
 void bsp_display_backlight(uint8_t percent) { backlight = percent; }
+esp_err_t bsp_display_sleep(bool sleep) { (void)sleep; return ESP_OK; }
 static lv_timer_t timers[16];
 static uint8_t lcd[SCREEN_W * SCREEN_H * 2];
 static const uint8_t *pending_pixels;
@@ -43,6 +44,7 @@ static unsigned starter_save_failures;
 static trainer_store_t challenge;
 static achievement_store_t achievements;
 static exploration_state_t exploration;
+static exploration_updates_t exploration_updates;
 static enc_refresh_state_t refresh;
 static int save_failure_after = -1;
 static unsigned save_delay_ms; // Fault fixture: blocking NVS with no UI timer ticks.
@@ -417,6 +419,7 @@ bool world_capture_uid(uint16_t uid, const mon_t *m)
     exp_award_party(&next,1,(1u<<party.party_count)-1,gain);
     if (host_save_fails()) return false;
     record_growth(&next);party = next;world.exp=party.party[0].exp;world.level=party.party[0].level;
+    exploration_activity_credit(&exploration_updates,e);
     dex_mark_caught(&dex, m->species_id, (m->flags & 1) != 0);
     world_take_uid(uid, NULL);
     return true;
@@ -478,7 +481,7 @@ static void fixture(unsigned pet, unsigned level, unsigned wild, unsigned rarity
 {
     host_muted=true;host_volume=AUDIO_VOLUME_DEFAULT;host_alert=0;host_notifying=false;
     memset(&achievements,0,sizeof(achievements));
-    exploration_init(&exploration);memset(&refresh,0,sizeof(refresh));
+    exploration_init(&exploration);memset(&exploration_updates,0,sizeof(exploration_updates));memset(&refresh,0,sizeof(refresh));
     memset(&world, 0, sizeof(world));
     nurture_init(&world.pet);nurture_tick(&world.pet,esp_timer_get_time(),0,false);lv_timer_create(nurture_clock,60000,NULL);
     world.species = pet;
@@ -521,6 +524,7 @@ static void fixture(unsigned pet, unsigned level, unsigned wild, unsigned rarity
         encounter_t e = {.species_id = i ? (uint16_t[]){19, 74, 133}[i - 1] : wild,
                           .rarity = i ? i : rarity, .ts = 1234 + i,
                           .hp_ratio = 100, .is_shiny = i == 0 && shiny};
+        e.level=battle_wild_level_for_pet(e.rarity,level);
         enc_queue_push(&queue, &e);
         dex_mark_seen(&dex, e.species_id, e.is_shiny);
     }
@@ -646,6 +650,10 @@ static void state(void)
         printf("]}");
     }
     printf("]},\"exploration\":{\"route\":%u,\"energy\":%u,\"steps\":%lu,\"clues\":[%u,%u,%u,%u],\"pulse\":[%u,%u,%u,%u],\"rare_left\":%u,\"elite_left\":%u,\"research_flags\":%u,\"supply_q10\":%lu}",exploration.route,exploration.energy,(unsigned long)exploration.steps,exploration.clues[0],exploration.clues[1],exploration.clues[2],exploration.clues[3],exploration.pulse[0],exploration.pulse[1],exploration.pulse[2],exploration.pulse[3],8-refresh.since_rare,30-refresh.since_elite,exploration.research_flags,(unsigned long)refresh.hunt_q10);
+    exploration_view_t ev;world_exploration_snapshot(&ev);
+    printf(",\"trails\":{\"targets\":[%u,%u,%u,%u],\"progress\":[",ev.updates.targets[0],ev.updates.targets[1],ev.updates.targets[2],ev.updates.targets[3]);
+    for(unsigned i=0;i<8;i++)printf("%s%u",i?",":"",exploration_updates.activity_progress[i]);
+    printf("],\"claimed\":%u}",exploration_updates.activity_claimed);
     rogue_state();
     const dungeon_t *dr=dungeon_get();printf(",\"dungeon\":{\"phase\":%u,\"node\":%u,\"cards\":%u,\"wins\":%u,\"playing\":%u,\"mode\":%u}",dr->phase,dr->node,dr->cards,dr->wins,dungeon_playing(),play_trainer_mode());
     printf(",\"dungeon_team\":[");for(unsigned i=0;i<dr->count;i++){if(i)putchar(',');printf("{\"slot\":%u,\"species\":%u,\"level\":%u,\"shiny\":%u}",dr->slots[i],dr->members[i].species_id,dr->members[i].level,dr->members[i].flags&1);}putchar(']');
@@ -742,6 +750,10 @@ int main(void)
             starter_save_failures = a;
         } else if (booted && !strcmp(cmd, "save_fail_after") && sscanf(line, "%*s %u", &a) == 1 && a <= 10) {
             save_failure_after = a;
+        } else if(booted&&!strcmp(cmd,"badge_activity_fixture")&&sscanf(line,"%*s %u %u %u",&a,&b,&c)==3&&a<8&&b<=3&&c<=1){
+            exploration_updates.activity_progress[a]=b;exploration_updates.activity_uid[a]=0;
+            if(c)exploration_updates.activity_claimed|=1u<<a;else exploration_updates.activity_claimed&=~(1u<<a);
+            if(nav_current()==PAGE_EXPLORATION)nav_go(PAGE_EXPLORATION);
         } else if (booted && !strcmp(cmd, "challenge_unlock") && sscanf(line,"%*s %u",&a)==1 && a<16384) {
             challenge.defeated=a;challenge.wild_wins=1;
             if(nav_current()==PAGE_TRAINER)nav_go(PAGE_TRAINER);
@@ -868,8 +880,9 @@ achievement_claim_t world_achievement_claim(unsigned id){
 }
 
 void world_exploration_snapshot(exploration_view_t *out){
- if(out)*out=(exploration_view_t){.state=exploration,.discoveries=refresh.discoveries,.defeated=challenge.defeated,.supply_q10=refresh.hunt_q10,
+ if(out)*out=(exploration_view_t){.state=exploration,.updates=exploration_updates,.discoveries=refresh.discoveries,.defeated=challenge.defeated,.supply_q10=refresh.hunt_q10,
  .rare_left=8-refresh.since_rare,.elite_left=30-refresh.since_elite,.pending=queue.count,.stamina=nurture_stamina_points(&world.pet),.exp_percent=nurture_exp_percent(&world.pet),.rare_bonus=nurture_rare_bonus(&world.pet),.party_bonus=exploration_team_bonus(&party,exploration.route)};
+ if(out)exploration_targets_sync(&out->state,&out->updates,&dex,&queue,challenge.defeated);
  if(out)exploration_research_progress(exploration.route,&dex,&out->research_seen,&out->research_caught);
 }
 exploration_kind_t world_exploration_select(uint8_t route){
@@ -893,20 +906,23 @@ exploration_kind_t world_exploration_track(uint16_t species){
 exploration_event_t world_explore(void){
  if(active_valid||challenge.session.active||challenge.league_active)return (exploration_event_t){.kind=EXPLORE_BUSY};
  if(world_needs_starter())return (exploration_event_t){.kind=EXPLORE_SAVE_FAILED};
- exploration_state_t x=exploration;enc_refresh_state_t r=refresh;enc_queue_t q=queue;dex_t d=dex;
+ exploration_state_t x=exploration;exploration_updates_t u=exploration_updates;enc_refresh_state_t r=refresh;enc_queue_t q=queue;dex_t d=dex;
  if(world.pet.stamina<NURT_EXPLORE_COST)return (exploration_event_t){.kind=EXPLORE_NO_STAMINA};
  inventory_t bag=inventory;
- exploration_event_t e=exploration_step_team(&x,&r,&q,&d,active_valid?active_enc.uid:0,challenge.defeated,&bag,&world.pet,exploration_team_bonus(&party,x.route));
+ exploration_targets_sync(&x,&u,&d,&q,challenge.defeated);
+ unsigned target=exploration_current_target(&x,&u,challenge.defeated);
+ exploration_event_t e=exploration_step_with_target(&x,&r,&q,&d,active_valid?active_enc.uid:0,challenge.defeated,&bag,&world.pet,exploration_team_bonus(&party,x.route),target);
  if(e.kind!=EXPLORE_ENCOUNTER&&e.kind!=EXPLORE_CLUE&&e.kind!=EXPLORE_TARGET)return e;
  party_t next=party;
- if(e.kind==EXPLORE_TARGET)x.research_flags|=16u<<e.route;
+ if(e.uid){e.level=battle_wild_level_for_pet(e.rarity,world.level);encounter_t *enc=enc_queue_find(&q,e.uid);if(enc)enc->level=e.level;}
+ if(e.kind==EXPLORE_TARGET){x.research_flags|=16u<<e.route;exploration_target_completed(&x,&u,&d,&q,challenge.defeated,e.route);}
  if(e.species&&!dex_is_seen(&dex,e.species)){
-  uint16_t gain=exp_scaled(exp_scaled(exp_battle_base(battle_wild_level_for_pet(e.rarity,world.level)),25),nurture_exp_percent(&world.pet));
+  uint16_t gain=exp_scaled(exp_scaled(exp_battle_base(e.level),25),nurture_exp_percent(&world.pet));
   exp_award_party(&next,1,(1u<<next.party_count)-1,gain);e.exp=next.party[0].exp-party.party[0].exp;
  }
  if(host_save_fails()){e.kind=EXPLORE_SAVE_FAILED;e.exp=0;return e;}
  record_growth(&next);party=next;world.exp=party.party[0].exp;world.level=party.party[0].level;
- exploration=x;refresh=r;queue=q;dex=d;inventory=bag;world.pet.stamina-=NURT_EXPLORE_COST;
+ exploration=x;exploration_updates=u;refresh=r;queue=q;dex=d;inventory=bag;world.pet.stamina-=NURT_EXPLORE_COST;
  if(world.explore_value<UINT16_MAX)world.explore_value++;
  party.party[0].explore_value=world.explore_value;
  for(unsigned i=0;i<ENC_QUEUE_CAP;i++)if(battles[i].uid&&!enc_queue_find(&queue,battles[i].uid))memset(&battles[i],0,sizeof(battles[i]));
@@ -923,7 +939,7 @@ bool world_battle_reward_uid(uint16_t uid,uint16_t *amount){
  mon_t before[PARTY_MAX];memcpy(before,party.party,sizeof(before));
  exp_award_party(&party,1,(1u<<party.party_count)-1,gain);gain=party.party[0].exp-world.exp;
  exp_growth_record(&growth,before,party.party_count,party.party,party.party_count);
- world.exp=party.party[0].exp;world.level=party.party[0].level;active_battle.reward_settled=true;active_enc.exp_granted=true;
+ world.exp=party.party[0].exp;world.level=party.party[0].level;if(active_battle.won)exploration_activity_credit(&exploration_updates,&active_enc);active_battle.reward_settled=true;active_enc.exp_granted=true;
  if(amount)*amount=gain;
  return true;
 }
@@ -986,3 +1002,31 @@ static unsigned char dungeon_disk[4096];
 static size_t dungeon_disk_size;
 bool dungeon_host_commit(const void *data,size_t len){if(len>sizeof(dungeon_disk)||host_save_fails())return false;memcpy(dungeon_disk,data,len);dungeon_disk_size=len;return true;}
 bool dungeon_host_load(void *data,size_t len){if(len!=dungeon_disk_size)return false;memcpy(data,dungeon_disk,len);return true;}
+
+exploration_event_t world_exploration_activity(unsigned id,bool claim){
+ exploration_event_t e={.kind=EXPLORE_SAVE_FAILED,.item=ITEM_NONE};
+ if(world_needs_starter())return e;
+ if(active_valid||challenge.session.active||challenge.league_active){e.kind=EXPLORE_BUSY;return e;}
+ if(!exploration_activity_open(id,challenge.defeated)){e.kind=EXPLORE_RESEARCH_LOCKED;return e;}
+ exploration_updates_t u=exploration_updates;inventory_t bag=inventory;enc_queue_t q=queue;dex_t d=dex;
+ if(claim){e.kind=exploration_activity_claim(id,&u,&bag,&e);if(e.kind!=EXPLORE_NONE)return e;}
+ else{
+  if(world.pet.stamina<NURT_EXPLORE_COST){e.kind=EXPLORE_NO_STAMINA;return e;}
+  e=exploration_activity_spawn(id,&u,&q,&d,challenge.defeated,refresh.serial+refresh.online_s+exploration.steps*7919u+1u,0);
+  if(e.kind!=EXPLORE_ENCOUNTER)return e;
+ }
+ if(host_save_fails())return (exploration_event_t){.kind=EXPLORE_SAVE_FAILED,.item=ITEM_NONE};
+ exploration_updates=u;inventory=bag;
+ if(!claim){queue=q;dex=d;world.pet.stamina-=NURT_EXPLORE_COST;exploration.steps++;if(e.species)sfx_encounter(e.rarity,e.shiny);}
+ return e;
+}
+
+// Native preview displays provisioning UI; it never configures the host network.
+#include "wifi_time.h"
+static wifi_time_view_t host_wifi;
+void wifi_time_start(void){}
+void wifi_time_poll(void){}
+bool wifi_time_scan_allowed(void){return true;}
+void wifi_time_view(wifi_time_view_t *out){if(out)*out=host_wifi;}
+void wifi_time_setup_request(bool start){host_wifi.setup=start;snprintf(host_wifi.ssid,sizeof(host_wifi.ssid),"PW-PREVIEW");snprintf(host_wifi.password,sizeof(host_wifi.password),"12345678");}
+void wifi_time_retry(void){}

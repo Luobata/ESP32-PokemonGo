@@ -1,0 +1,9 @@
+{
+  "checks": 9,
+  "pwm_stopped_low": true,
+  "pwm_wake_reenabled": true,
+  "panel_off_sleep_order": true,
+  "panel_wake_delay_order": true,
+  "error_propagation": true,
+  "physical_light_measured": false
+}

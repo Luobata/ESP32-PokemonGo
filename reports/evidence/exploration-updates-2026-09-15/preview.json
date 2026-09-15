@@ -1,0 +1,19 @@
+{
+  "build": "269e7f561a688e076f4c",
+  "band_checks": 55,
+  "screens": [
+    "random-trail",
+    "route-targets",
+    "badges-locked",
+    "badge-activities-1",
+    "badge-activities-2",
+    "poison-activity",
+    "activity-save-failed",
+    "activity-discovery",
+    "first-reward-ready",
+    "first-reward-received",
+    "repeat-activity"
+  ],
+  "abc_navigation": true,
+  "first_reward_once": true
+}

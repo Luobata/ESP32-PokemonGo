@@ -1,0 +1,11 @@
+{
+  "checks": 17,
+  "save_version": 17,
+  "offline_cap_minutes": 60,
+  "nvs_failure_atomic": true,
+  "v16_migration": true,
+  "sanitizers": [
+    "ASan",
+    "UBSan"
+  ]
+}

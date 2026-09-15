@@ -142,6 +142,15 @@ esp_lcd_panel_io_handle_t bsp_display_io(void) { return s_io; }
 void bsp_display_backlight(uint8_t percent) {
     if (!s_bl_ready) return;
     if (percent > 100) percent = 100;
+    // Zero duty alone is a dimming request. Stop the PWM peripheral and hold
+    // the board's active-high backlight control low for screen-off.
+    if (!percent) {
+        ledc_set_duty(BSP_BL_LEDC_MODE, BSP_BL_LEDC_CHANNEL, 0);
+        ledc_update_duty(BSP_BL_LEDC_MODE, BSP_BL_LEDC_CHANNEL);
+        esp_err_t e = ledc_stop(BSP_BL_LEDC_MODE, BSP_BL_LEDC_CHANNEL, 0);
+        if (e != ESP_OK) ESP_LOGE(TAG, "backlight stop failed: %s", esp_err_to_name(e));
+        return;
+    }
     uint32_t max_duty = (1u << BSP_BL_LEDC_RES) - 1u;
     uint32_t duty = (max_duty * percent) / 100u;
     ledc_set_duty(BSP_BL_LEDC_MODE, BSP_BL_LEDC_CHANNEL, duty);
@@ -152,4 +161,23 @@ uint8_t bsp_display_get_backlight(void) {
     if (!s_bl_ready) return 0;
     uint32_t max_duty = (1u << BSP_BL_LEDC_RES) - 1u;
     return (uint8_t)(ledc_get_duty(BSP_BL_LEDC_MODE, BSP_BL_LEDC_CHANNEL) * 100u / max_duty);
+}
+
+// Keep the backlight dark while changing panel power state. The ST7789 driver
+// waits after SLPIN/SLPOUT; add margin to meet the panel's 120 ms wake interval.
+esp_err_t bsp_display_sleep(bool sleep)
+{
+    if (!s_panel) return ESP_ERR_INVALID_STATE;
+    esp_err_t e;
+    if (sleep) {
+        e = esp_lcd_panel_disp_on_off(s_panel, false);
+        if (e != ESP_OK) return e;
+        e = esp_lcd_panel_disp_sleep(s_panel, true);
+    } else {
+        e = esp_lcd_panel_disp_sleep(s_panel, false);
+        if (e != ESP_OK) return e;
+        vTaskDelay(pdMS_TO_TICKS(20));
+        e = esp_lcd_panel_disp_on_off(s_panel, true);
+    }
+    return e;
 }
