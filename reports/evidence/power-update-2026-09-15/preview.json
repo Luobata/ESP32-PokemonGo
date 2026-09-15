@@ -1,0 +1,41 @@
+{
+  "build": "7b65a4282f754fd0b3ea",
+  "pages": [
+    {
+      "page": 1,
+      "wait_ms": 60100,
+      "wake_did_not_act": true,
+      "band_checks": 12
+    },
+    {
+      "page": 5,
+      "wait_ms": 60100,
+      "wake_did_not_act": true,
+      "band_checks": 12
+    },
+    {
+      "page": 6,
+      "wait_ms": 60100,
+      "wake_did_not_act": true,
+      "band_checks": 12
+    },
+    {
+      "page": 10,
+      "wait_ms": 60100,
+      "wake_did_not_act": true,
+      "band_checks": 12
+    },
+    {
+      "page": 11,
+      "wait_ms": 60100,
+      "wake_did_not_act": true,
+      "band_checks": 12
+    },
+    {
+      "page": 12,
+      "wait_ms": 60100,
+      "wake_did_not_act": true,
+      "band_checks": 12
+    }
+  ]
+}

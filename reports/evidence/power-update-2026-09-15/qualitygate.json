@@ -1,0 +1,7 @@
+{
+  "central_mcp_available": false,
+  "runner_status": "failed_missing_dependencies",
+  "gate": "not_executed",
+  "mutation_status": "disabled",
+  "semantic_review": "not_executed"
+}

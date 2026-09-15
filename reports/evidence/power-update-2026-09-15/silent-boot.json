@@ -1,0 +1,92 @@
+{
+  "status": "PASS",
+  "host_cases": [
+    {
+      "silent": true,
+      "pa_pin": -1,
+      "injected_failure": 0
+    },
+    {
+      "silent": true,
+      "pa_pin": -1,
+      "injected_failure": 3
+    },
+    {
+      "silent": true,
+      "pa_pin": -1,
+      "injected_failure": 4
+    },
+    {
+      "silent": true,
+      "pa_pin": -1,
+      "injected_failure": 5
+    },
+    {
+      "silent": true,
+      "pa_pin": -1,
+      "injected_failure": 6
+    },
+    {
+      "silent": true,
+      "pa_pin": 12,
+      "injected_failure": 0
+    },
+    {
+      "silent": true,
+      "pa_pin": 12,
+      "injected_failure": 3
+    },
+    {
+      "silent": true,
+      "pa_pin": 12,
+      "injected_failure": 4
+    },
+    {
+      "silent": true,
+      "pa_pin": 12,
+      "injected_failure": 5
+    },
+    {
+      "silent": true,
+      "pa_pin": 12,
+      "injected_failure": 6
+    },
+    {
+      "silent": true,
+      "pa_pin": 12,
+      "injected_failure": 1
+    },
+    {
+      "silent": true,
+      "pa_pin": 12,
+      "injected_failure": 2
+    },
+    {
+      "silent": false,
+      "pa_pin": -1,
+      "injected_failure": 0
+    },
+    {
+      "silent": false,
+      "pa_pin": 12,
+      "injected_failure": 0
+    }
+  ],
+  "negative_controls": [
+    "PA accidentally driven high",
+    "codec DAC shutdown omitted",
+    "I2C error incorrectly cached as success",
+    "SFX queue still starts in silent build",
+    "scan inserted before early shutdown"
+  ],
+  "source_sha256": {
+    "firmware/components/bsp/src/bsp_audio.c": "2355edffc26a87b0fce4b28fda985d72033e8c0644fef625bb67a8bc880bc19e",
+    "firmware/components/bsp/include/bsp_audio.h": "3a7e3318d0383b519f0e63fbca5fda11bd54aa75572ddf64b4976ce345b11ac8",
+    "firmware/main/sfx.c": "300150bc8668e7e2bce866fe227a1380bcdee31de0259a43dd0c31d7a1cc920f",
+    "firmware/main/sfx.h": "79a0a7c230c0527456c01d8d8a7e4754ea2ae4b5e2bf398752f789a28586dff9",
+    "firmware/main/main.c": "bea6fbe96b5dd87e8bc2a73727c8144b6859196c73fcca6f6dbc3998b37c9036",
+    "firmware/main/Kconfig.projbuild": "884760215399e9179820317907541c5339f4c1b6e58c78386bd0fe15ce0b7ae9",
+    "firmware/sdkconfig.defaults": "1d0dc95a92875f16bd8ff5b51cd4ca2d0b7e7d54c36a8045c0d25e54ef0ce6fc"
+  },
+  "scope": "Real BSP/SFX compiled under mocked platform, GPIO/I2C failures and silent-off recovery. No device access or acoustic/ROM/bootloader timing measurement."
+}

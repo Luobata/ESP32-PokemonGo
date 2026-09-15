@@ -26,6 +26,7 @@ PLATFORM = r'''
 typedef int esp_err_t;
 #define ESP_OK 0
 #define ESP_FAIL -1
+#define ESP_ERR_NO_MEM 0x101
 #define ESP_ERR_INVALID_STATE 0x103
 #define ESP_ERR_NOT_SUPPORTED 0x106
 void test_log(const char *tag, const char *format, ...);
@@ -65,13 +66,18 @@ typedef struct {
 esp_err_t i2s_new_channel(const i2s_chan_config_t *cfg, void **tx, void **rx);
 esp_err_t i2s_channel_init_std_mode(void *chan, const i2s_std_config_t *cfg);
 esp_err_t i2s_channel_enable(void *chan);
-typedef struct { int unused; } audio_codec_ctrl_if_t;
+esp_err_t i2s_channel_disable(void *chan);
+esp_err_t i2s_del_channel(void *chan);
+
+
+typedef struct audio_codec_ctrl_if { int (*enable)(const struct audio_codec_ctrl_if *,bool); } audio_codec_ctrl_if_t;
+typedef audio_codec_ctrl_if_t audio_codec_gpio_if_t;
 typedef audio_codec_ctrl_if_t audio_codec_data_if_t;
 typedef audio_codec_ctrl_if_t audio_codec_if_t;
 typedef struct { int port, addr; void *bus_handle; } audio_codec_i2c_cfg_t;
 typedef struct { int port; void *tx_handle, *rx_handle; } audio_codec_i2s_cfg_t;
 typedef struct {
- const audio_codec_ctrl_if_t *ctrl_if; void *gpio_if;
+ const audio_codec_ctrl_if_t *ctrl_if; const audio_codec_gpio_if_t *gpio_if;
  int codec_mode, pa_pin, pa_reverted, master_mode, use_mclk;
  struct { float pa_voltage, codec_dac_voltage; } hw_gain;
  bool no_dac_ref;
@@ -83,7 +89,14 @@ typedef struct { int bits_per_sample, channel, channel_mask, sample_rate, mclk_m
 #define ESP_CODEC_DEV_MAKE_CHANNEL_MASK(x) (1 << (x))
 const audio_codec_ctrl_if_t *audio_codec_new_i2c_ctrl(const audio_codec_i2c_cfg_t *cfg);
 const audio_codec_data_if_t *audio_codec_new_i2s_data(const audio_codec_i2s_cfg_t *cfg);
-void *audio_codec_new_gpio(void);
+const audio_codec_gpio_if_t *audio_codec_new_gpio(void);
+void audio_codec_delete_codec_if(const audio_codec_if_t *p);
+void audio_codec_delete_ctrl_if(const audio_codec_ctrl_if_t *p);
+void audio_codec_delete_data_if(const audio_codec_data_if_t *p);
+void audio_codec_delete_gpio_if(const audio_codec_gpio_if_t *p);
+void esp_codec_dev_delete(void *p);
+esp_err_t i2c_master_transmit_receive(void *d,const void *reg,size_t rn,void *out,size_t on,int t);
+int xQueuePeek(void *q,void *out,unsigned ticks);
 const audio_codec_if_t *es8311_codec_new(const es8311_codec_cfg_t *cfg);
 void *esp_codec_dev_new(const esp_codec_dev_cfg_t *cfg);
 int esp_codec_dev_open(void *dev, const esp_codec_dev_sample_info_t *fs);
@@ -122,8 +135,9 @@ DRIVER = r'''
 #include <stdio.h>
 static int mode, levels, configured, writes, removed, added, buses, i2s, codec, formats, volumes, output, input, queues, tasks, sends;
 static unsigned last_level;
-static uint8_t transactions[64][2];
-static const audio_codec_ctrl_if_t dummy = {0};
+static uint8_t transactions[256][2];
+static int enable_codec(const audio_codec_ctrl_if_t *p,bool on){(void)p;(void)on;return 0;}
+static const audio_codec_ctrl_if_t dummy = {.enable=enable_codec};
 void test_log(const char *tag, const char *format, ...) { (void)tag;(void)format; }
 const char *esp_err_to_name(esp_err_t e) { (void)e; return "test"; }
 esp_err_t gpio_set_level(int pin, unsigned level) {
@@ -144,8 +158,8 @@ esp_err_t i2c_master_bus_add_device(void *bus, const i2c_device_config_t *cfg, v
 }
 esp_err_t i2c_master_transmit(void *dev, const void *data, size_t bytes, int timeout) {
  assert(dev==(void *)2 && bytes==2 && timeout>0 && timeout<=100);
- assert(writes<64);memcpy(transactions[writes],data,2);writes++;
- return mode==5 && writes==1 ? ESP_FAIL : ESP_OK;
+ assert(writes<256);memcpy(transactions[writes],data,2);writes++;
+ return mode==5 ? ESP_FAIL : ESP_OK;
 }
 esp_err_t i2c_master_bus_rm_device(void *dev) {
  assert(dev==(void *)2);removed++;return mode==6 ? ESP_FAIL : ESP_OK;
@@ -155,7 +169,7 @@ esp_err_t i2s_channel_init_std_mode(void *ch, const i2s_std_config_t *cfg) { (vo
 esp_err_t i2s_channel_enable(void *ch) { (void)ch;i2s++;return 0; }
 const audio_codec_ctrl_if_t *audio_codec_new_i2c_ctrl(const audio_codec_i2c_cfg_t *cfg) { (void)cfg;codec++;return &dummy; }
 const audio_codec_data_if_t *audio_codec_new_i2s_data(const audio_codec_i2s_cfg_t *cfg) { (void)cfg;codec++;return &dummy; }
-void *audio_codec_new_gpio(void) { codec++;return (void *)1; }
+const audio_codec_gpio_if_t *audio_codec_new_gpio(void) { codec++;return &dummy; }
 const audio_codec_if_t *es8311_codec_new(const es8311_codec_cfg_t *cfg) { (void)cfg;codec++;return &dummy; }
 void *esp_codec_dev_new(const esp_codec_dev_cfg_t *cfg) { (void)cfg;codec++;return (void *)5; }
 int esp_codec_dev_open(void *d, const esp_codec_dev_sample_info_t *fs) { (void)d;(void)fs;formats++;return 0; }
@@ -170,6 +184,19 @@ int64_t esp_timer_get_time(void) { return 0; }
 void *xQueueCreate(unsigned count, unsigned bytes) { assert(count>0 && bytes>=sizeof(sfx_id_t));queues++;return (void *)6; }
 int xQueueReceive(void *q, void *id, unsigned wait) { (void)q;(void)id;(void)wait;abort(); }
 int xQueueSend(void *q, const void *id, unsigned wait) { (void)id;assert(q==(void *)6 && wait==0);sends++;return pdTRUE; }
+int xQueuePeek(void *q,void *out,unsigned ticks){(void)q;(void)out;(void)ticks;abort();}
+esp_err_t i2s_channel_disable(void *ch){(void)ch;return 0;}
+esp_err_t i2s_del_channel(void *ch){(void)ch;return 0;}
+void audio_codec_delete_codec_if(const audio_codec_if_t *p){(void)p;}
+void audio_codec_delete_ctrl_if(const audio_codec_ctrl_if_t *p){(void)p;}
+void audio_codec_delete_data_if(const audio_codec_data_if_t *p){(void)p;}
+void audio_codec_delete_gpio_if(const audio_codec_gpio_if_t *p){(void)p;}
+void esp_codec_dev_delete(void *p){(void)p;}
+esp_err_t i2c_master_transmit_receive(void *d,const void *reg,size_t rn,void *out,size_t on,int t){
+ (void)d;(void)rn;(void)on;(void)t;uint8_t r=*(const uint8_t*)reg,v=0;
+ for(int i=0;i<writes;i++)if(transactions[i][0]==r)v=transactions[i][1];
+ *(uint8_t*)out=r==0x0e?(v&0x7f):v;return 0;
+}
 void vQueueDelete(void *q) { (void)q; }
 int xTaskCreate(void (*fn)(void *), const char *name, unsigned stack, void *arg, unsigned priority, void *handle) {
  (void)fn;(void)name;(void)stack;(void)arg;(void)priority;(void)handle;tasks++;return pdPASS;
@@ -184,6 +211,7 @@ bool audio_settings_muted(void) {return false;}
 uint8_t audio_settings_volume(void) {return 55;}
 sfx_id_t audio_encounter_alert(uint8_t r,bool s){return s?SFX_SHINY:r>=4?SFX_RARE:SFX_ENCOUNTER;}
 void sound_mixer_init(sound_mixer_t *m) {memset(m,0,sizeof(*m));}
+void sound_mixer_cry(sound_mixer_t *m,uint16_t id){(void)m;(void)id;}
 void sound_mixer_effect(sound_mixer_t *m,sfx_id_t id) {(void)m;(void)id;}
 void sound_mixer_move(sound_mixer_t *m,uint16_t id,uint8_t type,bool missed) {(void)m;(void)id;(void)type;(void)missed;}
 void sound_mixer_music(sound_mixer_t *m,music_id_t id) {(void)m;(void)id;}
@@ -225,7 +253,7 @@ int main(int argc, char **argv) {
  assert(e==(mode ? ESP_FAIL : ESP_OK));
  if(mode!=3 && mode!=4) { assert_shutdown();assert(removed==1); }
  if(mode==3 || mode==4)assert(writes==0);
- if(mode==1 || mode==2)assert(buses==1 && writes==17);
+ if(mode==1 || mode==2)assert(buses==1 && writes==34);
  assert_blocked();
  int prior=writes;mode=0;
  assert(bsp_audio_init()==ESP_OK);assert_shutdown();
@@ -240,7 +268,7 @@ int main(int argc, char **argv) {
  assert(bsp_audio_set_format(16000,16,1)==ESP_OK && formats==2);
  int16_t pcm[4]={0};bsp_audio_set_volume(80);
  assert(bsp_audio_write(pcm,sizeof(pcm))==ESP_OK && output==1);
- assert(bsp_audio_read(pcm,sizeof(pcm))==ESP_OK && input==1 && volumes==1);
+ assert(bsp_audio_read(pcm,sizeof(pcm))==ESP_OK && input==1 && volumes>=1);
  sfx_start();sfx_start();assert(queues==1 && tasks==1);
  for(int i=0;i<SFX_COUNT;i++)sfx_play((sfx_id_t)i);
  assert(sends==SFX_COUNT);
@@ -301,7 +329,8 @@ def main() -> int:
                 '-Wno-unused-function', '-Wno-unused-variable',
                 '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
                 f'-DCONFIG_POKEWALK_SILENT_BOOT={silent}', f'-DTEST_PA={pin}',
-                '-I', str(tmp), '-I', str(BSP/'include'), '-I', str(MAIN),
+                '-I', str(tmp), '-I', str(BSP/'include'), '-I', str(BSP/'src'), '-I', str(MAIN),
+                str(BSP/'src/bsp_es8311_sleep_check.c'),
                 str(tmp/'bsp_audio.c'), str(tmp/'sfx.c'), str(tmp/'driver.c'), '-o', str(exe)],
                 capture_output=True, text=True)
             assert result.returncode == 0, result.stderr

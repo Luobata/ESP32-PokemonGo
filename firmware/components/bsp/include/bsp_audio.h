@@ -10,7 +10,8 @@
 // ES8311 is always shut down over I2C before initialization, without I2S.
 // BSP_I2S_PA_CTRL=-1 means this board has no MCU-controlled PA enable pin.
 esp_err_t bsp_audio_boot_quiet(void);
-// Playback task only: close the codec on mute/sleep; next set_format reopens it.
+// Playback task only: verify codec sleep and stop TX/RX clocks on mute/sleep.
+// Failed transitions can be retried; next set_format resumes with the chosen format.
 esp_err_t bsp_audio_suspend(void);
 
 // 初始化 codec 与 I2S。内部会调 bsp_i2c_init()(幂等),无需外部先调。

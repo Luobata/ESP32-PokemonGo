@@ -43,6 +43,10 @@
 #include "exp.h"
 #include "save.h"
 #include "wifi_time.h"
+#include "scan_pacing.h"
+#ifndef HOST_BUILD
+#include "screen_idle.h"
+#endif
 #include "world.h"
 // The dungeon owns the persisted reservation of participating party slots.
 extern bool dungeon_party_locked(void);
@@ -1153,8 +1157,10 @@ static uint8_t refresh_from_scan(bool exploring,uint16_t distance_q10)
 }
 
 // 一次扫描 + 喂给 sensing + 更新状态。
+static bool s_scan_stable;
 static void scan_once(void)
 {
+    s_scan_stable = false;
     // 阻塞式扫描（第二个参数 true）—— 我们在自己的任务里，
     // 阻塞 1.4 秒不影响任何人。Collect 页当年必须用非阻塞 +
     // 事件回调，正是因为它跑在 LVGL 任务里。
@@ -1175,6 +1181,7 @@ static void scan_once(void)
     sens_result_t r;
     uint32_t ts = (uint32_t)(esp_timer_get_time() / 1000000);
     sens_feed(&s_core, ts, s_aps, (uint8_t)n, &r);
+    s_scan_stable = r.state == SENS_STAYING && !r.transient_aps && r.distance < SENS_MOVE_THRESHOLD;
 
     refresh_from_scan(r.state==SENS_MOVING && r.transient_aps>0,r.distance);
 
@@ -1204,6 +1211,10 @@ static void world_task(void *arg)
 {
     (void)arg;
     int64_t next_scan = 0;
+    scan_pacing_t pacing = {0};
+#ifndef HOST_BUILD
+    bool was_off = false;
+#endif
 
     for (;;) {
         int64_t now = esp_timer_get_time();
@@ -1222,12 +1233,16 @@ static void world_task(void *arg)
 #ifndef HOST_BUILD
         if(s_wifi_ok)wifi_time_poll();
         bool scan_allowed=wifi_time_scan_allowed();
+        bool off=screen_idle_is_off();
+        if(was_off && !off) {next_scan=0;pacing.stable=0;}
+        was_off=off;
 #else
         bool scan_allowed=true;
+        bool off=false;
 #endif
         if (s_wifi_ok && scan_allowed && now >= next_scan) {
             scan_once();
-            next_scan = esp_timer_get_time() + SCAN_INTERVAL_MS * 1000LL;
+            next_scan = esp_timer_get_time() + scan_pacing_next(&pacing,off,s_scan_stable) * 1000LL;
         }
 
         // 节流存档 —— 见 SAVE_INTERVAL_US 上方的说明

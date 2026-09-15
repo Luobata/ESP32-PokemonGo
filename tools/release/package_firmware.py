@@ -24,11 +24,12 @@ merged = OUT / 'FoloToy-AI-Passport-full.bin'
 subprocess.run([sys.executable, '-m', 'esptool', '--chip', 'esp32c3', 'merge_bin',
     '--flash_mode', 'dio', '--flash_freq', '80m', '--flash_size', '8MB', '-o', str(merged),
     *[arg for offset, _, target in IMAGES for arg in (hex(offset), str(OUT / target))]], check=True)
+subprocess.run([sys.executable, str(ROOT / 'tools/release/verify_firmware_upstream.py'), str(OUT)], check=True)
 subprocess.run([sys.executable, str(ROOT / 'tools/release/verify_firmware.py'), str(OUT)], check=True)
 report = {'artifact': merged.name, 'size': merged.stat().st_size,
           'sha256': hashlib.sha256(merged.read_bytes()).hexdigest(), 'flash_address': '0x0',
           'protected_layout_pass': True,
-          'checker_source': 'FoloToy/ai-passport@df3990726e3751fadaaaa703a480dbba6e13c61b',
+          'checker_source': 'FoloToy/ai-passport@cd73a8a6f1f95e010bfd83a08e2b915e38408308 + PokeWalk data protection',
           'application_size': (BUILD / 'PokeWalk.bin').stat().st_size,
           'community_upload_performed': False, 'ble_install_tested': False}
 (OUT / 'manifest.json').write_text(json.dumps(report, indent=2) + '\n')

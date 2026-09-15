@@ -1,0 +1,8 @@
+{
+  "sound_cycles": 10,
+  "blocks_while_idle": true,
+  "screen_off_alert_resleeps": true,
+  "mute_wake": true,
+  "move_cry_wake": true,
+  "scan_backoff_cap_ms": 60000
+}

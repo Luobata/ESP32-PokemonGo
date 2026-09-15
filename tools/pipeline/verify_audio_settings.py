@@ -23,6 +23,7 @@ int nvs_get_u8(int h,const char*k,uint8_t*v){(void)h;int value=disk[key(k)];if(v
 int nvs_set_u8(int h,const char*k,uint8_t v){(void)h;writes++;if(fail==2)return -1;stage[key(k)]=v;return 0;}
 int nvs_commit(int h){(void)h;if(fail==3)return -1;memcpy(disk,stage,sizeof(disk));return 0;}
 void nvs_close(int h){(void)h;}
+void sfx_notify_state(void){}
 int main(void){
  audio_settings_init();assert(audio_settings_muted()&&audio_settings_volume()==55);
  assert(audio_settings_set_muted(true)&&audio_settings_set_volume(55)&&writes==0);

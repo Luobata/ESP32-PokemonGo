@@ -21,3 +21,6 @@ void sfx_move(uint16_t move_id, uint8_t type, bool missed);
 void sfx_encounter(uint8_t rarity, bool shiny);
 
 void sfx_cry(uint16_t species);
+
+// Wake the sound worker after publishing a mute, volume, or screen state change.
+void sfx_notify_state(void);

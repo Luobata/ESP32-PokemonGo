@@ -451,6 +451,7 @@ static unsigned host_alert;
 static bool host_notifying;
 uint8_t audio_settings_volume(void){return host_volume;}
 bool audio_settings_set_volume(uint8_t v){if(v>100||host_save_fails())return false;host_volume=v;return true;}
+void sfx_notify_state(void) {}
 void sfx_encounter(uint8_t rarity,bool shiny){if(host_muted)return;unsigned priority=shiny?3:rarity>=4?2:1;if(priority>host_alert)host_alert=priority;}
 bool audio_settings_muted(void) {return host_muted;}
 void audio_settings_init(void) {host_muted=true;}

@@ -58,6 +58,7 @@ esp_err_t bsp_display_sleep(bool sleep) {
  if(sleep)sleep_calls++;else wake_calls++;
  return ESP_OK;
 }
+void sfx_notify_state(void){}
 void screen_redraw_current(void) {
  assert(!panel_sleeping);
  assert(brightness==0 && "wake must redraw before revealing the backlight");redraws++;

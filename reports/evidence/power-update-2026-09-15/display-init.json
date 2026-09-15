@@ -1,0 +1,5 @@
+{
+  "failure_stages": 24,
+  "retry_after_each_failure": true,
+  "failed_cleanup_retains_ownership": true
+}

@@ -1,0 +1,55 @@
+name: Verify game firmware
+on:
+  pull_request:
+    paths: ['firmware/**', 'assets/**', 'tools/pipeline/**', 'tools/release/**', '.github/workflows/firmware-check.yml']
+  push:
+    branches: [main]
+    paths: ['firmware/**', 'assets/**', 'tools/pipeline/**', 'tools/release/**', '.github/workflows/firmware-check.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: firmware-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  firmware:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Run production C power and save regression
+        run: |
+          python3 tools/pipeline/verify_power_audio.py
+          python3 tools/pipeline/verify_power_worker.py
+          python3 tools/pipeline/verify_display_init.py
+          python3 tools/pipeline/verify_display_sleep.py
+          python3 tools/pipeline/verify_silent_boot.py
+          python3 tools/pipeline/verify_audio_settings.py
+          python3 tools/pipeline/verify_offline_stamina.py
+          python3 tools/pipeline/verify_usb_backup_checkpoint.py
+      - name: Build and verify release components
+        uses: espressif/esp-idf-ci-action@9d38657f3d789ca759b2b37aaf5ceffbc42c4f0d # v1
+        with:
+          esp_idf_version: v5.5.3
+          target: esp32c3
+          command: |
+            cd firmware
+            idf.py build
+            cd ..
+            python tools/release/package_firmware.py
+            python tools/pipeline/verify_release_partition_protection.py
+      - name: Archive firmware and build identity
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: pokewalk-${{ github.sha }}
+          path: |
+            release/community/FoloToy-AI-Passport-full.bin
+            release/community/FoloToy-AI-Passport.bin
+            release/community/bootloader/bootloader.bin
+            release/community/partition_table/partition-table.bin
+            release/community/flash_args
+            release/community/manifest.json
+            firmware/build/project_description.json
+          if-no-files-found: error
+          retention-days: 14

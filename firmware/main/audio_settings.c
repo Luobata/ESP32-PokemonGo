@@ -1,4 +1,5 @@
 #include "audio_settings.h"
+#include "sfx.h"
 #include <stdatomic.h>
 #include "nvs.h"
 
@@ -30,6 +31,7 @@ bool audio_settings_set_muted(bool muted)
     nvs_close(handle);
     if (result != ESP_OK) return false;
     atomic_store(&s_muted, muted);
+    sfx_notify_state();
     return true;
 }
 
@@ -45,5 +47,6 @@ bool audio_settings_set_volume(uint8_t percent)
     nvs_close(handle);
     if (result != ESP_OK) return false;
     atomic_store(&s_volume, percent);
+    sfx_notify_state();
     return true;
 }

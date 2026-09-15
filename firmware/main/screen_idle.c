@@ -6,6 +6,7 @@
 #include "esp_timer.h"
 #include "lvgl.h"
 #include "screen.h"
+#include "sfx.h"
 
 #define IDLE_MS 60000u
 static lv_timer_t *s_timer;
@@ -41,11 +42,12 @@ void screen_idle_request_off(void)
     if (bsp_display_sleep(true) != ESP_OK) {
         // A partial DISPOFF must be undone before returning to the active page.
         if (bsp_display_sleep(false) == ESP_OK) bsp_display_backlight(100);
-        else s_off = true; // Allow the next key to retry a failed wake.
+        else {s_off = true;sfx_notify_state();} // Allow the next key to retry a failed wake.
         ESP_LOGE("screen_idle", "panel sleep failed");
         return;
     }
     s_off = true;
+    sfx_notify_state();
     ESP_LOGI("screen_idle", "@@DISPLAY off timeout_ms=%u", IDLE_MS);
 }
 
@@ -56,6 +58,7 @@ static void wake(void)
         return;
     }
     s_off = false;
+    sfx_notify_state();
     // Repaint while the backlight is still dark, then reveal the current page.
     screen_redraw_current();
     bsp_display_backlight(100);
