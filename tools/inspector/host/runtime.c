@@ -20,6 +20,7 @@
 #include "screen_idle.h"
 #include "sfx.h"
 #include "audio_settings.h"
+#include "display_settings.h"
 #include "sound_mixer.h"
 #include "music_director.h"
 #include "world.h"
@@ -449,6 +450,13 @@ static bool host_muted = true;
 static uint8_t host_volume=AUDIO_VOLUME_DEFAULT;
 static unsigned host_alert;
 static bool host_notifying;
+static uint8_t host_brightness=DISPLAY_BRIGHTNESS_DEFAULT;
+void display_settings_init(void) {host_brightness=DISPLAY_BRIGHTNESS_DEFAULT;}
+uint8_t display_settings_brightness(void){return host_brightness;}
+bool display_settings_set_brightness(uint8_t v){
+    if(v<DISPLAY_BRIGHTNESS_MIN||v>100||host_save_fails())return false;
+    host_brightness=v;if(!screen_idle_is_off())bsp_display_backlight(v);return true;
+}
 uint8_t audio_settings_volume(void){return host_volume;}
 bool audio_settings_set_volume(uint8_t v){if(v>100||host_save_fails())return false;host_volume=v;return true;}
 void sfx_notify_state(void) {}

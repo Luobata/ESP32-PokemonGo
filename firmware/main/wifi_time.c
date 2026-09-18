@@ -59,8 +59,19 @@ static bool store_credentials(void){
 }
 static bool ap_request(httpd_req_t *req){
  wifi_time_view_t v;wifi_time_view(&v);if(!v.setup)return false;
- struct sockaddr_in local;socklen_t len=sizeof(local);
- return getsockname(httpd_req_to_sockfd(req),(struct sockaddr*)&local,&len)==0&&local.sin_family==AF_INET&&ntohl(local.sin_addr.s_addr)==0xc0a80401u;
+ // ESP-IDF uses a dual-stack HTTP socket when IPv6 is enabled. An IPv4
+ // connection to the AP then reports ::ffff:192.168.4.1 as its local address.
+ struct sockaddr_storage local={0};socklen_t len=sizeof(local);
+ if(getsockname(httpd_req_to_sockfd(req),(struct sockaddr*)&local,&len)!=0)return false;
+ if(local.ss_family==AF_INET&&len>=sizeof(struct sockaddr_in))
+  return ntohl(((struct sockaddr_in*)&local)->sin_addr.s_addr)==0xc0a80401u;
+#if CONFIG_LWIP_IPV6
+ if(local.ss_family==AF_INET6&&len>=sizeof(struct sockaddr_in6)){
+  static const unsigned char ap_mapped[16]={0,0,0,0,0,0,0,0,0,0,0xff,0xff,192,168,4,1};
+  return !memcmp(&((struct sockaddr_in6*)&local)->sin6_addr,ap_mapped,sizeof(ap_mapped));
+ }
+#endif
+ return false;
 }
 static esp_err_t page(httpd_req_t *req){
  if(!ap_request(req))return httpd_resp_send_err(req,HTTPD_403_FORBIDDEN,"Setup is not active");

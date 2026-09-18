@@ -1,0 +1,11 @@
+{
+  "build": "27f58f71071b52df6ed5",
+  "band_checks": 69,
+  "brightness_bounds": [
+    10,
+    100
+  ],
+  "wake_restores_brightness": true,
+  "save_failure_preserves_brightness": true,
+  "hardware_tested": false
+}

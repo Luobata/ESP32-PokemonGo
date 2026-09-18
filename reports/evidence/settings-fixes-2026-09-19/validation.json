@@ -1,0 +1,28 @@
+{
+  "idf": "5.5.3",
+  "build_passed": true,
+  "device_flashed": false,
+  "website_deployed": false,
+  "community_published": false,
+  "source_sha256": {
+    ".github/workflows/firmware-check.yml": "16f30ad6caf9207f3feb274dfed65350a7e791bc6eef07488b22a3135db110c0",
+    ".github/workflows/save-manager-pages.yml": "62ed8cc25cf89aa37024066a9e3864e7052d1388a95e77cee507f915088b1437",
+    "firmware/main/CMakeLists.txt": "9cb338d75e36258ff7f14219961c8227459c88594db45ed345811aaace1851c6",
+    "firmware/main/main.c": "30222b94dfee849b6d082697cae15fc3ca510d5965d89512186cd4fb99d0e389",
+    "firmware/main/play_menu.c": "37e6a3010c20c85efe7f5ec93836779dc2bc5639f8d74db4ccae42cf7ec66d70",
+    "firmware/main/screen_idle.c": "044edd56f3fd7c2cee7aea086cf2c2c2a1507b37d3142de59381556004ed21c0",
+    "firmware/main/wifi_time.c": "c749034d9bb5ae803de304f5c7999bff05eaffa200a48d3cc9cb26232670dc4a",
+    "tools/inspector/host/runtime.c": "e075789c7193f448f852ab90186921afc5f8187be64ed3cfcb059034f3d0eb9e",
+    "tools/pipeline/verify_screen_idle_input.py": "6bc0cbfd98737ce53f26752048fa9e11832baa3db1cdb197c22b675230fc79b3",
+    "tools/pipeline/verify_usb_backup.py": "04ac5fa99c897b0646466c9cf7544e04bbf0607e3905e20e7ce083aeeea330d2",
+    "tools/pipeline/verify_usb_backup_ui.py": "626395b9b39555d9e19fe0921d50a43a4ff4d9dff0da54d1582182f1fecd5d33",
+    "tools/pipeline/verify_usb_import.py": "07b0e5bde337144ab5c436e6f03ebd9af7b0e94a6099210d6ec9664a05bc148c",
+    "tools/pipeline/verify_wifi_time.py": "cacdddaca4665271dbf7ccbbd97bf8a6eab001a28b21d9cea7bb0f0108f30709",
+    "tools/save-manager/README.md": "30af6b2a4127a7d1c8873090976dc3f816507c88602c3ad4994882f38a823a18",
+    "tools/save-manager/restore.py": "533dc0b455255103ade97ff4442e55d2bf20cb32ef03d2746e31e137246cc40c",
+    "tools/save-manager/web/backup.mjs": "2ebab313f134415347cd7d685a57e3afdc9e94623f44dd6f4c18f0fc07005380",
+    "firmware/main/display_settings.c": "acaa099903997e6dc77fc406cd354df7cf9fac9bec39487212c18047e99b9dbe",
+    "firmware/main/display_settings.h": "7d960baf1e6d8f3b3fcd58bec248100fecd6909731c4dcdc233e82d87ac5529a"
+  },
+  "validation_stage": "Local regression before release; delivery receipts recorded separately"
+}

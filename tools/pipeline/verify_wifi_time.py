@@ -15,6 +15,7 @@ STUB=r'''
 #include <netinet/in.h>
 typedef int esp_err_t;
 #define ESP_OK 0
+#define CONFIG_LWIP_IPV6 1
 #define ESP_FAIL -1
 #define portMUX_INITIALIZER_UNLOCKED 0
 typedef int portMUX_TYPE;
@@ -66,9 +67,22 @@ typedef struct {int stack_size,max_open_sockets,recv_wait_timeout;bool lru_purge
 #define HTTP_GET 0
 #define HTTP_POST 1
 typedef struct {const char*uri;int method;esp_err_t(*handler)(httpd_req_t*);} httpd_uri_t;
-static const char *body_input,*origin_input;static unsigned body_offset;static uint32_t local_ip=0xc0a80401;static char response[2000];
+static const char *body_input,*origin_input;static unsigned body_offset;static uint32_t local_ip=0xc0a80401;static int socket_kind, socket_error;static char response[2000];
 static int httpd_req_to_sockfd(httpd_req_t*r){return 7;}
-static int test_getsockname(int fd,struct sockaddr*a,socklen_t*n){struct sockaddr_in*v=(void*)a;v->sin_family=AF_INET;v->sin_addr.s_addr=htonl(local_ip);return 0;}
+static int test_getsockname(int fd,struct sockaddr*a,socklen_t*n){
+ if(socket_error)return -1;
+ struct sockaddr_storage storage={0};socklen_t size;
+ if(socket_kind){
+  struct sockaddr_in6 *v=(void*)&storage;v->sin6_family=AF_INET6;
+  unsigned char *b=(void*)&v->sin6_addr;
+  b[10]=b[11]=0xff;uint32_t ip=htonl(local_ip);memcpy(b+12,&ip,4);
+  if(socket_kind==2)b[0]=0x20; // real IPv6, not an IPv4-mapped AP address
+  size=sizeof(*v);
+ }else{
+  struct sockaddr_in *v=(void*)&storage;v->sin_family=AF_INET;v->sin_addr.s_addr=htonl(local_ip);size=sizeof(*v);
+ }
+ socklen_t copy=*n<size?*n:size;memcpy(a,&storage,copy);*n=size;return 0;
+}
 #define getsockname test_getsockname
 static int httpd_resp_send_err(httpd_req_t*r,int code,const char*t){return code;}
 static int httpd_resp_set_type(httpd_req_t*r,const char*t){return 0;}
@@ -93,11 +107,17 @@ int main(void){
  assert(!field("ssid=a&ssid=b","ssid",out,sizeof(out)));assert(!field("ssid=%00","ssid",out,sizeof(out)));assert(!field("ssid=%GG","ssid",out,sizeof(out)));assert(!field("ssid=%0A","ssid",out,sizeof(out)));
  wifi_time_start();assert(view.state==WIFI_TIME_UNCONFIGURED&&!configured);
  wifi_time_setup_request(true);wifi_time_poll();assert(view.setup&&!wifi_time_scan_allowed());
+ httpd_req_t get={0};
+ assert(page(&get)==0&&strstr(response,"PokeWalk Wi-Fi"));
+ socket_kind=1;assert(page(&get)==0); // ESP-IDF IPv6 listener serving an IPv4 phone
+ local_ip=0xc0a80102;assert(page(&get)==403);local_ip=0xc0a80401;
+ socket_kind=2;assert(page(&get)==403);socket_kind=1;
+ socket_error=1;assert(page(&get)==403);socket_error=0;
  char form[180];snprintf(form,sizeof(form),"ssid=Home&password=12345678&token=%s",view.password);
  origin_input="https://untrusted.test";assert(submit(form)==403);origin_input=NULL;
  local_ip=0xc0a80102;assert(submit(form)==403);local_ip=0xc0a80401;
  assert(submit("ssid=x&password=12345678&token=wrong")==400);
- assert(submit(form)==0);wifi_time_poll();assert(connects==1&&save_credentials&&!saves&&!strcmp((char*)station.sta.ssid,"Home"));
+ assert(submit(form)==0);socket_kind=0;wifi_time_poll();assert(connects==1&&save_credentials&&!saves&&!strcmp((char*)station.sta.ssid,"Home"));
  network_event(NULL,IP_EVENT,IP_EVENT_STA_GOT_IP,NULL);wifi_time_poll();assert(saves==1&&view.state==WIFI_TIME_WAITING&&sntp_started);
  struct timeval tv={.tv_sec=1800000000};synchronized(&tv);wifi_time_poll();assert(syncs==1&&view.state==WIFI_TIME_READY&&view.recovered==50);
  // New configuration while already connected must reconnect BEFORE saving.
@@ -110,7 +130,8 @@ int main(void){
  network_event(NULL,WIFI_EVENT,WIFI_EVENT_STA_DISCONNECTED,NULL);wifi_time_poll();assert(connects==3&&!was_connected);
  network_event(NULL,IP_EVENT,IP_EVENT_STA_GOT_IP,NULL);wifi_time_poll();assert(restarts==2&&view.state==WIFI_TIME_WAITING);
  wifi_time_setup_request(true);wifi_time_poll();assert(view.setup);now+=301000000;wifi_time_poll();assert(!view.setup&&!view.password[0]&&wifi_time_scan_allowed());
- puts("{\"network_boundary\":\"simulated\",\"credential_validation\":true,\"ap_only_http\":true,\"credential_replace_after_ip\":true,\"save_retry_backoff\":true,\"reconnect_sntp\":true,\"setup_timeout\":true}");
+ assert(page(&get)==403);socket_kind=1;assert(page(&get)==403);
+ puts("{\"network_boundary\":\"simulated\",\"credential_validation\":true,\"ap_only_http\":true,\"ipv4_mapped_http\":true,\"credential_replace_after_ip\":true,\"save_retry_backoff\":true,\"reconnect_sntp\":true,\"setup_timeout\":true}");
 }
 '''
 def run():

@@ -1,0 +1,11 @@
+{
+  "network_boundary": "simulated",
+  "credential_validation": true,
+  "ap_only_http": true,
+  "ipv4_mapped_http": true,
+  "credential_replace_after_ip": true,
+  "save_retry_backoff": true,
+  "reconnect_sntp": true,
+  "setup_timeout": true,
+  "pre_fix_regression_reproduced": true
+}

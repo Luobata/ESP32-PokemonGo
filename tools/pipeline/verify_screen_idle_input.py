@@ -32,6 +32,8 @@ ROUTING = r'''
 #include "lvgl.h"
 static lv_timer_t idle_timer;
 static bool busy, fail_lv_timer, stall_button_task;
+static uint8_t desired_brightness=100;
+uint8_t display_settings_brightness(void){return desired_brightness;}
 static int brightness=100, redraws, backlight_changes, locks;
 static bool panel_sleeping;
 static int sleep_calls,wake_calls;
@@ -50,7 +52,7 @@ lv_timer_t *lv_timer_create(void (*callback)(lv_timer_t *), uint32_t period, voi
  idle_timer=(lv_timer_t){callback,period,(uint64_t)now_us+period*1000};return &idle_timer;
 }
 void bsp_display_backlight(uint8_t pct) {
- assert(pct==0 || pct==100);brightness=pct;backlight_changes++;
+ assert(pct==0 || pct==desired_brightness);brightness=pct;backlight_changes++;
 }
 esp_err_t bsp_display_sleep(bool sleep) {
  assert(brightness==0);if((sleep&&fail_sleep)||(!sleep&&fail_wake))return -1;
@@ -148,6 +150,11 @@ int main(int argc,char **argv) {
  if(!strcmp(name,"threshold") || !strcmp(name,"init-retry")) {
   idle_at(59999999);assert(!screen_idle_is_off() && brightness==100);
   idle_at(60000000);assert(screen_idle_is_off() && brightness==0 && "60 second threshold missed");
+ } else if(!strcmp(name,"brightness-wake")) {
+  desired_brightness=40;brightness=40;off();
+  screen_idle_filter_key(BSP_BTN_UP,BSP_BTN_CLICK);
+  assert(!screen_idle_is_off()&&brightness==40);
+  fail_sleep=true;screen_idle_request_off();assert(!screen_idle_is_off()&&brightness==40);
  } else if(!strcmp(name,"panel-failure")) {
   fail_sleep=true;screen_idle_request_off();assert(!screen_idle_is_off()&&brightness==100);
   fail_wake=true;screen_idle_request_off();assert(screen_idle_is_off()&&brightness==0);
@@ -293,7 +300,7 @@ def main():
     main_route = c_function((MAIN / 'main.c').read_text(), 'static void on_key(')
     nav_route = c_function((MAIN / 'nav.c').read_text(), 'void nav_key(')
     cases = ['threshold', 'activity', 'held', 'busy', 'init-retry', 'c-long-main',
-             'panel-failure', 'demo-release', 'off-action', 'cross-key', 'semantic', 'delayed-classification',
+             'panel-failure', 'brightness-wake', 'demo-release', 'off-action', 'cross-key', 'semantic', 'delayed-classification',
              'dropped-release-end', 'dropped-end-next-press']
     cases += [f'wake-{gesture}-{key}' for gesture in ('short', 'double', 'triple', 'long', 'taphold', 'medium')
               for key in range(3)]
@@ -318,7 +325,7 @@ def main():
             ('wake guard cleared at release', 'if (event == BSP_BTN_RELEASE) {', 'if (event == BSP_BTN_RELEASE) { s_wake_gesture &= (uint8_t)~bit;', 'wake-short-1', 'waking gesture reached'),
             ('gesture end failed to clear guard', 's_wake_gesture &= (uint8_t)~bit;', '/* negative: leave wake group pending */', 'wake-triple-1', 'next independent gesture was swallowed'),
             ('repeat press guard bypassed', 'if (s_wake_gesture & bit) return true;', '/* negative: bypass semantic wake guard */', 'wake-taphold-1', 'waking gesture reached'),
-            ('backlight shown before redraw', 'screen_redraw_current();\n    bsp_display_backlight(100);', 'bsp_display_backlight(100);\n    screen_redraw_current();', 'wake-short-1', 'wake must redraw before'),
+            ('backlight shown before redraw', 'screen_redraw_current();\n    bsp_display_backlight(display_settings_brightness());', 'bsp_display_backlight(display_settings_brightness());\n    screen_redraw_current();', 'wake-short-1', 'wake must redraw before'),
             ('dropped end cleanup forgotten', 's_wake_gesture &= (uint8_t)~(pending >> 3);', '/* negative: lost end is never applied */', 'dropped-end-next-press', 'next independent gesture was swallowed'),
         ]
         for name, before, after, case, expected in controls:

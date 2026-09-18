@@ -1,3 +1,4 @@
+#include "display_settings.h"
 #include "sfx.h"
 #include "audio_settings.h"
 // main/main.c —— FoloToy AI Passport BSP 驱动参考示例:初始化 + 菜单 + 按键分发。
@@ -169,7 +170,6 @@ void app_main(void) {
                  BSP_LCD_MOSI, BSP_LCD_SCLK, BSP_LCD_CS, BSP_LCD_DC, BSP_LCD_BL);
         return;
     }
-    bsp_display_backlight(100);
 
 
     // 外设初始化。单项失败不阻塞 —— 菜单里标 [FAIL]，其他项照常可用。
@@ -182,6 +182,8 @@ void app_main(void) {
     // 页面进来就要 world_snapshot()，而且 world 是 WiFi 的唯一所有者
     // （Collect 页原本自己 bring_up，两个所有者会争同一个射频）。
     bool world_ok = world_start();
+    display_settings_init();
+    bsp_display_backlight(display_settings_brightness());
 
     bool btn_ok = (bsp_button_init(on_key, NULL) == ESP_OK);
     audio_settings_init();

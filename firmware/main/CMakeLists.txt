@@ -35,7 +35,7 @@ idf_component_register(
          "music.c"
          "cry.c" "sound_mixer.c"
          "music_director.c"
-         "sfx.c" "audio_settings.c"
+         "sfx.c" "audio_settings.c" "display_settings.c"
          "play_opening.c"
          "play_starter.c"
          "dbg.c" "usb_backup.c" "usb_backup_device.c" "restore_journal.c"

@@ -1,3 +1,4 @@
+#include "display_settings.h"
 #include <stddef.h>
 #include <stdatomic.h>
 #include "screen_idle.h"
@@ -41,7 +42,7 @@ void screen_idle_request_off(void)
     bsp_display_backlight(0);
     if (bsp_display_sleep(true) != ESP_OK) {
         // A partial DISPOFF must be undone before returning to the active page.
-        if (bsp_display_sleep(false) == ESP_OK) bsp_display_backlight(100);
+        if (bsp_display_sleep(false) == ESP_OK) bsp_display_backlight(display_settings_brightness());
         else {s_off = true;sfx_notify_state();} // Allow the next key to retry a failed wake.
         ESP_LOGE("screen_idle", "panel sleep failed");
         return;
@@ -61,7 +62,7 @@ static void wake(void)
     sfx_notify_state();
     // Repaint while the backlight is still dark, then reveal the current page.
     screen_redraw_current();
-    bsp_display_backlight(100);
+    bsp_display_backlight(display_settings_brightness());
     screen_idle_note_activity();
     ESP_LOGI("screen_idle", "@@DISPLAY on");
 }

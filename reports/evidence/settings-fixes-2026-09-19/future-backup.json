@@ -1,0 +1,41 @@
+{
+  "backup_compatibility": "format v1, ESP32-C3, NVS offset 0x9000 size 0x6000; schema is opaque uint16 metadata",
+  "versions_exercised": [
+    1,
+    15,
+    16,
+    17,
+    18,
+    99,
+    1000,
+    65535
+  ],
+  "future_c_protocol_backup_versions": [
+    18,
+    99,
+    65535
+  ],
+  "future_c_protocol_import_versions": [
+    18,
+    99,
+    65535
+  ],
+  "invalid_version_fields_rejected": true,
+  "different_firmware_restore_rejected": true,
+  "different_schema_device_import_rejected": true,
+  "checks": [
+    "verify_usb_backup.py",
+    "verify_usb_import.py",
+    "verify_save_manager_distribution.py",
+    "git diff --check"
+  ],
+  "passed": true,
+  "deployed": false,
+  "source_sha256": {
+    "tools/save-manager/web/backup.mjs": "2ebab313f134415347cd7d685a57e3afdc9e94623f44dd6f4c18f0fc07005380",
+    "tools/save-manager/restore.py": "533dc0b455255103ade97ff4442e55d2bf20cb32ef03d2746e31e137246cc40c",
+    "tools/save-manager/web/index.html": "89d51ab3be8bf10665db519bffb2bba5aa24965831792b57eed1d0db22511228",
+    "tools/pipeline/verify_usb_backup.py": "04ac5fa99c897b0646466c9cf7544e04bbf0607e3905e20e7ce083aeeea330d2",
+    "tools/pipeline/verify_usb_import.py": "07b0e5bde337144ab5c436e6f03ebd9af7b0e94a6099210d6ec9664a05bc148c"
+  }
+}

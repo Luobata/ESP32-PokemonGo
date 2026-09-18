@@ -1,3 +1,4 @@
+#include "display_settings.h"
 // P11: GSC's right-side Start menu, adapted to the 240x320 display.
 // Frame/cursor are the original shared tiles.
 #include <stdio.h>
@@ -24,9 +25,9 @@
 #define MENU_H 208
 #define ROW_Y 56
 #define ROW_STEP 19
-#define OPTION_Y 60
+#define OPTION_Y 56
 #define OPTION_STEP 19
-enum { OPTION_NAMES, OPTION_SCREEN_OFF, OPTION_MUTE, OPTION_VOLUME, OPTION_BACKUP, OPTION_IMPORT, OPTION_WIFI, OPTION_RETURN, OPTION_COUNT };
+enum { OPTION_NAMES, OPTION_SCREEN_OFF, OPTION_MUTE, OPTION_VOLUME, OPTION_BACKUP, OPTION_IMPORT, OPTION_WIFI, OPTION_BRIGHTNESS, OPTION_RETURN, OPTION_COUNT };
 
 SCREEN_ASSERT_WITHIN_BAND(menu_title, 8, 16);
 SCREEN_ASSERT_ALLOW_CROSS_BAND(menu_portrait, 88, 96);
@@ -49,6 +50,8 @@ static bool s_import_accept;
 static lv_timer_t *s_backup_timer;
 static usb_backup_state_t s_backup_shown;
 static bool s_volume_edit;
+static bool s_brightness_edit;
+static bool s_display_save_failed;
 static bool s_audio_save_failed;
 static uint8_t s_option_selected;
 static world_t s_world;
@@ -59,7 +62,7 @@ static void draw_options(int band_y)
 {
     char value[64];
     game_ui_title(band_y, "选项", "");
-    game_ui_box(band_y, 8, 48, 224, 168);
+    game_ui_box(band_y, 8, 48, 224, 184);
     render_text(40, OPTION_Y - band_y, "译名", GAME_UI_INK);
     snprintf(value, sizeof(value), "%s", pokemon_names_style_label());
     render_text(212 - render_text_width(value), OPTION_Y - band_y, value, GAME_UI_ACCENT);
@@ -73,7 +76,10 @@ static void draw_options(int band_y)
     render_text(40, OPTION_Y + OPTION_STEP * 4 - band_y, "备份存档", GAME_UI_INK);
     render_text(40, OPTION_Y + OPTION_STEP * 5 - band_y, "导入存档", GAME_UI_INK);
     render_text(40, OPTION_Y + OPTION_STEP * 6 - band_y, "Wi-Fi校时", GAME_UI_INK);
-    render_text(40, OPTION_Y + OPTION_STEP * 7 - band_y, "返回菜单", GAME_UI_INK);
+    render_text(40, OPTION_Y + OPTION_STEP * OPTION_BRIGHTNESS - band_y, "亮度", GAME_UI_INK);
+    snprintf(value, sizeof(value), "%u%%", display_settings_brightness());
+    render_text(212-render_text_width(value), OPTION_Y + OPTION_STEP * OPTION_BRIGHTNESS-band_y, value, GAME_UI_ACCENT);
+    render_text(40, OPTION_Y + OPTION_STEP * OPTION_RETURN - band_y, "返回菜单", GAME_UI_INK);
     game_ui_cursor(band_y, 20, OPTION_Y + s_option_selected * OPTION_STEP + 4);
     const char *hint;
     if (s_option_selected == OPTION_MUTE) {
@@ -82,6 +88,9 @@ static void draw_options(int band_y)
     } else if (s_option_selected == OPTION_VOLUME) {
         snprintf(value, sizeof(value), "%s", audio_settings_muted() ? "静音开启 调整后仍静音" : "音乐 音效 遇敌提示");
         hint = s_audio_save_failed ? "保存失败 请重试" : "音量设置重启后保留";
+    } else if (s_option_selected == OPTION_BRIGHTNESS) {
+        snprintf(value, sizeof(value), "屏幕亮度 即时生效");
+        hint = s_display_save_failed ? "保存失败 请重试" : "重启与唤醒后保留";
     } else if (s_option_selected == OPTION_BACKUP || s_option_selected == OPTION_IMPORT) {
         snprintf(value,sizeof(value),"USB连接电脑管理存档");
         hint=s_option_selected==OPTION_IMPORT?"电脑选文件 设备确认覆盖":"先打开电脑存档管理页";
@@ -95,9 +104,9 @@ static void draw_options(int band_y)
         snprintf(value, sizeof(value), "%lu秒无操作自动熄屏", (unsigned long)(screen_idle_timeout_ms() / 1000));
         hint = s_option_selected == OPTION_SCREEN_OFF ? "按确认熄屏 任意键亮屏" : "返回上一级菜单";
     }
-    game_ui_text_centered(band_y, 12, 224, 216, 16, value, GAME_UI_MUTED);
-    game_ui_text_centered(band_y, 12, 248, 216, 16, hint, GAME_UI_INK);
-    game_ui_footer(band_y, s_volume_edit ? "[A]加 [B]减 [C]完成" : GAME_UI_NAV_HINT);
+    game_ui_text_centered(band_y, 12, 240, 216, 16, value, GAME_UI_MUTED);
+    game_ui_text_centered(band_y, 12, 260, 216, 16, hint, GAME_UI_INK);
+    game_ui_footer(band_y, (s_volume_edit || s_brightness_edit) ? "[A]加 [B]减 [C]完成" : GAME_UI_NAV_HINT);
 }
 
 static void draw_backup(int band_y)
@@ -229,6 +238,8 @@ void play_menu_enter(void)
         s_backup_view = false;
         s_wifi_view = false;
         s_volume_edit = false;
+        s_brightness_edit = false;
+        s_display_save_failed = false;
         s_option_selected = 0;
         s_audio_save_failed = false;
     }
@@ -272,6 +283,18 @@ void play_menu_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         else if(nav_confirm(btn,ev)&&!usb_backup_import_mode_active())usb_backup_request();
         draw_all();return;
     }
+    if (s_brightness_edit) {
+        if (nav_return(btn, ev)) { s_brightness_edit = false; draw_all(); return; }
+        if (ev != BSP_BTN_CLICK) return;
+        if (btn == BSP_BTN_OK) s_brightness_edit = false;
+        else if (btn == BSP_BTN_UP || btn == BSP_BTN_DOWN) {
+            int next = display_settings_brightness() + (btn == BSP_BTN_UP ? 10 : -10);
+            if (next < DISPLAY_BRIGHTNESS_MIN) next = DISPLAY_BRIGHTNESS_MIN;
+            if (next > 100) next = 100;
+            s_display_save_failed = !display_settings_set_brightness(next);
+        }
+        draw_all(); return;
+    }
     if (s_volume_edit) {
         if (nav_return(btn, ev)) { s_volume_edit = false; draw_all(); return; }
         if (ev != BSP_BTN_CLICK) return;
@@ -304,6 +327,7 @@ void play_menu_key(bsp_btn_t btn, bsp_btn_ev_t ev)
             if (s_option_selected == OPTION_MUTE) {
                 s_audio_save_failed = !audio_settings_set_muted(!audio_settings_muted());
             } else if (s_option_selected == OPTION_VOLUME) s_volume_edit = true;
+            else if (s_option_selected == OPTION_BRIGHTNESS) s_brightness_edit = true;
             else if (s_option_selected == OPTION_BACKUP) {usb_backup_import_mode(false);s_backup_view=true;usb_backup_request();}
             else if (s_option_selected == OPTION_IMPORT) {usb_backup_import_mode(true);s_import_accept=false;s_backup_view=true;}
             else if (s_option_selected == OPTION_WIFI) {s_wifi_view=true;wifi_time_view(&s_wifi_shown);}

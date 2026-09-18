@@ -20,10 +20,10 @@ try:
  r.command('key 2 1')
  frame=r.command('check');assert frame['mismatch']==0;(out/'import-wait.png').write_bytes(png(frame['pixels']))
  r.command('key 1 3')
- r.command('key 1 1')
- assert r.inspect()['menu_view']['option_selected']==6
+ for _ in range(3):r.command('key 1 1')
+ assert r.inspect()['menu_view']['option_selected']==8
  r.command('key 2 1')
  assert not r.inspect()['menu_view']['options']
  font_check()
- print(json.dumps({'passed':True,'renderer':version,'scope':'seven option rows, backup and import, long B return, bands, font'}))
+ print(json.dumps({'passed':True,'renderer':version,'scope':'nine option rows, backup and import, long B return, bands, font'}))
 finally:r.close()

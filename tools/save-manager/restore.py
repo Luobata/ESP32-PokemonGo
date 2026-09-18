@@ -16,13 +16,17 @@ import uuid
 import zlib
 
 SIZE, ADDRESS = 0x6000, 0x9000
+# Game schemas are opaque uint16 metadata; compatibility uses the backup
+# format, fixed NVS layout, device identity and exact firmware build.
 
 def decode(path):
     path=Path(path)
     if path.stat().st_size>45000: raise ValueError('备份文件过大')
     d=json.loads(path.read_text())
-    if any(d.get(k)!=v for k,v in {'format':'pokewalk-nvs-backup','format_version':1,'chip':'esp32c3','save_version':15,'nvs_offset':ADDRESS,'nvs_size':SIZE}.items()):
+    if any(d.get(k)!=v for k,v in {'format':'pokewalk-nvs-backup','format_version':1,'chip':'esp32c3','nvs_offset':ADDRESS,'nvs_size':SIZE}.items()):
         raise ValueError('备份格式、存档版本或分区不支持')
+    if type(d.get('save_version')) is not int or not 1 <= d['save_version'] <= 0xffff:
+        raise ValueError('存档版本字段无效')
     if not re.fullmatch('[a-f0-9]{12}',d.get('device_id','')): raise ValueError('设备标识无效')
     if not re.fullmatch('[a-f0-9]{64}',d.get('firmware','')): raise ValueError('固件版本无效')
     raw=base64.b64decode(d['payload_base64'],validate=True)
@@ -30,9 +34,9 @@ def decode(path):
         raise ValueError('备份长度或校验值不符，禁止恢复')
     return d,raw
 
-def envelope(raw,device,firmware):
+def envelope(raw,device,firmware,save_version):
     return {'format':'pokewalk-nvs-backup','format_version':1,'created_at':dt.datetime.now(dt.timezone.utc).isoformat(),
-            'chip':'esp32c3','device_id':device,'firmware':firmware,'save_version':15,
+            'chip':'esp32c3','device_id':device,'firmware':firmware,'save_version':save_version,
             'nvs_offset':ADDRESS,'nvs_size':SIZE,'crc32':f'{zlib.crc32(raw):08x}',
             'sha256':hashlib.sha256(raw).hexdigest(),'payload_base64':base64.b64encode(raw).decode()}
 
@@ -99,7 +103,7 @@ def restore(path,port,confirm,backup_dir,runner=None):
         run('read_flash',hex(ADDRESS),hex(SIZE),tmp/'before.bin')
         before=(tmp/'before.bin').read_bytes()
         if len(before)!=SIZE:raise ValueError('当前存档备份不完整，禁止恢复')
-        safe=write_private(backup_dir,envelope(before,meta['device_id'],firmware))
+        safe=write_private(backup_dir,envelope(before,meta['device_id'],firmware,meta['save_version']))
         print('当前存档已备份：',safe)
         (tmp/'restore.bin').write_bytes(payload)
         try:

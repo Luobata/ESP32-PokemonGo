@@ -1,0 +1,27 @@
+{
+  "gate": "pass",
+  "raw_gate": "pass",
+  "block_merge": false,
+  "execution_complete": true,
+  "mutation_status": "not_applicable",
+  "quality_confidence": "full",
+  "incomplete_engines": [],
+  "agent_action": {
+    "schema_version": "qualitygate.agent-action.v1",
+    "state": "local_checks_passed",
+    "next_action": "finalize_semantic_and_tests",
+    "task_complete": false,
+    "actionable_block_count": 0,
+    "repair_round": 0,
+    "stop_reasons": [],
+    "repair_findings": [],
+    "required_validation": [
+      "format",
+      "diff_check",
+      "compile",
+      "focused_tests"
+    ],
+    "completion_requires": "current-fingerprint semantic result consumed and relevant validation passed; local PASS alone is insufficient"
+  },
+  "central_semantic": "unavailable: no MCP tools registered in this session"
+}

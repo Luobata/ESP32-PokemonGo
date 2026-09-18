@@ -25,6 +25,10 @@ jobs:
           python3 tools/pipeline/verify_display_init.py
           python3 tools/pipeline/verify_display_sleep.py
           python3 tools/pipeline/verify_silent_boot.py
+          python3 tools/pipeline/verify_display_settings.py
+          python3 tools/pipeline/verify_wifi_time.py
+          python3 tools/pipeline/verify_usb_backup.py
+          python3 tools/pipeline/verify_usb_import.py
           python3 tools/pipeline/verify_audio_settings.py
           python3 tools/pipeline/verify_offline_stamina.py
           python3 tools/pipeline/verify_usb_backup_checkpoint.py
