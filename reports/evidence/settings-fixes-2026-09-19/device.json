@@ -1,0 +1,39 @@
+{
+  "source_commit": "d080936883865fc6461de83f2227e662da9e0fa2",
+  "idf": "5.5.3",
+  "flashed": true,
+  "method": "idf.py flash: bootloader, partition table, application; NVS preserved",
+  "segments_hash_verified": 3,
+  "preflash_private_full_backup_bytes": 8388608,
+  "progress": {
+    "dex": 90,
+    "party": 6,
+    "total_partners": 83,
+    "leader_species": 6,
+    "level": 39,
+    "exp": 92023
+  },
+  "muted": true,
+  "brightness_original_and_final": 100,
+  "states": {
+    "restored_progress": "@@DISPLAY_STATE off=0 brightness=100 page=0 scans=23624 pending=0 pet=6 level=39 exp=92023 stamina_q10=102400 mood_q10=83152",
+    "options": "@@DISPLAY_STATE off=0 brightness=39 page=9 scans=23624 pending=0 pet=6 level=39 exp=92023 stamina_q10=102400 mood_q10=83149",
+    "brightness40": "@@DISPLAY_STATE off=0 brightness=39 page=9 scans=23624 pending=0 pet=6 level=39 exp=92023 stamina_q10=102400 mood_q10=83143",
+    "sleep": "@@DISPLAY_STATE off=1 brightness=0 page=9 scans=23624 pending=0 pet=6 level=39 exp=92023 stamina_q10=102400 mood_q10=83140",
+    "wake40": "@@DISPLAY_STATE off=0 brightness=39 page=9 scans=23624 pending=0 pet=6 level=39 exp=92023 stamina_q10=102400 mood_q10=83140",
+    "restart40": "@@DISPLAY_STATE off=0 brightness=39 page=0 scans=23624 pending=0 pet=6 level=39 exp=92023 stamina_q10=102400 mood_q10=83152",
+    "restore100": "@@DISPLAY_STATE off=0 brightness=100 page=9 scans=23624 pending=0 pet=6 level=39 exp=92023 stamina_q10=102400 mood_q10=83143",
+    "idle": "@@DISPLAY_STATE off=0 brightness=100 page=0 scans=23624 pending=0 pet=6 level=39 exp=92023 stamina_q10=102400 mood_q10=83143"
+  },
+  "brightness40_pwm_readback_percent": 39,
+  "test_recovery": "First automated navigation mistakenly entered a trainer challenge. Restored preflash NVS from the fresh full backup; corrected test passed with original stamina and progress. No save import into gameplay used otherwise.",
+  "phone_wifi_provisioning_tested": false,
+  "brightness_power_consumption_measured": false,
+  "live_usb_backup": {
+    "current_schema": 17,
+    "payload_bytes": 24576,
+    "export_completed": true,
+    "web_receiver_crc_and_sha_passed": true,
+    "file_private": true
+  }
+}

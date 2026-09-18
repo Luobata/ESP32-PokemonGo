@@ -1,0 +1,42 @@
+{
+  "projectId": 234,
+  "slug": "pokewalk",
+  "revisionId": 1074,
+  "status": "pending",
+  "previous_public_revision": 815,
+  "source_commit": "d080936883865fc6461de83f2227e662da9e0fa2",
+  "firmware_size": 3208000,
+  "firmware_sha256": "481980a762e732e6a4034b0954b2a87a688d92d5d0fc456b4653c66e1a67128f",
+  "category": "games",
+  "bilingual_fields_verified": [
+    "title",
+    "description",
+    "instructions",
+    "changelog"
+  ],
+  "submitted_images": [
+    {
+      "name": "01-wild-battle.png",
+      "sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6"
+    },
+    {
+      "name": "02-care.png",
+      "sha256": "2fb8b11fa32a0194cd1723c813748671bb08a7017fd395fd3b7390a5cce006d1"
+    },
+    {
+      "name": "03-hyper-beam.png",
+      "sha256": "d39d050ca080782476c278ea5242087b02b9cff8e07c4bc0b3b99e33f9f379ae"
+    },
+    {
+      "name": "04-red-challenge.png",
+      "sha256": "633c06ba98b0eddfabf7694caa298f7c1fb79d6da6b76bbc4d5385f2b79d6fda"
+    },
+    {
+      "name": "05-dungeon-upgrades.png",
+      "sha256": "348b54ef54844b65ec78f4028c94a72d8a6cb8b246d5efd5a9ad8e115019f9d3"
+    }
+  ],
+  "image_readback_verified": false,
+  "image_readback_note": "Publisher accepted five image fields; owner-only image endpoint requires browser login (401 for publisher token). No additional publication attempted.",
+  "manageUrl": "https://ai-passport.folotoy.cn/account/?project=234"
+}

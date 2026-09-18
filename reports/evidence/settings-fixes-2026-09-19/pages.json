@@ -1,0 +1,9 @@
+{
+  "url": "https://luobata.github.io/ESP32-PokemonGo/",
+  "source_commit": "d080936883865fc6461de83f2227e662da9e0fa2",
+  "live_backup_sha256": "2ebab313f134415347cd7d685a57e3afdc9e94623f44dd6f4c18f0fc07005380",
+  "web_matches_source": true,
+  "offline_zip_matches_source": true,
+  "workflow": "https://github.com/Luobata/ESP32-PokemonGo/actions/runs/35372401053",
+  "status": "success"
+}

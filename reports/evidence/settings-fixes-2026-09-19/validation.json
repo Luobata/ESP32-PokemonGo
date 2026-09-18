@@ -1,8 +1,8 @@
 {
   "idf": "5.5.3",
   "build_passed": true,
-  "device_flashed": false,
-  "website_deployed": false,
+  "device_flashed": true,
+  "website_deployed": true,
   "community_published": false,
   "source_sha256": {
     ".github/workflows/firmware-check.yml": "16f30ad6caf9207f3feb274dfed65350a7e791bc6eef07488b22a3135db110c0",
@@ -24,5 +24,8 @@
     "firmware/main/display_settings.c": "acaa099903997e6dc77fc406cd354df7cf9fac9bec39487212c18047e99b9dbe",
     "firmware/main/display_settings.h": "7d960baf1e6d8f3b3fcd58bec248100fecd6909731c4dcdc233e82d87ac5529a"
   },
-  "validation_stage": "Local regression before release; delivery receipts recorded separately"
+  "validation_stage": "Delivered; see device.json, ci.json, pages.json and community.json",
+  "community_submitted": true,
+  "community_status": "pending",
+  "community_revision": 1074
 }
