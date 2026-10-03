@@ -1,0 +1,48 @@
+{
+  "source_commit": "e80f2414f4ce508e5d2038f913dfc4ae034ea93b",
+  "firmware_size": 3210112,
+  "firmware_sha256": "bbd5683af8f5743f183cde387c407770079caa4c144e338eefe235ae048df40e",
+  "protected_layout_pass": true,
+  "preview_fields_verified": [
+    "title",
+    "description",
+    "instructions",
+    "changelog",
+    "source_url"
+  ],
+  "images": [
+    {
+      "name": "01-wild-battle.png",
+      "sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6"
+    },
+    {
+      "name": "02-care.png",
+      "sha256": "2fb8b11fa32a0194cd1723c813748671bb08a7017fd395fd3b7390a5cce006d1"
+    },
+    {
+      "name": "03-hyper-beam.png",
+      "sha256": "d39d050ca080782476c278ea5242087b02b9cff8e07c4bc0b3b99e33f9f379ae"
+    },
+    {
+      "name": "04-red-challenge.png",
+      "sha256": "633c06ba98b0eddfabf7694caa298f7c1fb79d6da6b76bbc4d5385f2b79d6fda"
+    },
+    {
+      "name": "05-dungeon-upgrades.png",
+      "sha256": "348b54ef54844b65ec78f4028c94a72d8a6cb8b246d5efd5a9ad8e115019f9d3"
+    }
+  ],
+  "public_baseline_revision": 1074,
+  "project_id": 234,
+  "ble_install_tested": false,
+  "central_semantic": "unavailable",
+  "local_gate": "pass",
+  "slug": "pokewalk",
+  "revision_id": 1909,
+  "status": "pending",
+  "bilingual_fields_verified": true,
+  "firmware_readback_verified": true,
+  "manage_url": "https://ai-passport.folotoy.cn/account/?project=234",
+  "ci_url": "https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37134045483",
+  "ci_conclusion": "success"
+}
