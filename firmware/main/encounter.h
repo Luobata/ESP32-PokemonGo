@@ -81,7 +81,11 @@ encounter_t *enc_queue_find(enc_queue_t *q, uint16_t uid);
 
 // 闪光判定 —— crc32，确定性，可与 PC 侧逐值对账。
 // 极稀有（rarity ≥ 5）翻倍概率。
-bool enc_roll_shiny(const uint8_t bssid[6], uint32_t ts, uint8_t rarity);
+// Acquisition effort controls shiny odds; species rarity never changes them.
+typedef enum { SHINY_PASSIVE, SHINY_EXPLORATION, SHINY_BADGE, SHINY_DUNGEON, SHINY_SOURCE_COUNT } shiny_source_t;
+uint16_t enc_shiny_denominator(shiny_source_t source);
+bool enc_shiny_from_roll(uint32_t roll, shiny_source_t source);
+bool enc_roll_shiny(const uint8_t bssid[6], uint32_t ts);
 
 // 确定性刷新种子：同一 AP 同一小时永远同一个值。
 uint32_t enc_spawn_seed(const uint8_t bssid[6], uint32_t ts);

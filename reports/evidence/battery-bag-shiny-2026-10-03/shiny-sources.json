@@ -1,0 +1,13 @@
+{
+  "checks": 6,
+  "source_denominators": [
+    64,
+    48,
+    32,
+    16
+  ],
+  "dungeon_candidate_samples": 10000,
+  "single_durable_encounter_per_clear": true,
+  "capture_verified": true,
+  "receipt_layout_unchanged": true
+}

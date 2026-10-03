@@ -1626,7 +1626,7 @@ function initS14(q){
       同物种相遇时自动留更好的那只，不需要玩家做删除决策 ——
       而「不该逼玩家删自己养的东西」正是初版的取向。
       <br>判据顺序 <b>闪光 &gt; 等级 &gt; 经验</b>：等级可再生（练几天就回来），
-      闪光不可再生（1/512 的概率，丢了就是丢了）。</p>
+      闪光个体无法恢复（丢失后只能重新寻找）。</p>
     <div class="tbl-scroll"><table>
       <tr><th>情况</th><th>仓库里的</th><th>新抓的</th><th>留下</th><th>说明</th></tr>
       ${full}
@@ -1934,11 +1934,11 @@ BUILD.meta = () => {
   host.innerHTML = `
   <div class="gp-sec">
     <h2>S8 闪光　<span class="sub">可交互</span></h2>
-    <p class="gp-note">1/${s8.denom}，<b>彩色屏让它几乎免费</b> ——
+    <p class="gp-note">被动遭遇 1/${s8.denom}，路线探索 1/${s8.sources.exploration}，徽章活动 1/${s8.sources.badge}，副本通关伙伴 1/${s8.sources.dungeon}。同一渠道所有稀有度概率相同。<b>闪光只换调色板</b> ——
       位图完全相同，只换调色板。判定是确定性的
-      （<code>crc32(bssid|hour|rarity)</code>），所以同一个 AP 同一小时
+      （独立的闪光种子），所以同一个 AP 同一小时
       刷出的闪光是稳定的，不会因为重启而变。
-      100 次遭遇内见到的概率 <b>${s8.expect1}%</b>，500 次 <b>${s8.expect500}%</b>。
+      100 次被动遭遇内见到的概率 <b>${s8.expect1}%</b>，500 次 <b>${s8.expect500}%</b>。
       点物种看两套调色板对比。</p>
     <div class="knobs" style="border:1px solid var(--line);border-bottom:0;padding:8px 10px">
       <label>物种</label>
@@ -2700,7 +2700,7 @@ BUILD.anim = () => {
         <p class="gp-note" style="margin-top:10px">
           原版 Gen 2 的判定是 DV：<code>Atk&amp;%0010≠0 且 Def=Spd=Spc=10</code>
           → <b>1/${SH.gen2Denom}</b>。本项目不做个体值，用
-          <code>crc32(bssid|hour|rarity)</code>，概率取 <b>1/512</b> ——
+          独立的闪光种子，按获取渠道取 <b>1/64、1/48、1/32、1/16</b> ——
           8192 是为几百小时流程设计的，而这台设备遭遇频率低得多。</p>
       </div>
     </div>

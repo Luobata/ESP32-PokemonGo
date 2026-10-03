@@ -459,7 +459,7 @@ def load_systems2(repo: pathlib.Path, mons: list[dict]) -> dict:
             DailyCounters, Dex, DualBufferSave, Inventory, Records, SaveData,
         )
         from systems import (                              # noqa: E402
-            SHINY_DENOM, STONE_BIOME, STONE_DWELL_SECONDS, TRADE_EXPLORE_MULT,
+            SHINY_DENOM, SHINY_DENOMINATORS, STONE_BIOME, STONE_DWELL_SECONDS, TRADE_EXPLORE_MULT,
             TRADE_INTIMACY, TRIGGER_ITEM, TRIGGER_LEVEL_UP, TRIGGER_TRADE,
             check_evolution, do_evolve,
         )
@@ -617,7 +617,7 @@ def load_systems2(repo: pathlib.Path, mons: list[dict]) -> dict:
     }
 
     # ---- S8 闪光 ----
-    s8 = {"denom": SHINY_DENOM,
+    s8 = {"denom": SHINY_DENOM, "sources": SHINY_DENOMINATORS,
           "expect1": round((1 - (1 - 1 / SHINY_DENOM) ** 100) * 100, 2),
           "expect500": round((1 - (1 - 1 / SHINY_DENOM) ** 500) * 100, 1)}
 

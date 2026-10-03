@@ -1,0 +1,42 @@
+[
+  {
+    "script": "verify_display_settings.py",
+    "passed": true
+  },
+  {
+    "script": "verify_achievement_capacity.py",
+    "passed": true
+  },
+  {
+    "script": "verify_shiny_sources.py",
+    "passed": true
+  },
+  {
+    "script": "verify_dungeon_rewards.py",
+    "passed": true
+  },
+  {
+    "script": "verify_achievements.py",
+    "passed": true
+  },
+  {
+    "script": "verify_battery_status.py",
+    "passed": true
+  },
+  {
+    "script": "verify_battery_toggle.py",
+    "passed": true
+  },
+  {
+    "script": "verify_display_settings_preview.py",
+    "passed": true
+  },
+  {
+    "script": "verify_battery_bag_preview.py",
+    "passed": true
+  },
+  {
+    "script": "verify_encounter.py",
+    "passed": true
+  }
+]

@@ -13,6 +13,7 @@
 #include "music_director.h"
 #include "growth_ui.h"
 #include "evolution_ui.h"
+#include "battery_ui.h"
 
 static const char *TAG = "nav";
 
@@ -86,6 +87,8 @@ static void transition(page_id_t p, bool returning)
     s_returning = returning;
     ESP_LOGI(TAG, "→ %s", PAGES[p].name);
     music_director_page(p);
+    if (p == PAGE_MENU || p == PAGE_CARE) battery_ui_start();
+    else battery_ui_stop();
     if (PAGES[p].enter) PAGES[p].enter();
     growth_ui_start();
     s_returning = false;
@@ -154,6 +157,7 @@ bool nav_screen_busy(void)
 
 void nav_exit_current(void)
 {
+    battery_ui_stop();
     evolution_ui_stop();
     growth_ui_stop();
     if (s_entered && PAGES[s_cur].exit) PAGES[s_cur].exit();

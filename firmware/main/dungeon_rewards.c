@@ -1,7 +1,8 @@
 #include "dungeon_rewards.h"
 #include <string.h>
 bool dungeon_progress_valid(const dungeon_progress_t *p){
- return p&&!(p->paid_nodes&((1u<<3)|(1u<<6)))&&p->receipt.xp<=65535&&p->last_node<8&&p->elite_seen<=1&&p->receipt.first_clear<=1&&p->receipt.first_elite<=1&&p->receipt.full<=1&&items_inventory_valid(&p->receipt.items);
+ return p&&!(p->paid_nodes&((1u<<3)|(1u<<6)))&&p->receipt.xp<=65535&&p->last_node<8&&p->elite_seen<=1&&p->receipt.first_clear<=1&&p->receipt.first_elite<=1&&p->receipt.full<=1&&p->receipt.partner_species<=151&&p->receipt.partner_shiny<=1&&
+ (!p->receipt.partner_shiny||p->receipt.partner_species)&&items_inventory_valid(&p->receipt.items);
 }
 void dungeon_reward_plan(unsigned node,uint32_t seed,const dungeon_progress_t *p,dungeon_receipt_t *r){
  memset(r,0,sizeof(*r));

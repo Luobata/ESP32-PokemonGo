@@ -1,4 +1,5 @@
 #include "display_settings.h"
+#include "battery_ui.h"
 // P11: GSC's right-side Start menu, adapted to the 240x320 display.
 // Frame/cursor are the original shared tiles.
 #include <stdio.h>
@@ -20,14 +21,14 @@
 
 #define MENU_COUNT 10
 #define MENU_X 120
-#define MENU_Y 40
+#define MENU_Y 64
 #define MENU_W 112
-#define MENU_H 208
-#define ROW_Y 56
-#define ROW_STEP 19
-#define OPTION_Y 56
-#define OPTION_STEP 19
-enum { OPTION_NAMES, OPTION_SCREEN_OFF, OPTION_MUTE, OPTION_VOLUME, OPTION_BACKUP, OPTION_IMPORT, OPTION_WIFI, OPTION_BRIGHTNESS, OPTION_RETURN, OPTION_COUNT };
+#define MENU_H 184
+#define ROW_Y 72
+#define ROW_STEP 17
+#define OPTION_Y 48
+#define OPTION_STEP 18
+enum { OPTION_NAMES, OPTION_SCREEN_OFF, OPTION_MUTE, OPTION_VOLUME, OPTION_BACKUP, OPTION_IMPORT, OPTION_WIFI, OPTION_BRIGHTNESS, OPTION_BATTERY, OPTION_RETURN, OPTION_COUNT };
 
 SCREEN_ASSERT_WITHIN_BAND(menu_title, 8, 16);
 SCREEN_ASSERT_ALLOW_CROSS_BAND(menu_portrait, 88, 96);
@@ -62,7 +63,7 @@ static void draw_options(int band_y)
 {
     char value[64];
     game_ui_title(band_y, "选项", "");
-    game_ui_box(band_y, 8, 48, 224, 184);
+    game_ui_box(band_y, 8, 40, 224, 200);
     render_text(40, OPTION_Y - band_y, "译名", GAME_UI_INK);
     snprintf(value, sizeof(value), "%s", pokemon_names_style_label());
     render_text(212 - render_text_width(value), OPTION_Y - band_y, value, GAME_UI_ACCENT);
@@ -79,6 +80,9 @@ static void draw_options(int band_y)
     render_text(40, OPTION_Y + OPTION_STEP * OPTION_BRIGHTNESS - band_y, "亮度", GAME_UI_INK);
     snprintf(value, sizeof(value), "%u%%", display_settings_brightness());
     render_text(212-render_text_width(value), OPTION_Y + OPTION_STEP * OPTION_BRIGHTNESS-band_y, value, GAME_UI_ACCENT);
+    render_text(40, OPTION_Y + OPTION_STEP * OPTION_BATTERY-band_y, "电量显示", GAME_UI_INK);
+    render_text(196, OPTION_Y + OPTION_STEP * OPTION_BATTERY-band_y,
+                display_settings_battery_visible() ? "开" : "关", GAME_UI_ACCENT);
     render_text(40, OPTION_Y + OPTION_STEP * OPTION_RETURN - band_y, "返回菜单", GAME_UI_INK);
     game_ui_cursor(band_y, 20, OPTION_Y + s_option_selected * OPTION_STEP + 4);
     const char *hint;
@@ -91,6 +95,9 @@ static void draw_options(int band_y)
     } else if (s_option_selected == OPTION_BRIGHTNESS) {
         snprintf(value, sizeof(value), "屏幕亮度 即时生效");
         hint = s_display_save_failed ? "保存失败 请重试" : "重启与唤醒后保留";
+    } else if (s_option_selected == OPTION_BATTERY) {
+        snprintf(value, sizeof(value), "菜单与照料页显示电量");
+        hint = s_display_save_failed ? "保存失败 按确认重试" : "按确认切换 重启后保留";
     } else if (s_option_selected == OPTION_BACKUP || s_option_selected == OPTION_IMPORT) {
         snprintf(value,sizeof(value),"USB连接电脑管理存档");
         hint=s_option_selected==OPTION_IMPORT?"电脑选文件 设备确认覆盖":"先打开电脑存档管理页";
@@ -179,7 +186,8 @@ static void draw_main(int band_y)
     bool found = assets_species(s_world.species, &species);
     if (found) snprintf(name, sizeof(name), "%.*s", species.name_zh_len, species.name_zh);
     else snprintf(name, sizeof(name), "#%03u", s_world.species);
-    game_ui_text_centered(band_y, 8, 48, 104, 16, name, GAME_UI_INK);
+    game_ui_text_fitted(band_y, 12, 40, 144, name, GAME_UI_INK);
+    battery_ui_draw(band_y, 228, 40);
     snprintf(text, sizeof(text), "Lv%u", s_world.level);
     game_ui_text_centered(band_y, 8, 72, 104, 16, text, GAME_UI_MUTED);
     uint8_t size;
@@ -328,6 +336,10 @@ void play_menu_key(bsp_btn_t btn, bsp_btn_ev_t ev)
                 s_audio_save_failed = !audio_settings_set_muted(!audio_settings_muted());
             } else if (s_option_selected == OPTION_VOLUME) s_volume_edit = true;
             else if (s_option_selected == OPTION_BRIGHTNESS) s_brightness_edit = true;
+            else if (s_option_selected == OPTION_BATTERY) {
+                s_display_save_failed = !display_settings_set_battery_visible(!display_settings_battery_visible());
+                if (!s_display_save_failed) battery_ui_start();
+            }
             else if (s_option_selected == OPTION_BACKUP) {usb_backup_import_mode(false);s_backup_view=true;usb_backup_request();}
             else if (s_option_selected == OPTION_IMPORT) {usb_backup_import_mode(true);s_import_accept=false;s_backup_view=true;}
             else if (s_option_selected == OPTION_WIFI) {s_wifi_view=true;wifi_time_view(&s_wifi_shown);}

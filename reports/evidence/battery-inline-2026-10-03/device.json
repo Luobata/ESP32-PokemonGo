@@ -1,0 +1,15 @@
+{
+  "flashed": true,
+  "firmware_sha256": "ac334f7f9bc81e131b37f7beb3521b0fabec46db7ab1d8f6899c97c1c7bfe2fc",
+  "firmware_bytes": 3144576,
+  "boot_verified": true,
+  "save_preserved": {
+    "dex": 90,
+    "party": 6,
+    "total": 83
+  },
+  "local_gate": "pass",
+  "central_semantic": "unavailable",
+  "committed": false,
+  "published": false
+}

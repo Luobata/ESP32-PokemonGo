@@ -13,8 +13,8 @@ static void claims(void){
  for(unsigned k=0;k<3;k++){failure=(int[]){1,2,4}[k];assert(world_achievement_claim(0)==ACH_CLAIM_FAILED);assert(!s_achievements.claimed&&s_inventory.quantity[ITEM_GREAT]==before);}
  failure=0;assert(world_achievement_claim(0)==ACH_CLAIM_OK);assert(s_inventory.quantity[ITEM_GREAT]==before+5);
  reboot();assert(world_achievement_claim(0)==ACH_CLAIM_ALREADY&&s_inventory.quantity[ITEM_GREAT]==before+5);
- s_inventory.quantity[ITEM_MOON_STONE]=items_capacity(ITEM_MOON_STONE);assert(world_achievement_claim(7)==ACH_CLAIM_FULL);assert(!(s_achievements.claimed&(1u<<7)));
- s_inventory.quantity[ITEM_MOON_STONE]--;assert(world_achievement_claim(7)==ACH_CLAIM_OK);
+ s_inventory.quantity[ITEM_MOON_STONE]=items_capacity(ITEM_MOON_STONE);assert(world_achievement_claim(7)==ACH_CLAIM_CAPPED);assert(s_achievements.claimed&(1u<<7));
+ assert(s_inventory.quantity[ITEM_MOON_STONE]==items_capacity(ITEM_MOON_STONE));
  reboot();assert(world_achievement_claim(7)==ACH_CLAIM_ALREADY);
  s_inventory.quantity[ITEM_THUNDER_STONE]=1;item_use_result_t result;
  failure=4;assert(world_item_use(25,ITEM_THUNDER_STONE,&result)==ITEM_USE_SAVE_FAILED);assert(s_w.species==25&&!s_achievements.evolutions);

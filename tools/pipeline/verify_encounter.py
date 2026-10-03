@@ -86,7 +86,7 @@ int main(void)
             char mac[32]; unsigned ts; int rar;
             scanf("%31s %u %d", mac, &ts, &rar);
             uint8_t b[6]; parse_mac(mac, b);
-            printf("%d\n", enc_roll_shiny(b, ts, (uint8_t)rar) ? 1 : 0);
+            printf("%d\n", enc_roll_shiny(b, ts) ? 1 : 0);
         } else if (!strcmp(cmd, "rarity")) {
             int rssi, auth, ssid, tr;
             scanf("%d %d %d %d", &rssi, &auth, &ssid, &tr);
@@ -213,13 +213,12 @@ def main() -> int:
             m = mac_of(i)
             n3 += d.ask(f"shiny {m} 0 3") == "1"
             n5 += d.ask(f"shiny {m} 0 5") == "1"
-        # 1/512 与 1/256，1500 次的期望是 2.9 与 5.9。
-        # 容差取 0~4 倍期望 —— 只为挡住「恒 false」与「概率高一个量级」
-        print(f"  闪光概率   r3 {n3}/1500（期望 ~3）　r5 {n5}/1500（期望 ~6）")
-        if n3 == 0 and n5 == 0:
-            fails.append("1500 次采样一次闪光都没有 —— salt 可能拼错了")
-        if n5 > 30 or n3 > 20:
-            fails.append(f"闪光率高得离谱 r3={n3} r5={n5} —— 分母可能错了")
+        # Passive odds are 1/64 for every rarity: expected 23.4 in 1500 draws.
+        print(f"  闪光概率   r3 {n3}/1500　r5 {n5}/1500（均期望 ~23）")
+        if n3 != n5:
+            fails.append(f"闪光率仍然依赖稀有度：r3={n3}, r5={n5}")
+        if not 10 <= n3 <= 40:
+            fails.append(f"被动遇敌闪光率偏离 1/64：{n3}/1500")
 
         # ---- ③ rarity_from_ap ----------------------------------------------
         n = 0

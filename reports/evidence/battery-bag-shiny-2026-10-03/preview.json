@@ -1,0 +1,15 @@
+{
+  "build": "ef4759162b638e6c44ac",
+  "render_checks": 47,
+  "battery_states": [
+    100,
+    76,
+    20,
+    1,
+    0,
+    "unknown"
+  ],
+  "full_and_partial_claims": true,
+  "save_failure_atomic": true,
+  "repeat_claim_blocked": true
+}

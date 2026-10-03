@@ -32,7 +32,6 @@
 #endif
 
 #define TIME_BUCKET 3600      // 一小时一换
-#define SHINY_DENOM 512       // 1/512，不是原版 1/8192 —— 见下
 
 // 强度档：种族值总和的区间。实测 151 只的分布是
 // 最低 175（绿毛虫）中位 345 最高 590（超梦），四分位 275/345/420。
@@ -57,20 +56,30 @@ uint32_t enc_spawn_seed(const uint8_t bssid[6], uint32_t ts)
     return CRC32(key, (size_t)n);
 }
 
-bool enc_roll_shiny(const uint8_t bssid[6], uint32_t ts, uint8_t rarity)
+uint16_t enc_shiny_denominator(shiny_source_t source)
+{
+    static const uint16_t denominators[SHINY_SOURCE_COUNT] = {64, 48, 32, 16};
+    return (unsigned)source < SHINY_SOURCE_COUNT ? denominators[source] : 0;
+}
+
+bool enc_shiny_from_roll(uint32_t roll, shiny_source_t source)
+{
+    unsigned denominator = enc_shiny_denominator(source);
+    return denominator && roll % denominator == 0;
+}
+
+bool enc_roll_shiny(const uint8_t bssid[6], uint32_t ts)
 {
     // 独立 salt 而非复用 spawn_seed 的低位 —— 否则闪光判定与种类判定
     // 相关，某些种类会**永远不闪光**（那种 bug 要玩几个月才发现）。
     //
-    // 1/512 而非原版 1/8192：原版一天遇几百只，本项目一天 10~30 次，
-    // 8192 意味着平均一年才见一只。
+    // 独立哈希流，增加闪光机会但不改变已有遭遇/捕获个体的标记。
     char key[64];
     char mac[18];
     fmt_bssid(bssid, mac);
     int n = snprintf(key, sizeof(key), "%s|%u|shiny", mac,
                      (unsigned)(ts / TIME_BUCKET));
-    uint32_t denom = (rarity >= 5) ? (SHINY_DENOM / 2) : SHINY_DENOM;
-    return (CRC32(key, (size_t)n) % denom) == 0;
+    return enc_shiny_from_roll(CRC32(key, (size_t)n), SHINY_PASSIVE);
 }
 
 uint8_t enc_rarity_from_ap(int8_t rssi, uint8_t auth, bool has_ssid,
@@ -436,7 +445,7 @@ static bool refresh_one(enc_refresh_state_t *s, const enc_refresh_ap_t *aps,
         uint32_t salt=(s->serial+attempt)*3600u;
         e.species_id=enc_pick_species(ap->bssid,salt,rarity);
         if(!refresh_species_present(q,e.species_id)) {
-            e.is_shiny=enc_roll_shiny(ap->bssid,salt,rarity);found=true;break;
+            e.is_shiny=enc_roll_shiny(ap->bssid,salt);found=true;break;
         }
     }
     if(!found) {s->discoveries=previous_discoveries;return false;}

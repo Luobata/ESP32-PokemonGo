@@ -44,6 +44,7 @@ idf_component_register(
          "play_capture.c"
          "play_dex.c"
          "screen.c"
+         "battery_ui.c"
          "screen_idle.c"
          "render.c"
          "play_idle.c"

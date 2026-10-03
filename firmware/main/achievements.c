@@ -36,6 +36,9 @@ achievement_claim_t achievement_claim(achievement_store_t *s,inventory_t *bag,co
  const achievement_info_t *a=achievement_info(id);if(!a)return ACH_CLAIM_LOCKED;
  if(s->claimed&(1u<<id))return ACH_CLAIM_ALREADY;
  if(achievement_progress(v,id)<a->target)return ACH_CLAIM_LOCKED;
- if((unsigned)bag->quantity[a->item]+a->quantity>items_capacity(a->item))return ACH_CLAIM_FULL;
- bag->quantity[a->item]+=a->quantity;s->claimed|=1u<<id;return ACH_CLAIM_OK;
+ unsigned total=(unsigned)bag->quantity[a->item]+a->quantity;
+ unsigned cap=items_capacity(a->item);
+ bag->quantity[a->item]=total>cap?cap:total;
+ s->claimed|=1u<<id;
+ return total>cap?ACH_CLAIM_CAPPED:ACH_CLAIM_OK;
 }

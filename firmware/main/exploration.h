@@ -106,3 +106,7 @@ void exploration_activity_credit(exploration_updates_t *,const encounter_t *);
 exploration_kind_t exploration_activity_claim(unsigned,exploration_updates_t *,inventory_t *,exploration_event_t *);
 
 exploration_event_t exploration_step_with_target(exploration_state_t*,enc_refresh_state_t*,enc_queue_t*,dex_t*,uint16_t,uint16_t,inventory_t*,const nurture_t*,unsigned,unsigned);
+
+// Forest dungeon clear reward. Pure candidate: no queue, dex or RNG mutation.
+bool exploration_dungeon_partner(uint32_t seed,uint32_t run_id,uint16_t defeated,
+                                 const enc_queue_t *queue,encounter_t *out);

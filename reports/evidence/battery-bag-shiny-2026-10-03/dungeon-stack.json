@@ -1,0 +1,15 @@
+{
+  "target": "esp32c3",
+  "stack_frames": {
+    "dungeon_load": 32,
+    "dungeon_step": 64,
+    "dungeon_switch": 16,
+    "dungeon_retire": 16,
+    "dungeon_resume": 48,
+    "dungeon_abandon": 16,
+    "dungeon_new": 208,
+    "dungeon_choose": 16,
+    "dungeon_finish": 16
+  },
+  "passed": true
+}

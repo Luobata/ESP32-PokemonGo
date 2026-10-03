@@ -57,8 +57,13 @@ static void draw(void){
     if(index/3==selected){snprintf(text,sizeof(text),"%s x%u",items_info(i)->name,d->receipt.items.quantity[i]);game_ui_text_fitted(y,24,116+row++*28,192,text,GAME_UI_INK);}index++;
    }
    if(!index)game_ui_text_centered(y,8,128,224,16,"本次没有额外道具",GAME_UI_MUTED);
+   if(d->receipt.partner_species){
+    label(d->receipt.partner_species,name,sizeof(name));
+    snprintf(text,sizeof(text),"%s%s",d->receipt.partner_shiny?"发现闪光 ":"发现伙伴 ",name);
+    game_ui_text_fitted(y,12,192,216,text,GAME_UI_ACCENT);
+   }
    snprintf(text,sizeof(text),"本局累计经验 %lu",(unsigned long)d->xp);game_ui_text_centered(y,8,212,224,16,text,GAME_UI_INK);
-   game_ui_text_centered(y,8,240,224,16,!d->run_id?"旧体验局 无正式奖励":d->pending?"奖励待保存 按C重试":d->receipt.full?"部分道具已满 未能放入":"失败或撤退 收获仍保留",GAME_UI_MUTED);
+   game_ui_text_centered(y,8,240,224,16,!d->run_id?"旧体验局 无正式奖励":d->pending?"奖励待保存 按C重试":d->receipt.partner_species?"伙伴已加入遭遇 可去捕获":d->receipt.full?"部分道具已满 未能放入":"失败或撤退 收获仍保留",GAME_UI_MUTED);
    game_ui_footer(y,"A/B翻页 C继续 长按B返回");screen_push_band(y);continue;
   }else{
    snprintf(text,sizeof(text),"%u/8",d->node+1);game_ui_title(y,dungeon_nodes[d->node],text);

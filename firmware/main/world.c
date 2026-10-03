@@ -1092,7 +1092,7 @@ static void spawn_one(uint32_t ts, bool transient, uint8_t *made)
     e.ts = ts;
     e.rarity = rarity;
     e.species_id = enc_pick_species(ap->bssid, ts, rarity);
-    e.is_shiny = enc_roll_shiny(ap->bssid, ts, rarity);
+    e.is_shiny = enc_roll_shiny(ap->bssid, ts);
     e.is_transient = transient;
     e.hp_ratio = 100;
     e.biome = 0;                  // TODO: classify_biome 还没移植
@@ -1674,7 +1674,7 @@ achievement_claim_t world_achievement_claim(unsigned id)
     achievement_view_t view;
     achievement_view(&view,&s_achievements,&s_dex,s_challenge.defeated);
     achievement_claim_t result=achievement_claim(&s_save_buf.achievements,&s_save_buf.inventory,&view,id);
-    if (result!=ACH_CLAIM_OK) { unlock_encounter_change(); return result; }
+    if (result!=ACH_CLAIM_OK && result!=ACH_CLAIM_CAPPED) { unlock_encounter_change(); return result; }
     s_dirty=false;
     xSemaphoreGive(s_lock);
     bool ok=save_write(&s_save_buf);
@@ -1685,7 +1685,7 @@ achievement_claim_t world_achievement_claim(unsigned id)
         s_last_save_us=esp_timer_get_time();
     } else s_dirty=true;
     unlock_encounter_change();
-    return ok?ACH_CLAIM_OK:ACH_CLAIM_FAILED;
+    return ok?result:ACH_CLAIM_FAILED;
 }
 
 
@@ -1902,14 +1902,31 @@ bool world_dungeon_award(uint32_t id,unsigned node,uint32_t seed,dungeon_receipt
         if(n>room){n=room;receipt.full=1;}
         receipt.items.quantity[i]=n;s_save_buf.inventory.quantity[i]+=n;
     }
+    encounter_t partner={0};
+    if(node==7){
+        if(!exploration_dungeon_partner(seed,id,s_challenge.defeated,&s_save_buf.queue,&partner)){
+            unlock_encounter_change();return false;
+        }
+        partner.ts=s_refresh.online_s;
+        partner.level=battle_wild_level_for_pet(partner.rarity,s_w.level);
+        while(!s_save_buf.queue.next_uid||s_save_buf.queue.next_uid==s_active.encounter.uid||
+              enc_queue_find(&s_save_buf.queue,s_save_buf.queue.next_uid))s_save_buf.queue.next_uid++;
+        enc_queue_push(&s_save_buf.queue,&partner);
+        dex_mark_seen(&s_save_buf.dex,partner.species_id,partner.is_shiny);
+        receipt.partner_species=partner.species_id;receipt.partner_shiny=partner.is_shiny;
+    }
     party_serialize(&s_starter_party,s_save_buf.party);
     s_save_buf.exp=s_starter_party.party[0].exp;s_save_buf.level=s_starter_party.party[0].level;
     dungeon_progress_t *p=&s_save_buf.dungeon;p->paid_nodes|=1u<<node;p->last_node=node;p->receipt=receipt;
     if(node==4)p->elite_seen=1;
     if(node==7&&p->clears<UINT16_MAX)p->clears++;
     xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
-    if(ok){s_dungeon=s_save_buf.dungeon;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_inventory=s_save_buf.inventory;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;s_last_save_us=esp_timer_get_time();*out=receipt;}
-    unlock_encounter_change();return ok;
+    if(ok){s_dungeon=s_save_buf.dungeon;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_inventory=s_save_buf.inventory;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;s_last_save_us=esp_timer_get_time();*out=receipt;
+        if(node==7){s_queue=s_save_buf.queue;s_dex=s_save_buf.dex;s_w.pending=s_queue.count;prune_battles_locked();}
+    }else s_dirty=true;
+    unlock_encounter_change();
+    if(ok&&partner.species_id)sfx_encounter(partner.rarity,partner.is_shiny);
+    return ok;
 }
 
 // Badge expeditions reuse wild combat and capture. Entry, progress and rewards

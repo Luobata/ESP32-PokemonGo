@@ -1,0 +1,24 @@
+{
+  "idf": "5.5.3",
+  "build_passed": true,
+  "application_bytes": 3143872,
+  "application_sha256": "27ef20999696a80b3ab718e1cc0c47f9a927aac5bc78dc3f47c536d7645661a4",
+  "flashed": true,
+  "committed": false,
+  "published": false,
+  "font_inventory_passed": true,
+  "encounter_sim_parity_passed": true,
+  "legacy_items_suite": "Not passed: old test harness has unresolved battle/exploration link dependencies. Current production-world achievement capacity regression and migration tests passed.",
+  "dungeon_partner_native_playthrough_passed": true,
+  "inspector_build_passed": true,
+  "device_boot_verified": true,
+  "device_save_loaded": {
+    "dex_caught": 90,
+    "party": 6,
+    "total": 83,
+    "species": 6,
+    "level": 39
+  },
+  "device_battery_percent": 92,
+  "device_muted": true
+}

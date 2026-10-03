@@ -10,6 +10,7 @@
 #include "lvgl.h"
 
 #include "assets.h"
+#include "battery_ui.h"
 #include "evolution.h"
 #include "evolution_ui.h"
 #include "game_ui.h"
@@ -103,10 +104,11 @@ static void draw_band(int band_y)
     game_ui_title(band_y, "照料", buf);
     if (has_species) {
         snprintf(buf, sizeof(buf), "%.*s", sp.name_zh_len, sp.name_zh);
-        render_text(12, Y(40), buf, GAME_UI_INK);
+        game_ui_text_fitted(band_y, 12, 40, 144, buf, GAME_UI_INK);
     }
+    battery_ui_draw(band_y, 228, 40);
     snprintf(buf, sizeof(buf), "亲密度 %u", nurture_pct(s_w.pet.intimacy));
-    render_text(228 - render_text_width(buf), Y(40), buf, GAME_UI_MUTED);
+    render_text(12, Y(60), buf, GAME_UI_MUTED);
 
     uint8_t count = action_count();
     for (uint8_t i = 0; i < count; i++) {

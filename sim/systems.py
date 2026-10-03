@@ -102,18 +102,19 @@ class EncounterQueue:
         return bytes(out)
 
 
-# 闪光概率（S8）。1/512 而非原版 1/8192 —— 原版一天遇几百只，
-# 本项目一天 10~30 次，8192 意味着平均一年才见一只。
-SHINY_DENOM = 512
+# 闪光概率按获取途径区分；与物种稀有度无关。
+SHINY_DENOMINATORS = {"passive": 64, "exploration": 48, "badge": 32, "dungeon": 16}
+SHINY_DENOM = SHINY_DENOMINATORS["passive"]
 
 
-def roll_shiny(bssid: str, ts: int, rarity: int) -> bool:
+def roll_shiny(bssid: str, ts: int, rarity: int, source: str = "passive") -> bool:
     """闪光判定 —— 遭遇生成时就定，玩家看到 sprite 的瞬间即知（S8）。
 
     用独立 salt 而非复用 spawn_seed 的低位，保证闪光判定与种类判定
     统计独立 —— 否则某些种类会永远不闪光。
     """
-    denom = SHINY_DENOM // 2 if rarity >= 5 else SHINY_DENOM
+    # rarity is retained for existing preview callers; it does not affect odds.
+    denom = SHINY_DENOMINATORS[source]
     key = f"{bssid}|{ts // 3600}|shiny".encode("utf-8")
     return (zlib.crc32(key) & 0xFFFFFFFF) % denom == 0
 

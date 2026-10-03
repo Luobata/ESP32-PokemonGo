@@ -38,6 +38,6 @@ void play_achievements_key(bsp_btn_t b,bsp_btn_ev_t e){
  if(nav_direction(b,e)!=0){selected=(selected+ACHIEVEMENT_COUNT+nav_direction(b,e))%ACHIEVEMENT_COUNT;feedback=0;}
  else if(e!=BSP_BTN_CLICK&&!nav_return(b,e))return;
  else if(nav_return(b,e)){nav_back(PAGE_MENU);return;}
- else if(nav_confirm(b,e)){static const char *messages[]={"奖励已放入背包","尚未达成 继续冒险","奖励已经领取","道具已满 请先腾出空间","保存失败 按确认重试"};feedback=messages[world_achievement_claim(selected)];}
+ else if(nav_confirm(b,e)){static const char *messages[]={"奖励已放入背包","尚未达成 继续冒险","奖励已经领取","已领取 超量道具未增加","保存失败 按确认重试"};feedback=messages[world_achievement_claim(selected)];}
  world_achievements_snapshot(&view);draw_all();
 }

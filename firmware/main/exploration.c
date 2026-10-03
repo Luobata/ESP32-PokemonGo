@@ -123,7 +123,7 @@ static exploration_event_t step(exploration_state_t *s,enc_refresh_state_t *r,
  if(!assets_species(species,&sp)){e.kind=EXPLORE_BLOCKED;return e;}
  uint32_t shiny=mix(seed^0x735a91cdu);
  encounter_t encounter={.ts=r->online_s,.species_id=species,.rarity=rarity,
-  .biome=route,.hp_ratio=100,.is_transient=true,.is_shiny=shiny%(rarity==5?256:512)==0};
+  .biome=route,.hp_ratio=100,.is_transient=true,.is_shiny=enc_shiny_from_roll(shiny,SHINY_EXPLORATION)};
  while(!q->next_uid||q->next_uid==active_uid||enc_queue_find(q,q->next_uid))q->next_uid++;
  enc_queue_push(q,&encounter);
  dex_mark_seen(dex,species,encounter.is_shiny);
@@ -254,7 +254,7 @@ exploration_event_t exploration_activity_spawn(unsigned id,exploration_updates_t
  for(unsigned i=0;i<8;i++){unsigned candidate=a->species[(start+i)%8];if(exploration_species_open(candidate,defeated)&&!pending(q,candidate)){species=candidate;break;}}
  if(!species){e.kind=EXPLORE_BLOCKED;return e;}
  exploration_habitat(species,&rarity);
- encounter_t enc={.species_id=species,.rarity=rarity,.level=a->level+u->activity_progress[id],.activity=id+1,.biome=a->route,.hp_ratio=100,.is_transient=true,.ts=seed,.is_shiny=mix(seed^0x735a91cdu)%512==0};
+ encounter_t enc={.species_id=species,.rarity=rarity,.level=a->level+u->activity_progress[id],.activity=id+1,.biome=a->route,.hp_ratio=100,.is_transient=true,.ts=seed,.is_shiny=enc_shiny_from_roll(mix(seed^0x735a91cdu),SHINY_BADGE)};
  while(!q->next_uid||q->next_uid==active||enc_queue_find(q,q->next_uid))q->next_uid++;
  enc_queue_push(q,&enc);u->activity_uid[id]=q->items[q->count-1].uid;
  dex_mark_seen(d,species,enc.is_shiny);
@@ -279,4 +279,27 @@ exploration_kind_t exploration_activity_claim(unsigned id,exploration_updates_t 
 
 exploration_event_t exploration_step_team(exploration_state_t *s,enc_refresh_state_t *r,enc_queue_t *q,dex_t *d,uint16_t active,uint16_t defeated,inventory_t *bag,const nurture_t *pet,unsigned bonus) {
  return exploration_step_with_target(s,r,q,d,active,defeated,bag,pet,bonus,0);
+}
+
+
+bool exploration_dungeon_partner(uint32_t seed,uint32_t run_id,uint16_t defeated,
+                                 const enc_queue_t *queue,encounter_t *out)
+{
+ if(!queue||!out||!run_id)return false;
+ unsigned count=0;
+ for(unsigned sid=1;sid<=DEX_SPECIES;sid++) {
+  if(exploration_habitat(sid,NULL)==0&&exploration_species_open(sid,defeated)&&!pending(queue,sid))count++;
+ }
+ if(!count)return false;
+ uint32_t identity=mix(seed^mix(run_id)^0xd091ca71u);
+ unsigned pick=mix(identity^0x3a79b21du)%count;
+ for(unsigned sid=1;sid<=DEX_SPECIES;sid++) {
+  unsigned rarity=0;
+  if(exploration_habitat(sid,&rarity)!=0||!exploration_species_open(sid,defeated)||pending(queue,sid))continue;
+  if(pick-- != 0)continue;
+  *out=(encounter_t){.species_id=sid,.rarity=rarity,.biome=0,.hp_ratio=100,
+      .is_transient=true,.is_shiny=enc_shiny_from_roll(mix(identity^0x735a91cdu),SHINY_DUNGEON)};
+  return true;
+ }
+ return false;
 }

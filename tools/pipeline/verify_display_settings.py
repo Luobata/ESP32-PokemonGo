@@ -19,12 +19,12 @@ DRIVER = r'''
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
-static int disk=-1,stage,fail,writes,backlight=100;
+static int disk=-1,stage,battery_disk=-1,battery_stage,fail,writes,backlight=100;
 static bool off;
-int nvs_open(const char*n,int mode,int*h){assert(!strcmp(n,"pokewalk"));(void)mode;*h=1;stage=disk;return fail==1?-1:0;}
-int nvs_get_u8(int h,const char*k,uint8_t*v){(void)h;assert(!strcmp(k,"brightness"));if(disk<0||fail==4)return -1;*v=disk;return 0;}
-int nvs_set_u8(int h,const char*k,uint8_t v){(void)h;assert(!strcmp(k,"brightness"));writes++;if(fail==2)return -1;stage=v;return 0;}
-int nvs_commit(int h){(void)h;if(fail==3)return -1;disk=stage;return 0;}
+int nvs_open(const char*n,int mode,int*h){assert(!strcmp(n,"pokewalk"));(void)mode;*h=1;stage=disk;battery_stage=battery_disk;return fail==1?-1:0;}
+int nvs_get_u8(int h,const char*k,uint8_t*v){(void)h;int value=!strcmp(k,"brightness")?disk:battery_disk;assert(!strcmp(k,"brightness")||!strcmp(k,"battery_show"));if(value<0||fail==4)return -1;*v=value;return 0;}
+int nvs_set_u8(int h,const char*k,uint8_t v){(void)h;assert(!strcmp(k,"brightness")||!strcmp(k,"battery_show"));writes++;if(fail==2)return -1;if(!strcmp(k,"brightness"))stage=v;else battery_stage=v;return 0;}
+int nvs_commit(int h){(void)h;if(fail==3)return -1;disk=stage;battery_disk=battery_stage;return 0;}
 void nvs_close(int h){(void)h;}
 bool screen_idle_is_off(void){return off;}
 void bsp_display_backlight(uint8_t v){assert(!off);backlight=v;}
@@ -44,7 +44,17 @@ int main(void){
  display_settings_init();assert(display_settings_brightness()==70&&backlight==0);
  for(int value=0;value<=255;value+=255){disk=value;display_settings_init();assert(display_settings_brightness()==100);}
  disk=40;fail=4;display_settings_init();assert(display_settings_brightness()==100);
- puts("PASS: brightness bounds, defaults, restart, NVS failures, sleeping panel stays dark");
+ fail=0;display_settings_init();assert(display_settings_battery_visible());
+ for(fail=1;fail<=3;fail++){
+  assert(!display_settings_set_battery_visible(false));
+  assert(display_settings_battery_visible()&&battery_disk==-1);
+ }
+ fail=0;assert(display_settings_set_battery_visible(false));
+ display_settings_init();assert(!display_settings_battery_visible()&&display_settings_brightness()==40);
+ assert(display_settings_set_brightness(50));display_settings_init();assert(!display_settings_battery_visible());
+ assert(display_settings_set_battery_visible(true));display_settings_init();assert(display_settings_battery_visible());
+ battery_disk=2;display_settings_init();assert(display_settings_battery_visible());
+ puts("PASS: battery toggle persistence, defaults, NVS rollback; brightness bounds, defaults, restart, NVS failures, sleeping panel stays dark");
 }
 '''
 

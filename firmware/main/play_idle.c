@@ -39,11 +39,11 @@
 #include "nav.h"
 #include "world.h"
 #include "exp.h"
-#include "bsp_battery.h"
 #include "bsp_display.h"
 #include "play.h"
 #include "render.h"
 #include "screen.h"
+#include "screen_idle.h"
 
 static const char *TAG = "idle";
 
@@ -91,7 +91,6 @@ SCREEN_ASSERT_WITHIN_BAND(idle_footer, 280, 40);
 static world_t s_w;
 static uint8_t s_action;
 static bool s_shiny;
-
 // 每条横带使用同一世界快照，所有坐标都相对整屏。
 static void draw_band(int band_y, int8_t breath)
 {

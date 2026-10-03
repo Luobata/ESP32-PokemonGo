@@ -8,7 +8,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT/'tools/inspector'))
 from native import Renderer, build, png
 
-out = ROOT/'reports/evidence/settings-fixes-2026-09-19'
+out = ROOT/'reports/evidence/battery-inline-2026-10-03'
 out.mkdir(parents=True, exist_ok=True)
 exe, version = build()
 r = Renderer(exe)
@@ -59,7 +59,7 @@ try:
     assert r.inspect()['display']['backlight'] == 40
     key(1)
     assert r.inspect()['menu_view']['option_selected'] == 8
-    screenshot('options-return')
+    screenshot('options-battery')
     key(0)
     key(2)
     for _ in range(12):
@@ -78,7 +78,7 @@ try:
     key(2)
     screenshot('wifi-setup')
     key(1, 3)
-    for _ in range(2):
+    for _ in range(3):
         key(1)
     key(2)
     assert not r.inspect()['menu_view']['options']

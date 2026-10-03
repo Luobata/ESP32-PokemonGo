@@ -27,6 +27,9 @@
 #include "dungeon.h"
 
 static uint64_t now_ms;
+static int battery_soc = 76;
+static unsigned battery_reads;
+int bsp_battery_soc(void) { battery_reads++; return battery_soc; }
 static uint8_t backlight = 100;
 void bsp_display_backlight(uint8_t percent) { backlight = percent; }
 esp_err_t bsp_display_sleep(bool sleep) { (void)sleep; return ESP_OK; }
@@ -451,6 +454,12 @@ static uint8_t host_volume=AUDIO_VOLUME_DEFAULT;
 static unsigned host_alert;
 static bool host_notifying;
 static uint8_t host_brightness=DISPLAY_BRIGHTNESS_DEFAULT;
+static bool host_battery_visible=true;
+bool display_settings_battery_visible(void){return host_battery_visible;}
+bool display_settings_set_battery_visible(bool v){
+    if(host_save_fails())return false;
+    host_battery_visible=v;return true;
+}
 void display_settings_init(void) {host_brightness=DISPLAY_BRIGHTNESS_DEFAULT;}
 uint8_t display_settings_brightness(void){return host_brightness;}
 bool display_settings_set_brightness(uint8_t v){
@@ -666,6 +675,7 @@ static void state(void)
     rogue_state();
     const dungeon_t *dr=dungeon_get();printf(",\"dungeon\":{\"phase\":%u,\"node\":%u,\"cards\":%u,\"wins\":%u,\"playing\":%u,\"mode\":%u}",dr->phase,dr->node,dr->cards,dr->wins,dungeon_playing(),play_trainer_mode());
     printf(",\"dungeon_team\":[");for(unsigned i=0;i<dr->count;i++){if(i)putchar(',');printf("{\"slot\":%u,\"species\":%u,\"level\":%u,\"shiny\":%u}",dr->slots[i],dr->members[i].species_id,dr->members[i].level,dr->members[i].flags&1);}putchar(']');
+    printf(",\"battery_reads\":%u",battery_reads);
     printf(",\"music\":%u,\"muted\":%s,\"volume\":%u,\"achievement_claimed\":%u,\"evolutions\":%u,\"encounter_alert\":%u}", (unsigned)music_director_current(), host_muted?"true":"false",host_volume,achievements.claimed,achievements.evolutions,host_alert);
     putchar('\n');
     fflush(stdout);
@@ -753,6 +763,8 @@ int main(void)
             fflush(stdout);continue;
         } else if (booted && !strcmp(cmd, "state")) {
             state(); continue;
+        } else if (booted && !strcmp(cmd, "battery") && sscanf(line, "%*s %u", &a) == 1 && a <= 101) {
+            battery_soc = a == 101 ? -1 : (int)a;
         } else if (booted && !strcmp(cmd, "save_delay") && sscanf(line, "%*s %u", &a) == 1 && a <= 2000) {
             save_delay_ms = a;
         } else if (booted && !strcmp(cmd, "save_fail") && sscanf(line, "%*s %u", &a) == 1 && a <= 10) {
@@ -883,9 +895,9 @@ achievement_claim_t world_achievement_claim(unsigned id){
  achievement_view_t v;world_achievements_snapshot(&v);
  achievement_store_t candidate=achievements;inventory_t bag=inventory;
  achievement_claim_t status=achievement_claim(&candidate,&bag,&v,id);
- if(status!=ACH_CLAIM_OK)return status;
+ if(status!=ACH_CLAIM_OK&&status!=ACH_CLAIM_CAPPED)return status;
  if(host_save_fails())return ACH_CLAIM_FAILED;
- achievements=candidate;inventory=bag;return ACH_CLAIM_OK;
+ achievements=candidate;inventory=bag;return status;
 }
 
 void world_exploration_snapshot(exploration_view_t *out){
@@ -995,7 +1007,16 @@ bool world_dungeon_award(uint32_t id,unsigned node,uint32_t seed,dungeon_receipt
  if(host_save_fails())return false;
  uint8_t slots[3];unsigned count=dungeon_recipients(id,slots),mask=0;if(!count)return false;
  for(unsigned i=0;i<count;i++){if(slots[i]>=party.party_count||(mask&(1u<<slots[i])))return false;mask|=1u<<slots[i];}
+ encounter_t partner={0};
+ if(node==7&&!exploration_dungeon_partner(seed,id,challenge.defeated,&queue,&partner))return false;
  dungeon_reward_plan(node,seed,&dungeon_progress,out);party_t before=party;
+ if(node==7){
+  partner.ts=refresh.online_s;partner.level=battle_wild_level_for_pet(partner.rarity,world.level);
+  while(!queue.next_uid||enc_queue_find(&queue,queue.next_uid)||(active_valid&&queue.next_uid==active_enc.uid))queue.next_uid++;
+  enc_queue_push(&queue,&partner);dex_mark_seen(&dex,partner.species_id,partner.is_shiny);
+  out->partner_species=partner.species_id;out->partner_shiny=partner.is_shiny;
+  world.pending=queue.count;sfx_encounter(partner.rarity,partner.is_shiny);
+ }
  exp_award_party(&party,mask,mask,exp_scaled(out->xp,nurture_exp_percent(&world.pet)));out->xp=0;
  for(unsigned i=0;i<party.party_count;i++)out->xp+=party.party[i].exp-before.party[i].exp;
  exp_growth_record(&growth,before.party,before.party_count,party.party,party.party_count);

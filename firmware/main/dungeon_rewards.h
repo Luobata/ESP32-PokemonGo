@@ -1,10 +1,16 @@
 #pragma once
 #include <stdint.h>
+#include <stddef.h>
 #include <stdbool.h>
 #include "items.h"
 #define DUNGEON_ENTRY_COST 20
 // Stored atomically WITH party EXP and inventory in the world save.
-typedef struct {uint32_t xp;inventory_t items;uint8_t first_clear,first_elite,full;} dungeon_receipt_t;
+typedef struct {uint32_t xp;inventory_t items;uint8_t first_clear,first_elite,full;
+ // Former zeroed tail padding, without changing any persisted offsets or sizes.
+ uint8_t partner_species,partner_shiny;
+} dungeon_receipt_t;
+_Static_assert(sizeof(dungeon_receipt_t)==48&&offsetof(dungeon_receipt_t,partner_species)==45,
+               "Keep legacy receipt layout; old reward_plan zeroed all tail bytes");
 typedef struct {
  uint32_t run_id;
  uint16_t clears;
