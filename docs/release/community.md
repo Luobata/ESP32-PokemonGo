@@ -1,6 +1,16 @@
 # AI Passport 社区发布
 
-## 最新提交：2026-10-04 旧备份导入与牛奶回复
+## 最新提交：2026-10-05 历史存档兼容与安全更新
+
+原项目 **234 / pokewalk** 的 **REV-2017** 已提交审核（pending），尚未公开上线；上一公开版本为已通过审核的 REV-1966。新增 V5～V17 历史样本回归，修复早期保留字节的迁移校验，改善导入结果核对，提供只写应用的 USB 更新包。完整社区安装仍须先备份后恢复。
+
+实现 **`0f76077`** 已合并并推送 main，[GitHub CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37232407985) 全部通过。[GitHub Release v2026.10.05](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.05) 已公开，提供完整安装包、保留存档 USB 更新包及摘要。社区上传包与已验证本地应用一致；中英文介绍、使用说明、增量日志、源码地址和摘要已回读一致，原五张图片随新版提交。
+
+本轮完成隔离环境中的真实 NVS 恢复验证。设备虽能枚举 USB，但串口及启动连接无响应，**尚未烧录，未覆盖玩家存档**；等待设备开机并重新连接后继续。没有把模拟恢复当作真机导入测试。在线 Pages、devbox 资源及离线 ZIP 与当前源码一致，本轮网页无需再改动。
+
+[增量说明](2026-10-05/changelog.zh.md) · [验证记录](../../reports/save-history-compatibility-2026-10-05.md) · [发布回执](../../reports/evidence/save-history-release-2026-10-05/community.json) · [发布包](../../reports/evidence/save-history-release-2026-10-05/package.json) · [设备状态](../../reports/evidence/save-history-release-2026-10-05/device.json)。
+
+## 历史提交：2026-10-04 旧备份导入与牛奶回复
 
 原项目 **234 / pokewalk** 的 **REV-1966** 已提交审核（pending），尚未公开上线；当前公开版为已通过审核的 REV-1909。本轮修复同设备跨构建旧备份导入，并将牛奶的对战回复改为至少 50 HP 或最大 HP 的一半，取较高者。
 

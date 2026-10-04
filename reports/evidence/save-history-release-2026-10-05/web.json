@@ -1,0 +1,24 @@
+{
+  "pages": {
+    "url": "https://luobata.github.io/ESP32-PokemonGo/",
+    "resources_match_source": {
+      "index.html": true,
+      "app.mjs": true,
+      "backup.mjs": true,
+      "style.css": true
+    },
+    "offline_zip_sha256": "7bf3e43c6c698973e28a62e7511dddf38e81f2cc3aa28a648dfac2f4648a463b",
+    "offline_zip_matches_source": true
+  },
+  "devbox": {
+    "url": "http://10.37.197.13:8767/",
+    "resources_match_source": {
+      "index.html": true,
+      "app.mjs": true,
+      "backup.mjs": true,
+      "style.css": true
+    },
+    "offline_zip_sha256": "7bf3e43c6c698973e28a62e7511dddf38e81f2cc3aa28a648dfac2f4648a463b",
+    "offline_zip_matches_source": true
+  }
+}

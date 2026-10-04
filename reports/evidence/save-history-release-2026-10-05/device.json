@@ -1,0 +1,14 @@
+{
+  "flashed": false,
+  "target_source_commit": "0f7607780c7aaeb775e127a9609f90b3704fb777",
+  "status": "waiting_for_device_reconnect",
+  "usb_enumerated": true,
+  "serial_port": "/dev/cu.usbmodem11301",
+  "connection_probe": "esptool read_mac",
+  "connection_result": "Failed to connect to ESP32-C3: No serial data received",
+  "flash_write_attempted": false,
+  "player_save_overwritten": false,
+  "new_device_backup_created": false,
+  "hardware_import_overwrite_tested": false,
+  "hardware_boot_preservation_tested": false
+}
