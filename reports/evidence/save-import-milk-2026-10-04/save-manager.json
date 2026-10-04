@@ -1,0 +1,12 @@
+{
+  "verified": true,
+  "url": "https://luobata.github.io/ESP32-PokemonGo/",
+  "files": {
+    "index.html": "1fddf2fda27cd548ed985227d76b845b8ca0a631a6e2220e2e1a4bf34f79259a",
+    "app.mjs": "1c6bd044c35a144a3acfdbc223ab3c7a5b5dc5684f76c20dbf9c94752bfd7683",
+    "backup.mjs": "60a142a5ca7a155a551a70151411ae2e321f9ff49033bd1aada911e988496d6c"
+  },
+  "offline_zip_matches": true,
+  "devbox_matches": true,
+  "pages_ci": "https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37189805777"
+}

@@ -1,0 +1,17 @@
+{
+  "flashed": true,
+  "source_commit": "75e1f86ede23a01ea325a5e788590c120536a01a",
+  "app_elf_sha256": "3764885b22e3799ba88efbfaecb696bebfbc1764a0113733c1f76038a6edb284",
+  "app_sha256": "02629f25971f3cc98968e5b6e9122497737c0d0665de0e17140392aad30db72b",
+  "verified_segments": 3,
+  "save_backup_retained": true,
+  "partition_table_unchanged": true,
+  "dex_caught": 90,
+  "party_count": 6,
+  "total_partners": 83,
+  "leader_species": 6,
+  "leader_level": 39,
+  "leader_exp": 92023,
+  "boot_error_observed": false,
+  "cross_version_import_on_device_tested": false
+}

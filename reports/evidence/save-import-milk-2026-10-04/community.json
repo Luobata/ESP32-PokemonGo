@@ -1,0 +1,18 @@
+{
+  "project_id": 234,
+  "revision_id": 1966,
+  "slug": "pokewalk",
+  "status": "pending",
+  "published_revision": 1909,
+  "manage_url": "https://ai-passport.folotoy.cn/account/?project=234",
+  "source_commit": "75e1f86ede23a01ea325a5e788590c120536a01a",
+  "ci_commit": "28d9cc233b188735e59adfea58d7e9f17b01151f",
+  "firmware_size": 3211264,
+  "firmware_sha256": "1750569b0769ba76ef9cc14faf55ceea3d7284509013b55d8cdd9e4ed7c393f1",
+  "bilingual_fields_verified": true,
+  "source_url_verified": true,
+  "inspected_images_submitted": 5,
+  "image_contents_readback_verified": false,
+  "ci_url": "https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37189944977",
+  "ci_result": "success"
+}

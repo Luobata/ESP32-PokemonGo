@@ -14,3 +14,5 @@
 存档管理：https://luobata.github.io/ESP32-PokemonGo/
 
 验证详情见 [修复记录](bugfix-save-import-milk-2026-10-04.md)。
+
+发布状态：已烧录当前设备、推送 main；社区 REV-1966 已提交审核（pending），尚未公开上线。存档工具网页、离线 ZIP 与 devbox 已更新。

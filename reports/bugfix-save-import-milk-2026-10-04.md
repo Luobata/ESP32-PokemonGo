@@ -1,6 +1,6 @@
 # 2026-10-04 存档导入与牛奶回复修复
 
-状态：本地修复及专项验证完成。用户已授权烧录、提交与发布；执行结果见本次发布回执。
+状态：已烧录设备，代码已推送 main，云端 CI 通过。社区 REV-1966 已提交审核（pending）；网页、离线工具与 devbox 已更新。[发布回执](evidence/save-import-milk-2026-10-04/community.json)。
 
 ## 更新后无法导入旧备份
 
@@ -29,7 +29,7 @@
 - `verify_usb_backup.py`、`verify_usb_backup_checkpoint.py`、`verify_save_manager_distribution.py` 通过。
 - `verify_trainer_campaign.py`：229 次实际对战动作；`verify_dungeon_rewards.py`：24 例，通过。
 - 原生预览 120 次操作与分带渲染比对，0 像素差异；人工查看牛奶回复页。[截图](evidence/save-import-milk-2026-10-04/milk-recovery.png)
-- ESP-IDF 固件编译、资产与字体检查、`git diff --check` 通过。未烧录，也未使用反馈用户的实际备份文件。
+- ESP-IDF 固件编译、资产与字体检查、`git diff --check` 通过。修复阶段未烧录；随后按用户授权完成烧录并确认原进度保留，详见设备回执。未使用反馈用户的实际备份文件，也未在真机上执行存档覆盖测试。
 - QualityGate 本地 `gate=pass`，`block_merge=false`，`execution_complete=true`；本会话没有注册中央 MCP，未获得中央规则/语义审查结果。Mutation 未启用。
 
 额外检查发现旧 `verify_starter.py` 单独运行缺少多个链接依赖，原主分支 `2906e4b` 同样失败；换用完整链接环境后，修复前后均在旧队列逐字节断言处失败；该断言与当前启动补全等级的行为不符。该旧脚本不计入本次通过项；本次存档相关验证使用上列实际生产代码测试。
