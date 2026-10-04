@@ -15,8 +15,18 @@
 static exploration_view_t view;
 static exploration_event_t event;
 static unsigned selected, action_selected;
-static uint8_t route_ids[EXPLORATION_MAPS];static unsigned route_count;
-static void route_options(void){route_count=0;for(unsigned i=0;i<EXPLORATION_MAPS;i++)if(exploration_map_open(i,view.defeated,&view.regions))route_ids[route_count++]=i;selected=0;for(unsigned i=0;i<route_count;i++)if(route_ids[i]==view.route)selected=i;}
+static uint8_t route_ids[EXPLORATION_MAPS],route_targets[EXPLORATION_MAPS];static unsigned route_count;
+static void route_options(void){
+ route_count=0;
+ for(unsigned i=0;i<EXPLORATION_MAPS;i++)if(exploration_map_open(i,view.defeated,&view.regions)){
+  route_ids[route_count++]=i;
+  if(i<EXPLORATION_ROUTES){
+   exploration_state_t focus=view.state;focus.route=i;
+   route_targets[i]=exploration_current_target(&focus,&view.updates,view.defeated);
+  }else route_targets[i]=exploration_region_target(i,&view.regions,view.defeated,world_dex());
+ }
+ selected=0;for(unsigned i=0;i<route_count;i++)if(route_ids[i]==view.route)selected=i;
+}
 static bool routes, animating, journal, activities, research, paths;
 static unsigned activity_selected, badge_selected;
 static bool badge_list, badge_detail;
@@ -191,9 +201,14 @@ static void draw_all(void){
     const exploration_route_t *r=exploration_route(id);const exploration_region_t *region=exploration_region(id);
     game_ui_box(band,8,y,224,48);if(index==selected)game_ui_cursor(band,16,y+13);
     render_text(32,y+8-band,r->name,GAME_UI_INK);
-    if(region)snprintf(text,sizeof(text),"Lv%u-%u 稀有区域",region->min_level,region->max_level);
+    if(region)snprintf(text,sizeof(text),"Lv%u-%u 线索%u/3",region->min_level,region->max_level,view.regions.region[id-EXPLORATION_ROUTES].clues);
     else snprintf(text,sizeof(text),"线索%u/3",view.state.clues[id]);
     render_text(32,y+26-band,text,GAME_UI_MUTED);
+    uint8_t size;species_t sp;const uint8_t *data=assets_front_sprite(route_targets[id],&size);
+    if(data&&assets_species(route_targets[id],&sp)){
+     uint16_t pal[4];assets_palette_variant(sp.palette,false,pal);
+     game_ui_thumbnail_centered(band,182,y+6,40,36,data,size,32,pal);
+    }
    }
    const char *next="全部地区已开放";
    for(unsigned i=4;i<EXPLORATION_MAPS;i++)if(!exploration_map_open(i,view.defeated,&view.regions)){next=exploration_region(i)->condition;break;}
