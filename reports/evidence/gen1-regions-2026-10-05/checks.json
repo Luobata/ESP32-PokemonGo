@@ -1,0 +1,198 @@
+{
+  "source_commit": "9e296e8ef3d4d8be20fb94a180f8da6bf0a1966e",
+  "checks": [
+    {
+      "name": "usb_backup",
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_backup.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.3,
+      "log_sha256": "5133a0bf1f0f3e16bdef0eb7e4cba70150c3a4ed963eb239698dc152e58944a9",
+      "summary": "{\"passed\": true, \"device_protocol\": \"ASan/UBSan\", \"browser\": \"current and future C schemas 18/99/65535, malformed versions, missing/duplicate/corrupt/truncated frames\", \"restore\": \"confirmation, device, metadata, checksum, prebackup and NVS-only roundtrip\"}"
+    },
+    {
+      "name": "usb_import",
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_import.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.87,
+      "log_sha256": "6896339dafcf77b858d05f97cdaa16960f7db46a27f176fc92c4e572f7775301",
+      "summary": "{\"passed\": true, \"journal\": \"power interruption at every I/O boundary, corrupted image, write failure rollback, incompatible build\", \"protocol\": \"physical consent, cancel, prebackup ACK, CRC, truncation, timeout, staged reboot\", \"browser\": \"production decoder with real C transcript and corrupt files\"}"
+    },
+    {
+      "name": "save_compatibility",
+      "command": [
+        "python3",
+        "tools/pipeline/verify_save_import_compatibility.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.39,
+      "log_sha256": "f1328506f28399b381d0f367291c7fc5c589d316c3a9b71f010bf2a57586758a",
+      "summary": "{\"passed\":true,\"schemas\":\"V5-V18 historical fixtures, future/corrupt rejected\",\"milk\":\"low/high HP, cap, faint, status, turn cost, save failures and reboot\"}"
+    },
+    {
+      "name": "usb_import_device",
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_import_device.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.49,
+      "log_sha256": "a3879715b6fa496044cfe28bfc6923c3cea303508b226a0169033fea783fcd22",
+      "summary": "device import isolation, actual schema check, validation failures, target-build journal binding: passed"
+    },
+    {
+      "name": "import_web",
+      "command": [
+        "node",
+        "tools/pipeline/verify_save_import_web.mjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.09,
+      "log_sha256": "0119fbbfa40ae6f90dd5e91bb8931b88b4312d84f7395e841ea2d79e9417aa04",
+      "summary": "production read loop preserves mismatched-restore error across disconnect: passed"
+    },
+    {
+      "name": "backup_checkpoint",
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_backup_checkpoint.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.55,
+      "log_sha256": "722d7c6f95fe288e312cd70a492b75dfeeb55e9511d6336c57e0ac1d04784b1c",
+      "summary": "{'passed': True, 'checkpoint': 'live state, failed save blocks export, retry, read failure, unavailable storage'}"
+    },
+    {
+      "name": "save_distribution",
+      "command": [
+        "python3",
+        "tools/pipeline/verify_save_manager_distribution.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.41,
+      "log_sha256": "911baaf62d65015a646208ba3c47bbba85fe838160824d51d00f971902b85dda",
+      "summary": "{\"passed\": true, \"scope\": \"public-file allowlist, extracted offline server, MIME, GET/HEAD, no save exposure or upload API; Pages allowlist and repository subpath\"}"
+    },
+    {
+      "name": "firmware_update",
+      "command": [
+        "python3",
+        "tools/pipeline/verify_firmware_update.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.28,
+      "log_sha256": "eb6cb7f50b9e814635b8857b6daf6a6c7ae07d415ad8d2d56ba60f3af438c344",
+      "summary": "app-only update, pre-write backup, protected data, unsafe inputs and interrupted update: passed"
+    },
+    {
+      "name": "real_nvs",
+      "command": [
+        "python3",
+        "tools/pipeline/verify_nvs_restore_roundtrip.py"
+      ],
+      "exit_code": 0,
+      "seconds": 9.38,
+      "log_sha256": "60c7b2200753285db3266d758f544e05d4e55427a2d2744d475f1f17c17f44cf",
+      "summary": "Real ESP-IDF NVS + production save/device/journal: historical V5-V18, distinct saves, schema rejection, settings, restore, second boot and rollback passed"
+    },
+    {
+      "name": "region_rules",
+      "command": [
+        "python3",
+        "tools/pipeline/verify_region_expansion.py"
+      ],
+      "exit_code": 0,
+      "seconds": 4.66,
+      "log_sha256": "24b55e3a2674fe87905d614726b2ccdde5158634e7c0d502ebf9c6b0176a29b1",
+      "summary": "{\"passed\":true,\"maps\":8,\"themes\":9,\"samples\":246424,\"checks\":6,\"save_bytes\":4008,\"sanitizers\":true}"
+    },
+    {
+      "name": "dungeon_stack",
+      "command": [
+        "python3",
+        "tools/pipeline/verify_dungeon_stack.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.38,
+      "log_sha256": "c9ecad0279f0864872a355ca28b3a6a7423be2ab23a2eeb5a18dda51f7369c4b",
+      "summary": "{\"target\": \"esp32c3\", \"stack_frames\": {\"begin_battle\": 192, \"dungeon_load\": 32, \"dungeon_step\": 64, \"dungeon_switch\": 16, \"dungeon_retire\": 16, \"dungeon_resume\": 48, \"dungeon_abandon\": 16, \"dungeon_choose\": 16, \"dungeon_finish\": 16, \"dungeon_theme_open\": 320, \"dungeon_new_theme\": 512, \"dungeon_new\": 16}, \"passed\": true}"
+    },
+    {
+      "name": "legacy_dungeon",
+      "command": [
+        "python3",
+        "tools/pipeline/verify_dungeon_rewards.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.37,
+      "log_sha256": "e5c56912aac2c867518856361694799e6a7b57fade3aedb14cab825e9bf16cb0",
+      "summary": "{\"cases\":24,\"save_bytes\":4008,\"sanitized\":true}"
+    }
+  ],
+  "hardware_import_test": false,
+  "device_flashed": false,
+  "ci": "not run; branch not pushed",
+  "firmware": {
+    "command": "tools/device/fw.sh build",
+    "exit_code": 0,
+    "source_commit": "9e296e8ef3d4d8be20fb94a180f8da6bf0a1966e",
+    "app_version": "9e296e8",
+    "target": "esp32c3",
+    "app_bytes": 3162880,
+    "sha256": "42d2399d6e9af5288871dbc58e0712899b1ee487e305da63ec9abfd030be7271",
+    "log_sha256": "aabb1bde535cb99eb61d2900292b45e588e8672a450757a0a11ea231fe075ef4",
+    "factory_partition_bytes": 3407872,
+    "factory_free_bytes": 244992,
+    "warning": "Application exceeds the separate 1 MiB recovery partition; it fits its 3.25 MiB factory partition. Recovery is not the game update target."
+  },
+  "preview": {
+    "command": "python3 tools/pipeline/verify_region_preview.py",
+    "exit_code": 0,
+    "build": "0130f52300ed0ef17adc",
+    "checks": 338,
+    "maps": 8,
+    "pixel_band_mismatches": 0,
+    "http_check": {
+      "status": 200,
+      "page": "P15",
+      "bytes": 153600,
+      "mismatches": "0",
+      "build": "0130f52300ed0ef17adc"
+    }
+  },
+  "qualitygate": {
+    "run_id": "3d21053b6dcaf6a8f6373cd8",
+    "gate": "pass",
+    "block_merge": false,
+    "execution_complete": true,
+    "incomplete_engines": [],
+    "semantic_prompts": [],
+    "agent_action": {
+      "schema_version": "qualitygate.agent-action.v1",
+      "state": "local_checks_passed",
+      "next_action": "finalize_semantic_and_tests",
+      "task_complete": false,
+      "actionable_block_count": 0,
+      "repair_round": 0,
+      "stop_reasons": [],
+      "repair_findings": [],
+      "required_validation": [
+        "format",
+        "diff_check",
+        "compile",
+        "focused_tests"
+      ],
+      "completion_requires": "current-fingerprint semantic result consumed and relevant validation passed; local PASS alone is insufficient"
+    },
+    "coverage_note": "Local CLI completed. No configured script rule matched these C/Python/JS paths; no central semantic MCP was available. This is not a C semantic certification; use the actual build, focused tests and recorded manual review."
+  },
+  "diff_check": {
+    "command": "git diff --check 0a2f206..9e296e8",
+    "exit_code": 0
+  }
+}

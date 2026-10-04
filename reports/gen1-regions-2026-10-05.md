@@ -46,12 +46,14 @@
 
 新增 `verify_region_expansion.py`：生产 world/save/dungeon 代码，ASan/UBSan；246,424 次抽样与方向/保底断言，解锁与传说门槛，保存失败不扣费，重启不重复奖励，满遭遇保留闪光、满背包暂存、研究只领一次，以及固定 V3 样本迁移。
 
-新增 `verify_region_preview.py`：共享 C 绘制与逻辑；八张地图、分页、方向选择、各主题自有伙伴入场及海岛完整战斗通关。逐帧分带与完整绘制一致。截图位于同目录。
+新增 `verify_region_preview.py`：共享 C 绘制与逻辑；八张地图、分页、方向选择、各主题自有伙伴入场及海岛完整战斗通关。最终运行 338 项断言通过，逐帧分带与完整绘制一致；HTTP 预览也通过同源画面检查。截图位于同目录。
 
 `verify_save_import_compatibility.py` 和 `verify_nvs_restore_roundtrip.py`：19 份 V5～V18 固定样本，游戏启动与二次启动、真实 ESP-IDF NVS 暂存/导入/回滚、设置保留和再次导出导入；旧 `run_v3` NVS 原样恢复后由生产加载器迁移。
 
 已将新入口纳入 ESP32-C3 栈预算：`dungeon_new_theme` 512 B、`dungeon_theme_open` 320 B、`begin_battle` 192 B，未返回大结构体到按键任务栈。
 
-QualityGate 本地确定性检查无阻断项；本会话未提供中央 MCP 规则/语义服务，C 文件无匹配语义提示，不能将其写成中央语义审核通过。另以实际固件编译、生产规则测试、故障注入和源码审查验证本次修改。未推送，故没有新的远端 CI 运行。
+QualityGate 本地运行返回 pass，但这批 C/Python/JS 路径没有匹配的脚本规则；本会话也未提供中央 MCP 规则/语义服务，不能将其写成 C 语义审核通过。另以实际固件编译、生产规则测试、故障注入和源码审查验证本次修改。未推送，故没有新的远端 CI 运行。
+
+最终构建对应源码 `9e296e8ef3d4d8be20fb94a180f8da6bf0a1966e`，应用版本 `9e296e8`，大小 3,162,880 字节，SHA-256 为 `42d2399d6e9af5288871dbc58e0712899b1ee487e305da63ec9abfd030be7271`。游戏的 factory 分区剩余 244,992 字节；构建提示游戏大于独立的 1 MiB recovery 分区，该分区不是游戏更新的写入目标。本记录不是公开安装包的发布验收。
 
 预览：`http://127.0.0.1:8766/firmware.html?progress=11&region=4&level=40&research=1#P15`。参数只设置隔离预览状态，页面会明确勾选“预览已完成地区研究与首通”，不会更改设备。
