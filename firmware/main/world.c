@@ -121,6 +121,7 @@ static bool s_dirty;
 static enc_refresh_state_t s_refresh;
 static exploration_state_t s_exploration;
 static exploration_updates_t s_exploration_updates;
+static exploration_regions_t s_regions;
 static rest_clock_t s_rest_clock;
 static int64_t s_rest_started_us;
 static dungeon_progress_t s_dungeon;
@@ -244,6 +245,7 @@ static void collect_save_locked(save_t *sv)
     sv->refresh = s_refresh;
     sv->exploration = s_exploration;
     sv->exploration_updates = s_exploration_updates;
+    sv->regions=s_regions;
     sv->dungeon = s_dungeon;
 }
 
@@ -1146,7 +1148,7 @@ static uint8_t refresh_from_scan(bool exploring,uint16_t distance_q10)
                 xSemaphoreTake(s_lock,portMAX_DELAY);
                 if(saved) {
                     s_refresh=s_save_buf.refresh;
-                    s_exploration=s_save_buf.exploration;
+                    s_exploration=s_save_buf.exploration;s_regions=s_save_buf.regions;
                     s_last_save_us=esp_timer_get_time();
                 } else {made=0;ESP_LOGW(TAG,"exploration credit save failed; no credit published");}
             } else s_refresh=s_save_buf.refresh;
@@ -1363,6 +1365,7 @@ bool world_start(void)
     memset(&s_refresh,0,sizeof(s_refresh));
     exploration_init(&s_exploration);
     memset(&s_exploration_updates,0,sizeof(s_exploration_updates));
+    memset(&s_regions,0,sizeof(s_regions));
     s_rest_clock=(rest_clock_t){0};s_rest_started_us=esp_timer_get_time();
     memset(&s_dungeon,0,sizeof(s_dungeon));
     s_refresh_clock_us=esp_timer_get_time();
@@ -1416,7 +1419,7 @@ bool world_start(void)
         s_dex = s_save_buf.dex;
         s_motion_q10 = s_save_buf.motion_q10;
         s_refresh=s_save_buf.refresh;
-        s_exploration=s_save_buf.exploration;
+        s_exploration=s_save_buf.exploration;s_regions=s_save_buf.regions;
         s_dungeon=s_save_buf.dungeon;
         s_exploration_updates=s_save_buf.exploration_updates;
         s_rest_clock=s_save_buf.rest_clock;
@@ -1640,25 +1643,36 @@ void world_exploration_snapshot(exploration_view_t *out)
     if(!out)return;
     memset(out,0,sizeof(*out));
     if(!s_lock||xSemaphoreTake(s_lock,portMAX_DELAY)!=pdTRUE)return;
-    out->state=s_exploration;out->updates=s_exploration_updates;
+    out->state=s_exploration;out->updates=s_exploration_updates;out->regions=s_regions;out->route=s_regions.selected;
     exploration_targets_sync(&out->state,&out->updates,&s_dex,&s_queue,s_challenge.defeated);
     out->discoveries=s_refresh.discoveries;out->defeated=s_challenge.defeated;
     out->supply_q10=s_refresh.hunt_q10;
     out->rare_left=8-s_refresh.since_rare;out->elite_left=30-s_refresh.since_elite;
     out->pending=s_queue.count;out->stamina=nurture_stamina_points(&s_w.pet);out->exp_percent=nurture_exp_percent(&s_w.pet);out->rare_bonus=nurture_rare_bonus(&s_w.pet);out->party_bonus=exploration_team_bonus(&s_party,s_exploration.route);
-    exploration_research_progress(s_exploration.route,&s_dex,&out->research_seen,&out->research_caught);
+    if(out->route<4){
+     exploration_research_progress(out->route,&s_dex,&out->research_seen,&out->research_caught);
+     out->clues=out->state.clues[out->route];out->target=exploration_current_target(&out->state,&out->updates,s_challenge.defeated);
+     out->traced=!!(out->state.research_flags&(16u<<out->route));out->claimed=!!(out->state.research_flags&(1u<<out->route));
+     out->pinned=out->state.tracked_species&&exploration_habitat(out->state.tracked_species,NULL)==out->route;
+    }else{
+     const exploration_region_progress_t *p=&s_regions.region[out->route-4];
+     exploration_region_research(out->route,&s_dex,&out->research_seen,&out->research_caught);
+     out->clues=p->clues;out->target=exploration_region_target(out->route,&s_regions,s_challenge.defeated,&s_dex);
+     out->traced=p->traced;out->claimed=p->claimed;out->deep=p->deep;out->deep_unlocked=out->research_seen>=5;
+    }
     xSemaphoreGive(s_lock);
 }
 exploration_kind_t world_exploration_select(uint8_t route)
 {
-    if(route>=EXPLORATION_ROUTES)return EXPLORE_BLOCKED;
+    if(route>=EXPLORATION_MAPS)return EXPLORE_BLOCKED;
     if(!lock_encounter_change())return EXPLORE_SAVE_FAILED;
     if(!s_storage_ready||s_starter_pending){unlock_encounter_change();return EXPLORE_SAVE_FAILED;}
     if(s_active.encounter.uid||s_challenge.session.active||s_challenge.league_active){unlock_encounter_change();return EXPLORE_BUSY;}
-    if(s_exploration.route==route){unlock_encounter_change();return EXPLORE_NONE;}
-    collect_save_locked(&s_save_buf);s_save_buf.exploration.route=route;
+    if(!exploration_map_open(route,s_challenge.defeated,&s_regions)){unlock_encounter_change();return EXPLORE_RESEARCH_LOCKED;}
+    if(s_regions.selected==route){unlock_encounter_change();return EXPLORE_NONE;}
+    collect_save_locked(&s_save_buf);s_save_buf.regions.selected=route;if(route<4)s_save_buf.exploration.route=route;
     xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
-    if(ok){s_exploration=s_save_buf.exploration;s_last_save_us=esp_timer_get_time();}
+    if(ok){s_exploration=s_save_buf.exploration;s_regions=s_save_buf.regions;s_last_save_us=esp_timer_get_time();}
     else s_dirty=true;
     unlock_encounter_change();return ok?EXPLORE_NONE:EXPLORE_SAVE_FAILED;
 }
@@ -1677,12 +1691,13 @@ exploration_kind_t world_exploration_track(uint16_t species)
   if(x->tracked_species){int old=exploration_habitat(x->tracked_species,NULL);if(old>=0){x->clues[old]=0;x->pulse[old]=0;}}
   if(species){x->clues[route]=0;x->pulse[route]=0;}
  }
- x->tracked_species=species;if(species)x->route=route;
+ x->tracked_species=species;if(species){x->route=route;s_save_buf.regions.selected=route;}
  xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
- if(ok){s_exploration=s_save_buf.exploration;s_last_save_us=esp_timer_get_time();}
+ if(ok){s_exploration=s_save_buf.exploration;s_regions=s_save_buf.regions;s_last_save_us=esp_timer_get_time();}
  unlock_encounter_change();return ok?EXPLORE_NONE:EXPLORE_SAVE_FAILED;
 }
-exploration_event_t world_explore(void)
+exploration_event_t world_explore(void){return world_explore_path(0);}
+exploration_event_t world_explore_path(unsigned direction)
 {
     exploration_event_t event={.kind=EXPLORE_SAVE_FAILED};
     if(!lock_encounter_change())return event;
@@ -1694,21 +1709,23 @@ exploration_event_t world_explore(void)
     if(s_w.pet.stamina<NURT_EXPLORE_COST){event.kind=EXPLORE_NO_STAMINA;unlock_encounter_change();return event;}
     exploration_targets_sync(&s_save_buf.exploration,&s_save_buf.exploration_updates,&s_dex,&s_queue,s_challenge.defeated);
     unsigned target=exploration_current_target(&s_save_buf.exploration,&s_save_buf.exploration_updates,s_challenge.defeated);
-    event=exploration_step_with_target(&s_save_buf.exploration,&s_save_buf.refresh,&s_save_buf.queue,&s_save_buf.dex,s_active.encounter.uid,s_challenge.defeated,&s_save_buf.inventory,&s_w.pet,exploration_team_bonus(&s_party,s_exploration.route),target);
+    event=s_regions.selected>=4?exploration_region_step(&s_save_buf.regions,&s_save_buf.refresh,&s_save_buf.queue,&s_save_buf.dex,s_active.encounter.uid,s_challenge.defeated,&s_save_buf.inventory,direction):exploration_step_with_target(&s_save_buf.exploration,&s_save_buf.refresh,&s_save_buf.queue,&s_save_buf.dex,s_active.encounter.uid,s_challenge.defeated,&s_save_buf.inventory,&s_w.pet,exploration_team_bonus(&s_party,s_exploration.route),target);
     if(event.kind!=EXPLORE_ENCOUNTER&&event.kind!=EXPLORE_CLUE&&event.kind!=EXPLORE_TARGET) {
         unlock_encounter_change();return event;
     }
     if(event.uid){
         encounter_t *enc=enc_queue_find(&s_save_buf.queue,event.uid);
         event.level=battle_wild_level_for_pet(event.rarity,s_w.level);
+        const exploration_region_t *region=exploration_region(event.route);
+        if(region){if(event.level<region->min_level)event.level=region->min_level;if(event.level>region->max_level)event.level=region->max_level;}
         if(enc)enc->level=event.level;
     }
-    if(event.kind==EXPLORE_TARGET)exploration_target_completed(&s_save_buf.exploration,&s_save_buf.exploration_updates,&s_save_buf.dex,&s_save_buf.queue,s_challenge.defeated,event.route);
+    if(event.kind==EXPLORE_TARGET&&event.route<4)exploration_target_completed(&s_save_buf.exploration,&s_save_buf.exploration_updates,&s_save_buf.dex,&s_save_buf.queue,s_challenge.defeated,event.route);
     s_save_buf.pet.stamina-=NURT_EXPLORE_COST;
     // Map discoveries advance the same individual exploration stat as walking.
     // Serialize the candidate first: failed storage must not advance evolution.
     s_starter_party=s_party;
-    if(event.kind==EXPLORE_TARGET)s_save_buf.exploration.research_flags|=16u<<event.route;
+    if(event.kind==EXPLORE_TARGET&&event.route<4)s_save_buf.exploration.research_flags|=16u<<event.route;
     if(event.species&&!dex_is_seen(&s_dex,event.species)){
         uint16_t gain=exp_scaled(exp_scaled(exp_battle_base(event.level),25),nurture_exp_percent(&s_w.pet));
         exp_award_party(&s_starter_party,1,(1u<<s_starter_party.party_count)-1,gain);
@@ -1720,7 +1737,7 @@ exploration_event_t world_explore(void)
     xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
     if(ok) {
         s_w.pet.stamina=s_w.pet.stamina>NURT_EXPLORE_COST?s_w.pet.stamina-NURT_EXPLORE_COST:0;
-        s_exploration=s_save_buf.exploration;s_exploration_updates=s_save_buf.exploration_updates;s_refresh=s_save_buf.refresh;s_queue=s_save_buf.queue;s_inventory=s_save_buf.inventory;
+        s_exploration=s_save_buf.exploration;s_regions=s_save_buf.regions;s_exploration_updates=s_save_buf.exploration_updates;s_refresh=s_save_buf.refresh;s_queue=s_save_buf.queue;s_inventory=s_save_buf.inventory;
         record_growth_locked(&s_starter_party);s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;
         s_w.explore_value=s_party.party[0].explore_value;
         sync_leader_locked();
@@ -1786,14 +1803,21 @@ exploration_kind_t world_research_claim(uint8_t route,uint16_t *gain){
  if(!s_storage_ready||s_starter_pending){unlock_encounter_change();return EXPLORE_SAVE_FAILED;}
  if(s_active.encounter.uid||s_challenge.session.active||s_challenge.league_active){unlock_encounter_change();return EXPLORE_BUSY;}
  collect_save_locked(&s_save_buf);
- exploration_kind_t result=exploration_research_claim(&s_save_buf.exploration,&s_dex,route);
+ exploration_kind_t result=EXPLORE_BLOCKED;
+ if(route<4)result=exploration_research_claim(&s_save_buf.exploration,&s_dex,route);
+ else if(route<EXPLORATION_MAPS&&exploration_map_open(route,s_challenge.defeated,&s_regions)){
+  exploration_region_progress_t *p=&s_save_buf.regions.region[route-4];uint8_t seen,caught;
+  exploration_region_research(route,&s_dex,&seen,&caught);
+  result=p->claimed?EXPLORE_RESEARCH_CLAIMED:seen>=5&&caught>=3&&p->traced&&p->clears?EXPLORE_NONE:EXPLORE_RESEARCH_LOCKED;
+  if(result==EXPLORE_NONE)p->claimed=1;
+ }
  if(result!=EXPLORE_NONE){unlock_encounter_change();return result;}
  s_starter_party=s_party;
  uint16_t award=exp_scaled(exp_battle_base(s_w.level)*2,nurture_exp_percent(&s_w.pet));
  exp_award_party(&s_starter_party,1,(1u<<s_starter_party.party_count)-1,award);
  party_serialize(&s_starter_party,s_save_buf.party);s_save_buf.exp=s_starter_party.party[0].exp;s_save_buf.level=s_starter_party.party[0].level;
  xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
- if(ok){if(gain)*gain=s_save_buf.exp-s_w.exp;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;s_exploration=s_save_buf.exploration;s_last_save_us=esp_timer_get_time();}
+ if(ok){if(gain)*gain=s_save_buf.exp-s_w.exp;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;s_exploration=s_save_buf.exploration;s_regions=s_save_buf.regions;s_last_save_us=esp_timer_get_time();}
  unlock_encounter_change();return ok?EXPLORE_NONE:EXPLORE_SAVE_FAILED;
 }
 
@@ -1805,9 +1829,14 @@ void world_dungeon_progress(dungeon_progress_t *out)
     if (!s_lock || xSemaphoreTake(s_lock,portMAX_DELAY)!=pdTRUE) return;
     *out=s_dungeon;xSemaphoreGive(s_lock);
 }
+static bool region_rewards_pending(void){
+ if(s_regions.pending_partner.species_id)return true;
+ for(unsigned i=0;i<ITEM_COUNT;i++)if(s_regions.pending_items.quantity[i])return true;
+ return false;
+}
 bool world_dungeon_ready(void){
  if(!s_lock||xSemaphoreTake(s_lock,portMAX_DELAY)!=pdTRUE)return false;
- bool ok=s_storage_ready&&!s_starter_pending&&!s_active.encounter.uid&&!s_challenge.session.active&&!s_challenge.league_active&&s_w.pet.stamina>=DUNGEON_ENTRY_COST*NURT_Q;
+ bool ok=!region_rewards_pending()&&s_storage_ready&&!s_starter_pending&&!s_active.encounter.uid&&!s_challenge.session.active&&!s_challenge.league_active&&s_w.pet.stamina>=DUNGEON_ENTRY_COST*NURT_Q;
  xSemaphoreGive(s_lock);return ok;
 }
 bool world_dungeon_admit(uint32_t id)
@@ -1833,6 +1862,19 @@ bool world_dungeon_award(uint32_t id,unsigned node,uint32_t seed,dungeon_receipt
     }
     collect_save_locked(&s_save_buf);dungeon_receipt_t receipt;
     dungeon_reward_plan(node,seed,&s_dungeon,&receipt);
+    dungeon_award_details_t details={0};if(!dungeon_award_details(id,node,&details)){unlock_encounter_change();return false;}
+    if(details.theme){
+        const exploration_region_t *region=exploration_region(details.map);
+        if(!region){unlock_encounter_change();return false;}
+        receipt.xp=details.xp;receipt.first_clear=0;receipt.items.quantity[ITEM_LEAF_STONE]=0;
+        if(node==7){
+            exploration_region_progress_t *p=&s_save_buf.regions.region[details.map-4];
+            bool first=details.theme==9?!s_regions.expedition_clears:!p->clears;
+            receipt.first_clear=first;if(first)receipt.items.quantity[region->item]++;
+            if(details.theme==9){if(s_save_buf.regions.expedition_clears<UINT16_MAX)s_save_buf.regions.expedition_clears++;}
+            else {if(p->clears<UINT16_MAX)p->clears++;if(details.challenge)p->challenge_clear=1;}
+        }
+    }
     s_starter_party=s_party;
     uint8_t slots[3];unsigned count=dungeon_recipients(id,slots);
     if(!count||count>3){unlock_encounter_change();return false;}
@@ -1845,19 +1887,25 @@ bool world_dungeon_award(uint32_t id,unsigned node,uint32_t seed,dungeon_receipt
     receipt.xp=0;for(unsigned i=0;i<s_party.party_count;i++)receipt.xp+=s_starter_party.party[i].exp-s_party.party[i].exp;
     for(unsigned i=0;i<ITEM_COUNT;i++){
         unsigned room=items_capacity(i)-s_save_buf.inventory.quantity[i],n=receipt.items.quantity[i];
-        if(n>room){n=room;receipt.full=1;}
+        if(n>room){
+            if(details.theme){unsigned deferred=n-room;if(s_save_buf.regions.pending_items.quantity[i]+deferred>items_capacity(i)){unlock_encounter_change();return false;}s_save_buf.regions.pending_items.quantity[i]+=deferred;}
+            n=room;receipt.full=1;
+        }
         receipt.items.quantity[i]=n;s_save_buf.inventory.quantity[i]+=n;
     }
     encounter_t partner={0};
     if(node==7){
-        if(!exploration_dungeon_partner(seed,id,s_challenge.defeated,&s_save_buf.queue,&partner)){
+        if(!(details.theme?exploration_region_partner(details.map,details.trail,details.challenge,seed^id,s_challenge.defeated,&s_save_buf.regions,&partner):exploration_dungeon_partner(seed,id,s_challenge.defeated,&s_save_buf.queue,&partner))){
             unlock_encounter_change();return false;
         }
         partner.ts=s_refresh.online_s;
         partner.level=battle_wild_level_for_pet(partner.rarity,s_w.level);
-        while(!s_save_buf.queue.next_uid||s_save_buf.queue.next_uid==s_active.encounter.uid||
-              enc_queue_find(&s_save_buf.queue,s_save_buf.queue.next_uid))s_save_buf.queue.next_uid++;
-        enc_queue_push(&s_save_buf.queue,&partner);
+        if(details.theme){const exploration_region_t *r=exploration_region(details.map);if(partner.level<r->min_level)partner.level=r->min_level;if(partner.level>r->max_level)partner.level=r->max_level;}
+        if(details.theme&&s_save_buf.queue.count>=ENC_QUEUE_LIMIT)s_save_buf.regions.pending_partner=partner;
+        else {
+            while(!s_save_buf.queue.next_uid||s_save_buf.queue.next_uid==s_active.encounter.uid||enc_queue_find(&s_save_buf.queue,s_save_buf.queue.next_uid))s_save_buf.queue.next_uid++;
+            enc_queue_push(&s_save_buf.queue,&partner);
+        }
         dex_mark_seen(&s_save_buf.dex,partner.species_id,partner.is_shiny);
         receipt.partner_species=partner.species_id;receipt.partner_shiny=partner.is_shiny;
     }
@@ -1865,9 +1913,9 @@ bool world_dungeon_award(uint32_t id,unsigned node,uint32_t seed,dungeon_receipt
     s_save_buf.exp=s_starter_party.party[0].exp;s_save_buf.level=s_starter_party.party[0].level;
     dungeon_progress_t *p=&s_save_buf.dungeon;p->paid_nodes|=1u<<node;p->last_node=node;p->receipt=receipt;
     if(node==4)p->elite_seen=1;
-    if(node==7&&p->clears<UINT16_MAX)p->clears++;
+    if(node==7&&!details.theme&&p->clears<UINT16_MAX)p->clears++;
     xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
-    if(ok){s_dungeon=s_save_buf.dungeon;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_inventory=s_save_buf.inventory;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;s_last_save_us=esp_timer_get_time();*out=receipt;
+    if(ok){s_dungeon=s_save_buf.dungeon;s_regions=s_save_buf.regions;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_inventory=s_save_buf.inventory;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;s_last_save_us=esp_timer_get_time();*out=receipt;
         if(node==7){s_queue=s_save_buf.queue;s_dex=s_save_buf.dex;s_w.pending=s_queue.count;prune_battles_locked();}
     }else s_dirty=true;
     unlock_encounter_change();
@@ -1900,7 +1948,7 @@ exploration_event_t world_exploration_activity(unsigned id,bool claim) {
   s_exploration_updates=s_save_buf.exploration_updates;s_inventory=s_save_buf.inventory;
   if(!claim){
    s_w.pet.stamina=s_w.pet.stamina>NURT_EXPLORE_COST?s_w.pet.stamina-NURT_EXPLORE_COST:0;
-   s_exploration=s_save_buf.exploration;s_queue=s_save_buf.queue;
+   s_exploration=s_save_buf.exploration;s_regions=s_save_buf.regions;s_queue=s_save_buf.queue;
    if(e.species)dex_mark_seen(&s_dex,e.species,e.shiny);
    s_w.pending=s_queue.count;prune_battles_locked();
   }
@@ -1928,5 +1976,45 @@ bool world_sync_time(int64_t utc_us,uint8_t *recovered) {
   s_rest_clock=s_save_buf.rest_clock;s_rest_started_us=s_save_buf.last_uptime_us;
   s_last_save_us=esp_timer_get_time();if(recovered)*recovered=award/NURT_Q;
  }else s_dirty=true;
+ unlock_encounter_change();return ok;
+}
+
+exploration_kind_t world_exploration_depth(void){
+ if(!lock_encounter_change())return EXPLORE_SAVE_FAILED;
+ unsigned map=s_regions.selected;
+ if(!s_storage_ready||s_starter_pending){unlock_encounter_change();return EXPLORE_SAVE_FAILED;}
+ if(s_active.encounter.uid||s_challenge.session.active||s_challenge.league_active){unlock_encounter_change();return EXPLORE_BUSY;}
+ uint8_t seen,caught;exploration_region_research(map,&s_dex,&seen,&caught);
+ if(map<4||!exploration_map_open(map,s_challenge.defeated,&s_regions)||seen<5){unlock_encounter_change();return EXPLORE_RESEARCH_LOCKED;}
+ collect_save_locked(&s_save_buf);s_save_buf.regions.region[map-4].deep^=1;
+ xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
+ if(ok){s_regions=s_save_buf.regions;s_last_save_us=esp_timer_get_time();}else s_dirty=true;
+ unlock_encounter_change();return ok?EXPLORE_NONE:EXPLORE_SAVE_FAILED;
+}
+bool world_region_collect(void){
+ if(!lock_encounter_change())return false;
+ if(!s_storage_ready||s_starter_pending||s_active.encounter.uid||s_challenge.session.active||s_challenge.league_active){unlock_encounter_change();return false;}
+ collect_save_locked(&s_save_buf);bool changed=false;
+ for(unsigned i=0;i<ITEM_COUNT;i++){
+  unsigned n=s_save_buf.regions.pending_items.quantity[i],room=items_capacity(i)-s_save_buf.inventory.quantity[i];if(n>room)n=room;
+  s_save_buf.inventory.quantity[i]+=n;s_save_buf.regions.pending_items.quantity[i]-=n;changed|=n!=0;
+ }
+ encounter_t *p=&s_save_buf.regions.pending_partner;
+ if(p->species_id&&s_save_buf.queue.count<ENC_QUEUE_LIMIT){
+  while(!s_save_buf.queue.next_uid||enc_queue_find(&s_save_buf.queue,s_save_buf.queue.next_uid))s_save_buf.queue.next_uid++;
+  enc_queue_push(&s_save_buf.queue,p);memset(p,0,sizeof(*p));changed=true;
+ }
+ if(!changed){unlock_encounter_change();return !region_rewards_pending();}
+ xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
+ if(ok){s_regions=s_save_buf.regions;s_inventory=s_save_buf.inventory;s_queue=s_save_buf.queue;s_w.pending=s_queue.count;s_last_save_us=esp_timer_get_time();}else s_dirty=true;
+ unlock_encounter_change();return ok;
+}
+
+bool world_region_discard(void){
+ if(!lock_encounter_change())return false;
+ if(!s_storage_ready||s_starter_pending||s_active.encounter.uid||s_challenge.session.active||s_challenge.league_active){unlock_encounter_change();return false;}
+ collect_save_locked(&s_save_buf);memset(&s_save_buf.regions.pending_items,0,sizeof(inventory_t));memset(&s_save_buf.regions.pending_partner,0,sizeof(encounter_t));
+ xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
+ if(ok){s_regions=s_save_buf.regions;s_last_save_us=esp_timer_get_time();}else s_dirty=true;
  unlock_encounter_change();return ok;
 }

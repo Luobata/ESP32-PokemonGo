@@ -254,7 +254,11 @@ achievement_claim_t world_achievement_claim(unsigned id);
 #include "exploration.h"
 void world_exploration_snapshot(exploration_view_t *out);
 exploration_kind_t world_exploration_select(uint8_t route);
+exploration_kind_t world_exploration_depth(void);
+bool world_region_collect(void);
+bool world_region_discard(void);
 exploration_event_t world_explore(void);
+exploration_event_t world_explore_path(unsigned direction);
 
 bool world_battle_reward_uid(uint16_t uid,uint16_t *amount);
 

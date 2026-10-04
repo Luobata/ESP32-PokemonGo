@@ -10,11 +10,14 @@
 #include "render.h"
 #include "screen.h"
 #include "battle.h"
+#include "dungeon.h"
 
 static exploration_view_t view;
 static exploration_event_t event;
 static unsigned selected, action_selected;
-static bool routes, animating, journal, activities, research;
+static uint8_t route_ids[EXPLORATION_MAPS];static unsigned route_count;
+static void route_options(void){route_count=0;for(unsigned i=0;i<EXPLORATION_MAPS;i++)if(exploration_map_open(i,view.defeated,&view.regions))route_ids[route_count++]=i;selected=0;for(unsigned i=0;i<route_count;i++)if(route_ids[i]==view.route)selected=i;}
+static bool routes, animating, journal, activities, research, paths;
 static unsigned activity_selected, badge_selected;
 static bool badge_list, badge_detail;
 static unsigned badge_ids[8], badge_count;
@@ -62,6 +65,26 @@ static void scene(int band,unsigned route){
   rect(band,16,132,208,20,0xef75);
   for(int i=0;i<7;i++)for(int k=0;k<3;k++){int x=18+i*30+(k%2)*8,y=82+k*18;rect(band,x,y,16,2,0x3d7f);rect(band,x+2,y-2,12,2,0xe79f);}
   for(int i=0;i<6;i++)rect(band,24+i*34,138+(i%2)*6,4,2,0xbd8c);
+ }else if(route>=4){
+  const exploration_region_t *r=exploration_region(route);
+  uint16_t c=r->route.color;rect(band,16,72,208,80,route==5?0x2108:route==8?0x3800:0xe71c);
+  if(route==4||route==11){
+   for(int k=0;k<4;k++)for(int i=0;i<6;i++)rect(band,20+i*36+(k%2)*8,90+k*16,20,2,c);
+   for(int i=0;i<2;i++){int x=54+i*100;for(int k=0;k<20;k++)rect(band,x-k,108+k,4+k*2,2,0xe79f);rect(band,x-4,128,14,14,0x4a49);}
+  }else if(route==5){
+   for(int k=0;k<4;k++)rect(band,62+k*4,142-k*16,116-k*8,14,0x630c);
+   for(int i=0;i<3;i++){rect(band,80+i*34,92,8,14,0xfde0);rect(band,82+i*34,94,4,10,c);}rect(band,184,80,14,14,0xfff0);
+  }else if(route==6){
+   for(int i=0;i<4;i++)tile(band,20+i*56,78,tree,20,leaf);
+   for(int i=0;i<10;i++){rect(band,30+i*18,142-(i%2)*8,4,4,0x9387);rect(band,34+i*18,146-(i%2)*8,2,2,0x9387);}
+  }else if(route==7){
+   for(int k=0;k<6;k++){rect(band,30+k*32,74,6,76,0x9387);rect(band,40,100+k*8,164,2,0x4a49);}rect(band,40,96,164,4,c);rect(band,40,140,164,4,c);
+  }else if(route==8||route==9){
+   for(int i=0;i<3;i++)for(int k=0;k<28;k++)rect(band,48+i*64-k,84+k*2,4+k*2,2,route==8?0x630c:0x5b4c);
+   for(int i=0;i<4;i++)rect(band,20+i*50,140,36,6,c);
+  }else{
+   for(int i=0;i<4;i++){int x=30+i*50;rect(band,x,84,28,58,0x630c);rect(band,x+4,88,20,40,c);rect(band,x+8,98,8,18,0xe79f);rect(band,x,142,28,6,0x4a49);}
+  }
  }else{
   rect(band,16,128,208,24,0xc618);
   for(int i=0;i<4;i++){
@@ -75,7 +98,7 @@ static void scene(int band,unsigned route){
 
 static void progress(int band,unsigned n){
  for(unsigned i=0;i<3;i++){
-  int x=66+i*40;rect(band,x,194,28,8,GAME_UI_INK);rect(band,x+2,196,24,4,i<n?exploration_route(view.state.route)->color:GAME_UI_BG);
+  int x=66+i*40;rect(band,x,194,28,8,GAME_UI_INK);rect(band,x+2,196,24,4,i<n?exploration_route(view.route)->color:GAME_UI_BG);
  }
 }
 static const char *error_text(exploration_kind_t kind){
@@ -90,10 +113,16 @@ static const char *error_text(exploration_kind_t kind){
  }
 }
 static void draw_all(void){
- char text[96];unsigned route=event.kind==EXPLORE_ENCOUNTER?event.route:view.state.route;const exploration_route_t *r=exploration_route(route);
+ char text[96];unsigned route=event.kind==EXPLORE_ENCOUNTER||event.kind==EXPLORE_TARGET?event.route:view.route;const exploration_route_t *r=exploration_route(route);
  for(int band=0;band<SCREEN_H;band+=SCREEN_BAND_H){
   screen_band_clear(GAME_UI_BG);snprintf(text,sizeof(text),"体能 %u/100",view.stamina);game_ui_title(band,routes?"选择路线":"探索",text);
-  if(badge_list){
+  if(paths){
+   const exploration_region_t *r=exploration_region(view.route);
+   center(band,44,r->route.name,GAME_UI_INK);scene(band,view.route);
+   game_ui_box(band,8,166,224,94);
+   for(unsigned i=0;i<3;i++){render_text(40,174+i*26-band,r->directions[i],GAME_UI_INK);if(i==selected)game_ui_cursor(band,18,178+i*26);}
+   center(band,264,"选定方向后消耗5体能",GAME_UI_MUTED);game_ui_footer(band,GAME_UI_NAV_HINT);
+  }else if(badge_list){
    center(band,44,"徽章活动",GAME_UI_INK);
    if(!badge_count)center(band,124,"获得徽章后开放新活动",GAME_UI_MUTED);
    unsigned first=badge_selected/4*4;
@@ -116,19 +145,20 @@ static void draw_all(void){
    center(band,264,"完成三次胜利或捕获领奖",GAME_UI_MUTED);
    game_ui_footer(band,view.updates.activity_progress[id]==3?"C领取奖励 长按B返回":"C寻找伙伴 长按B返回");
   }else if(activities){
-   center(band,44,r->name,GAME_UI_INK);game_ui_box(band,8,76,224,150);
-   static const char *const options[]={"训练家切磋","路线研究","冒险笔记","徽章活动"};
-   for(unsigned i=0;i<4;i++){render_text(44,88+i*34-band,options[i],GAME_UI_INK);game_ui_list_marker(band,16,88+i*34,i,4,activity_selected);}
-   snprintf(text,sizeof(text),activity_selected==0?"切磋消耗5体能 当前%u":"当前体能%u/100",view.stamina);
+   center(band,44,r->name,GAME_UI_INK);game_ui_box(band,8,72,224,178);
+   const char *options[]={route>=4?exploration_region(route)->dungeon:"训练家切磋","路线研究","冒险笔记","徽章活动",view.deep?"切换常规探索":"切换深层调查","领取暂存收获"};
+   for(unsigned i=0;i<(route>=4?6u:4u);i++){render_text(44,80+i*28-band,options[i],GAME_UI_INK);game_ui_list_marker(band,16,80+i*28,i,route>=4?6:4,activity_selected);}
+   snprintf(text,sizeof(text),activity_selected==0?(route>=4?"秘境消耗20体能 当前%u":"切磋消耗5体能 当前%u"):"当前体能%u/100",view.stamina);
    center(band,254,text,GAME_UI_MUTED);game_ui_footer(band,GAME_UI_NAV_HINT);
   }else if(research){
    center(band,44,r->name,GAME_UI_INK);game_ui_box(band,8,72,224,172);
    center(band,88,"路线研究",GAME_UI_INK);
    snprintf(text,sizeof(text),"发现不同伙伴 %u/5",view.research_seen<5?view.research_seen:5);center(band,124,text,GAME_UI_INK);
    snprintf(text,sizeof(text),"捕获不同伙伴 %u/3",view.research_caught<3?view.research_caught:3);center(band,154,text,GAME_UI_INK);
-   snprintf(text,sizeof(text),"追踪目标 %u/1",!!(view.state.research_flags&(16u<<route)));center(band,184,text,GAME_UI_INK);
-   center(band,218,"奖励：约两场同级战斗经验",GAME_UI_ACCENT);
-   center(band,258,research_note[0]?research_note:(view.state.research_flags&(1u<<route))?"奖励已领取":"每条路线可领取一次",GAME_UI_MUTED);
+   snprintf(text,sizeof(text),"追踪目标 %u/1",view.traced);center(band,184,text,GAME_UI_INK);
+   if(route>=4)center(band,208,view.regions.region[route-4].clears?"主题秘境 已通关":"还需通关主题秘境",GAME_UI_INK);
+   center(band,232,"奖励：两场同级战斗经验",GAME_UI_ACCENT);
+   center(band,258,research_note[0]?research_note:view.claimed?"奖励已领取":"每条路线可领取一次",GAME_UI_MUTED);
    game_ui_footer(band,"C领取 长按B返回");
   }else if(journal){
    const exploration_chapter_t *c=exploration_chapter(chapter_selected);bool open=exploration_chapter_open(chapter_selected,view.defeated);
@@ -138,17 +168,19 @@ static void draw_all(void){
    center(band,216,c->discovery,GAME_UI_INK);
    center(band,258,"线索事件有机会找到道具",GAME_UI_MUTED);game_ui_footer(band,"A上页 B下页 长按B返回");
   }else if(routes){
-   for(unsigned i=0;i<4;i++){
-    int y=40+i*52;const exploration_route_t *row=exploration_route(i);game_ui_box(band,8,y,224,48);
-    if(i==selected)game_ui_cursor(band,16,y+13);
-    render_text(32,y+8-band,row->name,GAME_UI_INK);
-    static const char *const habitats[]={"草虫","岩地","水冰","电毒"};
-    snprintf(text,sizeof(text),"%s 线索%u/3",habitats[i],view.state.clues[i]);render_text(32,y+26-band,text,GAME_UI_MUTED);
-    exploration_state_t focus=view.state;focus.route=i;unsigned target=exploration_current_target(&focus,&view.updates,view.defeated);
-    uint8_t size;species_t sp;const uint8_t *data=assets_front_sprite(target,&size);
-    if(data&&assets_species(target,&sp)){uint16_t pal[4];assets_palette_variant(sp.palette,false,pal);game_ui_thumbnail_centered(band,182,y+6,40,36,data,size,32,pal);}
+   unsigned first=selected/4*4;
+   for(unsigned row=0;row<4&&first+row<route_count;row++){
+    unsigned index=first+row,id=route_ids[index];int y=40+row*52;
+    const exploration_route_t *r=exploration_route(id);const exploration_region_t *region=exploration_region(id);
+    game_ui_box(band,8,y,224,48);if(index==selected)game_ui_cursor(band,16,y+13);
+    render_text(32,y+8-band,r->name,GAME_UI_INK);
+    if(region)snprintf(text,sizeof(text),"Lv%u-%u 稀有区域",region->min_level,region->max_level);
+    else snprintf(text,sizeof(text),"线索%u/3",view.state.clues[id]);
+    render_text(32,y+26-band,text,GAME_UI_MUTED);
    }
-   center(band,256,feedback?feedback:exploration_chapter(exploration_chapter_current(view.defeated))->name,GAME_UI_MUTED);
+   const char *next="全部地区已开放";
+   for(unsigned i=4;i<EXPLORATION_MAPS;i++)if(!exploration_map_open(i,view.defeated,&view.regions)){next=exploration_region(i)->condition;break;}
+   center(band,254,feedback?feedback:next,GAME_UI_MUTED);
    game_ui_footer(band,GAME_UI_NAV_HINT);
   }else if(animating){
    center(band,44,r->name,GAME_UI_INK);scene(band,route);
@@ -165,21 +197,21 @@ static void draw_all(void){
   }else if(event.kind==EXPLORE_CLUE){
    center(band,44,r->name,GAME_UI_INK);scene(band,route);
    center(band,164,"发现新的线索",GAME_UI_INK);progress(band,event.clues);
-   center(band,218,exploration_story(exploration_current_target(&view.state,&view.updates,view.defeated),event.clues-1),GAME_UI_INK);
+   center(band,218,exploration_story(view.target,event.clues-1),GAME_UI_INK);
    if(event.item!=ITEM_NONE){snprintf(text,sizeof(text),event.item_full?"%s已满 未拾取":"发现 %s ×1",items_info(event.item)->name);center(band,248,text,GAME_UI_ACCENT);}
    else center(band,248,event.clues==3?"下次探索必定找到目标":"继续探索 追踪伙伴",GAME_UI_MUTED);
    static const char *const choices[]={"继续", "路线", "活动"};game_ui_actions(band,choices,3,action_selected);
   }else{
    center(band,44,r->name,GAME_UI_INK);scene(band,route);
-   unsigned tier=0;exploration_habitat(exploration_current_target(&view.state,&view.updates,view.defeated),&tier);
-   bool pinned=view.state.tracked_species&&exploration_habitat(view.state.tracked_species,NULL)==(int)route;
+   unsigned tier=0;exploration_habitat(view.target,&tier);
+   bool pinned=view.pinned;
    snprintf(text,sizeof(text),"%s 稀有度%u",pinned?"指定追踪":"随机追踪",tier);
-   center(band,164,text,GAME_UI_INK);progress(band,view.state.clues[route]);
-   species_t target;uint16_t target_id=exploration_current_target(&view.state,&view.updates,view.defeated);
-   if(assets_species(target_id,&target))snprintf(text,sizeof(text),"%.*s 线索%u/3",target.name_zh_len,target.name_zh,view.state.clues[route]);else snprintf(text,sizeof(text),"线索 %u/3",view.state.clues[route]);center(band,214,text,GAME_UI_INK);
+   center(band,164,text,GAME_UI_INK);progress(band,view.clues);
+   species_t target;uint16_t target_id=view.target;
+   if(assets_species(target_id,&target))snprintf(text,sizeof(text),"%.*s 线索%u/3",target.name_zh_len,target.name_zh,view.clues);else snprintf(text,sizeof(text),"线索 %u/3",view.clues);center(band,214,text,GAME_UI_INK);
    const char *hint=feedback?feedback:(view.pending==5?"遭遇已满 将替换最早一只":"目标出现后更新追踪");
    center(band,238,hint,GAME_UI_MUTED);
-   snprintf(text,sizeof(text),"体能%u 探索消耗5",view.stamina);center(band,258,text,GAME_UI_MUTED);
+   snprintf(text,sizeof(text),view.deep?"深层调查 消耗5体能":"体能%u 探索消耗5",view.stamina);center(band,258,text,GAME_UI_MUTED);
    static const char *const choices[]={"探索", "路线", "活动"};game_ui_actions(band,choices,3,action_selected);
   }
   screen_push_band(band);
@@ -191,7 +223,7 @@ static void tick(lv_timer_t *t){
  else {exploration_view_t next;world_exploration_snapshot(&next);if(next.pending!=view.pending||next.stamina!=view.stamina){view=next;draw_all();}}
 }
 void play_exploration_enter(void){
- world_exploration_snapshot(&view);selected=view.state.route;action_selected=0;routes=animating=journal=activities=research=badge_list=badge_detail=false;badge_selected=0;badge_options();research_note[0]=0;event=(exploration_event_t){0};feedback=NULL;
+ world_exploration_snapshot(&view);route_options();action_selected=0;routes=animating=journal=activities=research=badge_list=badge_detail=paths=false;badge_selected=0;badge_options();research_note[0]=0;event=(exploration_event_t){0};feedback=NULL;
  screen_set_redraw(draw_all);timer=lv_timer_create(tick,120,NULL);draw_all();
 }
 void play_exploration_exit(void){if(timer){lv_timer_delete(timer);timer=NULL;}animating=false;}
@@ -200,7 +232,14 @@ void play_exploration_key(bsp_btn_t btn,bsp_btn_ev_t ev){
  if(animating)return;
  int direction=nav_direction(btn,ev);bool confirm=nav_confirm(btn,ev),back=nav_return(btn,ev);
  if(!direction&&!confirm&&!back)return;
- if(badge_list){
+ if(paths){
+  if(direction)selected=nav_list_selection(btn,ev,3,selected);
+  if(back)paths=false;
+  else if(confirm){event=world_explore_path(selected+1);paths=false;action_selected=0;
+   if(event.kind==EXPLORE_ENCOUNTER||event.kind==EXPLORE_CLUE||event.kind==EXPLORE_TARGET){animating=true;started=millis();feedback=NULL;}
+   else {feedback=error_text(event.kind);event=(exploration_event_t){0};}
+  }
+ }else if(badge_list){
   if(direction&&badge_count)badge_selected=nav_list_selection(btn,ev,badge_count,badge_selected);
   if(back){badge_list=false;activities=true;activity_selected=3;}
   else if(confirm&&badge_count){badge_list=false;badge_detail=true;feedback=NULL;}
@@ -223,26 +262,28 @@ void play_exploration_key(bsp_btn_t btn,bsp_btn_ev_t ev){
    }else feedback=error_text(result.kind);
   }
  }else if(activities){
-  if(direction)activity_selected=nav_list_selection(btn,ev,4,activity_selected);
+  if(direction)activity_selected=nav_list_selection(btn,ev,view.route>=4?6:4,activity_selected);
   if(back)activities=false;
   else if(confirm){
    activities=false;
-   if(activity_selected==0){play_trainer_open_route(view.state.route);return;}
+   if(activity_selected==0){if(view.route>=4)play_dungeon_open_region(view.route);else play_trainer_open_route(view.route);return;}
    if(activity_selected==1){research=true;research_note[0]=0;}
    else if(activity_selected==2){journal=true;chapter_selected=exploration_chapter_current(view.defeated);}
-   else {badge_options();badge_list=true;}
+   else if(activity_selected==3){badge_options();badge_list=true;}
+   else if(activity_selected==4){exploration_kind_t k=world_exploration_depth();feedback=k==EXPLORE_NONE?"探索方式已切换":"发现五种伙伴后开放深层";}
+   else {feedback=world_region_collect()?"已领取可放入的收获":"先腾出遭遇或背包空间";}
   }
  }else if(research){
-  if(confirm){uint16_t gain=0;exploration_kind_t k=world_research_claim(view.state.route,&gain);if(k==EXPLORE_NONE)snprintf(research_note,sizeof(research_note),"已保存 经验+%u",gain);else snprintf(research_note,sizeof(research_note),"%s",error_text(k));}
+  if(confirm){uint16_t gain=0;exploration_kind_t k=world_research_claim(view.route,&gain);if(k==EXPLORE_NONE)snprintf(research_note,sizeof(research_note),"已保存 经验+%u",gain);else snprintf(research_note,sizeof(research_note),"%s",error_text(k));}
   else if(back){research=false;activities=true;activity_selected=1;}
  }else if(journal){
   unsigned limit=exploration_chapter_current(view.defeated)+2;if(limit>EXPLORATION_CHAPTERS)limit=EXPLORATION_CHAPTERS;
   if(direction)chapter_selected=(chapter_selected+limit+direction)%limit;
   else if(back){journal=false;activities=true;activity_selected=2;}
  }else if(routes){
-  if(direction){selected=(selected+4+direction)%4;feedback=NULL;}
+  if(direction){selected=(selected+route_count+direction)%route_count;feedback=NULL;}
   else if(back){routes=false;feedback=NULL;}
-  else if(confirm){exploration_kind_t k=world_exploration_select(selected);if(k==EXPLORE_NONE){routes=false;feedback=NULL;event=(exploration_event_t){0};action_selected=0;}else feedback=error_text(k);}
+  else if(confirm){exploration_kind_t k=world_exploration_select(route_ids[selected]);if(k==EXPLORE_NONE){routes=false;feedback=NULL;event=(exploration_event_t){0};action_selected=0;}else feedback=error_text(k);}
  }else{
   bool found=event.kind==EXPLORE_ENCOUNTER||event.kind==EXPLORE_TARGET;
   unsigned count=found?2:3;
@@ -256,9 +297,10 @@ void play_exploration_key(bsp_btn_t btn,bsp_btn_ev_t ev){
      }feedback="伙伴已离开 请继续探索";
     }
     event=(exploration_event_t){0};action_selected=0;
-   }else if(action_selected==1){routes=true;selected=view.state.route;feedback=NULL;}
+   }else if(action_selected==1){routes=true;route_options();feedback=NULL;}
    else if(action_selected==2){activities=true;activity_selected=0;}
    else{
+    if(view.route>=4){paths=true;selected=0;draw_all();return;}
     event=world_explore();action_selected=0;
     if(event.kind==EXPLORE_ENCOUNTER||event.kind==EXPLORE_CLUE||event.kind==EXPLORE_TARGET){animating=true;started=millis();feedback=NULL;}
     else {feedback=error_text(event.kind);event=(exploration_event_t){0};}

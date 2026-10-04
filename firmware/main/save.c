@@ -48,7 +48,7 @@ bool save_init(void)
 
 bool save_write(const save_t *s)
 {
-    if (!s || s->version != SAVE_VERSION || !items_inventory_valid(&s->inventory) || !trainer_store_valid(&s->challenge) || !enc_refresh_valid(&s->refresh) || !exploration_valid(&s->exploration) || !exploration_updates_valid(&s->exploration_updates) || !rest_clock_valid(&s->rest_clock) || !dungeon_progress_valid(&s->dungeon)) return false;
+    if (!s || s->version != SAVE_VERSION || !items_inventory_valid(&s->inventory) || !trainer_store_valid(&s->challenge) || !enc_refresh_valid(&s->refresh) || !exploration_valid(&s->exploration) || !exploration_regions_valid(&s->regions) || !exploration_updates_valid(&s->exploration_updates) || !rest_clock_valid(&s->rest_clock) || !dungeon_progress_valid(&s->dungeon)) return false;
     nvs_handle_t h;
     esp_err_t e = nvs_open(NS, NVS_READWRITE, &h);
     if (e != ESP_OK) {
@@ -115,8 +115,9 @@ save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_
     bool version10 = len == sizeof(save_v10_t);
     bool version15 = len == sizeof(save_v15_t);
     bool version16 = len == sizeof(save_v16_t);
+    bool version17 = len == sizeof(save_v17_t);
     if (!legacy && !version6 && !version7 && !version8 && !version9 && !version10 &&
-        !version15 && !version16 && len != sizeof(save_v14_t) && len != sizeof(*out))
+        !version15 && !version16 && !version17 && len != sizeof(save_v14_t) && len != sizeof(*out))
         return SAVE_READ_ERROR;
     memmove(out, blob, len);
     memset((uint8_t *)out + len, 0, sizeof(*out) - len);
@@ -125,15 +126,16 @@ save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_
     bool version12 = len == sizeof(save_v14_t) && out->version == 12;
     bool version11 = len == sizeof(save_v14_t) && out->version == 11;
     if(len==sizeof(save_v14_t)&&!(version11||version12||version13||version14))return SAVE_READ_ERROR;
-    if (out->version != (legacy ? SAVE_LEGACY_VERSION : version6 ? 6 : version7 ? 7 : version8 ? 8 : version9 ? 9 : version10 ? 10 : version11 ? 11 : version12 ? 12 : version13 ? 13 : version14 ? 14 : version15 ? 15 : version16 ? 16 : SAVE_VERSION)) {
+    if (out->version != (legacy ? SAVE_LEGACY_VERSION : version6 ? 6 : version7 ? 7 : version8 ? 8 : version9 ? 9 : version10 ? 10 : version11 ? 11 : version12 ? 12 : version13 ? 13 : version14 ? 14 : version15 ? 15 : version16 ? 16 : version17 ? 17 : SAVE_VERSION)) {
         ESP_LOGW(TAG, "存档版本 %u ≠ %d —— 保留原档，禁止新游戏覆盖",
                  out->version, SAVE_VERSION);
         return SAVE_READ_ERROR;
     }
+    bool pre18=out->version<18;
     bool pre16=out->version<16;
     if(pre16)for(unsigned i=0;i<ENC_QUEUE_CAP;i++){out->queue.items[i].level=0;out->queue.items[i].activity=0;}
     if(!pre16)for(unsigned i=0;i<ENC_QUEUE_CAP;i++)if(out->queue.items[i].level>100||out->queue.items[i].activity>8)return SAVE_READ_ERROR;
-    if(version15||version16)out->version=SAVE_VERSION;
+    if(version15||version16||version17)out->version=SAVE_VERSION;
     // V5-V11 used species-indexed cells. Validate before adopting physical slots.
     if (out->version < 12) {
         for(unsigned i=0;i<BOX_SPECIES;i++) {
@@ -202,6 +204,8 @@ save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_
         out->dungeon.receipt.partner_shiny = 0;
     }
     if (!exploration_valid(&out->exploration)) return SAVE_READ_ERROR;
+    if(pre18){memset(&out->regions,0,sizeof(out->regions));out->regions.selected=out->exploration.route;}
+    if(!exploration_regions_valid(&out->regions))return SAVE_READ_ERROR;
     if (!enc_refresh_valid(&out->refresh)) return SAVE_READ_ERROR;
     if (!trainer_store_valid(&out->challenge)) return SAVE_READ_ERROR;
     bool migrated=legacy||version6||version7||version8||version9||version10||version11||version12;
@@ -219,7 +223,7 @@ save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_
     if(!rest_clock_valid(&out->rest_clock))return SAVE_READ_ERROR;
     if(!exploration_updates_valid(&out->exploration_updates))return SAVE_READ_ERROR;
     if(!dungeon_progress_valid(&out->dungeon))return SAVE_READ_ERROR;
-    return migrated||version13||version14||version15||version16 ? SAVE_READ_MIGRATED : SAVE_READ_OK;
+    return migrated||version13||version14||version15||version16||version17 ? SAVE_READ_MIGRATED : SAVE_READ_OK;
 }
 
 bool save_read(save_t *out) {
@@ -259,7 +263,7 @@ bool save_exists(void)
     size_t len = 0;
     esp_err_t e = nvs_get_blob(h, KEY, NULL, &len);
     nvs_close(h);
-    return e == ESP_OK && (len == sizeof(save_t) || len == sizeof(save_v16_t) || len == sizeof(save_v15_t) || len == sizeof(save_v14_t) || len == sizeof(save_v10_t) || len == sizeof(save_v9_t) || len == sizeof(save_v8_t) || len == sizeof(save_v7_t) || len == sizeof(save_v6_t) || len == sizeof(save_v5_t));
+    return e == ESP_OK && (len == sizeof(save_t) || len == sizeof(save_v17_t) || len == sizeof(save_v16_t) || len == sizeof(save_v15_t) || len == sizeof(save_v14_t) || len == sizeof(save_v10_t) || len == sizeof(save_v9_t) || len == sizeof(save_v8_t) || len == sizeof(save_v7_t) || len == sizeof(save_v6_t) || len == sizeof(save_v5_t));
 }
 
 bool save_erase(void)

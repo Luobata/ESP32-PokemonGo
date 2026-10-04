@@ -147,6 +147,10 @@ class Handler(SimpleHTTPRequestHandler):
                     masks = (0, 1, 3, 7, 15, 31, 63, 127, 255, 4095, 8191, 16383)
                     renderer.command(f"challenge_unlock {masks[progress]}")
                     result = renderer.command(f"page {values[0]}")
+                if action == "reset" and values[0] in (15, 16):
+                    region = integer(data, 'region', 0, 0, 11)
+                    research = integer(data, 'research', 0, 0, 1)
+                    result = renderer.command(f"region_fixture {region} {research}")
                 state = renderer.inspect()
                 name_style = state["names"]
             self.send_response(200)

@@ -15,7 +15,7 @@ static const uint8_t POOLS[4][5][16]={
  {{129,72,60,98,54},{7,116,118,90,79,86,120},{8,61,117,99,55,73,119,80},{9,62,87,134,139,141,91,121,138,140,147,148},{130,131,144,124}},
  {{19,100,81,88,52},{25,109,137,132,20,58,77,84,96,92,63,133},{82,101,26,110,53,78,85,97,93,64},{125,126,89,135,136,65,94},{145,59,146,128}}
 };
-const exploration_route_t *exploration_route(unsigned id) {return id<4?&ROUTES[id]:&ROUTES[0];}
+const exploration_route_t *exploration_route(unsigned id) {const exploration_region_t *r=exploration_region(id);return r?&r->route:id<4?&ROUTES[id]:&ROUTES[0];}
 static const exploration_chapter_t CHAPTERS[EXPLORATION_CHAPTERS]={
  {"初出茅庐","开始冒险","大木：去寻找身边的伙伴","四条基础路线",0,0,{25,95,131,125},ITEM_BERRY},
  {"森林的守望者","获得一枚徽章","小刚：林中有挥舞双镰的影子","森林深处与叶之石",1,0,{123,95,131,125},ITEM_LEAF_STONE},
@@ -302,4 +302,108 @@ bool exploration_dungeon_partner(uint32_t seed,uint32_t run_id,uint16_t defeated
   return true;
  }
  return false;
+}
+
+// First-generation expansion. Species keep their original rarity and story gates.
+static const exploration_region_t REGIONS[EXPLORATION_REGIONS]={
+ {{"双子海岛","潮道与冰洞的歌声",{"退潮露出贝壳","冰面出现足迹","洞窟传来歌声"},131,0x45df},"潮汐洞窟","获得彩虹徽章",{"贝壳滩","冰洞口","悠长歌声"},1u<<3,35,45,2,ITEM_WATER_STONE,
+  {86,90,116,120,117,80,73,87,91,121,134,131,124,130,144},{{91,117,131},{87,121,124},{80,134,130}},{{91,121,131},{87,124,131},{134,130,131}}},
+ {{"幽灵高塔","月色下的迷路伙伴",{"烛火突然摇晃","楼上传来脚步","窗边闪过影子"},94,0x9b3f},"幻影试炼","获得粉红徽章",{"幽灵足迹","骨面伙伴","超能回声"},1u<<4,42,55,3,ITEM_LINK_MACHINE,
+  {92,96,104,93,97,64,94,105,122,65,108,124,115},{{94,97,105},{93,122,94},{105,108,115}},{{94,122,124},{105,108,115},{65,122,124}}},
+ {{"野生原野","树痕与巨大的脚印",{"草丛留下足迹","树干出现镰痕","远处传来低鸣"},113,0x7dc9},"巡护远征","获得彩虹徽章",{"巨大脚印","树干镰痕","柔软足迹"},1u<<3,38,50,0,ITEM_MOON_STONE,
+  {29,32,102,44,70,49,47,114,123,83,31,34,113,115,128,127},{{123,127,115},{31,34,128},{114,113,115}},{{31,34,128,115},{123,114,127},{83,113,115}}},
+ {{"磁轨矿坑","旧矿道里的电流",{"矿轨微微震动","机房亮起灯光","深处出现磁场"},125,0xbdf0},"钢铁回廊","获得金色徽章",{"旧矿道","供电机房","废弃仓库"},1u<<5,45,58,3,ITEM_THUNDER_STONE,
+  {81,100,137,111,82,101,75,26,95,112,76,125,135,128,142,145},{{82,95,125},{101,112,135},{76,137,128}},{{95,112,142},{125,135,128},{76,125,128}}},
+ {{"火山遗迹","熔岩边的古老石阶",{"岩缝冒出热气","石阶留下爪痕","远处升起火羽"},126,0xfaa5},"熔岩试炼","获得深红徽章",{"熔岩石阶","温暖洞穴","高空火羽"},1u<<6,48,60,1,ITEM_FIRE_STONE,
+  {37,58,77,4,5,78,75,67,38,6,126,136,112,59,142,146},{{126,78,59},{112,6,136},{38,67,126}},{{112,126,142},{38,136,59},{6,126,146,59}}},
+ {{"龙息山谷","循着幼龙的足迹",{"溪流留下鳞片","山岩出现翼痕","谷中响起龙吟"},148,0x6e39},"龙穴试炼","获得绿色徽章",{"溪流鳞片","峭壁翼痕","山谷龙吟"},1u<<7,50,65,2,ITEM_GROWTH_MACHINE,
+  {116,111,117,75,73,147,148,95,112,6,9,130,142,149,131},{{148,130,149},{95,142,149},{9,131,130}},{{147,148,130},{6,112,142},{148,131,149}}},
+ {{"无人研究所","遗落的镜像实验",{"发现研究手稿","玻璃映出身影","未知力量苏醒"},137,0x7e7f},"镜像实验","战胜联盟冠军",{"培养舱","模拟机房","秘密档案"},1u<<12,60,75,3,ITEM_LINK_MACHINE,
+  {137,132,63,64,82,93,65,94,122,135,136,134,113,143,150},{{65,94,143},{135,134,136},{122,113,150}},{{65,134,113},{94,135,143},{122,136,150,113}}},
+ {{"白银雪岭","雪线之上的远征",{"雪地留下足迹","营地发现鳞片","峰顶传来歌声"},131,0xc71f},"雪岭远征","冠军与新地区研究",{"冰雪足迹","山间营地","峰顶传说"},1u<<12,65,85,2,ITEM_GROWTH_MACHINE,
+  {86,90,117,80,75,87,91,121,148,95,131,143,149,144,124},{{87,131,143},{124,91,149},{121,148,144}},{{87,91,124},{95,148,143},{121,131,144,149}}},
+};
+const exploration_region_t *exploration_region(unsigned map){return map>=4&&map<EXPLORATION_MAPS?&REGIONS[map-4]:NULL;}
+bool exploration_map_open(unsigned map,uint16_t defeated,const exploration_regions_t *s){
+ if(map<4)return true;
+ const exploration_region_t *r=exploration_region(map);if(!r||(defeated&r->gate)!=r->gate)return false;
+ if(map==11){if(!s)return false;for(unsigned i=0;i<8;i++)if(s->region[i].claimed)return true;return false;}
+ return true;
+}
+static bool region_has(unsigned map,unsigned species){
+ const exploration_region_t *r=exploration_region(map);if(!r)return false;
+ for(unsigned i=0;i<24&&r->pool[i];i++)if(r->pool[i]==species)return true;
+ return false;
+}
+bool exploration_regions_valid(const exploration_regions_t *s){
+ if(!s||s->selected>=EXPLORATION_MAPS||s->dungeon_pity>4||!items_inventory_valid(&s->pending_items))return false;
+ for(unsigned i=0;i<8;i++){
+  const exploration_region_progress_t *p=&s->region[i];
+  if(p->clues>3||p->pulse>1||p->pity>5||p->deep>1||p->traced>1||p->claimed>1||p->challenge_clear>1||(p->target&&!region_has(i+4,p->target)))return false;
+ }
+ const encounter_t *p=&s->pending_partner;
+ // Inspect raw bool bytes before evaluating untrusted NVS fields.
+ const unsigned char *bytes=(const unsigned char *)p;
+ if(bytes[offsetof(encounter_t,is_shiny)]>1||bytes[offsetof(encounter_t,is_transient)]>1||bytes[offsetof(encounter_t,exp_granted)]>1)return false;
+ return p->species_id<=151&&(!p->species_id|| (p->rarity>=4&&p->rarity<=5&&p->level>=1&&p->level<=100&&p->biome<4&&p->hp_ratio==100&&p->activity==0));
+}
+void exploration_region_research(unsigned map,const dex_t *d,uint8_t *seen,uint8_t *caught){
+ *seen=*caught=0;const exploration_region_t *r=exploration_region(map);if(!r||!d)return;
+ for(unsigned i=0;i<24&&r->pool[i];i++){*seen+=dex_is_seen(d,r->pool[i]);*caught+=dex_is_caught(d,r->pool[i]);}
+}
+unsigned exploration_region_target(unsigned map,const exploration_regions_t *s,uint16_t defeated,const dex_t *d){
+ const exploration_region_t *r=exploration_region(map);if(!r)return 0;
+ const exploration_region_progress_t *p=&s->region[map-4];
+ if(p->target&&exploration_species_open(p->target,defeated))return p->target;
+ unsigned ids[24],n=0;
+ for(unsigned i=0;i<24&&r->pool[i];i++){unsigned tier=0,id=r->pool[i];exploration_habitat(id,&tier);if(tier>=4&&exploration_species_open(id,defeated))ids[n++]=id;}
+ if(!n)return 0;
+ unsigned start=mix(p->steps^map*7919u)%n;
+ for(unsigned i=0;i<n;i++)if(!dex_is_caught(d,ids[(start+i)%n]))return ids[(start+i)%n];
+ return ids[start];
+}
+exploration_event_t exploration_region_step(exploration_regions_t *s,enc_refresh_state_t *refresh,enc_queue_t *q,dex_t *dex,uint16_t active,uint16_t defeated,inventory_t *bag,unsigned direction){
+ unsigned map=s->selected;const exploration_region_t *r=exploration_region(map);
+ exploration_event_t e={.kind=EXPLORE_BLOCKED,.route=map,.item=ITEM_NONE};
+ if(!r||direction>3||!exploration_map_open(map,defeated,s))return e;
+ exploration_region_progress_t *p=&s->region[map-4];
+ unsigned target=exploration_region_target(map,s,defeated,dex);if(!target)return e;
+ uint32_t seed=mix(p->steps^map*7919u^refresh->serial*0x9e3779b9u);
+ if(p->clues<3&&p->pulse){
+  p->steps++;p->target=target;p->pulse=0;p->clues++;e.kind=EXPLORE_CLUE;e.clues=p->clues;
+  if(!p->deep&&seed%100<60){unsigned item=(seed/100)%4?r->item:ITEM_ULTRA;e.item=item;e.item_full=bag->quantity[item]>=items_capacity(item);if(!e.item_full){bag->quantity[item]++;e.quantity=1;}}
+  return e;
+ }
+ unsigned id=0,tier=0;bool traced=p->clues==3;
+ if(traced){id=target;if(pending(q,id))return e;exploration_habitat(id,&tier);}
+ else{
+  unsigned candidates[5][24],n[5]={0},weights[5]={5,5,50,32,8};
+  if(p->deep){weights[0]=weights[1]=0;weights[2]=35;weights[3]=50;weights[4]=15;}
+  if(p->pity==5)weights[0]=weights[1]=weights[2]=0;
+  for(unsigned i=0;i<24&&r->pool[i];i++){unsigned sp=r->pool[i],t=0;exploration_habitat(sp,&t);if(t&&(!direction||i%3==direction-1)&&exploration_species_open(sp,defeated)&&!pending(q,sp))candidates[t-1][n[t-1]++]=sp;}
+  unsigned total=0;for(unsigned t=0;t<5;t++)if(n[t])total+=weights[t];
+  if(!total&&p->pity==5){ // Keep a promised rare encounter available across nearby trails.
+   for(unsigned i=0;i<24&&r->pool[i];i++){unsigned sp=r->pool[i],t=0;exploration_habitat(sp,&t);if(t>=4&&exploration_species_open(sp,defeated)&&!pending(q,sp))candidates[t-1][n[t-1]++]=sp;}
+   for(unsigned t=3;t<5;t++)if(n[t])total+=weights[t];
+  }
+  if(!total)return e;
+  unsigned roll=seed%total;for(tier=1;tier<=5;tier++)if(n[tier-1]){if(roll<weights[tier-1])break;roll-=weights[tier-1];}
+  unsigned count=n[tier-1],start=mix(seed)%count;id=candidates[tier-1][start];
+  if(seed&3)for(unsigned j=0;j<count;j++){unsigned sp=candidates[tier-1][(start+j)%count];if(!dex_is_caught(dex,sp)){id=sp;break;}}
+ }
+ encounter_t enc={.ts=refresh->online_s,.species_id=id,.rarity=tier,.biome=r->biome,.hp_ratio=100,.is_transient=true,.is_shiny=enc_shiny_from_roll(mix(seed^0x735a91cdu),SHINY_EXPLORATION)};
+ while(!q->next_uid||q->next_uid==active||enc_queue_find(q,q->next_uid))q->next_uid++;
+ enc_queue_push(q,&enc);dex_mark_seen(dex,id,enc.is_shiny);p->steps++;
+ if(traced){p->clues=p->pulse=0;p->traced=1;p->target=0;}else{p->pulse=1;p->target=target;p->pity=tier>=4?0:p->pity<5?p->pity+1:5;}
+ e.kind=traced?EXPLORE_TARGET:EXPLORE_ENCOUNTER;e.uid=q->items[q->count-1].uid;e.species=id;e.rarity=tier;e.shiny=enc.is_shiny;e.clues=p->clues;return e;
+}
+bool exploration_region_partner(unsigned map,unsigned direction,bool challenge,uint32_t seed,uint16_t defeated,exploration_regions_t *s,encounter_t *out){
+ const exploration_region_t *r=exploration_region(map);if(!r||direction>=3)return false;
+ unsigned ids[2][4],n[2]={0};
+ for(unsigned i=0;i<4&&r->rewards[direction][i];i++){unsigned id=r->rewards[direction][i],tier=0;exploration_habitat(id,&tier);if(tier>=4&&exploration_species_open(id,defeated))ids[tier-4][n[tier-4]++]=id;}
+ if(!n[0]&&!n[1])return false;
+ unsigned tier=n[1]&&(!n[0]||s->dungeon_pity==4||mix(seed)%100<(challenge?40u:20u))?1:0;
+ unsigned id=ids[tier][mix(seed^0xa391u)%n[tier]];
+ if(n[1])s->dungeon_pity=tier?0:s->dungeon_pity<4?s->dungeon_pity+1:4;
+ *out=(encounter_t){.species_id=id,.rarity=tier+4,.biome=r->biome,.hp_ratio=100,.is_transient=true,.is_shiny=enc_shiny_from_roll(mix(seed^0x58fc8du),SHINY_DUNGEON)};return true;
 }

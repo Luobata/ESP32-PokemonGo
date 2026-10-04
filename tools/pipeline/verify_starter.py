@@ -163,6 +163,7 @@ void sfx_encounter(uint8_t rarity, bool shiny) { alert_count++;alert_rarity=rari
 #include "dungeon_rewards.c"
 #ifndef TEST_REAL_DUNGEON
 bool dungeon_party_locked(void){return false;}
+bool dungeon_award_details(uint32_t id,unsigned node,dungeon_award_details_t *out){(void)id;(void)node;*out=(dungeon_award_details_t){0};return true;}
 unsigned dungeon_recipients(uint32_t id,uint8_t slots[3]){(void)id;(void)slots;return 0;}
 #endif
 #undef TAG

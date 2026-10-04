@@ -2,6 +2,8 @@
 #include "encounter_refresh.h"
 #include "items.h"
 #define EXPLORATION_ROUTES 4
+#define EXPLORATION_REGIONS 8
+#define EXPLORATION_MAPS (EXPLORATION_ROUTES + EXPLORATION_REGIONS)
 #define EXPLORATION_CAPACITY 24
 #define EXPLORATION_CLUES 3
 
@@ -46,9 +48,38 @@ typedef struct {
  uint16_t activity_uid[8]; // Outstanding encounter or zero; stale queue entries are reconciled.
 } exploration_updates_t;
 
+// V18 append-only extension. The four legacy route arrays never grow.
+typedef struct {
+ uint32_t steps;
+ uint16_t clears;
+ uint8_t clues,pulse,target,pity,deep,traced,claimed,challenge_clear;
+} exploration_region_progress_t;
+typedef struct {
+ exploration_region_progress_t region[EXPLORATION_REGIONS];
+ uint8_t selected,dungeon_pity;
+ uint16_t expedition_clears;
+ inventory_t pending_items;
+ encounter_t pending_partner;
+} exploration_regions_t;
+typedef struct {
+ exploration_route_t route;
+ const char *dungeon,*condition,*directions[3];
+ uint16_t gate;
+ uint8_t min_level,max_level,biome,item,pool[24],boss[3][3],rewards[3][4];
+} exploration_region_t;
+const exploration_region_t *exploration_region(unsigned map);
+bool exploration_map_open(unsigned map,uint16_t defeated,const exploration_regions_t *);
+bool exploration_regions_valid(const exploration_regions_t *);
+unsigned exploration_region_target(unsigned map,const exploration_regions_t *,uint16_t defeated,const dex_t *);
+void exploration_region_research(unsigned map,const dex_t *,uint8_t *,uint8_t *);
+exploration_event_t exploration_region_step(exploration_regions_t *,enc_refresh_state_t *,enc_queue_t *,dex_t *,uint16_t,uint16_t,inventory_t *,unsigned direction);
+bool exploration_region_partner(unsigned map,unsigned direction,bool challenge,uint32_t seed,uint16_t defeated,exploration_regions_t *,encounter_t *);
+
 typedef struct {
  exploration_state_t state;
  exploration_updates_t updates;
+ exploration_regions_t regions;
+ uint8_t route,clues,target,deep,deep_unlocked,traced,claimed,pinned;
  uint32_t discoveries;
  uint16_t defeated;
  uint8_t stamina,exp_percent,rare_bonus,party_bonus;

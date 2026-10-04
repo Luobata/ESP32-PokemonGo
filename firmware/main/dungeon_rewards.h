@@ -23,3 +23,6 @@ void world_dungeon_progress(dungeon_progress_t *out);
 bool world_dungeon_ready(void);
 bool world_dungeon_admit(uint32_t run_id);
 bool world_dungeon_award(uint32_t run_id,unsigned node,uint32_t seed,dungeon_receipt_t *out);
+
+typedef struct {uint32_t xp;uint8_t theme,map,challenge,trail;} dungeon_award_details_t;
+bool dungeon_award_details(uint32_t id,unsigned node,dungeon_award_details_t *out);
