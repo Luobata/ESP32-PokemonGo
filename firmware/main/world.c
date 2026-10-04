@@ -75,6 +75,8 @@ static SemaphoreHandle_t s_lock;
 static SemaphoreHandle_t s_save_lock;
 static bool s_wifi_ok;
 static bool s_storage_ready;
+static bool s_save_loaded;
+bool world_save_loaded(void) { return s_save_loaded; }
 static bool s_starter_pending = true;
 
 // 扫描结果。**static** —— 64 × 76 字节放栈上必炸（见文件头）。
@@ -1356,6 +1358,7 @@ bool world_start(void)
     items_inventory_init(&s_inventory);
     s_starter_pending = true;
     s_storage_ready = false;
+    s_save_loaded = false;
     s_motion_q10 = 0;
     memset(&s_refresh,0,sizeof(s_refresh));
     exploration_init(&s_exploration);
@@ -1390,6 +1393,7 @@ bool world_start(void)
         ESP_LOGE(TAG, "invalid saved party or queue; preserving save and disabling writes");
     }
     s_storage_ready = loaded != SAVE_READ_ERROR;
+    s_save_loaded = loaded == SAVE_READ_OK || loaded == SAVE_READ_MIGRATED;
     if (loaded == SAVE_READ_OK || loaded == SAVE_READ_MIGRATED) {
         uint16_t exp_repaired = normalize_party_exp(&s_party);
         s_w.pet = s_save_buf.pet;

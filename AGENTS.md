@@ -29,7 +29,7 @@
 - 设备端明确确认覆盖；当前存档先保存到电脑并回读校验，收到匹配 ACK 后才接收覆盖数据。
 - 提交标记最后写入；断电可恢复，写入失败可回滚；拒绝导入、取消或未完成操作不能覆盖当前进度。
 - 未知较新版本、损坏/截断数据、跨设备或布局不匹配必须安全拒绝。读档错误不等于空存档，禁止自动清空 NVS 或以新游戏覆盖。
-- 发布包检查必须覆盖实际安装/更新方式是否擦除 NVS；“应用支持迁移”不等于“完整安装一定保留存档”。
+- 发布包检查必须覆盖实际安装/更新方式是否擦除 NVS；完整 `full.bin` 的空白填充也属于写入，不得标记为保档更新。`PokeWalk-update.zip` 只用于分区匹配的现有设备，必须检查只写应用、更新前备份、写后数据分区不变和失败不自动重启；“应用支持迁移”不等于“完整安装一定保留存档”。
 
 ### 每次发布前执行
 
@@ -43,6 +43,8 @@ python3 tools/pipeline/verify_usb_import_device.py
 node tools/pipeline/verify_save_import_web.mjs
 python3 tools/pipeline/verify_usb_backup_checkpoint.py
 python3 tools/pipeline/verify_save_manager_distribution.py
+python3 tools/pipeline/verify_firmware_update.py
+python3 tools/pipeline/verify_nvs_restore_roundtrip.py
 tools/device/fw.sh build
 ```
 

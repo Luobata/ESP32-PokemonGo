@@ -79,6 +79,7 @@ static void command(void) {
         if(!import_mode||!stage_import){error("OPEN_IMPORT");return;}
         if(busy()||state==USB_RESTORE_OFFER){error("BUSY");return;}
         if(strcmp(mac,device_id)||!hex(fw,64)||version<5||version>schema||size!=USB_BACKUP_BYTES||!hex(crc,8)){error("INCOMPATIBLE");return;}
+        boot_result=0;boot_crc=0; // A new offer invalidates the previous boot receipt.
         import_version=version;import_crc=(uint32_t)strtoul(crc,NULL,16);importing=true;state=USB_RESTORE_OFFER;started=now;send_line("!PWBACKUP OFFERED\n");return;
     }
     unsigned at;char bytes[257];

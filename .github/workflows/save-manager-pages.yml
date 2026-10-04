@@ -7,6 +7,7 @@ on:
       - 'tools/pipeline/verify_save_manager_distribution.py'
       - 'tools/pipeline/verify_usb_backup.py'
       - 'tools/pipeline/verify_usb_import.py'
+      - 'tools/pipeline/verify_save_import_web.mjs'
       - 'firmware/main/save.h'
       - '.github/workflows/save-manager-pages.yml'
   workflow_dispatch:
@@ -34,6 +35,7 @@ jobs:
             tools/pipeline/verify_save_manager_distribution.py
             tools/pipeline/verify_usb_backup.py
             tools/pipeline/verify_usb_import.py
+            tools/pipeline/verify_save_import_web.mjs
             firmware/main
           sparse-checkout-cone-mode: false
       - uses: actions/configure-pages@v5
@@ -41,6 +43,7 @@ jobs:
         run: |
           python3 tools/pipeline/verify_usb_backup.py
           python3 tools/pipeline/verify_usb_import.py
+          node tools/pipeline/verify_save_import_web.mjs
       - name: Verify public download and local server
         run: python3 tools/pipeline/verify_save_manager_distribution.py
       - name: Build public static site

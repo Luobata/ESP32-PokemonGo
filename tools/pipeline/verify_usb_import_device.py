@@ -43,7 +43,9 @@ static esp_partition_t temp={1,0x40,0x360000,RESTORE_STAGE_SIZE,"save_restore"};
 static esp_app_desc_t app={{0x12,0x34}};
 static uint8_t flash[RESTORE_STAGE_SIZE],image[USB_BACKUP_BYTES],live_data[USB_BACKUP_BYTES];
 static size_t blob_len;static unsigned failure,journals,checkpoints,decoded,validated,mounts,unmounts;
-static bool mounted;
+static bool mounted,game_loaded=true;
+static int reported;
+bool world_save_loaded(void){return game_loaded;}
 const esp_partition_t *esp_partition_find_first(unsigned typ,unsigned sub,const char *label){assert(typ==1);if(!strcmp(label,"nvs")){assert(sub==2);return &live;}assert(sub==0x40&&!strcmp(label,"save_restore"));return &temp;}
 const esp_app_desc_t *esp_app_get_description(void){return &app;}
 esp_err_t esp_read_mac(uint8_t *out,unsigned kind){assert(kind==0);memset(out,0,6);return 0;}
@@ -63,9 +65,12 @@ bool world_backup_snapshot(bool (*reader)(void*),void *arg){checkpoints++;assert
 bool restore_journal_prepare(const restore_io_t *io,const uint8_t *incoming,const uint8_t build[32]){assert(io&&incoming==image&&!mounted);assert(!memcmp(build,app.app_elf_sha256,32));journals++;return true;}
 int restore_journal_apply(const restore_io_t *io,const uint8_t b[32],uint32_t *crc){(void)io;(void)b;(void)crc;return 0;}
 void usb_backup_init(bool (*r)(uint8_t*,size_t),void (*e)(const char*),const char *d,const char *f,unsigned v){assert(r&&e&&d&&f&&v==SAVE_VERSION);}
-void usb_backup_restore_hooks(bool (*s)(const uint8_t*,size_t,unsigned),void(*r)(void),int result,uint32_t crc){assert(s&&r);(void)result;(void)crc;}
+void usb_backup_restore_hooks(bool (*s)(const uint8_t*,size_t,unsigned),void(*r)(void),int result,uint32_t crc){assert(s&&r);reported=result;(void)crc;}
 static void reset(void){assert(!mounted);memset(image,0,sizeof(image));image[0]=17;blob_len=sizeof(save_t);journals=checkpoints=decoded=validated=0;failure=0;}
 int main(void){
+ boot_result=1;game_loaded=false;usb_backup_device_start();assert(reported==3);
+ game_loaded=true;usb_backup_device_start();assert(reported==1);
+ boot_result=2;usb_backup_device_start();assert(reported==2);
  memset(live_data,0xa5,sizeof(live_data));
  reset();assert(stage(image,sizeof(image),17)&&journals==1&&checkpoints==1&&decoded==1&&validated==1&&!mounted);
  for(unsigned f=1;f<=9;f++){

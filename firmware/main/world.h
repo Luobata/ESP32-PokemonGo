@@ -65,6 +65,8 @@ typedef struct {
 // 两个所有者会争同一个射频：Collect 页原本自己 bring_up，
 // 与这里撞上就是 esp_wifi_init 返回 ESP_ERR_INVALID_STATE，
 // 而它没判那个返回值，会当成初始化失败。
+// True only when startup decoded and adopted a valid existing save.
+bool world_save_loaded(void);
 bool world_start(void);
 
 // WiFi 是否可用。Collect 页用它判断该不该自己起 —— 见 world_start。

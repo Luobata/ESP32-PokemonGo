@@ -46,6 +46,8 @@ int main(void){
  reset();memcpy(stage,committed,sizeof(stage));failwrite=1;assert(restore_journal_apply(&io,build,&crc)==2);assert(!memcmp(nvs,original,sizeof(nvs)));
  reset();memcpy(stage,committed,sizeof(stage));unsigned char other[32]={0};assert(restore_journal_apply(&io,other,&crc)==-1);assert(!memcmp(nvs,original,sizeof(nvs)));
  reset();memcpy(stage,committed,sizeof(stage));stage[0x1000]^=1;stage[0x7000]^=1;assert(restore_journal_apply(&io,build,&crc)==-1);assert(!memcmp(nvs,original,sizeof(nvs)));
+ init();usb_backup_restore_hooks(prepare,restart,1,0x12345678);cmd("HELLO");assert(strstr(transcript,"RESTORED"));
+ usb_backup_import_mode(true);offer();usb_backup_restore_confirm(false);transcript[0]=0;cmd("HELLO");assert(!strstr(transcript,"RESTORED"));
  init();usb_backup_import_mode(true);
  offer_for(test_schema+1,"1111111111111111111111111111111111111111111111111111111111111111");assert(strstr(transcript,"INCOMPATIBLE")&&!snapshots&&!staged&&usb_backup_state()==USB_BACKUP_IDLE);
  transcript[0]=0;offer_for(4,"1111111111111111111111111111111111111111111111111111111111111111");assert(strstr(transcript,"INCOMPATIBLE")&&!snapshots&&!staged);

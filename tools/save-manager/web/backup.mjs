@@ -22,7 +22,7 @@ export class Receiver {
     if(p[1]==='UPLOAD'&&p.length===3&&/^[0-9]+$/.test(p[2]))return {upload:p[2]};
     if(p[1]==='NEXT'&&p.length===4&&/^[0-9]+$/.test(p[2])&&/^[0-9]+$/.test(p[3]))return {next:{id:p[2],offset:Number(p[3])}};
     if(p[1]==='STAGED'&&p.length===3&&/^[a-f0-9]{8}$/.test(p[2]))return {staged:p[2]};
-    if(p[1]==='RESTORED'&&p.length===5&&p[2]===this.session&&/^[12]$/.test(p[3])&&/^[a-f0-9]{8}$/.test(p[4]))return {restored:{result:Number(p[3]),crc:p[4]}};
+    if(p[1]==='RESTORED'&&p.length===5&&p[2]===this.session&&/^[123]$/.test(p[3])&&/^[a-f0-9]{8}$/.test(p[4]))return {restored:{result:Number(p[3]),crc:p[4]}};
     if(p[1]==='BEGIN') {
       if(p.length!==10||p[2]!==this.session||this.pending) throw Error('备份开始信息无效');
       const [, , , id, device, firmware, version, address, size, crc]=p;

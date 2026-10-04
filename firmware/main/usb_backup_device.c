@@ -85,5 +85,7 @@ void usb_backup_device_start(void) {
     const esp_app_desc_t *app=esp_app_get_description();
     for(unsigned i=0;i<32;i++)snprintf(build+2*i,3,"%02x",app->app_elf_sha256[i]);
     usb_backup_init(snapshot,emit,id,build,SAVE_VERSION);
-    usb_backup_restore_hooks(locate()?stage:NULL,esp_restart,boot_result,boot_crc);
+    // Raw flash verification alone is not proof the game adopted the save.
+    int result=boot_result==1&&!world_save_loaded()?3:boot_result;
+    usb_backup_restore_hooks(locate()?stage:NULL,esp_restart,result,boot_crc);
 }

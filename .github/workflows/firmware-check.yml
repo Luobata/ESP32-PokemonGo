@@ -31,6 +31,7 @@ jobs:
           python3 tools/pipeline/verify_usb_import.py
           python3 tools/pipeline/verify_save_import_compatibility.py
           python3 tools/pipeline/verify_usb_import_device.py
+          python3 tools/pipeline/verify_firmware_update.py
           node tools/pipeline/verify_save_import_web.mjs
           python3 tools/pipeline/verify_audio_settings.py
           python3 tools/pipeline/verify_offline_stamina.py
@@ -48,6 +49,7 @@ jobs:
             cd firmware
             idf.py build
             cd ..
+            python tools/pipeline/verify_nvs_restore_roundtrip.py
             python tools/release/package_firmware.py
             python tools/pipeline/verify_release_partition_protection.py
       - name: Archive firmware and build identity
@@ -55,6 +57,7 @@ jobs:
         with:
           name: pokewalk-${{ github.sha }}
           path: |
+            release/community/PokeWalk-update.zip
             release/community/FoloToy-AI-Passport-full.bin
             release/community/FoloToy-AI-Passport.bin
             release/community/bootloader/bootloader.bin

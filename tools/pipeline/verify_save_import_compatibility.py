@@ -4,7 +4,8 @@ import verify_trainer_campaign as harness
 
 harness.CASES = r'''
 static void compatibility(void){
- fresh();assert(world_choose_starter(25)==WORLD_STARTER_OK);
+ fresh();assert(!world_save_loaded());assert(world_choose_starter(25)==WORLD_STARTER_OK);
+ reboot();assert(world_save_loaded());
  save_t original;assert(save_read_status(&original)==SAVE_READ_OK);
  const size_t sizes[]={sizeof(save_v5_t),sizeof(save_v6_t),sizeof(save_v7_t),sizeof(save_v8_t),
   sizeof(save_v9_t),sizeof(save_v10_t),sizeof(save_v14_t),sizeof(save_v14_t),sizeof(save_v14_t),
@@ -33,6 +34,7 @@ static void compatibility(void){
  bad=original;bad.party[2]=255;assert(!save_validate_world(&bad,&party));
  bad=original;bad.party[0]=7;assert(!save_validate_world(&bad,&party));
  bad=original;bad.queue.count=ENC_QUEUE_CAP+1;assert(!save_validate_world(&bad,&party));
+ bad=original;bad.version=SAVE_VERSION+1;memcpy(disk,&bad,sizeof(bad));reboot();assert(!world_save_loaded()&&!s_storage_ready);
  bad=original;bad.inventory.quantity[ITEM_POKE]=65535;
  assert(save_decode(&out,&bad,sizeof(bad),0)==SAVE_READ_ERROR);
 }

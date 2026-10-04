@@ -5,6 +5,7 @@ import json
 import shutil
 import subprocess
 import sys
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -31,6 +32,26 @@ report = {'artifact': merged.name, 'size': merged.stat().st_size,
           'protected_layout_pass': True,
           'checker_source': 'FoloToy/ai-passport@cd73a8a6f1f95e010bfd83a08e2b915e38408308 + PokeWalk data protection',
           'application_size': (BUILD / 'PokeWalk.bin').stat().st_size,
+          'full_install_preserves_nvs': False,
+          'full_install_warning': 'Full image padding overwrites NVS; back up before installation and import afterwards.',
           'community_upload_performed': False, 'ble_install_tested': False}
+# An update is an address-aware application write, not a second merged image.
+# Do not submit the application-only binary to a community flash-at-zero flow.
+app = (BUILD / 'PokeWalk.bin').read_bytes()
+table = (BUILD / 'partition_table/partition-table.bin').read_bytes()
+update = {'format': 'pokewalk-app-update-v1', 'address': 0x10000, 'size': len(app),
+          'sha256': hashlib.sha256(app).hexdigest(),
+          'partition_sha256': hashlib.sha256(table).hexdigest()}
+update_zip = OUT / 'PokeWalk-update.zip'
+with zipfile.ZipFile(update_zip, 'w', zipfile.ZIP_DEFLATED) as z:
+    z.writestr('PokeWalk.bin', app)
+    z.writestr('partition-table.bin', table)
+    z.writestr('update.json', json.dumps(update, indent=2) + '\n')
+    z.write(ROOT / 'tools/release/update_firmware.py', 'update_firmware.py')
+    z.write(ROOT / 'tools/release/UPDATE.md', 'README.md')
+report['usb_update'] = {'artifact': update_zip.name,
+                       'sha256': hashlib.sha256(update_zip.read_bytes()).hexdigest(),
+                       'writes': [{'address': 0x10000, 'size': len(app)}],
+                       'requires_existing_matching_partition_table': True}
 (OUT / 'manifest.json').write_text(json.dumps(report, indent=2) + '\n')
 print(json.dumps(report))

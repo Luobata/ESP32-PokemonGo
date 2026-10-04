@@ -2,12 +2,24 @@ import {Receiver,envelope,decodeBackup,SIZE} from './backup.mjs';
 const $=id=>document.getElementById(id);
 let directory,port,reader,writer,heartbeat,session,receiver,connected=false,writeQueue=Promise.resolve(),closing=false;
 let selectedImport=null,transfer=null,expectedRestore=null,device=null;
+// A receipt belongs to an import staged in this tab, never merely to a device
+// that happens to remember an earlier successful restore. Keep only metadata.
+const restoreKey='pokewalk-pending-restore';
+try {
+  const pending=JSON.parse(sessionStorage.getItem(restoreKey));
+  if(pending&&/^[a-f0-9]{12}$/.test(pending.device)&&/^[a-f0-9]{8}$/.test(pending.crc))expectedRestore=pending;
+} catch {}
+function rememberRestore(value){
+  expectedRestore=value;
+  try {if(value)sessionStorage.setItem(restoreKey,JSON.stringify(value));else sessionStorage.removeItem(restoreKey);}catch {}
+}
 function status(text,error=false){$('status').textContent=text;$('status').classList.toggle('error',error);}
 function send(text){const bytes=new TextEncoder().encode(text+'\n');writeQueue=writeQueue.then(()=>writer.write(bytes));return writeQueue;}
 function controls(){
+ $('forget-result').hidden=!expectedRestore;
  $('connect').disabled=!directory||!!port;$('disconnect').disabled=!port;$('folder').disabled=!!port;
  $('import').disabled=!connected||!selectedImport||!!transfer||!!expectedRestore||!!receiver?.pending;
- $('import-file').disabled=!!transfer||!!receiver?.pending;
+ $('import-file').disabled=!!transfer||!!expectedRestore||!!receiver?.pending;
 }
 async function save(q){
   try {
@@ -46,12 +58,14 @@ async function line(text){
   if(result?.next)await nextChunk(result.next.id,result.next.offset);
   if(result?.staged){
     if(!transfer||result.staged!==transfer.file.metadata.crc32)throw Error('设备暂存确认不匹配');
-    expectedRestore={crc:result.staged,device:transfer.file.metadata.device_id};transfer=null;connected=false;
+    rememberRestore({crc:result.staged,device:transfer.file.metadata.device_id});transfer=null;connected=false;
     status('文件已暂存，等待设备重启并核对结果；若 USB 断开，请重新连接。');
   }
   if(result?.restored){
-    if(expectedRestore&&(expectedRestore.device!==device||expectedRestore.crc!==result.restored.crc))throw Error('重启后的导入结果不匹配');
-    status(result.restored.result===1?'设备已确认：存档导入完成。':'导入写入失败，设备已恢复覆盖前的存档。',result.restored.result!==1);expectedRestore=null;
+    if(!expectedRestore)return; // Unsolicited/historical receipt is not this import.
+    if(transfer||expectedRestore.device!==device||expectedRestore.crc!==result.restored.crc)throw Error('重启后的导入结果不匹配，尚未确认恢复成功；请保留原备份');
+    const messages={1:'设备已确认：存档导入完成。请在设备核对伙伴、等级和图鉴。',2:'导入写入失败，设备已恢复覆盖前的存档。',3:'存档已写入，但游戏读档失败，不能确认导入成功。请保留原备份，勿开始新游戏。'};
+    status(messages[result.restored.result],result.restored.result!==1);rememberRestore(null);
   }
   controls();
 }
@@ -64,8 +78,8 @@ async function readLoop(){
       while((index=buffer.indexOf('\n'))>=0){const text=buffer.slice(0,index).replace(/\r$/,'');buffer=buffer.slice(index+1);await line(text);}
       if(buffer.length>4096)throw Error('串口数据格式异常，请断开后重试');
     }
-    if(!closing&&!expectedRestore)throw Error('USB 连接已断开，未确认的操作不算完成');
-  }catch(e){if(!closing)status(expectedRestore?'设备正在重启，请重新连接核对结果。':e.message,!expectedRestore);}
+    if(!closing)status(expectedRestore?'USB 已断开，请重新连接核对导入结果；当前尚未确认恢复成功。':'USB 连接已断开，未确认的操作不算完成',!expectedRestore);
+  }catch(e){if(!closing)status(`${e.message}${expectedRestore?'；导入结果尚未确认，请重新连接并保留原备份。':''}`,true);}
   finally{reader.releaseLock();reader=null;transfer=null;await cleanup();}
 }
 async function cleanup(){
@@ -99,14 +113,15 @@ $('import-file').onchange=async()=>{
   }catch(e){$('import-info').textContent=e.message;status(e.message,true);}controls();
 };
 $('import').onclick=async()=>{
-  if(!connected||!selectedImport||transfer)return;
+  if(!connected||!selectedImport||transfer||expectedRestore)return;
   try {
     const d=selectedImport.metadata;if(d.device_id!==device)throw Error('备份不属于当前设备');
     if(await directory.queryPermission({mode:'readwrite'})!=='granted')throw Error('请重新选择有写入权限的备份目录');
-    expectedRestore=null;transfer={file:selectedImport};controls();
+    transfer={file:selectedImport};controls();
     await send(`!PWBACKUP OFFER ${session} ${d.device_id} ${d.firmware} ${d.save_version} ${d.nvs_size} ${d.crc32}`);
     status('等待设备确认导入请求…');
   }catch(e){transfer=null;status(e.message,true);controls();}
 };
+$('forget-result').onclick=()=>{rememberRestore(null);status('已结束核对；这不表示导入成功。请保留原备份，在设备核实进度后再操作。',true);controls();};
 $('local-start').hidden=isSecureContext;
 if(!isSecureContext||!navigator.serial||!window.showDirectoryPicker){$('folder').disabled=true;status('请使用桌面 Chrome / Edge。内网 HTTP 入口请先下载上方工具，在本机启动后通过 localhost 操作 USB。',true);}

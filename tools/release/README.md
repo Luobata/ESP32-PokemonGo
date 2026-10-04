@@ -7,3 +7,7 @@ Run `python tools/release/package_firmware.py` inside the ESP-IDF Python environ
 The merged image contains bootloader, partition table and app only. It contains no player's NVS, card identity or permanent Recovery payload. A full image has blank padding over NVS: for an existing player device, back up first and update only the intended components while retaining NVS. This USB import release adds a staging partition, so its first upgrade requires both the partition table and application; application-only flashing keeps backup but cannot enable import.
 
 2026-09-15 power update: `verify_firmware_upstream.py` is the unchanged official checker from FoloToy/ai-passport `cd73a8a6f1f95e010bfd83a08e2b915e38408308`. The existing `verify_firmware.py` is now a PokeWalk adaptation of the previously vendored checker: factory grows by 256 KiB to 0x340000; game NVS, cardid, save_restore, wifi_config and recovery offsets stay fixed and are independently required. Packaging runs both checks. The MIT license in LICENSE.upstream applies to both checker derivatives.
+
+## 保留存档更新
+
+打包同时生成 `PokeWalk-update.zip`，只写应用地址 `0x10000`，不写完整镜像中的 NVS 空白填充。使用步骤和限制见 [UPDATE.md](UPDATE.md)。它不能替代社区首次安装包，不能上传为地址 `0x0` 的完整固件。`manifest.json` 分别记录完整安装清档风险与 USB 更新包摘要。

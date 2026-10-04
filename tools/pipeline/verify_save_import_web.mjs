@@ -30,3 +30,49 @@ for(const fail of ['device','permission','write','readback']){
  if(fail==='device'||fail==='permission')assert(!created);
 }
 console.log('web cross-build prebackup ACK, current metadata, wrong-device/write/permission/readback rejection: passed');
+
+// Exercise production receipt handling, not just its parser or prebackup helper.
+const receipts=new (Object.getPrototypeOf(async function(){}).constructor)('Receiver','envelope','decodeBackup','SIZE','scenario',source+`
+ session='0123456789abcdef0123456789abcdef';receiver=new Receiver(session);
+ await line('!PWBACKUP READY '+session+' 001122334455');
+ if(scenario==='historical'){
+   await line('!PWBACKUP RESTORED '+session+' 1 abcdef01');
+   return $('status').textContent;
+ }
+ if(scenario!=='reload'){
+   transfer={file:{metadata:{crc32:'abcdef01',device_id:'001122334455'}}};
+   await line('!PWBACKUP STAGED abcdef01');
+ }
+ if(scenario==='staged')return expectedRestore;
+ if(scenario==='mismatch')await line('!PWBACKUP RESTORED '+session+' 1 12345678');
+ else if(scenario==='wrong-device'){
+   await line('!PWBACKUP READY '+session+' ffffffffffff');
+   await line('!PWBACKUP RESTORED '+session+' 1 abcdef01');
+ }else await line('!PWBACKUP RESTORED '+session+' '+(scenario==='rollback'?2:scenario==='load-error'?3:1)+' abcdef01');
+ return {text:$('status').textContent,pending:expectedRestore};
+`);
+const memory=new Map();globalThis.sessionStorage={getItem:k=>memory.get(k)||null,setItem:(k,v)=>memory.set(k,v),removeItem:k=>memory.delete(k)};
+const invoke=scenario=>receipts(Receiver,envelope,decodeBackup,SIZE,scenario);
+assert.doesNotMatch(await invoke('historical'),/导入完成/);
+for(const scenario of ['success','rollback','load-error']){
+ memory.clear();const result=await invoke(scenario);assert.equal(result.pending,null);
+ assert.match(result.text,scenario==='success'?/导入完成/:scenario==='rollback'?/已恢复覆盖前/:/读档失败/);
+ if(scenario!=='success')assert.doesNotMatch(result.text,/导入完成/);
+}
+for(const scenario of ['mismatch','wrong-device']){
+ memory.clear();await assert.rejects(()=>invoke(scenario),/不匹配/);assert(memory.size);
+}
+memory.clear();await invoke('staged');assert(memory.size);
+assert.match((await invoke('reload')).text,/导入完成/);assert.equal(memory.size,0);
+assert.doesNotMatch(await invoke('historical'),/导入完成/);
+console.log('production web receipt correlation, stale receipts, mismatch, rollback, load failure and reload: passed');
+const loop=new (Object.getPrototypeOf(async function(){}).constructor)('Receiver','envelope','decodeBackup','SIZE',source+`
+ session='0123456789abcdef0123456789abcdef';receiver=new Receiver(session);device='001122334455';
+ rememberRestore({crc:'abcdef01',device});
+ reader={async read(){return {done:false,value:new TextEncoder().encode('!PWBACKUP RESTORED '+session+' 1 12345678\\n')};},releaseLock(){}};
+ await readLoop();return $('status').textContent;
+`);
+memory.clear();
+const error=await loop(Receiver,envelope,decodeBackup,SIZE);
+assert.match(error,/不匹配/);assert.match(error,/尚未确认/);assert.doesNotMatch(error,/设备正在重启/);
+console.log('production read loop preserves mismatched-restore error across disconnect: passed');
