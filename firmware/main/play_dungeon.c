@@ -17,6 +17,7 @@ static uint8_t theme_ids[10];static unsigned theme_count;
 static void theme_options(void){theme_count=0;for(unsigned i=0;i<10;i++)if(dungeon_theme_open(i))theme_ids[theme_count++]=i;}
 void play_dungeon_open_region(unsigned map){chosen_theme=map>=4&&map<EXPLORATION_MAPS?map-3:0;challenge_mode=false;nav_go(PAGE_DUNGEON);}
 static unsigned reward_frame;
+static const char *failure_hint;
 static lv_timer_t *reward_timer;
 static unsigned receipt_items(void){unsigned count=0;for(unsigned i=0;i<ITEM_COUNT;i++)count+=dungeon_get()->receipt.items.quantity[i]>0;return count;}
 static void label(unsigned id,char *buf,size_t size){species_t sp;if(assets_species(id,&sp))snprintf(buf,size,"%.*s",sp.name_zh_len,sp.name_zh);else snprintf(buf,size,"#%u",id);}
@@ -110,7 +111,7 @@ static void draw(void){
    for(unsigned i=0;i<d->count;i++){const combat_mon_t *m=&d->battle.session.sides[0].mons[i];label(d->ids[i],name,sizeof(name));snprintf(text,sizeof(text),"%s %u/%u",name,m->hp,m->max_hp);game_ui_text_fitted(y,12,212+i*20,216,text,m->hp?GAME_UI_INK:GAME_UI_MUTED);}
    if(d->phase==DUNGEON_WON||d->phase==DUNGEON_LOST)game_ui_text_centered(y,8,264,224,16,"道具已入背包 再试新搭配",GAME_UI_ACCENT);
   }
-  game_ui_footer(y,failed?"请检查伙伴 体能或存储":GAME_UI_NAV_HINT);screen_push_band(y);
+  game_ui_footer(y,failed?(failure_hint?failure_hint:"请检查伙伴 体能或存储"):GAME_UI_NAV_HINT);screen_push_band(y);
  }
 }
 static void launch(void){dungeon_set_playing(true);nav_go(PAGE_TRAINER);}
@@ -125,7 +126,7 @@ void play_dungeon_enter(void){
 }
 void play_dungeon_exit(void){if(reward_timer){lv_timer_delete(reward_timer);reward_timer=NULL;}}
 void play_dungeon_key(bsp_btn_t b,bsp_btn_ev_t e){
- failed=false;
+ failed=false;failure_hint=NULL;
  if(nav_return(b,e)){if(discarding){discarding=false;selected=1;draw();return;}if(lobby){nav_go(PAGE_MENU);return;}lobby=true;selecting=details=themes=collecting=false;selected=0;draw();return;}
  if(nav_direction(b,e)){selected=nav_list_selection(b,e,options(),selected);draw();return;}
  if(!nav_confirm(b,e))return;
@@ -148,7 +149,7 @@ void play_dungeon_key(bsp_btn_t b,bsp_btn_ev_t e){
   if(selected==6){if(dungeon_abandon()){selected=0;}else failed=true;draw();return;}
   if(selected==1){world_party_snapshot(&owned);selecting=true;lobby=false;chosen_count=selected=0;}
   else if(selected==2){themes=true;lobby=false;theme_options();selected=0;}
-  else if(selected==3){exploration_view_t v;world_exploration_snapshot(&v);if(chosen_theme&& (chosen_theme==9||v.regions.region[chosen_theme-1].clears))challenge_mode=!challenge_mode;else failed=true;}
+  else if(selected==3){exploration_view_t v;world_exploration_snapshot(&v);if(chosen_theme&& (chosen_theme==9||v.regions.region[chosen_theme-1].clears))challenge_mode=!challenge_mode;else {failed=true;failure_hint="首通本主题后开放挑战档";}}
   else if(selected==4){collecting=true;lobby=false;selected=0;}
   else if(selected==5){details=true;lobby=false;selected=0;}
   else if(dungeon_get()->phase==DUNGEON_BATTLE||dungeon_get()->phase==DUNGEON_ENTRY){if(dungeon_resume()){launch();return;}failed=true;}

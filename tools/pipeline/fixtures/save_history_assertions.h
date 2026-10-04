@@ -59,4 +59,14 @@ static void history_assert(const save_t *s, unsigned version) {
     }
     assert(s->rest_clock.epoch_us==(version<17 ? 0 : 1728000000000000LL));
     assert(s->rest_clock.online_us==(version<17 ? 0 : 120000000));
+    if(version<18){
+        exploration_regions_t empty={.selected=version>=11?2:0};
+        assert(!memcmp(&s->regions,&empty,sizeof(empty)));
+    }else{
+        assert(s->regions.selected==4&&s->regions.region[0].steps==57&&s->regions.region[0].clears==2);
+        assert(s->regions.region[0].clues==2&&s->regions.region[0].pulse==1&&s->regions.region[0].target==131);
+        assert(s->regions.region[0].pity==4&&s->regions.region[0].deep==1&&s->regions.region[0].traced==1&&s->regions.region[0].claimed==1&&s->regions.region[0].challenge_clear==1);
+        assert(s->regions.dungeon_pity==3&&s->regions.expedition_clears==1);
+        assert(s->regions.pending_items.quantity[ITEM_WATER_STONE]==1&&s->regions.pending_partner.species_id==131&&s->regions.pending_partner.is_shiny&&s->regions.pending_partner.level==42);
+    }
 }

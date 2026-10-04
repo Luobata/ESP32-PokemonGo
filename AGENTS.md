@@ -22,7 +22,8 @@
 3. 存档格式变化必须明确版本策略、实现从旧版本迁移并补充回归样例；保持既有持久化编号含义稳定。不能借用旧字段/填充改变含义却没有验证旧数据和默认值。
 4. 2026-10-04 的兼容基线为 V5～V17。以后以代码中实际支持的版本为准，增加新版本时扩展迁移和测试，不能把文档中的 V17 当成永久上限，也不能静默移除已支持的旧版本。
 5. 历史样本固定在 `tools/pipeline/fixtures/save_history/`，记录来源提交、旧结构类型、长度及 SHA-256。常规测试直接读取已提交的样本，禁止为了让测试通过而用当前结构重新生成、覆盖或删除旧样本。新增存档版本时追加来源样本、迁移预期及 `manifest.json` 的版本范围；`verify_save_import_compatibility.py` 和 `verify_nvs_restore_roundtrip.py` 会检查该范围是否与固件一致，并分别验证游戏启动和真实 NVS 导入。
-6. 新功能不能再次无版本标识地复用旧保留字节或 C 结构填充。历史兼容需要先处理该来源版本尚未定义的字节，再执行当前字段校验；仍须保留该版本已定义数据的校验，不能通过统一清零进度或放宽所有版本来“修复”导入。
+6. 独立秘境 NVS 同样属于进度：V3→V4 的公开版本样本在 `tools/pipeline/fixtures/dungeon_history/`。修改秘境布局时追加固定样本，执行 `verify_region_expansion.py` 验证运行态迁移，并执行 `verify_dungeon_stack.py` 检查 ESP32 目标栈占用；不能只验证世界存档。
+7. 新功能不能再次无版本标识地复用旧保留字节或 C 结构填充。历史兼容需要先处理该来源版本尚未定义的字节，再执行当前字段校验；仍须保留该版本已定义数据的校验，不能通过统一清零进度或放宽所有版本来“修复”导入。
 
 ### 必须保持的导入保护
 
@@ -47,6 +48,8 @@ python3 tools/pipeline/verify_usb_backup_checkpoint.py
 python3 tools/pipeline/verify_save_manager_distribution.py
 python3 tools/pipeline/verify_firmware_update.py
 python3 tools/pipeline/verify_nvs_restore_roundtrip.py
+python3 tools/pipeline/verify_region_expansion.py
+python3 tools/pipeline/verify_dungeon_stack.py
 tools/device/fw.sh build
 ```
 

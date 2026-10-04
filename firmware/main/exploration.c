@@ -377,7 +377,7 @@ exploration_event_t exploration_region_step(exploration_regions_t *s,enc_refresh
  unsigned id=0,tier=0;bool traced=p->clues==3;
  if(traced){id=target;if(pending(q,id))return e;exploration_habitat(id,&tier);}
  else{
-  unsigned candidates[5][24],n[5]={0},weights[5]={5,5,50,32,8};
+  unsigned candidates[5][24],n[5]={0},weights[5]={0,10,50,32,8};
   if(p->deep){weights[0]=weights[1]=0;weights[2]=35;weights[3]=50;weights[4]=15;}
   if(p->pity==5)weights[0]=weights[1]=weights[2]=0;
   for(unsigned i=0;i<24&&r->pool[i];i++){unsigned sp=r->pool[i],t=0;exploration_habitat(sp,&t);if(t&&(!direction||i%3==direction-1)&&exploration_species_open(sp,defeated)&&!pending(q,sp))candidates[t-1][n[t-1]++]=sp;}

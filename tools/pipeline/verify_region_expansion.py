@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """First-generation regions: real world/NVS/dungeon rules, ASan and UBSan."""
 import verify_dungeon_rewards as base
+from dungeon_history_fixtures import c_dungeon_history
 h = base.harness
-h.CASES = h.CASES[:h.CASES.index('int main(')] + r'''
+h.CASES = c_dungeon_history() + h.CASES[:h.CASES.index('int main(')] + r'''
 static void unlock_all(void){s_challenge.defeated=0x3fff;for(unsigned i=0;i<8;i++)s_regions.region[i].claimed=1;}
 static void habitats(void){
  exploration_regions_t rs={0};assert(exploration_map_open(0,0,&rs));
@@ -102,11 +103,12 @@ static void overflow(void){
  assert(!s_regions.pending_items.quantity[ITEM_WATER_STONE]);tests++;
 }
 static void run_migration(void){
- setup();assert(dungeon_new(chosen,3,999));dungeon_v3_t old;memcpy(&old,&run,sizeof(old));old.version=3;
- memcpy(run_disk,&old,sizeof(old));run_len=sizeof(old);loaded=false;dungeon_load();
- assert(run.version==4&&!run.theme&&run.phase==DUNGEON_BATTLE&&run.seed==old.seed&&run.run_id==old.run_id);
- assert(!memcmp(run.members,old.members,sizeof(old.members))&&dungeon_resume());tests++;
+ setup();assert(sizeof(dungeon_history)==sizeof(dungeon_v3_t));
+ memcpy(run_disk,dungeon_history,sizeof(dungeon_history));run_len=sizeof(dungeon_history);loaded=false;dungeon_load();
+ assert(run.version==4&&!run.theme&&run.phase==DUNGEON_FORK&&run.seed==91273&&run.run_id==23);
+ assert(run.node==1&&run.cards==(1u<<3)&&run.count==2&&run.members[0].species_id==6&&run.members[1].species_id==9&&run.members[1].flags==1);
+ assert(run.battle.session.sides[0].mons[0].hp==72&&dungeon_resume());tests++;
 }
-int main(void){assert(assets_init());habitats();odds();region_transactions();theme_rewards();overflow();run_migration();printf("{\"passed\":true,\"maps\":8,\"themes\":9,\"samples\":240000,\"checks\":%u,\"save_bytes\":%zu,\"sanitizers\":true}\n",tests,sizeof(save_t));return 0;}
+int main(void){assert(assets_init());habitats();odds();region_transactions();theme_rewards();overflow();run_migration();printf("{\"passed\":true,\"maps\":8,\"themes\":9,\"samples\":246424,\"checks\":%u,\"save_bytes\":%zu,\"sanitizers\":true}\n",tests,sizeof(save_t));return 0;}
 '''
 if __name__ == '__main__':h.run()

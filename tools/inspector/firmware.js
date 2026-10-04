@@ -139,6 +139,15 @@
   function zoom(){const wanted=Number($('zoom').value)||Math.min(2,Math.max(1,Math.floor((innerHeight-280)/320)));const available=document.querySelector('.stage').clientWidth-34;const scale=Math.min(wanted,Math.max(1,Math.floor(available/240)));$('screen-wrap').style.width=(240*scale)+'px';$('screen-wrap').style.height=(320*scale)+'px';}
   $('zoom').onchange=zoom;window.addEventListener('resize',zoom);zoom();
   $('download').onclick=()=>{const a=document.createElement('a');a.download=`firmware-${lastPage}-${canvas.dataset.ms}ms.png`;a.href=canvas.toDataURL('image/png');a.click();};
+  const params=new URLSearchParams(location.search);
+  for(const id of ['progress','region','level']){
+    const value=params.get(id),input=$(id);
+    if(value!==null&&/^\d+$/.test(value)){
+      if(input.tagName==='SELECT'){if([...input.options].some(o=>o.value===value))input.value=value;}
+      else if(Number(value)>=Number(input.min)&&Number(value)<=Number(input.max))input.value=value;
+    }
+  }
+  if(params.get('research')==='1')$('research').checked=true;
   const hash=location.hash.match(/^#P([0-6]|9|1[0-6])$/);if(hash)$('page').value=hash[1];
   document.addEventListener('visibilitychange',()=>{suspendClock();scheduleClock();});
   reset();

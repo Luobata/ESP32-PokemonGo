@@ -102,6 +102,13 @@ int main(int argc, char **argv) {
 #if FIXTURE_VERSION >= 17
     s.rest_clock.epoch_us=1728000000000000LL; s.rest_clock.online_us=120000000;
 #endif
+#if FIXTURE_VERSION >= 18
+    s.regions.selected=4;
+    s.regions.region[0]=(exploration_region_progress_t){.steps=57,.clears=2,.clues=2,.pulse=1,.target=131,.pity=4,.deep=1,.traced=1,.claimed=1,.challenge_clear=1};
+    s.regions.dungeon_pity=3; s.regions.expedition_clears=1;
+    s.regions.pending_items.quantity[ITEM_WATER_STONE]=1;
+    s.regions.pending_partner=(encounter_t){.species_id=131,.rarity=5,.level=42,.biome=2,.hp_ratio=100,.is_transient=true,.is_shiny=true};
+#endif
     FILE *f=fopen(argv[1], "wb"); assert(f);
     assert(fwrite(&s, 1, sizeof(s), f)==sizeof(s)); assert(!fclose(f));
     printf("%zu\n", sizeof(s));

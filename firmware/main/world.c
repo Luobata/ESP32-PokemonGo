@@ -1866,11 +1866,12 @@ bool world_dungeon_award(uint32_t id,unsigned node,uint32_t seed,dungeon_receipt
     if(details.theme){
         const exploration_region_t *region=exploration_region(details.map);
         if(!region){unlock_encounter_change();return false;}
-        receipt.xp=details.xp;receipt.first_clear=0;receipt.items.quantity[ITEM_LEAF_STONE]=0;
+        receipt.xp=details.xp;receipt.first_clear=0;
         if(node==7){
             exploration_region_progress_t *p=&s_save_buf.regions.region[details.map-4];
             bool first=details.theme==9?!s_regions.expedition_clears:!p->clears;
-            receipt.first_clear=first;if(first)receipt.items.quantity[region->item]++;
+            memset(&receipt.items,0,sizeof(receipt.items));receipt.items.quantity[ITEM_ULTRA]=details.challenge?3:2;
+            receipt.first_clear=first;if(first||(seed^id)%100<30)receipt.items.quantity[region->item]++;
             if(details.theme==9){if(s_save_buf.regions.expedition_clears<UINT16_MAX)s_save_buf.regions.expedition_clears++;}
             else {if(p->clears<UINT16_MAX)p->clears++;if(details.challenge)p->challenge_clear=1;}
         }

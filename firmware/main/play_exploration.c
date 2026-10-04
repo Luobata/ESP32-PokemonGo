@@ -68,12 +68,29 @@ static void scene(int band,unsigned route){
  }else if(route>=4){
   const exploration_region_t *r=exploration_region(route);
   uint16_t c=r->route.color;rect(band,16,72,208,80,route==5?0x2108:route==8?0x3800:0xe71c);
-  if(route==4||route==11){
+  if(route==4){
    for(int k=0;k<4;k++)for(int i=0;i<6;i++)rect(band,20+i*36+(k%2)*8,90+k*16,20,2,c);
-   for(int i=0;i<2;i++){int x=54+i*100;for(int k=0;k<20;k++)rect(band,x-k,108+k,4+k*2,2,0xe79f);rect(band,x-4,128,14,14,0x4a49);}
+   for(int i=0;i<2;i++){
+    int x=58+i*100;tile(band,x-22,128,rock,8,stone);
+    for(int k=0;k<19;k++){rect(band,x-k,100+k,4+k*2,2,0x5bd7);rect(band,x-k+2,100+k,1+k,2,0xe79f);}
+    rect(band,x-6,126,16,16,0x4a49);rect(band,x-4,130,12,12,0x2108);
+   }
+  }else if(route==11){
+   rect(band,16,72,208,80,0xaeff);
+   for(int i=0;i<3;i++)for(int k=0;k<30;k++){
+    int x=48+i*66;rect(band,x-k,80+k*2,4+k*2,2,0x4a73);
+    rect(band,x-k+2,80+k*2,1+k,2,k<12?0xffff:0xc71f);
+   }
+   rect(band,16,140,208,12,0xe79f);
+   for(int i=0;i<6;i++){rect(band,96+i*6,140+i*2,16,2,0x9d77);rect(band,30+i*32,136,4,4,0xffff);}
+   rect(band,172,128,20,14,0x9387);rect(band,168,124,28,6,0xffff);rect(band,179,134,6,8,0x4a49);
   }else if(route==5){
-   for(int k=0;k<4;k++)rect(band,62+k*4,142-k*16,116-k*8,14,0x630c);
-   for(int i=0;i<3;i++){rect(band,80+i*34,92,8,14,0xfde0);rect(band,82+i*34,94,4,10,c);}rect(band,184,80,14,14,0xfff0);
+   rect(band,82,82,80,68,0x1084);rect(band,86,86,72,64,0x630c);
+   for(int row=0;row<6;row++){rect(band,86,88+row*10,72,2,0x4a49);for(int col=0;col<4;col++)rect(band,88+col*18+(row%2)*6,90+row*10,2,8,0x4a49);}
+   for(int floor=0;floor<2;floor++)for(int i=0;i<3;i++){int x=94+i*22,y=92+floor*24;rect(band,x,y,10,16,0x1084);rect(band,x+2,y+2,6,10,0xfde0);rect(band,x+4,y+2,2,10,c);}
+   rect(band,78,80,88,6,0x9b3f);rect(band,112,134,18,16,0x1084);rect(band,104,148,34,4,0x9c53);
+   rect(band,184,80,14,14,0xfff0);rect(band,180,76,10,14,0x2108);
+   for(int i=0;i<4;i++)rect(band,24+i*48,78+(i%2)*14,2,2,0xfff0);
   }else if(route==6){
    for(int i=0;i<4;i++)tile(band,20+i*56,78,tree,20,leaf);
    for(int i=0;i<10;i++){rect(band,30+i*18,142-(i%2)*8,4,4,0x9387);rect(band,34+i*18,146-(i%2)*8,2,2,0x9387);}

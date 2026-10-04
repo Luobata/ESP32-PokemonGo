@@ -1032,8 +1032,8 @@ bool world_dungeon_award(uint32_t id,unsigned node,uint32_t seed,dungeon_receipt
  encounter_t partner={0};dungeon_award_details_t info={0};if(!dungeon_award_details(id,node,&info))return false;
  if(node==7&&!(info.theme?exploration_region_partner(info.map,info.trail,info.challenge,seed^id,challenge.defeated,&regions,&partner):exploration_dungeon_partner(seed,id,challenge.defeated,&queue,&partner)))return false;
  dungeon_reward_plan(node,seed,&dungeon_progress,out);party_t before=party;
- if(info.theme){out->xp=info.xp;out->first_clear=0;out->items.quantity[ITEM_LEAF_STONE]=0;
-  if(node==7){exploration_region_progress_t *p=&regions.region[info.map-4];out->first_clear=info.theme==9?!regions.expedition_clears:!p->clears;if(out->first_clear)out->items.quantity[exploration_region(info.map)->item]++;if(info.theme==9){if(regions.expedition_clears<UINT16_MAX)regions.expedition_clears++;}else{if(p->clears<UINT16_MAX)p->clears++;if(info.challenge)p->challenge_clear=1;}}
+ if(info.theme){out->xp=info.xp;out->first_clear=0;
+  if(node==7){exploration_region_progress_t *p=&regions.region[info.map-4];out->first_clear=info.theme==9?!regions.expedition_clears:!p->clears;memset(&out->items,0,sizeof(out->items));out->items.quantity[ITEM_ULTRA]=info.challenge?3:2;if(out->first_clear||(seed^id)%100<30)out->items.quantity[exploration_region(info.map)->item]++;if(info.theme==9){if(regions.expedition_clears<UINT16_MAX)regions.expedition_clears++;}else{if(p->clears<UINT16_MAX)p->clears++;if(info.challenge)p->challenge_clear=1;}}
  }
  if(node==7){
   partner.ts=refresh.online_s;partner.level=battle_wild_level_for_pet(partner.rarity,world.level);if(info.theme){const exploration_region_t *r=exploration_region(info.map);if(partner.level<r->min_level)partner.level=r->min_level;if(partner.level>r->max_level)partner.level=r->max_level;}

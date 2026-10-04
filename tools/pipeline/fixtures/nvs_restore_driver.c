@@ -34,6 +34,9 @@ static void make_save(uint16_t species,unsigned level){
  nvs_handle_t h;assert(nvs_open("pokewalk",NVS_READWRITE,&h)==ESP_OK);
  assert(nvs_set_u8(h,"volume",(uint8_t)level)==ESP_OK);assert(nvs_set_u8(h,"brightness",(uint8_t)(level+10))==ESP_OK);
  assert(nvs_commit(h)==ESP_OK);nvs_close(h);
+ assert(nvs_open("pw_dungeon",NVS_READWRITE,&h)==ESP_OK);
+ assert(nvs_set_blob(h,"run_v3",dungeon_history,sizeof(dungeon_history))==ESP_OK);
+ assert(nvs_commit(h)==ESP_OK);nvs_close(h);
 }
 static void historical_restore(void){
  for(unsigned i=0;i<sizeof(history)/sizeof(history[0]);i++){
@@ -54,6 +57,10 @@ static void historical_restore(void){
   assert(boot_crc==restore_crc32(image,sizeof(image))&&save_init());
   assert(save_read(&loaded)&&save_validate_world(&loaded,&party));
   history_assert(&loaded,history[i].version);
+  assert(nvs_open("pw_dungeon",NVS_READONLY,&h)==ESP_OK);
+  unsigned char run_bytes[sizeof(dungeon_history)];size_t run_size=sizeof(run_bytes);
+  assert(nvs_get_blob(h,"run_v3",run_bytes,&run_size)==ESP_OK&&run_size==sizeof(run_bytes)&&!memcmp(run_bytes,dungeon_history,run_size));nvs_close(h);
+
   assert(nvs_open("pokewalk",NVS_READONLY,&h)==ESP_OK);uint8_t v;
   assert(nvs_get_u8(h,"volume",&v)==ESP_OK&&v==61);
   assert(nvs_get_u8(h,"brightness",&v)==ESP_OK&&v==73);nvs_close(h);
@@ -84,5 +91,5 @@ int main(void){
  current=loaded;assert(snapshot(image,sizeof(image)));make_save(1,7);assert(stage(image,sizeof(image),SAVE_VERSION));
  flash[temp.address+0x1000]^=1;assert(nvs_flash_deinit()==ESP_OK);assert(usb_backup_restore_before_boot());assert(boot_result==2);assert(save_init());assert(save_read(&loaded)&&!memcmp(&loaded,&before,sizeof(before)));
  historical_restore();
- assert(nvs_flash_deinit()==ESP_OK);puts("Real ESP-IDF NVS + production save/device/journal: historical V5-V17, distinct saves, schema rejection, settings, restore, second boot and rollback passed");
+ assert(nvs_flash_deinit()==ESP_OK);puts("Real ESP-IDF NVS + production save/device/journal: historical V5-V18, distinct saves, schema rejection, settings, restore, second boot and rollback passed");
 }

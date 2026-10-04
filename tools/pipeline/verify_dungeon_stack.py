@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2]
 entries=json.loads((ROOT/'firmware/build/compile_commands.json').read_text())
 entry=next(e for e in entries if e['file'].endswith('/main/dungeon.c'))
-budgets={'dungeon_load':128,'dungeon_new':512,'dungeon_resume':256,
+budgets={'dungeon_load':128,'dungeon_new':512,'dungeon_new_theme':512,'dungeon_theme_open':384,'begin_battle':384,'dungeon_resume':256,
          'dungeon_choose':256,'dungeon_finish':256,'dungeon_step':256,
          'dungeon_switch':256,'dungeon_retire':128,'dungeon_abandon':128}
 with tempfile.TemporaryDirectory() as tmp:
