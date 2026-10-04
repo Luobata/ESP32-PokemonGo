@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+"""Explicit maintainer operation: freeze synthetic saves from historical source.
+
+Not called by tests. Regression must read checked-in bytes, not regenerate them
+using a potentially changed layout. Requires full git history and a C compiler.
+"""
+import hashlib
+import json
+from pathlib import Path
+import subprocess
+import tempfile
+
+ROOT = Path(__file__).resolve().parents[2]
+DEST = ROOT / 'tools/pipeline/fixtures/save_history'
+SOURCES = [(5, '146c798', 'save_t')]
+SOURCES += [(v, '02e6913', f'save_v{v}_t') for v in range(6, 11)]
+SOURCES += [(11, '02e6913', 'save_t'), (12, '6791698', 'save_t'),
+            (13, 'ceda89a', 'save_t'), (14, '4b5f6ed', 'save_t'),
+            (15, '80ae06d', 'save_t'), (16, '449d6a3', 'save_v16_t')]
+SOURCES += [(17, sha, 'save_t') for sha in ('449d6a3', 'eb9a5d0', 'd080936', 'e80f241', '75e1f86')]
+
+
+def git(*args):
+    return subprocess.check_output(['git', *args], cwd=ROOT)
+
+
+def main():
+    DEST.mkdir(parents=True, exist_ok=True)
+    manifest_path = DEST / 'manifest.json'
+    previous = json.loads(manifest_path.read_text()) if manifest_path.exists() else None
+    frozen = {r['file']: r for r in previous['fixtures']} if previous else {}
+    records = []
+    with tempfile.TemporaryDirectory(prefix='pokewalk-historical-source-') as tmp:
+        for version, ref, typename in SOURCES:
+            sha = git('rev-parse', ref).decode().strip()
+            tree = Path(tmp) / ref
+            tree.mkdir(exist_ok=True)
+            paths = git('ls-tree', '-r', '--name-only', sha, 'firmware/main').decode().splitlines()
+            hashes = {}
+            for path in paths:
+                if path.endswith('.h') or path.endswith('/party.c'):
+                    data = git('show', f'{sha}:{path}')
+                    (tree / Path(path).name).write_bytes(data)
+                    hashes[path] = hashlib.sha256(data).hexdigest()
+            name = f'v{version}-{ref}.bin'
+            binary = tree / f'writer-{version}'
+            subprocess.run(['cc', '-std=gnu11', '-I', str(tree),
+                            f'-DFIXTURE_TYPE={typename}', f'-DFIXTURE_VERSION={version}',
+                            str(ROOT / 'tools/pipeline/fixtures/historical_save_writer.c'),
+                            str(tree / 'party.c'), '-o', str(binary)], check=True)
+            candidate = tree / name
+            size = int(subprocess.check_output([str(binary), str(candidate)]))
+            data = candidate.read_bytes()
+            assert size == len(data)
+            record = dict(file=name, version=version, size=size,
+                          sha256=hashlib.sha256(data).hexdigest(), source_commit=sha,
+                          source_type=typename, source_hashes=hashes,
+                          provenance='historical save writer layout' if typename == 'save_t'
+                          else 'historical frozen migration layout (no standalone release in git)')
+            if name in frozen:
+                assert record == frozen[name], f'{name}: immutable fixture metadata changed; add a new case instead'
+            destination = DEST / name
+            if destination.exists():
+                assert destination.read_bytes() == data, f'{name}: refusing to replace historical bytes'
+            else:
+                destination.write_bytes(data)
+            records.append(record)
+    assert set(frozen) <= {r['file'] for r in records}, 'Do not remove historical fixtures'
+    manifest_path.write_text(json.dumps(dict(
+        current_version=max(r['version'] for r in records), oldest_version=5,
+        description='Synthetic progress, no player/device data. Little-endian, 8-byte int64 alignment.',
+        fixtures=records), ensure_ascii=False, indent=2) + '\n')
+    print(f'Frozen {len(records)} historical saves in {DEST}')
+
+
+if __name__ == '__main__':
+    main()

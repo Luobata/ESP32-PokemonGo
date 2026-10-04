@@ -189,6 +189,18 @@ save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_
         exploration_init(&out->exploration);
         out->version=SAVE_VERSION;
     }
+    // Early V11 called this byte reserved[0], with no range constraint. Later
+    // V11 builds introduced tracking without a schema bump. Preserve valid
+    // tracked species from those builds; an impossible ID means no old target.
+    // V12+ owned and validated the field, so malformed modern IDs still fail.
+    if (version11 && out->exploration.tracked_species > DEX_SPECIES)
+        out->exploration.tracked_species = 0;
+    // V15/V16 receipt tail bytes were C padding, not partner reward fields.
+    // Never interpret an old padding value as a new reward (or corrupt save).
+    if (version15 || version16) {
+        out->dungeon.receipt.partner_species = 0;
+        out->dungeon.receipt.partner_shiny = 0;
+    }
     if (!exploration_valid(&out->exploration)) return SAVE_READ_ERROR;
     if (!enc_refresh_valid(&out->refresh)) return SAVE_READ_ERROR;
     if (!trainer_store_valid(&out->challenge)) return SAVE_READ_ERROR;

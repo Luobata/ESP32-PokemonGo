@@ -11,6 +11,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from save_history_fixtures import c_cases
 
 ROOT=Path(__file__).resolve().parents[2]
 headers={
@@ -66,6 +67,7 @@ def run(idf):
  if not (nvs/'src/nvs_api.cpp').is_file():raise SystemExit('Set IDF_PATH or --idf-path to ESP-IDF v5.5.3; test was not run')
  with tempfile.TemporaryDirectory(prefix='pokewalk-real-nvs-') as d:
   t=Path(d)
+  (t/'save_history_cases.h').write_text(c_cases())
   for name,content in headers.items():
    p=t/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(content)
   incs=[t,nvs/'include',nvs/'private_include',nvs/'src',idf/'esp_common/include',idf/'esp_rom/include',ROOT/'firmware/main',ROOT/'firmware/components/bsp/include']
