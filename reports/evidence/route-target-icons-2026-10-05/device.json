@@ -1,0 +1,84 @@
+{
+  "source_commit": "6b455c127bc0397a7b8ea5f6b46d6f704bd08673",
+  "app_version": "v2026.10.05-regions-2-g6b455c1",
+  "app_sha256": "ba3c31e179141ac93bec7ad84ba1bb5d86acc8c27ab0210e6c48e22cd19861ae",
+  "app_bytes": 3163104,
+  "partition_sha256": "4757959e43ac4b1588d79b0d1f5fb3d42a45e29ac99217844ad064357bf46015",
+  "build_exit_code": 0,
+  "build_log_sha256": "61e19aace2215b5fc460ccae62daee442a3f59905521b137b1171568ccc1cfe5",
+  "flasher": "tools/release/update_firmware.py",
+  "written_address": "0x10000",
+  "written_components": [
+    "application"
+  ],
+  "backup_created_and_readback_verified": true,
+  "protected_data_unchanged_before_reboot": true,
+  "protected_ranges": [
+    {
+      "address": "0x8000",
+      "bytes": 32768
+    },
+    {
+      "address": "0x350000",
+      "bytes": 196608
+    }
+  ],
+  "private_backup_location": ".device-backup/route-icons-20261005-8hl6b7qo",
+  "before": {
+    "app_version": "v2026.10.05-6-g68d4276",
+    "dex": 93,
+    "encounters": 0,
+    "party": 6,
+    "partners": 86,
+    "muted": true,
+    "active": {
+      "pet": 3,
+      "level": 34,
+      "exp": 61792
+    },
+    "dungeon": {
+      "phase": 6,
+      "node": 4,
+      "count": 3,
+      "run": 1,
+      "pending": 0
+    }
+  },
+  "after": {
+    "app_version": "v2026.10.05-regions-2-g6b455c1",
+    "dex": 93,
+    "encounters": 0,
+    "party": 6,
+    "partners": 86,
+    "muted": true,
+    "active": {
+      "pet": 3,
+      "level": 34,
+      "exp": 61792
+    },
+    "dungeon": {
+      "phase": 6,
+      "node": 4,
+      "count": 3,
+      "run": 1,
+      "pending": 0
+    }
+  },
+  "progress_preserved": true,
+  "muted_preserved": true,
+  "hardware_startup_preservation_test": true,
+  "hardware_overwrite_import_test": false,
+  "public_release_created": false,
+  "ui": {
+    "route_page_opened": true,
+    "screenshot": "reports/evidence/route-target-icons-2026-10-05/device-routes.png",
+    "dimensions": [
+      240,
+      320
+    ],
+    "complete_bands": 4,
+    "returned_to_idle": true,
+    "explore_not_triggered": true,
+    "visually_verified": true
+  }
+}
