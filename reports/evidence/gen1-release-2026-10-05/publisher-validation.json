@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "firmware": {
+    "path": "/Users/bytedance/luobata/ESP32-PokemonGo/release/community/FoloToy-AI-Passport-full.bin",
+    "size": 3228416,
+    "sha256": "e929f724b3ee3f4e8b448950e4a61be73a29d7d2c83f3fa5d3a55e303ef69257",
+    "segments": 3
+  },
+  "cover": {
+    "path": "/Users/bytedance/luobata/ESP32-PokemonGo/release/community/pokewalk-cover.png",
+    "size": 61861,
+    "sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6",
+    "width": 480,
+    "height": 640,
+    "aspectRatio": "3:4"
+  },
+  "screenCapture": null
+}

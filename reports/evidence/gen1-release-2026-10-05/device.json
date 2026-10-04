@@ -1,0 +1,70 @@
+{
+  "flashed": true,
+  "target_source_commit": "68d4276cff7a494fd394282395374e0ca16d5e15",
+  "verified_at": "2026-10-04T21:43:19.466139+00:00",
+  "status": "updated_and_boot_preservation_verified",
+  "previous_app_version": "0f76077",
+  "boot_app_version": "v2026.10.05-6-g68d4276",
+  "update_artifact": "PokeWalk-update.zip",
+  "update_zip_sha256": "afc8c68f49298252fa7bfe67e038fce5ed0951d916438971325714c33f1c5db7",
+  "app_sha256": "49fbc3dabffa664d49d8305b9ff94f4c6c50e695c4806502e928c7912c79ead6",
+  "boot_elf_sha256_prefix": "8e5ba6c90",
+  "app_only_address": "0x10000",
+  "flash_verify_passed": true,
+  "partition_table_matched_before_update": true,
+  "protected_ranges_unchanged_before_reboot": [
+    {
+      "address": "0x8000",
+      "length": "0x8000"
+    },
+    {
+      "address": "0x350000",
+      "length": "0x30000"
+    }
+  ],
+  "new_device_backup_created": true,
+  "backup_disk_readback_verified": true,
+  "private_backup_directory": ".device-backup/gen1-regions-20261005/",
+  "private_data_committed": false,
+  "player_save_overwritten": false,
+  "hardware_import_overwrite_tested": false,
+  "hardware_boot_preservation_tested": true,
+  "before": {
+    "dex_count": 91,
+    "encounter_queue_count": 0,
+    "party_count": 6,
+    "total_partners": 84,
+    "active_species": 6,
+    "active_level": 39,
+    "active_experience": 95111,
+    "muted": true,
+    "dungeon": {
+      "phase": 6,
+      "node": 4,
+      "count": 3,
+      "run": 1,
+      "pending": 0
+    }
+  },
+  "after": {
+    "dex_count": 91,
+    "encounter_queue_count": 0,
+    "party_count": 6,
+    "total_partners": 84,
+    "active_species": 6,
+    "active_level": 39,
+    "active_experience": 95111,
+    "muted": true,
+    "dungeon": {
+      "phase": 6,
+      "node": 4,
+      "count": 3,
+      "run": 1,
+      "pending": 0
+    }
+  },
+  "boot_panic_or_save_load_error_observed": false,
+  "migration_saved_on_first_boot": true,
+  "validation_scope": "Application-only update, protected Flash comparison, V17 startup migration and progress checks. Restore/import verified in isolated NVS, not by overwriting the player device.",
+  "second_boot_after_migration_verified": true
+}

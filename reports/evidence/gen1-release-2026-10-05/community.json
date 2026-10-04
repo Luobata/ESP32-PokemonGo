@@ -1,0 +1,43 @@
+{
+  "project_id": 234,
+  "slug": "pokewalk",
+  "status": "blocked_by_existing_pending_revision",
+  "existing_pending_revision": 2017,
+  "existing_pending_status": "pending",
+  "published_revision": 1966,
+  "upload_performed": false,
+  "source_commit": "68d4276cff7a494fd394282395374e0ca16d5e15",
+  "firmware_sha256": "e929f724b3ee3f4e8b448950e4a61be73a29d7d2c83f3fa5d3a55e303ef69257",
+  "cover_and_gallery": [
+    {
+      "path": "release/community/pokewalk-cover.png",
+      "sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6",
+      "visually_inspected": true
+    },
+    {
+      "path": "reports/evidence/gen1-regions-2026-10-05/map-4.png",
+      "sha256": "4c4be0b2084c445f5df5346559f29cd1b0aa4bda00028cbb8c4282ee4fad543b",
+      "visually_inspected": true
+    },
+    {
+      "path": "reports/evidence/community-media-2026-09-13/reselection/03-hyper-beam.png",
+      "sha256": "d39d050ca080782476c278ea5242087b02b9cff8e07c4bc0b3b99e33f9f379ae",
+      "visually_inspected": true
+    },
+    {
+      "path": "reports/evidence/community-media-2026-09-13/reselection/04-red-challenge.png",
+      "sha256": "633c06ba98b0eddfabf7694caa298f7c1fb79d6da6b76bbc4d5385f2b79d6fda",
+      "visually_inspected": true
+    },
+    {
+      "path": "reports/evidence/gen1-regions-2026-10-05/theme-clear.png",
+      "sha256": "97725d764bdc8b6dae2c9b1fefceb0bc50ac5ab2fe81ecbc4030a51426ad204a",
+      "visually_inspected": true
+    }
+  ],
+  "tags": "none added; preserves current selection",
+  "skill": "official publisher 1.12.3; pending conflict requires creator resolution",
+  "last_checked_at": "2026-10-04T21:45:42.272916+00:00",
+  "local_preview_fields_verified": true,
+  "images_note": "Battle cover, Hyper Beam and Red reused; Twin Islands and theme-clear images are current shared-C preview captures. No device frame is claimed for the new preview images."
+}

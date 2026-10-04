@@ -1,0 +1,75 @@
+{
+  "source_changed": false,
+  "online_and_offline": [
+    {
+      "site": "https://luobata.github.io/ESP32-PokemonGo",
+      "file": "index.html",
+      "status": 200,
+      "matches_source": true,
+      "sha256": "01a43e6a519b4323837890085146fbee0cf5dcc29f670e57e0562a8a0f441d5b"
+    },
+    {
+      "site": "https://luobata.github.io/ESP32-PokemonGo",
+      "file": "app.mjs",
+      "status": 200,
+      "matches_source": true,
+      "sha256": "91a9d22c1409209789234bd9301ffdef610d68b87398aae029dc37b591eb6485"
+    },
+    {
+      "site": "https://luobata.github.io/ESP32-PokemonGo",
+      "file": "backup.mjs",
+      "status": 200,
+      "matches_source": true,
+      "sha256": "16c6de8bc1cb8e6bf968b28fba4969988f5299659ee4561ca6b70c28f4b9c0a1"
+    },
+    {
+      "site": "https://luobata.github.io/ESP32-PokemonGo",
+      "file": "style.css",
+      "status": 200,
+      "matches_source": true,
+      "sha256": "dd7ad1a2d55d8025c4990a6bb173d6342af46f2c0857f3f6cb5244a18182a831"
+    },
+    {
+      "site": "https://luobata.github.io/ESP32-PokemonGo",
+      "file": "download/PokeWalkSaveManager.zip",
+      "status": 200,
+      "matches_source": true,
+      "sha256": "7bf3e43c6c698973e28a62e7511dddf38e81f2cc3aa28a648dfac2f4648a463b"
+    },
+    {
+      "site": "http://10.37.197.13:8767",
+      "file": "index.html",
+      "status": 200,
+      "matches_source": true,
+      "sha256": "01a43e6a519b4323837890085146fbee0cf5dcc29f670e57e0562a8a0f441d5b"
+    },
+    {
+      "site": "http://10.37.197.13:8767",
+      "file": "app.mjs",
+      "status": 200,
+      "matches_source": true,
+      "sha256": "91a9d22c1409209789234bd9301ffdef610d68b87398aae029dc37b591eb6485"
+    },
+    {
+      "site": "http://10.37.197.13:8767",
+      "file": "backup.mjs",
+      "status": 200,
+      "matches_source": true,
+      "sha256": "16c6de8bc1cb8e6bf968b28fba4969988f5299659ee4561ca6b70c28f4b9c0a1"
+    },
+    {
+      "site": "http://10.37.197.13:8767",
+      "file": "style.css",
+      "status": 200,
+      "matches_source": true,
+      "sha256": "dd7ad1a2d55d8025c4990a6bb173d6342af46f2c0857f3f6cb5244a18182a831"
+    },
+    {
+      "site": "http://10.37.197.13:8767",
+      "file": "download/PokeWalkSaveManager.zip",
+      "status": 200,
+      "matches_source": true,
+      "sha256": "7bf3e43c6c698973e28a62e7511dddf38e81f2cc3aa28a648dfac2f4648a463b"
+    }
+  ]
+}

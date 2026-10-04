@@ -1,0 +1,136 @@
+{
+  "source_commit": "68d4276cff7a494fd394282395374e0ca16d5e15",
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_backup.py"
+      ],
+      "exit_code": 0,
+      "seconds": 5.92,
+      "log_sha256": "487811f112721a652d3d3cf72f75b66579747f05ab2bcdc7373accacf220ea42",
+      "summary": "{\"passed\": true, \"device_protocol\": \"ASan/UBSan\", \"browser\": \"current and future C schemas 18/99/65535, malformed versions, missing/duplicate/corrupt/truncated frames\", \"restore\": \"confirmation, device, metadata, checksum, prebackup and NVS-only roundtrip\"}"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_import.py"
+      ],
+      "exit_code": 0,
+      "seconds": 6.41,
+      "log_sha256": "6896339dafcf77b858d05f97cdaa16960f7db46a27f176fc92c4e572f7775301",
+      "summary": "{\"passed\": true, \"journal\": \"power interruption at every I/O boundary, corrupted image, write failure rollback, incompatible build\", \"protocol\": \"physical consent, cancel, prebackup ACK, CRC, truncation, timeout, staged reboot\", \"browser\": \"production decoder with real C transcript and corrupt files\"}"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_save_import_compatibility.py"
+      ],
+      "exit_code": 0,
+      "seconds": 5.19,
+      "log_sha256": "f1328506f28399b381d0f367291c7fc5c589d316c3a9b71f010bf2a57586758a",
+      "summary": "{\"passed\":true,\"schemas\":\"V5-V18 historical fixtures, future/corrupt rejected\",\"milk\":\"low/high HP, cap, faint, status, turn cost, save failures and reboot\"}"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_import_device.py"
+      ],
+      "exit_code": 0,
+      "seconds": 4.85,
+      "log_sha256": "a3879715b6fa496044cfe28bfc6923c3cea303508b226a0169033fea783fcd22",
+      "summary": "device import isolation, actual schema check, validation failures, target-build journal binding: passed"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_backup_checkpoint.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.53,
+      "log_sha256": "722d7c6f95fe288e312cd70a492b75dfeeb55e9511d6336c57e0ac1d04784b1c",
+      "summary": "{'passed': True, 'checkpoint': 'live state, failed save blocks export, retry, read failure, unavailable storage'}"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_save_manager_distribution.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.11,
+      "log_sha256": "911baaf62d65015a646208ba3c47bbba85fe838160824d51d00f971902b85dda",
+      "summary": "{\"passed\": true, \"scope\": \"public-file allowlist, extracted offline server, MIME, GET/HEAD, no save exposure or upload API; Pages allowlist and repository subpath\"}"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_firmware_update.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.31,
+      "log_sha256": "0d01cca68b75b097a2bb28666bae57239b6bdd92c7f066b0b93763d83aaf0e4f",
+      "summary": "app-only update, pre-write backup, protected data, unsafe inputs and interrupted update: passed"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_region_expansion.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.93,
+      "log_sha256": "24b55e3a2674fe87905d614726b2ccdde5158634e7c0d502ebf9c6b0176a29b1",
+      "summary": "{\"passed\":true,\"maps\":8,\"themes\":9,\"samples\":246424,\"checks\":6,\"save_bytes\":4008,\"sanitizers\":true}"
+    },
+    {
+      "command": [
+        "node",
+        "tools/pipeline/verify_save_import_web.mjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.1,
+      "log_sha256": "0119fbbfa40ae6f90dd5e91bb8931b88b4312d84f7395e841ea2d79e9417aa04",
+      "summary": "production read loop preserves mismatched-restore error across disconnect: passed"
+    },
+    {
+      "command": [
+        "python",
+        "tools/pipeline/verify_nvs_restore_roundtrip.py"
+      ],
+      "exit_code": 0,
+      "seconds": 8.55,
+      "log_sha256": "60c7b2200753285db3266d758f544e05d4e55427a2d2744d475f1f17c17f44cf",
+      "summary": "Real ESP-IDF NVS + production save/device/journal: historical V5-V18, distinct saves, schema rejection, settings, restore, second boot and rollback passed"
+    },
+    {
+      "command": [
+        "python",
+        "tools/pipeline/verify_dungeon_stack.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.5,
+      "log_sha256": "c9ecad0279f0864872a355ca28b3a6a7423be2ab23a2eeb5a18dda51f7369c4b",
+      "summary": "{\"target\": \"esp32c3\", \"stack_frames\": {\"begin_battle\": 192, \"dungeon_load\": 32, \"dungeon_step\": 64, \"dungeon_switch\": 16, \"dungeon_retire\": 16, \"dungeon_resume\": 48, \"dungeon_abandon\": 16, \"dungeon_choose\": 16, \"dungeon_finish\": 16, \"dungeon_theme_open\": 320, \"dungeon_new_theme\": 512, \"dungeon_new\": 16}, \"passed\": true}"
+    }
+  ],
+  "build": {
+    "command": "tools/device/fw.sh build",
+    "exit_code": 0,
+    "project_version": "v2026.10.05-6-g68d4276",
+    "app_sha256": "49fbc3dabffa664d49d8305b9ff94f4c6c50e695c4806502e928c7912c79ead6",
+    "log_sha256": "0385f73ab0f86e85f92726f83f4d450f724b433b988a61b8f7a3504788583c77"
+  },
+  "ci": {
+    "firmware": {
+      "url": "https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37236920109",
+      "head_sha": "68d4276cff7a494fd394282395374e0ca16d5e15",
+      "conclusion": "success"
+    },
+    "save_manager": {
+      "url": "https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37236920120",
+      "conclusion": "success"
+    }
+  },
+  "hardware_boot_migration_tested": true,
+  "hardware_import_overwrite_tested": false,
+  "community_upload_performed": false
+}
