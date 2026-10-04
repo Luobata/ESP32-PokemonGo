@@ -51,3 +51,12 @@ QualityGate 本地 `gate=pass`、`raw_gate=pass`、`block_merge=false`、`execut
 - 应用 SHA-256：`cef8eb77421e371d74ee342a2d809c3a0952ccae8eb2c6f49f1d29a15587b475`
 - full.bin SHA-256：`1a7e3e5d4ea9d3ba47d6b2dd855328611e4662aa723e5f728424bc04449ae20c`
 - USB 更新 ZIP SHA-256：`8a3a3390905291f746f3cbbef28fd108b7a58fb4c792683b0b29d94ca0efd92a`
+
+## 网页更新交付
+
+按用户后续要求，修复代码已提交并推送到 main：`c26afca1b08bd2c67936e9e5d313e8f5c23d3493`。
+
+- [GitHub Pages](https://luobata.github.io/ESP32-PokemonGo/) 部署成功；[发布工作流](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37227427383) 的备份/导入和生产网页回执回归均通过。
+- devbox 服务保持现有 `0.0.0.0:8767` 配置，已重启为 active。已通过实际 HTTP 读取核对两处在线资源与源码一致，两处离线 ZIP 内的应用文件一致，ZIP SHA-256 均为 `7bf3e43c6c698973e28a62e7511dddf38e81f2cc3aa28a648dfac2f4648a463b`。
+- [部署核对记录](evidence/save-restore-integrity-2026-10-05/web-deployment.json) 只包含公开资源摘要，无玩家存档。
+- 在线用户刷新网页，离线用户重新下载工具。设备启动读档检查需要后续固件更新；本次未烧录或发布社区固件。反馈个案的实际写入/读档失败根因仍未确认。

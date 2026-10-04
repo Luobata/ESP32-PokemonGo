@@ -1,0 +1,49 @@
+{
+  "source_commit": "c26afca1b08bd2c67936e9e5d313e8f5c23d3493",
+  "verified_at": "2026-10-04T19:14:41.726667+00:00",
+  "base_url": "https://luobata.github.io/ESP32-PokemonGo/",
+  "assets": {
+    "index.html": {
+      "sha256": "01a43e6a519b4323837890085146fbee0cf5dcc29f670e57e0562a8a0f441d5b",
+      "mime": "text/html"
+    },
+    "style.css": {
+      "sha256": "dd7ad1a2d55d8025c4990a6bb173d6342af46f2c0857f3f6cb5244a18182a831",
+      "mime": "text/css"
+    },
+    "app.mjs": {
+      "sha256": "91a9d22c1409209789234bd9301ffdef610d68b87398aae029dc37b591eb6485",
+      "mime": "text/javascript"
+    },
+    "backup.mjs": {
+      "sha256": "16c6de8bc1cb8e6bf968b28fba4969988f5299659ee4561ca6b70c28f4b9c0a1",
+      "mime": "text/javascript"
+    }
+  },
+  "offline_zip_sha256": "7bf3e43c6c698973e28a62e7511dddf38e81f2cc3aa28a648dfac2f4648a463b",
+  "devbox": {
+    "index.html": {
+      "sha256": "01a43e6a519b4323837890085146fbee0cf5dcc29f670e57e0562a8a0f441d5b",
+      "mime": "text/html"
+    },
+    "style.css": {
+      "sha256": "dd7ad1a2d55d8025c4990a6bb173d6342af46f2c0857f3f6cb5244a18182a831",
+      "mime": "text/css"
+    },
+    "app.mjs": {
+      "sha256": "91a9d22c1409209789234bd9301ffdef610d68b87398aae029dc37b591eb6485",
+      "mime": "text/javascript"
+    },
+    "backup.mjs": {
+      "sha256": "16c6de8bc1cb8e6bf968b28fba4969988f5299659ee4561ca6b70c28f4b9c0a1",
+      "mime": "text/javascript"
+    },
+    "offline_zip_sha256": "7bf3e43c6c698973e28a62e7511dddf38e81f2cc3aa28a648dfac2f4648a463b"
+  },
+  "pages_workflow": "https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37227427383",
+  "pages_status": "success",
+  "devbox_service": "pokewalk-save-manager.service",
+  "devbox_url": "http://10.37.197.13:8767/",
+  "device_flash_performed": false,
+  "community_firmware_publish_performed": false
+}
