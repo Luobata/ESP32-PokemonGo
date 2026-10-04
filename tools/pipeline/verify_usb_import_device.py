@@ -19,7 +19,7 @@ typedef int esp_err_t;typedef unsigned nvs_handle_t;
 #define ESP_PARTITION_TYPE_DATA 1
 #define ESP_PARTITION_SUBTYPE_DATA_NVS 2
 #define ESP_MAC_WIFI_STA 0
-#define ESP_LOGE(...)
+#define ESP_LOGE(...) do {} while (0)
 typedef struct {unsigned type,subtype,address,size;char label[17];} esp_partition_t;
 typedef struct {uint8_t app_elf_sha256[32];} esp_app_desc_t;
 const esp_partition_t *esp_partition_find_first(unsigned,unsigned,const char*);
