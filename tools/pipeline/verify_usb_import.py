@@ -23,12 +23,13 @@ static unsigned test_schema=SAVE_VERSION;
 static char transcript[80000];static int snapshots,staged,restarts;
 static void emit(const char *s){assert(strlen(transcript)+strlen(s)<sizeof(transcript));strcat(transcript,s);}
 static bool snapshot(uint8_t *out,size_t n){assert(n==sizeof(original));memcpy(out,original,n);snapshots++;return true;}
-static bool prepare(const uint8_t *p,size_t n){assert(n==sizeof(incoming));assert(!memcmp(p,incoming,n));staged++;return true;}
+static bool valid_payload=true;
+static bool prepare(const uint8_t *p,size_t n,unsigned version){assert(version>=5&&version<=test_schema);if(!valid_payload)return false;assert(n==sizeof(incoming));assert(!memcmp(p,incoming,n));staged++;return true;}
 static void restart(void){restarts++;}
 static const char *session="0123456789abcdef0123456789abcdef";
 static void feed(const char *s){while(*s)assert(usb_backup_feed(*s++));}
 static void cmd(const char *v){char s[400];snprintf(s,sizeof(s),"!PWBACKUP %s %s\n",v,session);feed(s);}
-static void init(void){transcript[0]=0;snapshots=staged=restarts=0;usb_backup_init(snapshot,emit,"001122334455","1111111111111111111111111111111111111111111111111111111111111111",test_schema);usb_backup_restore_hooks(prepare,restart,0,0);cmd("HELLO");}
+static void init(void){transcript[0]=0;snapshots=staged=restarts=0;valid_payload=true;usb_backup_init(snapshot,emit,"001122334455","1111111111111111111111111111111111111111111111111111111111111111",test_schema);usb_backup_restore_hooks(prepare,restart,0,0);cmd("HELLO");}
 static void offer_for(unsigned version,const char *firmware){char s[300];snprintf(s,sizeof(s),"!PWBACKUP OFFER %s 001122334455 %s %u 24576 %08x\n",session,firmware,version,restore_crc32(incoming,sizeof(incoming)));feed(s);}
 static void offer(void){offer_for(test_schema,"1111111111111111111111111111111111111111111111111111111111111111");}
 static void upload(bool corrupt){char s[400];for(unsigned at=0;at<sizeof(incoming);at+=128){int n=snprintf(s,sizeof(s),"!PWBACKUP RDATA %s 1 %u ",session,at);for(unsigned i=0;i<128;i++)n+=snprintf(s+n,sizeof(s)-n,"%02x",incoming[at+i]^(corrupt&&at==0&&i==0));strcpy(s+n,"\n");feed(s);}snprintf(s,sizeof(s),"!PWBACKUP RFIN %s 1\n",session);feed(s);}
@@ -47,7 +48,17 @@ int main(void){
  reset();memcpy(stage,committed,sizeof(stage));stage[0x1000]^=1;stage[0x7000]^=1;assert(restore_journal_apply(&io,build,&crc)==-1);assert(!memcmp(nvs,original,sizeof(nvs)));
  init();usb_backup_import_mode(true);
  offer_for(test_schema+1,"1111111111111111111111111111111111111111111111111111111111111111");assert(strstr(transcript,"INCOMPATIBLE")&&!snapshots&&!staged&&usb_backup_state()==USB_BACKUP_IDLE);
- transcript[0]=0;offer_for(test_schema,"2222222222222222222222222222222222222222222222222222222222222222");assert(strstr(transcript,"INCOMPATIBLE")&&!snapshots&&!staged&&usb_backup_state()==USB_BACKUP_IDLE);
+ transcript[0]=0;offer_for(4,"1111111111111111111111111111111111111111111111111111111111111111");assert(strstr(transcript,"INCOMPATIBLE")&&!snapshots&&!staged);
+ transcript[0]=0;feed("!PWBACKUP OFFER 0123456789abcdef0123456789abcdef 001122334456 1111111111111111111111111111111111111111111111111111111111111111 17 24576 00000000\n");assert(strstr(transcript,"INCOMPATIBLE")&&!snapshots&&!staged);
+ transcript[0]=0;offer_for(test_schema,"2222222222222222222222222222222222222222222222222222222222222222");assert(usb_backup_state()==USB_RESTORE_OFFER&&!snapshots&&!staged);usb_backup_restore_confirm(false);
+ for(unsigned version=5;version<=SAVE_VERSION;version++){
+  init();usb_backup_import_mode(true);offer_for(version,"2222222222222222222222222222222222222222222222222222222222222222");
+  assert(usb_backup_state()==USB_RESTORE_OFFER);usb_backup_restore_confirm(true);
+  for(unsigned i=0;i<192;i++)usb_backup_tick(i);
+  feed("!PWBACKUP ACK 0123456789abcdef0123456789abcdef 1\n");upload(false);
+  assert(staged==1&&usb_backup_state()==USB_RESTORE_STAGED);
+ }
+ init();accept();feed("!PWBACKUP ACK 0123456789abcdef0123456789abcdef 1\n");valid_payload=false;upload(false);assert(!staged&&usb_backup_state()==USB_BACKUP_FAILED);
  init();offer();assert(strstr(transcript,"OPEN_IMPORT"));assert(!snapshots);usb_backup_import_mode(true);offer();usb_backup_restore_confirm(false);assert(usb_backup_state()==USB_BACKUP_IDLE);assert(!snapshots&&!staged);assert(strstr(transcript,"CANCELLED"));
  init();accept();upload(false);assert(!staged); // no disk ACK, no incoming accepted
  feed("!PWBACKUP ACK ffffffffffffffffffffffffffffffff 1\n");assert(usb_backup_state()==USB_BACKUP_WAIT_ACK);

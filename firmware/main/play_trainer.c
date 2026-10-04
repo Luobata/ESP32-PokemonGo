@@ -186,7 +186,7 @@ static void battle_stage(int y){
  }else game_ui_text_fitted(y,16,256,208,s_failed?"保存失败 按C重试":dungeon_playing()&&dungeon_feedback()?dungeon_feedback():"伙伴准备出战！",GAME_UI_INK);
 }
 static void choice(int y){
- char text[64];game_ui_title(y,s_mode==RECOVER?"牛奶回复":"选择伙伴",s_forced?"需要替补":"换人占一回合");
+ char text[64];game_ui_title(y,s_mode==RECOVER?"牛奶回复":"选择伙伴",s_forced?"需要替补":s_mode==RECOVER?(s_between?"连战休息":"回复占一回合"):"换人占一回合");
  trainer_side_t *side=&s_store.session.sides[0];
  for(unsigned i=0;i<side->count;i++){
   char label[48];name(side->mons[i].species,label,sizeof(label));int sy=46+i*34;
@@ -195,7 +195,7 @@ static void choice(int y){
   snprintf(text,sizeof(text),"HP %u/%u",side->mons[i].hp,side->mons[i].max_hp);render_text(28,sy+16-y,text,GAME_UI_MUTED);
   game_ui_list_marker(y,8,sy,i,s_store.session.sides[0].count,s_slot);
  }
- game_ui_text_centered(y,8,254,224,16,s_hint[0]?s_hint:s_mode==RECOVER?"消耗牛奶 恢复50HP":"倒下的伙伴无法出场",GAME_UI_MUTED);
+ game_ui_text_centered(y,8,254,224,16,s_hint[0]?s_hint:s_mode==RECOVER?"回复一半HP 至少50":"倒下的伙伴无法出场",GAME_UI_MUTED);
  game_ui_footer(y,game_ui_list_hint(s_store.session.sides[0].count));
 }
 static void draw_all(void){

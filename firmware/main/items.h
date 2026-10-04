@@ -50,3 +50,6 @@ uint32_t items_loot_seed(uint16_t uid, uint32_t ts, uint16_t species, uint8_t ra
 // exclusively to the capture transaction. Results preserve level/EXP.
 item_use_status_t items_apply(uint8_t item_id, uint16_t species, uint8_t level,
                               const nurture_t *before, item_use_result_t *out);
+
+// Recovery in trainer battles: at least 50 HP, otherwise half maximum (rounded up).
+uint16_t items_milk_heal(uint16_t max_hp);

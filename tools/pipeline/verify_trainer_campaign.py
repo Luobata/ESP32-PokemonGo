@@ -48,7 +48,7 @@ static void transactions(void){
  // Force a low-HP legitimate fixture, then verify failed healing doesn't spend milk.
  trainer_mon_t *m=&s_challenge.session.sides[0].mons[0];m->hp=1;s_inventory.quantity[ITEM_MILK]=2;world_debug_save();
  before=s_challenge;failure=4;assert(!world_challenge_recover(0));assert(!memcmp(&before,&s_challenge,sizeof(before))&&s_inventory.quantity[ITEM_MILK]==2);failure=0;
- assert(world_challenge_recover(0));assert(s_challenge.session.sides[0].mons[0].hp==51&&s_inventory.quantity[ITEM_MILK]==1);
+ assert(world_challenge_recover(0));assert(s_challenge.session.sides[0].mons[0].hp==1+(m->max_hp+1)/2&&s_inventory.quantity[ITEM_MILK]==1);
  // Resume the real simulation and settle exactly once, including reboot/failure.
  while(!s_challenge.session.finished){assert(world_challenge_step(&e));if(e.kind==TRAINER_SWITCH_NEEDED){bool ok=false;for(unsigned i=0;i<6;i++)if(world_challenge_switch(i,true)){ok=true;break;}assert(ok);}}
  assert(s_challenge.session.won);party_t old=s_party;before=s_challenge;uint16_t milk=s_inventory.quantity[ITEM_MILK];

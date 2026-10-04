@@ -887,7 +887,7 @@ bool world_challenge_settle(void) {
 bool world_challenge_recover(uint8_t slot) {
  if(!(challenge.session.active||challenge.league_active)||!inventory.quantity[ITEM_MILK]||slot>=challenge.session.sides[0].count)return false;
  trainer_mon_t *m=&challenge.session.sides[0].mons[slot];if(!m->hp||(m->hp==m->max_hp&&!m->status)||host_save_fails())return false;
- unsigned hp=m->hp+50;m->hp=hp>m->max_hp?m->max_hp:hp;m->status=m->sleep=0;inventory.quantity[ITEM_MILK]--;if(challenge.session.active){challenge.session.next=1;challenge.session.acted=1;}return true;
+ unsigned hp=m->hp+items_milk_heal(m->max_hp);m->hp=hp>m->max_hp?m->max_hp:hp;m->status=m->sleep=0;inventory.quantity[ITEM_MILK]--;if(challenge.session.active){challenge.session.next=1;challenge.session.acted=1;}return true;
 }
 
 void world_achievements_snapshot(achievement_view_t *out){achievement_view(out,&achievements,&dex,challenge.defeated);}

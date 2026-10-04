@@ -243,7 +243,7 @@ bool world_challenge_move(uint8_t slot);
 bool world_challenge_switch(uint8_t slot, bool forced);
 bool world_challenge_retire(void);
 bool world_challenge_settle(void);
-bool world_challenge_recover(uint8_t slot); // One milk: heal 50 HP and clear status.
+bool world_challenge_recover(uint8_t slot); // One milk: heal max(50, half max HP), capped at max; clear status.
 
 #include "achievements.h"
 void world_achievements_snapshot(achievement_view_t *out);

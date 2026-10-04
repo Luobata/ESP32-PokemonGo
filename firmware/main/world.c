@@ -1320,33 +1320,6 @@ bool world_debug_evolution_ready(void)
 
 bool world_wifi_ready(void) { return s_wifi_ok; }
 
-static bool saved_bool_valid(const bool *value)
-{
-    const bool no = false, yes = true;
-    // Read the representation as bytes: evaluating a malformed persisted _Bool
-    // before validation would itself be undefined behavior.
-    return memcmp(value, &no, sizeof(no)) == 0 ||
-           memcmp(value, &yes, sizeof(yes)) == 0;
-}
-
-static bool loaded_queue_valid(const enc_queue_t *queue)
-{
-    if (queue->count > ENC_QUEUE_CAP) return false;
-    for (unsigned i = 0; i < queue->count; i++) {
-        const encounter_t *entry = &queue->items[i];
-        if (!entry->uid || entry->species_id < 1 || entry->species_id > DEX_SPECIES ||
-            entry->rarity < 1 || entry->rarity > 5 || entry->hp_ratio > 100 ||
-            !saved_bool_valid(&entry->is_shiny) ||
-            !saved_bool_valid(&entry->is_transient) ||
-            !saved_bool_valid(&entry->exp_granted)) return false;
-        for (unsigned prior = 0; prior < i; prior++)
-            if (queue->items[prior].uid == entry->uid) return false;
-    }
-    // next_uid == 0 is the valid state immediately after assigning UINT16_MAX.
-    // Removed entries leave stale tail bytes; only the active prefix is owned.
-    return true;
-}
-
 static bool migrate_loaded_queue(enc_queue_t *queue)
 {
     bool changed = false;
@@ -1360,37 +1333,6 @@ static bool migrate_loaded_queue(enc_queue_t *queue)
         } else i++;
     }
     return enc_queue_trim(queue) != 0 || changed;
-}
-
-static bool loaded_party_valid(const save_t *saved)
-{
-    const uint8_t *raw = saved->party;
-    if (raw[0] > PARTY_MAX) return false;
-    uint8_t box_count = 0;
-    for (unsigned i = 0; i < PARTY_MAX + BOX_SPECIES; i++) {
-        const uint8_t *mon = raw + 2 + i*MON_BYTES;
-        bool active = i < PARTY_MAX ? i < raw[0] : mon[0] != 0;
-        if (!active) {
-            for (unsigned b = 0; b < MON_BYTES; b++) if (mon[b] != 0) return false;
-        } else {
-            if (mon[0] < 1 || mon[0] > BOX_SPECIES || mon[1] < 1 || mon[1] > LEVEL_MAX)
-                return false;
-            if (i >= PARTY_MAX) {
-                box_count++;
-            }
-        }
-    }
-    if (raw[1] != box_count ||
-        !party_deserialize(&s_party, raw, sizeof(saved->party))) return false;
-    if (!s_party.party_count) {
-        // Empty V5 snapshots are produced while a fresh game awaits a choice.
-        // An absent leader with prior ownership/progress is not a new game.
-        for (unsigned i = 0; i < DEX_BYTES; i++)
-            if (saved->dex.caught[i] || saved->dex.shiny_caught[i]) return false;
-        return party_total(&s_party) == 0 && saved->species == 0 &&
-               saved->level == 0 && saved->exp == 0;
-    }
-    return true;
 }
 
 bool world_start(void)
@@ -1442,7 +1384,7 @@ bool world_start(void)
     save_read_result_t loaded = save_init() ? save_read_status(&s_save_buf) : SAVE_READ_ERROR;
     bool migrated = loaded == SAVE_READ_MIGRATED;
     if ((loaded == SAVE_READ_OK || migrated) &&
-        (!loaded_queue_valid(&s_save_buf.queue) || !loaded_party_valid(&s_save_buf))) {
+        !save_validate_world(&s_save_buf, &s_party)) {
         loaded = SAVE_READ_ERROR;
         party_init(&s_party);
         ESP_LOGE(TAG, "invalid saved party or queue; preserving save and disabling writes");
@@ -1652,7 +1594,7 @@ bool world_challenge_recover(uint8_t slot)
     collect_save_locked(&s_save_buf);
     trainer_mon_t *m=&s_save_buf.challenge.session.sides[0].mons[slot];
     if(!m->hp || (m->hp==m->max_hp&&!m->status)) { unlock_encounter_change(); return false; }
-    unsigned hp=m->hp+50;m->hp=hp>m->max_hp?m->max_hp:hp;m->status=m->sleep=0;
+    unsigned hp=m->hp+items_milk_heal(m->max_hp);m->hp=hp>m->max_hp?m->max_hp:hp;m->status=m->sleep=0;
     s_save_buf.inventory.quantity[ITEM_MILK]--;
     if(s_save_buf.challenge.session.active){s_save_buf.challenge.session.next=1;s_save_buf.challenge.session.acted=1;}
     return challenge_commit(false, true, 0);

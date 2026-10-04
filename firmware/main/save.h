@@ -359,6 +359,10 @@ typedef enum {
 // Distinguish a genuinely absent save from unreadable/unsupported data. Only
 // EMPTY permits new-game writes; ERROR must preserve the existing NVS bytes.
 save_read_result_t save_read_status(save_t *out);
+// Same bounded decoding/migration and world validation for startup and USB import.
+// blob may alias out; unused bytes are zeroed before legacy migration.
+save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_t opening_seen);
+bool save_validate_world(const save_t *saved, party_t *party);
 
 // Compatibility wrapper. false does not imply a new game; world uses status.
 bool save_read(save_t *out);

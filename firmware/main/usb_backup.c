@@ -6,10 +6,10 @@
 
 static bool (*read_snapshot)(uint8_t *, size_t);
 static void (*send_line)(const char *);
-static bool (*stage_import)(const uint8_t *,size_t);
+static bool (*stage_import)(const uint8_t *,size_t,unsigned);
 static void (*restart_device)(void);
 static char device_id[13], firmware_id[65], session[33], line[448];
-static unsigned schema, used;
+static unsigned schema, used, import_version;
 static bool reserved, overflow, connected, import_mode, importing;
 static uint32_t now, heartbeat, started, request_id, offset, checksum, import_crc, boot_crc;
 static int boot_result;
@@ -27,7 +27,7 @@ void usb_backup_init(bool (*snapshot)(uint8_t *,size_t), void (*emit)(const char
     stage_import=NULL;restart_device=NULL;boot_result=0;boot_crc=0;
     used=0;reserved=overflow=false;now=heartbeat=started=request_id=offset=checksum=0;
 }
-void usb_backup_restore_hooks(bool (*stage)(const uint8_t *,size_t),void (*restart)(void),int result,uint32_t crc) {
+void usb_backup_restore_hooks(bool (*stage)(const uint8_t *,size_t,unsigned),void (*restart)(void),int result,uint32_t crc) {
     stage_import=stage;restart_device=restart;boot_result=result;boot_crc=crc;
 }
 usb_backup_state_t usb_backup_state(void) { return state; }
@@ -67,7 +67,7 @@ static void command(void) {
         } else if(!strcmp(verb,"FAIL")&&state!=USB_RESTORE_STAGED&&busy())fail();
         else if(!strcmp(verb,"RFIN")&&state==USB_RESTORE_RECEIVING) {
             if(offset!=USB_BACKUP_BYTES||restore_crc32(payload,USB_BACKUP_BYTES)!=import_crc) {fail();error("CHECKSUM");return;}
-            if(!stage_import||!stage_import(payload,USB_BACKUP_BYTES)){fail();error("STAGE");return;}
+            if(!stage_import||!stage_import(payload,USB_BACKUP_BYTES,import_version)){fail();error("STAGE");return;}
             free(payload);payload=NULL;state=USB_RESTORE_STAGED;started=now;
             char out[80];snprintf(out,sizeof(out),"!PWBACKUP STAGED %08lx\n",(unsigned long)import_crc);send_line(out);
         }
@@ -78,8 +78,8 @@ static void command(void) {
         if(!connected||strcmp(token,session)||!recent(heartbeat,15000))return;
         if(!import_mode||!stage_import){error("OPEN_IMPORT");return;}
         if(busy()||state==USB_RESTORE_OFFER){error("BUSY");return;}
-        if(strcmp(mac,device_id)||strcmp(fw,firmware_id)||version!=schema||size!=USB_BACKUP_BYTES||!hex(crc,8)){error("INCOMPATIBLE");return;}
-        import_crc=(uint32_t)strtoul(crc,NULL,16);importing=true;state=USB_RESTORE_OFFER;started=now;send_line("!PWBACKUP OFFERED\n");return;
+        if(strcmp(mac,device_id)||!hex(fw,64)||version<5||version>schema||size!=USB_BACKUP_BYTES||!hex(crc,8)){error("INCOMPATIBLE");return;}
+        import_version=version;import_crc=(uint32_t)strtoul(crc,NULL,16);importing=true;state=USB_RESTORE_OFFER;started=now;send_line("!PWBACKUP OFFERED\n");return;
     }
     unsigned at;char bytes[257];
     if(sscanf(line,"!PWBACKUP RDATA %32s %u %u %256s %c",token,&id,&at,bytes,&extra)==4) {

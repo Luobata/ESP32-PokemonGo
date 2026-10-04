@@ -7,6 +7,7 @@
 #include "nvs_flash.h"
 
 #include "save.h"
+#include "exp.h"
 
 static const char *TAG = "save";
 
@@ -89,6 +90,23 @@ save_read_result_t save_read_status(save_t *out)
         nvs_close(h);
         return SAVE_READ_EMPTY;
     }
+    if (e != ESP_OK || len > sizeof(*out) || len < sizeof(uint16_t)) {
+        nvs_close(h);
+        return SAVE_READ_ERROR;
+    }
+    size_t expected_len = len;
+    memset(out, 0, sizeof(*out));
+    e = nvs_get_blob(h, KEY, out, &len);
+    uint8_t opening_seen = 0;
+    if (e == ESP_OK) (void)nvs_get_u8(h, KEY_OPENING, &opening_seen);
+    nvs_close(h);
+    if (e != ESP_OK || len != expected_len) return SAVE_READ_ERROR;
+    return save_decode(out, out, len, opening_seen);
+}
+
+save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_t opening_seen)
+{
+    if (!out || !blob || len < sizeof(uint16_t) || len > sizeof(*out)) return SAVE_READ_ERROR;
     bool legacy = len == sizeof(save_v5_t);
     bool version6 = len == sizeof(save_v6_t);
     bool version7 = len == sizeof(save_v7_t);
@@ -97,20 +115,11 @@ save_read_result_t save_read_status(save_t *out)
     bool version10 = len == sizeof(save_v10_t);
     bool version15 = len == sizeof(save_v15_t);
     bool version16 = len == sizeof(save_v16_t);
-    if (e != ESP_OK || (!legacy && !version6 && !version7 && !version8 && !version9 && !version10 && !version15 && !version16 && len != sizeof(save_v14_t) && len != sizeof(*out))) {
-        ESP_LOGW(TAG, "存档 %u 字节 ≠ 结构体 %u，或读取失败 —— 保留原档",
-                 (unsigned)len, (unsigned)sizeof(*out));
-        nvs_close(h);
+    if (!legacy && !version6 && !version7 && !version8 && !version9 && !version10 &&
+        !version15 && !version16 && len != sizeof(save_v14_t) && len != sizeof(*out))
         return SAVE_READ_ERROR;
-    }
-
-    size_t expected_len = len;
-    memset(out, 0, sizeof(*out));
-    e = nvs_get_blob(h, KEY, out, &len);
-    uint8_t opening_seen = 0;
-    if (e == ESP_OK) (void)nvs_get_u8(h, KEY_OPENING, &opening_seen);
-    nvs_close(h);
-    if (e != ESP_OK || len != expected_len) return SAVE_READ_ERROR;
+    memmove(out, blob, len);
+    memset((uint8_t *)out + len, 0, sizeof(*out) - len);
     bool version14 = len == sizeof(save_v14_t) && out->version == 14;
     bool version13 = len == sizeof(save_v14_t) && out->version == 13;
     bool version12 = len == sizeof(save_v14_t) && out->version == 12;
@@ -252,4 +261,67 @@ bool save_erase(void)
     esp_err_t e = (state_ok && opening_ok) ? nvs_commit(h) : ESP_FAIL;
     nvs_close(h);
     return e == ESP_OK;
+}
+
+static bool saved_bool_valid(const bool *value)
+{
+    const bool no = false, yes = true;
+    // Read the representation as bytes: evaluating a malformed persisted _Bool
+    // before validation would itself be undefined behavior.
+    return memcmp(value, &no, sizeof(no)) == 0 ||
+           memcmp(value, &yes, sizeof(yes)) == 0;
+}
+
+static bool loaded_queue_valid(const enc_queue_t *queue)
+{
+    if (queue->count > ENC_QUEUE_CAP) return false;
+    for (unsigned i = 0; i < queue->count; i++) {
+        const encounter_t *entry = &queue->items[i];
+        if (!entry->uid || entry->species_id < 1 || entry->species_id > DEX_SPECIES ||
+            entry->rarity < 1 || entry->rarity > 5 || entry->hp_ratio > 100 ||
+            !saved_bool_valid(&entry->is_shiny) ||
+            !saved_bool_valid(&entry->is_transient) ||
+            !saved_bool_valid(&entry->exp_granted)) return false;
+        for (unsigned prior = 0; prior < i; prior++)
+            if (queue->items[prior].uid == entry->uid) return false;
+    }
+    // next_uid == 0 is the valid state immediately after assigning UINT16_MAX.
+    // Removed entries leave stale tail bytes; only the active prefix is owned.
+    return true;
+}
+
+static bool loaded_party_valid(const save_t *saved, party_t *party)
+{
+    const uint8_t *raw = saved->party;
+    if (raw[0] > PARTY_MAX) return false;
+    uint8_t box_count = 0;
+    for (unsigned i = 0; i < PARTY_MAX + BOX_SPECIES; i++) {
+        const uint8_t *mon = raw + 2 + i*MON_BYTES;
+        bool active = i < PARTY_MAX ? i < raw[0] : mon[0] != 0;
+        if (!active) {
+            for (unsigned b = 0; b < MON_BYTES; b++) if (mon[b] != 0) return false;
+        } else {
+            if (mon[0] < 1 || mon[0] > BOX_SPECIES || mon[1] < 1 || mon[1] > LEVEL_MAX)
+                return false;
+            if (i >= PARTY_MAX) {
+                box_count++;
+            }
+        }
+    }
+    if (raw[1] != box_count ||
+        !party_deserialize(party, raw, sizeof(saved->party))) return false;
+    if (!party->party_count) {
+        // Empty V5 snapshots are produced while a fresh game awaits a choice.
+        // An absent leader with prior ownership/progress is not a new game.
+        for (unsigned i = 0; i < DEX_BYTES; i++)
+            if (saved->dex.caught[i] || saved->dex.shiny_caught[i]) return false;
+        return party_total(party) == 0 && saved->species == 0 &&
+               saved->level == 0 && saved->exp == 0;
+    }
+    return true;
+}
+
+bool save_validate_world(const save_t *saved, party_t *party)
+{
+    return saved && party && loaded_queue_valid(&saved->queue) && loaded_party_valid(saved, party);
 }

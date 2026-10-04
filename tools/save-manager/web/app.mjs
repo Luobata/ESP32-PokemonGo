@@ -12,7 +12,7 @@ function controls(){
 async function save(q){
   try {
     if(await directory.queryPermission({mode:'readwrite'})!=='granted')throw Error('目录写入授权已失效，请重新连接');
-    if(transfer&&(transfer.file.metadata.device_id!==q.device||transfer.file.metadata.firmware!==q.firmware))throw Error('当前设备与待导入文件不匹配');
+    if(transfer&&(transfer.file.metadata.device_id!==q.device))throw Error('当前设备与待导入文件不匹配');
     status(transfer?'正在保存覆盖前的当前存档…':'校验通过，正在保存文件…');
     const data=await envelope(q);
     const name=`PokeWalk-${transfer?'before-import-':''}${data.created_at.replace(/[:.]/g,'-')}-${crypto.randomUUID()}.pksave`;

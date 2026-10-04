@@ -165,3 +165,10 @@ item_use_status_t items_apply(uint8_t id, uint16_t species, uint8_t level,
         out->after.mood = add_axis(before->mood, 15); // Existing evolution bonus.
     return ITEM_USE_OK;
 }
+
+uint16_t items_milk_heal(uint16_t max_hp)
+{
+    unsigned half=((unsigned)max_hp+1)/2;
+    unsigned heal=half>50?half:50;
+    return heal>max_hp?max_hp:(uint16_t)heal;
+}

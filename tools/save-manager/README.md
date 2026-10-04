@@ -46,7 +46,9 @@ ssh devbox 'journalctl --user -u pokewalk-save-manager.service -n 30'
 
 `.pksave` 为版本 1 JSON：设备标识、固件 ELF SHA-256 构建标识、存档版本、时间、NVS 布局、CRC32、SHA-256 和 base64 分区镜像。当前支持 ESP32-C3、备份格式 v1、NVS 0x9000/0x6000。游戏的 `save_version` 是原样保留的版本元数据，不维护逐版白名单；接受固件 `uint16_t` 字段范围内的正整数（1–65535）。因此后续游戏新增字段、提升存档版本时，网页与已下载的离线工具无需跟着升级。
 
-兼容边界是备份协议和分区布局，而不是游戏版本号：只要继续遵守上述传输/文件格式和分区布局，未来版本同样可以备份和在匹配固件上导入。若改变备份格式或分区布局，必须显式升级工具/增加迁移支持，不能绕过检查直接写入。导入仍校验设备身份、固件构建和数据校验值；接收未知游戏版本的备份不等于允许跨固件构建恢复。
+网页与离线网页工具允许同一设备跨固件构建导入，由设备的实际读档能力决定兼容性。当前固件支持 V5–V17；旧存档先在隔离的暂存分区挂载，使用与启动相同的解码、迁移、队伍和遭遇校验，通过后才提交恢复日志。文件声明版本必须与实际存档一致；未知较新版本、损坏数据、不同设备或不同分区布局均拒绝覆盖。固件构建标识仍记录在备份中，用于追溯，不再作为网页导入的硬性相等条件。
+
+**从旧版升级时，需要更新设备固件，并刷新网页或重新下载离线工具。** 旧固件及旧离线工具仍保留“同一构建”限制，不能只修改备份 JSON 中的版本号或哈希绕过。备份文件无需转换，保留原文件即可。未来格式迁移由固件负责；不承诺将新格式存档导入旧固件。
 
 导出前 checkpoint 当前游戏状态；UI 锁阻止秘境/设置写入，保存锁阻止后台存盘，在锁内一次复制 24 KiB 镜像，随后分块发送。包含正式伙伴、仓库、图鉴、物品、养成、训练家进度、探索、秘境和已保存声音与亮度设置。仅保留持久化的内容：未结算野战、暂存页面光标、仅本次运行的译名选择不恢复。
 
@@ -80,13 +82,16 @@ python tools/save-manager/restore.py /path/to/backup.pksave \
 
 恢复需显式输入匹配的设备 ID。命令检查文件、设备 ID、分区布局、游戏名和固件版本；写入前将当前 NVS 另存为私人文件并校验。只写 NVS，不碰应用、cardid 或 recovery。写后回读逐字节核对，成功后重启。恢复期间请勿断电；若写入失败，保持设备连接，按错误信息使用预恢复备份重试。有待完成的网页导入日志时，CLI 会拒绝覆盖 NVS，先用对应固件完成恢复。拒绝不兼容文件后，设备可能停在下载模式，可重新插拔或复位。
 
-网页和 CLI 均严格限制同一设备、同一固件构建；跨版本/跨设备迁移与逻辑存档格式另行实现，不能直接解除本版校验。CLI 适合固件不支持网页导入时使用，写入过程没有网页导入的暂存日志保护。
+命令行 `restore.py` 直接操作原始 Flash，无法调用目标固件的存档校验器，因此仍要求同一设备、同一固件构建。跨版本导入请使用更新后的网页或离线网页工具。CLI 仅供开发恢复，写入过程没有网页导入的暂存日志保护。
 
 ## 验证
 
 ```sh
 python3 tools/pipeline/verify_usb_backup.py
 python3 tools/pipeline/verify_usb_import.py
+python3 tools/pipeline/verify_save_import_compatibility.py
+python3 tools/pipeline/verify_usb_import_device.py
+node tools/pipeline/verify_save_import_web.mjs
 python3 tools/pipeline/verify_save_manager_distribution.py
 python3 tools/pipeline/verify_usb_backup_checkpoint.py
 python3 tools/pipeline/verify_usb_backup_ui.py

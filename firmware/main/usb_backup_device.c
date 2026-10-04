@@ -8,10 +8,16 @@
 #include "esp_system.h"
 #include "esp_log.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "nvs.h"
+#include "nvs_flash.h"
 
 static const esp_partition_t *nvs_partition,*staging;
 static int boot_result;
 static uint32_t boot_crc;
+static esp_partition_t scratch;
+static bool scratch_mounted;
 static bool locate(void) {
  nvs_partition=esp_partition_find_first(ESP_PARTITION_TYPE_DATA,ESP_PARTITION_SUBTYPE_DATA_NVS,"nvs");
  staging=esp_partition_find_first(ESP_PARTITION_TYPE_DATA,0x40,"save_restore");
@@ -37,8 +43,39 @@ bool usb_backup_restore_before_boot(void) {
 static bool read_nvs(void *out) {return read_part(false,0,out,USB_BACKUP_BYTES);}
 static bool snapshot(uint8_t *out,size_t size) {return size==USB_BACKUP_BYTES&&world_backup_snapshot(read_nvs,out);}
 static bool prepare(void *image) {return restore_journal_prepare(&io,image,esp_app_get_description()->app_elf_sha256);}
-static bool stage(const uint8_t *image,size_t size) {
- return size==USB_BACKUP_BYTES&&locate()&&world_backup_snapshot(prepare,(void*)image);
+static bool validate_image(const uint8_t *image, unsigned version) {
+ // The journal has already been resolved before game startup. Leave its commit
+ // sector erased while checking a separate NVS instance, never the live save.
+ if(scratch_mounted){
+  if(nvs_flash_deinit_partition(scratch.label)!=ESP_OK)return false;
+  scratch_mounted=false;
+ }
+ if(!erase_part(true,0,RESTORE_STAGE_SIZE)||!write_part(true,0x1000,image,USB_BACKUP_BYTES))return false;
+ scratch=*staging;
+ scratch.address+=0x1000;scratch.size=USB_BACKUP_BYTES;
+ scratch.subtype=ESP_PARTITION_SUBTYPE_DATA_NVS;
+ snprintf(scratch.label,sizeof(scratch.label),"pw_import");
+ if(nvs_flash_init_partition_ptr(&scratch)!=ESP_OK)return false;
+ scratch_mounted=true;
+ save_t *saved=malloc(sizeof(*saved));party_t *party=malloc(sizeof(*party));
+ bool valid=false;nvs_handle_t h;
+ if(saved&&party&&nvs_open_from_partition(scratch.label,"pokewalk",NVS_READONLY,&h)==ESP_OK){
+  size_t len=sizeof(*saved);uint8_t opening=0;
+  esp_err_t e=nvs_get_blob(h,"state",saved,&len);
+  (void)nvs_get_u8(h,"opening",&opening);nvs_close(h);
+  if(e==ESP_OK&&len>=sizeof(saved->version)&&saved->version==version){
+   save_read_result_t result=save_decode(saved,saved,len,opening);
+   valid=(result==SAVE_READ_OK||result==SAVE_READ_MIGRATED)&&save_validate_world(saved,party);
+  }
+ }
+ free(party);free(saved);
+ if(nvs_flash_deinit_partition(scratch.label)!=ESP_OK)valid=false;
+ else scratch_mounted=false;
+ return valid;
+}
+static bool stage(const uint8_t *image,size_t size,unsigned version) {
+ return size==USB_BACKUP_BYTES&&locate()&&validate_image(image,version)&&
+        world_backup_snapshot(prepare,(void*)image);
 }
 static void emit(const char *line) { fputs(line,stdout);fflush(stdout); }
 void usb_backup_device_start(void) {

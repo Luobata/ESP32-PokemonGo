@@ -26,7 +26,7 @@ def local_bundle():
             "5. Use Options > Save Backup / Import Save on the device.\n"
             "Keep the terminal open. Ctrl+C stops the local server.\n"
             "If port 8767 is occupied, use --port 8768 and open localhost:8768.\n"
-            "Saves stay on your computer. Same device and exact PokeWalk build only.\n").encode()
+            "Saves stay on your computer. Same device and a PokeWalk firmware supporting the save schema; update both firmware and this tool for cross-build import.\n").encode()
         for name, data in files.items():
             info = zipfile.ZipInfo('PokeWalkSaveManager/'+name, (2026, 9, 14, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED

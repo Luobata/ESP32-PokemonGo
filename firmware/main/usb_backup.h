@@ -15,7 +15,7 @@ void usb_backup_request(void); // only the physical/menu confirmation initiates 
 usb_backup_state_t usb_backup_state(void);
 void usb_backup_device_start(void);
 
-void usb_backup_restore_hooks(bool (*stage)(const uint8_t *,size_t),void (*restart)(void),int boot_result,uint32_t boot_crc);
+void usb_backup_restore_hooks(bool (*stage)(const uint8_t *,size_t,unsigned),void (*restart)(void),int boot_result,uint32_t boot_crc);
 void usb_backup_import_mode(bool enabled); // device must explicitly enter import screen
 bool usb_backup_import_mode_active(void);
 void usb_backup_restore_confirm(bool accept);

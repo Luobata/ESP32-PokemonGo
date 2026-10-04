@@ -29,6 +29,9 @@ jobs:
           python3 tools/pipeline/verify_wifi_time.py
           python3 tools/pipeline/verify_usb_backup.py
           python3 tools/pipeline/verify_usb_import.py
+          python3 tools/pipeline/verify_save_import_compatibility.py
+          python3 tools/pipeline/verify_usb_import_device.py
+          node tools/pipeline/verify_save_import_web.mjs
           python3 tools/pipeline/verify_audio_settings.py
           python3 tools/pipeline/verify_offline_stamina.py
           python3 tools/pipeline/verify_usb_backup_checkpoint.py
