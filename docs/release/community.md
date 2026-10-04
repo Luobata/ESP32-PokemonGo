@@ -6,7 +6,7 @@
 
 实现 **`0f76077`** 已合并并推送 main，[GitHub CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37232407985) 全部通过。[GitHub Release v2026.10.05](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.05) 已公开，提供完整安装包、保留存档 USB 更新包及摘要。社区上传包与已验证本地应用一致；中英文介绍、使用说明、增量日志、源码地址和摘要已回读一致，原五张图片随新版提交。
 
-本轮完成隔离环境中的真实 NVS 恢复验证。设备虽能枚举 USB，但串口及启动连接无响应，**尚未烧录，未覆盖玩家存档**；等待设备开机并重新连接后继续。没有把模拟恢复当作真机导入测试。在线 Pages、devbox 资源及离线 ZIP 与当前源码一致，本轮网页无需再改动。
+本轮完成隔离环境中的真实 NVS 恢复验证。设备重新连接后，已使用上述发布版 `PokeWalk-update.zip` 完成仅应用更新；写入前的私有备份已回读校验，写入后受保护数据分区逐字节一致。启动版本为 `0f76077`，图鉴 90/151、队伍 6、总伙伴 83、喷火龙 39 级 / 92023 经验及静音设置保持。**真机启动保档已验证，真机覆盖导入未执行**，没有把隔离恢复当作真机导入测试。在线 Pages、devbox 资源及离线 ZIP 与当前源码一致，本轮网页无需再改动。
 
 [增量说明](2026-10-05/changelog.zh.md) · [验证记录](../../reports/save-history-compatibility-2026-10-05.md) · [发布回执](../../reports/evidence/save-history-release-2026-10-05/community.json) · [发布包](../../reports/evidence/save-history-release-2026-10-05/package.json) · [设备状态](../../reports/evidence/save-history-release-2026-10-05/device.json)。
 
