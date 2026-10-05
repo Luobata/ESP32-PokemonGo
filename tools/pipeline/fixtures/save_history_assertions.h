@@ -15,7 +15,7 @@ static void history_assert(const save_t *s, unsigned version) {
     assert(s->queue.count==1 && s->queue.next_uid==43 && s->queue.dropped==3);
     const encounter_t *e=&s->queue.items[0];
     assert(e->uid==42 && e->species_id==133 && e->is_shiny && e->hp_ratio==64);
-    assert(e->level==(version<16 ? 0 : 28) && e->activity==(version<16 ? 0 : 2));
+    assert(e->level==(version<16 ? 0 : 28) && e->activity==(version<16 ? 0 : version<19 ? 2 : ENC_ACTIVITY_EXPLORATION));
     if(version>=6) {
         assert(s->inventory.quantity[ITEM_POKE]==42 && s->inventory.quantity[ITEM_LEAF_STONE]==2);
         assert(s->inventory.quantity[ITEM_MILK]==3);
@@ -69,4 +69,5 @@ static void history_assert(const save_t *s, unsigned version) {
         assert(s->regions.dungeon_pity==3&&s->regions.expedition_clears==1);
         assert(s->regions.pending_items.quantity[ITEM_WATER_STONE]==1&&s->regions.pending_partner.species_id==131&&s->regions.pending_partner.is_shiny&&s->regions.pending_partner.level==42);
     }
+    assert(s->exploration_wins==(version<19 ? 0u : 73u));
 }

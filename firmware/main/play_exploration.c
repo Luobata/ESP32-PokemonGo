@@ -251,7 +251,7 @@ static void draw_all(void){
    center(band,44,r->name,GAME_UI_INK);scene(band,route);
    center(band,164,"发现新的线索",GAME_UI_INK);progress(band,event.clues);
    center(band,218,exploration_story(view.target,event.clues-1),GAME_UI_INK);
-   if(event.item!=ITEM_NONE){snprintf(text,sizeof(text),event.item_full?"%s已满 未拾取":"发现 %s ×%u",items_info(event.item)->name,event.quantity);center(band,248,text,GAME_UI_ACCENT);}
+   if(event.item!=ITEM_NONE){snprintf(text,sizeof(text),event.item_full&&!event.quantity?"%s已满 未拾取":"发现 %s ×%u",items_info(event.item)->name,event.quantity);center(band,248,text,GAME_UI_ACCENT);}
    else center(band,248,event.clues==3?"下次探索必定找到目标":"继续探索 追踪伙伴",GAME_UI_MUTED);
    static const char *const choices[]={"继续", "路线", "活动"};game_ui_actions(band,choices,3,action_selected);
   }else{
@@ -270,7 +270,7 @@ static void draw_all(void){
    center(band,238,hint,GAME_UI_MUTED);
    unsigned bp=exploration_chain_shiny_bp(view.chain_wins,SHINY_EXPLORATION);
    snprintf(text,sizeof(text),"连胜%lu 闪光%u.%02u%%",(unsigned long)view.chain_wins,bp/100,bp%100);
-   game_ui_text_fitted(band,12,258,216,text,GAME_UI_ACCENT);
+   center(band,258,text,GAME_UI_ACCENT);
    static const char *const choices[]={"探索", "路线", "活动"};game_ui_actions(band,choices,3,action_selected);
   }
   screen_push_band(band);

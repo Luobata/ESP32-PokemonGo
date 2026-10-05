@@ -7,13 +7,13 @@ static bool reader(void *out){reads++;assert(disk_len==sizeof(save_t));memcpy(ou
 static bool failed_reader(void *out){(void)out;reads++;return false;}
 int main(void){
  fresh();assert(world_choose_starter(25)==WORLD_STARTER_OK);
- s_w.pet.stamina=37*NURT_Q;s_inventory.quantity[ITEM_BERRY]=7;s_dirty=true;
+ s_w.pet.stamina=37*NURT_Q;s_inventory.quantity[ITEM_BERRY]=7;s_exploration_wins=83;s_dirty=true;
  save_t copy;unsigned before=commits;
  assert(world_backup_snapshot(reader,&copy));assert(commits>before&&reads==1);
- assert(copy.pet.stamina==37*NURT_Q&&copy.inventory.quantity[ITEM_BERRY]==7&&copy.version==SAVE_VERSION);
- assert(!s_dirty);failure=4;s_w.pet.stamina=12*NURT_Q;
+ assert(copy.pet.stamina==37*NURT_Q&&copy.inventory.quantity[ITEM_BERRY]==7&&copy.version==SAVE_VERSION&&copy.exploration_wins==83);
+ assert(!s_dirty);failure=4;s_w.pet.stamina=12*NURT_Q;s_exploration_wins=84;
  assert(!world_backup_snapshot(reader,&copy)&&reads==1&&s_dirty);failure=0;
- assert(world_backup_snapshot(reader,&copy)&&copy.pet.stamina==12*NURT_Q);
+ assert(world_backup_snapshot(reader,&copy)&&copy.pet.stamina==12*NURT_Q&&copy.exploration_wins==84);
  assert(!world_backup_snapshot(failed_reader,&copy));
  assert(!world_backup_snapshot(NULL,&copy)&&!world_backup_snapshot(reader,NULL));
  s_storage_ready=false;assert(!world_backup_snapshot(reader,&copy));

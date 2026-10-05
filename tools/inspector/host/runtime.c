@@ -722,7 +722,7 @@ int main(void)
             if(b)for(unsigned i=0;i<8;i++){regions.region[i].claimed=regions.region[i].traced=1;regions.region[i].clears=1;}
             if(exploration_map_open(a,challenge.defeated,&regions)){regions.selected=a;if(a<4)exploration.route=a;if(nav_current()==PAGE_DUNGEON)play_dungeon_open_region(a);}
             if(nav_current()==PAGE_EXPLORATION)nav_go(PAGE_EXPLORATION);
-        } else if (booted && !strcmp(cmd,"exploration_chain_fixture") && sscanf(line,"%*s %u",&a)==1) {
+        } else if (booted && !strcmp(cmd,"chain_fixture") && sscanf(line,"%*s %u",&a)==1) {
             exploration_wins=a;
         } else if (booted && !strcmp(cmd, "exploration_fixture") && sscanf(line,"%*s %u %u %u %u",&a,&b,&c,&d)==4 && a<4 && b<=24 && c<=3 && d<=1) {
             exploration.route=a;regions.selected=a;exploration.energy=b;exploration.clues[a]=c;exploration.pulse[a]=d;

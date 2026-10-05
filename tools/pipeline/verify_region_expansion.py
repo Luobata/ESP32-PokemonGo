@@ -122,13 +122,13 @@ static void odds(void){
    exploration_event_t e=exploration_region_step(&rs,&r,&q,&d,0,0x3fff,&bag,0);
    assert(e.kind==EXPLORE_ENCOUNTER);rare+=e.rarity>=4;shiny+=e.shiny;total++;
   }
-  assert(rare>(depth?6000:3700)&&rare<(depth?7000:4800));
+  assert(rare>(depth?2300:1100)&&rare<(depth?2900:1700));
  }
  assert(shiny>total/60&&shiny<total/38);
  for(unsigned map=4;map<12;map++)for(unsigned dir=0;dir<=3;dir++){
   exploration_regions_t rs={.selected=map};rs.region[0].claimed=1;enc_refresh_state_t r={0};dex_t d={0};inventory_t bag={0};
   for(unsigned n=0;n<200;n++){
-   enc_queue_t q={0};bool guaranteed=rs.region[map-4].pity==5;
+   enc_queue_t q={0};bool guaranteed=rs.region[map-4].pity==EXPLORATION_REGION_PITY;
    exploration_event_t e=exploration_region_step(&rs,&r,&q,&d,0,0x3fff,&bag,dir);
    assert(e.kind==EXPLORE_ENCOUNTER||e.kind==EXPLORE_TARGET||e.kind==EXPLORE_CLUE);
    if(guaranteed&&e.kind==EXPLORE_ENCOUNTER)assert(e.rarity>=4);

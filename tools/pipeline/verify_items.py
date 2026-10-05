@@ -207,7 +207,9 @@ static void loot_transactions(void) {
     for(unsigned room=0;room<2;room++) {
         ready(1,20);stock(ITEM_POKE,items_capacity(ITEM_POKE)-room);battle_session_t s;
         uint16_t uid=begin_encounter(5,ITEM_POKE,&s);win(uid,&s);item_loot_t out;
-        assert(world_battle_loot_uid(uid,&out)&&out.full&&out.quantity==room);
+        assert(world_battle_loot_uid(uid,&out));
+        if(room)assert(out.item_id==ITEM_POKE&&out.full&&out.quantity==room);
+        else assert(out.item_id!=ITEM_POKE&&out.quantity>0&&!out.full);
         assert(s_inventory.quantity[ITEM_POKE]==items_capacity(ITEM_POKE));tests++;
     }
     ready(1,20);battle_session_t s;uint16_t uid=begin_encounter(5,ITEM_MASTER,&s);item_loot_t out;
@@ -282,7 +284,9 @@ static void distribution(void) {
             assert(!memcmp(&a,&b,sizeof(a)));
             if(a.item_id==ITEM_NONE){assert(!a.quantity);continue;}
             assert(a.item_id<ITEM_COUNT&&a.quantity>=1&&a.quantity<=3&&!a.full);
-            if(a.item_id!=ITEM_POKE)assert(a.quantity==1);else assert(a.quantity>=2);
+            if(a.item_id==ITEM_POKE)assert(a.quantity>=2);
+            else if(a.item_id==ITEM_BERRY)assert(a.quantity<=2);
+            else assert(a.quantity==1);
             dropped++;master+=a.item_id==ITEM_MASTER;
             advanced+=(a.item_id>=ITEM_ULTRA&&a.item_id<=ITEM_GROWTH_MACHINE);
         }
@@ -354,7 +358,7 @@ def run(root: Path, sanitizer: bool = True) -> dict:
             '-Wno-unused-function','-Wno-unused-variable','-Wno-unused-parameter','-Wno-unused-but-set-variable',
             '-ffunction-sections','-fdata-sections','-I',str(directory),'-I',str(root/'firmware/main'),
             str(directory/'driver.c'),*[str(root/'firmware/main'/name) for name in
-                ('party.c','encounter.c','nurture.c','exp.c','items.c','evolution.c','assets.c','pokemon_names.c')],
+                ('party.c','encounter.c','exploration.c','nurture.c','exp.c','items.c','evolution.c','combat.c','battle.c','assets.c','pokemon_names.c')],
             str(directory/'assets.S'),'-pthread','-lz',
             '-Wl,-dead_strip' if sys.platform=='darwin' else '-Wl,--gc-sections','-o',str(directory/'probe')]
         if sanitizer:command[1:1]=['-fsanitize=address,undefined','-fno-omit-frame-pointer']

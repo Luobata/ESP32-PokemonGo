@@ -40,6 +40,7 @@ jobs:
           python3 tools/pipeline/verify_shiny_sources.py
           python3 tools/pipeline/verify_dungeon_rewards.py
           python3 tools/pipeline/verify_region_expansion.py
+          python3 tools/pipeline/verify_exploration_balance.py
           python3 tools/pipeline/verify_region_trails_preview.py
           python3 tools/pipeline/verify_achievements.py
       - name: Build and verify release components

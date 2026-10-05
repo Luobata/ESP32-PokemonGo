@@ -91,5 +91,5 @@ int main(void){
  current=loaded;assert(snapshot(image,sizeof(image)));make_save(1,7);assert(stage(image,sizeof(image),SAVE_VERSION));
  flash[temp.address+0x1000]^=1;assert(nvs_flash_deinit()==ESP_OK);assert(usb_backup_restore_before_boot());assert(boot_result==2);assert(save_init());assert(save_read(&loaded)&&!memcmp(&loaded,&before,sizeof(before)));
  historical_restore();
- assert(nvs_flash_deinit()==ESP_OK);puts("Real ESP-IDF NVS + production save/device/journal: historical V5-V18, distinct saves, schema rejection, settings, restore, second boot and rollback passed");
+ assert(nvs_flash_deinit()==ESP_OK);puts("Real ESP-IDF NVS + production save/device/journal: historical V5-V19, distinct saves, schema rejection, settings, restore, second boot and rollback passed");
 }

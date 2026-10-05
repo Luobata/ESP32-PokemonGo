@@ -109,6 +109,10 @@ int main(int argc, char **argv) {
     s.regions.pending_items.quantity[ITEM_WATER_STONE]=1;
     s.regions.pending_partner=(encounter_t){.species_id=131,.rarity=5,.level=42,.biome=2,.hp_ratio=100,.is_transient=true,.is_shiny=true};
 #endif
+#if FIXTURE_VERSION >= 19
+    s.exploration_wins=73;
+    s.queue.items[0].activity=ENC_ACTIVITY_EXPLORATION;
+#endif
     FILE *f=fopen(argv[1], "wb"); assert(f);
     assert(fwrite(&s, 1, sizeof(s), f)==sizeof(s)); assert(!fclose(f));
     printf("%zu\n", sizeof(s));
