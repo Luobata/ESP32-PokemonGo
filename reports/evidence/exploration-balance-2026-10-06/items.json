@@ -1,0 +1,12 @@
+{
+  "summary": {
+    "cases": 102,
+    "items": 19,
+    "save_version": 19,
+    "legacy_bytes": 2296,
+    "save_bytes": 4016,
+    "erase_calls": 0
+  },
+  "command": "POKECRYSTAL_SOURCE=/tmp/pokewalk-balance-pokecrystal python3 tools/pipeline/verify_items.py",
+  "exit_code": 0
+}

@@ -1,0 +1,19 @@
+{
+  "build": "df7c60962d290f525d57",
+  "checks": 91,
+  "pixel_band_mismatches": 0,
+  "battles": [
+    {
+      "won": true,
+      "discovered_level": 42,
+      "battle_level": 42,
+      "wins": 51
+    },
+    {
+      "won": false,
+      "discovered_level": 42,
+      "battle_level": 42,
+      "wins": 0
+    }
+  ]
+}
