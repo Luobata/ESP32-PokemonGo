@@ -49,6 +49,17 @@ static void portrait(int band,unsigned id,bool shiny,int y,int h,int scale){
  game_ui_sprite_centered(band,24,y,192,h,data,size,size,scale,pal);
 }
 static void center(int band,int y,const char *text,uint16_t color){game_ui_text_centered(band,8,y,224,16,text,color);}
+static void trail_examples(int band,unsigned direction,int y){
+ uint8_t ids[2];unsigned count=exploration_trail_examples(view.route,direction,view.deep,view.defeated,ids);
+ char names[64]={0};size_t used=0;
+ for(unsigned i=0;i<count;i++){
+  species_t sp;if(!assets_species(ids[i],&sp))continue;
+  int n=snprintf(names+used,sizeof(names)-used,"%s%.*s",used?" / ":"",sp.name_zh_len,sp.name_zh);
+  if(n<0||(size_t)n>=sizeof(names)-used)break;
+  used+=(size_t)n;
+ }
+ game_ui_text_fitted(band,36,y,188,used?names:"暂未发现伙伴",GAME_UI_MUTED);
+}
 static void tile(int band,int x,int y,const char *const *rows,int n,const uint16_t *pal){
  for(int yy=0;yy<n;yy++)for(int xx=0;rows[yy][xx];xx++)if(rows[yy][xx]!='.')rect(band,x+xx*2,y+yy*2,2,2,pal[rows[yy][xx]-'0']);
 }
@@ -145,10 +156,14 @@ static void draw_all(void){
   screen_band_clear(GAME_UI_BG);snprintf(text,sizeof(text),"体能 %u/100",view.stamina);game_ui_title(band,routes?"选择路线":"探索",text);
   if(paths){
    const exploration_region_t *r=exploration_region(view.route);
-   center(band,44,r->route.name,GAME_UI_INK);scene(band,view.route);
-   game_ui_box(band,8,166,224,94);
-   for(unsigned i=0;i<3;i++){render_text(40,174+i*26-band,r->directions[i],GAME_UI_INK);if(i==selected)game_ui_cursor(band,18,178+i*26);}
-   center(band,264,"选定方向后消耗5体能",GAME_UI_MUTED);game_ui_footer(band,GAME_UI_NAV_HINT);
+   center(band,40,r->route.name,GAME_UI_INK);
+   snprintf(text,sizeof(text),"%s Lv%u-%u",view.deep?"深层":"常规",exploration_region_level_min(r,view.deep),r->max_level);center(band,62,text,GAME_UI_MUTED);
+   for(unsigned i=0;i<3;i++){
+    int y=90+i*56;const exploration_trail_t *trail=exploration_region_trail(view.route,i);
+    game_ui_box(band,8,y,224,48);render_text(36,y+7-band,trail->name,GAME_UI_INK);
+    trail_examples(band,i,y+25);if(i==selected)game_ui_cursor(band,18,y+11);
+   }
+   center(band,264,view.clues==3?"5体能 本次寻找追踪目标":"5体能 全区共享线索",GAME_UI_MUTED);game_ui_footer(band,GAME_UI_NAV_HINT);
   }else if(badge_list){
    center(band,44,"徽章活动",GAME_UI_INK);
    if(!badge_count)center(band,124,"获得徽章后开放新活动",GAME_UI_MUTED);

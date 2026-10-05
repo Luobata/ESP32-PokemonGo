@@ -573,13 +573,13 @@ static void encounter_state(const encounter_t *e)
 {
     battle_session_t b;
     world_battle_get_uid(e->uid, &b);
-    printf("{\"uid\":%u,\"ts\":%lu,\"species\":%u,\"hp_ratio\":%u,\"exp_granted\":%s,"
+    printf("{\"uid\":%u,\"ts\":%lu,\"species\":%u,\"level\":%u,\"rarity\":%u,\"hp_ratio\":%u,\"exp_granted\":%s,"
            "\"initialized\":%s,\"started\":%s,\"auto_battle\":%s,\"pet_hp\":%u,\"wild_hp\":%u,"
            "\"pet_level\":%u,\"wild_level\":%u,\"attacks\":%u,\"finished\":%s,\"won\":%s,\"retaliation\":%s,"
            "\"capture_used\":%s,\"reward_settled\":%s,\"escape_attempts\":%u,"
            "\"escape_retaliation\":%s,\"defeat_applied\":%s,\"ability_factor\":%u,"
            "\"loot_checked\":%s,\"loot_item\":%u,\"loot_qty\":%u,\"loot_full\":%s}",
-           e->uid, (unsigned long)e->ts, e->species_id, e->hp_ratio,
+           e->uid, (unsigned long)e->ts, e->species_id, e->level, e->rarity, e->hp_ratio,
            e->exp_granted ? "true" : "false", b.initialized ? "true" : "false",
            b.started ? "true" : "false", b.auto_battle ? "true" : "false", b.pet_hp, b.wild_hp, b.pet_level, b.wild_level, b.attack_count,
            b.finished ? "true" : "false", b.won ? "true" : "false",
@@ -951,7 +951,7 @@ exploration_event_t world_explore_path(unsigned direction){
  exploration_event_t e=regions.selected>=4?exploration_region_step(&regions_next,&r,&q,&d,active_valid?active_enc.uid:0,challenge.defeated,&bag,direction):exploration_step_with_target(&x,&r,&q,&d,active_valid?active_enc.uid:0,challenge.defeated,&bag,&world.pet,exploration_team_bonus(&party,x.route),target);
  if(e.kind!=EXPLORE_ENCOUNTER&&e.kind!=EXPLORE_CLUE&&e.kind!=EXPLORE_TARGET)return e;
  party_t next=party;
- if(e.uid){e.level=battle_wild_level_for_pet(e.rarity,world.level);const exploration_region_t *region=exploration_region(e.route);if(region){if(e.level<region->min_level)e.level=region->min_level;if(e.level>region->max_level)e.level=region->max_level;}encounter_t *enc=enc_queue_find(&q,e.uid);if(enc)enc->level=e.level;}
+ if(e.uid&&e.route<EXPLORATION_ROUTES){e.level=battle_wild_level_for_pet(e.rarity,world.level);encounter_t *enc=enc_queue_find(&q,e.uid);if(enc)enc->level=e.level;}
  if(e.kind==EXPLORE_TARGET&&e.route<4){x.research_flags|=16u<<e.route;exploration_target_completed(&x,&u,&d,&q,challenge.defeated,e.route);}
  if(e.species&&!dex_is_seen(&dex,e.species)){
   uint16_t gain=exp_scaled(exp_scaled(exp_battle_base(e.level),25),nurture_exp_percent(&world.pet));

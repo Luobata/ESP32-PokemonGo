@@ -68,6 +68,17 @@ typedef struct {
  uint8_t min_level,max_level,biome,item,pool[24],boss[3][3],rewards[3][4];
 } exploration_region_t;
 const exploration_region_t *exploration_region(unsigned map);
+// Read-only habitat configuration, independent of saved region progress and
+// dungeon exit rewards. Direction indices here are zero based.
+typedef struct {
+ const char *name;
+ uint8_t species[12];
+} exploration_trail_t;
+const exploration_trail_t *exploration_region_trail(unsigned map,unsigned direction);
+unsigned exploration_trail_examples(unsigned map,unsigned direction,bool deep,uint16_t defeated,uint8_t out[2]);
+static inline unsigned exploration_region_level_min(const exploration_region_t *r,bool deep){
+ return r->min_level+(deep?(r->max_level-r->min_level+1)/2:0);
+}
 bool exploration_map_open(unsigned map,uint16_t defeated,const exploration_regions_t *);
 bool exploration_regions_valid(const exploration_regions_t *);
 unsigned exploration_region_target(unsigned map,const exploration_regions_t *,uint16_t defeated,const dex_t *);

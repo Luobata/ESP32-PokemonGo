@@ -1,0 +1,155 @@
+{
+  "build": "b7ca7b4fc4c82daf9c19",
+  "checks": 456,
+  "maps": 8,
+  "paths": 24,
+  "normal_and_deep_ui": true,
+  "pixel_band_mismatches": 0,
+  "navigation_preserves_progress": true,
+  "encounter_levels": [
+    {
+      "region": 4,
+      "leader": 10,
+      "species": 134,
+      "level": 42
+    },
+    {
+      "region": 4,
+      "leader": 40,
+      "species": 134,
+      "level": 42
+    },
+    {
+      "region": 4,
+      "leader": 100,
+      "species": 134,
+      "level": 42
+    },
+    {
+      "region": 5,
+      "leader": 10,
+      "species": 94,
+      "level": 55
+    },
+    {
+      "region": 5,
+      "leader": 40,
+      "species": 94,
+      "level": 55
+    },
+    {
+      "region": 5,
+      "leader": 100,
+      "species": 94,
+      "level": 55
+    },
+    {
+      "region": 6,
+      "leader": 10,
+      "species": 29,
+      "level": 47
+    },
+    {
+      "region": 6,
+      "leader": 40,
+      "species": 29,
+      "level": 47
+    },
+    {
+      "region": 6,
+      "leader": 100,
+      "species": 29,
+      "level": 47
+    },
+    {
+      "region": 7,
+      "leader": 10,
+      "species": 75,
+      "level": 56
+    },
+    {
+      "region": 7,
+      "leader": 40,
+      "species": 75,
+      "level": 56
+    },
+    {
+      "region": 7,
+      "leader": 100,
+      "species": 75,
+      "level": 56
+    },
+    {
+      "region": 8,
+      "leader": 10,
+      "species": 67,
+      "level": 59
+    },
+    {
+      "region": 8,
+      "leader": 40,
+      "species": 67,
+      "level": 59
+    },
+    {
+      "region": 8,
+      "leader": 100,
+      "species": 67,
+      "level": 59
+    },
+    {
+      "region": 9,
+      "leader": 10,
+      "species": 117,
+      "level": 62
+    },
+    {
+      "region": 9,
+      "leader": 40,
+      "species": 117,
+      "level": 62
+    },
+    {
+      "region": 9,
+      "leader": 100,
+      "species": 117,
+      "level": 62
+    },
+    {
+      "region": 10,
+      "leader": 10,
+      "species": 65,
+      "level": 65
+    },
+    {
+      "region": 10,
+      "leader": 40,
+      "species": 65,
+      "level": 65
+    },
+    {
+      "region": 10,
+      "leader": 100,
+      "species": 65,
+      "level": 65
+    },
+    {
+      "region": 11,
+      "leader": 10,
+      "species": 87,
+      "level": 67
+    },
+    {
+      "region": 11,
+      "leader": 40,
+      "species": 87,
+      "level": 67
+    },
+    {
+      "region": 11,
+      "leader": 100,
+      "species": 87,
+      "level": 67
+    }
+  ]
+}

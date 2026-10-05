@@ -1,0 +1,214 @@
+{
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_backup.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.61,
+      "summary": "{\"passed\": true, \"device_protocol\": \"ASan/UBSan\", \"browser\": \"current and future C schemas 18/99/65535, malformed versions, missing/duplicate/corrupt/truncated frames\", \"restore\": \"confirmation, device, metadata, checksum, prebackup and NVS-only roundtrip\"}",
+      "log_sha256": "84ad1875b2376c052fc0c49b652da530a9ab71d9a8da8bb6cece27949fe64819"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_import.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.18,
+      "summary": "{\"passed\": true, \"journal\": \"power interruption at every I/O boundary, corrupted image, write failure rollback, incompatible build\", \"protocol\": \"physical consent, cancel, prebackup ACK, CRC, truncation, timeout, staged reboot\", \"browser\": \"production decoder with real C transcript and corrupt files\"}",
+      "log_sha256": "6896339dafcf77b858d05f97cdaa16960f7db46a27f176fc92c4e572f7775301"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_import_device.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.38,
+      "summary": "device import isolation, actual schema check, validation failures, target-build journal binding: passed",
+      "log_sha256": "a3879715b6fa496044cfe28bfc6923c3cea303508b226a0169033fea783fcd22"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_save_import_compatibility.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.14,
+      "summary": "{\"passed\":true,\"schemas\":\"V5-V18 historical fixtures, future/corrupt rejected\",\"milk\":\"low/high HP, cap, faint, status, turn cost, save failures and reboot\"}",
+      "log_sha256": "f1328506f28399b381d0f367291c7fc5c589d316c3a9b71f010bf2a57586758a"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_backup_checkpoint.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.39,
+      "summary": "{'passed': True, 'checkpoint': 'live state, failed save blocks export, retry, read failure, unavailable storage'}",
+      "log_sha256": "722d7c6f95fe288e312cd70a492b75dfeeb55e9511d6336c57e0ac1d04784b1c"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_firmware_update.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.24,
+      "summary": "app-only update, pre-write backup, protected data, unsafe inputs and interrupted update: passed",
+      "log_sha256": "5670268714dda7472316e7ec21d1b0619756afab9717a33c3d97058402e79876"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_save_manager_distribution.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.48,
+      "summary": "{\"passed\": true, \"scope\": \"public-file allowlist, extracted offline server, MIME, GET/HEAD, no save exposure or upload API; Pages allowlist and repository subpath\"}",
+      "log_sha256": "911baaf62d65015a646208ba3c47bbba85fe838160824d51d00f971902b85dda"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_dungeon_stack.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.4,
+      "summary": "{\"target\": \"esp32c3\", \"stack_frames\": {\"begin_battle\": 192, \"dungeon_load\": 32, \"dungeon_step\": 64, \"dungeon_switch\": 16, \"dungeon_retire\": 16, \"dungeon_resume\": 48, \"dungeon_abandon\": 16, \"dungeon_choose\": 16, \"dungeon_finish\": 16, \"dungeon_theme_open\": 320, \"dungeon_new_theme\": 512, \"dungeon_new\": 16}, \"passed\": true}",
+      "log_sha256": "c9ecad0279f0864872a355ca28b3a6a7423be2ab23a2eeb5a18dda51f7369c4b"
+    },
+    {
+      "command": [
+        "node",
+        "tools/pipeline/verify_save_import_web.mjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.1,
+      "summary": "production read loop preserves mismatched-restore error across disconnect: passed",
+      "log_sha256": "0119fbbfa40ae6f90dd5e91bb8931b88b4312d84f7395e841ea2d79e9417aa04"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_nvs_restore_roundtrip.py"
+      ],
+      "exit_code": 0,
+      "seconds": 8.54,
+      "summary": "Real ESP-IDF NVS + production save/device/journal: historical V5-V18, distinct saves, schema rejection, settings, restore, second boot and rollback passed",
+      "log_sha256": "60c7b2200753285db3266d758f544e05d4e55427a2d2744d475f1f17c17f44cf"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_region_expansion.py"
+      ],
+      "exit_code": 0,
+      "summary": {
+        "passed": true,
+        "maps": 8,
+        "themes": 9,
+        "samples": 246424,
+        "trail_samples": 48000,
+        "checks": 9,
+        "save_bytes": 4008,
+        "sanitizers": true
+      },
+      "log_sha256": "0704f7c57335a8a427376eb8caab7e0c4f49c5a091e5f778d1dde1c73dd20f86"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_region_trails_preview.py"
+      ],
+      "exit_code": 0,
+      "build": "b7ca7b4fc4c82daf9c19",
+      "checks": 456,
+      "evidence": "preview.json"
+    }
+  ],
+  "save_layout_changed": false,
+  "supported_source_versions": "V5-V18",
+  "flashed": false,
+  "published": false,
+  "build": {
+    "command": "tools/device/fw.sh build",
+    "exit_code": 0,
+    "version": "v2026.10.05-regions-3-ge9d1be3-dirty",
+    "app_bytes": 3164352,
+    "app_sha256": "480a144a64a4d027db9ef70a05e1a7dd8d81b7656b14ff0ad3dd2393a5daa986",
+    "log_sha256": "a6e05fe84687c62b8f4338acbff3d4bfc9c03dd9f1425b53493ae3a0197d4748"
+  },
+  "base_commit": "e9d1be3f28f55b6dcb98ff2dce558bec7127c0d2",
+  "branch": "codex/region-trails-levels",
+  "files": {
+    "firmware/main/exploration.h": "386cf62906c5af33aea9ae07c4667875cbf2ef4b4229ce0a576aa1387e2c8a8a",
+    "firmware/main/exploration.c": "e0e95e46e0610a7e5405faed202f165ed0cb777cd83e893adb5cca52e72ec395",
+    "firmware/main/play_exploration.c": "63f0770b8fca7a1636caf62a8655786f9d3d9fc70aeec22914cca4bff508df87",
+    "firmware/main/world.c": "d5be5406f79c57884da5a11c8d4f47296978791b74cdb26045d4847a3b1af5b9",
+    "tools/inspector/host/runtime.c": "69b9a3bc7086ce0c00774417faf8353c0fddc7b6b2b1e7e91678a05ac9906926",
+    "tools/pipeline/verify_region_expansion.py": "2a5e12e2dd9caf1d979ef7d5c9497c39a3fe333b12e48f1adb016c174b157681",
+    "tools/pipeline/verify_region_trails_preview.py": "a81bec10cd2b5d84f400ccb8c50c89ed10162e26f5bc8fa4381b317acb0cb0b4",
+    "assets/font16.bin": "d52ef01104e0ff0d7312991e07e08ac20a6fc10f0896cfb98669eaa418649fbc",
+    "assets/font16_charset.txt": "5e2e3b8863e9208d4edbcf3e248b282bb444b2d541c3912e884f37a4cfaa9bed",
+    ".github/workflows/firmware-check.yml": "5ae2b7b8d281ff4b28da614e0a46936e23d11ae7e2009f1d7fe1258eb5dac3eb"
+  },
+  "persistence_audit": {
+    "compared_public_version": "v2026.10.05-regions",
+    "protected_paths_unchanged": [
+      "firmware/main/save.h",
+      "firmware/main/save.c",
+      "firmware/main/party.h",
+      "firmware/main/encounter.h",
+      "firmware/main/dungeon.h",
+      "firmware/partitions.csv",
+      "tools/pipeline/fixtures/save_history",
+      "tools/pipeline/fixtures/dungeon_history",
+      "tools/save-manager",
+      "firmware/main/usb_backup.c",
+      "firmware/main/restore_journal.c"
+    ],
+    "world_schema": 18,
+    "world_bytes": 4008,
+    "dungeon_schema": 4,
+    "historical_fixtures_unchanged": true,
+    "new_config_not_persisted": true,
+    "existing_encounters_rerolled": false
+  },
+  "qualitygate": {
+    "gate": "pass",
+    "raw_gate": "pass",
+    "block_merge": false,
+    "execution_complete": true,
+    "blocking_execution_complete": true,
+    "quality_confidence": "full",
+    "incomplete_engines": [],
+    "semantic_prompts": [],
+    "agent_action": {
+      "schema_version": "qualitygate.agent-action.v1",
+      "state": "local_checks_passed",
+      "next_action": "finalize_semantic_and_tests",
+      "task_complete": false,
+      "actionable_block_count": 0,
+      "repair_round": 0,
+      "stop_reasons": [],
+      "repair_findings": [],
+      "required_validation": [
+        "format",
+        "diff_check",
+        "compile",
+        "focused_tests"
+      ],
+      "completion_requires": "current-fingerprint semantic result consumed and relevant validation passed; local PASS alone is insufficient"
+    },
+    "central_mcp_available": false,
+    "semantic_review_performed": false,
+    "matching_source_rules": false,
+    "mutation_executed": false,
+    "mutation_status": "disabled",
+    "cli_mutation_status": "not_applicable",
+    "runner_preflight": "missing Go/Mutation dependencies; not installed for this C task"
+  }
+}

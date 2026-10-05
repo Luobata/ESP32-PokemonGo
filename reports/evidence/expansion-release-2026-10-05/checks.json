@@ -1,0 +1,90 @@
+{
+  "checks": [
+    {
+      "command": "python3 tools/pipeline/verify_usb_backup.py",
+      "exit_code": 0,
+      "seconds": 5.24,
+      "summary": "{\"passed\": true, \"device_protocol\": \"ASan/UBSan\", \"browser\": \"current and future C schemas 18/99/65535, malformed versions, missing/duplicate/corrupt/truncated frames\", \"restore\": \"confirmation, device, metadata, checksum, prebackup and NVS-only roundtrip\"}",
+      "log_sha256": "bd550d42767155b64a77a0358ccabde163f2dc80818b6b8f44bfbfdde442ba1a"
+    },
+    {
+      "command": "python3 tools/pipeline/verify_usb_import.py",
+      "exit_code": 0,
+      "seconds": 5.79,
+      "summary": "{\"passed\": true, \"journal\": \"power interruption at every I/O boundary, corrupted image, write failure rollback, incompatible build\", \"protocol\": \"physical consent, cancel, prebackup ACK, CRC, truncation, timeout, staged reboot\", \"browser\": \"production decoder with real C transcript and corrupt files\"}",
+      "log_sha256": "6896339dafcf77b858d05f97cdaa16960f7db46a27f176fc92c4e572f7775301"
+    },
+    {
+      "command": "python3 tools/pipeline/verify_save_import_compatibility.py",
+      "exit_code": 0,
+      "seconds": 5.34,
+      "summary": "{\"passed\":true,\"schemas\":\"V5-V18 historical fixtures, future/corrupt rejected\",\"milk\":\"low/high HP, cap, faint, status, turn cost, save failures and reboot\"}",
+      "log_sha256": "f1328506f28399b381d0f367291c7fc5c589d316c3a9b71f010bf2a57586758a"
+    },
+    {
+      "command": "python3 tools/pipeline/verify_usb_import_device.py",
+      "exit_code": 0,
+      "seconds": 0.63,
+      "summary": "device import isolation, actual schema check, validation failures, target-build journal binding: passed",
+      "log_sha256": "a3879715b6fa496044cfe28bfc6923c3cea303508b226a0169033fea783fcd22"
+    },
+    {
+      "command": "node tools/pipeline/verify_save_import_web.mjs",
+      "exit_code": 0,
+      "seconds": 0.12,
+      "summary": "production read loop preserves mismatched-restore error across disconnect: passed",
+      "log_sha256": "0119fbbfa40ae6f90dd5e91bb8931b88b4312d84f7395e841ea2d79e9417aa04"
+    },
+    {
+      "command": "python3 tools/pipeline/verify_usb_backup_checkpoint.py",
+      "exit_code": 0,
+      "seconds": 3.05,
+      "summary": "{'passed': True, 'checkpoint': 'live state, failed save blocks export, retry, read failure, unavailable storage'}",
+      "log_sha256": "722d7c6f95fe288e312cd70a492b75dfeeb55e9511d6336c57e0ac1d04784b1c"
+    },
+    {
+      "command": "python3 tools/pipeline/verify_save_manager_distribution.py",
+      "exit_code": 0,
+      "seconds": 1.71,
+      "summary": "{\"passed\": true, \"scope\": \"public-file allowlist, extracted offline server, MIME, GET/HEAD, no save exposure or upload API; Pages allowlist and repository subpath\"}",
+      "log_sha256": "911baaf62d65015a646208ba3c47bbba85fe838160824d51d00f971902b85dda"
+    },
+    {
+      "command": "python3 tools/pipeline/verify_firmware_update.py",
+      "exit_code": 0,
+      "seconds": 0.56,
+      "summary": "app-only update, pre-write backup, protected data, unsafe inputs and interrupted update: passed",
+      "log_sha256": "c19e8d4a05a87f8b2a5d055ba9a3874e5a9ca2acf7f6ef73dd34f1a8638c2318"
+    },
+    {
+      "command": "python3 tools/pipeline/verify_nvs_restore_roundtrip.py",
+      "exit_code": 0,
+      "seconds": 9.49,
+      "summary": "Real ESP-IDF NVS + production save/device/journal: historical V5-V18, distinct saves, schema rejection, settings, restore, second boot and rollback passed",
+      "log_sha256": "60c7b2200753285db3266d758f544e05d4e55427a2d2744d475f1f17c17f44cf"
+    },
+    {
+      "command": "python3 tools/pipeline/verify_region_expansion.py",
+      "exit_code": 0,
+      "seconds": 4.62,
+      "summary": "{\"passed\":true,\"maps\":8,\"themes\":9,\"samples\":246424,\"trail_samples\":48000,\"checks\":9,\"save_bytes\":4008,\"sanitizers\":true}",
+      "log_sha256": "0704f7c57335a8a427376eb8caab7e0c4f49c5a091e5f778d1dde1c73dd20f86"
+    },
+    {
+      "command": "python3 tools/pipeline/verify_dungeon_stack.py",
+      "exit_code": 0,
+      "seconds": 2.13,
+      "summary": "{\"target\": \"esp32c3\", \"stack_frames\": {\"begin_battle\": 192, \"dungeon_load\": 32, \"dungeon_step\": 64, \"dungeon_switch\": 16, \"dungeon_retire\": 16, \"dungeon_resume\": 48, \"dungeon_abandon\": 16, \"dungeon_choose\": 16, \"dungeon_finish\": 16, \"dungeon_theme_open\": 320, \"dungeon_new_theme\": 512, \"dungeon_new\": 16}, \"passed\": true}",
+      "log_sha256": "c9ecad0279f0864872a355ca28b3a6a7423be2ab23a2eeb5a18dda51f7369c4b"
+    },
+    {
+      "command": "python3 tools/pipeline/verify_region_trails_preview.py",
+      "exit_code": 0,
+      "seconds": 3.1,
+      "summary": "{\"build\": \"b7ca7b4fc4c82daf9c19\", \"checks\": 456, \"maps\": 8, \"paths\": 24, \"normal_and_deep_ui\": true, \"pixel_band_mismatches\": 0, \"navigation_preserves_progress\": true, \"encounter_levels\": [{\"region\": 4, \"leader\": 10, \"species\": 134, \"level\": 42}, {\"region\": 4, \"leader\": 40, \"species\": 134, \"level\": 42}, {\"region\": 4, \"leader\": 100, \"species\": 134, \"level\": 42}, {\"region\": 5, \"leader\": 10, \"species\": 94, \"level\": 55}, {\"region\": 5, \"leader\": 40, \"species\": 94, \"level\": 55}, {\"region\": 5, \"leader\": 100, \"species\": 94, \"level\": 55}, {\"region\": 6, \"leader\": 10, \"species\": 29, \"level\": 47}, {\"region\": 6, \"leader\": 40, \"species\": 29, \"level\": 47}, {\"region\": 6, \"leader\": 100, \"species\": 29, \"level\": 47}, {\"region\": 7, \"leader\": 10, \"species\": 75, \"level\": 56}, {\"region\": 7, \"leader\": 40, \"species\": 75, \"level\": 56}, {\"region\": 7, \"leader\": 100, \"species\": 75, \"level\": 56}, {\"region\": 8, \"leader\": 10, \"species\": 67, \"level\": 59}, {\"region\": 8, \"leader\": 40, \"species\": 67, \"level\": 59}, {\"region\": 8, \"leader\": 100, \"species\": 67, \"level\": 59}, {\"region\": 9, \"leader\": 10, \"species\": 117, \"level\": 62}, {\"region\": 9, \"leader\": 40, \"species\": 117, \"level\": 62}, {\"region\": 9, \"leader\": 100, \"species\": 117, \"level\": 62}, {\"region\": 10, \"leader\": 10, \"species\": 65, \"level\": 65}, {\"region\": 10, \"leader\": 40, \"species\": 65, \"level\": 65}, {\"region\": 10, \"leader\": 100, \"species\": 65, \"level\": 65}, {\"region\": 11, \"leader\": 10, \"species\": 87, \"level\": 67}, {\"region\": 11, \"leader\": 40, \"species\": 87, \"level\": 67}, {\"region\": 11, \"leader\": 100, \"species\": 87, \"level\": 67}]}",
+      "log_sha256": "a691838769a941d2b7a95de7a8f9fb9f922515660e5c3edc08206dae5f212b0f"
+    }
+  ],
+  "all_passed": true,
+  "hardware_restore_overwrite_tested": false
+}

@@ -1713,11 +1713,9 @@ exploration_event_t world_explore_path(unsigned direction)
     if(event.kind!=EXPLORE_ENCOUNTER&&event.kind!=EXPLORE_CLUE&&event.kind!=EXPLORE_TARGET) {
         unlock_encounter_change();return event;
     }
-    if(event.uid){
+    if(event.uid&&event.route<EXPLORATION_ROUTES){
         encounter_t *enc=enc_queue_find(&s_save_buf.queue,event.uid);
         event.level=battle_wild_level_for_pet(event.rarity,s_w.level);
-        const exploration_region_t *region=exploration_region(event.route);
-        if(region){if(event.level<region->min_level)event.level=region->min_level;if(event.level>region->max_level)event.level=region->max_level;}
         if(enc)enc->level=event.level;
     }
     if(event.kind==EXPLORE_TARGET&&event.route<4)exploration_target_completed(&s_save_buf.exploration,&s_save_buf.exploration_updates,&s_save_buf.dex,&s_save_buf.queue,s_challenge.defeated,event.route);

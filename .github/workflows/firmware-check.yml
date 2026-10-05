@@ -40,6 +40,7 @@ jobs:
           python3 tools/pipeline/verify_shiny_sources.py
           python3 tools/pipeline/verify_dungeon_rewards.py
           python3 tools/pipeline/verify_region_expansion.py
+          python3 tools/pipeline/verify_region_trails_preview.py
           python3 tools/pipeline/verify_achievements.py
       - name: Build and verify release components
         uses: espressif/esp-idf-ci-action@9d38657f3d789ca759b2b37aaf5ceffbc42c4f0d # v1

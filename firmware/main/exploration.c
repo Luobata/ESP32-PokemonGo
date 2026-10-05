@@ -324,6 +324,46 @@ static const exploration_region_t REGIONS[EXPLORATION_REGIONS]={
   {86,90,117,80,75,87,91,121,148,95,131,143,149,144,124},{{87,131,143},{124,91,149},{121,148,144}},{{87,91,124},{95,148,143},{121,131,144,149}}},
 };
 const exploration_region_t *exploration_region(unsigned map){return map>=4&&map<EXPLORATION_MAPS?&REGIONS[map-4]:NULL;}
+// Explicit habitats: pool order must never change the meaning of a trail.
+// Their union stays within (and covers) the existing region research pool.
+static const exploration_trail_t TRAILS[EXPLORATION_REGIONS][3]={
+ {{"贝壳滩",{90,91,120,121,134}},
+  {"冰洞口",{86,87,124,131,144}},
+  {"深海潮道",{116,117,73,80,130}}},
+ {{"幽灵足迹",{92,93,94}},
+  {"骨面伙伴",{104,105,108,115}},
+  {"超能回声",{96,97,64,65,122,124}}},
+ {{"巨大脚印",{29,32,31,34,128,115}},
+  {"树干镰痕",{102,44,70,49,47,114,123,127}},
+  {"草丛足迹",{29,32,49,83,113,115}}},
+ {{"旧矿道",{111,75,95,112,76,142}},
+  {"供电机房",{81,100,82,101,26,125,135,145}},
+  {"废弃仓库",{137,111,75,112,76,128}}},
+ {{"熔岩石阶",{75,67,112,126,142}},
+  {"暖风山坡",{37,38,58,59,77,78,136}},
+  {"火羽踪迹",{4,5,6,146}}},
+ {{"溪流鳞片",{116,117,147,148,130}},
+  {"峭壁翼痕",{111,75,95,112,6,142}},
+  {"湖畔龙吟",{147,148,149,9,73,131}}},
+ {{"培养舱",{132,63,64,65,113,143,150}},
+  {"模拟机房",{137,82,135,136,134}},
+  {"秘密档案",{63,64,93,65,94,122,150}}},
+ {{"冰雪足迹",{86,87,90,91,124}},
+  {"山间营地",{75,95,80,143,117,148}},
+  {"峰顶传说",{148,121,131,149,144}}},
+};
+const exploration_trail_t *exploration_region_trail(unsigned map,unsigned direction){
+ return map>=4&&map<EXPLORATION_MAPS&&direction<3?&TRAILS[map-4][direction]:NULL;
+}
+unsigned exploration_trail_examples(unsigned map,unsigned direction,bool deep,uint16_t defeated,uint8_t out[2]){
+ const exploration_trail_t *trail=exploration_region_trail(map,direction);unsigned count=0;
+ if(!trail||!out)return 0;
+ for(unsigned i=0;i<12&&trail->species[i]&&count<2;i++){
+  unsigned id=trail->species[i],tier=0;exploration_habitat(id,&tier);
+  if(tier>=(deep?3u:2u)&&exploration_species_open(id,defeated))out[count++]=id;
+ }
+ return count;
+}
 bool exploration_map_open(unsigned map,uint16_t defeated,const exploration_regions_t *s){
  if(map<4)return true;
  const exploration_region_t *r=exploration_region(map);if(!r||(defeated&r->gate)!=r->gate)return false;
@@ -380,7 +420,9 @@ exploration_event_t exploration_region_step(exploration_regions_t *s,enc_refresh
   unsigned candidates[5][24],n[5]={0},weights[5]={0,10,50,32,8};
   if(p->deep){weights[0]=weights[1]=0;weights[2]=35;weights[3]=50;weights[4]=15;}
   if(p->pity==5)weights[0]=weights[1]=weights[2]=0;
-  for(unsigned i=0;i<24&&r->pool[i];i++){unsigned sp=r->pool[i],t=0;exploration_habitat(sp,&t);if(t&&(!direction||i%3==direction-1)&&exploration_species_open(sp,defeated)&&!pending(q,sp))candidates[t-1][n[t-1]++]=sp;}
+  const uint8_t *pool=direction?exploration_region_trail(map,direction-1)->species:r->pool;
+  unsigned capacity=direction?12:24;
+  for(unsigned i=0;i<capacity&&pool[i];i++){unsigned sp=pool[i],t=0;exploration_habitat(sp,&t);if(t&&exploration_species_open(sp,defeated)&&!pending(q,sp))candidates[t-1][n[t-1]++]=sp;}
   unsigned total=0;for(unsigned t=0;t<5;t++)if(n[t])total+=weights[t];
   if(!total&&p->pity==5){ // Keep a promised rare encounter available across nearby trails.
    for(unsigned i=0;i<24&&r->pool[i];i++){unsigned sp=r->pool[i],t=0;exploration_habitat(sp,&t);if(t>=4&&exploration_species_open(sp,defeated)&&!pending(q,sp))candidates[t-1][n[t-1]++]=sp;}
@@ -391,11 +433,15 @@ exploration_event_t exploration_region_step(exploration_regions_t *s,enc_refresh
   unsigned count=n[tier-1],start=mix(seed)%count;id=candidates[tier-1][start];
   if(seed&3)for(unsigned j=0;j<count;j++){unsigned sp=candidates[tier-1][(start+j)%count];if(!dex_is_caught(dex,sp)){id=sp;break;}}
  }
- encounter_t enc={.ts=refresh->online_s,.species_id=id,.rarity=tier,.biome=r->biome,.hp_ratio=100,.is_transient=true,.is_shiny=enc_shiny_from_roll(mix(seed^0x735a91cdu),SHINY_EXPLORATION)};
+ unsigned low=exploration_region_level_min(r,p->deep);
+ // A separate roll avoids tying level to the rarity roll. It is persisted with
+ // the encounter: opening a page, switching leaders or rebooting cannot reroll it.
+ unsigned level=low+mix(seed^0x4c657665u)%(r->max_level-low+1);
+ encounter_t enc={.ts=refresh->online_s,.species_id=id,.rarity=tier,.level=level,.biome=r->biome,.hp_ratio=100,.is_transient=true,.is_shiny=enc_shiny_from_roll(mix(seed^0x735a91cdu),SHINY_EXPLORATION)};
  while(!q->next_uid||q->next_uid==active||enc_queue_find(q,q->next_uid))q->next_uid++;
  enc_queue_push(q,&enc);dex_mark_seen(dex,id,enc.is_shiny);p->steps++;
  if(traced){p->clues=p->pulse=0;p->traced=1;p->target=0;}else{p->pulse=1;p->target=target;p->pity=tier>=4?0:p->pity<5?p->pity+1:5;}
- e.kind=traced?EXPLORE_TARGET:EXPLORE_ENCOUNTER;e.uid=q->items[q->count-1].uid;e.species=id;e.rarity=tier;e.shiny=enc.is_shiny;e.clues=p->clues;return e;
+ e.kind=traced?EXPLORE_TARGET:EXPLORE_ENCOUNTER;e.uid=q->items[q->count-1].uid;e.species=id;e.rarity=tier;e.level=level;e.shiny=enc.is_shiny;e.clues=p->clues;return e;
 }
 bool exploration_region_partner(unsigned map,unsigned direction,bool challenge,uint32_t seed,uint16_t defeated,exploration_regions_t *s,encounter_t *out){
  const exploration_region_t *r=exploration_region(map);if(!r||direction>=3)return false;

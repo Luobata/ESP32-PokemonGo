@@ -5,6 +5,85 @@ from dungeon_history_fixtures import c_dungeon_history
 h = base.harness
 h.CASES = c_dungeon_history() + h.CASES[:h.CASES.index('int main(')] + r'''
 static void unlock_all(void){s_challenge.defeated=0x3fff;for(unsigned i=0;i<8;i++)s_regions.region[i].claimed=1;}
+static unsigned trail_samples;
+static bool on_trail(const exploration_trail_t *trail,unsigned species){
+ for(unsigned i=0;i<12&&trail->species[i];i++)if(trail->species[i]==species)return true;
+ return false;
+}
+static void trail_rules(void){
+ assert(!exploration_region_trail(3,0)&&!exploration_region_trail(12,0)&&!exploration_region_trail(4,3));
+ // Independent habitat anchors: the shell trail really includes both clams;
+ // ghost tracks exclude the bone family, which has its own direction.
+ assert(on_trail(exploration_region_trail(4,0),90)&&on_trail(exploration_region_trail(4,0),91));
+ assert(on_trail(exploration_region_trail(4,1),87)&&!on_trail(exploration_region_trail(4,0),87));
+ assert(on_trail(exploration_region_trail(5,0),94)&&!on_trail(exploration_region_trail(5,0),104));
+ assert(on_trail(exploration_region_trail(5,1),104));
+ for(unsigned map=4;map<12;map++){
+  const exploration_region_t *r=exploration_region(map);bool covered[152]={0};
+  for(unsigned dir=0;dir<3;dir++){
+   const exploration_trail_t *trail=exploration_region_trail(map,dir);assert(trail&&trail->name&&trail->species[0]);
+   for(unsigned i=0;i<12&&trail->species[i];i++){
+    unsigned id=trail->species[i];bool in_region=false;
+    for(unsigned j=0;j<24&&r->pool[j];j++)in_region|=id==r->pool[j];
+    assert(in_region);covered[id]=true;
+    for(unsigned j=0;j<i;j++)assert(trail->species[j]!=id);
+   }
+   for(unsigned deep=0;deep<2;deep++){
+    uint8_t ids[2]={0};unsigned n=exploration_trail_examples(map,dir,deep,r->gate,ids);assert(n>=1&&n<=2);
+    for(unsigned i=0;i<n;i++){
+     unsigned tier=0;exploration_habitat(ids[i],&tier);
+     assert(on_trail(trail,ids[i])&&exploration_species_open(ids[i],r->gate)&&tier>=(deep?3u:2u));
+    }
+   }
+  }
+  for(unsigned i=0;i<24&&r->pool[i];i++)assert(covered[r->pool[i]]);
+ }
+ tests++;
+}
+static void trail_levels(void){
+ static const uint8_t lows[8][2]={{35,40},{42,49},{38,44},{45,52},{48,54},{50,58},{60,68},{65,75}};
+ static const uint8_t highs[8]={45,55,50,58,60,65,75,85};
+ for(unsigned map=4;map<12;map++)for(unsigned dir=0;dir<3;dir++)for(unsigned deep=0;deep<2;deep++){
+  unsigned levels[101]={0};
+  for(unsigned seed=1;seed<=1000;seed++){
+   exploration_regions_t rs={.selected=map};rs.region[0].claimed=1;rs.region[map-4].steps=seed;rs.region[map-4].deep=deep;
+   enc_refresh_state_t refresh={0};enc_queue_t q={0};dex_t dex={0};inventory_t bag={0};
+   exploration_event_t e=exploration_region_step(&rs,&refresh,&q,&dex,0,0x3fff,&bag,dir+1);
+   assert(e.kind==EXPLORE_ENCOUNTER&&on_trail(exploration_region_trail(map,dir),e.species));
+   assert(e.level>=lows[map-4][deep]&&e.level<=highs[map-4]);
+   assert(q.count==1&&q.items[0].level==e.level);levels[e.level]++;trail_samples++;
+  }
+  // Every level in the displayed band is reachable, rather than one clamped
+  // level (or a level chosen from a leader-dependent subset).
+  for(unsigned level=lows[map-4][deep];level<=highs[map-4];level++)assert(levels[level]>10);
+ }
+ tests++;
+}
+static void world_level_rules(void){
+ exploration_event_t reference={0};
+ for(unsigned trial=0;trial<3;trial++){
+  setup();unlock_all();unsigned level=(unsigned[]){10,40,100}[trial];
+  s_party.party[0].level=s_w.level=level;s_party.party[0].exp=s_w.exp=exp_for_level(level);
+  assert(world_exploration_select(4)==EXPLORE_NONE);
+  exploration_event_t e=world_explore_path(1);assert(e.kind==EXPLORE_ENCOUNTER);
+  if(trial)assert(e.species==reference.species&&e.rarity==reference.rarity&&e.level==reference.level);else reference=e;
+  encounter_t copy=*enc_queue_find(&s_queue,e.uid);assert(copy.level==e.level);
+  world_party_t party;world_party_snapshot(&party);
+  assert(world_set_leader(1,&party.members[1],NULL)==WORLD_SWITCH_OK);
+  assert(!memcmp(&copy,enc_queue_find(&s_queue,e.uid),sizeof(copy)));
+  restart();assert(!memcmp(&copy,enc_queue_find(&s_queue,e.uid),sizeof(copy)));
+ }
+ // Legacy route scaling remains; all existing queued levels are saved as-is.
+ for(unsigned trial=0;trial<2;trial++){
+  setup();unlock_all();unsigned level=trial?70:20;
+  s_party.party[0].level=s_w.level=level;s_party.party[0].exp=s_w.exp=exp_for_level(level);
+  assert(world_exploration_select(0)==EXPLORE_NONE);
+  exploration_event_t e=world_explore();assert(e.kind==EXPLORE_ENCOUNTER);
+  static const unsigned percent[6]={90,85,90,95,100,105};
+  assert(e.level==level*percent[e.rarity]/100);
+ }
+ tests++;
+}
 static void habitats(void){
  exploration_regions_t rs={0};assert(exploration_map_open(0,0,&rs));
  for(unsigned map=4;map<12;map++){
@@ -109,6 +188,6 @@ static void run_migration(void){
  assert(run.node==1&&run.cards==(1u<<3)&&run.count==2&&run.members[0].species_id==6&&run.members[1].species_id==9&&run.members[1].flags==1);
  assert(run.battle.session.sides[0].mons[0].hp==72&&dungeon_resume());tests++;
 }
-int main(void){assert(assets_init());habitats();odds();region_transactions();theme_rewards();overflow();run_migration();printf("{\"passed\":true,\"maps\":8,\"themes\":9,\"samples\":246424,\"checks\":%u,\"save_bytes\":%zu,\"sanitizers\":true}\n",tests,sizeof(save_t));return 0;}
+int main(void){assert(assets_init());habitats();odds();trail_rules();trail_levels();world_level_rules();region_transactions();theme_rewards();overflow();run_migration();printf("{\"passed\":true,\"maps\":8,\"themes\":9,\"samples\":246424,\"trail_samples\":%u,\"checks\":%u,\"save_bytes\":%zu,\"sanitizers\":true}\n",trail_samples,tests,sizeof(save_t));return 0;}
 '''
 if __name__ == '__main__':h.run()
