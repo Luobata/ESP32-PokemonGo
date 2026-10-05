@@ -1,0 +1,40 @@
+{
+  "project_id": 234,
+  "slug": "pokewalk",
+  "prior_public_revision": 2017,
+  "source_commit": "68ffedde49802f3529538a6251e4c661719ca183",
+  "bilingual_fields_match": true,
+  "app_and_update_zip_and_full_image_match": true,
+  "application_sha256": "14b3be6da18142f7292aca5a7fd82f5834ce66253bca7962218b2efa3b227de0",
+  "images": [
+    {
+      "path": "release/community/pokewalk-cover.png",
+      "sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6",
+      "visually_inspected": true
+    },
+    {
+      "path": "reports/evidence/gen1-regions-2026-10-05/map-4.png",
+      "sha256": "4c4be0b2084c445f5df5346559f29cd1b0aa4bda00028cbb8c4282ee4fad543b",
+      "visually_inspected": true
+    },
+    {
+      "path": "reports/evidence/region-trails-2026-10-05/trails-4-deep.png",
+      "sha256": "2e32b3c686295298d2248f3f6449ef863bce52ca41c1d5dbebc33c0811c45238",
+      "visually_inspected": true
+    },
+    {
+      "path": "reports/evidence/community-media-2026-09-13/reselection/04-red-challenge.png",
+      "sha256": "633c06ba98b0eddfabf7694caa298f7c1fb79d6da6b76bbc4d5385f2b79d6fda",
+      "visually_inspected": true
+    },
+    {
+      "path": "reports/evidence/gen1-regions-2026-10-05/theme-clear.png",
+      "sha256": "97725d764bdc8b6dae2c9b1fefceb0bc50ac5ab2fe81ecbc4030a51426ad204a",
+      "visually_inspected": true
+    }
+  ],
+  "tags": "preserve existing; available multiplayer/family tags do not apply",
+  "status": "submitted_pending_review",
+  "flash_or_reset_for_publishing": false,
+  "revision_id": 2070
+}

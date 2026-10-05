@@ -1,0 +1,48 @@
+{
+  "tool_changed": false,
+  "redeploy_needed": false,
+  "live_checks": [
+    {
+      "service": "pages",
+      "checks": {
+        "index.html": {
+          "sha256": "01a43e6a519b4323837890085146fbee0cf5dcc29f670e57e0562a8a0f441d5b",
+          "matches_source": true
+        },
+        "app.mjs": {
+          "sha256": "91a9d22c1409209789234bd9301ffdef610d68b87398aae029dc37b591eb6485",
+          "matches_source": true
+        },
+        "backup.mjs": {
+          "sha256": "16c6de8bc1cb8e6bf968b28fba4969988f5299659ee4561ca6b70c28f4b9c0a1",
+          "matches_source": true
+        },
+        "download/PokeWalkSaveManager.zip": {
+          "sha256": "7bf3e43c6c698973e28a62e7511dddf38e81f2cc3aa28a648dfac2f4648a463b",
+          "runtime_matches_source": true
+        }
+      }
+    },
+    {
+      "service": "devbox",
+      "checks": {
+        "index.html": {
+          "sha256": "01a43e6a519b4323837890085146fbee0cf5dcc29f670e57e0562a8a0f441d5b",
+          "matches_source": true
+        },
+        "app.mjs": {
+          "sha256": "91a9d22c1409209789234bd9301ffdef610d68b87398aae029dc37b591eb6485",
+          "matches_source": true
+        },
+        "backup.mjs": {
+          "sha256": "16c6de8bc1cb8e6bf968b28fba4969988f5299659ee4561ca6b70c28f4b9c0a1",
+          "matches_source": true
+        },
+        "download/PokeWalkSaveManager.zip": {
+          "sha256": "7bf3e43c6c698973e28a62e7511dddf38e81f2cc3aa28a648dfac2f4648a463b",
+          "runtime_matches_source": true
+        }
+      }
+    }
+  ]
+}

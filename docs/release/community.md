@@ -1,6 +1,19 @@
 # AI Passport 社区发布
 
-## 2026-10-05 第一世代地区与秘境扩展：GitHub 已发布，社区待处理冲突
+## 2026-10-05 功能扩展：REV-2070 已提交审核
+
+原项目 **234 / pokewalk** 的 **REV-2070** 已提交审核（pending），尚未公开上线。上一公开版 **REV-2017** 已通过审核，之前的待审冲突解除。本次把八张新地图、八个主题秘境、冠军远征、地区研究和稀有伙伴奖励，以及 24 条栖息地分路、地区等级和追踪图标修复一起提交。
+
+源码 **`68ffedd`** 已合并并推送 main，[固件 CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37333984955) 全部通过。[GitHub Release v2026.10.05-expansion](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.05-expansion) 已公开，完整安装包、保档 USB 更新包和 manifest 的服务端摘要与本地一致。社区双语介绍、使用说明、增量日志、games 分类、源码地址及完整固件摘要已回读一致。保留战斗封面、赤红，配上海岛探索、分路选择及主题通关，共五张经过查看的文件随请求上传；publisher API 未返回待审图库，未核对服务器端图片内容或数量。
+
+世界存档 V18 支持 V5～V18，旧秘境 V3→V4 迁移和历史样本通过。11 项存档/地区/栈检查、456 项预览检查、本地编译及两层发布包校验通过，另执行发布分区保护检查。本轮使用隔离环境中的真实 ESP-IDF NVS 恢复/回滚，没有烧录、复位或覆盖玩家设备；先前构建的真机验证不算本构建验收。
+
+新内容需升级固件。现有分区匹配设备可用保档 ZIP；社区完整安装会覆盖旧存档区域，必须先备份、安装后导入。存档工具本轮未变，在线 Pages、devbox 与离线 ZIP 已重新核对一致，无需重新部署；早期工具仍须先刷新或重新下载。
+
+[中文增量说明](2026-10-05-expansion/changelog.zh.md) · [验证报告](../../reports/expansion-release-2026-10-05.md) · [社区回执](../../reports/evidence/expansion-release-2026-10-05/community.json) · [产物核对](../../reports/evidence/expansion-release-2026-10-05/package.json)。
+
+
+## 历史准备：2026-10-05 地区扩展（当时有待审冲突，后续已提交 REV-2070）
 
 代码 **`68d4276`** 已合并并推送 main；[固件 CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37236920109) 全部通过。[GitHub Release v2026.10.05-regions](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.05-regions) 已公开，提供完整安装包、保档 USB 更新包和摘要。
 

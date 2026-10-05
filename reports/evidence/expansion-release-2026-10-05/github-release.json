@@ -1,0 +1,31 @@
+{
+  "id": 403877101,
+  "tag_name": "v2026.10.05-expansion",
+  "name": "PokeWalk · 新地图、探索分路与主题秘境",
+  "target_commitish": "68ffedde49802f3529538a6251e4c661719ca183",
+  "html_url": "https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.05-expansion",
+  "draft": false,
+  "prerelease": false,
+  "published_at": "2026-10-05T15:40:04Z",
+  "assets": [
+    {
+      "name": "FoloToy-AI-Passport-full.bin",
+      "size": 3229888,
+      "digest": "sha256:f1de38b3c2d3cf156c5eed25954171999614d14e67f907a2628b9ef81aab6642",
+      "browser_download_url": "https://github.com/Luobata/ESP32-PokemonGo/releases/download/v2026.10.05-expansion/FoloToy-AI-Passport-full.bin"
+    },
+    {
+      "name": "manifest.json",
+      "size": 861,
+      "digest": "sha256:0ed1096305f7ec3c728352d4a2dc21c1ce7cb9bc8349ab5207b0d4c33a8e11bd",
+      "browser_download_url": "https://github.com/Luobata/ESP32-PokemonGo/releases/download/v2026.10.05-expansion/manifest.json"
+    },
+    {
+      "name": "PokeWalk-update.zip",
+      "size": 1407281,
+      "digest": "sha256:81cd4052a267ac81d7500efa5d57f1562a66cbaf99d5ca4a07382f9660b4c4fb",
+      "browser_download_url": "https://github.com/Luobata/ESP32-PokemonGo/releases/download/v2026.10.05-expansion/PokeWalk-update.zip"
+    }
+  ],
+  "asset_digests_match_local": true
+}
