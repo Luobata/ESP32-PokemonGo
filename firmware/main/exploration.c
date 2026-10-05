@@ -74,6 +74,35 @@ const char *exploration_story(unsigned species,unsigned clue) {
 static uint32_t mix(uint32_t x) {
  x^=x>>16;x*=0x7feb352du;x^=x>>15;x*=0x846ca68bu;return x^(x>>16);
 }
+unsigned exploration_chain_shiny_bp(uint32_t wins,shiny_source_t source) {
+ uint64_t denominator=(uint64_t)wins+48u*enc_shiny_denominator(source);
+ return (unsigned)(((uint64_t)wins+48u)*10000u/denominator);
+}
+void exploration_chain_discovery(exploration_event_t *event,enc_queue_t *q,dex_t *dex,uint32_t wins) {
+ if(!event||!event->uid)return;
+ encounter_t *e=enc_queue_find(q,event->uid);
+ if(!exploration_chain_encounter(e))return;
+ shiny_source_t source=e->activity==ENC_ACTIVITY_EXPLORATION?SHINY_EXPLORATION:SHINY_BADGE;
+ // The base draw already happened in the encounter generator. An independent
+ // bonus gives P=(wins+48)/(wins+48*base_denominator), with no gameplay cap.
+ // Only run during creation, before the candidate save commits.
+ uint32_t roll=event->chain_roll;
+ uint64_t threshold=((uint64_t)wins<<32)/((uint64_t)wins+48u*enc_shiny_denominator(source));
+ if(wins&&roll<threshold)e->is_shiny=true;
+ event->shiny=e->is_shiny;dex_mark_seen(dex,e->species_id,e->is_shiny);
+}
+unsigned exploration_legacy_level_min(unsigned route) {
+ static const uint8_t minimum[4]={2,8,12,18};return route<4?minimum[route]:1;
+}
+static void clue_supply(exploration_event_t *e,inventory_t *bag,unsigned local_item,uint32_t seed) {
+ if(!bag)return;
+ unsigned roll=seed%100;
+ unsigned item=roll<45?ITEM_BERRY:roll<65?ITEM_MILK:roll<70?ITEM_ENERGY_ROOT:roll<75?ITEM_JOY_COOKIE:local_item;
+ item_loot_t loot={.item_id=item,.quantity=item==ITEM_BERRY?2:1};
+ loot=items_fit_loot(loot,bag,mix(seed));
+ bag->quantity[loot.item_id]+=loot.quantity;
+ e->item=loot.item_id;e->quantity=loot.quantity;e->item_full=loot.full;
+}
 static bool pending(const enc_queue_t *q,unsigned species) {
  for(unsigned i=0;i<q->count;i++)if(q->items[i].species_id==species)return true;
  return false;
@@ -103,7 +132,7 @@ static exploration_event_t step(exploration_state_t *s,enc_refresh_state_t *r,
  unsigned species=0;
  if(target) {
   species=target_override?target_override:campaign?exploration_focus(s,defeated):ROUTES[route].target;
-  unsigned native_rarity;if(exploration_habitat(species,&native_rarity)>=0&&rarity<native_rarity)rarity=native_rarity;
+  unsigned native_rarity;if(exploration_habitat(species,&native_rarity)>=0)rarity=native_rarity;
   if(pending(q,species)){e.kind=EXPLORE_BLOCKED;return e;}
  } else {
   const uint8_t *pool=POOLS[route][rarity-1];
@@ -122,17 +151,17 @@ static exploration_event_t step(exploration_state_t *s,enc_refresh_state_t *r,
  species_t sp;
  if(!assets_species(species,&sp)){e.kind=EXPLORE_BLOCKED;return e;}
  uint32_t shiny=mix(seed^0x735a91cdu);
- encounter_t encounter={.ts=r->online_s,.species_id=species,.rarity=rarity,
+ encounter_t encounter={.activity=ENC_ACTIVITY_EXPLORATION,.ts=r->online_s,.species_id=species,.rarity=rarity,
   .biome=route,.hp_ratio=100,.is_transient=true,.is_shiny=enc_shiny_from_roll(shiny,SHINY_EXPLORATION)};
  while(!q->next_uid||q->next_uid==active_uid||enc_queue_find(q,q->next_uid))q->next_uid++;
  enc_queue_push(q,&encounter);
  dex_mark_seen(dex,species,encounter.is_shiny);
  s->steps++;
  if(target){s->clues[route]=0;s->pulse[route]=0;}else s->pulse[route]=1;
- r->since_rare=rarity>=4?0:r->since_rare+1;
- r->since_elite=rarity>=5?0:r->since_elite+1;
+ r->since_rare=rarity>=4?0:r->since_rare<7?r->since_rare+1:7;
+ r->since_elite=rarity>=5?0:r->since_elite<29?r->since_elite+1:29;
  e.kind=target?EXPLORE_TARGET:EXPLORE_ENCOUNTER;
- e.uid=q->items[q->count-1].uid;e.species=species;e.rarity=rarity;e.shiny=encounter.is_shiny;
+ e.uid=q->items[q->count-1].uid;e.species=species;e.rarity=rarity;e.shiny=encounter.is_shiny;e.chain_roll=mix(seed^0x8da6b343u);
  e.clues=s->clues[route];return e;
 }
 
@@ -143,14 +172,11 @@ exploration_event_t exploration_step_with_target(exploration_state_t *s,enc_refr
  if(e.kind!=EXPLORE_CLUE||!bag)return e;
  unsigned chapter=exploration_chapter_current(defeated);
  uint32_t roll=mix(s->steps^r->serial*0x9e3779b9u^s->route*0x85ebca6bu^0x18b479u);
- if(roll%100>=60u)return e;
  // Previously unlocked supplies remain available. Master Balls remain uncommon among
  // clue discoveries after Red, and never replace the champion reward.
  unsigned reward=(roll/100)%(chapter+1);
  if(reward==8 && (roll/1000)%4!=0)reward=7;
- e.item=exploration_chapter(reward)->item;
- if(bag->quantity[e.item]>=items_capacity(e.item)){e.item_full=true;return e;}
- bag->quantity[e.item]++;e.quantity=1;return e;
+ clue_supply(&e,bag,exploration_chapter(reward)->item,roll);return e;
 }
 
 exploration_event_t exploration_step_progress(exploration_state_t *s,enc_refresh_state_t *r,enc_queue_t *q,dex_t *d,uint16_t active,uint16_t defeated,inventory_t *bag){return exploration_step_nurtured(s,r,q,d,active,defeated,bag,NULL);}
@@ -258,7 +284,7 @@ exploration_event_t exploration_activity_spawn(unsigned id,exploration_updates_t
  while(!q->next_uid||q->next_uid==active||enc_queue_find(q,q->next_uid))q->next_uid++;
  enc_queue_push(q,&enc);u->activity_uid[id]=q->items[q->count-1].uid;
  dex_mark_seen(d,species,enc.is_shiny);
- e.kind=EXPLORE_ENCOUNTER;e.uid=u->activity_uid[id];e.species=species;e.rarity=rarity;e.level=enc.level;e.route=a->route;e.shiny=enc.is_shiny;return e;
+ e.kind=EXPLORE_ENCOUNTER;e.uid=u->activity_uid[id];e.species=species;e.rarity=rarity;e.level=enc.level;e.route=a->route;e.shiny=enc.is_shiny;e.chain_roll=mix(seed^0x8da6b343u);return e;
 }
 void exploration_activity_credit(exploration_updates_t *u,const encounter_t *enc) {
  if(!enc->activity||enc->activity>8)return;
@@ -350,7 +376,7 @@ static const exploration_trail_t TRAILS[EXPLORATION_REGIONS][3]={
   {"秘密档案",{63,64,93,65,94,122,150}}},
  {{"冰雪足迹",{86,87,90,91,124}},
   {"山间营地",{75,95,80,143,117,148}},
-  {"峰顶传说",{148,121,131,149,144}}},
+  {"峰顶传说",{117,80,148,121,131,149,144}}},
 };
 const exploration_trail_t *exploration_region_trail(unsigned map,unsigned direction){
  return map>=4&&map<EXPLORATION_MAPS&&direction<3?&TRAILS[map-4][direction]:NULL;
@@ -379,7 +405,7 @@ bool exploration_regions_valid(const exploration_regions_t *s){
  if(!s||s->selected>=EXPLORATION_MAPS||s->dungeon_pity>4||!items_inventory_valid(&s->pending_items))return false;
  for(unsigned i=0;i<8;i++){
   const exploration_region_progress_t *p=&s->region[i];
-  if(p->clues>3||p->pulse>1||p->pity>5||p->deep>1||p->traced>1||p->claimed>1||p->challenge_clear>1||(p->target&&!region_has(i+4,p->target)))return false;
+  if(p->clues>3||p->pulse>1||p->pity>EXPLORATION_REGION_PITY||p->deep>1||p->traced>1||p->claimed>1||p->challenge_clear>1||(p->target&&!region_has(i+4,p->target)))return false;
  }
  const encounter_t *p=&s->pending_partner;
  // Inspect raw bool bytes before evaluating untrusted NVS fields.
@@ -411,25 +437,32 @@ exploration_event_t exploration_region_step(exploration_regions_t *s,enc_refresh
  uint32_t seed=mix(p->steps^map*7919u^refresh->serial*0x9e3779b9u);
  if(p->clues<3&&p->pulse){
   p->steps++;p->target=target;p->pulse=0;p->clues++;e.kind=EXPLORE_CLUE;e.clues=p->clues;
-  if(!p->deep&&seed%100<60){unsigned item=(seed/100)%4?r->item:ITEM_ULTRA;e.item=item;e.item_full=bag->quantity[item]>=items_capacity(item);if(!e.item_full){bag->quantity[item]++;e.quantity=1;}}
+  clue_supply(&e,bag,(seed/100)%4?r->item:ITEM_ULTRA,mix(seed^0x18b479u));
   return e;
  }
  unsigned id=0,tier=0;bool traced=p->clues==3;
  if(traced){id=target;if(pending(q,id))return e;exploration_habitat(id,&tier);}
  else{
-  unsigned candidates[5][24],n[5]={0},weights[5]={0,10,50,32,8};
-  if(p->deep){weights[0]=weights[1]=0;weights[2]=35;weights[3]=50;weights[4]=15;}
-  if(p->pity==5)weights[0]=weights[1]=weights[2]=0;
+  unsigned candidates[5][24],n[5]={0},weights[5]={0,30,56,12,2};
+  if(p->deep){weights[1]=18;weights[3]=22;weights[4]=4;}
+  bool guaranteed=p->pity>=EXPLORATION_REGION_PITY;
   const uint8_t *pool=direction?exploration_region_trail(map,direction-1)->species:r->pool;
   unsigned capacity=direction?12:24;
   for(unsigned i=0;i<capacity&&pool[i];i++){unsigned sp=pool[i],t=0;exploration_habitat(sp,&t);if(t&&exploration_species_open(sp,defeated)&&!pending(q,sp))candidates[t-1][n[t-1]++]=sp;}
-  unsigned total=0;for(unsigned t=0;t<5;t++)if(n[t])total+=weights[t];
-  if(!total&&p->pity==5){ // Keep a promised rare encounter available across nearby trails.
+  if(guaranteed&&!n[3]&&!n[4]){ // Promised rare encounter can use a nearby habitat.
    for(unsigned i=0;i<24&&r->pool[i];i++){unsigned sp=r->pool[i],t=0;exploration_habitat(sp,&t);if(t>=4&&exploration_species_open(sp,defeated)&&!pending(q,sp))candidates[t-1][n[t-1]++]=sp;}
-   for(unsigned t=3;t<5;t++)if(n[t])total+=weights[t];
   }
-  if(!total)return e;
-  unsigned roll=seed%total;for(tier=1;tier<=5;tier++)if(n[tier-1]){if(roll<weights[tier-1])break;roll-=weights[tier-1];}
+  unsigned roll=seed%(guaranteed?(weights[3]+weights[4]):100);
+  for(tier=guaranteed?4:1;tier<5;tier++){if(roll<weights[tier-1])break;roll-=weights[tier-1];}
+  // Missing tiers never magnify the rare share. Redirect downward first. A
+  // common roll can only use another common tier, or wait for pending entries.
+  if(!n[tier-1]){
+   unsigned replacement=0;
+   for(unsigned t=guaranteed?4:1;t<tier;t++)if(n[t-1])replacement=t;
+   if(!replacement)for(unsigned t=guaranteed?4:1;t<=(tier<=3?3u:5u);t++)if(n[t-1]){replacement=t;break;}
+   if(!replacement)return e;
+   tier=replacement;
+  }
   unsigned count=n[tier-1],start=mix(seed)%count;id=candidates[tier-1][start];
   if(seed&3)for(unsigned j=0;j<count;j++){unsigned sp=candidates[tier-1][(start+j)%count];if(!dex_is_caught(dex,sp)){id=sp;break;}}
  }
@@ -437,11 +470,11 @@ exploration_event_t exploration_region_step(exploration_regions_t *s,enc_refresh
  // A separate roll avoids tying level to the rarity roll. It is persisted with
  // the encounter: opening a page, switching leaders or rebooting cannot reroll it.
  unsigned level=low+mix(seed^0x4c657665u)%(r->max_level-low+1);
- encounter_t enc={.ts=refresh->online_s,.species_id=id,.rarity=tier,.level=level,.biome=r->biome,.hp_ratio=100,.is_transient=true,.is_shiny=enc_shiny_from_roll(mix(seed^0x735a91cdu),SHINY_EXPLORATION)};
+ encounter_t enc={.activity=ENC_ACTIVITY_EXPLORATION,.ts=refresh->online_s,.species_id=id,.rarity=tier,.level=level,.biome=r->biome,.hp_ratio=100,.is_transient=true,.is_shiny=enc_shiny_from_roll(mix(seed^0x735a91cdu),SHINY_EXPLORATION)};
  while(!q->next_uid||q->next_uid==active||enc_queue_find(q,q->next_uid))q->next_uid++;
  enc_queue_push(q,&enc);dex_mark_seen(dex,id,enc.is_shiny);p->steps++;
- if(traced){p->clues=p->pulse=0;p->traced=1;p->target=0;}else{p->pulse=1;p->target=target;p->pity=tier>=4?0:p->pity<5?p->pity+1:5;}
- e.kind=traced?EXPLORE_TARGET:EXPLORE_ENCOUNTER;e.uid=q->items[q->count-1].uid;e.species=id;e.rarity=tier;e.level=level;e.shiny=enc.is_shiny;e.clues=p->clues;return e;
+ if(traced){p->clues=p->pulse=0;p->traced=1;p->target=0;if(tier>=4)p->pity=0;}else{p->pulse=1;p->target=target;p->pity=tier>=4?0:p->pity<EXPLORATION_REGION_PITY?p->pity+1:EXPLORATION_REGION_PITY;}
+ e.kind=traced?EXPLORE_TARGET:EXPLORE_ENCOUNTER;e.uid=q->items[q->count-1].uid;e.species=id;e.rarity=tier;e.level=level;e.shiny=enc.is_shiny;e.chain_roll=mix(seed^0x8da6b343u);e.clues=p->clues;return e;
 }
 bool exploration_region_partner(unsigned map,unsigned direction,bool challenge,uint32_t seed,uint16_t defeated,exploration_regions_t *s,encounter_t *out){
  const exploration_region_t *r=exploration_region(map);if(!r||direction>=3)return false;

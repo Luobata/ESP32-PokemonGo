@@ -45,6 +45,7 @@ bool items_inventory_valid(const inventory_t *inventory);
 uint8_t items_drop_chance(uint8_t rarity); // Special-loot roll percent, 25/35/45/55/65; otherwise basic supplies.
 // Deterministic independent loot stream. Does not access battle's RNG.
 item_loot_t items_roll_loot(uint8_t rarity, uint32_t seed);
+item_loot_t items_fit_loot(item_loot_t loot, const inventory_t *bag, uint32_t seed);
 uint32_t items_loot_seed(uint16_t uid, uint32_t ts, uint16_t species, uint8_t rarity);
 // Pure eligibility/application, does not consume inventory. Ball use belongs
 // exclusively to the capture transaction. Results preserve level/EXP.

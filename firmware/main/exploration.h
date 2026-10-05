@@ -6,6 +6,7 @@
 #define EXPLORATION_MAPS (EXPLORATION_ROUTES + EXPLORATION_REGIONS)
 #define EXPLORATION_CAPACITY 24
 #define EXPLORATION_CLUES 3
+#define EXPLORATION_REGION_PITY 9
 
 typedef struct {
  // energy is a legacy V14 byte, retained only for save compatibility; ignored by gameplay.
@@ -36,6 +37,7 @@ typedef struct {
  bool shiny;
  uint8_t item,quantity;
  bool item_full;
+ uint32_t chain_roll; // Ephemeral independent draw; never persisted or re-rolled on display.
  uint16_t exp; // Actual leader gain after the durable discovery settlement.
 } exploration_event_t;
 // Separate save extension: never enlarge the V11-V15 exploration prefix.
@@ -91,7 +93,7 @@ typedef struct {
  exploration_updates_t updates;
  exploration_regions_t regions;
  uint8_t route,clues,target,deep,deep_unlocked,traced,claimed,pinned;
- uint32_t discoveries;
+ uint32_t discoveries,chain_wins;
  uint16_t defeated;
  uint8_t stamina,exp_percent,rare_bonus,party_bonus;
  uint8_t rare_left,elite_left,pending;
@@ -152,3 +154,16 @@ exploration_event_t exploration_step_with_target(exploration_state_t*,enc_refres
 // Forest dungeon clear reward. Pure candidate: no queue, dex or RNG mutation.
 bool exploration_dungeon_partner(uint32_t seed,uint32_t run_id,uint16_t defeated,
                                  const enc_queue_t *queue,encounter_t *out);
+
+// Only tagged map/badge exploration encounters participate. Passive discoveries,
+// dungeon partners and trainer battles never touch this separately saved chain.
+static inline bool exploration_chain_encounter(const encounter_t *e) {
+ return e&&e->activity>=1&&e->activity<=ENC_ACTIVITY_EXPLORATION;
+}
+static inline void exploration_chain_settle(uint32_t *wins,const encounter_t *e,bool won) {
+ if(!wins||!exploration_chain_encounter(e))return;
+ if(!won)*wins=0;else if(*wins<UINT32_MAX)(*wins)++;
+}
+unsigned exploration_chain_shiny_bp(uint32_t wins,shiny_source_t source);
+void exploration_chain_discovery(exploration_event_t *,enc_queue_t *,dex_t *,uint32_t wins);
+unsigned exploration_legacy_level_min(unsigned route);

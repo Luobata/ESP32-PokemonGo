@@ -407,8 +407,9 @@ static void draw_band(int band_y)
         unsigned gained = s_exp_anim
             ? (unsigned)s_res.exp * s_exp_frame / BATTLE_PRESENTATION_EXP_FRAMES : s_res.exp;
         if (s_res.won) {
-            snprintf(buf, sizeof(buf), "胜利 经验 +%u", gained);
-            render_text(MSG_X, Y(MSG_Y), buf, C_INK);
+            if(exploration_chain_encounter(&nav_ctx()->enc))snprintf(buf,sizeof(buf),"连胜%lu 经验+%u",(unsigned long)world_exploration_chain(),gained);
+            else snprintf(buf, sizeof(buf), "胜利 经验 +%u", gained);
+            game_ui_text_fitted(band_y,MSG_X,MSG_Y,MSG_RIGHT-MSG_X,buf,C_INK);
             const item_info_t *item = items_info(s_session.loot_item);
             if (s_loot_failed) snprintf(buf, sizeof(buf), "掉落保存失败，请重试");
             else if (item && s_session.loot_qty)
@@ -419,7 +420,7 @@ static void draw_band(int band_y)
         } else {
             snprintf(buf, sizeof(buf), "战败 经验 +%u", gained);
             render_text(MSG_X, Y(MSG_Y), buf, C_INK);
-            render_text(MSG_X, Y(MSG_DETAIL_Y), "体能 -20 心情 -15", GAME_UI_MUTED);
+            game_ui_text_fitted(band_y,MSG_X,MSG_DETAIL_Y,MSG_RIGHT-MSG_X,exploration_chain_encounter(&nav_ctx()->enc)?"连胜中断 体能-20":"体能 -20 心情 -15",GAME_UI_MUTED);
         }
     } else {
         const char *message = s_store_failed ? "保存失败，请重试"

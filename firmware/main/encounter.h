@@ -21,6 +21,9 @@
 #define DEX_SPECIES 151
 #define DEX_BYTES ((DEX_SPECIES + 7) / 8)    // 19
 
+// V19 provenance: 1..8 are badge exploration activities; 9 is map exploration.
+#define ENC_ACTIVITY_EXPLORATION 9
+
 // 一条待处理遭遇。定长 —— 固件不做动态分配。
 typedef struct {
     // 稳定标识。**不能用队列下标认这一条** ——
@@ -31,7 +34,7 @@ typedef struct {
     // 真的捕获，另外两轮的 take 落在别的条目上，队列还越攒越多。
     uint16_t uid;
     uint8_t level;            // V16: fixed at discovery; zero only for legacy callers.
-    uint8_t activity;         // V16: badge activity 1..8, zero for ordinary encounters.
+    uint8_t activity;         // V16: badges 1..8; V19: 9 map exploration; 0 passive/dungeon.
 
     uint32_t ts;
     uint16_t species_id;

@@ -79,16 +79,17 @@ item_loot_t items_roll_loot(uint8_t rarity, uint32_t seed)
     uint32_t rng = seed ^ 0xA511E9B3u;
     if (!rng) rng = 0x6D2B79F5u;
     if (next_random(&rng) % 100 >= items_drop_chance(rarity)) {
-        out.item_id=next_random(&rng)%4?ITEM_POKE:ITEM_BERRY;
-        out.quantity=out.item_id==ITEM_POKE?2:1;
+        unsigned roll=next_random(&rng)%100;
+        out.item_id=roll<30?ITEM_POKE:roll<70?ITEM_BERRY:roll<90?ITEM_MILK:roll<96?ITEM_ENERGY_ROOT:ITEM_JOY_COOKIE;
+        out.quantity=(out.item_id==ITEM_POKE||out.item_id==ITEM_BERRY)?2:1;
         return out;
     }
     static const uint8_t weights[5][ITEM_COUNT] = {
-        {40,12, 2,0, 2,2,2,2, 1,1,1,1,1, 0,0, 24,5,12,5},
-        {32,17, 5,0, 3,3,3,3, 2,2,2,2,2, 1,1, 18,6,12,6},
-        {23,20, 9,0, 5,5,5,5, 3,3,3,3,3, 2,2, 14,7,11,7},
-        {15,20,14,0, 6,6,6,6, 5,5,5,5,5, 4,4, 10,7,10,7},
-        { 8,16,20,1, 8,8,8,8, 7,7,7,7,7, 6,6,  7,7, 8,7},
+        {12, 6, 1,0, 1,1,1,1, 1,1,1,1,1, 0,0, 36,8,20,8},
+        {10, 8, 3,0, 2,2,2,2, 2,2,2,2,2, 1,1, 30,8,20,8},
+        { 8,10, 5,0, 3,3,3,3, 3,3,3,3,3, 2,2, 26,8,18,8},
+        { 6, 8, 7,0, 3,3,3,3, 5,5,5,5,5, 4,4, 24,8,16,8},
+        { 4, 6, 8,1, 3,3,3,3, 7,7,7,7,7, 6,6, 22,7,14,7},
     };
     unsigned total = 0;
     for (unsigned i = 0; i < ITEM_COUNT; i++) total += weights[rarity-1][i];
@@ -102,6 +103,26 @@ item_loot_t items_roll_loot(uint8_t rarity, uint32_t seed)
         pick -= weights[rarity-1][i];
     }
     return out;
+}
+
+// A full rolled stack redirects to the least stocked basic supply. Rare items
+// are never minted by overflow, and the caller commits the actual result once.
+item_loot_t items_fit_loot(item_loot_t loot,const inventory_t *bag,uint32_t seed)
+{
+    if(!bag||loot.item_id>=ITEM_COUNT||!loot.quantity)return loot;
+    if(bag->quantity[loot.item_id]>=items_capacity(loot.item_id)) {
+        static const uint8_t supplies[]={ITEM_BERRY,ITEM_MILK,ITEM_ENERGY_ROOT,ITEM_JOY_COOKIE,ITEM_POKE,ITEM_GREAT};
+        unsigned best=ITEM_NONE;
+        for(unsigned j=0;j<sizeof(supplies);j++) {
+            unsigned id=supplies[(j+seed%sizeof(supplies))%sizeof(supplies)];
+            if(bag->quantity[id]>=items_capacity(id))continue;
+            if(best==ITEM_NONE||(uint32_t)bag->quantity[id]*items_capacity(best)<(uint32_t)bag->quantity[best]*items_capacity(id))best=id;
+        }
+        if(best!=ITEM_NONE){loot.item_id=best;loot.quantity=(best==ITEM_BERRY||best==ITEM_POKE)?2:1;}
+    }
+    unsigned room=items_capacity(loot.item_id)-bag->quantity[loot.item_id];
+    loot.full=room<loot.quantity;if(loot.quantity>room)loot.quantity=room;
+    return loot;
 }
 
 static int32_t add_axis(int32_t before, int amount)

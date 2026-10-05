@@ -253,6 +253,7 @@ achievement_claim_t world_achievement_claim(unsigned id);
 
 #include "exploration.h"
 void world_exploration_snapshot(exploration_view_t *out);
+uint32_t world_exploration_chain(void);
 exploration_kind_t world_exploration_select(uint8_t route);
 exploration_kind_t world_exploration_depth(void);
 bool world_region_collect(void);

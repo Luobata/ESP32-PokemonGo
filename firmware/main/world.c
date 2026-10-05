@@ -120,6 +120,7 @@ static save_t s_save_buf;
 static bool s_dirty;
 static enc_refresh_state_t s_refresh;
 static exploration_state_t s_exploration;
+static uint32_t s_exploration_wins;
 static exploration_updates_t s_exploration_updates;
 static exploration_regions_t s_regions;
 static rest_clock_t s_rest_clock;
@@ -244,6 +245,7 @@ static void collect_save_locked(save_t *sv)
     refresh_clock_locked();
     sv->refresh = s_refresh;
     sv->exploration = s_exploration;
+    sv->exploration_wins = s_exploration_wins;
     sv->exploration_updates = s_exploration_updates;
     sv->regions=s_regions;
     sv->dungeon = s_dungeon;
@@ -640,11 +642,9 @@ bool world_battle_loot_uid(uint16_t uid, item_loot_t *out)
         items_loot_seed(entry->uid, entry->ts, entry->species_id, entry->rarity));
     collect_save_locked(&s_save_buf);
     if (s_save_buf.challenge.wild_wins < UINT16_MAX) s_save_buf.challenge.wild_wins++;
+    loot=items_fit_loot(loot,&s_save_buf.inventory,items_loot_seed(entry->uid,entry->ts,entry->species_id,entry->rarity));
     if (loot.item_id < ITEM_COUNT) {
         uint16_t *quantity = &s_save_buf.inventory.quantity[loot.item_id];
-        uint16_t room = items_capacity(loot.item_id) - *quantity;
-        loot.full = room < loot.quantity;
-        if (loot.quantity > room) loot.quantity = (uint8_t)room;
         *quantity += loot.quantity;
     }
     s_dirty = false;
@@ -884,8 +884,9 @@ bool world_apply_defeat_uid(uint16_t uid)
     }
     if(session->defeat_applied){unlock_encounter_change();return true;}
     collect_save_locked(&s_save_buf);nurture_defeat(&s_save_buf.pet);
+    if(!session->pet_hp)exploration_chain_settle(&s_save_buf.exploration_wins,&s_active.encounter,false);
     xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
-    if(ok){nurture_defeat(&s_w.pet);s_active.session.defeat_applied=true;s_last_save_us=esp_timer_get_time();}
+    if(ok){s_exploration_wins=s_save_buf.exploration_wins;nurture_defeat(&s_w.pet);s_active.session.defeat_applied=true;s_last_save_us=esp_timer_get_time();}
     else s_dirty=true;
     unlock_encounter_change();return ok;
 }
@@ -1364,6 +1365,7 @@ bool world_start(void)
     s_motion_q10 = 0;
     memset(&s_refresh,0,sizeof(s_refresh));
     exploration_init(&s_exploration);
+    s_exploration_wins=0;
     memset(&s_exploration_updates,0,sizeof(s_exploration_updates));
     memset(&s_regions,0,sizeof(s_regions));
     s_rest_clock=(rest_clock_t){0};s_rest_started_us=esp_timer_get_time();
@@ -1422,6 +1424,7 @@ bool world_start(void)
         s_exploration=s_save_buf.exploration;s_regions=s_save_buf.regions;
         s_dungeon=s_save_buf.dungeon;
         s_exploration_updates=s_save_buf.exploration_updates;
+        s_exploration_wins=s_save_buf.exploration_wins;
         s_rest_clock=s_save_buf.rest_clock;
         for(unsigned i=0;i<s_queue.count;i++)if(!s_queue.items[i].level){s_queue.items[i].level=battle_wild_level_for_pet(s_queue.items[i].rarity,s_w.level);s_dirty=true;}
         s_refresh_clock_us=esp_timer_get_time();
@@ -1638,12 +1641,13 @@ achievement_claim_t world_achievement_claim(unsigned id)
 }
 
 
+uint32_t world_exploration_chain(void){xSemaphoreTake(s_lock,portMAX_DELAY);uint32_t wins=s_exploration_wins;xSemaphoreGive(s_lock);return wins;}
 void world_exploration_snapshot(exploration_view_t *out)
 {
     if(!out)return;
     memset(out,0,sizeof(*out));
     if(!s_lock||xSemaphoreTake(s_lock,portMAX_DELAY)!=pdTRUE)return;
-    out->state=s_exploration;out->updates=s_exploration_updates;out->regions=s_regions;out->route=s_regions.selected;
+    out->chain_wins=s_exploration_wins;out->state=s_exploration;out->updates=s_exploration_updates;out->regions=s_regions;out->route=s_regions.selected;
     exploration_targets_sync(&out->state,&out->updates,&s_dex,&s_queue,s_challenge.defeated);
     out->discoveries=s_refresh.discoveries;out->defeated=s_challenge.defeated;
     out->supply_q10=s_refresh.hunt_q10;
@@ -1713,9 +1717,11 @@ exploration_event_t world_explore_path(unsigned direction)
     if(event.kind!=EXPLORE_ENCOUNTER&&event.kind!=EXPLORE_CLUE&&event.kind!=EXPLORE_TARGET) {
         unlock_encounter_change();return event;
     }
+    exploration_chain_discovery(&event,&s_save_buf.queue,&s_save_buf.dex,s_save_buf.exploration_wins);
     if(event.uid&&event.route<EXPLORATION_ROUTES){
         encounter_t *enc=enc_queue_find(&s_save_buf.queue,event.uid);
         event.level=battle_wild_level_for_pet(event.rarity,s_w.level);
+        unsigned minimum=exploration_legacy_level_min(event.route);if(event.level<minimum)event.level=minimum;
         if(enc)enc->level=event.level;
     }
     if(event.kind==EXPLORE_TARGET&&event.route<4)exploration_target_completed(&s_save_buf.exploration,&s_save_buf.exploration_updates,&s_save_buf.dex,&s_save_buf.queue,s_challenge.defeated,event.route);
@@ -1755,13 +1761,13 @@ bool world_battle_reward_uid(uint16_t uid,uint16_t *amount) {
  if(b->reward_settled||s_active.encounter.exp_granted){unlock_encounter_change();return true;}
  uint16_t gain=exp_scaled(battle_session_exp(b),nurture_exp_percent(&s_w.pet));
  collect_save_locked(&s_save_buf);s_starter_party=s_party;
- if(b->won)exploration_activity_credit(&s_save_buf.exploration_updates,&s_active.encounter);
+ if(b->won){exploration_activity_credit(&s_save_buf.exploration_updates,&s_active.encounter);exploration_chain_settle(&s_save_buf.exploration_wins,&s_active.encounter,true);}
  exp_award_party(&s_starter_party,1,(1u<<s_starter_party.party_count)-1,gain);
  mon_t *leader=&s_starter_party.party[0];gain=leader->exp-s_party.party[0].exp;party_serialize(&s_starter_party,s_save_buf.party);
  s_save_buf.exp=leader->exp;s_save_buf.level=leader->level;
  xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
  if(ok){record_growth_locked(&s_starter_party);s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;
-  s_exploration_updates=s_save_buf.exploration_updates;
+  s_exploration_updates=s_save_buf.exploration_updates;s_exploration_wins=s_save_buf.exploration_wins;
   s_active.session.reward_settled=true;s_active.encounter.exp_granted=true;s_last_save_us=esp_timer_get_time();if(amount)*amount=gain;}
  else s_dirty=true;
  unlock_encounter_change();return ok;
@@ -1939,6 +1945,7 @@ exploration_event_t world_exploration_activity(unsigned id,bool claim) {
   uint32_t seed=s_refresh.serial+s_refresh.online_s+s_exploration.steps*7919u+1u;
   e=exploration_activity_spawn(id,&s_save_buf.exploration_updates,&s_save_buf.queue,&s_save_buf.dex,s_challenge.defeated,seed,s_active.encounter.uid);
   if(e.kind!=EXPLORE_ENCOUNTER){unlock_encounter_change();return e;}
+  exploration_chain_discovery(&e,&s_save_buf.queue,&s_save_buf.dex,s_save_buf.exploration_wins);
   s_save_buf.pet.stamina-=NURT_EXPLORE_COST;
   s_save_buf.exploration.steps++;
  }

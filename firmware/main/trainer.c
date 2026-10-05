@@ -194,7 +194,7 @@ void trainer_grant_items(const trainer_store_t *st,inventory_t *bag){
  if(!st||!bag||!st->session.active||!st->session.finished||!st->session.won)return;
  bool route=trainer_is_route(st->session.trainer);
  bool first=!route&&!(st->defeated&(1u<<st->session.trainer));
- unsigned gift[ITEM_COUNT]={0};gift[ITEM_POKE]=route?1:first?5:2;gift[ITEM_BERRY]=first?3:1;gift[ITEM_MILK]=route?0:first?2:1;
+ unsigned gift[ITEM_COUNT]={0};gift[ITEM_POKE]=route?1:first?5:2;gift[ITEM_BERRY]=first?3:2;gift[ITEM_MILK]=first?2:1;
  static const uint8_t stones[]={ITEM_MOON_STONE,ITEM_WATER_STONE,ITEM_THUNDER_STONE,ITEM_LEAF_STONE,ITEM_LINK_MACHINE,ITEM_GROWTH_MACHINE,ITEM_FIRE_STONE,ITEM_MOON_STONE};
  if(first&&st->session.trainer<8)gift[stones[st->session.trainer]]=1;
  uint8_t prize=trainer_rematch_prize(st);if(prize!=ITEM_NONE)gift[prize]++;
