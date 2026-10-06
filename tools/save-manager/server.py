@@ -9,7 +9,11 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-BUNDLE_FILES = ('server.py', 'web/index.html', 'web/style.css', 'web/backup.mjs', 'web/app.mjs')
+# Explicit public allowlist, shared by Pages, offline ZIP and deployment.
+WEB_FILES = ('index.html', 'style.css', 'app.mjs', 'backup.mjs',
+             'guide/index.html', 'guide/guide.css', 'guide/guide.mjs',
+             'guide/catalog.js', 'guide/pokemon.png', 'guide/battle.png')
+BUNDLE_FILES = ('server.py', *(f'web/{name}' for name in WEB_FILES))
 
 def local_bundle():
     """Only public application files; never include saves or the working directory."""

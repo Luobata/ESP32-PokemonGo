@@ -5,7 +5,12 @@ server_bind="${2:-127.0.0.1}"
 [[ "$server_bind" =~ ^[0-9.]+$ ]] || { echo "Bind must be an IPv4 address" >&2; exit 1; }
 script_dir="$(cd "$(dirname "$0")" && pwd)"
 ssh -o BatchMode=yes "$server_host" 'test -x /usr/bin/python3 && mkdir -p ~/.local/share/pokewalk-save-manager ~/.config/systemd/user'
-tar -C "$script_dir" -czf - server.py web | ssh -o BatchMode=yes "$server_host" 'tar -xzf - -C ~/.local/share/pokewalk-save-manager'
+python3 - "$script_dir" <<'PYFILES' | tar -C "$script_dir" -czf - -T - | ssh -o BatchMode=yes "$server_host" 'tar -xzf - -C ~/.local/share/pokewalk-save-manager'
+import sys
+sys.path.insert(0, sys.argv[1])
+from server import BUNDLE_FILES
+print('\n'.join(BUNDLE_FILES))
+PYFILES
 ssh -o BatchMode=yes "$server_host" 'cat > ~/.config/systemd/user/pokewalk-save-manager.service' <<UNIT
 [Unit]
 Description=PokeWalk developer save manager (static UI only)

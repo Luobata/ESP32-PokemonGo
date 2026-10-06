@@ -1,0 +1,22 @@
+[
+  {
+    "width": 320,
+    "pages": 17,
+    "overflow": false
+  },
+  {
+    "width": 375,
+    "pages": 17,
+    "overflow": false
+  },
+  {
+    "width": 768,
+    "pages": 17,
+    "overflow": false
+  },
+  {
+    "width": 1280,
+    "pages": 17,
+    "overflow": false
+  }
+]

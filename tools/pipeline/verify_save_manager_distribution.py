@@ -23,7 +23,8 @@ def load(path, name):
 
 with tempfile.TemporaryDirectory() as tmp:
     temp=Path(tmp);source=ROOT/'tools/save-manager'
-    for name in ('server.py','web/index.html','web/style.css','web/backup.mjs','web/app.mjs'):
+    public=load(source/'server.py','source_server')
+    for name in public.BUNDLE_FILES:
         dst=temp/name;dst.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(source/name,dst)
     (temp/'private.pksave').write_text('PRIVATE_SAVE_SENTINEL')
     (temp/'web'/'unlisted.txt').write_text('PRIVATE_SAVE_SENTINEL')
@@ -39,6 +40,7 @@ with tempfile.TemporaryDirectory() as tmp:
     t=threading.Thread(target=server.serve_forever);t.start();base='http://127.0.0.1:'+str(server.server_port)
     try:
         with urllib.request.urlopen(base+'/') as r:assert '下载本地存档工具'.encode() in r.read()
+        with urllib.request.urlopen(base+'/guide/') as r:assert '口袋冒险手册'.encode() in r.read()
         with urllib.request.urlopen(base+'/app.mjs') as r:assert r.headers.get_content_type()=='text/javascript'
         with urllib.request.urlopen(base+'/download/PokeWalkSaveManager.zip') as r:
             data=r.read();assert data==raw;assert r.headers.get_content_type()=='application/zip'
@@ -51,13 +53,13 @@ with tempfile.TemporaryDirectory() as tmp:
     site=temp/'site'/'ESP32-PokemonGo'
     subprocess.run([sys.executable,str(source/'build_pages.py'),str(site)],check=True,capture_output=True)
     assert {str(p.relative_to(site)) for p in site.rglob('*') if p.is_file()}=={
-        'index.html','style.css','app.mjs','backup.mjs','.nojekyll','download/PokeWalkSaveManager.zip'}
+        *public.WEB_FILES,'.nojekyll','download/PokeWalkSaveManager.zip'}
     assert 'href="download/PokeWalkSaveManager.zip"' in (site/'index.html').read_text()
     static=ThreadingHTTPServer(('127.0.0.1',0),partial(Quiet,directory=str(temp/'site')))
     t=threading.Thread(target=static.serve_forever);t.start()
     try:
         base='http://127.0.0.1:'+str(static.server_port)+'/ESP32-PokemonGo/'
-        for name in ('index.html','style.css','app.mjs','backup.mjs','download/PokeWalkSaveManager.zip'):
+        for name in (*public.WEB_FILES,'download/PokeWalkSaveManager.zip'):
             with urllib.request.urlopen(base+name) as r:assert r.read()==(site/name).read_bytes()
     finally:static.shutdown();t.join();static.server_close()
 print(json.dumps({'passed':True,'scope':'public-file allowlist, extracted offline server, MIME, GET/HEAD, no save exposure or upload API; Pages allowlist and repository subpath'}))
