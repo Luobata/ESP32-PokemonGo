@@ -112,4 +112,4 @@ tools/device/fw.sh build
 
 `web/guide/` 为可搜索的游戏介绍与攻略；存档首页、更新说明和攻略相互链接。在线与离线 ZIP 使用同一份公开文件清单，不读取玩家存档。提供“当前发布版 / 上一发布版”切换；默认对应 2026.10.06 的 V20 固件，可切回 10 月 5 日攻略。功能开关与发布状态分别记录，避免把新版玩法误标为开发功能。
 
-发布玩法时运行 `python3 tools/pipeline/export_guide.py --release-ref <已验证源码提交> --release-version <版本名称> --previous-ref <上一公开提交> --previous-version <上一版本名称>`，从两个固定提交分别导出图鉴、路线、道具、招式和成就。默认版本为 10 月 6 日与 10 月 5 日，不能把未发布的 HEAD 自动写成公开版。发布新固件时同步更新导出器中的公开来源、网页版本文案与兼容范围，执行 `python3 tools/pipeline/verify_guide.py` 和存档分发检查，再同步 Pages、devbox 与离线 ZIP。
+发布玩法时运行 `python3 tools/pipeline/export_guide.py --release-ref <已验证源码提交> --release-version <版本名称> --previous-ref <上一公开提交> --previous-version <上一版本名称>`，从两个固定提交分别导出图鉴、路线、道具、招式和成就。默认版本为 10 月 7 日与 10 月 6 日，不能把未发布的 HEAD 自动写成公开版。发布新固件时同步更新导出器中的公开来源、网页版本文案与兼容范围，执行 `python3 tools/pipeline/verify_guide.py` 和存档分发检查，再同步 Pages、devbox 与离线 ZIP。

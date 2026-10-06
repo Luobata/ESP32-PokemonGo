@@ -23,7 +23,7 @@ def catalog(root):
   pools=json.loads(re.search(r'POOLS\[4\]\[5\]\[16\]=\s*(\{.*?\});',(source/'exploration.c').read_text(),re.S).group(1).replace('{','[').replace('}',']'))
   for i in range(4):data['maps'][i]['pool']=sum(pools[i],[])
   data['cards']=list(zip(*[re.findall(r'"([^"]+)"',re.search(r'dungeon_'+key+r'\[DUNGEON_CARD_COUNT\]=\{(.*?)\};',(source/'dungeon.c').read_text(),re.S).group(1)) for key in ('cards','desc')]))
-  data['features']={'careEvents':development}
+  data['features']={'careEvents':development,'shinyEntry':(source/'shiny_entry.c').exists(),'nostalgicMoves':'pokemon_move_names_override' in (source/'pokemon_names.c').read_text()}
   data['sourceHashes']={str(f.relative_to(root)):hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(source.glob('*')) if f.suffix in ('.c','.h')}
   assert len(data['pokemon'])==151 and len(data['items'])==19 and len(data['achievements'])==16
   return data
@@ -52,8 +52,8 @@ def version_catalog(ref,version):
  return data
 
 def main():
- p=argparse.ArgumentParser();p.add_argument('--release-ref',default='b4ee936');p.add_argument('--previous-ref',default='68ffedd')
- p.add_argument('--release-version',default='2026.10.06 · 轮换探索与养成');p.add_argument('--previous-version',default='2026.10.05 · 地区扩展');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--release-ref',default='af22e73947c5a2b4693ea89fd671995c2a1159d9');p.add_argument('--previous-ref',default='b4ee936992c60bc90bd934693be6f92f0b65a913')
+ p.add_argument('--release-version',default='2026.10.07 · 闪光出场与怀旧译名');p.add_argument('--previous-version',default='2026.10.06 · 轮换探索与养成');a=p.parse_args()
  out=ROOT/'tools/save-manager/web/guide';out.mkdir(parents=True,exist_ok=True)
  release=version_catalog(a.release_ref,a.release_version);previous=version_catalog(a.previous_ref,a.previous_version)
  (out/'catalog.js').write_text('export const CATALOG = '+json.dumps({'release':release,'previous':previous},ensure_ascii=False,separators=(',',':'))+';\n')
