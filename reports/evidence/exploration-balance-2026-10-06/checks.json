@@ -2,79 +2,79 @@
   {
     "check": "verify_usb_backup.py",
     "exit_code": 0,
-    "seconds": 2.98,
-    "output": "\u5f53\u524d\u5b58\u6863\u5df2\u5907\u4efd\uff1a /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmp9djnl62a/backups/PokeWalk-before-restore-d5f41ab003954f06aadd7e9f79acaca4.pksave\n{\"passed\": true, \"device_protocol\": \"ASan/UBSan\", \"browser\": \"current and future C schemas 18/99/65535, malformed versions, missing/duplicate/corrupt/truncated frames\", \"restore\": \"confirmation, device, metadata, checksum, prebackup and NVS-only roundtrip\"}\n"
+    "seconds": 1.8,
+    "output": "\u5f53\u524d\u5b58\u6863\u5df2\u5907\u4efd\uff1a /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmp6v7wbxbq/backups/PokeWalk-before-restore-97fedfd46d724c2dbf7d7d416c91402c.pksave\n{\"passed\": true, \"device_protocol\": \"ASan/UBSan\", \"browser\": \"current and future C schemas 18/99/65535, malformed versions, missing/duplicate/corrupt/truncated frames\", \"restore\": \"confirmation, device, metadata, checksum, prebackup and NVS-only roundtrip\"}\n"
   },
   {
     "check": "verify_usb_import.py",
     "exit_code": 0,
-    "seconds": 2.88,
+    "seconds": 2.46,
     "output": "journal interruption boundaries: 388 prepare, 483 apply\n{\"passed\": true, \"journal\": \"power interruption at every I/O boundary, corrupted image, write failure rollback, incompatible build\", \"protocol\": \"physical consent, cancel, prebackup ACK, CRC, truncation, timeout, staged reboot\", \"browser\": \"production decoder with real C transcript and corrupt files\"}\n"
   },
   {
     "check": "verify_save_import_compatibility.py",
     "exit_code": 0,
-    "seconds": 5.15,
+    "seconds": 4.52,
     "output": "{\"passed\":true,\"schemas\":\"V5-V19 historical fixtures, future/corrupt rejected\",\"milk\":\"low/high HP, cap, faint, status, turn cost, save failures and reboot\"}\n\n"
   },
   {
     "check": "verify_usb_import_device.py",
     "exit_code": 0,
-    "seconds": 0.75,
+    "seconds": 0.42,
     "output": "device import isolation, actual schema check, validation failures, target-build journal binding: passed\n"
   },
   {
     "check": "verify_save_import_web.mjs",
     "exit_code": 0,
-    "seconds": 0.15,
+    "seconds": 0.11,
     "output": "web cross-build prebackup ACK, current metadata, wrong-device/write/permission/readback rejection: passed\nproduction web receipt correlation, stale receipts, mismatch, rollback, load failure and reload: passed\nproduction read loop preserves mismatched-restore error across disconnect: passed\n"
   },
   {
     "check": "verify_usb_backup_checkpoint.py",
     "exit_code": 0,
-    "seconds": 3.58,
+    "seconds": 3.74,
     "output": "{'passed': True, 'checkpoint': 'live state, failed save blocks export, retry, read failure, unavailable storage'}\n"
   },
   {
     "check": "verify_save_manager_distribution.py",
     "exit_code": 0,
-    "seconds": 2.19,
+    "seconds": 2.28,
     "output": "{\"passed\": true, \"scope\": \"public-file allowlist, extracted offline server, MIME, GET/HEAD, no save exposure or upload API; Pages allowlist and repository subpath\"}\n"
   },
   {
     "check": "verify_firmware_update.py",
     "exit_code": 0,
-    "seconds": 0.76,
-    "output": "\u66f4\u65b0\u524d\u7684\u539f\u59cb\u6570\u636e\u5df2\u5907\u4efd\u5e76\u56de\u8bfb\u6821\u9a8c\uff1a /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmpl3w5myo7/backup/PokeWalk-before-update-001122334455-28d8fa7cbf9147e8a5f60ef866fdcb74\n\u66f4\u65b0\u524d\u7684\u539f\u59cb\u6570\u636e\u5df2\u5907\u4efd\u5e76\u56de\u8bfb\u6821\u9a8c\uff1a /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmp5n1i6uig/backup/PokeWalk-before-update-001122334455-6265b68009a6456c90530d88a5395591\n\u66f4\u65b0\u524d\u7684\u539f\u59cb\u6570\u636e\u5df2\u5907\u4efd\u5e76\u56de\u8bfb\u6821\u9a8c\uff1a /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmp9nxzo2w8/backup/PokeWalk-before-update-001122334455-7a090c647b344d9f878d78f382f8a64c\napp-only update, pre-write backup, protected data, unsafe inputs and interrupted update: passed\n"
+    "seconds": 0.91,
+    "output": "\u66f4\u65b0\u524d\u7684\u539f\u59cb\u6570\u636e\u5df2\u5907\u4efd\u5e76\u56de\u8bfb\u6821\u9a8c\uff1a /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmpau5s13o4/backup/PokeWalk-before-update-001122334455-07df55329c954952b06d742e6e1ce50e\n\u66f4\u65b0\u524d\u7684\u539f\u59cb\u6570\u636e\u5df2\u5907\u4efd\u5e76\u56de\u8bfb\u6821\u9a8c\uff1a /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmpfitla2uo/backup/PokeWalk-before-update-001122334455-db6d635c3a2744708af87346d00541bd\n\u66f4\u65b0\u524d\u7684\u539f\u59cb\u6570\u636e\u5df2\u5907\u4efd\u5e76\u56de\u8bfb\u6821\u9a8c\uff1a /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmp6a9yqfvj/backup/PokeWalk-before-update-001122334455-3cf5b4dfd08d4e1f95f1ab64bd02dc33\napp-only update, pre-write backup, protected data, unsafe inputs and interrupted update: passed\n"
   },
   {
     "check": "verify_nvs_restore_roundtrip.py",
     "exit_code": 0,
-    "seconds": 9.67,
+    "seconds": 10.36,
     "output": "Real-NVS historical restore: v5-146c798.bin\nReal-NVS historical restore: v6-02e6913.bin\nReal-NVS historical restore: v7-02e6913.bin\nReal-NVS historical restore: v8-02e6913.bin\nReal-NVS historical restore: v9-02e6913.bin\nReal-NVS historical restore: v10-02e6913.bin\nReal-NVS historical restore: v11-02e6913.bin\nReal-NVS historical restore: v12-6791698.bin\nReal-NVS historical restore: v13-ceda89a.bin\nReal-NVS historical restore: v14-4b5f6ed.bin\nReal-NVS historical restore: v15-80ae06d.bin\nReal-NVS historical restore: v16-449d6a3.bin\nReal-NVS historical restore: v17-449d6a3.bin\nReal-NVS historical restore: v17-eb9a5d0.bin\nReal-NVS historical restore: v17-d080936.bin\nReal-NVS historical restore: v17-e80f241.bin\nReal-NVS historical restore: v17-75e1f86.bin\nReal-NVS historical restore: v17-0f76077.bin\nReal-NVS historical restore: v18-36a902a.bin\nReal-NVS historical restore: v18-68ffedd.bin\nReal-NVS historical restore: v19-0448424.bin\nReal ESP-IDF NVS + production save/device/journal: historical V5-V19, distinct saves, schema rejection, settings, restore, second boot and rollback passed\n"
   },
   {
     "check": "verify_region_expansion.py",
     "exit_code": 0,
-    "seconds": 4.68,
+    "seconds": 5.16,
     "output": "{\"passed\":true,\"maps\":8,\"themes\":9,\"samples\":246424,\"trail_samples\":48000,\"checks\":9,\"save_bytes\":4016,\"sanitizers\":true}\n\n"
   },
   {
     "check": "verify_dungeon_stack.py",
     "exit_code": 0,
-    "seconds": 1.18,
+    "seconds": 0.58,
     "output": "{\"target\": \"esp32c3\", \"stack_frames\": {\"begin_battle\": 192, \"dungeon_load\": 32, \"dungeon_step\": 64, \"dungeon_switch\": 16, \"dungeon_retire\": 16, \"dungeon_resume\": 48, \"dungeon_abandon\": 16, \"dungeon_choose\": 16, \"dungeon_finish\": 16, \"dungeon_theme_open\": 320, \"dungeon_new_theme\": 512, \"dungeon_new\": 16}, \"passed\": true}\n"
   },
   {
     "check": "verify_exploration_balance.py",
     "exit_code": 0,
-    "seconds": 5.72,
-    "output": "chain[0]=208/10000 chain[10]=252/10000 chain[50]=406/10000 chain[100]=612/10000 chain[200]=1016/10000 chain[1000]=3197/10000 chain[4294967295]=10000/10000 loot[1] balls=64972 poke=52150 great=9596 ultra=655 specialty=2571 master=0 food=30112 evolution=4916 machines=0/100000 loot[2] balls=64972 poke=35653 great=18439 ultra=3196 specialty=7684 master=0 food=28142 evolution=6886 machines=343/100000 loot[3] balls=64972 poke=16106 great=22880 ultra=13164 specialty=12822 master=0 food=26085 evolution=8943 machines=1337/100000 loot[4] balls=64972 poke=6440 great=16258 ultra=21574 specialty=20700 master=0 food=24033 evolution=10995 machines=3341/100000 loot[5] balls=64972 poke=2593 great=9038 ultra=26686 specialty=25986 master=669 food=22002 evolution=13026 machines=5252/100000 \n{\"passed\":true,\"groups\":7,\"save_version\":19,\"save_bytes\":4016,\"sanitized\":true}\n\n"
+    "seconds": 5.69,
+    "output": "chain[0]=208/10000 chain[10]=252/10000 chain[50]=406/10000 chain[100]=612/10000 chain[200]=1016/10000 chain[1000]=3197/10000 chain[4294967295]=10000/10000 loot[1] balls=69945 poke=56158 great=10287 ultra=714 specialty=2786 master=0 food=26411 evolution=3644 machines=0/100000 loot[2] balls=69945 poke=38448 great=19781 ultra=3417 specialty=8299 master=0 food=24929 evolution=5126 machines=255/100000 loot[3] balls=69945 poke=17373 great=24625 ultra=14160 specialty=13787 master=0 food=23395 evolution=6660 machines=982/100000 loot[4] balls=69945 poke=6943 great=17536 ultra=23196 specialty=22270 master=0 food=21818 evolution=8237 machines=2484/100000 loot[5] balls=69945 poke=2798 great=9735 ultra=28757 specialty=27947 master=708 food=20280 evolution=9775 machines=3932/100000 \n{\"passed\":true,\"groups\":7,\"save_version\":19,\"save_bytes\":4016,\"sanitized\":true}\n\n"
   },
   {
     "check": "verify_exploration_updates.py",
     "exit_code": 0,
-    "seconds": 3.37,
+    "seconds": 3.03,
     "output": "{\"checks\": 92, \"rotation_samples\": 48000, \"bias_samples\": 20000, \"badge_activities\": 8, \"save_version\": 19, \"v15_migration\": true, \"sanitizers\": [\"ASan\", \"UBSan\"]}\n"
   }
 ]

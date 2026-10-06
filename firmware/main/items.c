@@ -80,8 +80,8 @@ item_loot_t items_roll_loot(uint8_t rarity, uint32_t seed)
     if (!rng) rng = 0x6D2B79F5u;
     bool special = next_random(&rng) % 100 < items_drop_chance(rarity);
     unsigned category = next_random(&rng) % 100;
-    if (category < 65) {
-        // Keep balls at 65% of drops. Rarity upgrades the mix rather than
+    if (category < 70) {
+        // Keep balls at 70% of drops. Rarity upgrades the mix rather than
         // reducing ball supplies; specialty balls remain situational tools.
         static const uint8_t balls[5][ITEM_BALL_COUNT] = {
             {80,15, 1,0, 1, 1, 1, 1},
@@ -96,7 +96,7 @@ item_loot_t items_roll_loot(uint8_t rarity, uint32_t seed)
             pick -= balls[rarity-1][i];
         }
     } else if (special && category < 85) {
-        // Evolution rewards rise from 5% to 13% overall. Machines become
+        // Evolution rewards rise from 3.75% to 9.75% overall. Machines become
         // more common at higher rarities; one-star opponents only drop stones.
         static const uint8_t machine_chance[] = {0,5,15,30,40};
         if (next_random(&rng) % 100 < machine_chance[rarity-1])

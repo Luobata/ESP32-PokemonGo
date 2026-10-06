@@ -125,8 +125,8 @@ static void supply_distribution(void){
    item_loot_t loot=items_roll_loot(rarity,seed);assert(loot.item_id<ITEM_COUNT&&loot.quantity);
    kinds[items_info(loot.item_id)->kind]++;ids[loot.item_id]++;berries+=loot.item_id==ITEM_BERRY;
   }
-  assert(kinds[ITEM_KIND_BALL]>64000&&kinds[ITEM_KIND_BALL]<66000);
-  assert(kinds[ITEM_KIND_CARE]>21000&&berries>11000);
+  assert(kinds[ITEM_KIND_BALL]>69000&&kinds[ITEM_KIND_BALL]<71000);
+  assert(kinds[ITEM_KIND_CARE]>19500&&berries>10000);
   unsigned quality=0;for(unsigned i=ITEM_ULTRA;i<ITEM_BALL_COUNT;i++)quality+=ids[i];
   unsigned evo=kinds[ITEM_KIND_STONE]+kinds[ITEM_KIND_MACHINE],machine=kinds[ITEM_KIND_MACHINE];
   assert(ids[ITEM_POKE]<last_poke&&quality>last_quality&&evo>last_evolution);
