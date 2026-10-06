@@ -164,7 +164,7 @@ static const char *error_text(exploration_kind_t kind){
 static void draw_all(void){
  char text[96];unsigned route=event.kind==EXPLORE_ENCOUNTER||event.kind==EXPLORE_TARGET?event.route:view.route;const exploration_route_t *r=exploration_route(route);
  for(int band=0;band<SCREEN_H;band+=SCREEN_BAND_H){
-  screen_band_clear(GAME_UI_BG);snprintf(text,sizeof(text),"体能 %u/100",view.stamina);game_ui_title(band,routes?"选择路线":"探索",text);
+  screen_band_clear(GAME_UI_BG);snprintf(text,sizeof(text),"体能 %u/100",view.stamina);game_ui_title(band,routes?"选择路线":paths?r->name:"探索",text);
   if(chain_rules){
    center(band,44,"探索连胜",GAME_UI_INK);game_ui_box(band,8,72,224,178);
    const char *rules[]={"探索胜利提高闪光概率","探索战败或捕获会清零","逃跑仍然保留连胜","换地图与重启也保留","道馆与秘境不影响连胜"};
@@ -172,15 +172,14 @@ static void draw_all(void){
    center(band,258,"只影响新发现的伙伴",GAME_UI_MUTED);game_ui_footer(band,"长按B返回");
   }else if(paths){
    const exploration_region_t *r=exploration_region(view.route);
-   center(band,40,r->route.name,GAME_UI_INK);
-   snprintf(text,sizeof(text),"%s野生 Lv%u-%u",view.deep?"深层":"常规",exploration_region_level_min(r,view.deep),r->max_level);center(band,62,text,GAME_UI_MUTED);
+   snprintf(text,sizeof(text),"%sLv%u-%u 消耗5体能",view.deep?"深层":"常规",exploration_region_level_min(r,view.deep),r->max_level);center(band,40,text,GAME_UI_MUTED);
    for(unsigned i=0;i<3;i++){
-    int y=84+i*56;const exploration_trail_t *trail=exploration_region_trail(view.route,i);
-    game_ui_box(band,8,y,224,56);render_text(36,y+4-band,trail->name,GAME_UI_INK);
-    trail_examples(band,i,y+20);visitor_names(band,i,y+36);if(i==selected)game_ui_cursor(band,18,y+8);
+    int y=80+i*64;const exploration_trail_t *trail=exploration_region_trail(view.route,i);
+    game_ui_box(band,8,y,224,64);render_text(36,y+8-band,trail->name,GAME_UI_INK);
+    trail_examples(band,i,y+24);visitor_names(band,i,y+40);if(i==selected)game_ui_cursor(band,18,y+12);
    }
-   snprintf(text,sizeof(text),"访客%u次后轮换 消耗5体能",(unsigned)(EXPLORATION_ROTATION_STEPS-view.regions.region[view.route-4].steps%EXPLORATION_ROTATION_STEPS));
-   center(band,264,view.clues==3?"本次寻找追踪目标":text,GAME_UI_MUTED);game_ui_footer(band,GAME_UI_NAV_HINT);
+   snprintf(text,sizeof(text),"访客%u次后轮换",(unsigned)(EXPLORATION_ROTATION_STEPS-view.regions.region[view.route-4].steps%EXPLORATION_ROTATION_STEPS));
+   center(band,60,view.clues==3?"本次寻找追踪目标":text,GAME_UI_MUTED);game_ui_footer(band,GAME_UI_NAV_HINT);
   }else if(badge_list){
    center(band,44,"徽章活动",GAME_UI_INK);
    if(!badge_count)center(band,124,"获得徽章后开放新活动",GAME_UI_MUTED);
