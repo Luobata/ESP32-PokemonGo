@@ -2,9 +2,8 @@
 """Build only public save-manager assets for GitHub Pages; never package saves."""
 import argparse
 from pathlib import Path
-from server import ROOT, local_bundle
+from server import ROOT, WEB_FILES, local_bundle
 
-WEB_FILES = ('index.html', 'style.css', 'app.mjs', 'backup.mjs')
 
 def build(output):
     output = Path(output)
@@ -12,6 +11,7 @@ def build(output):
         raise ValueError('Output directory must be empty')
     output.mkdir(parents=True, exist_ok=True)
     for name in WEB_FILES:
+        (output/name).parent.mkdir(parents=True, exist_ok=True)
         (output/name).write_bytes((ROOT/'web'/name).read_bytes())
     (output/'.nojekyll').touch()
     download = output/'download'
