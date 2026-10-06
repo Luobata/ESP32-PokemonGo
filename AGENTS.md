@@ -73,3 +73,7 @@ tools/device/fw.sh build
 5. 如果安装方式可能擦除进度，写明更新前备份及更新后的恢复路径；社区“提交审核”不能表述为“已公开上线”。
 
 参考：[存档工具说明](tools/save-manager/README.md)、[2026-10-04 修复与验证记录](reports/bugfix-save-import-milk-2026-10-04.md)、[发布记录](docs/release/community.md)。
+
+## 保留用户选定的宣传封面
+
+用户选定的默认封面为皮卡丘对战暴鲤龙：`reports/evidence/community-cover-2026-09-10/cover.png`，发布副本 `release/community/pokewalk-cover.png`。社区更新与官网首页默认沿用此图，不因重新截图、界面更新或按钮文案变化自动替换。只有用户明确要求更换时才改封面；新玩法画面可用于附图。它是历史宣传帧，当前操作以新版使用说明为准。
