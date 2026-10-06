@@ -1,0 +1,22 @@
+{
+  "projectId": 234,
+  "revisionId": 2158,
+  "status": "pending",
+  "projectStatus": "published",
+  "publishedRevisionId": 2139,
+  "publishedRevisionStatus": "approved",
+  "firmwareSha256": "14ab4de700228fc5984efacccd876cd9caac7197c44816a80e996193af5098b3",
+  "unchangedFieldsVerified": [
+    "title",
+    "description",
+    "instructions",
+    "firmwareSha256"
+  ],
+  "coverSha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6",
+  "browserVerified": {
+    "cover": "Pikachu versus Gyarados",
+    "images": 5,
+    "videos": 1,
+    "screenshot": "community-cover.png"
+  }
+}

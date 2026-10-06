@@ -1,0 +1,140 @@
+{
+  "passed": true,
+  "source": "6f70d568a9bc07e4ce504bc858699310476468bf",
+  "pagesCI": "https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37481438699",
+  "offlineZipSha256": "65294b85f87b68dd1d917fc734ee083b180cd0a363c66a457b1372176c9a4fa3",
+  "resources": [
+    {
+      "base": "https://luobata.github.io/ESP32-PokemonGo/",
+      "resource": "index.html",
+      "bytes": 4556,
+      "sha256": "49b3d756581919d7a995d581ef10e6654e29433bc79655ead751f3629497a122"
+    },
+    {
+      "base": "https://luobata.github.io/ESP32-PokemonGo/",
+      "resource": "style.css",
+      "bytes": 1379,
+      "sha256": "dd7ad1a2d55d8025c4990a6bb173d6342af46f2c0857f3f6cb5244a18182a831"
+    },
+    {
+      "base": "https://luobata.github.io/ESP32-PokemonGo/",
+      "resource": "app.mjs",
+      "bytes": 9476,
+      "sha256": "91a9d22c1409209789234bd9301ffdef610d68b87398aae029dc37b591eb6485"
+    },
+    {
+      "base": "https://luobata.github.io/ESP32-PokemonGo/",
+      "resource": "backup.mjs",
+      "bytes": 4858,
+      "sha256": "16c6de8bc1cb8e6bf968b28fba4969988f5299659ee4561ca6b70c28f4b9c0a1"
+    },
+    {
+      "base": "https://luobata.github.io/ESP32-PokemonGo/",
+      "resource": "guide/index.html",
+      "bytes": 1994,
+      "sha256": "d7e77ad4ab08bd2e5bb814811305b83072eba5472674a582f2c1e0f476e3e234"
+    },
+    {
+      "base": "https://luobata.github.io/ESP32-PokemonGo/",
+      "resource": "guide/guide.css",
+      "bytes": 13231,
+      "sha256": "65a42515341b2bd30ded1a776f8a1b58a896c201c8bf6f3d7cfa6e6bc611a942"
+    },
+    {
+      "base": "https://luobata.github.io/ESP32-PokemonGo/",
+      "resource": "guide/guide.mjs",
+      "bytes": 34468,
+      "sha256": "76b80acbe3195be063a255bf8581c470be21b7913c26e97119d9befde3b5d095"
+    },
+    {
+      "base": "https://luobata.github.io/ESP32-PokemonGo/",
+      "resource": "guide/catalog.js",
+      "bytes": 185956,
+      "sha256": "ae94abc46e81fc709285239242b0e7ab5214deb3dfe96a925c2bd4523d4dc7e2"
+    },
+    {
+      "base": "https://luobata.github.io/ESP32-PokemonGo/",
+      "resource": "guide/pokemon.png",
+      "bytes": 106192,
+      "sha256": "5622dfb02fb67b50f40d945fd2c9672de0932829d205f69bbc74070a0d4e090b"
+    },
+    {
+      "base": "https://luobata.github.io/ESP32-PokemonGo/",
+      "resource": "guide/battle.png",
+      "bytes": 61861,
+      "sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6"
+    },
+    {
+      "base": "https://luobata.github.io/ESP32-PokemonGo/",
+      "resource": "download/PokeWalkSaveManager.zip",
+      "bytes": 241563,
+      "sha256": "65294b85f87b68dd1d917fc734ee083b180cd0a363c66a457b1372176c9a4fa3"
+    },
+    {
+      "base": "http://10.37.197.13:8767/",
+      "resource": "index.html",
+      "bytes": 4556,
+      "sha256": "49b3d756581919d7a995d581ef10e6654e29433bc79655ead751f3629497a122"
+    },
+    {
+      "base": "http://10.37.197.13:8767/",
+      "resource": "style.css",
+      "bytes": 1379,
+      "sha256": "dd7ad1a2d55d8025c4990a6bb173d6342af46f2c0857f3f6cb5244a18182a831"
+    },
+    {
+      "base": "http://10.37.197.13:8767/",
+      "resource": "app.mjs",
+      "bytes": 9476,
+      "sha256": "91a9d22c1409209789234bd9301ffdef610d68b87398aae029dc37b591eb6485"
+    },
+    {
+      "base": "http://10.37.197.13:8767/",
+      "resource": "backup.mjs",
+      "bytes": 4858,
+      "sha256": "16c6de8bc1cb8e6bf968b28fba4969988f5299659ee4561ca6b70c28f4b9c0a1"
+    },
+    {
+      "base": "http://10.37.197.13:8767/",
+      "resource": "guide/index.html",
+      "bytes": 1994,
+      "sha256": "d7e77ad4ab08bd2e5bb814811305b83072eba5472674a582f2c1e0f476e3e234"
+    },
+    {
+      "base": "http://10.37.197.13:8767/",
+      "resource": "guide/guide.css",
+      "bytes": 13231,
+      "sha256": "65a42515341b2bd30ded1a776f8a1b58a896c201c8bf6f3d7cfa6e6bc611a942"
+    },
+    {
+      "base": "http://10.37.197.13:8767/",
+      "resource": "guide/guide.mjs",
+      "bytes": 34468,
+      "sha256": "76b80acbe3195be063a255bf8581c470be21b7913c26e97119d9befde3b5d095"
+    },
+    {
+      "base": "http://10.37.197.13:8767/",
+      "resource": "guide/catalog.js",
+      "bytes": 185956,
+      "sha256": "ae94abc46e81fc709285239242b0e7ab5214deb3dfe96a925c2bd4523d4dc7e2"
+    },
+    {
+      "base": "http://10.37.197.13:8767/",
+      "resource": "guide/pokemon.png",
+      "bytes": 106192,
+      "sha256": "5622dfb02fb67b50f40d945fd2c9672de0932829d205f69bbc74070a0d4e090b"
+    },
+    {
+      "base": "http://10.37.197.13:8767/",
+      "resource": "guide/battle.png",
+      "bytes": 61861,
+      "sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6"
+    },
+    {
+      "base": "http://10.37.197.13:8767/",
+      "resource": "download/PokeWalkSaveManager.zip",
+      "bytes": 241563,
+      "sha256": "65294b85f87b68dd1d917fc734ee083b180cd0a363c66a457b1372176c9a4fa3"
+    }
+  ]
+}

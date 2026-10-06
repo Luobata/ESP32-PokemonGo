@@ -1,0 +1,188 @@
+[
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_usb_backup.py"
+    ],
+    "exit_code": 0,
+    "seconds": 10.69,
+    "log": "verify_usb_backup.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_usb_import.py"
+    ],
+    "exit_code": 0,
+    "seconds": 10.78,
+    "log": "verify_usb_import.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_save_import_compatibility.py"
+    ],
+    "exit_code": 0,
+    "seconds": 8.87,
+    "log": "verify_save_import_compatibility.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_usb_import_device.py"
+    ],
+    "exit_code": 0,
+    "seconds": 1.15,
+    "log": "verify_usb_import_device.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_usb_backup_checkpoint.py"
+    ],
+    "exit_code": 0,
+    "seconds": 4.91,
+    "log": "verify_usb_backup_checkpoint.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_save_manager_distribution.py"
+    ],
+    "exit_code": 0,
+    "seconds": 2.5,
+    "log": "verify_save_manager_distribution.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_firmware_update.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.69,
+    "log": "verify_firmware_update.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_nvs_restore_roundtrip.py"
+    ],
+    "exit_code": 0,
+    "seconds": 13.98,
+    "log": "verify_nvs_restore_roundtrip.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_region_expansion.py"
+    ],
+    "exit_code": 0,
+    "seconds": 6.96,
+    "log": "verify_region_expansion.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_exploration_events.py"
+    ],
+    "exit_code": 0,
+    "seconds": 4.39,
+    "log": "verify_exploration_events.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_exploration_balance.py"
+    ],
+    "exit_code": 0,
+    "seconds": 9.16,
+    "log": "verify_exploration_balance.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_playtime.py"
+    ],
+    "exit_code": 0,
+    "seconds": 4.41,
+    "log": "verify_playtime.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_nurture.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.86,
+    "log": "verify_nurture.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_species_obtainability.py"
+    ],
+    "exit_code": 0,
+    "seconds": 4.3,
+    "log": "verify_species_obtainability.log"
+  },
+  {
+    "command": [
+      "node",
+      "tools/pipeline/verify_save_import_web.mjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.17,
+    "log": "verify_save_import_web.log"
+  },
+  {
+    "command": [
+      "tools/device/fw.sh",
+      "build"
+    ],
+    "exit_code": 0,
+    "log": "build.log",
+    "note": "Build check only; not uploaded or flashed. Community firmware stays byte-identical to b4ee936."
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_dungeon_stack.py"
+    ],
+    "exit_code": 0,
+    "result": {
+      "target": "esp32c3",
+      "stack_frames": {
+        "begin_battle": 192,
+        "dungeon_load": 32,
+        "dungeon_step": 64,
+        "dungeon_switch": 16,
+        "dungeon_retire": 16,
+        "dungeon_resume": 48,
+        "dungeon_abandon": 16,
+        "dungeon_choose": 16,
+        "dungeon_finish": 16,
+        "dungeon_theme_open": 320,
+        "dungeon_new_theme": 512,
+        "dungeon_new": 16
+      },
+      "passed": true
+    }
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_guide.py",
+      "--check-source"
+    ],
+    "exit_code": 0,
+    "pages": 398,
+    "editions": 2
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_release_partition_protection.py"
+    ],
+    "exit_code": 0
+  }
+]
