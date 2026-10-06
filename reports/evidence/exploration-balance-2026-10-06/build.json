@@ -7,7 +7,9 @@
   "app_sha256": "c0f9cd72d486953ba004e5d045026ebb11ac9c63e12e9f3d82d5058daeaee501",
   "factory_partition_bytes": 3407872,
   "save_version": 19,
-  "physical_device_flashed": false,
+  "physical_device_flashed": true,
   "physical_device_restore_test": false,
-  "ci": "not run: branch not pushed"
+  "ci": "not run: branch not pushed",
+  "physical_device_boot_preserved_progress": true,
+  "device_evidence": "device-flash.json"
 }
