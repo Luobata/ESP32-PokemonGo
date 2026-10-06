@@ -18,13 +18,13 @@ for edition,d in catalog.items():
   if 'trails' in m:
    assert len(m['trails'])==3 and all(set(t['pool'])<=set(m['pool']) for t in m['trails'])
    assert len(m['levels'])==2 and m['levels'][0]<=m['deepMin']<=m['levels'][1]
-  if edition=='development' and m['id']>=4:
+  if d['features']['careEvents'] and m['id']>=4:
    assert len(m['visitors'])>=5 and not set(m['visitors'])&set(m['pool'])
  for i in d['items']:
   assert all(a in all_ids and b in all_ids for a,b in i['evolutions'])
  assert all(a['item'] in range(19) and a['quantity']>0 for a in d['achievements'])
  assert d['shiny']==[64,48,32,16]
- if args.check_source and edition=='development':
+ if args.check_source and edition=='release':
   for name,expected in d['sourceHashes'].items():
    assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==expected, 'Stale guide data: '+name
 # Run the real guide module with a minimal DOM shell. Browser layout is tested separately.
@@ -36,7 +36,7 @@ for(const id of ['content','search','navigation','version'])nodes['#'+id]={value
 const context=vm.createContext({CATALOG:catalog,document:{title:'',querySelector(s){return controls[s]||nodes[s]||null}},Image:class{addEventListener(){}},location:{hash:''},window:{addEventListener(){}},console});
 const source=fs.readFileSync(process.argv[3],'utf8').replace("import { CATALOG } from './catalog.js';",'');vm.runInContext(source,context);
 let checks=0;
-for(const edition of ['release','development']){
+for(const edition of ['release','previous']){
  vm.runInContext(`data=CATALOG.${edition}`,context);
  for(const section of vm.runInContext('sections.map(s=>s[0])',context)){
   const variants=section==='pokemon'?[null,...Array.from({length:151},(_,i)=>i+1)]:section==='items'?[null,...Array.from({length:19},(_,i)=>i)]:section==='explore'?[null,...Array.from({length:12},(_,i)=>i)]:[null];
@@ -56,7 +56,7 @@ for(const edition of ['release','development']){
  }
  for(const [id,value] of [['satiety',100],['mood',100],['bond',100]]){controls['#'+id]={value};controls['#'+id+'-value']={};}
  controls['#care-output']={};controls['#care-detail']={};vm.runInContext('calculators()',context);
- assert(controls['#care-output'].textContent.includes(edition==='release'?'130%':'155%'));
+ assert(controls['#care-output'].textContent.includes(catalog[edition].features.careEvents?'155%':'130%'));
  for(const k of Object.keys(controls))delete controls[k];
 }
 controls['#wins']={value:0};controls['#shiny-output']={};vm.runInContext('calculators()',context);assert(controls['#shiny-output'].textContent.includes('2.08%'));

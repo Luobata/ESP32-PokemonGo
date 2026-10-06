@@ -23,7 +23,7 @@ def catalog(root):
   pools=json.loads(re.search(r'POOLS\[4\]\[5\]\[16\]=\s*(\{.*?\});',(source/'exploration.c').read_text(),re.S).group(1).replace('{','[').replace('}',']'))
   for i in range(4):data['maps'][i]['pool']=sum(pools[i],[])
   data['cards']=list(zip(*[re.findall(r'"([^"]+)"',re.search(r'dungeon_'+key+r'\[DUNGEON_CARD_COUNT\]=\{(.*?)\};',(source/'dungeon.c').read_text(),re.S).group(1)) for key in ('cards','desc')]))
-  data['development']=development
+  data['features']={'careEvents':development}
   data['sourceHashes']={str(f.relative_to(root)):hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(source.glob('*')) if f.suffix in ('.c','.h')}
   assert len(data['pokemon'])==151 and len(data['items'])==19 and len(data['achievements'])==16
   return data
@@ -43,14 +43,19 @@ def atlas(root,out):
  data=b'\x89PNG\r\n\x1a\n'+chunk(b'IHDR',struct.pack('>IIBBBBB',width,height,8,6,0,0,0))+chunk(b'IDAT',zlib.compress(b''.join(b'\0'+r for r in rows),9))+chunk(b'IEND',b'')
  (out/'pokemon.png').write_bytes(data)
 
-def main():
- p=argparse.ArgumentParser();p.add_argument('--release-ref',default='68ffedd');a=p.parse_args();out=ROOT/'tools/save-manager/web/guide';out.mkdir(parents=True,exist_ok=True)
- current=catalog(ROOT)
+def version_catalog(ref,version):
  with tempfile.TemporaryDirectory() as d:
-  archive=subprocess.run(['git','archive',a.release_ref,'firmware/main','assets'],cwd=ROOT,capture_output=True,check=True).stdout
-  subprocess.run(['tar','-x','-C',d],input=archive,check=True);release=catalog(Path(d))
- release['sourceRef']=subprocess.check_output(['git','rev-parse',a.release_ref],cwd=ROOT,text=True).strip();release['version']='2026.10.05 · 地区扩展';current['version']='开发体验版 · 轮换与养成'
- current['sourceRef']=subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip()
- (out/'catalog.js').write_text('export const CATALOG = '+json.dumps({'release':release,'development':current},ensure_ascii=False,separators=(',',':'))+';\n')
- atlas(ROOT,out);print(json.dumps({'pokemon':151,'maps':len(current['maps']),'moves':len(current['moves']),'items':19,'achievements':16,'release':release['sourceRef']}))
+  archive=subprocess.run(['git','archive',ref,'firmware/main','assets'],cwd=ROOT,capture_output=True,check=True).stdout
+  subprocess.run(['tar','-x','-C',d],input=archive,check=True);data=catalog(Path(d))
+ data['sourceRef']=subprocess.check_output(['git','rev-parse',ref],cwd=ROOT,text=True).strip()
+ data['version']=version
+ return data
+
+def main():
+ p=argparse.ArgumentParser();p.add_argument('--release-ref',default='b4ee936');p.add_argument('--previous-ref',default='68ffedd')
+ p.add_argument('--release-version',default='2026.10.06 · 轮换探索与养成');p.add_argument('--previous-version',default='2026.10.05 · 地区扩展');a=p.parse_args()
+ out=ROOT/'tools/save-manager/web/guide';out.mkdir(parents=True,exist_ok=True)
+ release=version_catalog(a.release_ref,a.release_version);previous=version_catalog(a.previous_ref,a.previous_version)
+ (out/'catalog.js').write_text('export const CATALOG = '+json.dumps({'release':release,'previous':previous},ensure_ascii=False,separators=(',',':'))+';\n')
+ atlas(ROOT,out);print(json.dumps({'pokemon':151,'maps':len(release['maps']),'moves':len(release['moves']),'items':19,'achievements':16,'release':release['sourceRef']}))
 if __name__=='__main__':main()
