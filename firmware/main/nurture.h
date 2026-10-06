@@ -105,3 +105,6 @@ bool nurture_selftest(void);
 #define NURT_EXPLORE_COST (5 * NURT_Q)
 uint8_t nurture_exp_percent(const nurture_t *n);
 uint8_t nurture_rare_bonus(const nurture_t *n);
+// Positive care rewards; stamina remains the single action budget.
+uint8_t nurture_event_percent(const nurture_t *n);
+uint8_t nurture_capture_percent(const nurture_t *n);

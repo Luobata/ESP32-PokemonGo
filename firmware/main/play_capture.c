@@ -210,6 +210,7 @@ static uint16_t current_window(void)
     int mood = nurture_pct(w.pet.mood);
     int32_t bonus = 1024 + (int32_t)(mood - 50) * 1024 / 100;
     if (bonus < 1) bonus = 1;
+    bonus = bonus * nurture_capture_percent(&w.pet) / 100;
 
     cap_context_t context = capture_context();
     return cap_window_width_context(cr, (uint16_t)bonus, s_ball, c->enc.hp_ratio, &context);

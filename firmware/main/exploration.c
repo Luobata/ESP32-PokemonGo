@@ -107,6 +107,29 @@ static bool pending(const enc_queue_t *q,unsigned species) {
  for(unsigned i=0;i<q->count;i++)if(q->items[i].species_id==species)return true;
  return false;
 }
+const char *exploration_special_name(unsigned special) {
+ static const char *names[]={"", "伙伴发现补给", "伙伴特训", "闪光线索"};
+ return special<4?names[special]:names[0];
+}
+void exploration_special_apply(exploration_event_t *e,enc_queue_t *q,dex_t *dex,
+ inventory_t *bag,const nurture_t *pet,uint32_t steps) {
+ if(!e||!q||!dex||!bag|| (e->kind!=EXPLORE_CLUE&&e->kind!=EXPLORE_ENCOUNTER&&e->kind!=EXPLORE_TARGET))return;
+ // Only the committed action counter selects this event, never wall time,
+ // redraw, the selected leader, or a failed save/retry.
+ uint32_t seed=mix(steps^e->route*0x9e3779b9u^0x714e35bdu);
+ if(seed%100>=nurture_event_percent(pet))return;
+ if(e->kind==EXPLORE_CLUE){
+  unsigned amount=2,room=items_capacity(ITEM_BERRY)-bag->quantity[ITEM_BERRY];
+  if(amount>room)amount=room;
+  bag->quantity[ITEM_BERRY]+=amount;e->extra_quantity=amount;e->special=EXPLORE_SPECIAL_SUPPLY;
+ }else{
+  encounter_t *enc=enc_queue_find(q,e->uid);if(!enc)return;
+  e->special=(mix(seed^0x87ab31u)&1)?EXPLORE_SPECIAL_TRAINING:EXPLORE_SPECIAL_SPARKLE;
+  // Base 1/48 plus an independent 1/47 gives 1/24 before the chain bonus.
+  if(e->special==EXPLORE_SPECIAL_SPARKLE&&mix(seed^0x6618745bu)%47==0)enc->is_shiny=true;
+  e->shiny=enc->is_shiny;dex_mark_seen(dex,e->species,e->shiny);
+ }
+}
 static exploration_event_t step(exploration_state_t *s,enc_refresh_state_t *r,
  enc_queue_t *q,dex_t *dex,uint16_t active_uid,uint16_t defeated,bool campaign,unsigned nurture_bonus,unsigned target_override)
 {
@@ -378,6 +401,37 @@ static const exploration_trail_t TRAILS[EXPLORATION_REGIONS][3]={
   {"山间营地",{75,95,80,143,117,148}},
   {"峰顶传说",{117,80,148,121,131,149,144}}},
 };
+// Temporary visitors broaden each area's ecology without moving its regular
+// habitats or adding new persistent counters. No legendary visitor shortcuts.
+static const uint8_t GUESTS[EXPLORATION_REGIONS][12]={
+ {7,8,9,54,55,72,79,98,99,118,119,130},
+ {41,42,52,53,63,109,110,132},
+ {1,2,3,16,17,18,25,30,33,48,69,103},
+ {27,28,50,51,66,67,74,104,105,109,110,137},
+ {66,68,74,76,95,104,105,111,115,128},
+ {21,22,54,55,79,80,83,84,85,98,99,123},
+ {25,26,81,96,97,100,101,109,110,125,133,136},
+ {28,42,55,73,76,79,82,105,112,119,130,134},
+};
+unsigned exploration_guest_candidates(unsigned map,uint8_t out[12]){
+ if(map<4||map>=EXPLORATION_MAPS||!out)return 0;
+ unsigned n=0;const exploration_region_t *r=exploration_region(map);
+ for(unsigned i=0;i<12&&GUESTS[map-4][i];i++){
+  unsigned id=GUESTS[map-4][i],tier=0;exploration_habitat(id,&tier);
+  bool regular=false;for(unsigned j=0;j<24&&r->pool[j];j++)regular|=id==r->pool[j];
+  if(!regular&&tier>=2&&tier<=4)out[n++]=id;
+ }
+ return n;
+}
+unsigned exploration_visitors(unsigned map,unsigned direction,uint32_t steps,uint16_t defeated,uint8_t out[2]){
+ if(!out||direction>=3)return 0;
+ uint8_t candidates[12];unsigned total=exploration_guest_candidates(map,candidates),n=0;
+ for(unsigned i=0;i<total;i++)if(exploration_species_open(candidates[i],defeated))candidates[n++]=candidates[i];
+ if(!n)return 0;
+ unsigned start=((steps/EXPLORATION_ROTATION_STEPS)%n*2+direction*3)%n;
+ out[0]=candidates[start];if(n>1)out[1]=candidates[(start+1)%n];
+ return n>1?2:1;
+}
 const exploration_trail_t *exploration_region_trail(unsigned map,unsigned direction){
  return map>=4&&map<EXPLORATION_MAPS&&direction<3?&TRAILS[map-4][direction]:NULL;
 }
@@ -416,6 +470,8 @@ bool exploration_regions_valid(const exploration_regions_t *s){
 void exploration_region_research(unsigned map,const dex_t *d,uint8_t *seen,uint8_t *caught){
  *seen=*caught=0;const exploration_region_t *r=exploration_region(map);if(!r||!d)return;
  for(unsigned i=0;i<24&&r->pool[i];i++){*seen+=dex_is_seen(d,r->pool[i]);*caught+=dex_is_caught(d,r->pool[i]);}
+ uint8_t guests[12];unsigned n=exploration_guest_candidates(map,guests);
+ for(unsigned i=0;i<n;i++){*seen+=dex_is_seen(d,guests[i]);*caught+=dex_is_caught(d,guests[i]);}
 }
 unsigned exploration_region_target(unsigned map,const exploration_regions_t *s,uint16_t defeated,const dex_t *d){
  const exploration_region_t *r=exploration_region(map);if(!r)return 0;
@@ -449,6 +505,15 @@ exploration_event_t exploration_region_step(exploration_regions_t *s,enc_refresh
   const uint8_t *pool=direction?exploration_region_trail(map,direction-1)->species:r->pool;
   unsigned capacity=direction?12:24;
   for(unsigned i=0;i<capacity&&pool[i];i++){unsigned sp=pool[i],t=0;exploration_habitat(sp,&t);if(t&&exploration_species_open(sp,defeated)&&!pending(q,sp))candidates[t-1][n[t-1]++]=sp;}
+  unsigned first=direction?direction-1:0,last=direction?direction:3;
+  for(unsigned dir=first;dir<last;dir++){
+   uint8_t guests[2];unsigned guests_n=exploration_visitors(map,dir,p->steps,defeated,guests);
+   for(unsigned i=0;i<guests_n;i++){
+    unsigned sp=guests[i],t=0;exploration_habitat(sp,&t);bool duplicate=false;
+    for(unsigned j=0;j<n[t-1];j++)duplicate|=candidates[t-1][j]==sp;
+    if(!duplicate&&!pending(q,sp)&&n[t-1]<24)candidates[t-1][n[t-1]++]=sp;
+   }
+  }
   if(guaranteed&&!n[3]&&!n[4]){ // Promised rare encounter can use a nearby habitat.
    for(unsigned i=0;i<24&&r->pool[i];i++){unsigned sp=r->pool[i],t=0;exploration_habitat(sp,&t);if(t>=4&&exploration_species_open(sp,defeated)&&!pending(q,sp))candidates[t-1][n[t-1]++]=sp;}
   }
@@ -474,7 +539,7 @@ exploration_event_t exploration_region_step(exploration_regions_t *s,enc_refresh
  while(!q->next_uid||q->next_uid==active||enc_queue_find(q,q->next_uid))q->next_uid++;
  enc_queue_push(q,&enc);dex_mark_seen(dex,id,enc.is_shiny);p->steps++;
  if(traced){p->clues=p->pulse=0;p->traced=1;p->target=0;if(tier>=4)p->pity=0;}else{p->pulse=1;p->target=target;p->pity=tier>=4?0:p->pity<EXPLORATION_REGION_PITY?p->pity+1:EXPLORATION_REGION_PITY;}
- e.kind=traced?EXPLORE_TARGET:EXPLORE_ENCOUNTER;e.uid=q->items[q->count-1].uid;e.species=id;e.rarity=tier;e.level=level;e.shiny=enc.is_shiny;e.chain_roll=mix(seed^0x8da6b343u);e.clues=p->clues;return e;
+ e.kind=traced?EXPLORE_TARGET:EXPLORE_ENCOUNTER;e.uid=q->items[q->count-1].uid;e.species=id;e.rarity=tier;e.level=level;e.shiny=enc.is_shiny;e.chain_roll=mix(seed^0x8da6b343u);e.clues=p->clues;e.visitor=!region_has(map,id);return e;
 }
 bool exploration_region_partner(unsigned map,unsigned direction,bool challenge,uint32_t seed,uint16_t defeated,exploration_regions_t *s,encounter_t *out){
  const exploration_region_t *r=exploration_region(map);if(!r||direction>=3)return false;

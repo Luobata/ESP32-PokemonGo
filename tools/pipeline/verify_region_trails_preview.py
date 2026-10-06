@@ -70,7 +70,7 @@ def run():
                     # silently skip drawing, even when band/full pixels agree.
                     for row in range(3):
                         black = sum(frame['pixels'][(y * 240 + x) * 2:(y * 240 + x) * 2 + 2] == b'\0\0'
-                                    for y in range(102 + row * 56, 126 + row * 56)
+                                    for y in range(90 + row * 56, 114 + row * 56)
                                     for x in range(8, 16))
                         assert black > 20, 'Missing trail frame'
                     if direction == 0:

@@ -1,0 +1,15 @@
+{
+  "passed": true,
+  "build": "bf1d4b185264187a6408",
+  "checks": 193,
+  "pixel_band_mismatches": 0,
+  "capture_window_widths": [
+    26,
+    38
+  ],
+  "special_outcomes": [
+    "sparkle",
+    "supply",
+    "training"
+  ]
+}

@@ -2,7 +2,7 @@
 """Audit actual species assets, campaign route generation and capture windows."""
 import verify_trainer_campaign as h
 h.CASES=r'''
-#include "exploration.c"
+#include "exploration.h"
 #define reboot posix_reboot
 #include "capture.c"
 #undef reboot

@@ -49,7 +49,10 @@ static void trail_levels(void){
    exploration_regions_t rs={.selected=map};rs.region[0].claimed=1;rs.region[map-4].steps=seed;rs.region[map-4].deep=deep;
    enc_refresh_state_t refresh={0};enc_queue_t q={0};dex_t dex={0};inventory_t bag={0};
    exploration_event_t e=exploration_region_step(&rs,&refresh,&q,&dex,0,0x3fff,&bag,dir+1);
-   assert(e.kind==EXPLORE_ENCOUNTER&&on_trail(exploration_region_trail(map,dir),e.species));
+   uint8_t guests[2];unsigned gn=exploration_visitors(map,dir,seed,0x3fff,guests);bool visitor=false;
+   for(unsigned g=0;g<gn;g++)visitor|=guests[g]==e.species;
+   assert(e.kind==EXPLORE_ENCOUNTER&&(on_trail(exploration_region_trail(map,dir),e.species)||visitor));
+   assert(e.visitor==visitor);
    assert(e.level>=lows[map-4][deep]&&e.level<=highs[map-4]);
    assert(q.count==1&&q.items[0].level==e.level);levels[e.level]++;trail_samples++;
   }

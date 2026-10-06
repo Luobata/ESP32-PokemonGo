@@ -1788,6 +1788,8 @@ exploration_event_t world_explore_path(unsigned direction)
     if(event.kind!=EXPLORE_ENCOUNTER&&event.kind!=EXPLORE_CLUE&&event.kind!=EXPLORE_TARGET) {
         unlock_encounter_change();return event;
     }
+    uint32_t steps=event.route>=4?s_save_buf.regions.region[event.route-4].steps:s_save_buf.exploration.steps;
+    exploration_special_apply(&event,&s_save_buf.queue,&s_save_buf.dex,&s_save_buf.inventory,&s_save_buf.pet,steps);
     exploration_chain_discovery(&event,&s_save_buf.queue,&s_save_buf.dex,s_save_buf.exploration_wins);
     if(event.uid&&event.route<EXPLORATION_ROUTES){
         encounter_t *enc=enc_queue_find(&s_save_buf.queue,event.uid);
@@ -1801,8 +1803,9 @@ exploration_event_t world_explore_path(unsigned direction)
     // Serialize the candidate first: failed storage must not advance evolution.
     s_starter_party=s_party;
     if(event.kind==EXPLORE_TARGET&&event.route<4)s_save_buf.exploration.research_flags|=16u<<event.route;
-    if(event.species&&!dex_is_seen(&s_dex,event.species)){
-        uint16_t gain=exp_scaled(exp_scaled(exp_battle_base(event.level),25),nurture_exp_percent(&s_w.pet));
+    if(event.species&&(!dex_is_seen(&s_dex,event.species)||event.special==EXPLORE_SPECIAL_TRAINING)){
+        unsigned percent=(!dex_is_seen(&s_dex,event.species)?25:0)+(event.special==EXPLORE_SPECIAL_TRAINING?50:0);
+        uint16_t gain=exp_scaled(exp_scaled(exp_battle_base(event.level),percent),nurture_exp_percent(&s_w.pet));
         exp_award_party(&s_starter_party,1,(1u<<s_starter_party.party_count)-1,gain);
         event.exp=s_starter_party.party[0].exp-s_party.party[0].exp;
     }

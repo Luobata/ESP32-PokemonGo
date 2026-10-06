@@ -1,0 +1,62 @@
+[
+  {
+    "check": "verify_usb_backup",
+    "exit": 0,
+    "seconds": 5.78
+  },
+  {
+    "check": "verify_usb_import",
+    "exit": 0,
+    "seconds": 2.38
+  },
+  {
+    "check": "verify_save_import_compatibility",
+    "exit": 0,
+    "seconds": 5.17
+  },
+  {
+    "check": "verify_usb_import_device",
+    "exit": 0,
+    "seconds": 0.48
+  },
+  {
+    "check": "verify_usb_backup_checkpoint",
+    "exit": 0,
+    "seconds": 2.95
+  },
+  {
+    "check": "verify_firmware_update",
+    "exit": 0,
+    "seconds": 0.78
+  },
+  {
+    "check": "verify_nvs_restore_roundtrip",
+    "exit": 0,
+    "seconds": 10.02
+  },
+  {
+    "check": "verify_region_expansion",
+    "exit": 0,
+    "seconds": 5.22
+  },
+  {
+    "check": "verify_dungeon_stack",
+    "exit": 0,
+    "seconds": 1.23
+  },
+  {
+    "check": "verify_exploration_events",
+    "exit": 0,
+    "seconds": 3.39
+  },
+  {
+    "check": "verify_species_obtainability",
+    "exit": 0,
+    "seconds": 3.23
+  },
+  {
+    "check": "verify_save_import_web",
+    "exit": 0,
+    "seconds": 0.09
+  }
+]

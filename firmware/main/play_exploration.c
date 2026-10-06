@@ -1,5 +1,6 @@
 // P15: shared route exploration, rendered identically on LCD and native preview.
 #include <stdio.h>
+#include <string.h>
 #include "lvgl.h"
 #include "esp_timer.h"
 #include "assets.h"
@@ -59,6 +60,16 @@ static void trail_examples(int band,unsigned direction,int y){
   used+=(size_t)n;
  }
  game_ui_text_fitted(band,36,y,188,used?names:"暂未发现伙伴",GAME_UI_MUTED);
+}
+static void visitor_names(int band,unsigned direction,int y){
+ uint8_t ids[2];unsigned n=exploration_visitors(view.route,direction,view.regions.region[view.route-4].steps,view.defeated,ids);
+ char text[80]="访客 ";size_t used=strlen(text);
+ for(unsigned i=0;i<n;i++){species_t sp;if(!assets_species(ids[i],&sp))continue;
+  int wrote=snprintf(text+used,sizeof(text)-used,"%s%.*s",i?" / ":"",sp.name_zh_len,sp.name_zh);
+  if(wrote<0||(size_t)wrote>=sizeof(text)-used)break;
+  used+=wrote;
+ }
+ game_ui_text_fitted(band,36,y,188,text,GAME_UI_ACCENT);
 }
 static void tile(int band,int x,int y,const char *const *rows,int n,const uint16_t *pal){
  for(int yy=0;yy<n;yy++)for(int xx=0;rows[yy][xx];xx++)if(rows[yy][xx]!='.')rect(band,x+xx*2,y+yy*2,2,2,pal[rows[yy][xx]-'0']);
@@ -164,11 +175,12 @@ static void draw_all(void){
    center(band,40,r->route.name,GAME_UI_INK);
    snprintf(text,sizeof(text),"%s野生 Lv%u-%u",view.deep?"深层":"常规",exploration_region_level_min(r,view.deep),r->max_level);center(band,62,text,GAME_UI_MUTED);
    for(unsigned i=0;i<3;i++){
-    int y=90+i*56;const exploration_trail_t *trail=exploration_region_trail(view.route,i);
-    game_ui_box(band,8,y,224,48);render_text(36,y+7-band,trail->name,GAME_UI_INK);
-    trail_examples(band,i,y+25);if(i==selected)game_ui_cursor(band,18,y+11);
+    int y=84+i*56;const exploration_trail_t *trail=exploration_region_trail(view.route,i);
+    game_ui_box(band,8,y,224,56);render_text(36,y+4-band,trail->name,GAME_UI_INK);
+    trail_examples(band,i,y+20);visitor_names(band,i,y+36);if(i==selected)game_ui_cursor(band,18,y+8);
    }
-   center(band,264,view.clues==3?"5体能 本次寻找追踪目标":"5体能 全区共享线索",GAME_UI_MUTED);game_ui_footer(band,GAME_UI_NAV_HINT);
+   snprintf(text,sizeof(text),"访客%u次后轮换 消耗5体能",(unsigned)(EXPLORATION_ROTATION_STEPS-view.regions.region[view.route-4].steps%EXPLORATION_ROTATION_STEPS));
+   center(band,264,view.clues==3?"本次寻找追踪目标":text,GAME_UI_MUTED);game_ui_footer(band,GAME_UI_NAV_HINT);
   }else if(badge_list){
    center(band,44,"徽章活动",GAME_UI_INK);
    if(!badge_count)center(band,124,"获得徽章后开放新活动",GAME_UI_MUTED);
@@ -240,19 +252,20 @@ static void draw_all(void){
    unsigned phase=(millis()-started)/120;for(unsigned i=0;i<=phase&&i<4;i++)rect(band,80+i*24,176,8,8,r->color);
    center(band,218,"寻找伙伴的踪迹",GAME_UI_INK);game_ui_footer(band,"正在探索……");
   }else if(event.kind==EXPLORE_ENCOUNTER||event.kind==EXPLORE_TARGET){
-   center(band,44,event.kind==EXPLORE_TARGET?"追踪目标出现了！":"发现野生宝可梦！",GAME_UI_INK);
+   center(band,44,event.special?exploration_special_name(event.special):event.visitor?"迁徙访客出现了！":event.kind==EXPLORE_TARGET?"追踪目标出现了！":"发现野生宝可梦！",GAME_UI_INK);
    portrait(band,event.species,event.shiny,68,144,2);
    species_t sp;world_t w;world_snapshot(&w);
    if(assets_species(event.species,&sp))snprintf(text,sizeof(text),"%.*s Lv%u",sp.name_zh_len,sp.name_zh,(event.level ? event.level : battle_wild_level_for_pet(event.rarity,w.level)));else snprintf(text,sizeof(text),"#%03u",event.species);
-   center(band,220,text,GAME_UI_INK);snprintf(text,sizeof(text),"稀有度 %u%s",event.rarity,event.shiny?" 闪光":"");center(band,244,text,GAME_UI_ACCENT);
-   if(event.exp){snprintf(text,sizeof(text),"发现新种 经验+%u",event.exp);center(band,264,text,GAME_UI_INK);}
+   center(band,220,text,GAME_UI_INK);snprintf(text,sizeof(text),"稀有度 %u%s",event.rarity,event.shiny?" 闪光":event.special==EXPLORE_SPECIAL_SPARKLE?" 闪光率提升":"");center(band,244,text,GAME_UI_ACCENT);
+   if(event.exp){snprintf(text,sizeof(text),event.special==EXPLORE_SPECIAL_TRAINING?"伙伴特训 经验+%u":"发现新种 经验+%u",event.exp);center(band,264,text,GAME_UI_INK);}
    static const char *const choices[]={"查看", "继续"};game_ui_actions(band,choices,2,action_selected);
   }else if(event.kind==EXPLORE_CLUE){
    center(band,44,r->name,GAME_UI_INK);scene(band,route);
-   center(band,164,"发现新的线索",GAME_UI_INK);progress(band,event.clues);
+   center(band,164,event.special?exploration_special_name(event.special):"发现新的线索",GAME_UI_INK);progress(band,event.clues);
    center(band,218,exploration_story(view.target,event.clues-1),GAME_UI_INK);
    if(event.item!=ITEM_NONE){snprintf(text,sizeof(text),event.item_full&&!event.quantity?"%s已满 未拾取":"发现 %s ×%u",items_info(event.item)->name,event.quantity);center(band,248,text,GAME_UI_ACCENT);}
-   else center(band,248,event.clues==3?"下次探索必定找到目标":"继续探索 追踪伙伴",GAME_UI_MUTED);
+   if(event.special==EXPLORE_SPECIAL_SUPPLY){snprintf(text,sizeof(text),event.extra_quantity?"伙伴额外找到树果 ×%u":"树果已满 额外补给未领取",event.extra_quantity);center(band,264,text,GAME_UI_MUTED);}
+   else if(event.item==ITEM_NONE)center(band,248,event.clues==3?"下次探索必定找到目标":"继续探索 追踪伙伴",GAME_UI_MUTED);
    static const char *const choices[]={"继续", "路线", "活动"};game_ui_actions(band,choices,3,action_selected);
   }else{
    center(band,36,r->name,GAME_UI_INK);

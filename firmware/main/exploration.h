@@ -39,7 +39,14 @@ typedef struct {
  bool item_full;
  uint32_t chain_roll; // Ephemeral independent draw; never persisted or re-rolled on display.
  uint16_t exp; // Actual leader gain after the durable discovery settlement.
+ uint8_t special,extra_quantity; // Presentation only; awards commit with the discovery.
+ bool visitor;
 } exploration_event_t;
+typedef enum { EXPLORE_SPECIAL_NONE, EXPLORE_SPECIAL_SUPPLY,
+ EXPLORE_SPECIAL_TRAINING, EXPLORE_SPECIAL_SPARKLE } exploration_special_t;
+#define EXPLORATION_ROTATION_STEPS 12
+const char *exploration_special_name(unsigned special);
+void exploration_special_apply(exploration_event_t *,enc_queue_t *,dex_t *,inventory_t *,const nurture_t *,uint32_t steps);
 // Separate save extension: never enlarge the V11-V15 exploration prefix.
 #define EXPLORATION_ACTIVITIES 8
 typedef struct {
@@ -78,6 +85,8 @@ typedef struct {
 } exploration_trail_t;
 const exploration_trail_t *exploration_region_trail(unsigned map,unsigned direction);
 unsigned exploration_trail_examples(unsigned map,unsigned direction,bool deep,uint16_t defeated,uint8_t out[2]);
+unsigned exploration_visitors(unsigned map,unsigned direction,uint32_t steps,uint16_t defeated,uint8_t out[2]);
+unsigned exploration_guest_candidates(unsigned map,uint8_t out[12]);
 static inline unsigned exploration_region_level_min(const exploration_region_t *r,bool deep){
  return r->min_level+(deep?(r->max_level-r->min_level+1)/2:0);
 }

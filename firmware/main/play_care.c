@@ -63,8 +63,9 @@ SCREEN_ASSERT_WITHIN_BAND(care_axis_2, AXIS_Y0 + AXIS_STEP * 2, TEXT_H);
 SCREEN_ASSERT_WITHIN_BAND(care_evolution_hint, EVO_HINT_Y, TEXT_H);
 SCREEN_ASSERT_WITHIN_BAND(care_name_hint, NAME_HINT_Y, TEXT_H);
 
-static const char *ACTIONS[ACTION_COUNT] = {"喂食", "玩耍(-5)", "恢复说明", "背包", "进化"};
+static const char *ACTIONS[ACTION_COUNT] = {"喂食", "玩耍(-5)", "养成效果", "背包", "进化"};
 static uint8_t s_sel;
+static bool s_benefits;
 static world_t s_w;
 static bool s_shiny;
 static evo_check_t s_evo;
@@ -166,7 +167,7 @@ static void draw_band(int band_y)
     }
     game_ui_text_centered(band_y,8,EVO_HINT_Y,224,16,evo_hint?evo_hint:buf,GAME_UI_INK);
     game_ui_text_centered(band_y, 12, NAME_HINT_Y, 216, TEXT_H,
-                          "体能每72秒恢复1点", GAME_UI_MUTED);
+                          "养成效果可查看当前加成", GAME_UI_MUTED);
 
     game_ui_footer(band_y, GAME_UI_NAV_HINT);
 
@@ -174,8 +175,29 @@ static void draw_band(int band_y)
     screen_push_band(band_y);
 }
 
+static void draw_benefits(void)
+{
+ char line[80];
+ for(int band=0;band<SCR_H;band+=BAND_H){
+  screen_band_clear(GAME_UI_BG);game_ui_title(band,"养成效果",NULL);
+  snprintf(line,sizeof(line),"获得经验 %u%%",nurture_exp_percent(&s_w.pet));
+  game_ui_text_centered(band,8,44,224,16,line,GAME_UI_INK);
+  game_ui_text_centered(band,8,66,224,16,"饱食+25% 心情+10%",GAME_UI_MUTED);
+  game_ui_text_centered(band,8,84,224,16,"亲密最多+20%",GAME_UI_MUTED);
+  snprintf(line,sizeof(line),"特殊事件机会 %u%%",nurture_event_percent(&s_w.pet));
+  game_ui_text_centered(band,8,102,224,16,line,GAME_UI_INK);
+  game_ui_text_centered(band,8,126,224,16,"心情越好 事件越多",GAME_UI_MUTED);
+  snprintf(line,sizeof(line),"亲密捕获窗口 +%u%%",nurture_capture_percent(&s_w.pet)-100);
+  game_ui_text_centered(band,8,160,224,16,line,GAME_UI_INK);
+  game_ui_text_centered(band,8,184,224,16,"与心情和球种加成叠加",GAME_UI_MUTED);
+  game_ui_text_centered(band,8,220,224,16,"体能每36秒恢复1点",GAME_UI_INK);
+  game_ui_text_centered(band,8,244,224,16,"空到满约1小时",GAME_UI_MUTED);
+  game_ui_footer(band,"C关闭 长按B返回");screen_push_band(band);
+ }
+}
 static void draw_all(void)
 {
+    if(s_benefits){draw_benefits();return;}
     for (int y = 0; y < SCR_H; y += BAND_H) draw_band(y);
 }
 
@@ -213,6 +235,7 @@ static void motion_tick(lv_timer_t *timer)
 void play_care_enter(void)
 {
     if (!nav_is_returning()) s_sel = 0;
+    s_benefits=false;
     world_snapshot(&s_w);
     world_inventory_snapshot(&s_inventory);
     world_party_t party;
@@ -237,6 +260,7 @@ bool play_care_screen_busy(void) { return evolution_ui_active(); }
 
 void play_care_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
+    if(s_benefits){if(nav_return(btn,ev)||nav_confirm(btn,ev)){s_benefits=false;draw_all();}return;}
     if (nav_return(btn, ev)) { nav_back(PAGE_IDLE); return; }
     if (nav_direction(btn, ev)) {
         world_snapshot(&s_w); world_inventory_snapshot(&s_inventory);
@@ -276,7 +300,7 @@ void play_care_key(bsp_btn_t btn, bsp_btn_ev_t ev)
             snprintf(s_care_feedback, sizeof(s_care_feedback), "%s", applied ? "玩得很开心 体能-5"
                      : s_w.pet.stamina < NURT_PLAY_STAMINA ? "体能不足5点 请先休息" : "暂时无法玩耍 请重试");
         }
-        if (s_sel == 2) { applied=false;snprintf(s_care_feedback,sizeof(s_care_feedback),"体力仅随时间恢复"); }
+        if (s_sel == 2) { applied=false;s_benefits=true; }
         world_snapshot(&s_w);
         world_inventory_snapshot(&s_inventory);
         refresh_evolution();

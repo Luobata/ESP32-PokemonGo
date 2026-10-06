@@ -327,9 +327,15 @@ bool nurture_selftest(void)
 
 uint8_t nurture_exp_percent(const nurture_t *n) {
  if(!n)return 100;
- return 80+(nurture_pct(n->satiety)+nurture_pct(n->mood))/5+nurture_pct(n->intimacy)/10;
+ return 100+nurture_pct(n->satiety)/4+nurture_pct(n->mood)/10+nurture_pct(n->intimacy)/5;
 }
 uint8_t nurture_rare_bonus(const nurture_t *n) {
  if(!n)return 0;
  return (nurture_pct(n->satiety)+nurture_pct(n->mood)+nurture_pct(n->intimacy))/6;
+}
+uint8_t nurture_event_percent(const nurture_t *n) {
+ return 12+(n?nurture_pct(n->mood)/5:0);
+}
+uint8_t nurture_capture_percent(const nurture_t *n) {
+ return 100+(n?nurture_pct(n->intimacy)/2:0);
 }

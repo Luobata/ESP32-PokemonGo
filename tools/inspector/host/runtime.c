@@ -986,11 +986,14 @@ exploration_event_t world_explore_path(unsigned direction){
  exploration_event_t e=regions.selected>=4?exploration_region_step(&regions_next,&r,&q,&d,active_valid?active_enc.uid:0,challenge.defeated,&bag,direction):exploration_step_with_target(&x,&r,&q,&d,active_valid?active_enc.uid:0,challenge.defeated,&bag,&world.pet,exploration_team_bonus(&party,x.route),target);
  if(e.kind!=EXPLORE_ENCOUNTER&&e.kind!=EXPLORE_CLUE&&e.kind!=EXPLORE_TARGET)return e;
  party_t next=party;
+ uint32_t steps=e.route>=4?regions_next.region[e.route-4].steps:x.steps;
+ exploration_special_apply(&e,&q,&d,&bag,&world.pet,steps);
  exploration_chain_discovery(&e,&q,&d,exploration_wins);
  if(e.uid&&e.route<EXPLORATION_ROUTES){e.level=battle_wild_level_for_pet(e.rarity,world.level);unsigned minimum=exploration_legacy_level_min(e.route);if(e.level<minimum)e.level=minimum;encounter_t *enc=enc_queue_find(&q,e.uid);if(enc)enc->level=e.level;}
  if(e.kind==EXPLORE_TARGET&&e.route<4){x.research_flags|=16u<<e.route;exploration_target_completed(&x,&u,&d,&q,challenge.defeated,e.route);}
- if(e.species&&!dex_is_seen(&dex,e.species)){
-  uint16_t gain=exp_scaled(exp_scaled(exp_battle_base(e.level),25),nurture_exp_percent(&world.pet));
+ if(e.species&&(!dex_is_seen(&dex,e.species)||e.special==EXPLORE_SPECIAL_TRAINING)){
+  unsigned percent=(!dex_is_seen(&dex,e.species)?25:0)+(e.special==EXPLORE_SPECIAL_TRAINING?50:0);
+  uint16_t gain=exp_scaled(exp_scaled(exp_battle_base(e.level),percent),nurture_exp_percent(&world.pet));
   exp_award_party(&next,1,(1u<<next.party_count)-1,gain);e.exp=next.party[0].exp-party.party[0].exp;
  }
  if(host_save_fails()){e.kind=EXPLORE_SAVE_FAILED;e.exp=0;return e;}
