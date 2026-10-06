@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "samples": 268,
+  "all_four_stage_corners": true,
+  "no_message_window_writes": true,
+  "large_step_saturates": true,
+  "finished_has_no_overlay": true
+}

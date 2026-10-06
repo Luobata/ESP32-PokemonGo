@@ -4,6 +4,7 @@
 #include "combat_moves.h"
 #include "combat_auto_moves.h"
 #include "combat_gen2_stats.h"
+#include "pokemon_names.h"
 #include <stddef.h>
 #include "combat_selected_moves.h"
 static const combat_move_data_t *move_data(unsigned id){
@@ -51,7 +52,15 @@ static bool species_info(const combat_mon_t *m,species_t *out){
  return true;
 }
 static uint8_t learn_level(const combat_mon_t *m){return m->transform_species?m->transform_level:m->level;}
-bool combat_move(uint16_t id,move_t *out){if(!out)return false;if(!move_data(id)){memset(out,0,sizeof(*out));return false;}*out=move_data(id)->move;return true;}
+bool combat_move(uint16_t id,move_t *out){
+ if(!out)return false;
+ const combat_move_data_t *data=move_data(id);
+ if(!data){memset(out,0,sizeof(*out));return false;}
+ *out=data->move;
+ uint8_t length=0;const char *name=pokemon_move_names_override(id,&length);
+ if(name){out->name_zh=name;out->name_zh_len=length;}
+ return true;
+}
 uint8_t combat_learn_level(uint16_t species,uint16_t move){
  unsigned level=255;
  if(!move_data(move))return 255;
@@ -259,7 +268,8 @@ void combat_turn(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint32_t *rng,
  const combat_move_data_t *data=move_data(id);const move_t *m=&data->move;effect=data->effect;
  bool is_attack=m->power||fixed(effect)||effect==EFFECT_COUNTER||effect==EFFECT_BIDE||effect==EFFECT_OHKO;
  a->safety.status_streak=is_attack?0:minimum(a->safety.status_streak+1,2);
- r->move_id=id;r->move_type=m->type;r->move_zh=m->name_zh;r->move_zh_len=m->name_zh_len;r->self_target=self_effect(effect);a->last_move=id;
+ move_t display;combat_move(id,&display);
+ r->move_id=id;r->move_type=m->type;r->move_zh=display.name_zh;r->move_zh_len=display.name_zh_len;r->self_target=self_effect(effect);a->last_move=id;
  if(r->no_effect){residual(a,d);return;}
  bool charging=effect==EFFECT_FLY||effect==EFFECT_SOLARBEAM||effect==EFFECT_SKY_ATTACK||effect==EFFECT_SKULL_BASH||effect==EFFECT_RAZOR_WIND;
  if(charging&&!a->charge){a->charge=1;a->charge_move=id;r->charging=1;r->self_target=1;if(effect==EFFECT_SKULL_BASH)stage(&a->defense,1);residual(a,d);return;}

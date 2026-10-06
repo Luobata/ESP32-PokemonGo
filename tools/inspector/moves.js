@@ -14,6 +14,8 @@
   session=res.headers.get('X-Preview-Session');ctx.putImageData(new ImageData(decodeRGB565BE(bytes),240,320),0,0);
   $('status').textContent='同源构建 '+res.headers.get('X-Preview-Version');return true;
  }
+ try{$('names').value=localStorage.getItem('pokewalk.nameStyle.v1')==='1'?'1':'0';}catch{}
+ function displayName(m){return $('names').value==='1'?(m.legacy_name||m.name):m.name;}
  function selected(){return catalog.find(m=>m.id===Number($('move').value));}
  async function render(){if(!session||!selected())return;const applied=await request('move_preview',{move:selected().id,side:Number($('side').value),mode:Number($('mode').value),frame},revision);if(!applied)return;$('frame').value=frame;$('frame-label').textContent=frame+' / '+(frameCount-1);}
  function info(){const m=selected();$('meta').textContent=m?`${types[m.type]} · 威力 ${m.power||'—'} · 命中 ${m.accuracy===255?'必中':m.accuracy+'%'}\n动画：${m.animation==='GOLD_TRACK'?'金银原作执行轨迹':m.animation==='属性/状态共用动画'?m.animation:'招式指定动作'}${m.new?' · 本批新增':''}\n${m.animation_note||'项目适配动画，尚未逐帧对齐原版'}`:'无匹配招式';sourceInfo();}
@@ -23,8 +25,9 @@
   $('source-summary').textContent=`原作依赖：${row.objects.length} 种对象、${row.functions.length} 种运动、${row.background_effects.length} 种背景效果。原作轨迹已接入；竖屏合成仍需逐招与原版画面对照。`;
   $('source-commands').textContent=row.command_indices.map(i=>sources.commands[i]).map(c=>`${c.line}: ${c.op} ${c.args.join(', ')}`).join('\n');
  }
- function filter(){revision++;const old=$('move').value,q=$('search').value.trim();const rows=catalog.filter(m=>($('scope').value!=='new'||m.new)&&(!q||m.name.includes(q)||String(m.id).includes(q)));$('move').replaceChildren(...rows.map(m=>new Option(`${m.id} · ${m.name}`,m.id)));if(rows.some(m=>String(m.id)===old))$('move').value=old;$('count').textContent=`(${rows.length} / ${catalog.length})`;$('prev').disabled=$('next').disabled=rows.length<2;$('move').disabled=!rows.length;$('clear-filters').disabled=!q&&$('scope').value==='all';$('filter-note').textContent=q?`搜索“${q}”：${rows.length} 条结果。想选择其他招式，可修改搜索或清除筛选。`:$('scope').value==='new'?`当前仅显示本批新增的 ${rows.length} 招。`:`显示全部 ${rows.length} 招，可下拉选择或按名称搜索。`;info();frame=0;resetClock();enqueue(render);}
- async function load(){await request('reset',{page:3,pet:Number($('pet').value),wild:Number($('wild').value),level:60,rarity:3,seed:123,team:0});frame=0;resetClock();await render();}
+ function filter(){revision++;const old=$('move').value,q=$('search').value.trim();const rows=catalog.filter(m=>($('scope').value!=='new'||m.new)&&(!q||m.name.includes(q)||(m.legacy_name||'').includes(q)||String(m.id).includes(q)));$('move').replaceChildren(...rows.map(m=>new Option(`${m.id} · ${displayName(m)}`,m.id)));if(rows.some(m=>String(m.id)===old))$('move').value=old;$('count').textContent=`(${rows.length} / ${catalog.length})`;$('prev').disabled=$('next').disabled=rows.length<2;$('move').disabled=!rows.length;$('clear-filters').disabled=!q&&$('scope').value==='all';$('filter-note').textContent=q?`搜索“${q}”：${rows.length} 条结果。想选择其他招式，可修改搜索或清除筛选。`:$('scope').value==='new'?`当前仅显示本批新增的 ${rows.length} 招。`:`显示全部 ${rows.length} 招，可下拉选择或按名称搜索。`;info();frame=0;resetClock();enqueue(render);}
+ async function load(){await request('reset',{page:3,pet:Number($('pet').value),wild:Number($('wild').value),level:60,rarity:3,seed:123,team:0,names:Number($('names').value)});frame=0;resetClock();await render();}
+ $('names').onchange=()=>{const style=Number($('names').value);revision++;try{localStorage.setItem('pokewalk.nameStyle.v1',String(style));}catch{}enqueue(async()=>{if(session)await request('names',{style});});filter();};
  $('move').onchange=()=>{revision++;info();frame=0;resetClock();enqueue(render);};$('search').oninput=filter;$('scope').onchange=()=>{$('search').value='';filter();};
  $('clear-filters').onclick=()=>{$('search').value='';$('scope').value='all';filter();};
  for(const id of ['side','mode'])$(id).onchange=()=>{revision++;frame=0;resetClock();enqueue(render);};

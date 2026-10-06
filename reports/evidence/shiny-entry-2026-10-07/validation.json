@@ -1,0 +1,18 @@
+{
+  "base_commit": "4bcc109541c7bf208a6da9eea4a8fe491745424f",
+  "compiled": true,
+  "app_bytes": 3173600,
+  "app_sha256": "1aa554b39e53a18213c6ea1c3f088033c950cd0f4b82d016f92b9251d1e15b21",
+  "firmware_flashed": false,
+  "community_published": false,
+  "browser_build": "a69521fd0d00d4f15682",
+  "browser_dirty_pixels": 0,
+  "source_art_bytes": 96,
+  "persistence_changes": false,
+  "supported_save_versions": "V5–V20",
+  "hardware_import_test": false,
+  "legacy_extra_tests": {
+    "verify_firmware_preview.py": "fails on unchanged HEAD and current: obsolete A-confirm navigation leaves P2",
+    "verify_trainer_sendout.py": "fails on unchanged HEAD and current: obsolete A-confirm remains in challenge hall"
+  }
+}

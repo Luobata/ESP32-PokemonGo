@@ -98,7 +98,7 @@ class Handler(SimpleHTTPRequestHandler):
                               integer(data, "level", 12, 1, 100), integer(data, "wild", 74, 1, 151),
                               integer(data, "rarity", 3, 1, 5), integer(data, "seed", 1, 0, 2**32 - 1),
                               integer(data, "shiny", 0, 0, 1), integer(data, "names", 0, 0, 1),
-                              integer(data, "team", 0, 0, 1)]
+                              integer(data, "team", 0, 0, 1), integer(data, "pet_shiny", 0, 0, 1)]
                     if session in sessions:
                         sessions.pop(session)[0].close()
                     if len(sessions) >= 8:

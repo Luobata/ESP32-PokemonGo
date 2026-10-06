@@ -1,0 +1,169 @@
+{
+  "source_base": "4bcc109541c7bf208a6da9eea4a8fe491745424f",
+  "working_tree": "uncommitted, includes shiny-entry changes from previous turn",
+  "firmware_bytes": 3177616,
+  "firmware_sha256": "ed2e76d969513a5677a1556e77e2af82ad9d9bb45749e47291c7840f983edd32",
+  "build_exit_code": 0,
+  "build_warning": "App does not fit the separate 1 MiB recovery partition; application is built for 0x10000 app0. Partition layout unchanged.",
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_backup.py"
+      ],
+      "exit_code": 0,
+      "seconds": 5.42,
+      "log": "verify_usb_backup.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_import.py"
+      ],
+      "exit_code": 0,
+      "seconds": 5.78,
+      "log": "verify_usb_import.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_save_import_compatibility.py"
+      ],
+      "exit_code": 0,
+      "seconds": 5.16,
+      "log": "verify_save_import_compatibility.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_import_device.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.61,
+      "log": "verify_usb_import_device.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_backup_checkpoint.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.13,
+      "log": "verify_usb_backup_checkpoint.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_save_manager_distribution.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.76,
+      "log": "verify_save_manager_distribution.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_firmware_update.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.58,
+      "log": "verify_firmware_update.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_nvs_restore_roundtrip.py"
+      ],
+      "exit_code": 0,
+      "seconds": 10.28,
+      "log": "verify_nvs_restore_roundtrip.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_region_expansion.py"
+      ],
+      "exit_code": 0,
+      "seconds": 6.24,
+      "log": "verify_region_expansion.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_combat_system.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.95,
+      "log": "verify_combat_system.log"
+    },
+    {
+      "command": [
+        "node",
+        "tools/pipeline/verify_save_import_web.mjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.2,
+      "log": "verify_save_import_web.log"
+    }
+  ],
+  "dungeon_stack": {
+    "target": "esp32c3",
+    "stack_frames": {
+      "begin_battle": 192,
+      "dungeon_load": 32,
+      "dungeon_step": 64,
+      "dungeon_switch": 16,
+      "dungeon_retire": 16,
+      "dungeon_resume": 48,
+      "dungeon_abandon": 16,
+      "dungeon_choose": 16,
+      "dungeon_finish": 16,
+      "dungeon_theme_open": 320,
+      "dungeon_new_theme": 512,
+      "dungeon_new": 16
+    },
+    "passed": true
+  },
+  "shiny_entry_regression": {
+    "passed": true,
+    "version": "70e1d4fd939f54cfda06",
+    "checks": 1124,
+    "cases": [
+      "wild: player=0, enemy=0, 0 sparkle frames; no state mutation/replay",
+      "wild: player=0, enemy=1, 23 sparkle frames; no state mutation/replay",
+      "wild: player=1, enemy=0, 23 sparkle frames; no state mutation/replay",
+      "wild: player=1, enemy=1, 45 sparkle frames; no state mutation/replay",
+      "trainer: initial and player-only replacement sparkle; enemy-only replacement does not replay player",
+      "dungeon: selected owned shiny retains palette and entry effect"
+    ]
+  },
+  "names": {
+    "core": {
+      "moves": 191,
+      "paired_combat_turns": 1528,
+      "save_unchanged": true,
+      "sanitized": true
+    },
+    "font_characters": 252,
+    "build": "eff8db6d4878bfc8feef",
+    "native_moves": 191,
+    "renamed_moves": 161,
+    "redraw_checks": 905
+  },
+  "browser": {
+    "build": "eff8db6d4878bfc8feef",
+    "legacy_search": "饰拳 -> 63",
+    "official_search": "破坏光线 -> 63",
+    "toggle_and_reload": true,
+    "frame": 14,
+    "screenshot": "browser.png"
+  },
+  "save": {
+    "layout_changed": false,
+    "supported_sources": "V5–V20",
+    "dungeon": "V3→V4",
+    "validation": "automated production C / isolated NVS / browser fixtures",
+    "hardware_flash_or_restore": false
+  },
+  "published": false
+}

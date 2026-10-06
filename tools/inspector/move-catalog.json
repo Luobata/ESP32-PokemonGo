@@ -9,6 +9,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "打",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -21,6 +22,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "空手道",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -33,6 +35,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "往返",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -45,6 +48,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "连续拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -57,6 +61,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "蛇拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -69,6 +74,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "猴拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -81,6 +87,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "火焰拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -93,6 +100,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "冷冻拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -105,6 +113,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "雷电拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -117,6 +126,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "冲撞",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -129,6 +139,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "夹",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -141,6 +152,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "剪刀脚",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -153,6 +165,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "白拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -165,6 +178,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "剑舞",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -177,6 +191,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "剪切",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -189,6 +204,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "旋风",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -201,6 +217,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "用翅膀",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -213,6 +230,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "竹刮",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -225,6 +243,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "飞击",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -237,6 +256,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "拳击",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -249,6 +269,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "打倒",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -261,6 +282,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "鹤鞭",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -273,6 +295,7 @@
     "chance": 30,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "快攻",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -285,6 +308,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "顺拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -297,6 +321,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "特击",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -309,6 +334,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "跳踢",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -321,6 +347,7 @@
     "chance": 30,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "总击",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -333,6 +360,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "扔沙",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -345,6 +373,7 @@
     "chance": 30,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "流",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -357,6 +386,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "飞枪",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -369,6 +399,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "闪电",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -381,6 +412,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "攻招",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -393,6 +425,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "击杀",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -405,6 +438,7 @@
     "chance": 30,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "神掌",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -417,6 +451,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "捆紧",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -429,6 +464,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "高速",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -441,6 +477,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "稀拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -453,6 +490,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "亚拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -465,6 +503,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "摆动",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -477,6 +516,7 @@
     "chance": 30,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "关拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -489,6 +529,7 @@
     "chance": 20,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "东拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -501,6 +542,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "霹笠",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -513,6 +555,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "迷惑",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -525,6 +568,7 @@
     "chance": 30,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "水拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -537,6 +581,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "叫声",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -549,6 +594,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "吼",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -561,6 +607,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "歌",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -573,6 +620,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "超音波",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -585,6 +633,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "一休",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -597,6 +646,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "解除",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -609,6 +659,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "溶解液",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -621,6 +672,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "火",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -633,6 +685,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "射火焰",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -645,6 +698,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "白雾",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -657,6 +711,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "泡沫",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -669,6 +724,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "金手",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -681,6 +737,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "友泊",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -693,6 +750,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "诱杀",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -705,6 +763,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "诱",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -717,6 +776,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "泪拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -729,6 +789,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "棍刺",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -741,6 +802,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "雷拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -753,6 +815,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "饰拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -765,6 +828,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "啄",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -777,6 +841,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "亮拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -789,6 +854,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "寂拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -801,6 +867,7 @@
     "chance": 30,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "西拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -813,6 +880,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "枯拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -825,6 +893,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "叶拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -837,6 +906,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "怪力",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -849,6 +919,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "比赛",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -861,6 +932,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "锋利",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -873,6 +945,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "刮种",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -885,6 +958,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "意拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -897,6 +971,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "长拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -909,6 +984,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "心拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -921,6 +997,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "毒粉",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -933,6 +1010,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "麻痹",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -945,6 +1023,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "催眠",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -957,6 +1036,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "花瓣舞",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -969,6 +1049,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "吐丝",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -981,6 +1062,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "吹倒",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -993,6 +1075,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "铁拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1005,6 +1088,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "电击",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1017,6 +1101,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "铅杀",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1029,6 +1114,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "铜拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1041,6 +1127,7 @@
     "chance": 30,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "雷石",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1053,6 +1140,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "落石",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1065,6 +1153,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "提",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1077,6 +1166,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "地",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1089,6 +1179,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "挖洞",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1101,6 +1192,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "棍击",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1113,6 +1205,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "漂亮",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1125,6 +1218,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "折散",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1137,6 +1231,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "催眠术",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1149,6 +1244,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "盘腿坐",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1161,6 +1257,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "聪明",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1173,6 +1270,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "暗招",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1185,6 +1283,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "芝",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1197,6 +1296,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "电报",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1209,6 +1309,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "吠喊",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1221,6 +1322,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "模仿",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1233,6 +1335,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "噪音",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1245,6 +1348,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "分身术",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1257,6 +1361,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "重生",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1269,6 +1374,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "变硬",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1281,6 +1387,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "变小",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1293,6 +1400,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "烟幕",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1305,6 +1413,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "强光射",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1317,6 +1426,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "宁静",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1329,6 +1439,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "变圆",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1341,6 +1452,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "间隔",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1353,6 +1465,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "闪电墙",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1365,6 +1478,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "黑雾",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1377,6 +1491,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "百货",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1389,6 +1504,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "怎么",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1401,6 +1517,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "平",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1413,6 +1530,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "容易",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1425,6 +1543,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "浪击",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1437,6 +1556,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "杀",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1449,6 +1569,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "叶港",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1461,6 +1582,7 @@
     "chance": 30,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "洞察",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1473,6 +1595,7 @@
     "chance": 40,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "烟雾",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1485,6 +1608,7 @@
     "chance": 30,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "空道",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1497,6 +1621,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "天心",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1509,6 +1634,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "锻炼",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1521,6 +1647,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "攀瀑",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1533,6 +1660,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "星击",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1545,6 +1673,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "加速",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1557,6 +1686,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "火箭",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1569,6 +1699,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "厉害",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1581,6 +1712,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "砍杀",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1593,6 +1725,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "军拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1605,6 +1738,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "显示",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1617,6 +1751,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "蛋海",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1629,6 +1764,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "动攻",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1641,6 +1777,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "手击",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1653,6 +1790,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "奇妙",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1665,6 +1803,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "喷气",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1677,6 +1816,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "古拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1689,6 +1829,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "输血",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1701,6 +1842,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "恶吻",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1713,6 +1855,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "神鸟",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1725,6 +1868,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "变身",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1737,6 +1881,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "泡",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1749,6 +1894,7 @@
     "chance": 20,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "折断",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1761,6 +1907,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "菇影",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1773,6 +1920,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "闪光",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1785,6 +1933,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "力拳",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1797,6 +1946,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "砍",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1809,6 +1959,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "解",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1821,6 +1972,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "超级",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1833,6 +1985,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "爆发",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1845,6 +1998,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "乱吐",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1857,6 +2011,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "紧急",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1869,6 +2024,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "睡",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1881,6 +2037,7 @@
     "chance": 30,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "程序",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1893,6 +2050,7 @@
     "chance": 10,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "化开",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1905,6 +2063,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "拘束",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1917,6 +2076,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "全部",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1929,6 +2089,7 @@
     "chance": 20,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "扳开",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1941,6 +2102,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "雪花",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1953,6 +2115,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "神合",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1965,6 +2128,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "替身",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1977,6 +2141,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "雪杀",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -1989,6 +2154,7 @@
     "chance": 10,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "火炎车",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2001,6 +2167,7 @@
     "chance": 10,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "小雪",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2013,6 +2180,7 @@
     "chance": 0,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "毒剑",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2025,6 +2193,7 @@
     "chance": 0,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "诱惑",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2037,6 +2206,7 @@
     "chance": 0,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "天使吻",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2049,6 +2219,7 @@
     "chance": 30,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "泥炸弹",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2061,6 +2232,7 @@
     "chance": 100,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "绝指",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2073,6 +2245,7 @@
     "chance": 100,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "等待",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2085,6 +2258,7 @@
     "chance": 100,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "冰冻风",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2097,6 +2271,7 @@
     "chance": 0,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "抓痕",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2109,6 +2284,7 @@
     "chance": 0,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "格杀",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2121,6 +2297,7 @@
     "chance": 0,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "投掷",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2133,6 +2310,7 @@
     "chance": 0,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "撒娇",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2145,6 +2323,7 @@
     "chance": 0,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "刀杀",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2157,6 +2336,7 @@
     "chance": 10,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "钢翅膀",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2169,6 +2349,7 @@
     "chance": 100,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "炸击",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2181,6 +2362,7 @@
     "chance": 30,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "喊叫",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2193,6 +2375,7 @@
     "chance": 30,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "清楚",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2205,6 +2388,7 @@
     "chance": 0,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "强烈",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2217,6 +2401,7 @@
     "chance": 20,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "龙风",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2229,6 +2414,7 @@
     "chance": 20,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "咬碎",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2241,6 +2427,7 @@
     "chance": 0,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "神速",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2253,6 +2440,7 @@
     "chance": 10,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "原力量",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2265,6 +2453,7 @@
     "chance": 20,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "影子",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2277,6 +2466,7 @@
     "chance": 50,
     "new": true,
     "animation": "GOLD_TRACK",
+    "legacy_name": "用碎",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
@@ -2289,6 +2479,7 @@
     "chance": 0,
     "new": false,
     "animation": "GOLD_TRACK",
+    "legacy_name": "要使",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   }
 ]

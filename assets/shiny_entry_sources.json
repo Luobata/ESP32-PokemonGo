@@ -1,0 +1,78 @@
+{
+  "repository": "https://github.com/pret/pokegold",
+  "commit": "656583c939d30f920a316177311a502dd222b57c",
+  "sources": {
+    "data/battle_anims/framesets.asm": "cb98a82f1d50e86f0c78bff3afa14001f0f865ac9c7324a28775365eb260dbe9",
+    "data/battle_anims/oam.asm": "3760169d375966da1c0b0b097201d384e358ad3aa6b0b0fda42d9e55877d3782",
+    "data/moves/animations.asm": "f4276c51cef7cf203056cb3f8ee8e558f148f4e8c26f7b362656591118c527cd",
+    "engine/battle_anims/bg_effects.asm": "318c760d107529be6a8f9d2744546d18b4585ab4e1690a623a764d9247f2dc87",
+    "gfx/battle_anims/speed.png": "19478e5632d2db572be364b363dcfa08f9ea941ce6153f063352a5200bc59c3b",
+    "macros/gfx.asm": "93d65084acca6f5bb0bb313bf0ac749898284392a6bd23e54405e75c403ee558",
+    "engine/battle_anims/functions.asm": "42cc90de93eb6997efa871757836378b487c1de8cec3516eb34069e11cb1d1b3",
+    "engine/battle_anims/helpers.asm": "b6e0f52b354db35e55d0d1e60d7e9afdcac0a497f55ceed2d700a40d13ff3146",
+    "data/battle_anims/objects.asm": "882bbe39712134e01ca452eb82eb87d98ee1402dc5c18ea22d4161f87d7d77ab",
+    "gfx/battle_anims/battle_anims.pal": "a50a2b3d717f33c3a2c5fa690099406c6dd8182bb45fe90d265ace06ccd240d3"
+  },
+  "sprites": [
+    {
+      "key": "shiny0",
+      "sheet": "speed",
+      "frameset": "Sparkle",
+      "frame": 0,
+      "oam_set": "74",
+      "width": 16,
+      "height": 16,
+      "bytes": 64,
+      "sha256": "083d674a74d2bcabe2cf6ea0705be378e984a02e0a648a13e50490e94eab8786"
+    },
+    {
+      "key": "shiny1",
+      "sheet": "speed",
+      "frameset": "Sparkle",
+      "frame": 1,
+      "oam_set": "14",
+      "width": 8,
+      "height": 8,
+      "bytes": 16,
+      "sha256": "4fda8c84a8acda3f48ebfdd41069ba69e78d30c0747edbc94324ab9e2a1f07ca"
+    },
+    {
+      "key": "shiny2",
+      "sheet": "speed",
+      "frameset": "Sparkle",
+      "frame": 2,
+      "oam_set": "15",
+      "width": 8,
+      "height": 8,
+      "bytes": 16,
+      "sha256": "e19c96fdbd4eea6bf965fd80667bf442ee07ed20eb0c23e1c1a9ed51b59a1343"
+    }
+  ],
+  "total_bytes": 96,
+  "presentation": {
+    "script": "BattleAnim_SendOutMon.Shiny",
+    "source_hz": 60,
+    "star_angles": [
+      0,
+      8,
+      16,
+      24,
+      32,
+      40,
+      48,
+      56
+    ],
+    "spawn_interval_ticks": 4,
+    "radius": 16,
+    "frames": [
+      0,
+      1,
+      2,
+      1,
+      2
+    ],
+    "frame_ticks": 4,
+    "duration_ticks": 60,
+    "adaptation": "Integer 2x sparkle art; circle centered on each battler; background palette flash excludes message window. Existing project shiny sound."
+  }
+}

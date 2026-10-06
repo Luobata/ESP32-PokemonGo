@@ -34,6 +34,7 @@ static uint32_t s_move_started_ms;
 #include "nav.h"
 #include "play.h"
 #include "pokemon_animation.h"
+#include "shiny_entry.h"
 #include "render.h"
 #include "render_scene_screen.h"
 #include "screen.h"
@@ -130,6 +131,7 @@ static uint32_t s_exp_from;
 
 static uint16_t s_pet_species;
 static bool s_pet_shiny;
+static shiny_entry_t s_shiny_entry;
 static uint8_t s_pet_level;
 static uint32_t s_pet_exp;
 static const uint8_t *s_wild_sprite;
@@ -207,6 +209,8 @@ void play_battle_presentation_snapshot(play_battle_view_t *out)
     out->level = (s_done || s_exp_anim) ? xp.level : s_pet_level;
     if (s_exp_anim) out->phase = "exp";
     if (s_wild_animating) out->phase = "entrance-motion";
+    out->shiny_side = shiny_entry_side(&s_shiny_entry);
+    if (out->shiny_side) out->phase = "shiny-entry";
     out->wild_frame = s_wild_anim_frame;
     if (s_escape_feedback) out->phase = s_escape_feedback == ESCAPE_SUCCESS ? "escaped" : "escape-failed";
     if (s_entering) {
@@ -358,6 +362,8 @@ static void draw_band(int band_y)
         battle_fx_draw_scene_band(round,s_fx_frame,band_y,pet,wild,&pa,&wa);
     }
 
+    shiny_entry_draw(&s_shiny_entry, band_y, pet, wild);
+
     battle_hud_draw_message_box(scene_screen_rect, &band_y,
                                 0, 240, 15, 5, BATTLE_HUD_SCALE, SCENE_P3_BG);
 
@@ -399,8 +405,11 @@ static void draw_band(int band_y)
         } else if (r->missed) {
             snprintf(buf, sizeof(buf), "的攻击落空了！");
         } else {
+            move_t display;
+            bool named = combat_move(r->move_id, &display);
             snprintf(buf, sizeof(buf), "使用了%.*s！",
-                     r->move_zh_len, r->move_zh ? r->move_zh : "");
+                     named ? display.name_zh_len : r->move_zh_len,
+                     named ? display.name_zh : r->move_zh ? r->move_zh : "");
         }
         game_ui_text_fitted(band_y, MSG_X, MSG_DETAIL_Y, MSG_RIGHT-MSG_X, buf, C_INK);
     } else if (s_done) {
@@ -426,7 +435,7 @@ static void draw_band(int band_y)
         const char *message = s_store_failed ? "保存失败，请重试"
             : s_session.started ? "继续捕捉，还是战斗？" : "野生宝可梦出现了！";
         render_text(MSG_X, Y(MSG_Y), message, C_INK);
-        if (!s_entering && !s_wild_animating && has_pet && has_wild) {
+        if (!s_entering && !s_wild_animating && !shiny_entry_side(&s_shiny_entry) && has_pet && has_wild) {
             uint16_t chance = battle_escape_chance(
                 battle_effective_stat(pet_sp.speed, s_session.pet_level),
                 battle_effective_stat(wild_sp.speed, s_session.wild_level), s_session.escape_attempts);
@@ -437,7 +446,7 @@ static void draw_band(int band_y)
 
     // -- 三键 --------------------------------------------------------------
     const char *hint = s_escape_feedback ? ""
-        : (s_entering || s_wild_animating) ? "宝可梦出场中"
+        : (s_entering || s_wild_animating || shiny_entry_side(&s_shiny_entry)) ? "宝可梦出场中"
         : s_exp_anim ? "正在获得经验"
         : (s_loot_failed||s_settle_failed) ? "[C]重试保存"
         : s_counter_anim ? (s_counter_escape ? "逃跑失败，对方反击" : "野生宝可梦正在反击")
@@ -456,7 +465,7 @@ static void draw_band(int band_y)
     if (s_escape_prompt) {
         static const char *const labels[] = {"继续", "逃跑"};
         game_ui_action_row(band_y, MSG_X, MSG_HINT_Y, MSG_RIGHT - MSG_X, labels, 2, s_escape_choice);
-    } else if (!s_entering && !s_wild_animating && !s_exp_anim && !s_playing &&
+    } else if (!s_entering && !s_wild_animating && !shiny_entry_side(&s_shiny_entry) && !s_exp_anim && !s_playing &&
                !s_escape_feedback && !s_settle_failed && !s_loot_failed) {
         const char *const labels[] = {s_done ? (s_session.won ? "投球" : "照料") : "捕获", s_done ? "返回" : "战斗", "逃跑"};
         game_ui_action_row(band_y, MSG_X, MSG_HINT_Y, MSG_RIGHT - MSG_X, labels, s_done ? 2 : 3, s_choice);
@@ -583,9 +592,14 @@ static void tick(lv_timer_t *t)
 {
     (void)t;
     static unsigned slow_phase;
-    bool active_move=s_playing&&s_play_i&&!s_between_moves&&!s_entering&&!s_wild_animating&&!s_escape_feedback&&!s_exp_anim;
-    if(!active_move&&++slow_phase%2)return;
+    bool active_move=s_playing&&s_play_i&&!s_between_moves&&!s_entering&&!s_wild_animating&&!shiny_entry_side(&s_shiny_entry)&&!s_escape_feedback&&!s_exp_anim;
+    if(!active_move&&!shiny_entry_side(&s_shiny_entry)&&++slow_phase%2)return;
     if(s_settle_failed)return;
+    if (shiny_entry_side(&s_shiny_entry)) {
+        if (shiny_entry_step(&s_shiny_entry, BATTLE_FX_TICK_MS)) sfx_play(SFX_SHINY);
+        draw_all();
+        return;
+    }
     if (s_entering) {
         if (++s_entry_frame >= BATTLE_PRESENTATION_ENTRY_FRAMES) {
             s_entering = false;
@@ -599,6 +613,10 @@ static void tick(lv_timer_t *t)
     if (s_wild_animating) {
         s_wild_anim_ms += 90;
         sample_wild_motion();
+        if (!s_wild_animating) {
+            shiny_entry_begin(&s_shiny_entry, (s_pet_shiny ? 1u : 0u) | (nav_ctx()->enc.is_shiny ? 2u : 0u));
+            if (shiny_entry_side(&s_shiny_entry)) sfx_play(SFX_SHINY);
+        }
         draw_all();
         return;
     }
@@ -660,6 +678,7 @@ static void tick(lv_timer_t *t)
 
 void play_battle_enter(void)
 {
+    shiny_entry_begin(&s_shiny_entry, 0);
     s_choice = s_escape_choice = 0; s_escape_prompt = false;
     memset(&s_res, 0, sizeof(s_res));
     s_play_i = 0;
@@ -727,7 +746,7 @@ void play_battle_exit(void)
 
 static bool can_choose(void)
 {
-    return !s_entering && !s_wild_animating && !s_escape_feedback && !s_exp_anim && !s_playing && !s_counter_anim &&
+    return !s_entering && !s_wild_animating && !shiny_entry_side(&s_shiny_entry) && !s_escape_feedback && !s_exp_anim && !s_playing && !s_counter_anim &&
            !s_session.retaliation_pending && !(s_session.finished && !s_done);
 }
 
@@ -749,7 +768,7 @@ static void perform_battle_action(unsigned action)
         return;
     }
     if (action == ACTION_ESCAPE && s_playing && !s_session.finished &&
-        !s_entering && !s_wild_animating && !s_counter_anim &&
+        !s_entering && !s_wild_animating && !shiny_entry_side(&s_shiny_entry) && !s_counter_anim &&
         !s_escape_feedback && !s_session.retaliation_pending) {
         s_escape_requested = true;
         draw_band(BAND_H * 3);
@@ -822,7 +841,7 @@ void play_battle_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         draw_all(); return;
     }
     if (back && !s_done) {
-        if (!s_entering && !s_wild_animating && !s_counter_anim &&
+        if (!s_entering && !s_wild_animating && !shiny_entry_side(&s_shiny_entry) && !s_counter_anim &&
             !s_escape_feedback && !s_session.retaliation_pending) {
             s_escape_prompt = true; s_escape_choice = 0; draw_all();
         }
@@ -848,6 +867,7 @@ unsigned play_battle_move_preview_frames(void) {
 bool play_battle_move_preview(unsigned id,unsigned side,unsigned frame,unsigned mode){
  move_t m;if(!combat_move(id,&m)||side>1||mode>3)return false;
  if(s_tick){lv_timer_delete(s_tick);s_tick=NULL;}
+ shiny_entry_begin(&s_shiny_entry, 0);
  s_entering=s_exp_anim=s_wild_animating=s_done=false;s_playing=true;
  s_escape_feedback=0;s_store_failed=s_loot_failed=s_settle_failed=false;
  s_session.pet_hp_max=s_session.wild_hp_max=500;

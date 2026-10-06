@@ -1,10 +1,10 @@
 name: Verify game firmware
 on:
   pull_request:
-    paths: ['firmware/**', 'assets/**', 'tools/pipeline/**', 'tools/release/**', '.github/workflows/firmware-check.yml']
+    paths: ['firmware/**', 'assets/**', 'data/pokemon_names/**', 'tools/pipeline/**', 'tools/release/**', '.github/workflows/firmware-check.yml']
   push:
     branches: [main]
-    paths: ['firmware/**', 'assets/**', 'tools/pipeline/**', 'tools/release/**', '.github/workflows/firmware-check.yml']
+    paths: ['firmware/**', 'assets/**', 'data/pokemon_names/**', 'tools/pipeline/**', 'tools/release/**', '.github/workflows/firmware-check.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -18,6 +18,8 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+      - name: Install animation test dependency
+        run: python3 -m pip install Pillow
       - name: Run production C power and save regression
         run: |
           python3 tools/pipeline/verify_power_audio.py
@@ -38,6 +40,8 @@ jobs:
           python3 tools/pipeline/verify_usb_backup_checkpoint.py
           python3 tools/pipeline/verify_achievement_capacity.py
           python3 tools/pipeline/verify_shiny_sources.py
+          python3 tools/pipeline/verify_shiny_entry.py
+          python3 tools/pipeline/verify_move_names.py
           python3 tools/pipeline/verify_dungeon_rewards.py
           python3 tools/pipeline/verify_region_expansion.py
           python3 tools/pipeline/verify_exploration_balance.py

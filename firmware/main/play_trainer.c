@@ -18,6 +18,7 @@
 static uint32_t s_move_started_ms;
 #include "battle_presentation.h"
 #include "pokemon_animation.h"
+#include "shiny_entry.h"
 #include "music_director.h"
 #include "sfx.h"
 #include "ball_assets.h"
@@ -41,6 +42,7 @@ static inventory_t s_result_items;
 static trainer_event_t s_event;
 static uint8_t s_mode,s_selected,s_slot,s_menu,s_frame,s_hold;
 static uint8_t s_sendout_mask;
+static shiny_entry_t s_shiny_entry;
 static bool s_failed,s_pause,s_quit,s_forced,s_between,s_retire_confirm;
 static lv_timer_t *s_tick;
 static pokemon_idle_t s_motion;
@@ -166,6 +168,7 @@ static void battle_stage(int y){
   if(assets_species(e->transform_species?e->transform_species:e->species,&art_sp))assets_palette_variant(art_sp.palette,false,wa.palette);
   battle_fx_draw_scene_band(&s_event.attack,s_frame,y,pet,wild,&pa,&wa);
  }
+ shiny_entry_draw(&s_shiny_entry,y,pet,wild);
  battle_hud_draw_message_box(rectangle,&y,0,240,15,5,2,GAME_UI_BG);
  if(s_mode==EXP_GAIN){
   snprintf(text,sizeof(text),"队伍获得经验 +%lu",(unsigned long)((uint64_t)s_result_exp*s_exp_frame/BATTLE_PRESENTATION_EXP_FRAMES));
@@ -180,7 +183,10 @@ static void battle_stage(int y){
   snprintf(text,sizeof(text),"%s%s",label,s_event.kind==TRAINER_STATUS?"无法行动":"使出");
   game_ui_text_fitted(y,16,256,208,text,GAME_UI_INK);
   if(s_event.kind==TRAINER_STATUS)snprintf(text,sizeof(text),"%s",combat_feedback(&s_event.attack));
-  else snprintf(text,sizeof(text),"%.*s%s",s_event.attack.move_zh_len,s_event.attack.move_zh?s_event.attack.move_zh:"",s_event.attack.charging?" 蓄力":s_event.attack.missed?" 未命中":"");
+  else {
+   move_t display;bool named=combat_move(s_event.attack.move_id,&display);
+   snprintf(text,sizeof(text),"%.*s%s",named?display.name_zh_len:s_event.attack.move_zh_len,named?display.name_zh:s_event.attack.move_zh?s_event.attack.move_zh:"",s_event.attack.charging?" 蓄力":s_event.attack.missed?" 未命中":"");
+  }
   game_ui_text_fitted(y,16,274,208,text,GAME_UI_MUTED);
   game_ui_text_centered(y,16,292,208,16,s_pause?"本招结束后打开战术":dungeon_playing()&&dungeon_feedback()?dungeon_feedback():combat_feedback(&s_event.attack)?combat_feedback(&s_event.attack):"C战术 长按B认输",GAME_UI_INK);
  }else game_ui_text_fitted(y,16,256,208,s_failed?"保存失败 按C重试":dungeon_playing()&&dungeon_feedback()?dungeon_feedback():"伙伴准备出战！",GAME_UI_INK);
@@ -270,6 +276,7 @@ static void result(void){
 }
 static void sendout(uint8_t mask){
  s_sendout_mask=mask;
+ shiny_entry_begin(&s_shiny_entry,0);
  const trainer_info_t *t=trainer_info(s_store.session.trainer);
  music_director_play((t->kind==2||t->kind==3)?MUSIC_CHAMPION:t->kind==0?MUSIC_LEADER:MUSIC_TRAINER);
  s_mode=SENDOUT;s_frame=s_hold=0;pokemon_idle_reset(&s_motion,mon(1)->species);draw_all();}
@@ -289,8 +296,13 @@ static void tick(lv_timer_t *t){
  static uint32_t previous_tick;
  uint32_t now=(uint32_t)(esp_timer_get_time()/1000),delta=now-previous_tick;previous_tick=now;
  if(screen_idle_is_off()&&s_mode==FIGHT)s_move_started_ms+=delta;
- if(s_mode!=FIGHT&&++slow_phase%2)return;
+ if(s_mode!=FIGHT&&!shiny_entry_side(&s_shiny_entry)&&++slow_phase%2)return;
  if(s_failed||screen_idle_is_off())return;
+ if(shiny_entry_side(&s_shiny_entry)){
+  shiny_entry_step(&s_shiny_entry,BATTLE_FX_TICK_MS);
+  if(!shiny_entry_side(&s_shiny_entry))next_action();else draw_all();
+  return;
+ }
  if(s_mode==EXP_GAIN){
   if(s_exp_frame<BATTLE_PRESENTATION_EXP_FRAMES){
    s_exp_frame++;uint8_t level=visible_exp().level;
@@ -308,7 +320,13 @@ static void tick(lv_timer_t *t){
  if(s_mode==INTRO){if(++s_frame>=18)sendout(3);else draw_all();}
  else if(s_mode==SENDOUT){
   if((s_sendout_mask&2)&&s_hold>=10)pokemon_idle_step(&s_motion,90);
-  if(++s_hold>=32)next_action();else draw_all();
+  if(++s_hold>=32){
+   unsigned slot=s_store.session.sides[0].active;
+   // Dungeon snapshots preserve the selected owned partner's shiny flag.
+   unsigned mask=(s_sendout_mask&1)&&slot<s_campaign_party.count&&(s_campaign_party.members[slot].flags&1)?1:0;
+   shiny_entry_begin(&s_shiny_entry,mask);
+   if(mask){sfx_play(SFX_SHINY);draw_all();}else next_action();
+  }else draw_all();
  }else if(s_mode==FIGHT){
   unsigned frames=battle_fx_frames(&s_event.attack);
   unsigned hit=battle_fx_hit_frame(&s_event.attack),hp_end=hit+BATTLE_PRESENTATION_HP_FRAMES+1;
@@ -323,6 +341,7 @@ static void tick(lv_timer_t *t){
  }
 }
 void play_trainer_enter(void){
+ shiny_entry_begin(&s_shiny_entry,0);
  refresh();if(dungeon_playing()&&s_store.session.finished){result();return;}s_route_hall=s_requested_route<4;s_route=s_route_hall?s_requested_route:0;s_requested_route=255;
  if(s_store.session.active&&trainer_is_route(s_store.session.trainer)){s_route_hall=true;s_route=(s_store.session.trainer-TRAINER_ROUTE_FIRST)/3;}
  s_hint[0]=0;s_failed=s_pause=s_quit=s_between=false;s_frame=s_hold=0;s_selected=hall_first();
@@ -393,3 +412,5 @@ bool play_trainer_growth_ready(void) {
 }
 
 unsigned play_trainer_sendout_mask(void){return s_mode==SENDOUT?s_sendout_mask:0;}
+
+unsigned play_trainer_shiny_side(void){return s_mode==SENDOUT?shiny_entry_side(&s_shiny_entry):0;}

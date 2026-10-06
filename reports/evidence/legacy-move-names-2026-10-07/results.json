@@ -1,0 +1,13 @@
+{
+  "core": {
+    "moves": 191,
+    "paired_combat_turns": 1528,
+    "save_unchanged": true,
+    "sanitized": true
+  },
+  "font_characters": 252,
+  "build": "eff8db6d4878bfc8feef",
+  "native_moves": 191,
+  "renamed_moves": 161,
+  "redraw_checks": 905
+}

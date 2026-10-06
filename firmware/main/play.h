@@ -99,7 +99,7 @@ typedef struct {
     uint32_t exp;
     uint8_t level;
     int16_t pet_dx, wild_dx;
-    uint8_t wild_frame;
+    uint8_t wild_frame, shiny_side;
     uint16_t move_id;
     bool by_pet;
 } play_battle_view_t;
@@ -136,5 +136,6 @@ void play_exploration_key(bsp_btn_t,bsp_btn_ev_t);
 bool play_exploration_screen_busy(void);
 
 unsigned play_trainer_sendout_mask(void);
+unsigned play_trainer_shiny_side(void);
 
 void play_trainer_open_route(uint8_t route);

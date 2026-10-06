@@ -638,9 +638,9 @@ static void state(void)
         play_battle_view_t view;
         play_battle_presentation_snapshot(&view);
         printf("{\"phase\":\"%s\",\"visible_pet_hp\":%u,\"visible_wild_hp\":%u,"
-               "\"visible_exp\":%lu,\"visible_level\":%u,\"pet_dx\":%d,\"wild_dx\":%d,\"wild_frame\":%u,\"move_id\":%u,\"by_pet\":%s}",
+               "\"visible_exp\":%lu,\"visible_level\":%u,\"pet_dx\":%d,\"wild_dx\":%d,\"wild_frame\":%u,\"shiny_side\":%u,\"move_id\":%u,\"by_pet\":%s}",
                view.phase, view.pet_hp, view.wild_hp, (unsigned long)view.exp,
-               view.level, view.pet_dx, view.wild_dx, view.wild_frame, view.move_id,
+               view.level, view.pet_dx, view.wild_dx, view.wild_frame, view.shiny_side, view.move_id,
                view.by_pet ? "true" : "false");
     } else printf("null");
     printf(",\"nurture\":{\"satiety\":%u,\"mood\":%u,\"stamina\":%u,\"intimacy\":%u}",
@@ -685,6 +685,7 @@ static void state(void)
     }
     printf("],\"box_count\":%u,\"party_switch_locked\":%s", party_view.box_count,
            party_view.switch_locked ? "true" : "false");
+    printf(",\"shiny_entry_side\":%u",nav_current()==PAGE_TRAINER?play_trainer_shiny_side():0);
     printf(",\"challenge\":{\"mode\":%u,\"sendout_mask\":%u,\"defeated\":%u,\"league\":%u,\"trainer\":%u,\"active\":%u,\"finished\":%u,\"won\":%u,\"turns\":%u,\"rng\":%lu,\"sides\":[",
         play_trainer_mode(),play_trainer_sendout_mask(),challenge.defeated,challenge.league_stage,challenge.session.trainer,
         challenge.session.active,challenge.session.finished,challenge.session.won,challenge.session.turns,(unsigned long)challenge.session.rng);
@@ -719,14 +720,16 @@ int main(void)
     bool booted = false;
     while (fgets(line, sizeof(line), stdin)) {
         if (sscanf(line, "%23s", cmd) != 1) return 2;
-        unsigned a, b, c, d = 0, e, f, g, names = POKEMON_NAMES_OFFICIAL, team = 0;
+        unsigned a, b, c, d = 0, e, f, g, names = POKEMON_NAMES_OFFICIAL, team = 0, pet_shiny = 0;
         int mismatch = -1;
         if (!strcmp(cmd, "boot") && !booted &&
-            sscanf(line, "%*s %u %u %u %u %u %u %u %u %u", &a,&b,&c,&d,&e,&f,&g,&names,&team) >= 7 &&
+            sscanf(line, "%*s %u %u %u %u %u %u %u %u %u %u", &a,&b,&c,&d,&e,&f,&g,&names,&team,&pet_shiny) >= 7 &&
             valid_page(a) && b >= 1 && b <= 151 && c >= 1 && c <= 100 &&
-            d >= 1 && d <= 151 && e >= 1 && e <= 5 && g <= 1 && names < POKEMON_NAMES_STYLE_COUNT && team <= 1) {
+            d >= 1 && d <= 151 && e >= 1 && e <= 5 && g <= 1 && names < POKEMON_NAMES_STYLE_COUNT && team <= 1 && pet_shiny <= 1) {
             pokemon_names_set_style((pokemon_name_style_t)names);
-            fixture(b, c, d, e, f, g, a == 0 || a == 9, team != 0); nav_go(page_ids[a]); booted = true;
+            fixture(b, c, d, e, f, g, a == 0 || a == 9, team != 0);
+            if(party.party_count)party.party[0].flags=(party.party[0].flags&~1u)|pet_shiny;
+            nav_go(page_ids[a]); booted = true;
             screen_idle_set_state_callback(world_playtime_set_paused);
             if (!screen_idle_init(nav_screen_busy)) return 2;
         } else if(booted&&!strcmp(cmd,"rogue_setup")){

@@ -1,0 +1,137 @@
+[
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_usb_backup.py"
+    ],
+    "exit_code": 0,
+    "seconds": 2.72,
+    "log": "verify_usb_backup.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_usb_import.py"
+    ],
+    "exit_code": 0,
+    "seconds": 3.2,
+    "log": "verify_usb_import.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_save_import_compatibility.py"
+    ],
+    "exit_code": 0,
+    "seconds": 4.59,
+    "log": "verify_save_import_compatibility.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_usb_import_device.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.58,
+    "log": "verify_usb_import_device.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_usb_backup_checkpoint.py"
+    ],
+    "exit_code": 0,
+    "seconds": 2.96,
+    "log": "verify_usb_backup_checkpoint.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_save_manager_distribution.py"
+    ],
+    "exit_code": 0,
+    "seconds": 1.6,
+    "log": "verify_save_manager_distribution.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_firmware_update.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.25,
+    "log": "verify_firmware_update.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_nvs_restore_roundtrip.py"
+    ],
+    "exit_code": 0,
+    "seconds": 13.03,
+    "log": "verify_nvs_restore_roundtrip.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_region_expansion.py"
+    ],
+    "exit_code": 0,
+    "seconds": 6.42,
+    "log": "verify_region_expansion.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_exploration_events.py"
+    ],
+    "exit_code": 0,
+    "seconds": 4.62,
+    "log": "verify_exploration_events.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_exploration_balance.py"
+    ],
+    "exit_code": 0,
+    "seconds": 7.81,
+    "log": "verify_exploration_balance.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_playtime.py"
+    ],
+    "exit_code": 0,
+    "seconds": 3.6,
+    "log": "verify_playtime.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_nurture.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.71,
+    "log": "verify_nurture.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_species_obtainability.py"
+    ],
+    "exit_code": 0,
+    "seconds": 4.15,
+    "log": "verify_species_obtainability.log"
+  },
+  {
+    "command": [
+      "node",
+      "tools/pipeline/verify_save_import_web.mjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16,
+    "log": "verify_save_import_web.log"
+  }
+]

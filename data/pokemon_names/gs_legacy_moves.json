@@ -1,0 +1,1794 @@
+{
+  "schema": 1,
+  "key": "gs_legacy_moves_research",
+  "label": "金银民间旧译招式（资料版）",
+  "retrieved": "2026-10-07",
+  "scope": "当前191招；使用与肥大旧译配套的金银历史招式资料。统一简体字形，不混入水晶表；尚未做ROM字节定版。",
+  "fallback": "未收录ID保留官方名。名称仅影响显示，不改变招式编号、威力、动画或存档。",
+  "sources": [
+    {
+      "id": "koudai8-909",
+      "title": "口袋妖怪金银精灵招式总表及金手指代码",
+      "url": "https://www.koudai8.com/new/yxzl/20160724/909.html",
+      "kind": "口袋吧历史招式资料",
+      "retrieved_sha256": "9399a3a409616eaa593cc05fcfaeda3612294b7eba105fa5298c8e8b073dd0b7",
+      "note": "采用中文版翻译名称列。保留原文字段便于核对，舍弃解释与错误机制数值。"
+    },
+    {
+      "id": "newwise-127817",
+      "title": "[授权转载][资料]金银全精灵升级技能表",
+      "url": "https://bbs.newwise.com/thread-127817-1-1.html",
+      "kind": "2005年口袋吧资料授权转载",
+      "retrieved_sha256": "77c65bfa87b29ca27e6bc9447046d0769b39fb72d836a9630814b56de0a0505d",
+      "note": "署名江湖小虾米/rpg小新；按英文招式身份校验重叠条目。"
+    }
+  ],
+  "records": [
+    {
+      "id": 1,
+      "official_reference": "拍击",
+      "name": "打",
+      "source_name": "打",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 2,
+      "official_reference": "空手劈",
+      "name": "空手道",
+      "source_name": "空手道",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 3,
+      "official_reference": "连环巴掌",
+      "name": "往返",
+      "source_name": "往返",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 4,
+      "official_reference": "连续拳",
+      "name": "连续拳",
+      "source_name": "连续拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 5,
+      "official_reference": "百万吨重拳",
+      "name": "蛇拳",
+      "source_name": "蛇拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 6,
+      "official_reference": "聚宝功",
+      "name": "猴拳",
+      "source_name": "猴拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 7,
+      "official_reference": "火焰拳",
+      "name": "火焰拳",
+      "source_name": "火焰拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 8,
+      "official_reference": "冰冻拳",
+      "name": "冷冻拳",
+      "source_name": "冷冻拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 9,
+      "official_reference": "雷电拳",
+      "name": "雷电拳",
+      "source_name": "雷電拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 10,
+      "official_reference": "抓",
+      "name": "冲撞",
+      "source_name": "冲撞",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 11,
+      "official_reference": "夹住",
+      "name": "夹",
+      "source_name": "夾",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 12,
+      "official_reference": "断头钳",
+      "name": "剪刀脚",
+      "source_name": "剪刀脚",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 13,
+      "official_reference": "旋风刀",
+      "name": "白拳",
+      "source_name": "白拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 14,
+      "official_reference": "剑舞",
+      "name": "剑舞",
+      "source_name": "劍舞",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 15,
+      "official_reference": "居合斩",
+      "name": "剪切",
+      "source_name": "剪切",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 16,
+      "official_reference": "起风",
+      "name": "旋风",
+      "source_name": "旋風",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 17,
+      "official_reference": "翅膀攻击",
+      "name": "用翅膀",
+      "source_name": "用翅膀",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 18,
+      "official_reference": "吹飞",
+      "name": "竹刮",
+      "source_name": "竹刮",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 19,
+      "official_reference": "飞翔",
+      "name": "飞击",
+      "source_name": "飛擊",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 20,
+      "official_reference": "绑紧",
+      "name": "拳击",
+      "source_name": "拳擊",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 21,
+      "official_reference": "摔打",
+      "name": "打倒",
+      "source_name": "打倒",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 22,
+      "official_reference": "藤鞭",
+      "name": "鹤鞭",
+      "source_name": "鹤鞭",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 23,
+      "official_reference": "踩踏",
+      "name": "快攻",
+      "source_name": "快攻",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 24,
+      "official_reference": "二连踢",
+      "name": "顺拳",
+      "source_name": "顺拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 25,
+      "official_reference": "百万吨重踢",
+      "name": "特击",
+      "source_name": "特擊",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 26,
+      "official_reference": "飞踢",
+      "name": "跳踢",
+      "source_name": "跳踢",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 27,
+      "official_reference": "回旋踢",
+      "name": "总击",
+      "source_name": "总擊",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 28,
+      "official_reference": "泼沙",
+      "name": "扔沙",
+      "source_name": "扔沙",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 29,
+      "official_reference": "头锤",
+      "name": "流",
+      "source_name": "流",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 30,
+      "official_reference": "角撞",
+      "name": "飞枪",
+      "source_name": "飞枪",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 31,
+      "official_reference": "乱击",
+      "name": "闪电",
+      "source_name": "閃電",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 32,
+      "official_reference": "角钻",
+      "name": "攻招",
+      "source_name": "攻招",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 33,
+      "official_reference": "撞击",
+      "name": "击杀",
+      "source_name": "擊殺",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 34,
+      "official_reference": "泰山压顶",
+      "name": "神掌",
+      "source_name": "神掌",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 35,
+      "official_reference": "紧束",
+      "name": "捆紧",
+      "source_name": "捆紧",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 36,
+      "official_reference": "猛撞",
+      "name": "高速",
+      "source_name": "高速",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 37,
+      "official_reference": "大闹一番",
+      "name": "稀拳",
+      "source_name": "稀拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 38,
+      "official_reference": "舍身冲撞",
+      "name": "亚拳",
+      "source_name": "亚拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 39,
+      "official_reference": "摇尾巴",
+      "name": "摆动",
+      "source_name": "擺動",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 40,
+      "official_reference": "毒针",
+      "name": "关拳",
+      "source_name": "关拳",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 41,
+      "official_reference": "双针",
+      "name": "东拳",
+      "source_name": "东拳",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 42,
+      "official_reference": "飞弹针",
+      "name": "霹笠",
+      "source_name": "霹笠",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 43,
+      "official_reference": "瞪眼",
+      "name": "迷惑",
+      "source_name": "迷惑",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 44,
+      "official_reference": "咬住",
+      "name": "水拳",
+      "source_name": "水拳",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 45,
+      "official_reference": "叫声",
+      "name": "叫声",
+      "source_name": "叫声",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 46,
+      "official_reference": "吼叫",
+      "name": "吼",
+      "source_name": "吼",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 47,
+      "official_reference": "唱歌",
+      "name": "歌",
+      "source_name": "歌",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 48,
+      "official_reference": "超音波",
+      "name": "超音波",
+      "source_name": "超音波",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 49,
+      "official_reference": "音爆",
+      "name": "一休",
+      "source_name": "一休",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 50,
+      "official_reference": "定身法",
+      "name": "解除",
+      "source_name": "解除",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 51,
+      "official_reference": "溶解液",
+      "name": "溶解液",
+      "source_name": "溶解液",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 52,
+      "official_reference": "火花",
+      "name": "火",
+      "source_name": "火",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 53,
+      "official_reference": "喷射火焰",
+      "name": "射火焰",
+      "source_name": "射火焰",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 54,
+      "official_reference": "白雾",
+      "name": "白雾",
+      "source_name": "白雾",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 55,
+      "official_reference": "水枪",
+      "name": "泡沫",
+      "source_name": "泡沫",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 56,
+      "official_reference": "水炮",
+      "name": "金手",
+      "source_name": "金手",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 57,
+      "official_reference": "冲浪",
+      "name": "友泊",
+      "source_name": "友泊",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 58,
+      "official_reference": "冰冻光束",
+      "name": "诱杀",
+      "source_name": "誘殺",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 59,
+      "official_reference": "暴风雪",
+      "name": "诱",
+      "source_name": "誘",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 60,
+      "official_reference": "幻象光线",
+      "name": "泪拳",
+      "source_name": "泪拳",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 61,
+      "official_reference": "泡沫光线",
+      "name": "棍刺",
+      "source_name": "棍刺",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 62,
+      "official_reference": "极光束",
+      "name": "雷拳",
+      "source_name": "雷拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 63,
+      "official_reference": "破坏光线",
+      "name": "饰拳",
+      "source_name": "饰拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 64,
+      "official_reference": "啄",
+      "name": "啄",
+      "source_name": "啄",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 65,
+      "official_reference": "啄钻",
+      "name": "亮拳",
+      "source_name": "亮拳",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 66,
+      "official_reference": "地狱翻滚",
+      "name": "寂拳",
+      "source_name": "寂拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 67,
+      "official_reference": "踢倒",
+      "name": "西拳",
+      "source_name": "西拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 68,
+      "official_reference": "双倍奉还",
+      "name": "枯拳",
+      "source_name": "枯拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 69,
+      "official_reference": "地球上投",
+      "name": "叶拳",
+      "source_name": "葉拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 70,
+      "official_reference": "怪力",
+      "name": "怪力",
+      "source_name": "怪力",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 71,
+      "official_reference": "吸取",
+      "name": "比赛",
+      "source_name": "比赛",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 72,
+      "official_reference": "超级吸取",
+      "name": "锋利",
+      "source_name": "锋利",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 73,
+      "official_reference": "寄生种子",
+      "name": "刮种",
+      "source_name": "刮种",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 74,
+      "official_reference": "生长",
+      "name": "意拳",
+      "source_name": "意拳",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 75,
+      "official_reference": "飞叶快刀",
+      "name": "长拳",
+      "source_name": "长拳",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 76,
+      "official_reference": "日光束",
+      "name": "心拳",
+      "source_name": "心拳",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 77,
+      "official_reference": "毒粉",
+      "name": "毒粉",
+      "source_name": "毒粉",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 78,
+      "official_reference": "麻痹粉",
+      "name": "麻痹",
+      "source_name": "麻痹",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 79,
+      "official_reference": "催眠粉",
+      "name": "催眠",
+      "source_name": "催眠",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 80,
+      "official_reference": "花瓣舞",
+      "name": "花瓣舞",
+      "source_name": "花瓣舞",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 81,
+      "official_reference": "吐丝",
+      "name": "吐丝",
+      "source_name": "吐丝",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 82,
+      "official_reference": "龙之怒",
+      "name": "吹倒",
+      "source_name": "吹倒",
+      "sources": [
+        "newwise-127817"
+      ],
+      "note": "2005升级表为吹倒，2016总表写吹到；采用较早升级表。"
+    },
+    {
+      "id": 83,
+      "official_reference": "火焰旋涡",
+      "name": "铁拳",
+      "source_name": "鐵拳",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 84,
+      "official_reference": "电击",
+      "name": "电击",
+      "source_name": "電擊",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 85,
+      "official_reference": "十万伏特",
+      "name": "铅杀",
+      "source_name": "鉛殺",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 86,
+      "official_reference": "电磁波",
+      "name": "铜拳",
+      "source_name": "銅拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 87,
+      "official_reference": "打雷",
+      "name": "雷石",
+      "source_name": "雷石",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 88,
+      "official_reference": "落石",
+      "name": "落石",
+      "source_name": "落石",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 89,
+      "official_reference": "地震",
+      "name": "提",
+      "source_name": "提",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 90,
+      "official_reference": "地裂",
+      "name": "地",
+      "source_name": "地",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 91,
+      "official_reference": "挖洞",
+      "name": "挖洞",
+      "source_name": "挖洞",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 92,
+      "official_reference": "剧毒",
+      "name": "棍击",
+      "source_name": "棍擊",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 93,
+      "official_reference": "念力",
+      "name": "漂亮",
+      "source_name": "漂亮",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 94,
+      "official_reference": "精神强念",
+      "name": "折散",
+      "source_name": "折散",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 95,
+      "official_reference": "催眠术",
+      "name": "催眠术",
+      "source_name": "催眠术",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 96,
+      "official_reference": "瑜伽姿势",
+      "name": "盘腿坐",
+      "source_name": "盘腿坐",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 97,
+      "official_reference": "高速移动",
+      "name": "聪明",
+      "source_name": "聪明",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 98,
+      "official_reference": "电光一闪",
+      "name": "暗招",
+      "source_name": "暗招",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 99,
+      "official_reference": "愤怒",
+      "name": "芝",
+      "source_name": "芝/钉",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 100,
+      "official_reference": "瞬间移动",
+      "name": "电报",
+      "source_name": "电报",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 101,
+      "official_reference": "黑夜魔影",
+      "name": "吠喊",
+      "source_name": "吠喊",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 102,
+      "official_reference": "模仿",
+      "name": "模仿",
+      "source_name": "模仿",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 103,
+      "official_reference": "刺耳声",
+      "name": "噪音",
+      "source_name": "噪音",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 104,
+      "official_reference": "影子分身",
+      "name": "分身术",
+      "source_name": "分身術",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 105,
+      "official_reference": "自我再生",
+      "name": "重生",
+      "source_name": "重生",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 106,
+      "official_reference": "变硬",
+      "name": "变硬",
+      "source_name": "變硬",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 107,
+      "official_reference": "变小",
+      "name": "变小",
+      "source_name": "變小",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 108,
+      "official_reference": "烟幕",
+      "name": "烟幕",
+      "source_name": "烟幕",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 109,
+      "official_reference": "奇异之光",
+      "name": "强光射",
+      "source_name": "强光射、怪闪电",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 110,
+      "official_reference": "缩入壳中",
+      "name": "宁静",
+      "source_name": "寧靜",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 111,
+      "official_reference": "变圆",
+      "name": "变圆",
+      "source_name": "變圓",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 112,
+      "official_reference": "屏障",
+      "name": "间隔",
+      "source_name": "间隔",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 113,
+      "official_reference": "光墙",
+      "name": "闪电墙",
+      "source_name": "闪电墙",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 114,
+      "official_reference": "黑雾",
+      "name": "黑雾",
+      "source_name": "黑雾",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 115,
+      "official_reference": "反射壁",
+      "name": "百货",
+      "source_name": "百货",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 116,
+      "official_reference": "聚气",
+      "name": "怎么",
+      "source_name": "怎麽",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 117,
+      "official_reference": "忍耐",
+      "name": "平",
+      "source_name": "平",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 118,
+      "official_reference": "挥指",
+      "name": "容易",
+      "source_name": "容易",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 119,
+      "official_reference": "鹦鹉学舌",
+      "name": "浪击",
+      "source_name": "浪擊",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 120,
+      "official_reference": "自爆",
+      "name": "杀",
+      "source_name": "殺",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 121,
+      "official_reference": "炸蛋",
+      "name": "叶港",
+      "source_name": "葉港",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 122,
+      "official_reference": "舌舔",
+      "name": "洞察",
+      "source_name": "洞察",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 123,
+      "official_reference": "浊雾",
+      "name": "烟雾",
+      "source_name": "烟雾",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 124,
+      "official_reference": "污泥攻击",
+      "name": "空道",
+      "source_name": "空道",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 125,
+      "official_reference": "骨棒",
+      "name": "天心",
+      "source_name": "天心",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 126,
+      "official_reference": "大字爆炎",
+      "name": "锻炼",
+      "source_name": "锻炼",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 127,
+      "official_reference": "攀瀑",
+      "name": "攀瀑",
+      "source_name": "攀瀑",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 128,
+      "official_reference": "贝壳夹击",
+      "name": "星击",
+      "source_name": "星擊",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 129,
+      "official_reference": "高速星星",
+      "name": "加速",
+      "source_name": "加速",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 130,
+      "official_reference": "火箭头锤",
+      "name": "火箭",
+      "source_name": "火箭",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 131,
+      "official_reference": "尖刺加农炮",
+      "name": "厉害",
+      "source_name": "厉害",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 132,
+      "official_reference": "缠绕",
+      "name": "砍杀",
+      "source_name": "砍殺",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 133,
+      "official_reference": "瞬间失忆",
+      "name": "军拳",
+      "source_name": "军拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 134,
+      "official_reference": "折弯汤匙",
+      "name": "显示",
+      "source_name": "显示",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 135,
+      "official_reference": "生蛋",
+      "name": "蛋海",
+      "source_name": "蛋海",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 136,
+      "official_reference": "飞膝踢",
+      "name": "动攻",
+      "source_name": "动攻",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 137,
+      "official_reference": "大蛇瞪眼",
+      "name": "手击",
+      "source_name": "手擊",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 138,
+      "official_reference": "食梦",
+      "name": "奇妙",
+      "source_name": "奇妙",
+      "sources": [
+        "koudai8-909"
+      ],
+      "note": "原表食梦/恶梦的十六进制编号互换；按招式身份映射食梦至 138，不沿用错误编号。"
+    },
+    {
+      "id": 139,
+      "official_reference": "毒瓦斯",
+      "name": "喷气",
+      "source_name": "喷气",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 140,
+      "official_reference": "投球",
+      "name": "古拳",
+      "source_name": "古拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 141,
+      "official_reference": "吸血",
+      "name": "输血",
+      "source_name": "输血",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 142,
+      "official_reference": "恶魔之吻",
+      "name": "恶吻",
+      "source_name": "恶吻",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 143,
+      "official_reference": "神鸟猛击",
+      "name": "神鸟",
+      "source_name": "神鸟",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 144,
+      "official_reference": "变身",
+      "name": "变身",
+      "source_name": "变身",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 145,
+      "official_reference": "泡沫",
+      "name": "泡",
+      "source_name": "泡",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 146,
+      "official_reference": "迷昏拳",
+      "name": "折断",
+      "source_name": "折断",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 147,
+      "official_reference": "蘑菇孢子",
+      "name": "菇影",
+      "source_name": "菇影",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 148,
+      "official_reference": "闪光",
+      "name": "闪光",
+      "source_name": "閃光",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 149,
+      "official_reference": "精神波",
+      "name": "力拳",
+      "source_name": "力拳",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 150,
+      "official_reference": "跃起",
+      "name": "砍",
+      "source_name": "砍",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 151,
+      "official_reference": "溶化",
+      "name": "解",
+      "source_name": "解",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 152,
+      "official_reference": "蟹钳锤",
+      "name": "超级",
+      "source_name": "超级",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 153,
+      "official_reference": "大爆炸",
+      "name": "爆发",
+      "source_name": "爆發",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 154,
+      "official_reference": "乱抓",
+      "name": "乱吐",
+      "source_name": "乱吐",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 155,
+      "official_reference": "骨头回力镖",
+      "name": "紧急",
+      "source_name": "緊急",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 156,
+      "official_reference": "睡觉",
+      "name": "睡",
+      "source_name": "睡",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 157,
+      "official_reference": "岩崩",
+      "name": "程序",
+      "source_name": "程序",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 158,
+      "official_reference": "必杀门牙",
+      "name": "化开",
+      "source_name": "化開",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 159,
+      "official_reference": "棱角化",
+      "name": "拘束",
+      "source_name": "拘束",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 160,
+      "official_reference": "纹理",
+      "name": "全部",
+      "source_name": "全部",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 161,
+      "official_reference": "三重攻击",
+      "name": "扳开",
+      "source_name": "扳开",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 162,
+      "official_reference": "愤怒门牙",
+      "name": "雪花",
+      "source_name": "雪花",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 163,
+      "official_reference": "劈开",
+      "name": "神合",
+      "source_name": "神合",
+      "sources": [
+        "koudai8-909",
+        "newwise-127817"
+      ]
+    },
+    {
+      "id": 164,
+      "official_reference": "替身",
+      "name": "替身",
+      "source_name": "替身",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 165,
+      "official_reference": "挣扎",
+      "name": "雪杀",
+      "source_name": "雪殺",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 172,
+      "official_reference": "火焰轮",
+      "name": "火炎车",
+      "source_name": "火炎車",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 181,
+      "official_reference": "细雪",
+      "name": "小雪",
+      "source_name": "小雪",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 183,
+      "official_reference": "音速拳",
+      "name": "毒剑",
+      "source_name": "毒剑",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 185,
+      "official_reference": "出奇一击",
+      "name": "诱惑",
+      "source_name": "诱惑",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 186,
+      "official_reference": "天使之吻",
+      "name": "天使吻",
+      "source_name": "天使吻",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 188,
+      "official_reference": "污泥炸弹",
+      "name": "泥炸弹",
+      "source_name": "泥炸弹",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 189,
+      "official_reference": "掷泥",
+      "name": "绝指",
+      "source_name": "絕指",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 192,
+      "official_reference": "电磁炮",
+      "name": "等待",
+      "source_name": "等待",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 196,
+      "official_reference": "冰冻之风",
+      "name": "冰冻风",
+      "source_name": "冰冻风",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 198,
+      "official_reference": "骨棒乱打",
+      "name": "抓痕",
+      "source_name": "抓痕",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 200,
+      "official_reference": "逆鳞",
+      "name": "格杀",
+      "source_name": "格殺",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 202,
+      "official_reference": "终极吸取",
+      "name": "投掷",
+      "source_name": "投掷",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 204,
+      "official_reference": "撒娇",
+      "name": "撒娇",
+      "source_name": "撒娇",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 206,
+      "official_reference": "点到为止",
+      "name": "刀杀",
+      "source_name": "刀殺",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 211,
+      "official_reference": "钢翼",
+      "name": "钢翅膀",
+      "source_name": "钢翅膀",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 223,
+      "official_reference": "爆裂拳",
+      "name": "炸击",
+      "source_name": "炸擊",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 225,
+      "official_reference": "龙息",
+      "name": "喊叫",
+      "source_name": "喊叫",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 231,
+      "official_reference": "铁尾",
+      "name": "清楚",
+      "source_name": "清楚",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 238,
+      "official_reference": "十字劈",
+      "name": "强烈",
+      "source_name": "强烈",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 239,
+      "official_reference": "龙卷风",
+      "name": "龙风",
+      "source_name": "龙风",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 242,
+      "official_reference": "咬碎",
+      "name": "咬碎",
+      "source_name": "咬碎",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 245,
+      "official_reference": "神速",
+      "name": "神速",
+      "source_name": "神速",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 246,
+      "official_reference": "原始之力",
+      "name": "原力量",
+      "source_name": "原力量",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 247,
+      "official_reference": "影子球",
+      "name": "影子",
+      "source_name": "影子",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 249,
+      "official_reference": "碎岩",
+      "name": "用碎",
+      "source_name": "用碎",
+      "sources": [
+        "koudai8-909"
+      ]
+    },
+    {
+      "id": 250,
+      "official_reference": "潮旋",
+      "name": "要使",
+      "source_name": "要使",
+      "sources": [
+        "koudai8-909"
+      ]
+    }
+  ]
+}

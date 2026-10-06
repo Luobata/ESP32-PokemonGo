@@ -64,7 +64,7 @@
   }
   async function reset(){
     if(![...document.querySelectorAll('input[type=number]')].every(e=>e.reportValidity()))return;
-    await changeScene('reset',Object.fromEntries(['page','pet','level','wild','rarity','seed','progress','region'].map(k=>[k,Number($(k).value)]).concat([['research',$('research').checked?1:0],['shiny',$('shiny').checked?1:0],['names',Number($('names').value)],['team',Number($('team').value)]])));
+    await changeScene('reset',Object.fromEntries(['page','pet','level','wild','rarity','seed','progress','region'].map(k=>[k,Number($(k).value)]).concat([['research',$('research').checked?1:0],['shiny',$('shiny').checked?1:0],['pet_shiny',$('pet_shiny').checked?1:0],['names',Number($('names').value)],['team',Number($('team').value)]])));
   }
   $('reset').onclick=reset;
   $('names').onchange=async()=>{
