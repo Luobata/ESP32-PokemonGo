@@ -1,0 +1,13 @@
+{
+  "build": "59d0c942e83db7d901b0",
+  "checks": 71,
+  "pixel_band_mismatches": 0,
+  "visible_pages": [
+    5,
+    11
+  ],
+  "minute_refresh": true,
+  "screen_off_excluded": true,
+  "battery_independent": true,
+  "long_values_fit": true
+}

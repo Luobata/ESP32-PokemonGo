@@ -1,0 +1,9 @@
+{
+  "build": "59d0c942e83db7d901b0",
+  "band_checks": 95,
+  "default_on": true,
+  "save_failure_preserves_display": true,
+  "opt_out_all_pages": true,
+  "disabled_stops_battery_reads": true,
+  "reenable_immediate": true
+}
