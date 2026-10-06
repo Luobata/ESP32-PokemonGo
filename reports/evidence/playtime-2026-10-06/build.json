@@ -1,0 +1,15 @@
+{
+  "source_commit": "a56af03a5b7fc48a66249afc8d4077effc606751",
+  "command": "tools/device/fw.sh build",
+  "exit_code": 0,
+  "project_version": "v2026.10.05-regions-14-ga56af03",
+  "app_bytes": 3169024,
+  "app_sha256": "230f6b521b153773f3d603f3a933d069b160a74ae86086242b4793c3e86b0dbf",
+  "factory_partition_bytes": 3407872,
+  "save_version": 20,
+  "save_bytes": 4024,
+  "supported_save_versions": "V5-V20",
+  "physical_device_flashed": false,
+  "physical_device_restore_test": false,
+  "ci": "not run: branch not pushed"
+}
