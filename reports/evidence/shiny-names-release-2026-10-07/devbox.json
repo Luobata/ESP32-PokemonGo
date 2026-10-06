@@ -1,0 +1,48 @@
+{
+  "base": "http://10.37.197.13:8767",
+  "all_match": true,
+  "web_files": [
+    {
+      "file": "index.html",
+      "sha256": "49b3d756581919d7a995d581ef10e6654e29433bc79655ead751f3629497a122"
+    },
+    {
+      "file": "style.css",
+      "sha256": "dd7ad1a2d55d8025c4990a6bb173d6342af46f2c0857f3f6cb5244a18182a831"
+    },
+    {
+      "file": "app.mjs",
+      "sha256": "91a9d22c1409209789234bd9301ffdef610d68b87398aae029dc37b591eb6485"
+    },
+    {
+      "file": "backup.mjs",
+      "sha256": "16c6de8bc1cb8e6bf968b28fba4969988f5299659ee4561ca6b70c28f4b9c0a1"
+    },
+    {
+      "file": "guide/index.html",
+      "sha256": "1de413b5402feb1569ca8ac3da5a46afa52c5768f66e47aa12ce2d7e648184d3"
+    },
+    {
+      "file": "guide/guide.css",
+      "sha256": "65a42515341b2bd30ded1a776f8a1b58a896c201c8bf6f3d7cfa6e6bc611a942"
+    },
+    {
+      "file": "guide/guide.mjs",
+      "sha256": "b2143083ec8ef5df1337f039ea03db6cdfdb816b73abd19fb27d4f258a29bc74"
+    },
+    {
+      "file": "guide/catalog.js",
+      "sha256": "b7dcf70a058caf400510bf08a88e254fbcfeff2679ec6f60e5db644873807628"
+    },
+    {
+      "file": "guide/pokemon.png",
+      "sha256": "5622dfb02fb67b50f40d945fd2c9672de0932829d205f69bbc74070a0d4e090b"
+    },
+    {
+      "file": "guide/battle.png",
+      "sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6"
+    }
+  ],
+  "offline_files": 12,
+  "zip_sha256": "00666bce5c0dbb528dc0319b4c92958f7125b1204b25792a2e9196e0d9a2f767"
+}

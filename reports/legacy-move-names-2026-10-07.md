@@ -19,3 +19,5 @@
 源码基线 `4bcc109541c7bf208a6da9eea4a8fe491745424f`，本次验证基于含上一轮闪光出场修改的未提交工作区。应用 3,177,616 字节，SHA-256 `ed2e76d969513a5677a1556e77e2af82ad9d9bb45749e47291c7840f983edd32`。编译成功；分区检查保留单独 1 MiB recovery 放不下主游戏的既有提示，主游戏使用 app0，未改变分区或上传发布包。未运行远端 CI。
 
 [完整验证记录](evidence/legacy-move-names-2026-10-07/validation.json) · [预览截图](evidence/legacy-move-names-2026-10-07/browser.png)
+
+后续交付：上述实现阶段状态保留作历史记录。本次代码已于 10 月 7 日烧录并发布，实际提交、固件摘要、存档与社区状态见[发布验证](shiny-names-release-2026-10-07.md)。

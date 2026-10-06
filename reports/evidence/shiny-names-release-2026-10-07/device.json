@@ -1,0 +1,27 @@
+{
+  "source_commit": "af22e73947c5a2b4693ea89fd671995c2a1159d9",
+  "app_version": "v2026.10.06-exploration-5-gaf22e73",
+  "embedded_version": "v2026.10.06-exploration-5-gaf22",
+  "app_sha256": "aeeb30fef549098b2f9260dade5faa2bf44d827debaf3f188c7b6b941a75a72c",
+  "app_only_update": true,
+  "backup_readback_verified": true,
+  "protected_data_unchanged_before_boot": true,
+  "boot_progress_preserved": true,
+  "world": {
+    "pet": 3,
+    "level": 40,
+    "exp": 102416
+  },
+  "dex_caught": 103,
+  "party_count": 6,
+  "total_partners": 96,
+  "dungeon": {
+    "phase": 6,
+    "node": 4,
+    "count": 3,
+    "run": 1
+  },
+  "muted": true,
+  "manual_save_after_update": true,
+  "physical_device_restore_test": false
+}

@@ -1,0 +1,15 @@
+{
+  "projectId": 234,
+  "slug": "pokewalk",
+  "revisionId": 2170,
+  "status": "pending",
+  "firmwareSha256": "5419cfd77bded4e94ebd7a3c48506925beb811feef5fef61e423139f60bf998a",
+  "text_fields_match": true,
+  "sourceUrl": "https://github.com/Luobata/ESP32-PokemonGo",
+  "previous_public_revision": 2158,
+  "images_submitted": 5,
+  "gallery_count_confirmed_in_browser": 5,
+  "video_present_in_browser": true,
+  "cover_sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6",
+  "manageUrl": "https://ai-passport.folotoy.cn/account/?project=234"
+}

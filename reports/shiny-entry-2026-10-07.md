@@ -29,3 +29,5 @@
 代码已实现并编译，本轮未提交、未烧录、未打包发布、未部署存档网站。设备看到效果需要下一次升级固件；本地验收页刷新/载入即可。存档工具未变，无需更新在线或离线工具。发布封面保持暴鲤龙。
 
 [结果](evidence/shiny-entry-2026-10-07/results.json) · [编译及验证记录](evidence/shiny-entry-2026-10-07/validation.json) · [双方闪光动图](evidence/shiny-entry-2026-10-07/wild-p1-e1.gif) · [网页验收](evidence/shiny-entry-2026-10-07/browser.png)。
+
+后续交付：上述实现阶段状态保留作历史记录。本次代码已于 10 月 7 日烧录并发布，实际提交、固件摘要、存档与社区状态见[发布验证](shiny-names-release-2026-10-07.md)。

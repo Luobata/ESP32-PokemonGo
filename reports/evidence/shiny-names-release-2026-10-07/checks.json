@@ -1,0 +1,155 @@
+{
+  "source_commit": "af22e73947c5a2b4693ea89fd671995c2a1159d9",
+  "mandatory_checks": [
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_backup.py"
+      ],
+      "exit_code": 0,
+      "seconds": 5.04,
+      "log": "verify_usb_backup.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_import.py"
+      ],
+      "exit_code": 0,
+      "seconds": 5.62,
+      "log": "verify_usb_import.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_save_import_compatibility.py"
+      ],
+      "exit_code": 0,
+      "seconds": 4.42,
+      "log": "verify_save_import_compatibility.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_import_device.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.21,
+      "log": "verify_usb_import_device.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_usb_backup_checkpoint.py"
+      ],
+      "exit_code": 0,
+      "seconds": 2.88,
+      "log": "verify_usb_backup_checkpoint.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_save_manager_distribution.py"
+      ],
+      "exit_code": 0,
+      "seconds": 1.47,
+      "log": "verify_save_manager_distribution.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_firmware_update.py"
+      ],
+      "exit_code": 0,
+      "seconds": 0.31,
+      "log": "verify_firmware_update.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_nvs_restore_roundtrip.py"
+      ],
+      "exit_code": 0,
+      "seconds": 10.06,
+      "log": "verify_nvs_restore_roundtrip.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_region_expansion.py"
+      ],
+      "exit_code": 0,
+      "seconds": 6.0,
+      "log": "verify_region_expansion.log"
+    },
+    {
+      "command": [
+        "python3",
+        "tools/pipeline/verify_combat_system.py"
+      ],
+      "exit_code": 0,
+      "seconds": 3.99,
+      "log": "verify_combat_system.log"
+    },
+    {
+      "command": [
+        "node",
+        "tools/pipeline/verify_save_import_web.mjs"
+      ],
+      "exit_code": 0,
+      "seconds": 0.13,
+      "log": "verify_save_import_web.log"
+    }
+  ],
+  "dungeon_stack": {
+    "target": "esp32c3",
+    "stack_frames": {
+      "begin_battle": 192,
+      "dungeon_load": 32,
+      "dungeon_step": 64,
+      "dungeon_switch": 16,
+      "dungeon_retire": 16,
+      "dungeon_resume": 48,
+      "dungeon_abandon": 16,
+      "dungeon_choose": 16,
+      "dungeon_finish": 16,
+      "dungeon_theme_open": 320,
+      "dungeon_new_theme": 512,
+      "dungeon_new": 16
+    },
+    "passed": true
+  },
+  "build": true,
+  "release_partition_protection": true,
+  "shiny_entry": {
+    "passed": true,
+    "version": "eff8db6d4878bfc8feef",
+    "checks": 1124,
+    "cases": [
+      "wild: player=0, enemy=0, 0 sparkle frames; no state mutation/replay",
+      "wild: player=0, enemy=1, 23 sparkle frames; no state mutation/replay",
+      "wild: player=1, enemy=0, 23 sparkle frames; no state mutation/replay",
+      "wild: player=1, enemy=1, 45 sparkle frames; no state mutation/replay",
+      "trainer: initial and player-only replacement sparkle; enemy-only replacement does not replay player",
+      "dungeon: selected owned shiny retains palette and entry effect"
+    ]
+  },
+  "move_names": {
+    "core": {
+      "moves": 191,
+      "paired_combat_turns": 1528,
+      "save_unchanged": true,
+      "sanitized": true
+    },
+    "font_characters": 252,
+    "build": "eff8db6d4878bfc8feef",
+    "native_moves": 191,
+    "renamed_moves": 161,
+    "redraw_checks": 905
+  },
+  "world_save_versions": "V5–V20",
+  "dungeon_migration": "V3→V4",
+  "save_layout_changed": false,
+  "physical_device_restore_test": false,
+  "battle_presentation": "PASS battle presentation: 4738 real C samples, HP/EXP/entry boundaries and redraws"
+}

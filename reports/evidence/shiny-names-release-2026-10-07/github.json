@@ -1,0 +1,27 @@
+{
+  "html_url": "https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.07-shiny-names",
+  "tag_name": "v2026.10.07-shiny-names",
+  "target_commitish": "af22e73947c5a2b4693ea89fd671995c2a1159d9",
+  "draft": false,
+  "published_at": "2026-10-06T17:13:23Z",
+  "assets": [
+    {
+      "name": "FoloToy-AI-Passport-full.bin",
+      "size": 3243152,
+      "digest": "sha256:5419cfd77bded4e94ebd7a3c48506925beb811feef5fef61e423139f60bf998a",
+      "browser_download_url": "https://github.com/Luobata/ESP32-PokemonGo/releases/download/v2026.10.07-shiny-names/FoloToy-AI-Passport-full.bin"
+    },
+    {
+      "name": "manifest.json",
+      "size": 861,
+      "digest": "sha256:055d283b93d5dbe865ac3e2edb3d87fab0762e43dc6b91256a78bc42eb35f421",
+      "browser_download_url": "https://github.com/Luobata/ESP32-PokemonGo/releases/download/v2026.10.07-shiny-names/manifest.json"
+    },
+    {
+      "name": "PokeWalk-update.zip",
+      "size": 1414473,
+      "digest": "sha256:5fe169b9e1c8aedc4d57f8537cde8142bf12c940ab9fa4abd7db2447da42ad52",
+      "browser_download_url": "https://github.com/Luobata/ESP32-PokemonGo/releases/download/v2026.10.07-shiny-names/PokeWalk-update.zip"
+    }
+  ]
+}
