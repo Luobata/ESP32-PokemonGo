@@ -1,0 +1,11 @@
+{
+  "sourceCommit": "2e37c676bace83c822ea67802cae7845bf405103",
+  "projectVersion": "v2026.10.05-regions-19-g2e37c67",
+  "appBytes": 3171952,
+  "sha256": "86d294ee3790f715d2e3aff74925f6e0803a2acbd491856d48155a47e78f4a44",
+  "buildExit": 0,
+  "flashed": false,
+  "firmwareReleased": false,
+  "saveSources": "V5-V20",
+  "dungeonVersion": 4
+}
