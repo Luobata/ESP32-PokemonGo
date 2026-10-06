@@ -309,9 +309,24 @@ item_use_status_t world_item_use(uint16_t expected, uint8_t id, item_use_result_
     if (out) *out = candidate;
     return ITEM_USE_OK;
 }
+bool world_capture_break_chain_uid(uint16_t uid)
+{
+    encounter_t *entry = find_encounter(uid);
+    battle_session_t session;
+    if (!entry || !world_battle_get_uid(uid, &session) || !battle_session_can_capture(&session) ||
+        (session.won && !session.loot_checked) || world_needs_starter() ||
+        challenge.session.active || challenge.league_active ||
+        (active_valid && active_enc.uid != uid)) return false;
+    if (!exploration_wins || !exploration_chain_encounter(entry)) return true;
+    if (host_save_fails()) return false;
+    exploration_wins = 0;
+    return true;
+}
 bool world_capture_ball_spend_uid(uint16_t uid, uint8_t ball, const battle_session_t *value)
 {
     battle_session_t previous;
+    encounter_t *entry = find_encounter(uid);
+    if (!entry || (exploration_wins && exploration_chain_encounter(entry))) return false;
     if (challenge.session.active || challenge.league_active || ball >= ITEM_BALL_COUNT || !inventory.quantity[ball] || !value ||
         !value->initialized || (active_valid && active_enc.uid != uid) ||
         !world_battle_get_uid(uid, &previous) || !battle_session_can_capture(&previous) ||
@@ -418,7 +433,7 @@ bool world_capture_uid(uint16_t uid, const mon_t *m)
     if(challenge.session.active||challenge.league_active)return false;
     if (!m || m->species_id < 1 || m->species_id > BOX_SPECIES) return false;
     encounter_t *e = find_encounter(uid);
-    if (!e || e->species_id != m->species_id) return false;
+    if (!e || e->species_id != m->species_id || (exploration_wins && exploration_chain_encounter(e))) return false;
     party_t next = party;
     if (!party_receive(&next, m)) return false;
     next.party[0].exp=world.exp;next.party[0].level=world.level;
@@ -723,7 +738,7 @@ int main(void)
             if(exploration_map_open(a,challenge.defeated,&regions)){regions.selected=a;if(a<4)exploration.route=a;if(nav_current()==PAGE_DUNGEON)play_dungeon_open_region(a);}
             if(nav_current()==PAGE_EXPLORATION)nav_go(PAGE_EXPLORATION);
         } else if (booted && !strcmp(cmd,"chain_fixture") && sscanf(line,"%*s %u",&a)==1) {
-            exploration_wins=a;
+            exploration_wins=a;host_redraw();
         } else if (booted && !strcmp(cmd, "exploration_fixture") && sscanf(line,"%*s %u %u %u %u",&a,&b,&c,&d)==4 && a<4 && b<=24 && c<=3 && d<=1) {
             exploration.route=a;regions.selected=a;exploration.energy=b;exploration.clues[a]=c;exploration.pulse[a]=d;
             if(nav_current()==PAGE_EXPLORATION)nav_go(PAGE_EXPLORATION);

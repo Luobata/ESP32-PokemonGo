@@ -121,6 +121,10 @@ item_use_status_t world_item_use(uint16_t expected_species, uint8_t item_id,
 // Once per won active session. Repeated calls return the same actual award
 // without adding it again. A false return is retryable and publishes nothing.
 bool world_battle_loot_uid(uint16_t uid, item_loot_t *out);
+// Explicit capture-entry confirmation for a tagged exploration encounter.
+// Atomically clears the exploration chain; a failed save preserves it and
+// consumes no ball. Other encounter sources leave the chain untouched.
+bool world_capture_break_chain_uid(uint16_t uid);
 // Save one ball decrement and the throw's candidate session together. An
 // unstarted pending encounter is detached in that same commit. The caller
 // supplies the session immediately after choosing to throw, before cap_attempt.

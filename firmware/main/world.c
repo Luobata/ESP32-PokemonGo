@@ -666,6 +666,39 @@ bool world_battle_loot_uid(uint16_t uid, item_loot_t *out)
     return ok;
 }
 
+bool world_capture_break_chain_uid(uint16_t uid)
+{
+    if (!uid || !lock_encounter_change()) return false;
+    prune_battles_locked();
+    encounter_t *entry = find_encounter_locked(uid);
+    const battle_session_t *session = NULL;
+    if (s_active.encounter.uid == uid) session = &s_active.session;
+    else for (unsigned i = 0; i < ENC_QUEUE_LIMIT; i++)
+        if (s_battles[i].uid == uid) { session = &s_battles[i].session; break; }
+    if (!entry || !session || !battle_session_can_capture(session) ||
+        (session->won && !session->loot_checked) ||
+        !s_storage_ready || s_starter_pending ||
+        s_challenge.session.active || s_challenge.league_active ||
+        (s_active.encounter.uid && s_active.encounter.uid != uid)) {
+        unlock_encounter_change(); return false;
+    }
+    if (!s_exploration_wins || !exploration_chain_encounter(entry)) {
+        unlock_encounter_change(); return true;
+    }
+    collect_save_locked(&s_save_buf);
+    s_save_buf.exploration_wins = 0;
+    s_dirty = false;
+    xSemaphoreGive(s_lock);
+    bool ok = save_write(&s_save_buf);
+    xSemaphoreTake(s_lock, portMAX_DELAY);
+    if (ok) {
+        s_exploration_wins = 0;
+        s_last_save_us = esp_timer_get_time();
+    } else s_dirty = true;
+    unlock_encounter_change();
+    return ok;
+}
+
 bool world_capture_ball_spend_uid(uint16_t uid, uint8_t ball,
                                   const battle_session_t *item_session)
 {
@@ -682,7 +715,7 @@ bool world_capture_ball_spend_uid(uint16_t uid, uint8_t ball,
     bool can_capture = current.initialized && !current.retaliation_pending &&
         (current.finished ? current.won && !current.capture_used_after_win && current.loot_checked
                           : !current.auto_battle && current.pet_hp > 0);
-    if (!entry || !can_capture || !s_storage_ready || s_starter_pending ||
+    if (!entry || (s_exploration_wins && exploration_chain_encounter(entry)) || !can_capture || !s_storage_ready || s_starter_pending ||
         (!active && s_active.encounter.uid) || s_inventory.quantity[ball] == 0 ||
         item_session->pet_species != s_w.species || item_session->wild_species != entry->species_id ||
         item_session->rng != current.rng || item_session->attack_count != current.attack_count ||
@@ -722,7 +755,8 @@ bool world_capture_uid(uint16_t uid, const mon_t *mon)
     if (!mon || mon->species_id < 1 || mon->species_id > BOX_SPECIES) return false;
     if (!lock_encounter_change()) return false;
     encounter_t *entry = find_encounter_locked(uid);
-    if (s_challenge.session.active || s_challenge.league_active || s_starter_pending || !s_storage_ready || !entry || entry->species_id != mon->species_id) {
+    if (s_challenge.session.active || s_challenge.league_active || s_starter_pending || !s_storage_ready || !entry || entry->species_id != mon->species_id ||
+        (s_exploration_wins && exploration_chain_encounter(entry))) {
         unlock_encounter_change(); return false;
     }
     collect_save_locked(&s_save_buf);

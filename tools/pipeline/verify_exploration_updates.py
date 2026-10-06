@@ -83,6 +83,9 @@ static void activities(void){
     assert(world_battle_reward_uid(e.uid,&amount));assert(world_battle_reward_uid(e.uid,&amount)&&!amount);
     assert(s_exploration_updates.activity_progress[id]==stage+1);
     mon_t mon={.species_id=e.species,.level=e.level,.hp=100,.exp=exp_for_level(e.level)};
+    item_loot_t loot;assert(world_battle_loot_uid(e.uid,&loot));
+    assert(!world_capture_uid(e.uid,&mon)); // Cannot skip the chain confirmation.
+    assert(world_capture_break_chain_uid(e.uid)&&!s_exploration_wins);
     assert(world_capture_uid(e.uid,&mon)); // Win then capture counts once.
    }
    assert(s_exploration_updates.activity_progress[id]==stage+1);

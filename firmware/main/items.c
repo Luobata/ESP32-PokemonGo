@@ -78,30 +78,37 @@ item_loot_t items_roll_loot(uint8_t rarity, uint32_t seed)
     // Separately mixed stream, unrelated to the battle's xorshift state.
     uint32_t rng = seed ^ 0xA511E9B3u;
     if (!rng) rng = 0x6D2B79F5u;
-    if (next_random(&rng) % 100 >= items_drop_chance(rarity)) {
-        unsigned roll=next_random(&rng)%100;
-        out.item_id=roll<30?ITEM_POKE:roll<70?ITEM_BERRY:roll<90?ITEM_MILK:roll<96?ITEM_ENERGY_ROOT:ITEM_JOY_COOKIE;
-        out.quantity=(out.item_id==ITEM_POKE||out.item_id==ITEM_BERRY)?2:1;
-        return out;
-    }
-    static const uint8_t weights[5][ITEM_COUNT] = {
-        {12, 6, 1,0, 1,1,1,1, 1,1,1,1,1, 0,0, 36,8,20,8},
-        {10, 8, 3,0, 2,2,2,2, 2,2,2,2,2, 1,1, 30,8,20,8},
-        { 8,10, 5,0, 3,3,3,3, 3,3,3,3,3, 2,2, 26,8,18,8},
-        { 6, 8, 7,0, 3,3,3,3, 5,5,5,5,5, 4,4, 24,8,16,8},
-        { 4, 6, 8,1, 3,3,3,3, 7,7,7,7,7, 6,6, 22,7,14,7},
-    };
-    unsigned total = 0;
-    for (unsigned i = 0; i < ITEM_COUNT; i++) total += weights[rarity-1][i];
-    unsigned pick = next_random(&rng) % total;
-    for (unsigned i = 0; i < ITEM_COUNT; i++) {
-        if (pick < weights[rarity-1][i]) {
-            out.item_id = i;
-            out.quantity = i == ITEM_POKE ? (uint8_t)(2 + next_random(&rng) % 2) : 1;
-            return out;
+    bool special = next_random(&rng) % 100 < items_drop_chance(rarity);
+    unsigned category = next_random(&rng) % 100;
+    if (category < 65) {
+        // Keep balls at 65% of drops. Rarity upgrades the mix rather than
+        // reducing ball supplies; specialty balls remain situational tools.
+        static const uint8_t balls[5][ITEM_BALL_COUNT] = {
+            {80,15, 1,0, 1, 1, 1, 1},
+            {55,28, 5,0, 3, 3, 3, 3},
+            {25,35,20,0, 5, 5, 5, 5},
+            {10,25,33,0, 8, 8, 8, 8},
+            { 4,14,41,1,10,10,10,10},
+        };
+        unsigned pick = next_random(&rng) % 100;
+        for (unsigned i = 0; i < ITEM_BALL_COUNT; i++) {
+            if (pick < balls[rarity-1][i]) { out.item_id = i; break; }
+            pick -= balls[rarity-1][i];
         }
-        pick -= weights[rarity-1][i];
+    } else if (special && category < 85) {
+        // Evolution rewards rise from 5% to 13% overall. Machines become
+        // more common at higher rarities; one-star opponents only drop stones.
+        static const uint8_t machine_chance[] = {0,5,15,30,40};
+        if (next_random(&rng) % 100 < machine_chance[rarity-1])
+            out.item_id = ITEM_LINK_MACHINE + next_random(&rng) % 2;
+        else out.item_id = ITEM_FIRE_STONE + next_random(&rng) % 5;
+    } else {
+        unsigned pick = next_random(&rng) % 100;
+        out.item_id = pick < 55 ? ITEM_BERRY : pick < 85 ? ITEM_MILK
+                     : pick < 93 ? ITEM_ENERGY_ROOT : ITEM_JOY_COOKIE;
     }
+    out.quantity = out.item_id == ITEM_POKE ? (uint8_t)(2 + next_random(&rng) % 2)
+                   : out.item_id == ITEM_BERRY ? 2 : 1;
     return out;
 }
 

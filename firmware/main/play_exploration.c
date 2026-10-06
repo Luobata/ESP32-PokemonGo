@@ -156,7 +156,7 @@ static void draw_all(void){
   screen_band_clear(GAME_UI_BG);snprintf(text,sizeof(text),"体能 %u/100",view.stamina);game_ui_title(band,routes?"选择路线":"探索",text);
   if(chain_rules){
    center(band,44,"探索连胜",GAME_UI_INK);game_ui_box(band,8,72,224,178);
-   const char *rules[]={"探索胜利提高闪光概率","探索战败才会清零","捕获与逃跑保留连胜","换地图与重启也保留","道馆与秘境不影响连胜"};
+   const char *rules[]={"探索胜利提高闪光概率","探索战败或捕获会清零","逃跑仍然保留连胜","换地图与重启也保留","道馆与秘境不影响连胜"};
    for(unsigned i=0;i<5;i++)center(band,88+i*30,rules[i],GAME_UI_INK);
    center(band,258,"只影响新发现的伙伴",GAME_UI_MUTED);game_ui_footer(band,"长按B返回");
   }else if(paths){

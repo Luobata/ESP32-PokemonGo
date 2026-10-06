@@ -32,6 +32,7 @@
 #include "ball_assets.h"
 #include "capture.h"
 #include "exp.h"
+#include "exploration.h"
 #include "game_ui.h"
 #include "nav.h"
 #include "music_director.h"
@@ -91,6 +92,8 @@ static bool s_fled;
 static bool s_no_ball;
 static bool s_save_failed;
 static bool s_capture_pending;
+static bool s_chain_prompt;
+static uint8_t s_chain_choice;
 static mon_t s_pending_mon;
 static bool s_hold_active;
 static bool s_return_to_battle;
@@ -289,6 +292,19 @@ static void draw_band(int band_y)
                                   sprite_size, sprite_size, SPRITE_SCALE, pal);
     }
 
+    if (s_chain_prompt) {
+        game_ui_box(band_y, 8, 160, 224, 112);
+        render_text(20, Y(174), "要中断连胜并捕获吗？", GAME_UI_INK);
+        snprintf(buf, sizeof(buf), "当前连胜 %lu", (unsigned long)world_exploration_chain());
+        render_text(20, Y(196), buf, GAME_UI_INK);
+        game_ui_text_fitted(band_y, 20, 218, 200, "确认后不论成败都会清零", GAME_UI_MUTED);
+        static const char *const labels[] = {"取消", "捕获"};
+        game_ui_action_row(band_y, 20, 246, 200, labels, 2, s_chain_choice);
+        game_ui_footer(band_y, s_save_failed ? "保存失败，请重试" : GAME_UI_NAV_HINT);
+        screen_push_band(band_y);
+        return;
+    }
+
     if (!s_thrown) {
     // Original GSC ball: 32px source canvas, visible 24px bounds. A captured
     // Pokémon stays inside the closed ball; colors distinguish the three kinds.
@@ -370,6 +386,7 @@ static void redraw_for_dump(void)
 
 static void tick(lv_timer_t *t)
 {
+    if (s_chain_prompt) return;
     if (s_animating) {
         uint32_t before = s_anim_ms;
         s_anim_ms += CAPTURE_TICK_MS;
@@ -440,6 +457,8 @@ void play_capture_enter(void)
     s_press_handled = false;
     s_save_failed = false;
     s_capture_pending = false;
+    s_chain_prompt = exploration_chain_encounter(&current) && world_exploration_chain() > 0;
+    s_chain_choice = 0;
     memset(&s_pending_mon, 0, sizeof(s_pending_mon));
     s_hold_active = false;
     s_return_to_battle = false;s_capture_exp=0;
@@ -469,7 +488,7 @@ void play_capture_exit(void)
     s_hold = 0;
 }
 
-bool play_capture_can_leave(void) { return !s_animating && !s_capture_pending && !s_hold_active && s_session.finished; }
+bool play_capture_can_leave(void) { return !s_chain_prompt && !s_animating && !s_capture_pending && !s_hold_active && s_session.finished; }
 
 bool play_capture_screen_busy(void)
 {
@@ -480,6 +499,25 @@ bool play_capture_screen_busy(void)
 
 void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
+    // Resolve confirmations on CLICK only: a PRESS must not change pages
+    // and leak its delayed CLICK into the battle, or break a chain on long C.
+    if (s_chain_prompt) {
+        int direction = nav_direction(btn, ev);
+        if (direction) s_chain_choice = nav_list_selection(btn, ev, 2, s_chain_choice);
+        if (nav_return(btn, ev) || (nav_confirm(btn, ev) && !s_chain_choice)) {
+            nav_go(PAGE_BATTLE);
+            return;
+        }
+        if (nav_confirm(btn, ev)) {
+            if (world_capture_break_chain_uid(nav_ctx()->uid)) {
+                s_chain_prompt = false;
+                s_save_failed = false;
+                s_t0 = esp_timer_get_time();
+            } else s_save_failed = true;
+        }
+        draw_all();
+        return; // The confirmation key must never also throw the ball.
+    }
     // Hardware CLICK waits for release and double-click classification. Throw
     // on PRESS; semantic browser/debug CLICK remains supported. Consume the
     // delayed CLICK even if the immediate attempt failed to save/spend a ball.

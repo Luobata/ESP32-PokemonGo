@@ -43,9 +43,9 @@ static void chain_transactions(void){
  s_w.pet.stamina=NURT_MAX;assert(dungeon_new(chosen,3,127));
  run.battle.session.finished=1;run.battle.session.won=0;
  assert(dungeon_finish()&&s_exploration_wins==3);restart();assert(s_exploration_wins==3);
- // Capture and escape keep the chain; capture from the list still has the tag after reboot.
- enc_queue_init(&s_queue);encounter_t e={.species_id=25,.rarity=2,.level=12,.hp_ratio=100,.activity=ENC_ACTIVITY_EXPLORATION};enc_queue_push(&s_queue,&e);world_debug_save();restart();
- unsigned uid=s_queue.items[0].uid;assert(s_queue.items[0].activity==ENC_ACTIVITY_EXPLORATION);
+ // Passive capture and escaping an exploration encounter keep the chain.
+ enc_queue_init(&s_queue);encounter_t e={.species_id=25,.rarity=2,.level=12,.hp_ratio=100};enc_queue_push(&s_queue,&e);world_debug_save();restart();
+ unsigned uid=s_queue.items[0].uid;assert(s_queue.items[0].activity==0);
  mon_t mon={.species_id=25,.level=12,.exp=exp_for_level(12),.hp=100};assert(world_capture_uid(uid,&mon)&&s_exploration_wins==3);restart();
  battle_session_t b;chain_battle(ENC_ACTIVITY_EXPLORATION,true,&b);assert(world_take_uid(s_active.encounter.uid,NULL));assert(s_exploration_wins==3);
  chain_battle(ENC_ACTIVITY_EXPLORATION,false,&b);uid=s_active.encounter.uid;
@@ -53,6 +53,48 @@ static void chain_transactions(void){
  assert(world_apply_defeat_uid(uid)&&s_exploration_wins==0);uint16_t gain;
  assert(world_battle_reward_uid(uid,&gain)&&world_apply_defeat_uid(uid)&&s_exploration_wins==0);
  restart();assert(s_exploration_wins==0);tests++;
+}
+static void chain_capture_confirmation(void){
+ for(unsigned i=0;i<3;i++){
+  setup();s_exploration_wins=50;enc_queue_init(&s_queue);
+  unsigned source=(unsigned[]){0,1,ENC_ACTIVITY_EXPLORATION}[i];
+  encounter_t e={.species_id=25,.rarity=2,.level=12,.hp_ratio=100,.activity=source};
+  enc_queue_push(&s_queue,&e);world_debug_save();restart();unsigned uid=s_queue.items[0].uid;
+  assert(s_queue.items[0].activity==source&&s_exploration_wins==50);
+  battle_session_t b;assert(battle_session_init(&b,s_w.species,s_w.level,25,12,1024,812));
+  assert(world_battle_set_uid(uid,&b));b.started=true;
+  inventory_t inv=s_inventory;party_t party=s_party;enc_queue_t queue=s_queue;
+  mon_t mon={.species_id=25,.level=12,.exp=exp_for_level(12),.hp=100};
+  unsigned char before[sizeof(disk)];memcpy(before,disk,sizeof(disk));
+  assert(!world_capture_break_chain_uid(0)&&!world_capture_break_chain_uid(65000));
+  if(source){
+   // Calling the throw/result API directly cannot bypass the confirmation.
+   assert(!world_capture_ball_spend_uid(uid,ITEM_POKE,&b));
+   assert(!world_capture_uid(uid,&mon));
+   assert(s_exploration_wins==50&&!memcmp(&inv,&s_inventory,sizeof(inv))&&!memcmp(&party,&s_party,sizeof(party)));
+   for(unsigned j=0;j<3;j++){
+    failure=(unsigned[]){1,2,4}[j];assert(!world_capture_break_chain_uid(uid));failure=0;
+    assert(s_exploration_wins==50&&!memcmp(before,disk,sizeof(disk))&&!memcmp(&queue,&s_queue,sizeof(queue)));
+   }
+  }
+  assert(world_capture_break_chain_uid(uid)&&s_exploration_wins==(source?0:50));
+  assert(!memcmp(&inv,&s_inventory,sizeof(inv))&&!memcmp(&queue,&s_queue,sizeof(queue)));
+  // Confirmation is durable and idempotent, even without a thrown ball.
+  failure=4;assert(world_capture_break_chain_uid(uid));failure=0;
+  restart();assert(s_exploration_wins==(source?0:50)&&s_queue.items[0].activity==source);
+  b.started=false;assert(world_battle_set_uid(uid,&b));b.started=true;
+  assert(world_capture_ball_spend_uid(uid,ITEM_POKE,&b));
+  assert(world_capture_uid(uid,&mon)&&s_exploration_wins==(source?0:50));
+  restart();assert(s_exploration_wins==(source?0:50));
+ }
+ // The victory's extra chain point is also broken before the final capture.
+ setup();s_exploration_wins=50;battle_session_t b;chain_battle(ENC_ACTIVITY_EXPLORATION,true,&b);
+ unsigned uid=s_active.encounter.uid;uint16_t gain;item_loot_t loot;
+ assert(!world_capture_break_chain_uid(uid)&&s_exploration_wins==50);
+ assert(world_battle_reward_uid(uid,&gain)&&s_exploration_wins==51);
+ assert(world_battle_loot_uid(uid,&loot)&&world_capture_break_chain_uid(uid)&&!s_exploration_wins);
+ assert(world_battle_reward_uid(uid,&gain)&&!s_exploration_wins&&!gain);
+ tests++;
 }
 static void chain_odds(void){
  const uint32_t streaks[]={0,10,50,100,200,1000,UINT32_MAX};unsigned previous=0;
@@ -76,16 +118,24 @@ static void chain_odds(void){
  tests++;
 }
 static void supply_distribution(void){
+ unsigned last_poke=100000,last_quality=0,last_evolution=0,last_machine=0;
  for(unsigned rarity=1;rarity<=5;rarity++){
-  unsigned kinds[4]={0},berries=0;
+  unsigned kinds[4]={0},berries=0,ids[ITEM_COUNT]={0};
   for(unsigned seed=1;seed<=100000;seed++){
    item_loot_t loot=items_roll_loot(rarity,seed);assert(loot.item_id<ITEM_COUNT&&loot.quantity);
-   kinds[items_info(loot.item_id)->kind]++;berries+=loot.item_id==ITEM_BERRY;
+   kinds[items_info(loot.item_id)->kind]++;ids[loot.item_id]++;berries+=loot.item_id==ITEM_BERRY;
   }
-  assert(kinds[ITEM_KIND_BALL]>15000&&kinds[ITEM_KIND_BALL]<40000);
-  assert(kinds[ITEM_KIND_CARE]>45000&&berries>20000);
-  assert(kinds[ITEM_KIND_STONE]>0);
-  printf("loot[%u] balls=%u food=%u berries=%u/100000 ",rarity,kinds[0],kinds[3],berries);
+  assert(kinds[ITEM_KIND_BALL]>64000&&kinds[ITEM_KIND_BALL]<66000);
+  assert(kinds[ITEM_KIND_CARE]>21000&&berries>11000);
+  unsigned quality=0;for(unsigned i=ITEM_ULTRA;i<ITEM_BALL_COUNT;i++)quality+=ids[i];
+  unsigned evo=kinds[ITEM_KIND_STONE]+kinds[ITEM_KIND_MACHINE],machine=kinds[ITEM_KIND_MACHINE];
+  assert(ids[ITEM_POKE]<last_poke&&quality>last_quality&&evo>last_evolution);
+  assert(rarity==1?machine==0:machine>last_machine);
+  assert(rarity==5?(ids[ITEM_MASTER]>0&&ids[ITEM_MASTER]<1000):ids[ITEM_MASTER]==0);
+  if(rarity>=3)assert(kinds[0]-ids[ITEM_POKE]>ids[ITEM_POKE]);
+  printf("loot[%u] balls=%u poke=%u great=%u ultra=%u specialty=%u master=%u food=%u evolution=%u machines=%u/100000 ",
+   rarity,kinds[0],ids[ITEM_POKE],ids[ITEM_GREAT],ids[ITEM_ULTRA],quality-ids[ITEM_ULTRA]-ids[ITEM_MASTER],ids[ITEM_MASTER],kinds[3],evo,machine);
+  last_poke=ids[ITEM_POKE];last_quality=quality;last_evolution=evo;last_machine=machine;
  }
  for(unsigned map=0;map<12;map++)for(unsigned deep=0;deep<2;deep++){
   unsigned food=0,berry=0;
@@ -142,6 +192,6 @@ static void migration_v18(void){
  assert(save_decode(&out,&current,sizeof(current),0)==SAVE_READ_OK&&out.exploration_wins==UINT32_MAX);
  current.regions.region[0].pity=10;assert(save_decode(&out,&current,sizeof(current),0)==SAVE_READ_ERROR);tests++;
 }
-int main(void){assert(assets_init());chain_transactions();chain_odds();supply_distribution();habitat_odds();base_route_rules();migration_v18();printf("\n{\"passed\":true,\"groups\":%u,\"save_version\":%u,\"save_bytes\":%zu,\"sanitized\":true}\n",tests,SAVE_VERSION,sizeof(save_t));return 0;}
+int main(void){assert(assets_init());chain_transactions();chain_capture_confirmation();chain_odds();supply_distribution();habitat_odds();base_route_rules();migration_v18();printf("\n{\"passed\":true,\"groups\":%u,\"save_version\":%u,\"save_bytes\":%zu,\"sanitized\":true}\n",tests,SAVE_VERSION,sizeof(save_t));return 0;}
 '''
 if __name__=='__main__':h.run()
