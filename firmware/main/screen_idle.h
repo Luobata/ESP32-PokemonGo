@@ -7,6 +7,8 @@
 // All calls run with the LVGL lock held. Only the display sleeps: world tasks
 // and their monotonic clock keep running. Busy animations defer the timeout.
 bool screen_idle_init(bool (*busy)(void));
+// State notifications run on the UI task, after a real sleep/wake transition.
+void screen_idle_set_state_callback(void (*changed)(bool off));
 uint32_t screen_idle_timeout_ms(void);
 bool screen_idle_is_off(void);
 void screen_idle_note_activity(void);

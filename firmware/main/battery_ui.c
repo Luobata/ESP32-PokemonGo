@@ -7,21 +7,33 @@
 #include "game_ui.h"
 #include "screen.h"
 #include "screen_idle.h"
+#include "world.h"
 #include <stdio.h>
 
 static lv_timer_t *timer;
 static int percent = -1;
 static int64_t sampled_at;
 static bool sampled;
+static uint32_t playtime_minutes;
+
+void battery_ui_playtime_text(char *out, size_t size)
+{
+    snprintf(out, size, "时长 %lu:%02lu", (unsigned long)(playtime_minutes / 60),
+             (unsigned long)(playtime_minutes % 60));
+}
 
 static bool sample(void)
 {
-    if (screen_idle_is_off() || !display_settings_battery_visible()) return false;
+    if (screen_idle_is_off()) return false;
+    uint32_t minutes = world_playtime_seconds() / 60;
+    bool changed = minutes != playtime_minutes;
+    playtime_minutes = minutes;
+    if (!display_settings_battery_visible()) return changed;
     int64_t now = esp_timer_get_time();
-    if (sampled && now - sampled_at < 10000000) return false;
+    if (sampled && now - sampled_at < 10000000) return changed;
     int value = bsp_battery_soc();
     if (value < 0 || value > 100) value = -1;
-    bool changed = !sampled || value != percent;
+    changed = changed || !sampled || value != percent;
     percent = value;
     sampled_at = now;
     sampled = true;
@@ -60,7 +72,7 @@ static void tick(lv_timer_t *t)
 void battery_ui_start(void)
 {
     sample();
-    if (!timer) timer = lv_timer_create(tick, 10000, NULL);
+    if (!timer) timer = lv_timer_create(tick, 1000, NULL);
 }
 
 void battery_ui_stop(void)

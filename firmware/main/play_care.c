@@ -100,14 +100,14 @@ static void draw_band(int band_y)
     species_t sp;
     bool has_species = assets_species(display_species, &sp);
 
-    snprintf(buf, sizeof(buf), "等级 %u", s_w.level);
+    battery_ui_playtime_text(buf, sizeof(buf));
     game_ui_title(band_y, "照料", buf);
     if (has_species) {
         snprintf(buf, sizeof(buf), "%.*s", sp.name_zh_len, sp.name_zh);
         game_ui_text_fitted(band_y, 12, 40, 144, buf, GAME_UI_INK);
     }
     battery_ui_draw(band_y, 228, 40);
-    snprintf(buf, sizeof(buf), "亲密度 %u", nurture_pct(s_w.pet.intimacy));
+    snprintf(buf, sizeof(buf), "Lv%u 亲密度 %u", s_w.level, nurture_pct(s_w.pet.intimacy));
     render_text(12, Y(60), buf, GAME_UI_MUTED);
 
     uint8_t count = action_count();

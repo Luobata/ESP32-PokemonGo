@@ -257,6 +257,10 @@ achievement_claim_t world_achievement_claim(unsigned id);
 
 #include "exploration.h"
 void world_exploration_snapshot(exploration_view_t *out);
+// Actual screen-on gameplay only; clock origin and offline time are excluded.
+uint32_t world_playtime_seconds(void);
+void world_playtime_set_paused(bool paused);
+
 uint32_t world_exploration_chain(void);
 exploration_kind_t world_exploration_select(uint8_t route);
 exploration_kind_t world_exploration_depth(void);

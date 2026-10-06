@@ -212,6 +212,7 @@ void app_main(void) {
         s_in_game = true;
         if (!world_needs_starter()) nav_start();
         else nav_go(save_opening_seen() ? PAGE_STARTER : PAGE_OPENING);
+        screen_idle_set_state_callback(world_playtime_set_paused);
         if (!screen_idle_init(display_busy))
             ESP_LOGE(TAG, "自动熄屏计时器创建失败");
         bsp_lvgl_unlock();

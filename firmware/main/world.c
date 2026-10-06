@@ -37,6 +37,7 @@
 #include "nvs_flash.h"
 
 #include "bsp_battery.h"
+#include "playtime.h"
 
 #include "assets.h"
 #include "evolution.h"
@@ -121,6 +122,7 @@ static bool s_dirty;
 static enc_refresh_state_t s_refresh;
 static exploration_state_t s_exploration;
 static uint32_t s_exploration_wins;
+static playtime_clock_t s_playtime;
 static exploration_updates_t s_exploration_updates;
 static exploration_regions_t s_regions;
 static rest_clock_t s_rest_clock;
@@ -139,6 +141,23 @@ static void refresh_clock_locked(void)
         s_refresh_clock_us+=seconds*1000000;
         s_dirty=true;
     }
+}
+
+static void playtime_update_locked(void)
+{
+    uint32_t before = s_playtime.seconds;
+    playtime_advance(&s_playtime, esp_timer_get_time());
+    if (s_playtime.seconds != before) s_dirty = true;
+}
+
+uint32_t world_playtime_seconds(void)
+{
+    if (!s_lock) return 0;
+    xSemaphoreTake(s_lock, portMAX_DELAY);
+    playtime_update_locked();
+    uint32_t seconds = s_playtime.seconds;
+    xSemaphoreGive(s_lock);
+    return seconds;
 }
 
 uint8_t world_progress_from_motion(uint32_t motion_q10)
@@ -246,6 +265,8 @@ static void collect_save_locked(save_t *sv)
     sv->refresh = s_refresh;
     sv->exploration = s_exploration;
     sv->exploration_wins = s_exploration_wins;
+    playtime_update_locked();
+    sv->playtime_s = s_playtime.seconds;
     sv->exploration_updates = s_exploration_updates;
     sv->regions=s_regions;
     sv->dungeon = s_dungeon;
@@ -284,6 +305,19 @@ static bool save_now(const char *why)
     }
     xSemaphoreGive(s_save_lock);
     return ok;
+}
+
+void world_playtime_set_paused(bool paused)
+{
+    if (!s_lock) return;
+    xSemaphoreTake(s_lock, portMAX_DELAY);
+    bool stopping = paused && !s_playtime.paused;
+    playtime_update_locked();
+    s_playtime.paused = paused;
+    xSemaphoreGive(s_lock);
+    // Standby checkpoints the clock through the same serialized world save.
+    // Failure retains the in-memory count and dirty flag for the normal retry.
+    if (stopping) save_now("screen_off");
 }
 
 // Keep the durable world, dungeon and settings in one consistent NVS image.
@@ -1263,6 +1297,7 @@ static void world_task(void *arg)
         // 它的 lv_timer 根本不跑。
         if (lock_encounter_change()) {
             refresh_clock_locked();
+            playtime_update_locked();
             // is_night 仍写死 false —— 判夜要墙钟时间，现在只有开机微秒数。
             // 等 S10 日切接上 RTC 一起做。
             if (!s_starter_pending) nurture_tick(&s_w.pet, now, 0, false);
@@ -1400,6 +1435,7 @@ bool world_start(void)
     memset(&s_refresh,0,sizeof(s_refresh));
     exploration_init(&s_exploration);
     s_exploration_wins=0;
+    playtime_init(&s_playtime,0,esp_timer_get_time());
     memset(&s_exploration_updates,0,sizeof(s_exploration_updates));
     memset(&s_regions,0,sizeof(s_regions));
     s_rest_clock=(rest_clock_t){0};s_rest_started_us=esp_timer_get_time();
@@ -1459,6 +1495,7 @@ bool world_start(void)
         s_dungeon=s_save_buf.dungeon;
         s_exploration_updates=s_save_buf.exploration_updates;
         s_exploration_wins=s_save_buf.exploration_wins;
+        playtime_init(&s_playtime,s_save_buf.playtime_s,esp_timer_get_time());
         s_rest_clock=s_save_buf.rest_clock;
         for(unsigned i=0;i<s_queue.count;i++)if(!s_queue.items[i].level){s_queue.items[i].level=battle_wild_level_for_pet(s_queue.items[i].rarity,s_w.level);s_dirty=true;}
         s_refresh_clock_us=esp_timer_get_time();

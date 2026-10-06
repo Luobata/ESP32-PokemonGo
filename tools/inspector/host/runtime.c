@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "lvgl.h"
+#include "esp_timer.h"
 #include "bsp_display.h"
 #include "assets.h"
 #include "exp.h"
@@ -24,6 +25,8 @@
 #include "sound_mixer.h"
 #include "music_director.h"
 #include "world.h"
+#include "playtime.h"
+#include "battery_ui.h"
 #include "dungeon.h"
 
 static uint64_t now_ms;
@@ -49,6 +52,9 @@ static trainer_store_t challenge;
 static achievement_store_t achievements;
 static exploration_state_t exploration;
 static uint32_t exploration_wins;
+static playtime_clock_t playtime;
+uint32_t world_playtime_seconds(void) { playtime_advance(&playtime, esp_timer_get_time()); return playtime.seconds; }
+void world_playtime_set_paused(bool paused) { playtime_pause(&playtime, esp_timer_get_time(), paused); }
 static exploration_updates_t exploration_updates;
 static exploration_regions_t regions;
 static enc_refresh_state_t refresh;
@@ -516,6 +522,7 @@ static void nurture_clock(lv_timer_t *timer){(void)timer;nurture_tick(&world.pet
 static void fixture(unsigned pet, unsigned level, unsigned wild, unsigned rarity,
                     unsigned seed, unsigned shiny, bool new_game, bool full_team)
 {
+    playtime_init(&playtime,0,esp_timer_get_time());
     host_muted=true;host_volume=AUDIO_VOLUME_DEFAULT;host_alert=0;host_notifying=false;
     memset(&achievements,0,sizeof(achievements));
     memset(&regions,0,sizeof(regions));exploration_init(&exploration);exploration_wins=0;memset(&exploration_updates,0,sizeof(exploration_updates));memset(&refresh,0,sizeof(refresh));
@@ -697,6 +704,7 @@ static void state(void)
     const dungeon_t *dr=dungeon_get();printf(",\"dungeon\":{\"phase\":%u,\"node\":%u,\"cards\":%u,\"wins\":%u,\"playing\":%u,\"mode\":%u}",dr->phase,dr->node,dr->cards,dr->wins,dungeon_playing(),play_trainer_mode());
     printf(",\"dungeon_theme\":%u",dr->theme);
     printf(",\"dungeon_team\":[");for(unsigned i=0;i<dr->count;i++){if(i)putchar(',');printf("{\"slot\":%u,\"species\":%u,\"level\":%u,\"shiny\":%u}",dr->slots[i],dr->members[i].species_id,dr->members[i].level,dr->members[i].flags&1);}putchar(']');
+    printf(",\"playtime_s\":%lu",(unsigned long)world_playtime_seconds());
     printf(",\"battery_reads\":%u",battery_reads);
     printf(",\"music\":%u,\"muted\":%s,\"volume\":%u,\"achievement_claimed\":%u,\"evolutions\":%u,\"encounter_alert\":%u}", (unsigned)music_director_current(), host_muted?"true":"false",host_volume,achievements.claimed,achievements.evolutions,host_alert);
     putchar('\n');
@@ -719,6 +727,7 @@ int main(void)
             d >= 1 && d <= 151 && e >= 1 && e <= 5 && g <= 1 && names < POKEMON_NAMES_STYLE_COUNT && team <= 1) {
             pokemon_names_set_style((pokemon_name_style_t)names);
             fixture(b, c, d, e, f, g, a == 0 || a == 9, team != 0); nav_go(page_ids[a]); booted = true;
+            screen_idle_set_state_callback(world_playtime_set_paused);
             if (!screen_idle_init(nav_screen_busy)) return 2;
         } else if(booted&&!strcmp(cmd,"rogue_setup")){
             if(!rogue_setup(line))return 2;
@@ -737,6 +746,10 @@ int main(void)
             if(b)for(unsigned i=0;i<8;i++){regions.region[i].claimed=regions.region[i].traced=1;regions.region[i].clears=1;}
             if(exploration_map_open(a,challenge.defeated,&regions)){regions.selected=a;if(a<4)exploration.route=a;if(nav_current()==PAGE_DUNGEON)play_dungeon_open_region(a);}
             if(nav_current()==PAGE_EXPLORATION)nav_go(PAGE_EXPLORATION);
+        } else if (booted && !strcmp(cmd,"playtime_fixture") && sscanf(line,"%*s %u",&a)==1) {
+            playtime_init(&playtime,a,esp_timer_get_time());playtime.paused=screen_idle_is_off();
+            if(nav_current()==PAGE_MENU||nav_current()==PAGE_CARE)battery_ui_start();
+            host_redraw();
         } else if (booted && !strcmp(cmd,"chain_fixture") && sscanf(line,"%*s %u",&a)==1) {
             exploration_wins=a;host_redraw();
         } else if (booted && !strcmp(cmd, "exploration_fixture") && sscanf(line,"%*s %u %u %u %u",&a,&b,&c,&d)==4 && a<4 && b<=24 && c<=3 && d<=1) {

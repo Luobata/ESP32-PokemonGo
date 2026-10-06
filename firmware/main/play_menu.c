@@ -181,7 +181,8 @@ static void draw_wifi(int band_y)
 static void draw_main(int band_y)
 {
     char name[48], text[48];
-    game_ui_title(band_y, "菜单", "长按B返回");
+    battery_ui_playtime_text(text, sizeof(text));
+    game_ui_title(band_y, "菜单", text);
     species_t species;
     bool found = assets_species(s_world.species, &species);
     if (found) snprintf(name, sizeof(name), "%.*s", species.name_zh_len, species.name_zh);

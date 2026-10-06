@@ -44,7 +44,7 @@
 
 // 存档版本。**加字段时必须 +1** —— load 会拒绝不认识的版本，
 // 那比读到错位的字段好（错位不报错，只是数值离谱）。
-#define SAVE_VERSION 19 // Persistent exploration chain; V5-V18 migrate with zero wins.
+#define SAVE_VERSION 20 // Screen-on game seconds; V5-V19 migrate with zero playtime.
 #define SAVE_LEGACY_VERSION 5
 
 typedef struct {
@@ -407,7 +407,61 @@ typedef struct {
   };
  };
  uint32_t exploration_wins; // Only exploration wild victories; defeat resets.
+} save_v19_t;
+typedef struct {
+ union {
+  save_v19_t v19;
+  struct {
+ union {
+  save_v18_t v18;
+  struct {
+ union {
+  save_v14_t v14;
+  struct {
+ union {
+  save_v10_t v10;
+  struct {
+ union {
+  save_v9_t v9;
+  struct {
+ union {
+  save_v6_t v6;
+  struct {
+   uint16_t version; nurture_t pet; uint16_t species; uint8_t level; uint32_t exp;
+   uint8_t party[PARTY_BYTES]; enc_queue_t queue; dex_t dex; uint32_t motion_q10,scans;
+   int64_t last_uptime_us; bool opening_seen;
+   uint8_t legacy_padding[sizeof(save_v5_t)-offsetof(save_v5_t,opening_seen)-sizeof(bool)];
+   inventory_t inventory;
+  };
+ };
+ trainer_store_t challenge;
+ achievement_store_t achievements;
+
+  };
+ };
+ enc_refresh_state_t refresh;
+
+  };
+ };
+ exploration_state_t exploration;
+
+  };
+ };
+ dungeon_progress_t dungeon;
+ uint8_t v15_padding[sizeof(save_v15_t)-offsetof(save_v15_t,dungeon)-sizeof(dungeon_progress_t)];
+ exploration_updates_t exploration_updates;
+ rest_clock_t rest_clock;
+ exploration_regions_t regions;
+  };
+ };
+ uint32_t exploration_wins; // Only exploration wild victories; defeat resets.
+  };
+ };
+ uint32_t playtime_s; // Cumulative visible game time; no offline/screen-off time.
 } save_t;
+_Static_assert(sizeof(save_v19_t)==4016,"Freeze V19 world layout");
+_Static_assert(offsetof(save_t,playtime_s)==sizeof(save_v19_t),"V20 preserves all V19 bytes including tail padding");
+
 _Static_assert(sizeof(save_v18_t)==4008,"Freeze V18 world layout");
 _Static_assert(offsetof(save_t,exploration_wins)==sizeof(save_v18_t),"V19 preserves all V18 bytes including tail padding");
 _Static_assert(sizeof(save_v17_t)==3816,"Freeze V17 world layout");

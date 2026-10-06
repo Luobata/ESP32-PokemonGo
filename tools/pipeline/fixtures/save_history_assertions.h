@@ -69,5 +69,6 @@ static void history_assert(const save_t *s, unsigned version) {
         assert(s->regions.dungeon_pity==3&&s->regions.expedition_clears==1);
         assert(s->regions.pending_items.quantity[ITEM_WATER_STONE]==1&&s->regions.pending_partner.species_id==131&&s->regions.pending_partner.is_shiny&&s->regions.pending_partner.level==42);
     }
+    assert(s->playtime_s==(version<20 ? 0u : 452967u));
     assert(s->exploration_wins==(version<19 ? 0u : 73u));
 }

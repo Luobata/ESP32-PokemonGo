@@ -14,6 +14,15 @@ static lv_timer_t *s_timer;
 static bool (*s_busy)(void);
 static int64_t s_last_activity;
 static atomic_bool s_off;
+static void (*s_state_changed)(bool off);
+
+void screen_idle_set_state_callback(void (*changed)(bool off)) { s_state_changed = changed; }
+
+static void set_off(bool off)
+{
+    bool changed = atomic_exchange(&s_off, off) != off;
+    if (changed && s_state_changed) s_state_changed(off);
+}
 static uint8_t s_pressed, s_wake_gesture;
 static atomic_uint s_cleanup;
 
@@ -43,11 +52,11 @@ void screen_idle_request_off(void)
     if (bsp_display_sleep(true) != ESP_OK) {
         // A partial DISPOFF must be undone before returning to the active page.
         if (bsp_display_sleep(false) == ESP_OK) bsp_display_backlight(display_settings_brightness());
-        else {s_off = true;sfx_notify_state();} // Allow the next key to retry a failed wake.
+        else {set_off(true);sfx_notify_state();} // Allow the next key to retry a failed wake.
         ESP_LOGE("screen_idle", "panel sleep failed");
         return;
     }
-    s_off = true;
+    set_off(true);
     sfx_notify_state();
     ESP_LOGI("screen_idle", "@@DISPLAY off timeout_ms=%u", IDLE_MS);
 }
@@ -58,7 +67,7 @@ static void wake(void)
         ESP_LOGE("screen_idle", "panel wake failed; keeping backlight off");
         return;
     }
-    s_off = false;
+    set_off(false);
     sfx_notify_state();
     // Repaint while the backlight is still dark, then reveal the current page.
     screen_redraw_current();
@@ -87,6 +96,7 @@ bool screen_idle_init(bool (*busy)(void))
     atomic_store(&s_cleanup, 0);
     screen_idle_note_activity();
     s_timer = lv_timer_create(tick, 100, NULL);
+    if (s_timer && s_state_changed) s_state_changed(false);
     return s_timer != NULL;
 }
 
