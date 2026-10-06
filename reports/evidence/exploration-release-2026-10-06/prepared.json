@@ -1,0 +1,58 @@
+{
+  "project_id": 234,
+  "source_commit": "b4ee936992c60bc90bd934693be6f92f0b65a913",
+  "prior_public_revision": 2017,
+  "merged_withdrawn_draft": 2070,
+  "fields_verified": true,
+  "images": [
+    {
+      "path": "reports/evidence/exploration-release-2026-10-06/ui/battle.png",
+      "size": 4317,
+      "sha256": "8892823dc84abfe5c53f9c448717bca26f7c74291fa79ebcf814f8466b124d2d",
+      "width": 240,
+      "height": 320,
+      "aspectRatio": "3:4",
+      "visually_inspected": true
+    },
+    {
+      "path": "reports/evidence/exploration-release-2026-10-06/ui/visitors-1.png",
+      "size": 5541,
+      "sha256": "7447218ac999b8216eaa7abc62cfb42a20489cfb86d5c8219f377f878a3725e8",
+      "width": 240,
+      "height": 320,
+      "aspectRatio": "3:4",
+      "visually_inspected": true
+    },
+    {
+      "path": "reports/evidence/exploration-release-2026-10-06/ui/care-bonuses.png",
+      "size": 5114,
+      "sha256": "8d0d449afe351bd8df3c03db650089d22b2d3d2fe337c93cd94079b0ac9b7e27",
+      "width": 240,
+      "height": 320,
+      "aspectRatio": "3:4",
+      "visually_inspected": true
+    },
+    {
+      "path": "reports/evidence/community-media-2026-09-13/reselection/04-red-challenge.png",
+      "size": 3246,
+      "sha256": "633c06ba98b0eddfabf7694caa298f7c1fb79d6da6b76bbc4d5385f2b79d6fda",
+      "width": 240,
+      "height": 320,
+      "aspectRatio": "3:4",
+      "visually_inspected": true
+    },
+    {
+      "path": "reports/evidence/gen1-regions-2026-10-05/theme-clear.png",
+      "size": 4037,
+      "sha256": "97725d764bdc8b6dae2c9b1fefceb0bc50ac5ab2fe81ecbc4030a51426ad204a",
+      "width": 240,
+      "height": 320,
+      "aspectRatio": "3:4",
+      "visually_inspected": true
+    }
+  ],
+  "firmware_sha256": "14ab4de700228fc5984efacccd876cd9caac7197c44816a80e996193af5098b3",
+  "tags": "preserve existing; multiplayer and family do not apply",
+  "new_data_schema": "V20; imports V5-V20",
+  "physical_device_restore_test": false
+}

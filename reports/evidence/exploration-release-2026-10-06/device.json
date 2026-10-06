@@ -1,0 +1,30 @@
+{
+  "source_commit": "b4ee936992c60bc90bd934693be6f92f0b65a913",
+  "project_version": "v2026.10.05-expansion-22-gb4ee936",
+  "application_sha256": "53708aa98e74f2c987b6f673362b1aee6c8aefd547a90b2947598905e3801233",
+  "application_size": 3171952,
+  "supported_save_versions": "V5-V20",
+  "save_version": 20,
+  "dungeon_version": 4,
+  "build_exit_code": 0,
+  "backup_readback_verified": true,
+  "protected_data_unchanged_before_boot": true,
+  "boot_progress_preserved": true,
+  "muted": true,
+  "world": {
+    "pet": 3,
+    "level": 38,
+    "exp": 86360
+  },
+  "dex_caught": 98,
+  "party_count": 6,
+  "total_partners": 91,
+  "dungeon": {
+    "phase": 6,
+    "node": 4,
+    "count": 3,
+    "run": 1
+  },
+  "physical_device_restore_test": false,
+  "panic": false
+}

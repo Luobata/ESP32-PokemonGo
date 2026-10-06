@@ -1,0 +1,21 @@
+{
+  "id": 234,
+  "slug": "pokewalk",
+  "revisionId": 2139,
+  "status": "pending",
+  "projectStatus": "published",
+  "firmwareSize": 3237488,
+  "firmwareSha256": "14ab4de700228fc5984efacccd876cd9caac7197c44816a80e996193af5098b3",
+  "githubUrl": "https://github.com/Luobata/ESP32-PokemonGo",
+  "category": "games",
+  "allowRemix": true,
+  "source_commit": "b4ee936992c60bc90bd934693be6f92f0b65a913",
+  "bilingual_fields_match": true,
+  "public_revision": 2017,
+  "submitted_image_count": 5,
+  "pending_gallery_verified": false,
+  "withdrawn_draft_2070_deleted_with_user_authorization": true,
+  "pending_gallery_count_browser_verified": 5,
+  "previous_video_retained_browser_verified": true,
+  "cover_browser_visually_verified": true
+}

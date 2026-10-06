@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "firmware": {
+    "path": "/Users/bytedance/luobata/ESP32-PokemonGo/release/community/FoloToy-AI-Passport-full.bin",
+    "size": 3237488,
+    "sha256": "14ab4de700228fc5984efacccd876cd9caac7197c44816a80e996193af5098b3",
+    "segments": 3
+  },
+  "cover": {
+    "path": "/Users/bytedance/luobata/ESP32-PokemonGo/reports/evidence/exploration-release-2026-10-06/ui/battle.png",
+    "size": 4317,
+    "sha256": "8892823dc84abfe5c53f9c448717bca26f7c74291fa79ebcf814f8466b124d2d",
+    "width": 240,
+    "height": 320,
+    "aspectRatio": "3:4"
+  },
+  "screenCapture": null
+}

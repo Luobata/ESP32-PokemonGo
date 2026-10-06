@@ -1,0 +1,10 @@
+{
+  "source_commit": "b4ee936992c60bc90bd934693be6f92f0b65a913",
+  "project_version": "v2026.10.05-expansion-22-gb4ee936",
+  "application_sha256": "53708aa98e74f2c987b6f673362b1aee6c8aefd547a90b2947598905e3801233",
+  "application_size": 3171952,
+  "supported_save_versions": "V5-V20",
+  "save_version": 20,
+  "dungeon_version": 4,
+  "build_exit_code": 0
+}

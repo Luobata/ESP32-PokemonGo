@@ -1,0 +1,169 @@
+[
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_usb_backup.py"
+    ],
+    "exit_code": 0,
+    "seconds": 2.94,
+    "log": "verify_usb_backup.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_usb_import.py"
+    ],
+    "exit_code": 0,
+    "seconds": 3.4,
+    "log": "verify_usb_import.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_save_import_compatibility.py"
+    ],
+    "exit_code": 0,
+    "seconds": 5.0,
+    "log": "verify_save_import_compatibility.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_usb_import_device.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.72,
+    "log": "verify_usb_import_device.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_usb_backup_checkpoint.py"
+    ],
+    "exit_code": 0,
+    "seconds": 4.06,
+    "log": "verify_usb_backup_checkpoint.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_save_manager_distribution.py"
+    ],
+    "exit_code": 0,
+    "seconds": 2.04,
+    "log": "verify_save_manager_distribution.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_firmware_update.py"
+    ],
+    "exit_code": 0,
+    "seconds": 1.12,
+    "log": "verify_firmware_update.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_nvs_restore_roundtrip.py"
+    ],
+    "exit_code": 0,
+    "seconds": 10.44,
+    "log": "verify_nvs_restore_roundtrip.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_region_expansion.py"
+    ],
+    "exit_code": 0,
+    "seconds": 6.11,
+    "log": "verify_region_expansion.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_exploration_events.py"
+    ],
+    "exit_code": 0,
+    "seconds": 3.88,
+    "log": "verify_exploration_events.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_exploration_balance.py"
+    ],
+    "exit_code": 0,
+    "seconds": 7.07,
+    "log": "verify_exploration_balance.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_playtime.py"
+    ],
+    "exit_code": 0,
+    "seconds": 3.27,
+    "log": "verify_playtime.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_nurture.py"
+    ],
+    "exit_code": 0,
+    "seconds": 0.75,
+    "log": "verify_nurture.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_species_obtainability.py"
+    ],
+    "exit_code": 0,
+    "seconds": 3.32,
+    "log": "verify_species_obtainability.log"
+  },
+  {
+    "command": [
+      "node",
+      "tools/pipeline/verify_save_import_web.mjs"
+    ],
+    "exit_code": 0,
+    "seconds": 0.11,
+    "log": "verify_save_import_web.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_dungeon_stack.py"
+    ],
+    "exit_code": 0,
+    "log": "verify_dungeon_stack.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/pipeline/verify_release_partition_protection.py"
+    ],
+    "exit_code": 0,
+    "log": "verify_release_partition_protection.log"
+  },
+  {
+    "command": [
+      "tools/device/fw.sh",
+      "build"
+    ],
+    "exit_code": 0,
+    "log": "build.log"
+  },
+  {
+    "command": [
+      "python3",
+      "tools/release/package_firmware.py"
+    ],
+    "exit_code": 0,
+    "log": "package.log"
+  }
+]
