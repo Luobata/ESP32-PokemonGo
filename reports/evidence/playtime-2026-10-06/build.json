@@ -9,7 +9,9 @@
   "save_version": 20,
   "save_bytes": 4024,
   "supported_save_versions": "V5-V20",
-  "physical_device_flashed": false,
+  "physical_device_flashed": true,
   "physical_device_restore_test": false,
-  "ci": "not run: branch not pushed"
+  "ci": "not run: branch not pushed",
+  "physical_device_boot_preserved_progress": true,
+  "device_evidence": "device-flash.json"
 }

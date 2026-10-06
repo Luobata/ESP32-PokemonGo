@@ -1,0 +1,37 @@
+{
+  "app_version": "v2026.10.05-regions-14-ga56af03",
+  "source_commit": "a56af03a5b7fc48a66249afc8d4077effc606751",
+  "app_sha256": "230f6b521b153773f3d603f3a933d069b160a74ae86086242b4793c3e86b0dbf",
+  "app_only_update": true,
+  "backup_readback_verified": true,
+  "protected_data_unchanged_before_boot": true,
+  "boot_progress_preserved": true,
+  "world": {
+    "pet": 3,
+    "level": 36,
+    "exp": 73334
+  },
+  "dex_caught": 96,
+  "party_count": 6,
+  "total_partners": 89,
+  "dungeon": {
+    "phase": 6,
+    "node": 4,
+    "count": 3,
+    "run": 1
+  },
+  "muted": true,
+  "physical_device_restore_test": false,
+  "minute_and_reboot_screenshots": [
+    "device-menu-start.png",
+    "device-menu-after-minute.png",
+    "device-care-after-minute.png",
+    "device-menu-after-reboot.png"
+  ],
+  "playtime_initial_display": "0:00",
+  "playtime_after_minute_display": "0:01",
+  "playtime_care_display": "0:01",
+  "playtime_after_reboot_display": "0:01",
+  "playtime_screenshots_visually_verified": true,
+  "physical_sleep_pause_test": false
+}
