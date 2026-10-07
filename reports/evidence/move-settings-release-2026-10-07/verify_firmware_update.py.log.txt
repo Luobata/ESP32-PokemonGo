@@ -1,0 +1,4 @@
+更新前的原始数据已备份并回读校验： /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmpddopfvbc/backup/PokeWalk-before-update-001122334455-789885403c6b45528b29d7894c52e926
+更新前的原始数据已备份并回读校验： /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmp1cpw6von/backup/PokeWalk-before-update-001122334455-025f6e3f5ea64d4f96aba71730e43d93
+更新前的原始数据已备份并回读校验： /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmpxyhobcyd/backup/PokeWalk-before-update-001122334455-24986b833606428497a22bcb1e3cb588
+app-only update, pre-write backup, protected data, unsafe inputs and interrupted update: passed

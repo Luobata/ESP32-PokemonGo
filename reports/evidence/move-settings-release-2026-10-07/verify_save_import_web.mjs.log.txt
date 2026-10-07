@@ -1,0 +1,3 @@
+web cross-build prebackup ACK, current metadata, wrong-device/write/permission/readback rejection: passed
+production web receipt correlation, stale receipts, mismatch, rollback, load failure and reload: passed
+production read loop preserves mismatched-restore error across disconnect: passed

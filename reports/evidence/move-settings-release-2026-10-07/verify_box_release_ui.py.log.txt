@@ -1,0 +1,1 @@
+{"passed": true, "band_checks": 69, "cancel_default_and_long_b": true, "save_failure_retry": true, "party_preserved": true, "shiny_warning": true, "level_ascending": true, "empty_warehouse": true}

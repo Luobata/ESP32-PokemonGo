@@ -1,0 +1,30 @@
+{
+  "artifact": "FoloToy-AI-Passport-full.bin",
+  "size": 3250112,
+  "sha256": "a0d0f37b1fe1e423effbb828850700ed4b03284684fd57f0d724017e563bbfa9",
+  "flash_address": "0x0",
+  "protected_layout_pass": true,
+  "checker_source": "FoloToy/ai-passport@cd73a8a6f1f95e010bfd83a08e2b915e38408308 + PokeWalk data protection",
+  "application_size": 3184576,
+  "full_install_preserves_nvs": false,
+  "full_install_warning": "Full image padding overwrites NVS; back up before installation and import afterwards.",
+  "community_upload_performed": false,
+  "ble_install_tested": false,
+  "usb_update": {
+    "artifact": "PokeWalk-update.zip",
+    "sha256": "1722b200ae808c7690c7c49ec16afbba54027dfe0e5a76734bd9e35aec330b82",
+    "writes": [
+      {
+        "address": 65536,
+        "size": 3184576
+      }
+    ],
+    "requires_existing_matching_partition_table": true
+  },
+  "source_commit": "4b614e7c8c90529f261fc9ca729774807b6f29e3",
+  "app_sha256": "c1fb6b84a8024fc6560c5c0c2cdeaa6d8b7c877c9d44d255eb021f22c8673636",
+  "publish_build_pass": true,
+  "publish_build_code_identical_to_tested_source": true,
+  "publish_build_app_sha256": "af58537810de101f51dc1714e1855c1eb86458989b116b422571be5495ac32ed",
+  "released_app_is_exact_hardware_tested_binary": true
+}
