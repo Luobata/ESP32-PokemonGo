@@ -3,9 +3,11 @@
 #include "assets.h"
 #include "exp.h"
 #include <string.h>
-#ifndef HOST_BUILD
+#if !defined(HOST_BUILD) || defined(DUNGEON_REAL_NVS_TEST)
 #include "nvs.h"
 #include "esp_log.h"
+#endif
+#ifndef HOST_BUILD
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #define TRACE_STAGE(stage) ESP_LOGI("dungeon","stage=%s phase=%u node=%u run=%lu stack_free=%u",stage,run.phase,run.node,(unsigned long)run.run_id,(unsigned)uxTaskGetStackHighWaterMark(NULL))
@@ -41,11 +43,30 @@ static bool valid(const dungeon_t *d){
  }
  return trainer_store_valid(&d->battle)&&d->battle.session.sides[0].count==d->count;
 }
+#if !defined(HOST_BUILD) || defined(DUNGEON_REAL_NVS_TEST)
+// Only remove formats older than a validated, successfully stored run. Never
+// erase the retained key first: power loss must still leave a readable run.
+static void prune_legacy_runs(unsigned retained_version)
+{
+ nvs_handle_t h;
+ if(nvs_open("pw_dungeon",NVS_READWRITE,&h)!=ESP_OK)return;
+ static const char *const keys[]={"run_v1","run_v2","run_v3"};
+ bool changed=false;
+ for(unsigned i=0;i<3&&i+1<retained_version;i++){
+  esp_err_t e=nvs_erase_key(h,keys[i]);
+  if(e==ESP_OK)changed=true;
+  else if(e!=ESP_ERR_NVS_NOT_FOUND)ESP_LOGW("dungeon","Legacy run cleanup deferred: %s",esp_err_to_name(e));
+ }
+ if(changed&&nvs_commit(h)!=ESP_OK)ESP_LOGW("dungeon","Legacy run cleanup commit deferred");
+ nvs_close(h);
+}
+#endif
 static bool commit(const dungeon_t *d){
  if(storage_error||!valid(d))return false;
-#ifndef HOST_BUILD
+#if !defined(HOST_BUILD) || defined(DUNGEON_REAL_NVS_TEST)
  nvs_handle_t h;if(nvs_open("pw_dungeon",NVS_READWRITE,&h)!=ESP_OK)return false;
  esp_err_t e=nvs_set_blob(h,"run_v4",d,sizeof(*d));if(e==ESP_OK)e=nvs_commit(h);nvs_close(h);if(e!=ESP_OK)return false;
+ prune_legacy_runs(DUNGEON_VERSION);
 #else
  if(!dungeon_host_commit(d,sizeof(*d)))return false;
 #endif
@@ -54,22 +75,24 @@ static bool commit(const dungeon_t *d){
 void dungeon_load(void){
  if(loaded)return;
  loaded=true;storage_error=false;memset(&run,0,sizeof(run));run.version=DUNGEON_VERSION;
-#ifndef HOST_BUILD
+#if !defined(HOST_BUILD) || defined(DUNGEON_REAL_NVS_TEST)
  nvs_handle_t h;dungeon_t *saved=&candidate;size_t len=sizeof(*saved);
  if(nvs_open("pw_dungeon",NVS_READONLY,&h)==ESP_OK){
+  unsigned retained_version=4;bool retained_valid=false;
   esp_err_t e=nvs_get_blob(h,"run_v4",saved,&len);
-  if(e==ESP_ERR_NVS_NOT_FOUND){memset(saved,0,sizeof(*saved));len=sizeof(dungeon_v3_t);e=nvs_get_blob(h,"run_v3",saved,&len);if(e==ESP_OK&&len==sizeof(dungeon_v3_t)&&saved->version==3){saved->version=4;len=sizeof(*saved);}}
-  if(e==ESP_OK&&len==sizeof(*saved)&&valid(saved))run=*saved;
+  if(e==ESP_ERR_NVS_NOT_FOUND){retained_version=3;memset(saved,0,sizeof(*saved));len=sizeof(dungeon_v3_t);e=nvs_get_blob(h,"run_v3",saved,&len);if(e==ESP_OK&&len==sizeof(dungeon_v3_t)&&saved->version==3){saved->version=4;len=sizeof(*saved);}}
+  if(e==ESP_OK&&len==sizeof(*saved)&&valid(saved)){run=*saved;retained_valid=true;}
   // Legacy rental runs cannot be attached to owned individuals. Keep their
   // history; real inventory/EXP already credited remain in the world save.
   else if(e==ESP_ERR_NVS_NOT_FOUND){
-   memset(saved,0,sizeof(*saved));len=sizeof(dungeon_v2_t);
+   retained_version=2;memset(saved,0,sizeof(*saved));len=sizeof(dungeon_v2_t);
    e=nvs_get_blob(h,"run_v2",saved,&len);
-   if(e==ESP_OK&&len==sizeof(dungeon_v2_t)&&saved->version==2&&!saved->pending){saved->version=DUNGEON_VERSION;saved->phase=DUNGEON_LOST;if(valid(saved))run=*saved;else storage_error=true;}
+   if(e==ESP_OK&&len==sizeof(dungeon_v2_t)&&saved->version==2&&!saved->pending){saved->version=DUNGEON_VERSION;saved->phase=DUNGEON_LOST;if(valid(saved)){run=*saved;retained_valid=true;}else storage_error=true;}
    else if(e!=ESP_ERR_NVS_NOT_FOUND)storage_error=true;
   }
   else storage_error=true;
   nvs_close(h);
+  if(retained_valid)prune_legacy_runs(retained_version);
  }
 #else
  dungeon_t *saved=&candidate;

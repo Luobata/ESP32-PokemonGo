@@ -63,7 +63,7 @@ headers.update({
  'esp_system.h':'void esp_restart(void);\n',
 })
 
-def run(idf):
+def run(idf, private_nvs=None, prune_legacy=False):
  idf=Path(idf)/'components';nvs=idf/'nvs_flash'
  if not (nvs/'src/nvs_api.cpp').is_file():raise SystemExit('Set IDF_PATH or --idf-path to ESP-IDF v5.5.3; test was not run')
  with tempfile.TemporaryDirectory(prefix='pokewalk-real-nvs-') as d:
@@ -72,7 +72,7 @@ def run(idf):
   for name,content in headers.items():
    p=t/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(content)
   incs=[t,nvs/'include',nvs/'private_include',nvs/'src',idf/'esp_common/include',idf/'esp_rom/include',ROOT/'firmware/main',ROOT/'firmware/components/bsp/include']
-  flags=['-DLINUX_TARGET=1','-DESP_PLATFORM','-DHOST_BUILD','-O1','-g','-fsanitize=address,undefined','-ffunction-sections','-fdata-sections']+[x for i in incs for x in ['-I',str(i)]]
+  flags=['-DLINUX_TARGET=1','-DESP_PLATFORM','-DHOST_BUILD','-DDUNGEON_REAL_NVS_TEST','-O1','-g','-fsanitize=address,undefined','-ffunction-sections','-fdata-sections']+[x for i in incs for x in ['-I',str(i)]]
   sources=['nvs_api','nvs_item_hash_list','nvs_page','nvs_pagemanager','nvs_storage','nvs_handle_simple','nvs_handle_locked','nvs_partition','nvs_partition_lookup','nvs_partition_manager','nvs_types','nvs_platform']
   game=['save','restore_journal','party','encounter','exploration','nurture','exp','items','evolution','trainer','combat','battle','assets','pokemon_names','dungeon','dungeon_rewards']
   for name in sources:
@@ -86,8 +86,11 @@ def run(idf):
   (t/'assets.S').write_text('\n'.join(asm)+'\n')
   subprocess.run(['cc','-c',str(t/'assets.S'),'-o',str(t/'asset_data.o')],check=True)
   subprocess.run(['c++','-fsanitize=address,undefined',*[str(t/f'{n}.o') for n in sources+game+['driver','asset_data']],'-lz','-Wl,-dead_strip' if sys.platform=='darwin' else '-Wl,--gc-sections','-o',str(t/'test')],check=True)
-  subprocess.run([str(t/'test')],check=True)
+  subprocess.run([str(t/'test')]+([str(private_nvs)]+(["prune"] if prune_legacy else []) if private_nvs else []),check=True)
+  if not private_nvs:
+   for mode in range(8):subprocess.run([str(t/'test'),"--dungeon-cleanup",str(mode)],check=True)
 
 if __name__=='__main__':
  parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--idf-path',default=os.environ.get('IDF_PATH',str(Path.home()/'esp/esp-idf')))
- run(parser.parse_args().idf_path)
+ parser.add_argument("--private-nvs",type=Path);parser.add_argument("--prune-legacy",action="store_true")
+ args=parser.parse_args();run(args.idf_path,args.private_nvs,args.prune_legacy)

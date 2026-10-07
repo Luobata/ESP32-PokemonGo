@@ -19,6 +19,7 @@
 #include "sensing.h"
 #include "nurture.h"
 #include "world.h"
+#include "dungeon.h"
 #include "encounter.h"
 #include "nav.h"
 #include "save.h"
@@ -182,6 +183,7 @@ void app_main(void) {
     // 页面进来就要 world_snapshot()，而且 world 是 WiFi 的唯一所有者
     // （Collect 页原本自己 bring_up，两个所有者会争同一个射频）。
     bool world_ok = world_start();
+    if (world_ok && !world_needs_starter()) dungeon_load(); // Retire superseded run keys after validation.
     display_settings_init();
     bsp_display_backlight(display_settings_brightness());
 
