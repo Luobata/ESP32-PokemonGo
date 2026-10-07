@@ -5,6 +5,33 @@ h.CASES=h.CASES[:h.CASES.index('static void seed_team')]+r'''
 static unsigned reads;
 static bool reader(void *out){reads++;assert(disk_len==sizeof(save_t));memcpy(out,disk,disk_len);return true;}
 static bool failed_reader(void *out){(void)out;reads++;return false;}
+typedef struct {save_t blob;size_t length;bool fail;} import_t;
+static bool import_reader(void *context,void *out,size_t *size,uint8_t *opening){
+ import_t *candidate=context;assert(*size==sizeof(save_t));assert(s_save_lock);
+ memcpy(out,&candidate->blob,sizeof(candidate->blob));*size=candidate->length;*opening=1;
+ return !candidate->fail;
+}
+static void validate_without_adopting(const save_t *saved){
+ import_t candidate={.blob=*saved,.length=sizeof(save_t)};
+ candidate.blob.pet.stamina=80*NURT_Q;candidate.blob.inventory.quantity[ITEM_BERRY]=20;candidate.blob.exploration_wins=1000;
+ world_t w=s_w;party_t party=s_party;inventory_t inventory=s_inventory;dex_t dex=s_dex;enc_queue_t queue=s_queue;
+ uint8_t original[sizeof(disk)];memcpy(original,disk,sizeof(disk));
+ unsigned old_commits=commits;bool dirty=s_dirty;int64_t last_save=s_last_save_us;
+ assert(world_backup_validate(import_reader,&candidate,SAVE_VERSION));
+ assert(!world_backup_validate(import_reader,&candidate,SAVE_VERSION-1));
+ candidate.length=1;assert(!world_backup_validate(import_reader,&candidate,SAVE_VERSION));
+ candidate.length=sizeof(save_t)+1;assert(!world_backup_validate(import_reader,&candidate,SAVE_VERSION));
+ candidate.length=sizeof(save_t);candidate.fail=true;assert(!world_backup_validate(import_reader,&candidate,SAVE_VERSION));
+ candidate.fail=false;candidate.blob.version=SAVE_VERSION+1;assert(!world_backup_validate(import_reader,&candidate,SAVE_VERSION+1));
+ candidate.blob.version=SAVE_VERSION;candidate.blob.party[0]=PARTY_MAX+1;assert(!world_backup_validate(import_reader,&candidate,SAVE_VERSION));
+ assert(!world_backup_validate(NULL,&candidate,SAVE_VERSION));
+ assert(!memcmp(&w,&s_w,sizeof(w))&&!memcmp(&party,&s_party,sizeof(party)));
+ assert(!memcmp(&inventory,&s_inventory,sizeof(inventory))&&!memcmp(&dex,&s_dex,sizeof(dex))&&!memcmp(&queue,&s_queue,sizeof(queue)));
+ assert(!memcmp(original,disk,sizeof(disk))&&commits==old_commits&&s_dirty==dirty&&s_last_save_us==last_save);
+ // The next real checkpoint recollects live state, never the imported scratch.
+ save_t next;assert(world_backup_snapshot(reader,&next));
+ assert(next.pet.stamina==saved->pet.stamina&&next.inventory.quantity[ITEM_BERRY]==saved->inventory.quantity[ITEM_BERRY]&&next.exploration_wins==saved->exploration_wins);
+}
 int main(void){
  fresh();assert(world_choose_starter(25)==WORLD_STARTER_OK);
  s_w.pet.stamina=37*NURT_Q;s_inventory.quantity[ITEM_BERRY]=7;s_exploration_wins=83;s_dirty=true;
@@ -16,8 +43,9 @@ int main(void){
  assert(world_backup_snapshot(reader,&copy)&&copy.pet.stamina==12*NURT_Q&&copy.exploration_wins==84);
  assert(!world_backup_snapshot(failed_reader,&copy));
  assert(!world_backup_snapshot(NULL,&copy)&&!world_backup_snapshot(reader,NULL));
+ validate_without_adopting(&copy);
  s_storage_ready=false;assert(!world_backup_snapshot(reader,&copy));
- puts("{\"passed\":true,\"checkpoint\":\"live state, failed save blocks export, retry, read failure, unavailable storage\"}");return 0;
+ puts("{\"passed\":true,\"checkpoint\":\"live state, failed save blocks export, retry, read failure, unavailable storage; borrowed import workspace never adopts progress or writes NVS\"}");return 0;
 }
 '''
 if __name__=='__main__':

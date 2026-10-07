@@ -16,7 +16,18 @@ export class Receiver {
     if(!line.startsWith('!PWBACKUP ')) return null;
     const p=line.trim().split(/\s+/);
     if(p[1]==='READY') return p.length===4&&p[2]===this.session?{ready:p[3]}:null;
-    if(p[1]==='ERROR')throw Error(({TIMEOUT:'操作超时，当前存档未覆盖，请重新连接',SNAPSHOT:'当前存档备份失败，未开始导入',OPEN_IMPORT:'请先在设备打开「选项 → 导入存档」',BUSY:'设备正在进行另一项操作',INCOMPATIBLE:'备份不属于此设备或存档版本不兼容；请更新设备固件',MEMORY:'设备内存不足，请稍后重试',CHECKSUM:'导入校验失败，原存档未替换',STAGE:'存档内容不兼容或暂存失败，原存档未替换',SEQUENCE:'导入数据顺序错误'})[p[2]]||'设备拒绝导入');
+    if(p[1]==='ERROR'){
+      if(p[2]==='STAGE'){
+        const reasons={LAYOUT:'设备分区布局不支持导入',FLASH:'存档暂存区写入失败',
+          NVS:'暂存存档无法挂载或关闭',MEMORY:'设备可用内存不足，请重启设备后重试',
+          READ:'无法读取备份中的游戏存档',VERSION:'备份声明版本与实际存档版本不一致',
+          CONTENT:'存档数据校验未通过，请保留原备份',CHECKPOINT:'设备当前进度保存失败',
+          JOURNAL:'导入恢复日志写入或校验失败'};
+        const detail=Object.hasOwn(reasons,p[3])?reasons[p[3]]:null;
+        throw Error(detail?`${detail}（STAGE ${p[3]}），原存档未替换`:'存档内容不兼容或暂存失败，原存档未替换');
+      }
+      throw Error(({TIMEOUT:'操作超时，当前存档未覆盖，请重新连接',SNAPSHOT:'当前存档备份失败，未开始导入',OPEN_IMPORT:'请先在设备打开「选项 → 导入存档」',BUSY:'设备正在进行另一项操作',INCOMPATIBLE:'备份不属于此设备或存档版本不兼容；请更新设备固件',MEMORY:'设备内存不足，请稍后重试',CHECKSUM:'导入校验失败，原存档未替换',SEQUENCE:'导入数据顺序错误'})[p[2]]||'设备拒绝导入');
+    }
     if(p[1]==='OFFERED'&&p.length===2)return {offered:true};
     if(p[1]==='CANCELLED'&&p.length===2)return {cancelled:true};
     if(p[1]==='UPLOAD'&&p.length===3&&/^[0-9]+$/.test(p[2]))return {upload:p[2]};

@@ -24,7 +24,8 @@ static char transcript[80000];static int snapshots,staged,restarts;
 static void emit(const char *s){assert(strlen(transcript)+strlen(s)<sizeof(transcript));strcat(transcript,s);}
 static bool snapshot(uint8_t *out,size_t n){assert(n==sizeof(original));memcpy(out,original,n);snapshots++;return true;}
 static bool valid_payload=true;
-static bool prepare(const uint8_t *p,size_t n,unsigned version){assert(version>=5&&version<=test_schema);if(!valid_payload)return false;assert(n==sizeof(incoming));assert(!memcmp(p,incoming,n));staged++;return true;}
+static usb_restore_detail_t test_detail;
+static bool prepare(const uint8_t *p,size_t n,unsigned version){assert(version>=5&&version<=test_schema);if(!valid_payload){if(test_detail)usb_backup_restore_detail(test_detail);return false;}assert(n==sizeof(incoming));assert(!memcmp(p,incoming,n));staged++;return true;}
 static void restart(void){restarts++;}
 static const char *session="0123456789abcdef0123456789abcdef";
 static void feed(const char *s){while(*s)assert(usb_backup_feed(*s++));}
@@ -60,7 +61,17 @@ int main(void){
   feed("!PWBACKUP ACK 0123456789abcdef0123456789abcdef 1\n");upload(false);
   assert(staged==1&&usb_backup_state()==USB_RESTORE_STAGED);
  }
- init();accept();feed("!PWBACKUP ACK 0123456789abcdef0123456789abcdef 1\n");valid_payload=false;upload(false);assert(!staged&&usb_backup_state()==USB_BACKUP_FAILED);
+ const char *details[]={""," LAYOUT"," FLASH"," NVS"," MEMORY"," READ"," VERSION"," CONTENT"," CHECKPOINT"," JOURNAL",""};
+ for(unsigned d=0;d<sizeof(details)/sizeof(details[0]);d++){
+  init();accept();feed("!PWBACKUP ACK 0123456789abcdef0123456789abcdef 1\n");
+  valid_payload=false;test_detail=(usb_restore_detail_t)d;upload(false);
+  char expected[64];snprintf(expected,sizeof(expected),"!PWBACKUP ERROR STAGE%s\n",details[d]);
+  assert(strstr(transcript,expected)&&!staged&&!restarts&&usb_backup_state()==USB_BACKUP_FAILED);
+ }
+ // A later callback that supplies no detail must not reuse a previous failure.
+ usb_backup_restore_detail(USB_RESTORE_DETAIL_MEMORY);test_detail=USB_RESTORE_DETAIL_NONE;
+ init();accept();feed("!PWBACKUP ACK 0123456789abcdef0123456789abcdef 1\n");valid_payload=false;upload(false);
+ assert(strstr(transcript,"!PWBACKUP ERROR STAGE\n")&&!staged&&!restarts);
  init();offer();assert(strstr(transcript,"OPEN_IMPORT"));assert(!snapshots);usb_backup_import_mode(true);offer();usb_backup_restore_confirm(false);assert(usb_backup_state()==USB_BACKUP_IDLE);assert(!snapshots&&!staged);assert(strstr(transcript,"CANCELLED"));
  init();accept();upload(false);assert(!staged); // no disk ACK, no incoming accepted
  feed("!PWBACKUP ACK ffffffffffffffffffffffffffffffff 1\n");assert(usb_backup_state()==USB_BACKUP_WAIT_ACK);

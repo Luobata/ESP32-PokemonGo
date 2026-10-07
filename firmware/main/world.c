@@ -320,6 +320,22 @@ void world_playtime_set_paused(bool paused)
     if (stopping) save_now("screen_off");
 }
 
+bool world_backup_validate(world_backup_reader_t reader,void *context,unsigned version)
+{
+    if(!reader||!s_save_lock||xSemaphoreTake(s_save_lock,portMAX_DELAY)!=pdTRUE)return false;
+    // These are transaction scratch buffers, not the live party/world. Every
+    // writer recollects its own state while holding this same save lock.
+    size_t size=sizeof(s_save_buf);uint8_t opening=0;
+    bool valid=reader(context,&s_save_buf,&size,&opening);
+    if(valid)valid=size>=sizeof(s_save_buf.version)&&size<=sizeof(s_save_buf)&&s_save_buf.version==version;
+    if(valid){
+        save_read_result_t result=save_decode(&s_save_buf,&s_save_buf,size,opening);
+        valid=(result==SAVE_READ_OK||result==SAVE_READ_MIGRATED)&&save_validate_world(&s_save_buf,&s_starter_party);
+    }
+    xSemaphoreGive(s_save_lock);
+    return valid;
+}
+
 // Keep the durable world, dungeon and settings in one consistent NVS image.
 // UI lock is held by the caller. Only background world writes remain possible,
 // and those share s_save_lock. Do not hold s_lock during flash I/O.

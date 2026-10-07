@@ -28,6 +28,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 
 #include "battle.h"
@@ -67,6 +68,10 @@ typedef struct {
 // 而它没判那个返回值，会当成初始化失败。
 // True only when startup decoded and adopted a valid existing save.
 bool world_save_loaded(void);
+// Caller holds the UI lock. Borrow serialized world workspaces under the save
+// lock to validate an isolated import; never adopt it or touch live NVS here.
+typedef bool (*world_backup_reader_t)(void *context,void *blob,size_t *size,uint8_t *opening);
+bool world_backup_validate(world_backup_reader_t reader,void *context,unsigned version);
 bool world_start(void);
 
 // WiFi 是否可用。Collect 页用它判断该不该自己起 —— 见 world_start。

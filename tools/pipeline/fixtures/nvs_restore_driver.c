@@ -23,6 +23,13 @@ esp_err_t esp_read_mac(uint8_t *out,unsigned kind){(void)kind;memset(out,0,6);re
 const char *esp_err_to_name(esp_err_t err){(void)err;return "test";}
 void esp_restart(void){}
 bool world_save_loaded(void){return true;}
+void usb_backup_restore_detail(usb_restore_detail_t detail){(void)detail;}
+bool world_backup_validate(world_backup_reader_t reader,void *ctx,unsigned version){
+ static save_t saved;static party_t party;size_t size=sizeof(saved);uint8_t opening=0;
+ if(!reader(ctx,&saved,&size,&opening)||size<2||size>sizeof(saved)||saved.version!=version)return false;
+ save_read_result_t result=save_decode(&saved,&saved,size,opening);
+ return (result==SAVE_READ_OK||result==SAVE_READ_MIGRATED)&&save_validate_world(&saved,&party);
+}
 bool world_backup_snapshot(bool(*reader)(void*),void *out){return save_write(&current)&&reader(out);}
 void usb_backup_init(bool(*r)(uint8_t*,size_t),void(*e)(const char*),const char *d,const char *f,unsigned v){(void)r;(void)e;(void)d;(void)f;(void)v;}
 void usb_backup_restore_hooks(bool(*s)(const uint8_t*,size_t,unsigned),void(*r)(void),int b,uint32_t crc){(void)s;(void)r;(void)b;(void)crc;}
@@ -143,6 +150,16 @@ int main(int argc,char **argv){
  assert(save_init());
  if(cleanup_test){dungeon_cleanup_case((unsigned)atoi(argv[2]));return 0;}
  if(argc>1){
+  if(argc>2&&!strcmp(argv[2],"validate")){
+   nvs_handle_t h;assert(nvs_open("pokewalk",NVS_READONLY,&h)==ESP_OK);
+   save_t source;size_t n=sizeof(source);assert(nvs_get_blob(h,"state",&source,&n)==ESP_OK);nvs_close(h);
+   assert(read_nvs(image));uint32_t original_crc=restore_crc32(image,sizeof(image));
+   bool valid=validate_image(image,source.version);
+   assert(restore_crc32(image,sizeof(image))==original_crc);
+   assert(!memcmp(image,flash+live.address,sizeof(image)));
+   printf("Private isolated import validation: schema=%u bytes=%zu accepted=%u source_unchanged=1\n",source.version,n,valid);
+   assert(valid);return 0;
+  }
   assert(save_read(&current));
   if(argc>2)dungeon_load();
   for(unsigned i=0;i<300;i++){current.playtime_s++;assert(save_write(&current));}

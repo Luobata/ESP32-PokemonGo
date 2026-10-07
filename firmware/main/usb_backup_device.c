@@ -8,7 +8,6 @@
 #include "esp_system.h"
 #include "esp_log.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "nvs.h"
 #include "nvs_flash.h"
@@ -42,40 +41,57 @@ bool usb_backup_restore_before_boot(void) {
 }
 static bool read_nvs(void *out) {return read_part(false,0,out,USB_BACKUP_BYTES);}
 static bool snapshot(uint8_t *out,size_t size) {return size==USB_BACKUP_BYTES&&world_backup_snapshot(read_nvs,out);}
-static bool prepare(void *image) {return restore_journal_prepare(&io,image,esp_app_get_description()->app_elf_sha256);}
+static bool rejected(usb_restore_detail_t detail,const char *phase,esp_err_t err) {
+ (void)phase;(void)err; // Logging can be compiled out in host validation builds.
+ usb_backup_restore_detail(detail);
+ ESP_LOGE("restore","Import rejected at %s: %s",phase,esp_err_to_name(err));
+ return false;
+}
+static bool prepare(void *image) {
+ return restore_journal_prepare(&io,image,esp_app_get_description()->app_elf_sha256)||
+        rejected(USB_RESTORE_DETAIL_JOURNAL,"journal",ESP_FAIL);
+}
+static bool read_import(void *context,void *blob,size_t *size,uint8_t *opening) {
+ unsigned version=*(const unsigned*)context;nvs_handle_t h;
+ esp_err_t e=nvs_open_from_partition(scratch.label,"pokewalk",NVS_READONLY,&h);
+ if(e!=ESP_OK)return rejected(e==ESP_ERR_NO_MEM?USB_RESTORE_DETAIL_MEMORY:USB_RESTORE_DETAIL_READ,"open",e);
+ e=nvs_get_blob(h,"state",blob,size);
+ (void)nvs_get_u8(h,"opening",opening);nvs_close(h);
+ if(e!=ESP_OK)return rejected(e==ESP_ERR_NO_MEM?USB_RESTORE_DETAIL_MEMORY:USB_RESTORE_DETAIL_READ,"read",e);
+ if(*size<sizeof(uint16_t))return rejected(USB_RESTORE_DETAIL_CONTENT,"length",ESP_FAIL);
+ if(((const save_t*)blob)->version!=version)return rejected(USB_RESTORE_DETAIL_VERSION,"schema",ESP_FAIL);
+ return true;
+}
 static bool validate_image(const uint8_t *image, unsigned version) {
  // The journal has already been resolved before game startup. Leave its commit
  // sector erased while checking a separate NVS instance, never the live save.
  if(scratch_mounted){
-  if(nvs_flash_deinit_partition(scratch.label)!=ESP_OK)return false;
+  esp_err_t e=nvs_flash_deinit_partition(scratch.label);
+  if(e!=ESP_OK)return rejected(USB_RESTORE_DETAIL_NVS,"retry unmount",e);
   scratch_mounted=false;
  }
- if(!erase_part(true,0,RESTORE_STAGE_SIZE)||!write_part(true,0x1000,image,USB_BACKUP_BYTES))return false;
+ if(!erase_part(true,0,RESTORE_STAGE_SIZE)||!write_part(true,0x1000,image,USB_BACKUP_BYTES))return rejected(USB_RESTORE_DETAIL_FLASH,"scratch write",ESP_FAIL);
  scratch=*staging;
  scratch.address+=0x1000;scratch.size=USB_BACKUP_BYTES;
  scratch.subtype=ESP_PARTITION_SUBTYPE_DATA_NVS;
  snprintf(scratch.label,sizeof(scratch.label),"pw_import");
- if(nvs_flash_init_partition_ptr(&scratch)!=ESP_OK)return false;
+ esp_err_t e=nvs_flash_init_partition_ptr(&scratch);
+ if(e!=ESP_OK)return rejected(e==ESP_ERR_NO_MEM?USB_RESTORE_DETAIL_MEMORY:USB_RESTORE_DETAIL_NVS,"mount",e);
  scratch_mounted=true;
- save_t *saved=malloc(sizeof(*saved));party_t *party=malloc(sizeof(*party));
- bool valid=false;nvs_handle_t h;
- if(saved&&party&&nvs_open_from_partition(scratch.label,"pokewalk",NVS_READONLY,&h)==ESP_OK){
-  size_t len=sizeof(*saved);uint8_t opening=0;
-  esp_err_t e=nvs_get_blob(h,"state",saved,&len);
-  (void)nvs_get_u8(h,"opening",&opening);nvs_close(h);
-  if(e==ESP_OK&&len>=sizeof(saved->version)&&saved->version==version){
-   save_read_result_t result=save_decode(saved,saved,len,opening);
-   valid=(result==SAVE_READ_OK||result==SAVE_READ_MIGRATED)&&save_validate_world(saved,party);
-  }
- }
- free(party);free(saved);
- if(nvs_flash_deinit_partition(scratch.label)!=ESP_OK)valid=false;
+ // V21 needs 13 KB for decoded save + party. Reuse the world's locked work
+ // buffers instead of competing with the 24 KB upload and Wi-Fi heap.
+ usb_backup_restore_detail(USB_RESTORE_DETAIL_CONTENT);
+ bool valid=world_backup_validate(read_import,&version,version);
+ e=nvs_flash_deinit_partition(scratch.label);
+ if(e!=ESP_OK)valid=rejected(USB_RESTORE_DETAIL_NVS,"unmount",e);
  else scratch_mounted=false;
  return valid;
 }
 static bool stage(const uint8_t *image,size_t size,unsigned version) {
- return size==USB_BACKUP_BYTES&&locate()&&validate_image(image,version)&&
-        world_backup_snapshot(prepare,(void*)image);
+ if(size!=USB_BACKUP_BYTES||!locate())return rejected(USB_RESTORE_DETAIL_LAYOUT,"layout",ESP_FAIL);
+ if(!validate_image(image,version))return false;
+ usb_backup_restore_detail(USB_RESTORE_DETAIL_CHECKPOINT);
+ return world_backup_snapshot(prepare,(void*)image);
 }
 static void emit(const char *line) { fputs(line,stdout);fflush(stdout); }
 void usb_backup_device_start(void) {

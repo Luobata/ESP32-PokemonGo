@@ -76,3 +76,24 @@ memory.clear();
 const error=await loop(Receiver,envelope,decodeBackup,SIZE);
 assert.match(error,/不匹配/);assert.match(error,/尚未确认/);assert.doesNotMatch(error,/设备正在重启/);
 console.log('production read loop preserves mismatched-restore error across disconnect: passed');
+
+// Extended STAGE errors remain compatible with old firmware and keep their
+// useful diagnosis when production readLoop disconnects after a rejection.
+const stageLoop=new (Object.getPrototypeOf(async function(){}).constructor)('Receiver','envelope','decodeBackup','SIZE','detail',source+`
+ session='0123456789abcdef0123456789abcdef';receiver=new Receiver(session);device='001122334455';
+ transfer={file:{metadata:{crc32:'abcdef01',device_id:device}}};
+ reader={async read(){return {done:false,value:new TextEncoder().encode('!PWBACKUP ERROR STAGE'+detail+'\\n')};},releaseLock(){}};
+ await readLoop();return {text:$('status').textContent,pending:expectedRestore};
+`);
+for(const [code,message] of Object.entries({LAYOUT:'分区布局',FLASH:'暂存区写入',NVS:'挂载或关闭',MEMORY:'可用内存不足',READ:'无法读取',VERSION:'实际存档版本不一致',CONTENT:'数据校验未通过',CHECKPOINT:'当前进度保存失败',JOURNAL:'恢复日志'})){
+ const rx=new Receiver('session');
+ assert.throws(()=>rx.accept(`!PWBACKUP ERROR STAGE ${code}`),new RegExp(message));
+ memory.clear();const result=await stageLoop(Receiver,envelope,decodeBackup,SIZE,' '+code);
+ assert.match(result.text,new RegExp(`STAGE ${code}`));assert.match(result.text,/原存档未替换/);
+ assert.doesNotMatch(result.text,/导入完成|设备正在重启/);assert.equal(result.pending,null);assert.equal(memory.size,0);
+}
+for(const detail of ['', ' FUTURE_REASON', ' constructor', ' __proto__']){
+ const rx=new Receiver('session');
+ assert.throws(()=>rx.accept('!PWBACKUP ERROR STAGE'+detail),/存档内容不兼容或暂存失败，原存档未替换/);
+}
+console.log('detailed stage errors, legacy/unknown fallback and production disconnect handling: passed');

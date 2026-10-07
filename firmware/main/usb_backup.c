@@ -13,12 +13,14 @@ static unsigned schema, used, import_version;
 static bool reserved, overflow, connected, import_mode, importing;
 static uint32_t now, heartbeat, started, request_id, offset, checksum, import_crc, boot_crc;
 static int boot_result;
+static usb_restore_detail_t restore_detail;
 static uint8_t *payload;
 static usb_backup_state_t state;
 static bool recent(uint32_t since, uint32_t limit) { return (uint32_t)(now-since)<limit; }
 static bool busy(void) {return state==USB_BACKUP_SENDING||state==USB_BACKUP_WAIT_ACK||state==USB_RESTORE_RECEIVING||state==USB_RESTORE_STAGED;}
 static void fail(void) { free(payload);payload=NULL;importing=false;state=USB_BACKUP_FAILED; }
 static void error(const char *why) {char b[100];snprintf(b,sizeof(b),"!PWBACKUP ERROR %s\n",why);send_line(b);}
+void usb_backup_restore_detail(usb_restore_detail_t detail) {restore_detail=detail;}
 void usb_backup_init(bool (*snapshot)(uint8_t *,size_t), void (*emit)(const char *),
                      const char *device, const char *firmware, unsigned save_version) {
     free(payload);payload=NULL;read_snapshot=snapshot;send_line=emit;
@@ -67,7 +69,12 @@ static void command(void) {
         } else if(!strcmp(verb,"FAIL")&&state!=USB_RESTORE_STAGED&&busy())fail();
         else if(!strcmp(verb,"RFIN")&&state==USB_RESTORE_RECEIVING) {
             if(offset!=USB_BACKUP_BYTES||restore_crc32(payload,USB_BACKUP_BYTES)!=import_crc) {fail();error("CHECKSUM");return;}
-            if(!stage_import||!stage_import(payload,USB_BACKUP_BYTES,import_version)){fail();error("STAGE");return;}
+            restore_detail=USB_RESTORE_DETAIL_NONE;
+            if(!stage_import||!stage_import(payload,USB_BACKUP_BYTES,import_version)){
+                static const char *const reasons[]={"STAGE","STAGE LAYOUT","STAGE FLASH","STAGE NVS","STAGE MEMORY","STAGE READ","STAGE VERSION","STAGE CONTENT","STAGE CHECKPOINT","STAGE JOURNAL"};
+                unsigned detail=(unsigned)restore_detail;
+                fail();error(reasons[detail<sizeof(reasons)/sizeof(reasons[0])?detail:0]);return;
+            }
             free(payload);payload=NULL;state=USB_RESTORE_STAGED;started=now;
             char out[80];snprintf(out,sizeof(out),"!PWBACKUP STAGED %08lx\n",(unsigned long)import_crc);send_line(out);
         }
