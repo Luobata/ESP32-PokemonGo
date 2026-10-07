@@ -1884,6 +1884,34 @@ void world_box_snapshot(mon_t out[BOX_SPECIES]){
  if(!s_lock||xSemaphoreTake(s_lock,portMAX_DELAY)!=pdTRUE)return;
  memcpy(out,s_party.box,sizeof(s_party.box));xSemaphoreGive(s_lock);
 }
+world_switch_result_t world_box_release(unsigned slot, const mon_t *expected)
+{
+    if (!expected || slot >= BOX_SPECIES || !expected->species_id) return WORLD_SWITCH_INVALID;
+    const mon_t wanted = *expected;
+    if (!lock_encounter_change()) return WORLD_SWITCH_STORAGE_UNAVAILABLE;
+    if (!s_storage_ready || s_starter_pending) { unlock_encounter_change(); return WORLD_SWITCH_STORAGE_UNAVAILABLE; }
+    if (s_active.encounter.uid || s_challenge.session.active || s_challenge.league_active || dungeon_party_locked()) {
+        unlock_encounter_change(); return WORLD_SWITCH_BUSY;
+    }
+    if (memcmp(&wanted, &s_party.box[slot], sizeof(wanted))) { unlock_encounter_change(); return WORLD_SWITCH_STALE; }
+    collect_save_locked(&s_save_buf);
+    s_starter_party = s_party;
+    memset(&s_starter_party.box[slot], 0, sizeof(mon_t));
+    memset(&s_starter_party.policies[PARTY_MAX + slot], 0, sizeof(move_policy_t));
+    save_store_party(&s_save_buf, &s_starter_party);
+    xSemaphoreGive(s_lock);
+    bool ok = save_write(&s_save_buf);
+    xSemaphoreTake(s_lock, portMAX_DELAY);
+    if (ok) {
+        // Apply only this slot: unrelated world progress may advance while NVS writes.
+        s_party.box[slot] = s_starter_party.box[slot];
+        s_party.policies[PARTY_MAX + slot] = s_starter_party.policies[PARTY_MAX + slot];
+        s_last_save_us = esp_timer_get_time();
+    }
+    unlock_encounter_change();
+    return ok ? WORLD_SWITCH_OK : WORLD_SWITCH_SAVE_FAILED;
+}
+
 world_switch_result_t world_box_exchange(uint8_t slot,const mon_t *outgoing,const mon_t *incoming){
  if(!outgoing||!incoming||slot>=PARTY_MAX||incoming->species_id<1||incoming->species_id>BOX_SPECIES)return WORLD_SWITCH_INVALID;
  mon_t old=*outgoing,in=*incoming;

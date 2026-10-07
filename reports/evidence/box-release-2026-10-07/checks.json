@@ -1,0 +1,93 @@
+[
+  {
+    "check": "verify_usb_backup.py",
+    "exit": 0,
+    "seconds": 2.3
+  },
+  {
+    "check": "verify_usb_import.py",
+    "exit": 0,
+    "seconds": 2.7
+  },
+  {
+    "check": "verify_save_import_compatibility.py",
+    "exit": 0,
+    "seconds": 4.1
+  },
+  {
+    "check": "verify_usb_import_device.py",
+    "exit": 0,
+    "seconds": 0.6
+  },
+  {
+    "check": "verify_save_import_web.mjs",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "check": "verify_usb_backup_checkpoint.py",
+    "exit": 0,
+    "seconds": 3.2
+  },
+  {
+    "check": "verify_save_manager_distribution.py",
+    "exit": 0,
+    "seconds": 1.7,
+    "rerun_after_final_ui": true
+  },
+  {
+    "check": "verify_firmware_update.py",
+    "exit": 0,
+    "seconds": 0.3
+  },
+  {
+    "check": "verify_nvs_restore_roundtrip.py",
+    "exit": 0,
+    "seconds": 10.4
+  },
+  {
+    "check": "verify_region_expansion.py",
+    "exit": 0,
+    "seconds": 6.1
+  },
+  {
+    "check": "verify_dungeon_stack.py",
+    "exit": 0,
+    "seconds": 1.8
+  },
+  {
+    "check": "verify_move_settings.py",
+    "exit": 0,
+    "seconds": 4.4
+  },
+  {
+    "check": "verify_move_settings_ui.py",
+    "exit": 0,
+    "seconds": 1.8,
+    "rerun_after_final_ui": true
+  },
+  {
+    "check": "verify_move_settings_dungeon.py",
+    "exit": 0,
+    "seconds": 4.5
+  },
+  {
+    "check": "verify_box_release.py",
+    "exit": 0,
+    "seconds": 3.7
+  },
+  {
+    "check": "verify_box_release_ui.py",
+    "exit": 0,
+    "seconds": 0.7,
+    "rerun_after_final_ui": true
+  },
+  {
+    "check": "verify_box_browser.py",
+    "exit": 0,
+    "seconds": 2.9,
+    "initial_exit": 1,
+    "note": "Updated warehouse sort-menu test for three supported options.",
+    "rerun_after_final_ui": true
+  }
+]

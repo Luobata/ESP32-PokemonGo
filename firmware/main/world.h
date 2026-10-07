@@ -277,6 +277,8 @@ exploration_event_t world_explore_path(unsigned direction);
 bool world_battle_reward_uid(uint16_t uid,uint16_t *amount);
 
 void world_box_snapshot(mon_t out[BOX_SPECIES]);
+// Physical warehouse slot + displayed individual; save before publishing removal.
+world_switch_result_t world_box_release(unsigned slot, const mon_t *expected);
 world_switch_result_t world_box_exchange(uint8_t slot,const mon_t *outgoing,const mon_t *incoming);
 
 exploration_kind_t world_exploration_track(uint16_t species);

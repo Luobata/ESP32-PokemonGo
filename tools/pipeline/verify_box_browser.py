@@ -92,7 +92,7 @@ try:
     for _ in range(24):
         key(1)
     selected = view()['box_slot']
-    choose_setting(2, 1, 'box_sort', 2)
+    choose_setting(2, 1, 'box_sort', 3)
     assert view()['box_slot'] == selected
     ordered = members()
     levels = {i: 5 for i in range(1, 152)}
@@ -133,7 +133,7 @@ try:
     assert state()['inventory'][9] == 1 and state()['inventory'][13] == 1
 
     menu(4)
-    choose_setting(2, 0, 'box_sort', 2)
+    choose_setting(2, 0, 'box_sort', 3)
     # Select the first row, then reach all 31 groups without displaying page numbers.
     while view()['box_row']:
         key(0)
@@ -160,7 +160,7 @@ try:
 
     # Filtered/sorted exchange must keep the chosen shiny individual, not use the row as a slot.
     choose_setting(0, 1, 'box_filter', 3)
-    choose_setting(2, 1, 'box_sort', 2)
+    choose_setting(2, 1, 'box_sort', 3)
     key(2)
     cmd('save_fail 1')
     key(2)

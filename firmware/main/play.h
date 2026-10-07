@@ -73,6 +73,8 @@ typedef struct {
     uint8_t box_row;
     uint8_t box_matches, box_slot, box_menu, box_filter, box_type, box_sort;
     bool box_paging;
+    bool release_confirm;
+    uint8_t release_choice;
     uint16_t skill_selected, skill_id, skill_count, skill_enabled_count;
     bool skill_enabled;
     uint16_t species;

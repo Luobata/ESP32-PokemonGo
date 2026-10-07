@@ -45,6 +45,8 @@ jobs:
           python3 tools/pipeline/verify_move_settings.py
           python3 tools/pipeline/verify_move_settings_ui.py
           python3 tools/pipeline/verify_move_settings_dungeon.py
+          python3 tools/pipeline/verify_box_release.py
+          python3 tools/pipeline/verify_box_release_ui.py
           python3 tools/pipeline/verify_dungeon_rewards.py
           python3 tools/pipeline/verify_region_expansion.py
           python3 tools/pipeline/verify_exploration_balance.py

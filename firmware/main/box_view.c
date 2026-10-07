@@ -21,6 +21,7 @@ static bool can_evolve(const mon_t *mon, const species_t *species, const invento
 static bool precedes(const mon_t *a, const mon_t *b, unsigned sort)
 {
     if (sort == BOX_SORT_LEVEL && a->level != b->level) return a->level > b->level;
+    if (sort == BOX_SORT_LEVEL_ASC && a->level != b->level) return a->level < b->level;
     if (a->species_id != b->species_id) return a->species_id < b->species_id;
     // Same-species individuals remain stable, including normal/shiny duplicates.
     return false;

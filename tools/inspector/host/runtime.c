@@ -727,6 +727,8 @@ static void state(void)
     const dungeon_t *dr=dungeon_get();printf(",\"dungeon\":{\"phase\":%u,\"node\":%u,\"cards\":%u,\"wins\":%u,\"playing\":%u,\"mode\":%u}",dr->phase,dr->node,dr->cards,dr->wins,dungeon_playing(),play_trainer_mode());
     printf(",\"dungeon_theme\":%u",dr->theme);
     printf(",\"dungeon_team\":[");for(unsigned i=0;i<dr->count;i++){if(i)putchar(',');printf("{\"slot\":%u,\"species\":%u,\"level\":%u,\"shiny\":%u}",dr->slots[i],dr->members[i].species_id,dr->members[i].level,dr->members[i].flags&1);}putchar(']');
+    play_party_view_t release_view;play_party_presentation_snapshot(&release_view);
+    printf(",\"box_release\":{\"confirm\":%s,\"choice\":%u}",release_view.release_confirm?"true":"false",release_view.release_choice);
     printf(",\"playtime_s\":%lu",(unsigned long)world_playtime_seconds());
     printf(",\"battery_reads\":%u",battery_reads);
     printf(",\"music\":%u,\"muted\":%s,\"volume\":%u,\"achievement_claimed\":%u,\"evolutions\":%u,\"encounter_alert\":%u}", (unsigned)music_director_current(), host_muted?"true":"false",host_volume,achievements.claimed,achievements.evolutions,host_alert);
@@ -1045,6 +1047,15 @@ bool world_battle_reward_uid(uint16_t uid,uint16_t *amount){
  return true;
 }
 void world_box_snapshot(mon_t out[BOX_SPECIES]){if(out)memcpy(out,party.box,sizeof(party.box));}
+world_switch_result_t world_box_release(unsigned slot, const mon_t *expected){
+ if(!expected||slot>=BOX_SPECIES||!expected->species_id)return WORLD_SWITCH_INVALID;
+ if(world_needs_starter())return WORLD_SWITCH_STORAGE_UNAVAILABLE;
+ if(active_valid||challenge.session.active||challenge.league_active||dungeon_party_locked())return WORLD_SWITCH_BUSY;
+ if(memcmp(expected,&party.box[slot],sizeof(mon_t)))return WORLD_SWITCH_STALE;
+ if(host_save_fails())return WORLD_SWITCH_SAVE_FAILED;
+ memset(&party.box[slot],0,sizeof(mon_t));memset(&party.policies[PARTY_MAX+slot],0,sizeof(move_policy_t));
+ return WORLD_SWITCH_OK;
+}
 world_switch_result_t world_box_exchange(uint8_t slot,const mon_t *outgoing,const mon_t *incoming){
  if(!outgoing||!incoming||slot>=party.party_count||incoming->species_id<1||incoming->species_id>BOX_SPECIES)return WORLD_SWITCH_INVALID;
  if(active_valid||challenge.session.active||challenge.league_active||dungeon_party_locked())return WORLD_SWITCH_BUSY;
