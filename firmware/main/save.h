@@ -25,6 +25,7 @@
 // **不存的东西**：sensing 的地点记忆（2.6 KB，重启后重新学更省事，
 // 且它本来就是滚动窗口）、招式列表（现算，见 assets_known_moves）。
 #pragma once
+#include <string.h>
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -44,7 +45,7 @@
 
 // 存档版本。**加字段时必须 +1** —— load 会拒绝不认识的版本，
 // 那比读到错位的字段好（错位不报错，只是数值离谱）。
-#define SAVE_VERSION 20 // Screen-on game seconds; V5-V19 migrate with zero playtime.
+#define SAVE_VERSION 21 // Individual move exclusions; V5-V20 default to all enabled.
 #define SAVE_LEGACY_VERSION 5
 
 typedef struct {
@@ -458,7 +459,65 @@ typedef struct {
   };
  };
  uint32_t playtime_s; // Cumulative visible game time; no offline/screen-off time.
+} save_v20_t;
+typedef struct {
+ union { save_v20_t v20; struct {
+ union {
+  save_v19_t v19;
+  struct {
+ union {
+  save_v18_t v18;
+  struct {
+ union {
+  save_v14_t v14;
+  struct {
+ union {
+  save_v10_t v10;
+  struct {
+ union {
+  save_v9_t v9;
+  struct {
+ union {
+  save_v6_t v6;
+  struct {
+   uint16_t version; nurture_t pet; uint16_t species; uint8_t level; uint32_t exp;
+   uint8_t party[PARTY_BYTES]; enc_queue_t queue; dex_t dex; uint32_t motion_q10,scans;
+   int64_t last_uptime_us; bool opening_seen;
+   uint8_t legacy_padding[sizeof(save_v5_t)-offsetof(save_v5_t,opening_seen)-sizeof(bool)];
+   inventory_t inventory;
+  };
+ };
+ trainer_store_t challenge;
+ achievement_store_t achievements;
+
+  };
+ };
+ enc_refresh_state_t refresh;
+
+  };
+ };
+ exploration_state_t exploration;
+
+  };
+ };
+ dungeon_progress_t dungeon;
+ uint8_t v15_padding[sizeof(save_v15_t)-offsetof(save_v15_t,dungeon)-sizeof(dungeon_progress_t)];
+ exploration_updates_t exploration_updates;
+ rest_clock_t rest_clock;
+ exploration_regions_t regions;
+  };
+ };
+ uint32_t exploration_wins; // Only exploration wild victories; defeat resets.
+  };
+ };
+ uint32_t playtime_s; // Cumulative visible game time; no offline/screen-off time.
+ }; };
+ move_policy_t move_policies[PARTY_MAX+BOX_SPECIES];
 } save_t;
+_Static_assert(sizeof(save_v20_t)==4024,"Freeze V20 world layout");
+_Static_assert(offsetof(save_t,move_policies)==sizeof(save_v20_t),"V21 preserves V20 including tail padding");
+static inline void save_store_party(save_t *s,const party_t *p){party_serialize(p,s->party);memcpy(s->move_policies,p->policies,sizeof(s->move_policies));}
+
 _Static_assert(sizeof(save_v19_t)==4016,"Freeze V19 world layout");
 _Static_assert(offsetof(save_t,playtime_s)==sizeof(save_v19_t),"V20 preserves all V19 bytes including tail padding");
 

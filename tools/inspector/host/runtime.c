@@ -163,6 +163,25 @@ void world_party_snapshot(world_party_t *out)
     out->box_count = (uint8_t)(party_total(&party) - party.party_count);
     out->switch_locked = active_valid || challenge.session.active || challenge.league_active || world_needs_starter() || dungeon_party_locked();
 }
+bool world_move_policy(unsigned slot,const mon_t *expected,move_policy_t *out){
+ if(!out||!expected||slot>=PARTY_MAX+BOX_SPECIES)return false;
+ world_party_t current;world_party_snapshot(&current);
+ mon_t m=slot<PARTY_MAX?current.members[slot]:party.box[slot-PARTY_MAX];
+ if(!m.species_id||memcmp(&m,expected,sizeof(m)))return false;
+ *out=party.policies[slot];return true;
+}
+void world_move_policies(move_policy_t out[PARTY_MAX]){memcpy(out,party.policies,PARTY_MAX*sizeof(*out));}
+world_switch_result_t world_move_set(unsigned slot,const mon_t *expected,unsigned move,bool enabled){
+ if(!expected||slot>=PARTY_MAX+BOX_SPECIES)return WORLD_SWITCH_INVALID;
+ world_party_t current;world_party_snapshot(&current);
+ if(current.switch_locked)return WORLD_SWITCH_BUSY;
+ move_policy_t policy;if(!world_move_policy(slot,expected,&policy))return WORLD_SWITCH_STALE;
+ if(move&&(move_policy_bit(move)<0||combat_learn_level(expected->species_id,move)>expected->level))return WORLD_SWITCH_INVALID;
+ if(move)move_policy_set(&policy,move,enabled);else memset(&policy,0,sizeof(policy));
+ if(!combat_enabled_moves(expected->species_id,expected->level,&policy))return WORLD_SWITCH_LAST_MOVE;
+ if(host_save_fails())return WORLD_SWITCH_SAVE_FAILED;
+ party.policies[slot]=policy;memset(battles,0,sizeof(battles));return WORLD_SWITCH_OK;
+}
 world_switch_result_t world_set_leader(uint8_t index, const mon_t *expected,
                                       world_party_t *out)
 {
@@ -236,7 +255,8 @@ bool world_battle_get_uid(uint16_t uid, battle_session_t *out)
     if (active_valid && active_enc.uid == uid) {
         if (!out) return false;
         *out = active_battle;
-        return true;
+        out->move_policy=party.policies[0];
+    return true;
     }
     encounter_t *e = enc_queue_find(&queue, uid);
     if (!e || !out) return false;
@@ -246,6 +266,7 @@ bool world_battle_get_uid(uint16_t uid, battle_session_t *out)
             *out = battles[i].value;
             break;
         }
+    out->move_policy=party.policies[0];
     return true;
 }
 bool world_battle_set_uid(uint16_t uid, const battle_session_t *value)
@@ -666,11 +687,12 @@ static void state(void)
     if (nav_current() == PAGE_PARTY) {
         play_party_view_t view;
         play_party_presentation_snapshot(&view);
-        printf("{\"selected\":%u,\"details\":%s,\"species\":%u,\"feedback\":\"%s\",\"box\":%s,\"box_row\":%u,\"skills\":%s,\"box_matches\":%u,\"box_slot\":%u,\"box_menu\":%u,\"box_filter\":%u,\"box_type\":%u,\"box_sort\":%u,\"box_paging\":%s}",
+        printf("{\"selected\":%u,\"details\":%s,\"species\":%u,\"feedback\":\"%s\",\"box\":%s,\"box_row\":%u,\"skills\":%s,\"box_matches\":%u,\"box_slot\":%u,\"box_menu\":%u,\"box_filter\":%u,\"box_type\":%u,\"box_sort\":%u,\"box_paging\":%s,",
                view.selected, view.details ? "true" : "false", view.species,
                view.feedback ? view.feedback : "", view.box ? "true" : "false",
                view.box_row, view.skills ? "true" : "false", view.box_matches, view.box_slot,
                view.box_menu, view.box_filter, view.box_type, view.box_sort, view.box_paging ? "true" : "false");
+        printf("\"skill_selected\":%u,\"skill_id\":%u,\"skill_count\":%u,\"skill_enabled_count\":%u,\"skill_enabled\":%s}",view.skill_selected,view.skill_id,view.skill_count,view.skill_enabled_count,view.skill_enabled?"true":"false");
     } else printf("null");
     printf(",\"inventory\":[");
     for (unsigned i = 0; i < ITEM_COUNT; i++) printf("%s%u", i ? "," : "", inventory.quantity[i]);
@@ -896,7 +918,7 @@ world_challenge_result_t world_challenge_start(uint8_t id) {
  if(active_valid||challenge.session.active)return WORLD_CHALLENGE_BUSY;
  trainer_store_t candidate=challenge;
  unsigned cost=trainer_stamina_cost(&challenge,id);
- if(!trainer_begin(&candidate,id,party.party,party.party_count,nurture_ability_factor(&world.pet),dbg_battle_seed))return WORLD_CHALLENGE_LOCKED;
+ if(!trainer_begin_filtered(&candidate,id,party.party,party.party_count,nurture_ability_factor(&world.pet),dbg_battle_seed,party.policies))return WORLD_CHALLENGE_LOCKED;
  if(world.pet.stamina<(int32_t)(cost*NURT_Q))return WORLD_CHALLENGE_NO_STAMINA;
  if(host_save_fails())return WORLD_CHALLENGE_SAVE_FAILED;
  challenge=candidate;world.pet.stamina-=cost*NURT_Q;return WORLD_CHALLENGE_OK;
@@ -904,14 +926,14 @@ world_challenge_result_t world_challenge_start(uint8_t id) {
 bool world_challenge_begin(uint8_t id) { return world_challenge_start(id)==WORLD_CHALLENGE_OK; }
 bool world_challenge_step(trainer_event_t *out) {
  trainer_store_t candidate=challenge;trainer_event_t event;rogue_before_step(&candidate);
- if(!trainer_step(&candidate,&event)||host_save_fails())return false;
+ if(!trainer_step_filtered(&candidate,&event,party.policies)||host_save_fails())return false;
  challenge=candidate;*out=event;return true;
 }
 bool world_challenge_move(uint8_t slot) {
  trainer_store_t candidate=challenge;if(!trainer_choose_move(&candidate,slot)||host_save_fails())return false;challenge=candidate;return true;
 }
 bool world_challenge_switch(uint8_t slot,bool forced) {
- trainer_store_t candidate=challenge;if(!trainer_switch(&candidate,slot,forced)||host_save_fails())return false;rogue_after_switch(&candidate,slot);challenge=candidate;return true;
+ trainer_store_t candidate=challenge;if(!trainer_switch_filtered(&candidate,slot,forced,party.policies)||host_save_fails())return false;rogue_after_switch(&candidate,slot);challenge=candidate;return true;
 }
 bool world_challenge_retire(void) {
  if(!challenge.session.active||host_save_fails())return false;trainer_retire(&challenge);return true;

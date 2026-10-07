@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "assets.h"
+#include "move_policy.h"
 #define COMBAT_MOVE_CAP 191
 #define COMBAT_MAX_MOVE_ID 250
 // Legacy prefix retained for save compatibility; no stored repertoire or PP economy.
@@ -36,6 +37,9 @@ int8_t combat_sp_def_stage(const combat_mon_t *m);
 void combat_migrate_gen2(combat_mon_t *m);
 void combat_reset_volatile(combat_mon_t *m);
 bool combat_valid(const combat_mon_t *m);
+int combat_enabled_moves(uint16_t species,uint8_t level,const move_policy_t *policy);
+uint16_t combat_choose_filtered(const combat_mon_t *,const combat_mon_t *,uint32_t *,const move_policy_t *);
+void combat_turn_filtered(combat_mon_t *,combat_mon_t *,uint16_t,uint32_t *,unsigned,uint16_t,struct battle_round *,const move_policy_t *);
 uint16_t combat_choose(const combat_mon_t *a,const combat_mon_t *d,uint32_t *rng);
 void combat_turn(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint32_t *rng,
                  unsigned divisor,uint16_t forced_move,struct battle_round *out);

@@ -34,6 +34,7 @@ static world_party_t s_party;
 static uint8_t s_selected, s_action;
 static bool s_details,s_skills;
 static unsigned s_skill;
+static move_policy_t s_policy;
 static bool s_box_mode,s_box_details;
 static bool s_end_dungeon;
 static unsigned s_end_choice;
@@ -63,6 +64,11 @@ static const mon_t *view_member(void)
     return s_selected < s_party.count ? &s_party.members[s_selected] : NULL;
 }
 
+static unsigned policy_slot(void){return s_box_mode?PARTY_MAX+s_box_ids[s_box_row]:s_selected;}
+static void refresh_policy(void){
+ memset(&s_policy,0,sizeof(s_policy));
+ if(view_member())world_move_policy(policy_slot(),view_member(),&s_policy);
+}
 static void reset_motion(void)
 {
     const mon_t *member = view_member();
@@ -246,10 +252,10 @@ static void draw_all(void)
             game_ui_actions(y, actions, 2, s_end_choice);
         }
         else if (s_box_mode && s_box_menu) draw_box_menu(y);
-        else if(s_box_mode && s_skills && view_member())game_ui_moves(y,view_member()->species_id,view_member()->level,s_skill,false);
+        else if(s_box_mode && s_skills && view_member())game_ui_move_settings(y,view_member()->species_id,view_member()->level,s_skill,&s_policy,s_feedback);
         else if(s_box_mode && s_box_details)draw_detail(y);
         else if(s_box_mode)draw_box(y);
-        else if(s_skills && s_selected<s_party.count)game_ui_moves(y,s_party.members[s_selected].species_id,s_party.members[s_selected].level,s_skill,false);
+        else if(s_skills && s_selected<s_party.count)game_ui_move_settings(y,s_party.members[s_selected].species_id,s_party.members[s_selected].level,s_skill,&s_policy,s_feedback);
         else if (s_details && s_selected < s_party.count) draw_detail(y);
         else draw_list(y);
         screen_push_band(y);
@@ -313,6 +319,14 @@ void play_party_presentation_snapshot(play_party_view_t *out)
         .box_sort = s_box_options.sort, .box_paging = s_box_paging,
         .species = view_member() ? view_member()->species_id : 0,
         .feedback = s_feedback};
+    if(s_skills&&view_member()){
+        uint16_t ids[COMBAT_MOVE_CAP];out->skill_selected=s_skill;
+        out->skill_count=combat_known_moves(view_member()->species_id,view_member()->level,ids,COMBAT_MOVE_CAP);
+        out->skill_id=s_skill<out->skill_count?ids[s_skill]:0;
+        out->skill_enabled=move_policy_allows(&s_policy,out->skill_id);
+        out->skill_enabled_count=combat_enabled_moves(view_member()->species_id,view_member()->level,&s_policy);
+    }
+
 }
 
 static void select_leader(void)
@@ -416,11 +430,19 @@ void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         return;
     }
     if (s_skills) {
-        if (back) s_skills = false;
+        if (back) {s_skills = false;s_feedback[0]=0;}
         else if (ev==BSP_BTN_CLICK && view_member()) {
             uint16_t ids[COMBAT_MOVE_CAP];
             int count = combat_known_moves(view_member()->species_id, view_member()->level, ids, COMBAT_MOVE_CAP);
-            if (count) s_skill = nav_list_selection(btn,ev,count,s_skill);
+            if(direction){s_skill=nav_list_selection(btn,ev,count+1,s_skill);s_feedback[0]=0;}
+            else if(confirm){
+                unsigned id=s_skill<(unsigned)count?ids[s_skill]:0;
+                world_switch_result_t r=world_move_set(policy_slot(),view_member(),id,!move_policy_allows(&s_policy,id));
+                const char *message=r==WORLD_SWITCH_OK?(id?(move_policy_allows(&s_policy,id)?"已禁用 自动战斗不选用":"已启用"):"已全部启用"):
+                    r==WORLD_SWITCH_LAST_MOVE?"至少保留一招":r==WORLD_SWITCH_BUSY?"对战或秘境中无法修改":
+                    r==WORLD_SWITCH_SAVE_FAILED?"保存失败 请重试":r==WORLD_SWITCH_STORAGE_UNAVAILABLE?"存档暂不可用":"伙伴已变 请重试";
+                snprintf(s_feedback,sizeof(s_feedback),"%s",message);refresh_policy();
+            }
         }
         draw_all(); return;
     }
@@ -445,13 +467,13 @@ void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         s_action = 0; s_feedback[0] = 0; reset_motion(); draw_all(); return;
     }
     if (s_box_mode) {
-        if (s_action == 1) { s_skills = true; s_skill = 0; }
+        if (s_action == 1) { s_skills = true; s_skill = 0; s_feedback[0]=0; refresh_policy(); }
         else exchange_member();
     } else if (s_action == 0) select_leader();
     else if (s_action == 1) {
         if (s_selected) { s_success = false; snprintf(s_feedback, sizeof(s_feedback), "请先设为出战伙伴"); }
         else { nav_open(PAGE_BAG); return; }
-    } else if (s_action == 2) { s_skills = true; s_skill = 0; }
+    } else if (s_action == 2) { s_skills = true; s_skill = 0; s_feedback[0]=0; refresh_policy(); }
     else { s_box_mode = true; s_box_details = false; s_box_menu = BOX_MENU_CLOSED; s_box_paging = false; s_box_row = s_action = 0; s_feedback[0] = 0; load_box(); reset_motion(); }
     draw_all();
 }

@@ -46,9 +46,17 @@ bool save_init(void)
 // 原子性也更好：要么整块新的，要么整块旧的，不会出现
 // 「图鉴是新的而队列是旧的」这种半更新状态。
 
+static bool policies_valid(const save_t *s) {
+ for(unsigned i=0;i<PARTY_MAX+BOX_SPECIES;i++){
+  if(!move_policy_valid(&s->move_policies[i]))return false;
+  bool active=i<PARTY_MAX?i<s->party[0]:s->party[2+i*MON_BYTES]!=0;
+  if(!active)for(unsigned b=0;b<MOVE_POLICY_BYTES;b++)if(s->move_policies[i].disabled[b])return false;
+ }
+ return true;
+}
 bool save_write(const save_t *s)
 {
-    if (!s || s->version != SAVE_VERSION || !items_inventory_valid(&s->inventory) || !trainer_store_valid(&s->challenge) || !enc_refresh_valid(&s->refresh) || !exploration_valid(&s->exploration) || !exploration_regions_valid(&s->regions) || !exploration_updates_valid(&s->exploration_updates) || !rest_clock_valid(&s->rest_clock) || !dungeon_progress_valid(&s->dungeon)) return false;
+    if (!s || s->version != SAVE_VERSION || !policies_valid(s) || !items_inventory_valid(&s->inventory) || !trainer_store_valid(&s->challenge) || !enc_refresh_valid(&s->refresh) || !exploration_valid(&s->exploration) || !exploration_regions_valid(&s->regions) || !exploration_updates_valid(&s->exploration_updates) || !rest_clock_valid(&s->rest_clock) || !dungeon_progress_valid(&s->dungeon)) return false;
     nvs_handle_t h;
     esp_err_t e = nvs_open(NS, NVS_READWRITE, &h);
     if (e != ESP_OK) {
@@ -118,8 +126,9 @@ save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_
     bool version17 = len == sizeof(save_v17_t);
     bool version18 = len == sizeof(save_v18_t);
     bool version19 = len == sizeof(save_v19_t);
+    bool version20 = len == sizeof(save_v20_t);
     if (!legacy && !version6 && !version7 && !version8 && !version9 && !version10 &&
-        !version15 && !version16 && !version17 && !version18 && !version19 && len != sizeof(save_v14_t) && len != sizeof(*out))
+        !version15 && !version16 && !version17 && !version18 && !version19 && !version20 && len != sizeof(save_v14_t) && len != sizeof(*out))
         return SAVE_READ_ERROR;
     memmove(out, blob, len);
     memset((uint8_t *)out + len, 0, sizeof(*out) - len);
@@ -128,11 +137,13 @@ save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_
     bool version12 = len == sizeof(save_v14_t) && out->version == 12;
     bool version11 = len == sizeof(save_v14_t) && out->version == 11;
     if(len==sizeof(save_v14_t)&&!(version11||version12||version13||version14))return SAVE_READ_ERROR;
-    if (out->version != (legacy ? SAVE_LEGACY_VERSION : version6 ? 6 : version7 ? 7 : version8 ? 8 : version9 ? 9 : version10 ? 10 : version11 ? 11 : version12 ? 12 : version13 ? 13 : version14 ? 14 : version15 ? 15 : version16 ? 16 : version17 ? 17 : version18 ? 18 : version19 ? 19 : SAVE_VERSION)) {
+    if (out->version != (legacy ? SAVE_LEGACY_VERSION : version6 ? 6 : version7 ? 7 : version8 ? 8 : version9 ? 9 : version10 ? 10 : version11 ? 11 : version12 ? 12 : version13 ? 13 : version14 ? 14 : version15 ? 15 : version16 ? 16 : version17 ? 17 : version18 ? 18 : version19 ? 19 : version20 ? 20 : SAVE_VERSION)) {
         ESP_LOGW(TAG, "存档版本 %u ≠ %d —— 保留原档，禁止新游戏覆盖",
                  out->version, SAVE_VERSION);
         return SAVE_READ_ERROR;
     }
+    if(out->version<21)memset(out->move_policies,0,sizeof(out->move_policies));
+    if(!policies_valid(out))return SAVE_READ_ERROR;
     if(out->version<20)out->playtime_s=0;
     bool pre19=out->version<19;
     bool pre18=out->version<18;
@@ -140,7 +151,7 @@ save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_
     if(pre16)for(unsigned i=0;i<ENC_QUEUE_CAP;i++){out->queue.items[i].level=0;out->queue.items[i].activity=0;}
     if(!pre16)for(unsigned i=0;i<ENC_QUEUE_CAP;i++)if(out->queue.items[i].level>100||out->queue.items[i].activity>(pre19?8:ENC_ACTIVITY_EXPLORATION))return SAVE_READ_ERROR;
     if(pre19)out->exploration_wins=0;
-    if(version15||version16||version17||version18||version19)out->version=SAVE_VERSION;
+    if(version15||version16||version17||version18||version19||version20)out->version=SAVE_VERSION;
     // V5-V11 used species-indexed cells. Validate before adopting physical slots.
     if (out->version < 12) {
         for(unsigned i=0;i<BOX_SPECIES;i++) {
@@ -229,7 +240,7 @@ save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_
     if(!rest_clock_valid(&out->rest_clock))return SAVE_READ_ERROR;
     if(!exploration_updates_valid(&out->exploration_updates))return SAVE_READ_ERROR;
     if(!dungeon_progress_valid(&out->dungeon))return SAVE_READ_ERROR;
-    return migrated||version13||version14||version15||version16||version17||version18||version19 ? SAVE_READ_MIGRATED : SAVE_READ_OK;
+    return migrated||version13||version14||version15||version16||version17||version18||version19||version20 ? SAVE_READ_MIGRATED : SAVE_READ_OK;
 }
 
 bool save_read(save_t *out) {
@@ -269,7 +280,7 @@ bool save_exists(void)
     size_t len = 0;
     esp_err_t e = nvs_get_blob(h, KEY, NULL, &len);
     nvs_close(h);
-    return e == ESP_OK && (len == sizeof(save_t) || len == sizeof(save_v19_t) || len == sizeof(save_v18_t) || len == sizeof(save_v17_t) || len == sizeof(save_v16_t) || len == sizeof(save_v15_t) || len == sizeof(save_v14_t) || len == sizeof(save_v10_t) || len == sizeof(save_v9_t) || len == sizeof(save_v8_t) || len == sizeof(save_v7_t) || len == sizeof(save_v6_t) || len == sizeof(save_v5_t));
+    return e == ESP_OK && (len == sizeof(save_t) || len == sizeof(save_v20_t) || len == sizeof(save_v19_t) || len == sizeof(save_v18_t) || len == sizeof(save_v17_t) || len == sizeof(save_v16_t) || len == sizeof(save_v15_t) || len == sizeof(save_v14_t) || len == sizeof(save_v10_t) || len == sizeof(save_v9_t) || len == sizeof(save_v8_t) || len == sizeof(save_v7_t) || len == sizeof(save_v6_t) || len == sizeof(save_v5_t));
 }
 
 bool save_erase(void)
@@ -332,6 +343,7 @@ static bool loaded_party_valid(const save_t *saved, party_t *party)
     }
     if (raw[1] != box_count ||
         !party_deserialize(party, raw, sizeof(saved->party))) return false;
+    memcpy(party->policies,saved->move_policies,sizeof(party->policies));
     if (!party->party_count) {
         // Empty V5 snapshots are produced while a fresh game awaits a choice.
         // An absent leader with prior ownership/progress is not a new game.
@@ -345,5 +357,5 @@ static bool loaded_party_valid(const save_t *saved, party_t *party)
 
 bool save_validate_world(const save_t *saved, party_t *party)
 {
-    return saved && party && loaded_queue_valid(&saved->queue) && loaded_party_valid(saved, party);
+    return saved && party && policies_valid(saved) && loaded_queue_valid(&saved->queue) && loaded_party_valid(saved, party);
 }

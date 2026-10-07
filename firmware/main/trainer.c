@@ -54,8 +54,8 @@ unsigned trainer_stamina_cost(const trainer_store_t *st,uint8_t id) {
  if(id>=8&&id<=12)return st->league_active&&id==st->league_stage&&id>8?0:20;
  return 10;
 }
-static void choose_first(trainer_session_t *s) {
- s->planned[0]=combat_choose(actor(s,0),actor(s,1),&s->rng);
+static void choose_first(trainer_session_t *s,const move_policy_t *policies) {
+ s->planned[0]=combat_choose_filtered(actor(s,0),actor(s,1),&s->rng,policies?&policies[s->sides[0].active]:NULL);
  s->planned[1]=combat_choose(actor(s,1),actor(s,0),&s->rng);
  unsigned ps=combat_speed(actor(s,0)),es=combat_speed(actor(s,1));
  int priority=combat_priority(s->planned[0])-combat_priority(s->planned[1]);
@@ -74,7 +74,8 @@ unsigned trainer_route_level(unsigned id,const trainer_store_t *st,const mon_t *
  unsigned level=highest*9/10+2*((id-TRAINER_ROUTE_FIRST)%3);
  return level<2?2:level>cap?cap:level;
 }
-bool trainer_begin(trainer_store_t *st,uint8_t id,const mon_t *party,uint8_t count,uint16_t ability,uint32_t seed) {
+bool trainer_begin(trainer_store_t *st,uint8_t id,const mon_t *party,uint8_t count,uint16_t ability,uint32_t seed) {return trainer_begin_filtered(st,id,party,count,ability,seed,NULL);}
+bool trainer_begin_filtered(trainer_store_t *st,uint8_t id,const mon_t *party,uint8_t count,uint16_t ability,uint32_t seed,const move_policy_t *policies) {
  if(!st||!party||!count||count>6||st->session.active||!trainer_unlocked(st,id))return false;
  for(unsigned i=0;i<count;i++)if(!party[i].species_id||party[i].species_id>151||!party[i].level||party[i].level>100)return false;
  trainer_side_t retained=st->session.sides[0];bool continuing=st->league_active&&id>8&&id<=12;
@@ -94,13 +95,14 @@ bool trainer_begin(trainer_store_t *st,uint8_t id,const mon_t *party,uint8_t cou
   s->sides[1].count=6;unsigned rotate=s->rng%6;
   for(unsigned i=0;i<6;i++)init_mon(&s->sides[1].mons[i],REMATCH[id][(i+rotate)%6],65+id+i/2);
  }else for(unsigned i=0;i<t->count;i++)init_mon(&s->sides[1].mons[i],t->species[i],t->levels[i]);
- s->participated=1u<<s->sides[0].active;choose_first(s);
+ s->participated=1u<<s->sides[0].active;choose_first(s,policies);
  return true;
 }
 static unsigned living(const trainer_side_t *side) { for(unsigned i=0;i<side->count;i++)if(side->mons[i].hp)return i;
  return 6; }
 static void finish(trainer_store_t *st,bool won) { st->session.finished=1;st->session.won=won; }
-bool trainer_step(trainer_store_t *st,trainer_event_t *e) {
+bool trainer_step(trainer_store_t *st,trainer_event_t *e) {return trainer_step_filtered(st,e,NULL);}
+bool trainer_step_filtered(trainer_store_t *st,trainer_event_t *e,const move_policy_t *policies) {
  if(!st||!e||!st->session.active||st->session.finished)return false;
  memset(e,0,sizeof(*e));trainer_session_t *s=&st->session;
  for(unsigned side=0;side<2;side++)if(!actor(s,side)->hp) {
@@ -109,20 +111,20 @@ bool trainer_step(trainer_store_t *st,trainer_event_t *e) {
  return true;}
   if(side==0){s->awaiting_replacement=1;e->kind=TRAINER_SWITCH_NEEDED;
  return true;}
-  s->sides[side].active=next;choose_first(s);e->kind=TRAINER_SENDOUT;e->side=side;e->slot=next;
+  s->sides[side].active=next;choose_first(s,policies);e->kind=TRAINER_SENDOUT;e->side=side;e->slot=next;
  return true;
  }
  if(s->turns>=400){finish(st,false);e->kind=TRAINER_FINISHED;
  return true;}
  if(s->awaiting_replacement)return false;
- if(s->acted==3)choose_first(s);
+ if(s->acted==3)choose_first(s,policies);
  unsigned side=s->next;s->next^=1;s->acted|=1u<<side;s->turns++;
  trainer_mon_t *a=actor(s,side),*d=actor(s,side^1);
  e->kind=TRAINER_ATTACK;e->side=side;e->before_hp[0]=actor(s,0)->hp;e->before_hp[1]=actor(s,1)->hp;
  battle_round_t *r=&e->attack;r->by_pet=side==0;
  a->reflect=s->sides[side].reflect;a->light_screen=s->sides[side].light_screen;
  d->reflect=s->sides[side^1].reflect;d->light_screen=s->sides[side^1].light_screen;
- combat_turn(a,d,side?1024:s->ability,&s->rng,50,s->planned[side],r);
+ combat_turn_filtered(a,d,side?1024:s->ability,&s->rng,50,s->planned[side],r,side||!policies?NULL:&policies[s->sides[0].active]);
  if(s->acted==3)combat_finish_round(actor(s,0),actor(s,1),r);
  if(s->acted&(1u<<(side^1)))d->flinch=0;
  s->sides[side].reflect=a->reflect;s->sides[side].light_screen=a->light_screen;
@@ -133,13 +135,14 @@ bool trainer_step(trainer_store_t *st,trainer_event_t *e) {
 }
 // Retained ABI for old debug clients. Automatic combat never accepts manual moves.
 bool trainer_choose_move(trainer_store_t *st,uint8_t slot) {(void)st;(void)slot;return false;}
-bool trainer_switch(trainer_store_t *st,uint8_t slot,bool forced) {
+bool trainer_switch(trainer_store_t *st,uint8_t slot,bool forced) {return trainer_switch_filtered(st,slot,forced,NULL);}
+bool trainer_switch_filtered(trainer_store_t *st,uint8_t slot,bool forced,const move_policy_t *policies) {
  trainer_session_t *s=&st->session;
  if(!s->active||s->finished||slot>=s->sides[0].count||!s->sides[0].mons[slot].hp||slot==s->sides[0].active)return false;
  if(forced!=!!s->awaiting_replacement)return false;
  trainer_mon_t *old=actor(s,0);combat_reset_volatile(old);
  s->pending_move=0;s->sides[0].active=slot;s->participated|=1u<<slot;s->awaiting_replacement=0;
- if(forced)choose_first(s);else {s->next=1;s->acted=1;}
+ if(forced)choose_first(s,policies);else {s->next=1;s->acted=1;}
  return true;
 }
 void trainer_retire(trainer_store_t *st) { if(st->session.active){st->session.retired=1;finish(st,false);} }

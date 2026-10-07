@@ -75,6 +75,7 @@ bool party_receive(party_t *p, const mon_t *m)
     }
 
     if (p->party_count < PARTY_MAX) {
+        memset(&p->policies[p->party_count], 0, sizeof(move_policy_t));
         p->party[p->party_count++] = *m;
         return true;
     }
@@ -88,13 +89,16 @@ bool party_receive(party_t *p, const mon_t *m)
         }
     }
     mon_t *slot = &p->box[index];
-    if (slot->species_id == 0 || party_better(m, slot)) *slot = *m;
+    if (slot->species_id == 0 || party_better(m, slot)) { *slot = *m; memset(&p->policies[PARTY_MAX+index],0,sizeof(move_policy_t)); }
     return true;
 }
 
 bool party_set_leader(party_t *p, uint8_t index)
 {
     if (!p || index == 0 || index >= p->party_count) return false;
+    move_policy_t policy = p->policies[index];
+    memmove(&p->policies[1], &p->policies[0], (size_t)index * sizeof(policy));
+    p->policies[0] = policy;
     mon_t selected = p->party[index];
     memmove(&p->party[1], &p->party[0], (size_t)index * sizeof(mon_t));
     p->party[0] = selected;
@@ -146,13 +150,13 @@ bool party_deserialize(party_t *p, const uint8_t *in, uint16_t len)
 {
     if (!p || !in || len < PARTY_BYTES) return false;
 
-    party_t next;
-    party_init(&next);
-    next.party_count = in[0] > PARTY_MAX ? PARTY_MAX : in[0];
+    party_t *next=p;
+    party_init(next);
+    next->party_count = in[0] > PARTY_MAX ? PARTY_MAX : in[0];
 
     const uint8_t *party_in = in + 2;
-    for (uint8_t i = 0; i < next.party_count; i++) {
-        mon_deserialize(&next.party[i], party_in + (size_t)i * MON_BYTES);
+    for (uint8_t i = 0; i < next->party_count; i++) {
+        mon_deserialize(&next->party[i], party_in + (size_t)i * MON_BYTES);
     }
 
     const uint8_t *box_in = party_in + PARTY_MAX * MON_BYTES;
@@ -160,11 +164,10 @@ bool party_deserialize(party_t *p, const uint8_t *in, uint16_t len)
         mon_t m;
         mon_deserialize(&m, box_in + (size_t)i * MON_BYTES);
         if (m.species_id >= 1 && m.species_id <= BOX_SPECIES) {
-            next.box[i] = m;
+            next->box[i] = m;
         }
     }
 
-    *p = next;
     return true;
 }
 
@@ -180,6 +183,7 @@ int party_box_match(const party_t *p,const mon_t *mon) {
 }
 bool party_exchange_at(party_t *p,uint8_t slot,uint16_t box_slot) {
  if(!p||slot>=p->party_count||box_slot>=BOX_SPECIES||!p->box[box_slot].species_id)return false;
+ move_policy_t policy=p->policies[slot];p->policies[slot]=p->policies[PARTY_MAX+box_slot];p->policies[PARTY_MAX+box_slot]=policy;
  mon_t outgoing=p->party[slot];p->party[slot]=p->box[box_slot];p->box[box_slot]=outgoing;
  return true;
 }

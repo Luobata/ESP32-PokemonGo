@@ -93,9 +93,14 @@ typedef enum {
     WORLD_SWITCH_BUSY,
     WORLD_SWITCH_SAVE_FAILED,
     WORLD_SWITCH_STORAGE_UNAVAILABLE,
+    WORLD_SWITCH_LAST_MOVE,
 } world_switch_result_t;
 
 void world_party_snapshot(world_party_t *out);
+// Slot 0..5 party, 6..156 warehouse. Read/set validates the displayed individual.
+bool world_move_policy(unsigned slot,const mon_t *expected,move_policy_t *out);
+world_switch_result_t world_move_set(unsigned slot,const mon_t *expected,unsigned move,bool enabled);
+void world_move_policies(move_policy_t out[PARTY_MAX]);
 // expected must be the complete member shown by world_party_snapshot(), so a
 // reordered list or a different same-species member cannot be selected by a
 // stale index. out may be NULL; OK/ALREADY_LEADER return a fresh snapshot.

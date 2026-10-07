@@ -96,6 +96,11 @@ static void draw_cards(dungeon_t *d){
  for(unsigned i=0;i<3;i++){unsigned index=rng(d)%count;d->choices[i]=pool[index];pool[index]=pool[--count];}
  d->phase=DUNGEON_REWARD;
 }
+static move_policy_t selected_policies[PARTY_MAX];
+static void battle_policies(const dungeon_t *d,move_policy_t out[PARTY_MAX]){
+ move_policy_t owned[PARTY_MAX];world_move_policies(owned);memset(out,0,PARTY_MAX*sizeof(*out));
+ for(unsigned i=0;i<d->count;i++)if(d->slots[i]<PARTY_MAX)out[i]=owned[d->slots[i]];
+}
 static bool begin_battle(dungeon_t *d,bool fresh){
  uint16_t hp[3],max_hp[3];uint8_t status[3];mon_t party[3];
  if(!fresh){
@@ -193,7 +198,8 @@ bool dungeon_step(trainer_event_t *out){
  bool pursuit=(d->cards&(1u<<12))&&d->battle.session.sides[1].mons[enemy].status;
  bool relay=(d->cards&(1u<<13))&&(d->relay_mask&(1u<<slot));
  d->battle.session.ability=1024+boost+(pursuit?256:0)+(relay?358:0);
- if(!trainer_step(&d->battle,out))return false;
+ battle_policies(d,selected_policies);
+ if(!trainer_step_filtered(&d->battle,out,selected_policies))return false;
  bool hit=out->kind==TRAINER_ATTACK&&out->side==0&&!out->attack.missed&&out->attack.damage;
  bool knockout=hit&&out->before_hp[1]&&!d->battle.session.sides[1].mons[enemy].hp&&(d->cards&(1u<<14));
  if(hit&&relay)d->relay_mask&=~(1u<<slot);
@@ -204,7 +210,8 @@ bool dungeon_step(trainer_event_t *out){
 }
 bool dungeon_switch(unsigned slot,bool forced){
  feedback=NULL;if(run.phase!=DUNGEON_BATTLE)return false;
- dungeon_t *d=&candidate;*d=run;if(!trainer_switch(&d->battle,slot,forced))return false;
+ dungeon_t *d=&candidate;*d=run;battle_policies(d,selected_policies);
+ if(!trainer_switch_filtered(&d->battle,slot,forced,selected_policies))return false;
  bool guard=!forced&&(d->cards&(1u<<11))&&!(d->guards&(1u<<slot));
  if(guard){combat_mon_t *m=&d->battle.session.sides[0].mons[slot];if(m->defense<6)m->defense++;d->guards|=1u<<slot;}
  if(!forced&&(d->cards&(1u<<13)))d->relay_mask|=1u<<slot;

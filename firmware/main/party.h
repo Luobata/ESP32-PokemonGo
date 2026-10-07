@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "move_policy.h"
 
 #define PARTY_MAX     6
 #define BOX_SPECIES 151
@@ -19,6 +20,7 @@ typedef struct {
     mon_t   party[PARTY_MAX];
     uint8_t party_count;
     mon_t   box[BOX_SPECIES];       // physical slots; duplicates remain distinct after exchanges
+    move_policy_t policies[PARTY_MAX + BOX_SPECIES]; // follows physical individuals
 } party_t;
 
 void    party_init(party_t *p);

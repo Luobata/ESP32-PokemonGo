@@ -184,13 +184,20 @@ static bool direct_attack(const combat_mon_t *a,const combat_mon_t *d,const comb
  if(!(m->move.power||fixed(m->effect)||m->effect==EFFECT_OHKO||m->effect==EFFECT_COUNTER))return false;
  return utility(a,d,m)>0;
 }
-uint16_t combat_choose(const combat_mon_t *a,const combat_mon_t *d,uint32_t *rng){
- if(a->charge)return a->charge_move;
- if(a->bide)return 117;
+int combat_enabled_moves(uint16_t species,uint8_t level,const move_policy_t *p){
+ uint16_t ids[COMBAT_MOVE_CAP];int n=combat_known_moves(species,level,ids,COMBAT_MOVE_CAP),count=0;
+ for(int i=0;i<n;i++)count+=move_policy_allows(p,ids[i]);
+ return count;
+}
+uint16_t combat_choose(const combat_mon_t *a,const combat_mon_t *d,uint32_t *rng){return combat_choose_filtered(a,d,rng,NULL);}
+uint16_t combat_choose_filtered(const combat_mon_t *a,const combat_mon_t *d,uint32_t *rng,const move_policy_t *policy){
+ if(a->charge&&move_policy_allows(policy,a->charge_move))return a->charge_move;
+ if(a->bide&&move_policy_allows(policy,117))return 117;
  uint16_t ids[COMBAT_MOVE_CAP],selected=165;int count=combat_known_moves(identity(a),learn_level(a),ids,COMBAT_MOVE_CAP);
  bool can_attack=false,can_transform=false;
  for(int i=0;i<count;i++){
-  unsigned id=ids[i]==102&&a->mimic_move?a->mimic_move:ids[i];
+  if(!move_policy_allows(policy,ids[i]))continue;
+  unsigned id=ids[i]==102&&a->mimic_move?a->mimic_move:ids[i];if(!move_policy_allows(policy,id))continue;
   if(a->disable_turns&&a->disabled_move==id)continue;
   can_attack|=direct_attack(a,d,move_data(id));
   can_transform|=id==144&&!a->transform_species;
@@ -199,7 +206,8 @@ uint16_t combat_choose(const combat_mon_t *a,const combat_mon_t *d,uint32_t *rng
  bool must_attack=a->safety.marker==SAFETY_MARKER&&a->safety.status_streak>=2;
  uint32_t total=0;
  for(int i=0;i<count;i++){
-  unsigned id=ids[i]==102&&a->mimic_move?a->mimic_move:ids[i];if(a->disable_turns&&a->disabled_move==id)continue;
+  if(!move_policy_allows(policy,ids[i]))continue;
+  unsigned id=ids[i]==102&&a->mimic_move?a->mimic_move:ids[i];if(!move_policy_allows(policy,id))continue;if(a->disable_turns&&a->disabled_move==id)continue;
   if(must_attack&&!direct_attack(a,d,move_data(id)))continue;
   unsigned score=utility(a,d,move_data(id));if(!score)continue;
   if(a->last_move==id)score=score*3/4+1;
@@ -250,21 +258,33 @@ static void residual(combat_mon_t *a,combat_mon_t *d){
  if(a->light_screen)a->light_screen--;
  if(a->disable_turns)a->disable_turns--;
 }
-void combat_turn(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint32_t *rng,unsigned divisor,uint16_t forced_move,struct battle_round *r){
+void combat_turn(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint32_t *rng,unsigned divisor,uint16_t forced_move,struct battle_round *r){combat_turn_filtered(a,d,ability,rng,divisor,forced_move,r,NULL);}
+void combat_turn_filtered(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint32_t *rng,unsigned divisor,uint16_t forced_move,struct battle_round *r,const move_policy_t *policy){
+ if(forced_move && !move_policy_allows(policy,forced_move))forced_move=0;
+ if(a->charge&&!move_policy_allows(policy,a->charge_move)){a->charge=0;a->charge_move=0;}
+ if(a->bide&&!move_policy_allows(policy,117)){a->bide=0;a->bide_damage=0;}
  safety_init(a);safety_init(d);
  r->mult=100;unsigned before=a->hp;bool skip=false;
  d->last_damage=0;
  if(a->recharge){a->recharge=0;skip=true;r->skipped=6;}
  else if(a->flinch){a->flinch=0;skip=true;r->skipped=4;}
  else if(a->status==4){if(a->sleep){a->sleep--;skip=true;r->skipped=1;}else a->status=0;}
- else if(a->status==5){if(forced_move==172||(!forced_move&&combat_learn_level(identity(a),172)<=learn_level(a)))forced_move=172;if(forced_move==172||roll(rng,100)<20)a->status=0;else{skip=true;r->skipped=2;}}
+ else if(a->status==5){if(forced_move==172||(!forced_move&&move_policy_allows(policy,172)&&combat_learn_level(identity(a),172)<=learn_level(a)))forced_move=172;if(forced_move==172||roll(rng,100)<20)a->status=0;else{skip=true;r->skipped=2;}}
  else if(a->status==3&&roll(rng,100)<25){skip=true;r->skipped=3;}
  if(!skip&&a->confusion){a->confusion--;if(roll(rng,2)==0){hurt(a,a->max_hp/8?a->max_hp/8:1);skip=true;r->skipped=5;}}
  if(skip){a->charge=0;residual(a,d);return;}
- unsigned id=forced_move?forced_move:combat_choose(a,d,rng);if(!move_data(id))id=165;
+ unsigned id=forced_move?forced_move:combat_choose_filtered(a,d,rng,policy);if(!move_data(id))id=165;
  unsigned effect=move_data(id)->effect;
- if(effect==EFFECT_METRONOME){do{id=1+roll(rng,COMBAT_MOVE_CAP);if(id>165)id=COMBAT_EXTRA[id-166].move.id;effect=move_data(id)->effect;}while(effect==EFFECT_METRONOME||effect==EFFECT_MIMIC||effect==EFFECT_MIRROR_MOVE||effect==EFFECT_FORCE_SWITCH||effect==EFFECT_TELEPORT||effect==EFFECT_CONVERSION);}
+ if(effect==EFFECT_METRONOME){
+  unsigned attempts=0;
+  do{
+   id=1+roll(rng,COMBAT_MOVE_CAP);if(id>165)id=COMBAT_EXTRA[id-166].move.id;
+   effect=move_data(id)->effect;
+   if(++attempts>1024){id=165;break;}
+  }while(!move_policy_allows(policy,id)||effect==EFFECT_METRONOME||effect==EFFECT_MIMIC||effect==EFFECT_MIRROR_MOVE||effect==EFFECT_FORCE_SWITCH||effect==EFFECT_TELEPORT||effect==EFFECT_CONVERSION);
+ }
  else if(effect==EFFECT_MIRROR_MOVE){if(d->last_move&&d->last_move!=102&&d->last_move!=119&&d->last_move!=118)id=d->last_move;else r->no_effect=1;}
+ if(!move_policy_allows(policy,id))r->no_effect=1;
  const combat_move_data_t *data=move_data(id);const move_t *m=&data->move;effect=data->effect;
  bool is_attack=m->power||fixed(effect)||effect==EFFECT_COUNTER||effect==EFFECT_BIDE||effect==EFFECT_OHKO;
  a->safety.status_streak=is_attack?0:minimum(a->safety.status_streak+1,2);

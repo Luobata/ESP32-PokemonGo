@@ -173,3 +173,25 @@ void game_ui_fade_background(int band_y,unsigned amount) {
  for(int y=0;y<SCREEN_BAND_H;y++)for(int x=0;x<SCREEN_W;x++)
   if(rank[(band_y+y)&3][x&3]<amount)screen_px(x,y,GAME_UI_BG);
 }
+
+void game_ui_move_settings(int y,uint16_t species,uint8_t level,unsigned selected,const move_policy_t *policy,const char *feedback){
+ uint16_t ids[COMBAT_MOVE_CAP];int n=combat_known_moves(species,level,ids,COMBAT_MOVE_CAP);char text[80];
+ snprintf(text,sizeof(text),"启用 %d/%d",combat_enabled_moves(species,level,policy),n);game_ui_title(y,"招式设置",text);
+ selected%=(unsigned)n+1;unsigned top=selected/5*5;
+ for(unsigned row=0;row<5&&top+row<=(unsigned)n;row++){
+  unsigned i=top+row;int sy=44+row*34;
+  game_ui_list_marker(y,8,sy,i,n+1,selected);
+  if(i==(unsigned)n){render_text(44,sy-y,"全部启用",GAME_UI_ACCENT);continue;}
+  bool enabled=move_policy_allows(policy,ids[i]);
+  // Pixel checkbox shares the monochrome Gold/Silver frame language.
+  rect(&y,26,sy+2,12,12,GAME_UI_INK);rect(&y,28,sy+4,8,8,GAME_UI_BG);
+  if(enabled){rect(&y,29,sy+7,3,3,GAME_UI_INK);rect(&y,32,sy+5,3,5,GAME_UI_INK);}
+  move_t m;combat_move(ids[i],&m);snprintf(text,sizeof(text),"%.*s",m.name_zh_len,m.name_zh);
+  game_ui_text_fitted(y,44,sy,140,text,enabled?GAME_UI_INK:GAME_UI_MUTED);
+  render_text(192,sy-y,enabled?"启用":"禁用",enabled?GAME_UI_ACCENT:GAME_UI_MUTED);
+ }
+ game_ui_box(y,8,216,224,56);
+ game_ui_text_fitted(y,16,226,208,selected<(unsigned)n?combat_description(ids[selected]):"恢复所有已学招式",GAME_UI_INK);
+ game_ui_text_fitted(y,16,250,208,feedback&&*feedback?feedback:"新学招式默认启用",GAME_UI_MUTED);
+ game_ui_footer(y,"A上 B下 C切换 长按B返回");
+}

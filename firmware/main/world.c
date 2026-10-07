@@ -251,7 +251,7 @@ static void collect_save_locked(save_t *sv)
         sv->level = leader->level;
         sv->exp = leader->exp;
     }
-    party_serialize(&s_party, sv->party);
+    save_store_party(sv,&s_party);
     sv->queue = s_queue;
     sv->dex = s_dex;
     sv->motion_q10 = s_motion_q10;
@@ -369,7 +369,7 @@ world_starter_result_t world_choose_starter(uint16_t species)
     s_save_buf.level = starter.level;
     s_save_buf.exp = starter.exp;
     s_save_buf.opening_seen = true;
-    party_serialize(&s_starter_party, s_save_buf.party);
+    save_store_party(&s_save_buf,&s_starter_party);
     dex_mark_caught(&s_save_buf.dex, species, false);
     s_dirty = false; // Later background changes mark themselves dirty again.
     xSemaphoreGive(s_lock);
@@ -468,6 +468,36 @@ static void unlock_encounter_change(void)
     xSemaphoreGive(s_save_lock);
 }
 
+
+bool world_move_policy(unsigned slot,const mon_t *expected,move_policy_t *out){
+ if(!out||!expected||slot>=PARTY_MAX+BOX_SPECIES||!s_lock)return false;
+ xSemaphoreTake(s_lock,portMAX_DELAY);
+ mon_t m=slot==0?leader_view_locked():slot<PARTY_MAX?s_party.party[slot]:s_party.box[slot-PARTY_MAX];
+ bool ok=m.species_id&&!memcmp(&m,expected,sizeof(m));if(ok)*out=s_party.policies[slot];
+ xSemaphoreGive(s_lock);return ok;
+}
+void world_move_policies(move_policy_t out[PARTY_MAX]){
+ memset(out,0,PARTY_MAX*sizeof(*out));if(!s_lock)return;
+ xSemaphoreTake(s_lock,portMAX_DELAY);memcpy(out,s_party.policies,PARTY_MAX*sizeof(*out));xSemaphoreGive(s_lock);
+}
+world_switch_result_t world_move_set(unsigned slot,const mon_t *expected,unsigned move,bool enabled){
+ if(!expected||slot>=PARTY_MAX+BOX_SPECIES)return WORLD_SWITCH_INVALID;
+ const mon_t wanted=*expected;
+ if(!lock_encounter_change())return WORLD_SWITCH_STORAGE_UNAVAILABLE;
+ if(!s_storage_ready||s_starter_pending){unlock_encounter_change();return WORLD_SWITCH_STORAGE_UNAVAILABLE;}
+ if(s_active.encounter.uid||s_challenge.session.active||s_challenge.league_active||dungeon_party_locked()){unlock_encounter_change();return WORLD_SWITCH_BUSY;}
+ const mon_t selected=slot==0?leader_view_locked():slot<PARTY_MAX?s_party.party[slot]:s_party.box[slot-PARTY_MAX];
+ if(!selected.species_id||memcmp(&wanted,&selected,sizeof(wanted))){unlock_encounter_change();return WORLD_SWITCH_STALE;}
+ if(move&&(move_policy_bit(move)<0||combat_learn_level(selected.species_id,move)>selected.level)){unlock_encounter_change();return WORLD_SWITCH_INVALID;}
+ move_policy_t policy=s_party.policies[slot];
+ if(move)move_policy_set(&policy,move,enabled);else memset(&policy,0,sizeof(policy));
+ if(!combat_enabled_moves(selected.species_id,selected.level,&policy)){unlock_encounter_change();return WORLD_SWITCH_LAST_MOVE;}
+ collect_save_locked(&s_save_buf);s_save_buf.move_policies[slot]=policy;
+ xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
+ if(ok){s_party.policies[slot]=policy;memset(s_battles,0,sizeof(s_battles));s_last_save_us=esp_timer_get_time();}
+ unlock_encounter_change();return ok?WORLD_SWITCH_OK:WORLD_SWITCH_SAVE_FAILED;
+}
+
 world_switch_result_t world_set_leader(uint8_t index, const mon_t *expected,
                                       world_party_t *out)
 {
@@ -507,7 +537,7 @@ world_switch_result_t world_set_leader(uint8_t index, const mon_t *expected,
     s_save_buf.level = next_leader.level;
     s_save_buf.exp = next_leader.exp;
     s_save_buf.pet.intimacy = (int32_t)next_leader.intimacy * NURT_Q;
-    party_serialize(&s_starter_party, s_save_buf.party);
+    save_store_party(&s_save_buf,&s_starter_party);
     s_dirty = false;
     xSemaphoreGive(s_lock);
     bool ok = save_write(&s_save_buf);
@@ -576,6 +606,7 @@ bool world_battle_get_uid(uint16_t uid, battle_session_t *out)
     else if (found) for (int i = 0; i < ENC_QUEUE_LIMIT; i++) {
         if (s_battles[i].uid == uid) { *out = s_battles[i].session; break; }
     }
+    out->move_policy=s_party.policies[0];
     xSemaphoreGive(s_lock);
     return found;
 }
@@ -803,7 +834,7 @@ bool world_capture_uid(uint16_t uid, const mon_t *mon)
     mon_t *leader=&s_starter_party.party[0];
     s_save_buf.level=leader->level;
     s_save_buf.exp = leader->exp;
-    party_serialize(&s_starter_party, s_save_buf.party);
+    save_store_party(&s_save_buf,&s_starter_party);
     dex_mark_caught(&s_save_buf.dex, mon->species_id, (mon->flags & 1u) != 0);
     enc_queue_take_uid(&s_save_buf.queue, uid, NULL);
     s_dirty = false;
@@ -1000,7 +1031,7 @@ static item_use_status_t use_item_or_natural(uint16_t expected_species, uint8_t 
     leader->intimacy = nurture_pct(result.after.intimacy);
     s_save_buf.species = result.species_after;
     s_save_buf.pet = result.after;
-    party_serialize(&s_starter_party, s_save_buf.party);
+    save_store_party(&s_save_buf,&s_starter_party);
     if (result.species_after != expected_species) {
         dex_mark_caught(&s_save_buf.dex, result.species_after, (leader->flags & 1u) != 0);
         if (s_save_buf.achievements.evolutions < UINT16_MAX) s_save_buf.achievements.evolutions++;
@@ -1585,8 +1616,8 @@ world_challenge_result_t world_challenge_start(uint8_t id)
     if (s_active.encounter.uid || s_challenge.session.active) { unlock_encounter_change(); return WORLD_CHALLENGE_BUSY; }
     unsigned cost = trainer_stamina_cost(&s_challenge, id);
     collect_save_locked(&s_save_buf);
-    if (!trainer_begin(&s_save_buf.challenge, id, s_party.party, s_party.party_count,
-                       nurture_ability_factor(&s_w.pet), (uint32_t)esp_timer_get_time())) {
+    if (!trainer_begin_filtered(&s_save_buf.challenge, id, s_party.party, s_party.party_count,
+                       nurture_ability_factor(&s_w.pet), (uint32_t)esp_timer_get_time(),s_party.policies)) {
         unlock_encounter_change(); return WORLD_CHALLENGE_LOCKED;
     }
     if (s_w.pet.stamina < (int32_t)(cost * NURT_Q)) {
@@ -1604,7 +1635,7 @@ bool world_challenge_step(trainer_event_t *out)
     if (!s_storage_ready) { unlock_encounter_change(); return false; }
     collect_save_locked(&s_save_buf);
     trainer_event_t candidate;
-    if (!trainer_step(&s_save_buf.challenge, &candidate)) { unlock_encounter_change(); return false; }
+    if (!trainer_step_filtered(&s_save_buf.challenge, &candidate,s_party.policies)) { unlock_encounter_change(); return false; }
     bool ok = challenge_commit(false, false, 0);
     if (ok) *out = candidate;
     return ok;
@@ -1622,7 +1653,7 @@ bool world_challenge_switch(uint8_t slot, bool forced)
 {
     if (!lock_encounter_change()) return false;
     collect_save_locked(&s_save_buf);
-    if (!s_storage_ready || !trainer_switch(&s_save_buf.challenge, slot, forced)) { unlock_encounter_change(); return false; }
+    if (!s_storage_ready || !trainer_switch_filtered(&s_save_buf.challenge, slot, forced,s_party.policies)) { unlock_encounter_change(); return false; }
     return challenge_commit(false, false, 0);
 }
 
@@ -1643,7 +1674,7 @@ bool world_challenge_settle(void)
     uint16_t reward = exp_scaled(trainer_reward(&s_challenge),nurture_exp_percent(&s_w.pet));
     s_starter_party = s_party;
     exp_award_party(&s_starter_party,s_challenge.session.participated,(1u<<s_starter_party.party_count)-1,reward);
-    party_serialize(&s_starter_party, s_save_buf.party);
+    save_store_party(&s_save_buf,&s_starter_party);
     s_save_buf.exp=s_starter_party.party[0].exp;s_save_buf.level=s_starter_party.party[0].level;
     trainer_grant_items(&s_challenge,&s_save_buf.inventory);
     if (!s_challenge.session.won && !s_challenge.session.retired) {
@@ -1811,7 +1842,7 @@ exploration_event_t world_explore_path(unsigned direction)
     }
     s_save_buf.exp=s_starter_party.party[0].exp;s_save_buf.level=s_starter_party.party[0].level;
     if(s_starter_party.party[0].explore_value<UINT16_MAX)s_starter_party.party[0].explore_value++;
-    party_serialize(&s_starter_party,s_save_buf.party);
+    save_store_party(&s_save_buf,&s_starter_party);
     xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
     if(ok) {
         s_w.pet.stamina=s_w.pet.stamina>NURT_EXPLORE_COST?s_w.pet.stamina-NURT_EXPLORE_COST:0;
@@ -1837,7 +1868,7 @@ bool world_battle_reward_uid(uint16_t uid,uint16_t *amount) {
  collect_save_locked(&s_save_buf);s_starter_party=s_party;
  if(b->won){exploration_activity_credit(&s_save_buf.exploration_updates,&s_active.encounter);exploration_chain_settle(&s_save_buf.exploration_wins,&s_active.encounter,true);}
  exp_award_party(&s_starter_party,1,(1u<<s_starter_party.party_count)-1,gain);
- mon_t *leader=&s_starter_party.party[0];gain=leader->exp-s_party.party[0].exp;party_serialize(&s_starter_party,s_save_buf.party);
+ mon_t *leader=&s_starter_party.party[0];gain=leader->exp-s_party.party[0].exp;save_store_party(&s_save_buf,&s_starter_party);
  s_save_buf.exp=leader->exp;s_save_buf.level=leader->level;
  xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
  if(ok){record_growth_locked(&s_starter_party);s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;
@@ -1865,7 +1896,7 @@ world_switch_result_t world_box_exchange(uint8_t slot,const mon_t *outgoing,cons
  collect_save_locked(&s_save_buf);s_starter_party=s_party;s_starter_party.party[slot]=actual;
  if(!party_exchange_at(&s_starter_party,slot,box_slot)){unlock_encounter_change();return WORLD_SWITCH_INVALID;}
  normalize_party_exp(&s_starter_party);mon_t next=s_starter_party.party[0];
- party_serialize(&s_starter_party,s_save_buf.party);s_save_buf.species=next.species_id;s_save_buf.level=next.level;s_save_buf.exp=next.exp;
+ save_store_party(&s_save_buf,&s_starter_party);s_save_buf.species=next.species_id;s_save_buf.level=next.level;s_save_buf.exp=next.exp;
  if(!slot)s_save_buf.pet.intimacy=next.intimacy*NURT_Q;
  xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
  if(ok){s_party=s_starter_party;s_w.species=next.species_id;s_w.level=next.level;s_w.exp=next.exp;
@@ -1893,7 +1924,7 @@ exploration_kind_t world_research_claim(uint8_t route,uint16_t *gain){
  s_starter_party=s_party;
  uint16_t award=exp_scaled(exp_battle_base(s_w.level)*2,nurture_exp_percent(&s_w.pet));
  exp_award_party(&s_starter_party,1,(1u<<s_starter_party.party_count)-1,award);
- party_serialize(&s_starter_party,s_save_buf.party);s_save_buf.exp=s_starter_party.party[0].exp;s_save_buf.level=s_starter_party.party[0].level;
+ save_store_party(&s_save_buf,&s_starter_party);s_save_buf.exp=s_starter_party.party[0].exp;s_save_buf.level=s_starter_party.party[0].level;
  xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
  if(ok){if(gain)*gain=s_save_buf.exp-s_w.exp;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;s_exploration=s_save_buf.exploration;s_regions=s_save_buf.regions;s_last_save_us=esp_timer_get_time();}
  unlock_encounter_change();return ok?EXPLORE_NONE:EXPLORE_SAVE_FAILED;
@@ -1988,7 +2019,7 @@ bool world_dungeon_award(uint32_t id,unsigned node,uint32_t seed,dungeon_receipt
         dex_mark_seen(&s_save_buf.dex,partner.species_id,partner.is_shiny);
         receipt.partner_species=partner.species_id;receipt.partner_shiny=partner.is_shiny;
     }
-    party_serialize(&s_starter_party,s_save_buf.party);
+    save_store_party(&s_save_buf,&s_starter_party);
     s_save_buf.exp=s_starter_party.party[0].exp;s_save_buf.level=s_starter_party.party[0].level;
     dungeon_progress_t *p=&s_save_buf.dungeon;p->paid_nodes|=1u<<node;p->last_node=node;p->receipt=receipt;
     if(node==4)p->elite_seen=1;

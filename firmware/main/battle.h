@@ -75,6 +75,7 @@ typedef struct {
     combat_mon_t fighters[2];
     uint8_t acted;
     uint16_t planned[2];
+    move_policy_t move_policy; // player-only runtime setting, not persisted
 } battle_session_t;
 
 bool battle_session_init(battle_session_t *session,

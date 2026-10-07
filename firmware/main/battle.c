@@ -129,7 +129,7 @@ bool battle_session_step(battle_session_t *s, battle_round_t *out)
     if (!s->pet_hp || !s->wild_hp || s->attack_count >= BATTLE_MAX_ROUNDS) return false;
     s->fighters[0].hp=s->pet_hp;s->fighters[1].hp=s->wild_hp;
     if((s->acted==0||s->acted==3)&&!s->retaliation_pending){
-        s->planned[0]=combat_choose(&s->fighters[0],&s->fighters[1],&s->rng);
+        s->planned[0]=combat_choose_filtered(&s->fighters[0],&s->fighters[1],&s->rng,&s->move_policy);
         s->planned[1]=combat_choose(&s->fighters[1],&s->fighters[0],&s->rng);
         int priority=combat_priority(s->planned[0])-combat_priority(s->planned[1]);
         s->next_by_pet=priority?priority>0:combat_speed(&s->fighters[0])>=combat_speed(&s->fighters[1]);s->acted=0;
@@ -140,7 +140,7 @@ bool battle_session_step(battle_session_t *s, battle_round_t *out)
     // HP mirrors remain the capture/escape API; all effects use the same core.
     s->fighters[0].hp=s->pet_hp;s->fighters[1].hp=s->wild_hp;
     out->by_pet=by_pet;
-    combat_turn(a,d,by_pet?s->ability_factor_q10:1024,&s->rng,50,retaliation?0:s->planned[by_pet?0:1],out);
+    combat_turn_filtered(a,d,by_pet?s->ability_factor_q10:1024,&s->rng,50,retaliation?0:s->planned[by_pet?0:1],out,by_pet?&s->move_policy:NULL);
     s->acted|=by_pet?1:2;
     if(!retaliation&&s->acted==3)combat_finish_round(&s->fighters[0],&s->fighters[1],out);
     s->pet_hp=s->fighters[0].hp;s->wild_hp=s->fighters[1].hp;

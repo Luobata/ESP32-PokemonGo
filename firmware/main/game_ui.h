@@ -1,6 +1,7 @@
 // Shared GSC presentation for the gameplay pages. All coordinates are screen
 // coordinates; each call clips through the current 240x80 production band.
 #pragma once
+#include "move_policy.h"
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -40,3 +41,5 @@ void game_ui_moves(int band_y,uint16_t species,uint8_t level,unsigned selected,b
 
 // Ordered pixel fade to the page background; amount 0..16.
 void game_ui_fade_background(int band_y,unsigned amount);
+
+void game_ui_move_settings(int band_y,uint16_t species,uint8_t level,unsigned selected,const move_policy_t *policy,const char *feedback);
