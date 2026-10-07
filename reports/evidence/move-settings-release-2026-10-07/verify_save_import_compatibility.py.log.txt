@@ -1,2 +1,1 @@
 {"passed":true,"schemas":"V5-V21 historical fixtures, future/corrupt rejected","milk":"low/high HP, cap, faint, status, turn cost, save failures and reboot"}
-

@@ -5,7 +5,7 @@ Executing "ninja all"...
 [0/1] Re-running CMake...
 -- Minimal build - OFF
 -- Building ESP-IDF components for target esp32c3
-NOTICE: 
+NOTICE:
 Following dependencies have new versions available:
 Dependency "lvgl/lvgl": "9.5.0" -> "9.6.0"
 Consider running "idf.py update-dependencies" to update your lock file.
@@ -35,7 +35,7 @@ NOTICE: Skipping optional dependency: espressif/freetype
 NOTICE: Skipping optional dependency: espressif/libjpeg-turbo
 NOTICE: Skipping optional dependency: espressif/libpng
 NOTICE: Skipping optional dependency: espressif/lz4
-NOTICE: 
+NOTICE:
 Following dependencies have new versions available:
 Dependency "lvgl/lvgl": "9.5.0" -> "9.6.0"
 Consider running "idf.py update-dependencies" to update your lock file.

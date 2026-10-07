@@ -64,7 +64,10 @@ static void growth_and_identity(void){
  assert(!move_policy_allows(&p.policies[0],45));
  uint16_t ids[COMBAT_MOVE_CAP];int n=combat_known_moves(2,100,ids,COMBAT_MOVE_CAP);
  for(int i=0;i<n;i++)if(combat_learn_level(2,ids[i])>16)assert(move_policy_allows(&p.policies[0],ids[i]));
- for(unsigned i=1;i<6;i++)assert(party_receive(&p,&m));assert(party_receive(&p,&m));
+ for(unsigned i=1;i<6;i++){
+  assert(party_receive(&p,&m));
+ }
+ assert(party_receive(&p,&m));
  assert(move_policy_allows(&p.policies[PARTY_MAX],45));assert(party_exchange_at(&p,0,0));
  assert(!move_policy_allows(&p.policies[PARTY_MAX],45)&&move_policy_allows(&p.policies[0],45));
  save_t saved={.version=SAVE_VERSION},out;save_store_party(&saved,&p);
