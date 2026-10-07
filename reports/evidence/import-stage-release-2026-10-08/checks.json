@@ -1,0 +1,62 @@
+[
+  {
+    "check": "verify_usb_backup.py",
+    "exit_code": 0,
+    "seconds": 5.98
+  },
+  {
+    "check": "verify_usb_import.py",
+    "exit_code": 0,
+    "seconds": 2.36
+  },
+  {
+    "check": "verify_save_import_compatibility.py",
+    "exit_code": 0,
+    "seconds": 4.8
+  },
+  {
+    "check": "verify_usb_import_device.py",
+    "exit_code": 0,
+    "seconds": 0.63
+  },
+  {
+    "check": "verify_save_import_web.mjs",
+    "exit_code": 0,
+    "seconds": 0.1
+  },
+  {
+    "check": "verify_usb_backup_checkpoint.py",
+    "exit_code": 0,
+    "seconds": 3.09
+  },
+  {
+    "check": "verify_save_manager_distribution.py",
+    "exit_code": 0,
+    "seconds": 1.41
+  },
+  {
+    "check": "verify_firmware_update.py",
+    "exit_code": 0,
+    "seconds": 0.26
+  },
+  {
+    "check": "verify_nvs_restore_roundtrip.py",
+    "exit_code": 0,
+    "seconds": 10.11
+  },
+  {
+    "check": "verify_region_expansion.py",
+    "exit_code": 0,
+    "seconds": 5.73
+  },
+  {
+    "check": "verify_dungeon_stack.py",
+    "exit_code": 0,
+    "seconds": 0.96
+  },
+  {
+    "check": "verify_release_partition_protection.py",
+    "exit_code": 0,
+    "seconds": 0.12
+  }
+]

@@ -1,0 +1,27 @@
+{
+  "source_commit": "5defc7f",
+  "project_version": "v2026.10.07-move-settings-5-g5defc7f",
+  "app_sha256": "59e3ced6a5f5f154714e6f6819112a6806c145ed55b7afeee25b9c2b7e6addf3",
+  "app_bytes": 3185328,
+  "embedded_version": "v2026.10.07-move-settings-5-g5d",
+  "elf_sha256": "32e408a2921aefab91590428d81e01911bfb4db180cb765e29cb92c27a5b5b3d",
+  "app_only_update": true,
+  "data_unchanged_before_boot": true,
+  "boot_progress_preserved": true,
+  "pet": 131,
+  "level": 41,
+  "exp": 105658,
+  "dex": 108,
+  "party_count": 6,
+  "total": 101,
+  "muted": true,
+  "dungeon": {
+    "phase": 6,
+    "node": 4,
+    "count": 3,
+    "run": 1
+  },
+  "cross_build_v21_import": true,
+  "new_v21_offline_roundtrip": true,
+  "native_browser_permissions_tested": false
+}
