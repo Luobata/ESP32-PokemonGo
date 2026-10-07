@@ -116,6 +116,11 @@ int main(int argc, char **argv) {
 #if FIXTURE_VERSION >= 20
     s.playtime_s=452967; // 125:49:27, distinct from online/offline stamina clocks.
 #endif
+#if FIXTURE_VERSION >= 21
+    move_policy_set(&s.move_policies[0],85,false);
+    move_policy_set(&s.move_policies[1],45,false);
+    move_policy_set(&s.move_policies[PARTY_MAX+3],63,false);
+#endif
     FILE *f=fopen(argv[1], "wb"); assert(f);
     assert(fwrite(&s, 1, sizeof(s), f)==sizeof(s)); assert(!fclose(f));
     printf("%zu\n", sizeof(s));

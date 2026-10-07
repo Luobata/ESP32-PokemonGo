@@ -71,4 +71,9 @@ static void history_assert(const save_t *s, unsigned version) {
     }
     assert(s->playtime_s==(version<20 ? 0u : 452967u));
     assert(s->exploration_wins==(version<19 ? 0u : 73u));
+    move_policy_t expected[PARTY_MAX+BOX_SPECIES]={0};
+    if(version>=21){move_policy_set(&expected[0],85,false);move_policy_set(&expected[1],45,false);move_policy_set(&expected[PARTY_MAX+3],63,false);}
+    assert(!memcmp(s->move_policies,expected,sizeof(expected)));
+    assert(!memcmp(p.policies,expected,sizeof(expected)));
+
 }

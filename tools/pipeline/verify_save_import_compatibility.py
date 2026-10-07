@@ -56,7 +56,7 @@ static void compatibility(void){
  save_t original;assert(save_read_status(&original)==SAVE_READ_OK);
  const size_t sizes[]={sizeof(save_v5_t),sizeof(save_v6_t),sizeof(save_v7_t),sizeof(save_v8_t),
   sizeof(save_v9_t),sizeof(save_v10_t),sizeof(save_v14_t),sizeof(save_v14_t),sizeof(save_v14_t),
-  sizeof(save_v14_t),sizeof(save_v15_t),sizeof(save_v16_t),sizeof(save_v17_t),sizeof(save_v18_t),sizeof(save_v19_t),sizeof(save_t)};
+  sizeof(save_v14_t),sizeof(save_v15_t),sizeof(save_v16_t),sizeof(save_v17_t),sizeof(save_v18_t),sizeof(save_v19_t),sizeof(save_v20_t),sizeof(save_t)};
  for(unsigned version=5;version<=SAVE_VERSION;version++){
   save_t input=original,decoded;party_t party;input.version=version;
   // V7/8 trainer sessions used shorter mons. Empty legacy campaign is valid.
@@ -110,7 +110,7 @@ static void milk(void){
  trainer_mon_t *m=&s_challenge.session.sides[0].mons[0];m->hp=m->max_hp;m->status=1 /* poison */;
  assert(world_challenge_recover(0)&&!m->status&&m->hp==m->max_hp); // status-only recovery
 }
-int main(void){assert(assets_init());historical_compatibility();migration_boundaries();compatibility();milk();puts("{\"passed\":true,\"schemas\":\"V5-V20 historical fixtures, future/corrupt rejected\",\"milk\":\"low/high HP, cap, faint, status, turn cost, save failures and reboot\"}");return 0;}
+int main(void){assert(assets_init());historical_compatibility();migration_boundaries();compatibility();milk();puts("{\"passed\":true,\"schemas\":\"V5-V21 historical fixtures, future/corrupt rejected\",\"milk\":\"low/high HP, cap, faint, status, turn cost, save failures and reboot\"}");return 0;}
 '''
 if __name__ == '__main__':
     harness.CASES = c_cases() + harness.CASES

@@ -1,0 +1,12 @@
+{
+  "source_commit": "845592984192b5319f7ad9d747d3b20c94ef7bd9",
+  "app_sha256": "632c11a98d4d37e97dca0628dbd438d6fb5b8d7ac24956fc0c16105091710fba",
+  "app_bytes": 3182608,
+  "save_version": 21,
+  "supported_sources": "V5-V21",
+  "historical_fixtures": 23,
+  "real_nvs_engine": true,
+  "flash_adapter": "isolated RAM backing; no physical device accessed",
+  "physical_flash": false,
+  "published": false
+}

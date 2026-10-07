@@ -1,10 +1,10 @@
 name: Verify game firmware
 on:
   pull_request:
-    paths: ['firmware/**', 'assets/**', 'data/pokemon_names/**', 'tools/pipeline/**', 'tools/release/**', '.github/workflows/firmware-check.yml']
+    paths: ['firmware/**', 'assets/**', 'data/pokemon_names/**', 'tools/pipeline/**', 'tools/inspector/**', 'tools/release/**', '.github/workflows/firmware-check.yml']
   push:
     branches: [main]
-    paths: ['firmware/**', 'assets/**', 'data/pokemon_names/**', 'tools/pipeline/**', 'tools/release/**', '.github/workflows/firmware-check.yml']
+    paths: ['firmware/**', 'assets/**', 'data/pokemon_names/**', 'tools/pipeline/**', 'tools/inspector/**', 'tools/release/**', '.github/workflows/firmware-check.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -42,6 +42,9 @@ jobs:
           python3 tools/pipeline/verify_shiny_sources.py
           python3 tools/pipeline/verify_shiny_entry.py
           python3 tools/pipeline/verify_move_names.py
+          python3 tools/pipeline/verify_move_settings.py
+          python3 tools/pipeline/verify_move_settings_ui.py
+          python3 tools/pipeline/verify_move_settings_dungeon.py
           python3 tools/pipeline/verify_dungeon_rewards.py
           python3 tools/pipeline/verify_region_expansion.py
           python3 tools/pipeline/verify_exploration_balance.py

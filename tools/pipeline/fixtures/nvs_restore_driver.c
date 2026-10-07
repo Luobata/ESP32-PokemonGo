@@ -75,6 +75,26 @@ static void historical_restore(void){
   assert(save_read_status(&loaded)==SAVE_READ_OK);history_assert(&loaded,history[i].version);
  }
 }
+static void policy_capacity_stress(void){
+ make_save(25,32);party_t p;party_init(&p);p.party_count=PARTY_MAX;
+ for(unsigned i=0;i<PARTY_MAX+BOX_SPECIES;i++){
+  mon_t *m=i<PARTY_MAX?&p.party[i]:&p.box[i-PARTY_MAX];
+  *m=(mon_t){.species_id=i==0?25:1+i%151,.level=32,.exp=exp_for_level(32),.hp=100};
+  move_policy_set(&p.policies[i],1+i%164,false);
+ }
+ save_store_party(&current,&p);assert(save_write(&current));
+ // Full warehouse + separate dungeon blob + settings, repeatedly rewrite a
+ // larger V21 world through the real 24 KB NVS (including garbage collection).
+ for(unsigned i=0;i<300;i++){
+  current.playtime_s++;move_policy_set(&current.move_policies[i%(PARTY_MAX+BOX_SPECIES)],85,i&1);
+  assert(save_write(&current));save_t loaded;assert(save_read(&loaded)&&!memcmp(&loaded,&current,sizeof(current)));
+  if(i%17==0){assert(nvs_flash_deinit()==ESP_OK&&save_init());assert(save_read(&loaded)&&!memcmp(&loaded,&current,sizeof(current)));}
+ }
+ assert(snapshot(image,sizeof(image)));save_t expected=current;make_save(1,7);assert(stage(image,sizeof(image),SAVE_VERSION));
+ assert(nvs_flash_deinit()==ESP_OK&&usb_backup_restore_before_boot()&&boot_result==1&&save_init());
+ save_t loaded;assert(save_read(&loaded)&&save_validate_world(&loaded,&p)&&!memcmp(&loaded,&expected,sizeof(expected)));
+ puts("V21 full 157-individual policies: 300 NVS writes, GC/remount and export/import passed");
+}
 int main(void){
  assert(assets_init());assert(locate());memset(flash,255,sizeof(flash));assert(save_init());
  make_save(25,32);save_t wanted=current;assert(snapshot(image,sizeof(image)));
@@ -90,6 +110,6 @@ int main(void){
  assert(nvs_flash_deinit()==ESP_OK);assert(usb_backup_restore_before_boot());assert(boot_result==0);assert(save_init());assert(save_read(&loaded)&&loaded.species==25); // another boot stays restored
  current=loaded;assert(snapshot(image,sizeof(image)));make_save(1,7);assert(stage(image,sizeof(image),SAVE_VERSION));
  flash[temp.address+0x1000]^=1;assert(nvs_flash_deinit()==ESP_OK);assert(usb_backup_restore_before_boot());assert(boot_result==2);assert(save_init());assert(save_read(&loaded)&&!memcmp(&loaded,&before,sizeof(before)));
- historical_restore();
- assert(nvs_flash_deinit()==ESP_OK);puts("Real ESP-IDF NVS + production save/device/journal: historical V5-V20, distinct saves, schema rejection, settings, restore, second boot and rollback passed");
+ historical_restore();policy_capacity_stress();
+ assert(nvs_flash_deinit()==ESP_OK);puts("Real ESP-IDF NVS + production save/device/journal: historical V5-V21, distinct saves, schema rejection, settings, restore, second boot and rollback passed");
 }
