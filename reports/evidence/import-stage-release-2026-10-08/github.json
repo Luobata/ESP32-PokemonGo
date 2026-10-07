@@ -1,0 +1,51 @@
+{
+  "assets": [
+    {
+      "apiUrl": "https://api.github.com/repos/Luobata/ESP32-PokemonGo/releases/assets/619230125",
+      "contentType": "application/octet-stream",
+      "createdAt": "2026-10-07T16:39:30Z",
+      "digest": "sha256:c080c9304efb5a1b3bcb707b28a351e52e7e62258112b53cc03945716d112bca",
+      "downloadCount": 0,
+      "id": "RA_kwDOUL8Dnc4k6LOt",
+      "label": "",
+      "name": "FoloToy-AI-Passport-full.bin",
+      "size": 3250864,
+      "state": "uploaded",
+      "updatedAt": "2026-10-07T16:39:32Z",
+      "url": "https://github.com/Luobata/ESP32-PokemonGo/releases/download/v2026.10.08-save-import/FoloToy-AI-Passport-full.bin"
+    },
+    {
+      "apiUrl": "https://api.github.com/repos/Luobata/ESP32-PokemonGo/releases/assets/619230124",
+      "contentType": "application/json",
+      "createdAt": "2026-10-07T16:39:30Z",
+      "digest": "sha256:196ca4dd3dfb6d2484e4d577ef002c06f14a9bfeac0f4d9fe874f2078f225b53",
+      "downloadCount": 0,
+      "id": "RA_kwDOUL8Dnc4k6LOs",
+      "label": "",
+      "name": "manifest.json",
+      "size": 861,
+      "state": "uploaded",
+      "updatedAt": "2026-10-07T16:39:30Z",
+      "url": "https://github.com/Luobata/ESP32-PokemonGo/releases/download/v2026.10.08-save-import/manifest.json"
+    },
+    {
+      "apiUrl": "https://api.github.com/repos/Luobata/ESP32-PokemonGo/releases/assets/619230117",
+      "contentType": "application/zip",
+      "createdAt": "2026-10-07T16:39:30Z",
+      "digest": "sha256:292441b7315d4e1457ce881eac2e4a2dfb9c7fcc4eca1ff4f6481310162a5eb6",
+      "downloadCount": 0,
+      "id": "RA_kwDOUL8Dnc4k6LOl",
+      "label": "",
+      "name": "PokeWalk-update.zip",
+      "size": 1418584,
+      "state": "uploaded",
+      "updatedAt": "2026-10-07T16:39:31Z",
+      "url": "https://github.com/Luobata/ESP32-PokemonGo/releases/download/v2026.10.08-save-import/PokeWalk-update.zip"
+    }
+  ],
+  "isDraft": false,
+  "publishedAt": "2026-10-07T16:45:10Z",
+  "tagName": "v2026.10.08-save-import",
+  "targetCommitish": "5defc7fa1f0aede1a063cf807be898164bc1030d",
+  "url": "https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.08-save-import"
+}

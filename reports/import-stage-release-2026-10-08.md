@@ -28,6 +28,8 @@ AGENTS.md 要求的 11 项兼容/导入/分发/地区/栈检查，以及发布�
 
 真机没有执行断电/损坏文件覆盖测试；这些负向路径由隔离真实 NVS 和故障注入覆盖。所有恢复测试均在已有多份已校验私人备份的前提下进行，未向设备写入其他玩家或构造的游戏进度。
 
+补充实际数据变化对照：备份亮度为 100%，通过正常菜单调低一档后，硬件 PWM 回读为 89；导入备份并重启后恢复为 100，伙伴、等级和经验保持，证明实际恢复了文件内的设置。最终设备亮度已恢复，静音保持。见 `evidence/import-stage-release-2026-10-08/roundtrip-marker.json`。
+
 ## 更新要求与发布准备
 
 减少内存占用需要升级固件；只刷新网页不够。细分提示需要同时刷新在线工具或重新下载离线 ZIP。旧网页仍安全拒绝扩展错误，旧固件的通用 STAGE 错误仍无法细分。原 `.pksave` 不用改名、转换或修改校验值；CLI restore.py 仍限同构建。
@@ -36,4 +38,12 @@ AGENTS.md 要求的 11 项兼容/导入/分发/地区/栈检查，以及发布�
 
 保留皮卡丘对战暴鲤龙封面及四张附图，上传的五个文件均已重新打开核对。社区目标保持项目 234 / pokewalk；准备时上一公开版 REV-2236 已批准，没有待审冲突。发布说明只描述本次修复，沿用有效的双语玩法与说明。
 
-本节为提交前验证记录；CI、网站部署、GitHub Release 和社区审核回执在发布后追加，不将提交审核表述为公开上线。
+## 发布结果
+
+固件源码 `5defc7fa1f0aede1a063cf807be898164bc1030d` 已推送 main；发布文档与网页数据提交为 `65319340cb737ac48b69348942d7d393f838949a`。[固件 CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37653535757) 与 [Pages CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37653535830) 均成功。本次发布的是上文经过本地构建、真机验证的应用，未用另一份 CI 构建替换。
+
+[GitHub Release v2026.10.08-save-import](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.08-save-import) 已公开。上传的完整安装包、更新 ZIP 与 manifest 的服务端 SHA-256 均与本地一致。GitHub Pages 与现有 devbox 服务已同步，分别比对 10 个运行资源及离线 ZIP 内 12 个文件，并验证整个 ZIP 字节一致。
+
+社区项目 234 / pokewalk 的 **REV-2257** 已提交审核，状态为 **pending**；当前公开版仍是已批准的 REV-2236。中英文介绍、使用说明、增量日志、源码链接、games 分类及固件摘要回读一致。浏览器确认待审版本为 10 月 8 日第 19 次提交，保留视频入口及五张图片，首图仍为皮卡丘对战暴鲤龙。未撤回或覆盖其他草稿，没有将审核中表述为公开上线。
+
+回执：`evidence/import-stage-release-2026-10-08/` 下的 `firmware-ci.json`、`pages-ci.json`、`github.json`、`pages.json`、`devbox.json`、`community.json` 与 `community.jpg`。不包含私人备份、原始 Flash、设备身份或凭据。

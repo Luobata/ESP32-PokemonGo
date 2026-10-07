@@ -1,0 +1,28 @@
+{
+  "passed": true,
+  "mode": "roundtrip-marker",
+  "production_web_logic": true,
+  "physical_device": true,
+  "native_browser_permissions_tested": false,
+  "cancel_verified": true,
+  "prebackup_readback_verified": true,
+  "source_version": 21,
+  "cross_build": false,
+  "receipt": "设备已确认：存档导入完成。请在设备核对伙伴、等级和图鉴。",
+  "before": {
+    "pet": 131,
+    "level": 41,
+    "exp": 105658
+  },
+  "after": {
+    "pet": 131,
+    "level": 41,
+    "exp": 105658
+  },
+  "files_saved": 2,
+  "brightness_restore": {
+    "source": 100,
+    "before_import": 89,
+    "after": 100
+  }
+}
