@@ -1,0 +1,25 @@
+Real-NVS historical restore: v5-146c798.bin
+Real-NVS historical restore: v6-02e6913.bin
+Real-NVS historical restore: v7-02e6913.bin
+Real-NVS historical restore: v8-02e6913.bin
+Real-NVS historical restore: v9-02e6913.bin
+Real-NVS historical restore: v10-02e6913.bin
+Real-NVS historical restore: v11-02e6913.bin
+Real-NVS historical restore: v12-6791698.bin
+Real-NVS historical restore: v13-ceda89a.bin
+Real-NVS historical restore: v14-4b5f6ed.bin
+Real-NVS historical restore: v15-80ae06d.bin
+Real-NVS historical restore: v16-449d6a3.bin
+Real-NVS historical restore: v17-449d6a3.bin
+Real-NVS historical restore: v17-eb9a5d0.bin
+Real-NVS historical restore: v17-d080936.bin
+Real-NVS historical restore: v17-e80f241.bin
+Real-NVS historical restore: v17-75e1f86.bin
+Real-NVS historical restore: v17-0f76077.bin
+Real-NVS historical restore: v18-36a902a.bin
+Real-NVS historical restore: v18-68ffedd.bin
+Real-NVS historical restore: v19-0448424.bin
+Real-NVS historical restore: v20-dbc7945.bin
+Real-NVS historical restore: v21-8455929.bin
+V21 full 157-individual policies: 300 NVS writes, GC/remount and export/import passed
+Real ESP-IDF NVS + production save/device/journal: historical V5-V21, distinct saves, schema rejection, settings, restore, second boot and rollback passed

@@ -3,66 +3,66 @@
     "command": "python3 tools/pipeline/verify_usb_backup.py",
     "exit_code": 0,
     "seconds": 1.9,
-    "log": "reports/evidence/move-settings-2026-10-07/verify_usb_backup.log"
+    "log": "reports/evidence/move-settings-2026-10-07/verify_usb_backup.txt"
   },
   {
     "command": "python3 tools/pipeline/verify_usb_import.py",
     "exit_code": 0,
     "seconds": 2.9,
-    "log": "reports/evidence/move-settings-2026-10-07/verify_usb_import.log"
+    "log": "reports/evidence/move-settings-2026-10-07/verify_usb_import.txt"
   },
   {
     "command": "python3 tools/pipeline/verify_usb_import_device.py",
     "exit_code": 0,
     "seconds": 0.7,
-    "log": "reports/evidence/move-settings-2026-10-07/verify_usb_import_device.log"
+    "log": "reports/evidence/move-settings-2026-10-07/verify_usb_import_device.txt"
   },
   {
     "command": "node tools/pipeline/verify_save_import_web.mjs",
     "exit_code": 0,
     "seconds": 0.1,
-    "log": "reports/evidence/move-settings-2026-10-07/verify_save_import_web.log"
+    "log": "reports/evidence/move-settings-2026-10-07/verify_save_import_web.txt"
   },
   {
     "command": "python3 tools/pipeline/verify_usb_backup_checkpoint.py",
     "exit_code": 0,
     "seconds": 2.9,
-    "log": "reports/evidence/move-settings-2026-10-07/verify_usb_backup_checkpoint.log"
+    "log": "reports/evidence/move-settings-2026-10-07/verify_usb_backup_checkpoint.txt"
   },
   {
     "command": "python3 tools/pipeline/verify_save_manager_distribution.py",
     "exit_code": 0,
     "seconds": 1.5,
-    "log": "reports/evidence/move-settings-2026-10-07/verify_save_manager_distribution.log"
+    "log": "reports/evidence/move-settings-2026-10-07/verify_save_manager_distribution.txt"
   },
   {
     "command": "python3 tools/pipeline/verify_firmware_update.py",
     "exit_code": 0,
     "seconds": 0.3,
-    "log": "reports/evidence/move-settings-2026-10-07/verify_firmware_update.log"
+    "log": "reports/evidence/move-settings-2026-10-07/verify_firmware_update.txt"
   },
   {
     "command": "python3 tools/pipeline/verify_region_expansion.py",
     "exit_code": 0,
     "seconds": 5.4,
-    "log": "reports/evidence/move-settings-2026-10-07/verify_region_expansion.log"
+    "log": "reports/evidence/move-settings-2026-10-07/verify_region_expansion.txt"
   },
   {
     "command": "python3 tools/pipeline/verify_dungeon_stack.py",
     "exit_code": 0,
     "seconds": 0.7,
-    "log": "reports/evidence/move-settings-2026-10-07/verify_dungeon_stack.log"
+    "log": "reports/evidence/move-settings-2026-10-07/verify_dungeon_stack.txt"
   },
   {
     "command": "tools/device/fw.sh build",
     "exit_code": 0,
     "seconds": 39.0,
-    "log": "reports/evidence/move-settings-2026-10-07/firmware_build.log"
+    "log": "reports/evidence/move-settings-2026-10-07/firmware_build.txt"
   },
   {
     "command": "python3 tools/pipeline/verify_nvs_restore_roundtrip.py",
     "exit_code": 0,
-    "log": "reports/evidence/move-settings-2026-10-07/nvs-roundtrip.log"
+    "log": "reports/evidence/move-settings-2026-10-07/nvs-roundtrip.txt"
   },
   {
     "command": "python3 tools/pipeline/verify_save_import_compatibility.py",

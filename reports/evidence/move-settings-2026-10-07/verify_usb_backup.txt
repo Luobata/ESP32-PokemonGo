@@ -1,0 +1,2 @@
+当前存档已备份： /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmp1mvre9ly/backups/PokeWalk-before-restore-d96cf09553fd46da8c2d0f193e813385.pksave
+{"passed": true, "device_protocol": "ASan/UBSan", "browser": "current and future C schemas 18/99/65535, malformed versions, missing/duplicate/corrupt/truncated frames", "restore": "confirmation, device, metadata, checksum, prebackup and NVS-only roundtrip"}
