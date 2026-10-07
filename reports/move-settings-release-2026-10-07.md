@@ -24,8 +24,22 @@
 
 ## 发布状态
 
-发布前确认项目 234 / pokewalk 的 REV-2170 已批准。沿用暴鲤龙封面、四张附图及原宣传片，五张本地上传图均已打开检查。提交结果、GitHub CI、网页与 devbox 摘要将记录于本节及同名证据目录。
+发布前确认项目 234 / pokewalk 的 REV-2170 已批准。沿用暴鲤龙封面、四张附图及原宣传片，五张本地上传图均已打开检查。本次社区 REV-2236 已提交审核，状态 pending，上一公开版本仍为 REV-2170。双语标题、介绍、使用说明、增量日志、源码和固件摘要回读一致。官方即时提交响应的 allowRemix 为 false，随后 projects 的真实项目状态为 true，公开源码地址保持原值。
 
 ## CI 差异修复
 
 首次 GitHub 固件检查在测试驱动中被 GCC 的 misleading-indentation 告警阻止：for 后的独立断言写在同一行。已为循环补上括号并换行，保留全部断言与 -Werror，不修改游戏源码或降低检查要求。本地重新执行通过，重新提交 CI 验证。
+
+补充在 devbox 的隔离源码副本中以系统 GCC 运行招式、秘境策略和仓库放生回归，全部通过。最初使用 Linuxbrew 混合工具链的尝试遇到宿主 GLIBC 链接冲突；改用 /usr/bin:/bin 后通过，未修改测试标准。隔离源码目录已清理，部署服务不受影响。
+
+## 发布与部署结果
+
+[GitHub Release v2026.10.07-move-settings](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.07-move-settings) 已公开。所有附件的 GitHub digest 与本地相同；发布包应用与真机验证应用一致。源码、测试与说明已推送 main。
+
+[固件 CI 37626038838](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37626038838) 全部成功（提交 16d45be），包含 Linux 完整游戏回归、ESP32 构建、真实 NVS 恢复和分区保护。[Pages CI 37625511037](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37625511037) 成功（提交 c572a5b）。随后只有测试修正及验证记录变更，官网源码不变。
+
+GitHub Pages 和 devbox `http://10.37.197.13:8767/` 均已部署，各 10 个在线资源、12 个离线 ZIP 文件及 ZIP 本身与本地完全一致。浏览器核对新版仓库攻略入口和说明。更详细摘要见同名证据目录中的 github.json、firmware-ci.json、pages-ci.json、pages.json 和 devbox.json。
+
+浏览器最终确认 REV-2236 工作台显示审核中，图库有 5 张图片与 1 个视频，首图仍为皮卡丘对战暴鲤龙。
+
+![社区待审版本，原封面保留](evidence/move-settings-release-2026-10-07/community.jpg)

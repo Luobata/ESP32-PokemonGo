@@ -1,5 +1,16 @@
 # AI Passport 社区发布
 
+## 2026-10-07 招式设置与仓库管理：REV-2236 已提交审核
+
+项目 234 / pokewalk 的 **REV-2236** 已提交，当前 pending，尚未公开；上一公开版 REV-2170 已通过审核。新增个体招式启停、仓库直接放生与等级升序，并修复旧秘境记录占用 NVS 空间导致保存失败。沿用皮卡丘对战暴鲤龙封面、四张附图和宣传片。
+
+实现已推送 main；发布应用固定在已真机验证的 `4b614e7`，[GitHub Release](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.07-move-settings) 已公开。初次 CI 遇到测试代码的 GCC 缩进告警，补上循环括号后，[固件 CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/37626038838) 全部通过，未改动发布应用。
+
+V5～V20 迁移到 V21，V21 导出再导入及秘境历史兼容通过。真机已验证启动保档、连续保存和再次重启，未覆盖导入玩家唯一存档。社区完整安装需先备份、安装后恢复；分区匹配设备可使用 USB 应用更新 ZIP。需要更新固件才能使用新功能，官网/devbox/离线 ZIP 已同步新攻略并核对一致，存档工具协议未变。
+
+[中文更新说明](2026-10-07-move-settings/changelog.zh.md) · [发布验证](../../reports/move-settings-release-2026-10-07.md) · [社区回执](../../reports/evidence/move-settings-release-2026-10-07/community.json)。
+
+
 ## 2026-10-07 闪光出场与怀旧招式译名：REV-2170 已提交审核
 
 项目 234 / pokewalk 新版本 **REV-2170** 当前 pending，尚未公开；上一版 REV-2158 已审核通过。新增金银风格闪光出场，并使「肥大」怀旧译名联动当前 191 种招式；原暴鲤龙封面、四张附图和宣传片保留，双语发布字段及固件摘要回读一致。

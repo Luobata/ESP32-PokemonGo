@@ -1,0 +1,5 @@
+{"ai_choices":11929,"cases":4,"save_version":21,"passed":true}
+
+{"passed":true,"player_attacks":2,"reserved_slot_mapping":true,"forced_switch":true,"reboot":true}
+
+{"passed":true,"cases":2,"save_version":21}

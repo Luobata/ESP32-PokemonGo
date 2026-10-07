@@ -1,0 +1,19 @@
+{
+  "id": 234,
+  "slug": "pokewalk",
+  "revisionId": 2236,
+  "status": "pending",
+  "githubUrl": "https://github.com/Luobata/ESP32-PokemonGo",
+  "firmwareSha256": "a0d0f37b1fe1e423effbb828850700ed4b03284684fd57f0d724017e563bbfa9",
+  "firmwareSize": 3250112,
+  "allowRemix": true,
+  "text_fields_match": true,
+  "images_submitted": 5,
+  "cover_sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6",
+  "previous_public_revision": 2170,
+  "manageUrl": "https://ai-passport.folotoy.cn/account/?project=234",
+  "gallery_count_confirmed_in_browser": 5,
+  "video_present_in_browser": true,
+  "gyarados_cover_confirmed_in_browser": true,
+  "screenshot": "community.jpg"
+}
