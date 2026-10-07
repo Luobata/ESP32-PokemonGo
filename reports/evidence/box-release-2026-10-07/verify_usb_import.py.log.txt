@@ -1,0 +1,2 @@
+journal interruption boundaries: 388 prepare, 483 apply
+{"passed": true, "journal": "power interruption at every I/O boundary, corrupted image, write failure rollback, incompatible build", "protocol": "physical consent, cancel, prebackup ACK, CRC, truncation, timeout, staged reboot", "browser": "production decoder with real C transcript and corrupt files"}

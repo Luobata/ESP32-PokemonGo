@@ -1,0 +1,10 @@
+{
+  "format": "pokewalk-app-update-v1",
+  "address": 65536,
+  "size": 3184576,
+  "sha256": "c1fb6b84a8024fc6560c5c0c2cdeaa6d8b7c877c9d44d255eb021f22c8673636",
+  "partition_sha256": "4757959e43ac4b1588d79b0d1f5fb3d42a45e29ac99217844ad064357bf46015",
+  "source_commit": "4b614e7c8c90529f261fc9ca729774807b6f29e3",
+  "project_version": "v2026.10.06-exploration-12-g4b614e7",
+  "build_passed": true
+}
