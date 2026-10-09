@@ -46,7 +46,8 @@ for(const edition of ['release','previous']){
    assert(!/undefined|NaN|Lv\.null/.test(body),`${edition} ${section}/${id} missing data`);
    if(section==='moves'&&catalog[edition].features.moveSettings)assert(body.includes('至少保留 1 个')&&body.includes('选择自动出招范围'));
    if(section==='party'&&catalog[edition].features.boxRelease)assert(body.includes('直接在仓库放生')&&body.includes('默认取消'));
-   if(section==='save'&&catalog[edition].features.moveSettings)assert(body.includes('V5–V21')&&body.includes('V21 可导出再导入'));
+   if(section==='save'&&catalog[edition].features.compressedSave)assert(body.includes('V5–V22')&&body.includes('V22 可导出再导入'));
+   else if(section==='save'&&catalog[edition].features.moveSettings)assert(body.includes('V5–V21')&&body.includes('V21 可导出再导入'));
    if(section==='items'&&id===null)assert(body.includes('道具手册')&&body.includes('开心饼干'));
    if(section==='items'&&id===0)assert(body.includes('<h1>精灵球</h1>'));
    if(section==='explore'&&id>=4)assert(body.includes('Lv.'+catalog[edition].maps[id].levels[0]));
