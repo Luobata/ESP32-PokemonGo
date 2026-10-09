@@ -26,5 +26,6 @@
   "full_sha256": "a7844c34eb16e2a001c01f100dd1263c79ce1b5b0fd17f3afa7915cd933d648c",
   "update_sha256": "fa4090e0d1e492936b10d59404205fccb4ac1dfa23d7b9aa0aea45be905703e4",
   "full_install_preserves_nvs": false,
-  "release_status": "hardware_validation_passed"
+  "release_status": "github_public_community_pending",
+  "community_revision": 2459
 }
