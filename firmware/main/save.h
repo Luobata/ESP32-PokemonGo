@@ -552,7 +552,7 @@ _Static_assert(offsetof(save_t, opening_seen) == offsetof(save_v5_t, opening_see
 bool save_init(void);
 
 // 存。**会阻塞几毫秒**（flash 写），别在渲染循环里调。
-// Storage/decoding share a bounded static codec buffer: serialize with the world
+// Storage/decoding share a bounded static RTC codec buffer: serialize with the world
 // save lock. Boot reads run before tasks; import validation holds that same lock.
 bool save_write(const save_t *s);
 

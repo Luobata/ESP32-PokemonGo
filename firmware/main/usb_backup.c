@@ -109,7 +109,8 @@ void usb_backup_request(void) {
     if(busy())return;
     if(!read_snapshot||!send_line||!connected||!recent(heartbeat,15000)) {state=USB_BACKUP_NO_HOST;return;}
     payload=malloc(USB_BACKUP_BYTES);
-    if(!payload||!read_snapshot(payload,USB_BACKUP_BYTES)) {fail();error("SNAPSHOT");return;}
+    if(!payload) {fail();error("MEMORY");return;}
+    if(!read_snapshot(payload,USB_BACKUP_BYTES)) {fail();error("SNAPSHOT");return;}
     checksum=restore_crc32(payload,USB_BACKUP_BYTES);offset=0;started=now;++request_id;
     if(!request_id)++request_id;
     char out[240];snprintf(out,sizeof(out),"\n!PWBACKUP BEGIN %s %lu %s %s %u %u %u %08lx\n",

@@ -11,9 +11,18 @@
 #include "exp.h"
 
 static const char *TAG = "save";
-// Fixed 7792-byte budget, shared by encode and aliased import decode. Callers
-// serialize via the world save lock (boot is single-threaded). Never heap/stack.
+// Fixed 7792-byte scratch budget, shared by encode and aliased import decode.
+// C3's separate RTC SRAM keeps this out of the main heap: ordinary BSS would
+// leave no 24 KiB contiguous USB backup buffer. No retained contents are read:
+// encode writes every emitted byte; decode first copies the entire input.
+// The existing rest clock already retains RTC SRAM during sleep. Callers
+// serialize via the world save lock (boot is single-threaded).
+#if defined(ESP_PLATFORM) && !defined(HOST_BUILD)
+#include "esp_attr.h"
+static RTC_NOINIT_ATTR uint8_t storage_buf[sizeof(save_t)];
+#else
 static uint8_t storage_buf[sizeof(save_t)];
+#endif
 _Static_assert(SAVE_VERSION==SAVE_STORAGE_VERSION,"Update the versioned storage codec with the save schema");
 
 // NVS 初始化。**存档必须自己负责这件事**，不能指望别人先做。

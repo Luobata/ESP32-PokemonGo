@@ -15,6 +15,11 @@ C=r'''
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+static bool deny_allocation;
+static void *backup_test_malloc(size_t n){return deny_allocation?NULL:malloc(n);}
+#define malloc backup_test_malloc
+#include "usb_backup.c"
+#undef malloc
 static unsigned test_schema=SAVE_VERSION;
 static char transcript[70000];static int reads;static bool readable=true;
 static void emit(const char *s){assert(strlen(transcript)+strlen(s)<sizeof(transcript));strcat(transcript,s);}
@@ -29,7 +34,8 @@ int main(int argc,char **argv){
  char huge[301];memset(huge,'a',sizeof(huge));huge[0]='!';huge[299]='\n';huge[300]=0;feed(huge);assert(!usb_backup_feed('b'));
  feed(hello);assert(strstr(transcript,"READY"));assert(reads==0); // host cannot start a backup
  usb_backup_tick(16000);usb_backup_request();assert(reads==0);
- feed(hello);readable=false;usb_backup_request();assert(usb_backup_state()==USB_BACKUP_FAILED);
+ feed(hello);deny_allocation=true;usb_backup_request();assert(usb_backup_state()==USB_BACKUP_FAILED&&reads==0&&strstr(transcript,"ERROR MEMORY"));
+ deny_allocation=false;readable=false;usb_backup_request();assert(usb_backup_state()==USB_BACKUP_FAILED&&strstr(transcript,"ERROR SNAPSHOT"));
  readable=true;usb_backup_request();assert(usb_backup_state()==USB_BACKUP_SENDING);
  feed("!PWBACKUP ACK 0123456789abcdef0123456789abcdef 1\n");assert(usb_backup_state()==USB_BACKUP_SENDING);
  usb_backup_tick(32000);assert(usb_backup_state()==USB_BACKUP_FAILED); // disconnected host
@@ -83,7 +89,7 @@ def main():
     spec=importlib.util.spec_from_file_location('restore',ROOT/'tools/save-manager/restore.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
     with tempfile.TemporaryDirectory() as tmp:
         t=Path(tmp);(t/'test.c').write_text(C);(t/'test.mjs').write_text(JS)
-        subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-I',str(ROOT/'firmware/main'),str(t/'test.c'),str(ROOT/'firmware/main/usb_backup.c'),str(ROOT/'firmware/main/restore_journal.c'),'-o',str(t/'test')],check=True)
+        subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-I',str(ROOT/'firmware/main'),str(t/'test.c'),str(ROOT/'firmware/main/restore_journal.c'),'-o',str(t/'test')],check=True)
         result=subprocess.run([str(t/'test')],capture_output=True,text=True,check=True);(t/'wire.txt').write_text(result.stdout)
         result=subprocess.run(['node',str(t/'test.mjs'),(ROOT/'tools/save-manager/web/backup.mjs').as_uri(),str(t/'wire.txt'),str(ROOT/'firmware/main/save.h')],capture_output=True,text=True,check=True)
         f=t/'test.pksave';f.write_text(result.stdout);meta,raw=m.decode(f);assert len(raw)==24576
