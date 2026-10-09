@@ -42,7 +42,7 @@
 | 完整安装包 | `a7844c34eb16e2a001c01f100dd1263c79ce1b5b0fd17f3afa7915cd933d648c` |
 | USB 更新 ZIP | `fa4090e0d1e492936b10d59404205fccb4ac1dfa23d7b9aa0aea45be905703e4` |
 
-最终发布状态与 CI 链接见本文末尾。首次 35 秒串口测试等待不足，重试完整导出后才烧录；之后没有将不完整文件当备份。离线包验收后仅 README 更新了已完成的验证状态，发布时会核对全部网页运行资源与被测包一致，再核对服务器完整分发包。
+最终发布状态与 CI 链接见本文末尾。首次 35 秒串口测试等待不足，重试完整导出后才烧录；之后没有将不完整文件当备份。离线包验收后仅仓库 README 更新了验证状态；README 不在分发包中，完整被测 ZIP 与最终分发 ZIP 逐字节一致。
 
 ## 发布完成记录
 
@@ -51,6 +51,6 @@
 - [GitHub v2026.10.09-save-capacity](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.09-save-capacity) 已公开，三份服务器附件摘要与本地一致。
 - AI Passport 原项目 234 / pokewalk 提交 **REV-2459**，状态 **pending，尚未公开**；当前公开版 REV-2257 已 approved。中英标题、介绍、使用说明、增量日志、源码 URL 和固件摘要回读一致。
 - 沿用暴鲤龙封面、四张附图与宣传片入口；所有上传本地图片逐张查看。publisher 待审记录不返回图库，故不声称已读回服务器待审图片内容。未另行发布评论。
-- [GitHub Pages](https://luobata.github.io/ESP32-PokemonGo/) 和 devbox `http://10.37.197.13:8767/` 已部署，公开资源与离线 ZIP 逐文件匹配当前源码。被测离线运行资源的 10 个文件与最终版完全一致；验收后的 ZIP 差异仅 README 的验证状态说明。
+- [GitHub Pages](https://luobata.github.io/ESP32-PokemonGo/) 和 devbox `http://10.37.197.13:8767/` 已部署，公开资源与离线 ZIP 逐文件匹配当前源码。被测离线运行资源的 10 个文件及整个离线 ZIP 与最终分发版完全一致。
 
 记录中的物理设备覆盖、隔离故障注入和未测试范围互不替代；不承诺未来任意版本或任意共享存储状态永远不会写入失败。

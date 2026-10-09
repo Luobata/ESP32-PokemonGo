@@ -12,5 +12,6 @@
     "guide/guide.mjs": "7e82444c0365cac51ce944a9c3c0fa0584e84e3186faeee14320de7657d13a2d",
     "guide/battle.png": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6"
   },
-  "only_bundle_readme_updated_after_hardware_test": true
+  "tested_zip_identical_to_release": true,
+  "zip_sha256": "fc46cd2cd11a93ca9c021f06e5acdbe4532823ad4565cb5b1e7291202c979155"
 }
