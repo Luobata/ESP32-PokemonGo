@@ -1,0 +1,30 @@
+{
+  "source_commit": "99c3fab44622c0609491c1ce77851e3c89a54bb7",
+  "save_version": 22,
+  "compatible_sources": [
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22
+  ],
+  "app_size": 3186944,
+  "app_sha256": "74b0b84d02dda817488f144a8561b45aadaae5d14dc681cf190cc47596c5cb19",
+  "full_sha256": "a7844c34eb16e2a001c01f100dd1263c79ce1b5b0fd17f3afa7915cd933d648c",
+  "update_sha256": "fa4090e0d1e492936b10d59404205fccb4ac1dfa23d7b9aa0aea45be905703e4",
+  "full_install_preserves_nvs": false,
+  "release_status": "hardware_validation_passed"
+}

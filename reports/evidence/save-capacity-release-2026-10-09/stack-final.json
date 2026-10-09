@@ -1,0 +1,1 @@
+{"target": "esp32c3", "stack_frames": {"save_storage_encode": 48, "save_storage_decode": 48, "save_write": 48, "save_decode": 480, "save_read_status": 32, "save_validate_world": 16}, "codec_rtc_bytes": 7792, "main_dram_codec_bytes": 0, "rtc_used_bytes": 7864, "rtc_free_bytes": 328, "new_dynamic_allocations": 0, "runtime_heap_measured": false, "passed": true}

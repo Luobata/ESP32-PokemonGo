@@ -1,0 +1,38 @@
+[
+  {
+    "free": 32700,
+    "minimum": 28112,
+    "largest": 27648,
+    "stack_free": 952,
+    "phase": "runtime"
+  },
+  {
+    "free": 32500,
+    "minimum": 28112,
+    "largest": 27648,
+    "stack_free": 952,
+    "phase": "runtime"
+  },
+  {
+    "free": 32100,
+    "minimum": 28112,
+    "largest": 27648,
+    "stack_free": 952,
+    "phase": "runtime"
+  },
+  {
+    "valid": 1,
+    "free": 6908,
+    "minimum": 5704,
+    "largest": 4096,
+    "stack_free": 824,
+    "phase": "import"
+  },
+  {
+    "free": 32316,
+    "minimum": 28324,
+    "largest": 27648,
+    "stack_free": 876,
+    "phase": "runtime"
+  }
+]

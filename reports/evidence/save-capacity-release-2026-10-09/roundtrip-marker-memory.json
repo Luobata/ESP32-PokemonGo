@@ -1,0 +1,262 @@
+[
+  {
+    "free": 32936,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 948,
+    "phase": "runtime"
+  },
+  {
+    "free": 32736,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 948,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 824,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 824,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 772,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 772,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 772,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 772,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 772,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 772,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 772,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 772,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32172,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32972,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32832,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32832,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32832,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32832,
+    "minimum": 28348,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "free": 32964,
+    "minimum": 8092,
+    "largest": 27648,
+    "stack_free": 724,
+    "phase": "runtime"
+  },
+  {
+    "valid": 1,
+    "free": 6028,
+    "minimum": 5560,
+    "largest": 4096,
+    "stack_free": 724,
+    "phase": "import"
+  },
+  {
+    "free": 32700,
+    "minimum": 28112,
+    "largest": 27648,
+    "stack_free": 952,
+    "phase": "runtime"
+  }
+]

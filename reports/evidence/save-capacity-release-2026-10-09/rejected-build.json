@@ -1,0 +1,12 @@
+{
+  "source_commit": "4460848402e9abc05ae532084315851f564b0359",
+  "published": false,
+  "physical_device": true,
+  "free_heap": 32704,
+  "minimum_heap": 28532,
+  "largest_block": 20480,
+  "required_usb_buffer": 24576,
+  "backup_failed": true,
+  "current_progress_preserved": true,
+  "reason": "Main-DRAM codec buffer prevented contiguous USB allocation; superseded by RTC workspace."
+}

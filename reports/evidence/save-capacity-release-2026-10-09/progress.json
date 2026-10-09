@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "physical_device": true,
+  "before_version": 21,
+  "after_version": 22,
+  "logical_bytes": 7792,
+  "stored_bytes": 2443,
+  "checks": {
+    "party": true,
+    "dex": true,
+    "inventory": true,
+    "challenge": true,
+    "achievements": true,
+    "exploration_updates": true,
+    "regions": true,
+    "dungeon": true,
+    "move_policies": true,
+    "settings": true,
+    "independent_dungeon": true,
+    "muted": true
+  }
+}
