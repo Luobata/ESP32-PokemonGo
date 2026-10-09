@@ -1,5 +1,5 @@
 {
-  "current_version": 21,
+  "current_version": 22,
   "oldest_version": 5,
   "description": "Synthetic progress, no player/device data. Little-endian, 8-byte int64 alignment.",
   "fixtures": [
@@ -1788,6 +1788,20 @@
         "firmware/main/world.h": "e65bea510a9cf2cf51854e07796d0ec4ead34004b1bf32c7e13217dca09b39c2"
       },
       "provenance": "historical save writer layout"
+    },
+    {
+      "file": "v22-pwz1.bin",
+      "version": 22,
+      "size": 429,
+      "sha256": "e2a6c09321252b9cf1141d9f6a76657d53cdb2e1a691bda663c6ecb0ad2e8075",
+      "source_commit": "845592984192b5319f7ad9d747d3b20c94ef7bd9",
+      "source_type": "save_t (frozen V21 decoded layout, schema 22, PWZ1 envelope)",
+      "source_fixture": "v21-8455929.bin",
+      "source_fixture_sha256": "6151a04ed0ce2cb764ae12f7775c6fe9503a2fbd80ad9f7cc07395960e7a07da",
+      "source_hashes": {
+        "firmware/main/save_storage.h": "dd70d29be79cafcd1efee4684b2516f0a8a3254a303410aecadba9e07f0918f4"
+      },
+      "provenance": "Initial V22 storage fixture, encoded from the named synthetic historical V21 bytes; source_commit identifies that logical layout, encoder identified by source_hashes. No player data."
     }
   ]
 }

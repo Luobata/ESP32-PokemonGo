@@ -16,7 +16,7 @@ const run=new (Object.getPrototypeOf(async function(){}).constructor)('Receiver'
  await save(q);return transfer;
 `);
 const bytes=new Uint8Array(SIZE);const current={id:'1',device:'001122334455',firmware:'2'.repeat(64),version:17,crc:crc32(bytes),bytes};
-for(const version of [5,16,17]){
+for(const version of [5,16,17,20,21,22]){
  let saved='';const fixture={sent:[],directory:{async queryPermission(){return 'granted';},async getFileHandle(){return {async createWritable(){return {async write(text){saved=text;},async close(){},async abort(){}};},async getFile(){return {async text(){return saved;}};}};}}};
  const transfer=await run(Receiver,envelope,decodeBackup,SIZE,fixture,current,{device_id:current.device,firmware:'1'.repeat(64),save_version:version});
  assert(transfer.backedUp);assert.equal(fixture.sent.length,1);assert.match(fixture.sent[0],/ ACK .* 1/);

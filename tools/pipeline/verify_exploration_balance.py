@@ -189,8 +189,8 @@ static void migration_v18(void){
  old.queue.items[0].activity=9;assert(save_decode(&out,&old,sizeof(old),0)==SAVE_READ_ERROR);
  old.queue.items[0].activity=0;old.regions.region[0].pity=6;assert(save_decode(&out,&old,sizeof(old),0)==SAVE_READ_ERROR);
  current.regions.region[0].pity=9;current.exploration_wins=UINT32_MAX;
- assert(save_decode(&out,&current,sizeof(current),0)==SAVE_READ_OK&&out.exploration_wins==UINT32_MAX);
- current.regions.region[0].pity=10;assert(save_decode(&out,&current,sizeof(current),0)==SAVE_READ_ERROR);tests++;
+ assert(test_decode_save(&out,&current)==SAVE_READ_OK&&out.exploration_wins==UINT32_MAX);
+ current.regions.region[0].pity=10;assert(test_decode_save(&out,&current)==SAVE_READ_ERROR);tests++;
 }
 int main(void){assert(assets_init());chain_transactions();chain_capture_confirmation();chain_odds();supply_distribution();habitat_odds();base_route_rules();migration_v18();printf("\n{\"passed\":true,\"groups\":%u,\"save_version\":%u,\"save_bytes\":%zu,\"sanitized\":true}\n",tests,SAVE_VERSION,sizeof(save_t));return 0;}
 '''

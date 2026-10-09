@@ -32,6 +32,7 @@ jobs:
           python3 tools/pipeline/verify_usb_backup.py
           python3 tools/pipeline/verify_usb_import.py
           python3 tools/pipeline/verify_save_import_compatibility.py
+          python3 tools/pipeline/verify_save_storage.py
           python3 tools/pipeline/verify_usb_import_device.py
           python3 tools/pipeline/verify_firmware_update.py
           node tools/pipeline/verify_save_import_web.mjs
@@ -66,6 +67,7 @@ jobs:
             cd ..
             python tools/pipeline/verify_nvs_restore_roundtrip.py
             python tools/pipeline/verify_dungeon_stack.py
+            python tools/pipeline/verify_save_stack.py
             python tools/release/package_firmware.py
             python tools/pipeline/verify_release_partition_protection.py
       - name: Archive firmware and build identity

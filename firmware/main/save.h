@@ -21,7 +21,9 @@
 //
 // ## 存什么
 //
-// 约 292 字节：遭遇队列 160 + 图鉴 76 + 养成 24 + 主宠 16 + 累积量 16。
+// V22: decoded world is 7792 bytes (including per-individual move policies).
+// NVS stores a variable-length, lossless PWZ1 envelope with length and CRC32.
+// V5-V21 retain their original raw layouts for migration; no partition changes.
 // **不存的东西**：sensing 的地点记忆（2.6 KB，重启后重新学更省事，
 // 且它本来就是滚动窗口）、招式列表（现算，见 assets_known_moves）。
 #pragma once
@@ -45,7 +47,7 @@
 
 // 存档版本。**加字段时必须 +1** —— load 会拒绝不认识的版本，
 // 那比读到错位的字段好（错位不报错，只是数值离谱）。
-#define SAVE_VERSION 21 // Individual move exclusions; V5-V20 default to all enabled.
+#define SAVE_VERSION 22 // Lossless PWZ1 storage envelope; V5-V21 remain readable.
 #define SAVE_LEGACY_VERSION 5
 
 typedef struct {
@@ -514,6 +516,8 @@ typedef struct {
  }; };
  move_policy_t move_policies[PARTY_MAX+BOX_SPECIES];
 } save_t;
+typedef save_t save_v21_t; // V22 keeps the decoded V21 layout; only storage changes.
+_Static_assert(sizeof(save_v21_t)==7792,"Freeze V21 decoded world layout");
 _Static_assert(sizeof(save_v20_t)==4024,"Freeze V20 world layout");
 _Static_assert(offsetof(save_t,move_policies)==sizeof(save_v20_t),"V21 preserves V20 including tail padding");
 static inline void save_store_party(save_t *s,const party_t *p){party_serialize(p,s->party);memcpy(s->move_policies,p->policies,sizeof(s->move_policies));}
@@ -548,6 +552,8 @@ _Static_assert(offsetof(save_t, opening_seen) == offsetof(save_v5_t, opening_see
 bool save_init(void);
 
 // 存。**会阻塞几毫秒**（flash 写），别在渲染循环里调。
+// Storage/decoding share a bounded static codec buffer: serialize with the world
+// save lock. Boot reads run before tasks; import validation holds that same lock.
 bool save_write(const save_t *s);
 
 typedef enum {

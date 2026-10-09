@@ -72,7 +72,7 @@ static void growth_and_identity(void){
  assert(!move_policy_allows(&p.policies[PARTY_MAX],45)&&move_policy_allows(&p.policies[0],45));
  save_t saved={.version=SAVE_VERSION},out;save_store_party(&saved,&p);
  assert(!memcmp(saved.move_policies,p.policies,sizeof(p.policies)));
- saved.move_policies[0].disabled[23]|=128;assert(save_decode(&out,&saved,sizeof(saved),0)==SAVE_READ_ERROR);tests++;
+ saved.move_policies[0].disabled[23]|=128;assert(test_decode_save(&out,&saved)==SAVE_READ_ERROR);tests++;
 }
 static void filtered_battles(void){
  setup();move_policy_t policy[PARTY_MAX]={0};uint16_t ids[COMBAT_MOVE_CAP];int n=combat_known_moves(25,60,ids,COMBAT_MOVE_CAP);

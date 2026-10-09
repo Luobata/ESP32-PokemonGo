@@ -1,0 +1,207 @@
+[
+  {
+    "script": "tools/pipeline/verify_display_init.py",
+    "exit_code": 0,
+    "seconds": 1.87
+  },
+  {
+    "script": "tools/pipeline/verify_power_audio.py",
+    "exit_code": 0,
+    "seconds": 2.42
+  },
+  {
+    "script": "tools/pipeline/verify_display_sleep.py",
+    "exit_code": 0,
+    "seconds": 1.11
+  },
+  {
+    "script": "tools/pipeline/verify_power_worker.py",
+    "exit_code": 0,
+    "seconds": 3.01
+  },
+  {
+    "script": "tools/pipeline/verify_display_settings.py",
+    "exit_code": 0,
+    "seconds": 0.6
+  },
+  {
+    "script": "tools/pipeline/verify_wifi_time.py",
+    "exit_code": 0,
+    "seconds": 1.24
+  },
+  {
+    "script": "tools/pipeline/verify_usb_backup.py",
+    "exit_code": 0,
+    "seconds": 2.2
+  },
+  {
+    "script": "tools/pipeline/verify_usb_import.py",
+    "exit_code": 0,
+    "seconds": 2.63
+  },
+  {
+    "script": "tools/pipeline/verify_usb_import_device.py",
+    "exit_code": 0,
+    "seconds": 0.56
+  },
+  {
+    "script": "tools/pipeline/verify_firmware_update.py",
+    "exit_code": 0,
+    "seconds": 0.25
+  },
+  {
+    "script": "tools/pipeline/verify_silent_boot.py",
+    "exit_code": 0,
+    "seconds": 8.72
+  },
+  {
+    "script": "tools/pipeline/verify_audio_settings.py",
+    "exit_code": 0,
+    "seconds": 0.88
+  },
+  {
+    "script": "tools/pipeline/verify_offline_stamina.py",
+    "exit_code": 0,
+    "seconds": 3.36
+  },
+  {
+    "script": "tools/pipeline/verify_achievement_capacity.py",
+    "exit_code": 0,
+    "seconds": 3.38
+  },
+  {
+    "script": "tools/pipeline/verify_shiny_sources.py",
+    "exit_code": 0,
+    "seconds": 4.28
+  },
+  {
+    "script": "tools/pipeline/verify_move_names.py",
+    "exit_code": 0,
+    "seconds": 5.56
+  },
+  {
+    "script": "tools/pipeline/verify_move_settings_ui.py",
+    "exit_code": 0,
+    "seconds": 0.77
+  },
+  {
+    "script": "tools/pipeline/verify_move_settings.py",
+    "exit_code": 0,
+    "seconds": 4.03
+  },
+  {
+    "script": "tools/pipeline/verify_move_settings_dungeon.py",
+    "exit_code": 0,
+    "seconds": 3.58
+  },
+  {
+    "script": "tools/pipeline/verify_box_release_ui.py",
+    "exit_code": 0,
+    "seconds": 0.62
+  },
+  {
+    "script": "tools/pipeline/verify_box_release.py",
+    "exit_code": 0,
+    "seconds": 3.87
+  },
+  {
+    "script": "tools/pipeline/verify_shiny_entry.py",
+    "exit_code": 0,
+    "seconds": 14.48
+  },
+  {
+    "script": "tools/pipeline/verify_dungeon_rewards.py",
+    "exit_code": 0,
+    "seconds": 4.02
+  },
+  {
+    "script": "tools/pipeline/verify_region_expansion.py",
+    "exit_code": 0,
+    "seconds": 5.96
+  },
+  {
+    "script": "tools/pipeline/verify_care_events_preview.py",
+    "exit_code": 0,
+    "seconds": 1.02
+  },
+  {
+    "script": "tools/pipeline/verify_exploration_balance.py",
+    "exit_code": 0,
+    "seconds": 6.72
+  },
+  {
+    "script": "tools/pipeline/verify_region_trails_preview.py",
+    "exit_code": 0,
+    "seconds": 2.24
+  },
+  {
+    "script": "tools/pipeline/verify_exploration_events.py",
+    "exit_code": 0,
+    "seconds": 4.47
+  },
+  {
+    "script": "tools/pipeline/verify_save_manager_distribution.py",
+    "exit_code": 0,
+    "seconds": 1.72
+  },
+  {
+    "script": "tools/pipeline/verify_achievements.py",
+    "exit_code": 0,
+    "seconds": 3.54
+  },
+  {
+    "script": "tools/pipeline/verify_world_party.py",
+    "exit_code": 0,
+    "seconds": 3.15
+  },
+  {
+    "script": "tools/pipeline/verify_playtime.py",
+    "exit_code": 0,
+    "seconds": 3.73
+  },
+  {
+    "script": "tools/pipeline/verify_dungeon_stack.py",
+    "exit_code": 0,
+    "seconds": 0.62
+  },
+  {
+    "script": "tools/pipeline/verify_save_import_web.mjs",
+    "exit_code": 0,
+    "seconds": 0.12
+  },
+  {
+    "script": "tools/pipeline/verify_save_stack.py",
+    "exit_code": 0,
+    "seconds": 0.46
+  },
+  {
+    "script": "tools/pipeline/verify_starter.py",
+    "exit_code": 0,
+    "seconds": 3.57
+  },
+  {
+    "script": "tools/pipeline/verify_save_import_compatibility.py",
+    "exit_code": 0,
+    "seconds": 3.8
+  },
+  {
+    "script": "tools/pipeline/verify_usb_backup_checkpoint.py",
+    "exit_code": 0,
+    "seconds": 2.98
+  },
+  {
+    "script": "tools/pipeline/verify_save_storage.py",
+    "exit_code": 0,
+    "seconds": 6.85
+  },
+  {
+    "script": "tools/pipeline/verify_nvs_restore_roundtrip.py",
+    "exit_code": 0,
+    "seconds": 9.55
+  },
+  {
+    "script": "private-roundtrip (RAM flash; private input path omitted)",
+    "exit_code": 0,
+    "seconds": 8.73
+  }
+]

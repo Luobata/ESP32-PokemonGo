@@ -7,9 +7,14 @@
 #include "nvs_flash.h"
 
 #include "save.h"
+#include "save_storage.h"
 #include "exp.h"
 
 static const char *TAG = "save";
+// Fixed 7792-byte budget, shared by encode and aliased import decode. Callers
+// serialize via the world save lock (boot is single-threaded). Never heap/stack.
+static uint8_t storage_buf[sizeof(save_t)];
+_Static_assert(SAVE_VERSION==SAVE_STORAGE_VERSION,"Update the versioned storage codec with the save schema");
 
 // NVS 初始化。**存档必须自己负责这件事**，不能指望别人先做。
 //
@@ -33,7 +38,7 @@ bool save_init(void)
 }
 
 #define NS "pokewalk"      // NVS 命名空间
-#define KEY "state"        // 整个 save_t 当一个 blob 存
+#define KEY "state"        // One versioned storage blob; decoded layout is save_t.
 #define KEY_OPENING "opening"
 
 // 整块存而不是逐字段存 kv。
@@ -42,7 +47,9 @@ bool save_init(void)
 // 但那样**一次存档要 8 次 nvs_set + 8 次可能失败的点**，
 // 而且字段加减时要同步维护键名表。
 //
-// 整块约 2.2 KiB，NVS 的 blob 上限是 508000 字节 —— 绰绰有余。
+// V21 decoded state is 7792 bytes. NVS needs old and new blobs simultaneously;
+// its theoretical blob limit does not imply our shared 24 KiB partition fits.
+// V22 stores one losslessly encoded, checksummed blob, retaining NVS atomicity.
 // 原子性也更好：要么整块新的，要么整块旧的，不会出现
 // 「图鉴是新的而队列是旧的」这种半更新状态。
 
@@ -57,6 +64,8 @@ static bool policies_valid(const save_t *s) {
 bool save_write(const save_t *s)
 {
     if (!s || s->version != SAVE_VERSION || !policies_valid(s) || !items_inventory_valid(&s->inventory) || !trainer_store_valid(&s->challenge) || !enc_refresh_valid(&s->refresh) || !exploration_valid(&s->exploration) || !exploration_regions_valid(&s->regions) || !exploration_updates_valid(&s->exploration_updates) || !rest_clock_valid(&s->rest_clock) || !dungeon_progress_valid(&s->dungeon)) return false;
+    size_t stored_size=save_storage_encode(storage_buf,sizeof(storage_buf),s,sizeof(*s));
+    if(!stored_size){ESP_LOGE(TAG,"存档编码超出工作区，保留原档");return false;}
     nvs_handle_t h;
     esp_err_t e = nvs_open(NS, NVS_READWRITE, &h);
     if (e != ESP_OK) {
@@ -64,15 +73,14 @@ bool save_write(const save_t *s)
         return false;
     }
 
-    e = nvs_set_blob(h, KEY, s, sizeof(*s));
+    e = nvs_set_blob(h, KEY, storage_buf, stored_size);
     // opening_seen 是单调标记。world 的快照不拥有它，传 false 时绝不
     // 擦掉已经写入的 true；显式传 true 的调用方则一并持久化。
     if (e == ESP_OK && s->opening_seen) {
         e = nvs_set_u8(h, KEY_OPENING, 1);
     }
     if (e == ESP_OK) {
-        // **commit 不能省** —— nvs_set_blob 只写进缓存，
-        // 不 commit 的话拔电就丢了，而函数返回值是成功的。
+        // Keep the NVS API transaction boundary, including the opening marker.
         e = nvs_commit(h);
     }
     nvs_close(h);
@@ -115,6 +123,12 @@ save_read_result_t save_read_status(save_t *out)
 save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_t opening_seen)
 {
     if (!out || !blob || len < sizeof(uint16_t) || len > sizeof(*out)) return SAVE_READ_ERROR;
+    if(save_le16(blob)==SAVE_VERSION){
+        // The importer reads into out. Preserve compressed input before expansion.
+        memmove(storage_buf,blob,len);
+        if(!save_storage_decode(out,sizeof(*out),storage_buf,len))return SAVE_READ_ERROR;
+        blob=out;len=sizeof(*out);
+    }
     bool legacy = len == sizeof(save_v5_t);
     bool version6 = len == sizeof(save_v6_t);
     bool version7 = len == sizeof(save_v7_t);
@@ -127,6 +141,7 @@ save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_
     bool version18 = len == sizeof(save_v18_t);
     bool version19 = len == sizeof(save_v19_t);
     bool version20 = len == sizeof(save_v20_t);
+    bool version21 = len == sizeof(save_v21_t) && save_le16(blob)==21;
     if (!legacy && !version6 && !version7 && !version8 && !version9 && !version10 &&
         !version15 && !version16 && !version17 && !version18 && !version19 && !version20 && len != sizeof(save_v14_t) && len != sizeof(*out))
         return SAVE_READ_ERROR;
@@ -137,7 +152,7 @@ save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_
     bool version12 = len == sizeof(save_v14_t) && out->version == 12;
     bool version11 = len == sizeof(save_v14_t) && out->version == 11;
     if(len==sizeof(save_v14_t)&&!(version11||version12||version13||version14))return SAVE_READ_ERROR;
-    if (out->version != (legacy ? SAVE_LEGACY_VERSION : version6 ? 6 : version7 ? 7 : version8 ? 8 : version9 ? 9 : version10 ? 10 : version11 ? 11 : version12 ? 12 : version13 ? 13 : version14 ? 14 : version15 ? 15 : version16 ? 16 : version17 ? 17 : version18 ? 18 : version19 ? 19 : version20 ? 20 : SAVE_VERSION)) {
+    if (out->version != (legacy ? SAVE_LEGACY_VERSION : version6 ? 6 : version7 ? 7 : version8 ? 8 : version9 ? 9 : version10 ? 10 : version11 ? 11 : version12 ? 12 : version13 ? 13 : version14 ? 14 : version15 ? 15 : version16 ? 16 : version17 ? 17 : version18 ? 18 : version19 ? 19 : version20 ? 20 : version21 ? 21 : SAVE_VERSION)) {
         ESP_LOGW(TAG, "存档版本 %u ≠ %d —— 保留原档，禁止新游戏覆盖",
                  out->version, SAVE_VERSION);
         return SAVE_READ_ERROR;
@@ -151,7 +166,7 @@ save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_
     if(pre16)for(unsigned i=0;i<ENC_QUEUE_CAP;i++){out->queue.items[i].level=0;out->queue.items[i].activity=0;}
     if(!pre16)for(unsigned i=0;i<ENC_QUEUE_CAP;i++)if(out->queue.items[i].level>100||out->queue.items[i].activity>(pre19?8:ENC_ACTIVITY_EXPLORATION))return SAVE_READ_ERROR;
     if(pre19)out->exploration_wins=0;
-    if(version15||version16||version17||version18||version19||version20)out->version=SAVE_VERSION;
+    if(version15||version16||version17||version18||version19||version20||version21)out->version=SAVE_VERSION;
     // V5-V11 used species-indexed cells. Validate before adopting physical slots.
     if (out->version < 12) {
         for(unsigned i=0;i<BOX_SPECIES;i++) {
@@ -240,7 +255,7 @@ save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_
     if(!rest_clock_valid(&out->rest_clock))return SAVE_READ_ERROR;
     if(!exploration_updates_valid(&out->exploration_updates))return SAVE_READ_ERROR;
     if(!dungeon_progress_valid(&out->dungeon))return SAVE_READ_ERROR;
-    return migrated||version13||version14||version15||version16||version17||version18||version19||version20 ? SAVE_READ_MIGRATED : SAVE_READ_OK;
+    return migrated||version13||version14||version15||version16||version17||version18||version19||version20||version21 ? SAVE_READ_MIGRATED : SAVE_READ_OK;
 }
 
 bool save_read(save_t *out) {
@@ -280,7 +295,9 @@ bool save_exists(void)
     size_t len = 0;
     esp_err_t e = nvs_get_blob(h, KEY, NULL, &len);
     nvs_close(h);
-    return e == ESP_OK && (len == sizeof(save_t) || len == sizeof(save_v20_t) || len == sizeof(save_v19_t) || len == sizeof(save_v18_t) || len == sizeof(save_v17_t) || len == sizeof(save_v16_t) || len == sizeof(save_v15_t) || len == sizeof(save_v14_t) || len == sizeof(save_v10_t) || len == sizeof(save_v9_t) || len == sizeof(save_v8_t) || len == sizeof(save_v7_t) || len == sizeof(save_v6_t) || len == sizeof(save_v5_t));
+    // Presence is not validity, and a variable-length V22 is still an existing
+    // save. Full validation remains in save_read_status; never offer to erase it.
+    return e == ESP_OK;
 }
 
 bool save_erase(void)

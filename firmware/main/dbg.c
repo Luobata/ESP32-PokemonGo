@@ -32,6 +32,7 @@
 #include "soc/gpio_reg.h"
 #include "soc/soc.h"
 #include "esp_log.h"
+#include "esp_heap_caps.h"
 #include "esp_timer.h"
 #include "esp_vfs_dev.h"
 #include "freertos/FreeRTOS.h"
@@ -197,6 +198,12 @@ static void dispatch(char c)
                      (unsigned long)view.exp, (long)view.pet.stamina, (long)view.pet.mood);
             const dungeon_t *d=dungeon_get();
             ESP_LOGI(TAG,"@@DUNGEON_STATE phase=%u node=%u count=%u run=%lu pending=%u reset_reason=%d stack_free=%u",d->phase,d->node,d->count,(unsigned long)d->run_id,d->pending,esp_reset_reason(),(unsigned)uxTaskGetStackHighWaterMark(NULL));
+            const uint32_t caps=MALLOC_CAP_INTERNAL|MALLOC_CAP_8BIT;
+            ESP_LOGI(TAG,"@@MEMORY_STATE free=%u minimum=%u largest=%u stack_free=%u",
+                     (unsigned)heap_caps_get_free_size(caps),
+                     (unsigned)heap_caps_get_minimum_free_size(caps),
+                     (unsigned)heap_caps_get_largest_free_block(caps),
+                     (unsigned)uxTaskGetStackHighWaterMark(NULL));
             bsp_lvgl_unlock();
         }
         return;

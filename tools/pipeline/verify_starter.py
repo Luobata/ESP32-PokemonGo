@@ -95,6 +95,7 @@ DRIVER = r"""
 #include "world.h"
 #include "save.h"
 #include "exp.h"
+#include "assets.h"
 test_mutex_t test_mutexes[128];
 unsigned test_mutex_count;
 int64_t test_time=1000000;
@@ -159,6 +160,15 @@ void sfx_encounter(uint8_t rarity, bool shiny) { alert_count++;alert_rarity=rari
 #undef TAG
 #define TAG starter_save_tag
 #include "save.c"
+// Persist/validate a modern candidate through the real storage envelope. Tests
+// that construct historical layouts still write their original raw bytes.
+static void test_store_save(const save_t *s) {
+    disk_len=save_storage_encode(disk,sizeof(save_t),s,sizeof(*s));assert(disk_len);
+}
+static save_read_result_t test_decode_save(save_t *out,const save_t *s) {
+    uint8_t raw[sizeof(save_t)];size_t n=save_storage_encode(raw,sizeof(raw),s,sizeof(*s));
+    assert(n);return save_decode(out,raw,n,0);
+}
 #include "achievements.c"
 #include "dungeon_rewards.c"
 #ifndef TEST_REAL_DUNGEON
@@ -197,7 +207,7 @@ static void legacy(void) {
     mon_t second={.species_id=133,.level=23,.hp=79,.nickname_idx=3,.exp=exp_for_level(23)};
     assert(party_receive(&p,&first)&&party_receive(&p,&second));party_serialize(&p,saved.party);
     saved.species=150;saved.level=57;saved.exp=first.exp;saved.scans=7654;saved.motion_q10=12345;
-    enc_queue_init(&saved.queue);encounter_t e={.species_id=74,.ts=55,.rarity=3,.hp_ratio=100};enc_queue_push(&saved.queue,&e);
+    enc_queue_init(&saved.queue);encounter_t e={.species_id=74,.ts=55,.rarity=3,.hp_ratio=100,.level=25};enc_queue_push(&saved.queue,&e);
     dex_init(&saved.dex);dex_mark_caught(&saved.dex,150,true);dex_mark_caught(&saved.dex,133,false);
     assert(save_write(&saved));reboot();
     uint8_t old[sizeof(disk)];memcpy(old,disk,sizeof(old));unsigned before=commits;
@@ -210,9 +220,8 @@ static void legacy(void) {
     assert(!memcmp(&s_queue,&saved.queue,sizeof(s_queue))&&erase_calls==0);tests++;
 }
 static void protected_error(int which) {
-    legacy();uint8_t old[sizeof(disk)];save_t damaged;memcpy(&damaged,disk,sizeof(damaged));
+    legacy();uint8_t old[sizeof(disk)];save_t damaged;assert(save_read(&damaged));
     if(which==0)damaged.version=4;
-    else if(which==1)disk_len--;
     else if(which==2)failure=5;
     else if(which==3)init_error=ESP_ERR_NVS_NO_FREE_PAGES;
     else if(which==4)init_error=ESP_ERR_NVS_NEW_VERSION_FOUND;
@@ -236,7 +245,9 @@ static void protected_error(int which) {
     else if(which==22)memset(&damaged.queue.items[0].is_transient,2,sizeof(bool));
     else if(which==23)memset(&damaged.queue.items[0].exp_granted,2,sizeof(bool));
     else if(which==24)memset(&damaged.opening_seen,2,sizeof(bool));
-    memcpy(disk,&damaged,sizeof(damaged));
+    if(which==0){memcpy(disk,&damaged,sizeof(damaged));disk_len=sizeof(damaged);}
+    else if(which==10){damaged.version=11;disk_len=sizeof(save_v14_t);memcpy(disk,&damaged,disk_len);}
+    else {test_store_save(&damaged);if(which==1)disk_len--;}
     memcpy(old,disk,sizeof(old));unsigned before=writes;reboot();
     assert(world_needs_starter());
     assert(world_choose_starter(25)==WORLD_STARTER_STORAGE_UNAVAILABLE);
@@ -246,7 +257,7 @@ static void valid_queue_boundaries(void) {
     legacy();save_t saved;assert(save_read_status(&saved)==SAVE_READ_OK);
     enc_queue_init(&saved.queue);saved.queue.count=ENC_QUEUE_CAP;saved.queue.next_uid=0;
     for(unsigned i=0;i<ENC_QUEUE_CAP;i++)saved.queue.items[i]=(encounter_t){
-        .uid=i+1,.species_id=i%2?1:151,.rarity=i%2?1:5,.hp_ratio=i%2?0:100,
+        .uid=i+1,.species_id=i%2?1:151,.rarity=i%2?1:5,.hp_ratio=i%2?0:100,.level=25,
         .is_shiny=i%2,.is_transient=!(i%2),.exp_granted=i%2};
     saved.queue.items[ENC_QUEUE_CAP-2].uid=UINT16_MAX;
     assert(save_write(&saved));reboot();assert(!world_needs_starter());
@@ -259,6 +270,7 @@ static void valid_queue_boundaries(void) {
     // Taking entries leaves tail bytes behind; an empty active prefix is valid
     // even when the unowned tail no longer contains canonical encounter values.
     memset(saved.queue.items,0xff,sizeof(saved.queue.items));saved.queue.count=0;
+    for(unsigned i=0;i<ENC_QUEUE_CAP;i++){saved.queue.items[i].level=0;saved.queue.items[i].activity=0;}
     assert(save_write(&saved));reboot();assert(!world_needs_starter()&&s_queue.count==0);
     assert(world_choose_starter(25)==WORLD_STARTER_ALREADY_CHOSEN);tests++;
 }
@@ -282,6 +294,7 @@ static void battles(void) {
     assert(!world_battle_get_uid(0,&got)&&!world_battle_set_uid(0,&sample));tests++;
 }
 int main(void) {
+    assert(assets_init());
     for(unsigned i=0;i<4;i++){
         unsigned sid=(unsigned[]){1,4,7,25}[i];fresh();inspect_commit=true;
         assert(world_choose_starter(sid)==WORLD_STARTER_OK);inspect_commit=false;one_starter(sid);
@@ -328,17 +341,23 @@ def main() -> int:
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text('#include "device_stubs.h"\n')
         (temp / "driver.c").write_text(DRIVER)
+        asm=[]
+        for name in ('gen1.bin','gen1_front.bin','gen1_back.bin','palettes.bin','font16.bin','moves.bin','ui.bin'):
+            symbol='_binary_'+name.replace('.','_')
+            asm+=['.balign 4',f'.global {symbol}_start',f'.global {symbol}_end',f'{symbol}_start:',f'.incbin "{ROOT/"assets"/name}"',f'{symbol}_end:']
+        (temp/'assets.S').write_text('\n'.join(asm)+'\n')
         command = ["cc", "-std=gnu11", "-DHOST_BUILD", "-O1", "-g", "-Wall", "-Wextra", "-Werror",
                    "-Wno-unused-variable", "-Wno-unused-function", "-Wno-unused-parameter",
                    "-ffunction-sections", "-fdata-sections", "-I", str(temp), "-I", str(MAIN),
-                   str(temp / "driver.c"), *[str(MAIN / name) for name in
-                   ("party.c", "encounter.c", "nurture.c", "exp.c", "items.c")], "-lz",
+                   str(temp / "driver.c"), str(temp/'assets.S'), *[str(MAIN / name) for name in
+                   ("party.c", "encounter.c", "nurture.c", "exp.c", "items.c", "exploration.c", "trainer.c", "combat.c", "battle.c", "evolution.c", "assets.c", "pokemon_names.c")], "-lz",
                    "-Wl,-dead_strip" if sys.platform == "darwin" else "-Wl,--gc-sections",
                    "-o", str(temp / "verify")]
         if args.sanitize:
             command[1:1] = ["-fsanitize=address,undefined", "-fno-omit-frame-pointer"]
         subprocess.run(command, check=True)
-        result = subprocess.run([str(temp / "verify")], check=True, capture_output=True, text=True)
+        result = subprocess.run([str(temp / "verify")], capture_output=True, text=True)
+        assert result.returncode == 0, result.stdout + result.stderr
         summary = json.loads(result.stdout.strip().splitlines()[-1])
         summary["sanitized"] = args.sanitize
         summary["scope"] = "actual world.c/save.c/party.c/encounter.c; simulated NVS/RTOS/device services"

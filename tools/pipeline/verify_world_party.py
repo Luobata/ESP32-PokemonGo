@@ -173,13 +173,13 @@ static void individual_bond(void) {
     world_party_snapshot(&view);assert(view.members[0].intimacy==73&&view.members[1].intimacy==41);tests++;
 }
 static void legacy_and_protection(void) {
-    seed_team();save_v5_t old;memcpy(&old,disk,sizeof(old));old.version=5;
+    seed_team();save_t decoded;assert(save_read(&decoded));save_v5_t old;memcpy(&old,&decoded,sizeof(old));old.version=5;
     memcpy(disk,&old,sizeof(old));disk_len=sizeof(old);reboot();
-    assert(!s_dirty && disk_len==sizeof(save_t) && ((save_t*)disk)->version==SAVE_VERSION);
+    assert(!s_dirty && save_read_status(&decoded)==SAVE_READ_OK && decoded.version==SAVE_VERSION);
     world_party_t view;world_party_snapshot(&view);
     assert(view.count==6&&view.box_count==3&&view.members[0].intimacy==73);
     assert(world_set_leader(5,&view.members[5],&view)==WORLD_SWITCH_OK);
-    assert(disk_len==sizeof(save_t)&&s_inventory.quantity[ITEM_BERRY]==2);reboot();
+    assert(save_read_status(&decoded)==SAVE_READ_OK&&s_inventory.quantity[ITEM_BERRY]==2);reboot();
     world_party_snapshot(&view);assert(view.members[0].species_id==150&&view.count==6&&view.box_count==3);tests++;
     seed_team();((save_t*)disk)->version=SAVE_VERSION+1;uint8_t bytes[sizeof(disk)];memcpy(bytes,disk,sizeof(bytes));reboot();
     world_party_snapshot(&view);assert(!view.count&&view.switch_locked);
@@ -252,9 +252,9 @@ static void duplicate_box_exchange(void) {
     swapped=s_party;reboot();assert(!memcmp(&s_party,&swapped,sizeof(swapped)));tests+=7;
 }
 static void box_migration_and_capacity(void) {
-    seed_team();party_t before=s_party;((save_t*)disk)->version=11;disk_len=sizeof(save_v14_t);
+    seed_team();save_t decoded;assert(save_read(&decoded));party_t before=s_party;decoded.version=11;disk_len=sizeof(save_v14_t);memcpy(disk,&decoded,disk_len);
     reboot();assert(((save_t*)disk)->version==SAVE_VERSION&&!memcmp(&before,&s_party,sizeof(before)));
-    seed_team();((save_t*)disk)->version=11;disk_len=sizeof(save_v14_t);((save_t*)disk)->party[2+(PARTY_MAX+148)*MON_BYTES]=150;
+    seed_team();assert(save_read(&decoded));decoded.version=11;decoded.party[2+(PARTY_MAX+148)*MON_BYTES]=150;disk_len=sizeof(save_v14_t);memcpy(disk,&decoded,disk_len);
     save_t invalid;assert(save_read_status(&invalid)==SAVE_READ_ERROR);
     party_t p;party_init(&p);p.party_count=6;
     for(unsigned i=0;i<6;i++)p.party[i]=(mon_t){.species_id=25,.level=10,.exp=exp_for_level(10)+i};

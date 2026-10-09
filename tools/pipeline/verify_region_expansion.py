@@ -153,7 +153,7 @@ static void region_transactions(void){
  s_regions.region[0].claimed=0;s_regions.region[0].traced=1;s_regions.region[0].clears=0;
  uint16_t gain;assert(world_research_claim(4,&gain)==EXPLORE_RESEARCH_LOCKED);s_regions.region[0].clears=1;
  assert(world_research_claim(4,&gain)==EXPLORE_NONE&&gain);assert(world_research_claim(4,&gain)==EXPLORE_RESEARCH_CLAIMED);
- save_t saved,out;assert(save_read_status(&saved)==SAVE_READ_OK);saved.regions.selected=12;assert(save_decode(&out,&saved,sizeof(saved),0)==SAVE_READ_ERROR);
+ save_t saved,out;assert(save_read_status(&saved)==SAVE_READ_OK);saved.regions.selected=12;assert(test_decode_save(&out,&saved)==SAVE_READ_ERROR);
  tests++;
 }
 static void theme_rewards(void){

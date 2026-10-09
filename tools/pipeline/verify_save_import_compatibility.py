@@ -10,7 +10,7 @@ static void historical_compatibility(void){
   save_t decoded;save_read_result_t result=save_decode(&decoded,history[i].data,history[i].size,0);
   assert(result==SAVE_READ_OK||result==SAVE_READ_MIGRATED);
   history_assert(&decoded,history[i].version);
-  save_t again=decoded;assert(save_decode(&again,&again,sizeof(again),0)==SAVE_READ_OK);
+  save_t again;assert(test_decode_save(&again,&decoded)==SAVE_READ_OK);
   assert(!memcmp(&again,&decoded,sizeof(again))); // migration is not repeated
   fresh();memcpy(disk,history[i].data,history[i].size);disk_len=history[i].size;
   have_disk=namespace_exists=true;reboot();assert(world_save_loaded()&&s_storage_ready);
@@ -57,13 +57,13 @@ static void compatibility(void){
  const size_t sizes[]={sizeof(save_v5_t),sizeof(save_v6_t),sizeof(save_v7_t),sizeof(save_v8_t),
   sizeof(save_v9_t),sizeof(save_v10_t),sizeof(save_v14_t),sizeof(save_v14_t),sizeof(save_v14_t),
   sizeof(save_v14_t),sizeof(save_v15_t),sizeof(save_v16_t),sizeof(save_v17_t),sizeof(save_v18_t),sizeof(save_v19_t),sizeof(save_v20_t),sizeof(save_t)};
- for(unsigned version=5;version<=SAVE_VERSION;version++){
+ for(unsigned version=5;version<=21;version++){
   save_t input=original,decoded;party_t party;input.version=version;
   // V7/8 trainer sessions used shorter mons. Empty legacy campaign is valid.
   if(version==7||version==8)memset((uint8_t*)&input+sizeof(save_v6_t),0,sizeof(input)-sizeof(save_v6_t));
   save_t untouched=input;size_t len=sizes[version-5];memset(&decoded,0xa5,sizeof(decoded));
   save_read_result_t r=save_decode(&decoded,&input,len,1);
-  assert(r==(version==SAVE_VERSION?SAVE_READ_OK:SAVE_READ_MIGRATED));
+  assert(r==SAVE_READ_MIGRATED);
   assert(decoded.version==SAVE_VERSION&&decoded.opening_seen);
   assert(save_validate_world(&decoded,&party)&&party.party_count==1&&party.party[0].species_id==25);
   assert(!memcmp(&input,&untouched,sizeof(input)));
@@ -71,19 +71,24 @@ static void compatibility(void){
   decoded=input;r=save_decode(&decoded,&decoded,len,1);
   assert(r!=SAVE_READ_ERROR&&save_validate_world(&decoded,&party));
  }
+ // V22 has only the checksummed envelope on disk; test the aliased USB path.
+ uint8_t encoded[sizeof(save_t)];size_t stored=save_storage_encode(encoded,sizeof(encoded),&original,sizeof(original));assert(stored);
+ save_t aliased;memcpy(&aliased,encoded,stored);
+ assert(save_decode(&aliased,&aliased,stored,0)==SAVE_READ_OK&&!memcmp(&aliased,&original,sizeof(original)));
+ assert(save_decode(&aliased,&original,sizeof(original),0)==SAVE_READ_ERROR);
  save_t bad=original,out;party_t party;
  bad.version=SAVE_VERSION+1;assert(save_decode(&out,&bad,sizeof(bad),0)==SAVE_READ_ERROR);
  assert(save_decode(&out,&original,sizeof(original)-1,0)==SAVE_READ_ERROR);
  assert(save_decode(&out,&original,sizeof(original)+1,0)==SAVE_READ_ERROR);
  assert(save_decode(&out,NULL,0,0)==SAVE_READ_ERROR);
  bad=original;((uint8_t*)&bad)[offsetof(save_t,opening_seen)]=2;
- assert(save_decode(&out,&bad,sizeof(bad),0)==SAVE_READ_ERROR);
+ assert(test_decode_save(&out,&bad)==SAVE_READ_ERROR);
  bad=original;bad.party[2]=255;assert(!save_validate_world(&bad,&party));
  bad=original;bad.party[0]=7;assert(!save_validate_world(&bad,&party));
  bad=original;bad.queue.count=ENC_QUEUE_CAP+1;assert(!save_validate_world(&bad,&party));
  bad=original;bad.version=SAVE_VERSION+1;memcpy(disk,&bad,sizeof(bad));reboot();assert(!world_save_loaded()&&!s_storage_ready);
  bad=original;bad.inventory.quantity[ITEM_POKE]=65535;
- assert(save_decode(&out,&bad,sizeof(bad),0)==SAVE_READ_ERROR);
+ assert(test_decode_save(&out,&bad)==SAVE_READ_ERROR);
 }
 static void milk(void){
  const uint16_t maximum[]={30,80,200,301,500};
@@ -110,7 +115,7 @@ static void milk(void){
  trainer_mon_t *m=&s_challenge.session.sides[0].mons[0];m->hp=m->max_hp;m->status=1 /* poison */;
  assert(world_challenge_recover(0)&&!m->status&&m->hp==m->max_hp); // status-only recovery
 }
-int main(void){assert(assets_init());historical_compatibility();migration_boundaries();compatibility();milk();puts("{\"passed\":true,\"schemas\":\"V5-V21 historical fixtures, future/corrupt rejected\",\"milk\":\"low/high HP, cap, faint, status, turn cost, save failures and reboot\"}");return 0;}
+int main(void){assert(assets_init());historical_compatibility();migration_boundaries();compatibility();milk();puts("{\"passed\":true,\"schemas\":\"V5-V22 historical fixtures, future/corrupt rejected\",\"milk\":\"low/high HP, cap, faint, status, turn cost, save failures and reboot\"}");return 0;}
 '''
 if __name__ == '__main__':
     harness.CASES = c_cases() + harness.CASES

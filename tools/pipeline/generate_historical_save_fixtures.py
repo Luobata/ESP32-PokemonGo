@@ -76,6 +76,15 @@ def main():
             else:
                 destination.write_bytes(data)
             records.append(record)
+    # Storage-envelope fixtures have their own explicit append operation and
+    # provenance. Preserve them verbatim when maintaining older raw layouts.
+    generated = {r['file'] for r in records}
+    for name, record in frozen.items():
+        if name in generated:
+            continue
+        data = (DEST / name).read_bytes()
+        assert len(data) == record['size'] and hashlib.sha256(data).hexdigest() == record['sha256']
+        records.append(record)
     assert set(frozen) <= {r['file'] for r in records}, 'Do not remove historical fixtures'
     manifest_path.write_text(json.dumps(dict(
         current_version=max(r['version'] for r in records), oldest_version=5,

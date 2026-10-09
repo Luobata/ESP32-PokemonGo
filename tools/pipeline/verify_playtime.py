@@ -3,24 +3,25 @@
 import verify_world_party as h
 h.CASES=h.CASES[:h.CASES.index('static void seed_team')]+r'''
 #include "evolution.c"
-static bool reader(void *out){assert(disk_len==sizeof(save_t));memcpy(out,disk,disk_len);return true;}
+static bool reader(void *out){return save_decode(out,disk,disk_len,0)==SAVE_READ_OK;}
+static unsigned persisted_playtime(void){save_t saved;assert(save_read(&saved));return saved.playtime_s;}
 int main(void){
  fresh();assert(world_choose_starter(25)==WORLD_STARTER_OK);
  assert(!world_playtime_seconds());test_time+=3600000000LL;assert(!world_playtime_seconds());
  world_playtime_set_paused(false);test_time+=4800000;assert(world_playtime_seconds()==4);
  test_time+=400000;assert(world_playtime_seconds()==5);
- world_playtime_set_paused(true);assert(((save_t*)disk)->playtime_s==5);
+ world_playtime_set_paused(true);assert(persisted_playtime()==5);
  unsigned saved=commits;world_playtime_set_paused(true);assert(commits==saved);
  test_time+=86400000000LL;assert(world_playtime_seconds()==5); // display asleep, CPU running
  world_playtime_set_paused(false);test_time+=800000;assert(world_playtime_seconds()==6);
  s_w.pet.satiety=20*NURT_Q;assert(world_item_use(25,ITEM_BERRY,NULL)==ITEM_USE_OK);
- assert(((save_t*)disk)->playtime_s==6);reboot();assert(world_playtime_seconds()==6);
+ assert(persisted_playtime()==6);reboot();assert(world_playtime_seconds()==6);
  test_time+=3600000000LL;assert(world_playtime_seconds()==6); // no saved uptime or wall-clock accrual
  world_playtime_set_paused(false);test_time+=60500000;save_t copy;
  assert(world_backup_snapshot(reader,&copy)&&copy.playtime_s==66);
  test_time+=5500000;assert(world_playtime_seconds()==72);
  failure=4;world_playtime_set_paused(true);assert(s_dirty&&world_playtime_seconds()==72);
- assert(((save_t*)disk)->playtime_s==66);assert(!world_backup_snapshot(reader,&copy));failure=0;
+ assert(persisted_playtime()==66);assert(!world_backup_snapshot(reader,&copy));failure=0;
  assert(world_backup_snapshot(reader,&copy)&&copy.playtime_s==72);reboot();assert(world_playtime_seconds()==72);
  // All old V19 fields and even its undefined tail remain in the frozen prefix.
  save_v19_t old=copy.v19;old.version=19;old.exploration_wins=91;

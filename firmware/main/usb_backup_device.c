@@ -11,6 +11,11 @@
 #include <string.h>
 #include "nvs.h"
 #include "nvs_flash.h"
+#if defined(ESP_PLATFORM) && !defined(HOST_BUILD)
+#include "esp_heap_caps.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#endif
 
 static const esp_partition_t *nvs_partition,*staging;
 static int boot_result;
@@ -82,6 +87,15 @@ static bool validate_image(const uint8_t *image, unsigned version) {
  // buffers instead of competing with the 24 KB upload and Wi-Fi heap.
  usb_backup_restore_detail(USB_RESTORE_DETAIL_CONTENT);
  bool valid=world_backup_validate(read_import,&version,version);
+#if defined(ESP_PLATFORM) && !defined(HOST_BUILD)
+ // Sample with the upload buffer and temporary NVS mount still alive.
+ const uint32_t caps=MALLOC_CAP_INTERNAL|MALLOC_CAP_8BIT;
+ ESP_LOGI("restore","@@IMPORT_MEMORY valid=%d free=%u minimum=%u largest=%u stack_free=%u",
+          valid,(unsigned)heap_caps_get_free_size(caps),
+          (unsigned)heap_caps_get_minimum_free_size(caps),
+          (unsigned)heap_caps_get_largest_free_block(caps),
+          (unsigned)uxTaskGetStackHighWaterMark(NULL));
+#endif
  e=nvs_flash_deinit_partition(scratch.label);
  if(e!=ESP_OK)valid=rejected(USB_RESTORE_DETAIL_NVS,"unmount",e);
  else scratch_mounted=false;

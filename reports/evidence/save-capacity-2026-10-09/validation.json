@@ -1,0 +1,37 @@
+{
+  "source_base_commit": "f2e721c892702ce1114d0cb07c143da0baeb8100",
+  "source_state": "uncommitted working tree; not a release",
+  "firmware_sources": {
+    "firmware/main/save.c": "b4b6df50d0b4c741df4c125c875a91805108630375fa20286897f0d23daf4fe4",
+    "firmware/main/save.h": "0362e47cbd389f5bb03b117af555bca34b480d846534527f3d939818f4a576aa",
+    "firmware/main/save_storage.h": "a57bb3ee4138efb291f348f8c136ec88aa1572d2e0a08062384cea4ebc79694c"
+  },
+  "application_bytes": 3186496,
+  "application_sha256": "aa57457830f022036ba08385444777e885e672133bc9a8ebfc5fd353da79bb13",
+  "historical_fixtures": 24,
+  "supported_versions": [
+    5,
+    22
+  ],
+  "new_codec_bss_bytes": 7792,
+  "runtime_heap_measured": false,
+  "hardware_flashed": false,
+  "community_published": false,
+  "private_backup_integrity": "Python and production browser decoders accepted; source unchanged; identity and contents omitted",
+  "private_nvs_regression": {
+    "old_version": 20,
+    "old_bytes": 4024,
+    "v21_decoded_bytes": 7792,
+    "v22_stored_bytes": 2542,
+    "unrelated_keys_verified": 37,
+    "continuous_writes": 300,
+    "source_file_modified": false
+  },
+  "synthetic_full_capacity": {
+    "individuals": 157,
+    "dense_policies": true,
+    "stored_bytes": 5146,
+    "continuous_writes": 300,
+    "interrupted_write_fault_points": 109
+  }
+}
