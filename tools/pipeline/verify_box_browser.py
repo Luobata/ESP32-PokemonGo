@@ -75,17 +75,20 @@ try:
     for species in (1, 4, 7, 10, 13):
         cmd(f'party_add {species} 10 40 0 0')
     # Even species already in the party can have a distinct warehouse member.
-    for species in range(1, 152):
-        cmd(f'party_add {species} 5 40 0 0')
-    for species, level, shiny in ((1, 16, 0), (25, 40, 1), (64, 30, 0), (67, 28, 0),
-                                 (133, 20, 0), (6, 40, 0), (9, 40, 0)):
-        cmd(f'party_add {species} {level} 40 0 {shiny}')
+    high={1:16,25:40,64:30,67:28,133:20,6:40,9:40}
+    levels={}
+    for copy in range(3):
+        for species in range(1,152):
+            level=high.get(species,5) if copy==2 else 5
+            shiny=int(copy==2 and species==25)
+            slot=copy*151+species-1;levels[slot]=level
+            cmd(f'party_add {species} {level} 40 0 {shiny}')
     for item in range(8, 15):
         cmd(f'inventory {item} 0')
     open_box()
     before = state()
-    assert before['box_count'] == 151 and view()['box_matches'] == 151
-    assert [species for species, _ in members()] == list(range(1, 152))
+    assert before['box_count'] == 453 and view()['box_matches'] == 453
+    assert [species for species, _ in members()] == [sid for sid in range(1,152) for _ in range(3)]
     shot('full-warehouse')
 
     # Sorting changes only the display order; the selected physical slot survives.
@@ -95,17 +98,14 @@ try:
     choose_setting(2, 1, 'box_sort', 3)
     assert view()['box_slot'] == selected
     ordered = members()
-    levels = {i: 5 for i in range(1, 152)}
-    levels.update({1: 16, 25: 40, 64: 30, 67: 28, 133: 20, 6: 40, 9: 40})
-    # The traversal starts at the retained member rather than the first row.
-    pivot = ordered.index((6, 5))
-    ordered = ordered[pivot:] + ordered[:pivot]
-    assert [sid for sid, _ in ordered] == sorted(levels, key=lambda sid: (-levels[sid], sid))
+    expected=sorted([(slot%151+1,slot) for slot in range(453)],key=lambda pair:(-levels[pair[1]],pair[0],pair[1]))
+    pivot=ordered.index(expected[0]);ordered=ordered[pivot:]+ordered[:pivot]
+    assert ordered==expected
     assert state()['party'] == before['party'] and state()['inventory'] == before['inventory']
     shot('level-sort')
 
     choose_setting(0, 1, 'box_filter', 3)
-    assert members() == [(25, 24)]
+    assert members() == [(25, 326)]
     shot('shiny')
     choose_setting(1, 2, 'box_type', 18)  # fire + shiny gives no match
     assert view()['box_matches'] == 0
@@ -113,7 +113,7 @@ try:
     assert not view()['details']
     shot('no-matches')
     menu(4)  # clear filters remains available even on empty results
-    assert view()['box_matches'] == 151 and view()['box_sort'] == 1
+    assert view()['box_matches'] == 453 and view()['box_sort'] == 1
 
     choose_setting(1, 10, 'box_type', 18)  # flying matches Charizard's second type
     types = dict(members())
@@ -134,21 +134,21 @@ try:
 
     menu(4)
     choose_setting(2, 0, 'box_sort', 3)
-    # Select the first row, then reach all 31 groups without displaying page numbers.
+    # Select the first row, then reach all 91 groups without displaying page numbers.
     while view()['box_row']:
         key(0)
     menu(3)
     assert view()['box_paging']
     key(0)
-    assert view()['box_row'] == 150 and view()['species'] == 151
+    assert view()['box_row'] == 450 and view()['species'] == 151
     shot('last-partial-group')
     key(1)
     assert view()['box_row'] == 0
     visited = []
-    for _ in range(31):
+    for _ in range(91):
         visited.append(view()['box_row'])
         key(1)
-    assert visited == list(range(0, 151, 5)) and view()['box_row'] == 0
+    assert visited == list(range(0, 453, 5)) and view()['box_row'] == 0
     key(2)
     assert not view()['box_paging'] and not view()['details']
     key(2)
@@ -168,14 +168,14 @@ try:
     assert view()['species'] == 25
     key(2)
     assert not view()['box'] and state()['party'][0]['flags'] & 1
-    assert state()['level'] == 40 and state()['box_count'] == 151
+    assert state()['level'] == 40 and state()['box_count'] == 453
     open_box()
     assert view()['box_matches'] == 0  # the only shiny is now in the party
     menu(4)
     all_members = members()
-    assert sum(sid == 6 for sid, _ in all_members) == 2  # distinct outgoing Charizard retained
-    assert [slot for sid, slot in all_members if sid == 6] == [5, 24]
-    assert len(all_members) == 151
+    assert sum(sid == 6 for sid, _ in all_members) == 4  # distinct outgoing Charizard retained
+    assert sorted(slot for sid, slot in all_members if sid == 6) == [5, 156, 307, 326]
+    assert len(all_members) == 453
     shot('after-exchange')
 finally:
     r.close()
@@ -209,10 +209,10 @@ for count in (0, 1, 5, 6):
         r.close()
 
 result = dict(status='PASS', renderer=version, font_characters=font_check(),
-              checks=['151 physical slots', 'stable dex/level order', 'selection preserved',
+              checks=['453 physical slots', 'stable dex/level order', 'selection preserved',
                       'shiny + type intersection', 'secondary type', 'empty recovery',
                       'level/item evolution eligibility', 'no item consumption',
-                      '0/1/5/6/151 group boundaries', 'C leaves paging before details',
+                      '0/1/5/6/453 group boundaries', 'C leaves paging before details',
                       'long B returns', 'filtered save retry and exact individual exchange',
                       'no warehouse loss', 'band rendering'])
 (OUT / 'verification.json').write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')

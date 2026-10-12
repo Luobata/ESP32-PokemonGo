@@ -102,7 +102,7 @@ static trainer_store_t s_challenge;
 static achievement_store_t s_achievements;
 // Protected by s_save_lock; a candidate is never visible before save_write()
 // succeeds. Keep this ~1.9 KiB object off the button task's stack.
-static party_t s_starter_party;
+#define s_starter_party (s_save_buf.members) // Candidate storage shares the save transaction buffer.
 
 typedef struct {
     uint16_t uid;
@@ -115,7 +115,7 @@ static struct {
     battle_session_t session;
 } s_active; // Runtime only; its pending removal is durable before publication.
 
-// save_t 含 1886 B 队伍区，不能放进 4 KiB 的 world task 栈。
+// V23 world candidate is 18,632 bytes; never place it on the 4 KiB world stack.
 static save_t s_save_buf;
 
 static bool s_dirty;
@@ -205,7 +205,7 @@ static int64_t s_last_save_us;
 static uint16_t normalize_party_exp(party_t *party)
 {
     uint16_t repaired = 0;
-    for (unsigned i = 0; i < PARTY_MAX + BOX_SPECIES; i++) {
+    for (unsigned i = 0; i < PARTY_MAX + BOX_CAPACITY; i++) {
         if (i < PARTY_MAX && i >= party->party_count) continue;
         mon_t *member = i < PARTY_MAX ? &party->party[i] : &party->box[i - PARTY_MAX];
         if (!member->species_id || member->level < 1 || member->level > LEVEL_MAX) continue;
@@ -452,7 +452,7 @@ static void party_snapshot_locked(world_party_t *out)
     // A snapshot is read-only: fresh leader mirrors live only in the copy.
     // Use the same integer representation as the switch's expected check.
     if (out->count) out->members[0] = leader_view_locked();
-    out->box_count = (uint8_t)(party_total(&s_party) - s_party.party_count);
+    out->box_count = (uint16_t)(party_total(&s_party) - s_party.party_count);
     out->switch_locked = !s_storage_ready || s_starter_pending || s_active.encounter.uid != 0 || s_challenge.session.active || s_challenge.league_active || dungeon_party_locked();
 }
 
@@ -486,7 +486,7 @@ static void unlock_encounter_change(void)
 
 
 bool world_move_policy(unsigned slot,const mon_t *expected,move_policy_t *out){
- if(!out||!expected||slot>=PARTY_MAX+BOX_SPECIES||!s_lock)return false;
+ if(!out||!expected||slot>=PARTY_MAX+BOX_CAPACITY||!s_lock)return false;
  xSemaphoreTake(s_lock,portMAX_DELAY);
  mon_t m=slot==0?leader_view_locked():slot<PARTY_MAX?s_party.party[slot]:s_party.box[slot-PARTY_MAX];
  bool ok=m.species_id&&!memcmp(&m,expected,sizeof(m));if(ok)*out=s_party.policies[slot];
@@ -497,7 +497,7 @@ void world_move_policies(move_policy_t out[PARTY_MAX]){
  xSemaphoreTake(s_lock,portMAX_DELAY);memcpy(out,s_party.policies,PARTY_MAX*sizeof(*out));xSemaphoreGive(s_lock);
 }
 world_switch_result_t world_move_set(unsigned slot,const mon_t *expected,unsigned move,bool enabled){
- if(!expected||slot>=PARTY_MAX+BOX_SPECIES)return WORLD_SWITCH_INVALID;
+ if(!expected||slot>=PARTY_MAX+BOX_CAPACITY)return WORLD_SWITCH_INVALID;
  const mon_t wanted=*expected;
  if(!lock_encounter_change())return WORLD_SWITCH_STORAGE_UNAVAILABLE;
  if(!s_storage_ready||s_starter_pending){unlock_encounter_change();return WORLD_SWITCH_STORAGE_UNAVAILABLE;}
@@ -508,7 +508,7 @@ world_switch_result_t world_move_set(unsigned slot,const mon_t *expected,unsigne
  move_policy_t policy=s_party.policies[slot];
  if(move)move_policy_set(&policy,move,enabled);else memset(&policy,0,sizeof(policy));
  if(!combat_enabled_moves(selected.species_id,selected.level,&policy)){unlock_encounter_change();return WORLD_SWITCH_LAST_MOVE;}
- collect_save_locked(&s_save_buf);s_save_buf.move_policies[slot]=policy;
+ collect_save_locked(&s_save_buf);s_save_buf.members.policies[slot]=policy;
  xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
  if(ok){s_party.policies[slot]=policy;memset(s_battles,0,sizeof(s_battles));s_last_save_us=esp_timer_get_time();}
  unlock_encounter_change();return ok?WORLD_SWITCH_OK:WORLD_SWITCH_SAVE_FAILED;
@@ -747,6 +747,14 @@ bool world_battle_loot_uid(uint16_t uid, item_loot_t *out)
     return ok;
 }
 
+bool world_capture_has_room(uint16_t species)
+{
+    if (!s_lock || xSemaphoreTake(s_lock, portMAX_DELAY) != pdTRUE) return false;
+    bool room = party_can_receive(&s_party, species);
+    xSemaphoreGive(s_lock);
+    return room;
+}
+
 bool world_capture_break_chain_uid(uint16_t uid)
 {
     if (!uid || !lock_encounter_change()) return false;
@@ -756,7 +764,8 @@ bool world_capture_break_chain_uid(uint16_t uid)
     if (s_active.encounter.uid == uid) session = &s_active.session;
     else for (unsigned i = 0; i < ENC_QUEUE_LIMIT; i++)
         if (s_battles[i].uid == uid) { session = &s_battles[i].session; break; }
-    if (!entry || !session || !battle_session_can_capture(session) ||
+    if (!entry ||
+        !session || !battle_session_can_capture(session) ||
         (session->won && !session->loot_checked) ||
         !s_storage_ready || s_starter_pending ||
         s_challenge.session.active || s_challenge.league_active ||
@@ -796,7 +805,8 @@ bool world_capture_ball_spend_uid(uint16_t uid, uint8_t ball,
     bool can_capture = current.initialized && !current.retaliation_pending &&
         (current.finished ? current.won && !current.capture_used_after_win && current.loot_checked
                           : !current.auto_battle && current.pet_hp > 0);
-    if (!entry || (s_exploration_wins && exploration_chain_encounter(entry)) || !can_capture || !s_storage_ready || s_starter_pending ||
+    if (!entry ||
+        (s_exploration_wins && exploration_chain_encounter(entry)) || !can_capture || !s_storage_ready || s_starter_pending ||
         (!active && s_active.encounter.uid) || s_inventory.quantity[ball] == 0 ||
         item_session->pet_species != s_w.species || item_session->wild_species != entry->species_id ||
         item_session->rng != current.rng || item_session->attack_count != current.attack_count ||
@@ -831,18 +841,24 @@ bool world_capture_ball_spend_uid(uint16_t uid, uint8_t ball,
 
 // Bonus experience for existing nonparticipants; one award in the enclosing
 // durable settlement, never paid again by a retry or animation callback.
-bool world_capture_uid(uint16_t uid, const mon_t *mon)
+world_capture_result_t world_capture_replace_uid(uint16_t uid,const mon_t *mon,
+    unsigned box_slot,const mon_t *expected)
 {
-    if (!mon || mon->species_id < 1 || mon->species_id > BOX_SPECIES) return false;
-    if (!lock_encounter_change()) return false;
+    if (!mon || mon->species_id < 1 || mon->species_id > BOX_SPECIES) return WORLD_CAPTURE_INVALID;
+    if (!lock_encounter_change()) return WORLD_CAPTURE_INVALID;
     encounter_t *entry = find_encounter_locked(uid);
     if (s_challenge.session.active || s_challenge.league_active || s_starter_pending || !s_storage_ready || !entry || entry->species_id != mon->species_id ||
         (s_exploration_wins && exploration_chain_encounter(entry))) {
-        unlock_encounter_change(); return false;
+        unlock_encounter_change(); return WORLD_CAPTURE_INVALID;
     }
     collect_save_locked(&s_save_buf);
     s_starter_party = s_party;
-    if (!party_receive(&s_starter_party, mon)) { unlock_encounter_change(); return false; }
+    if(expected) {
+        if(box_slot>=BOX_CAPACITY || !expected->species_id) {unlock_encounter_change();return WORLD_CAPTURE_INVALID;}
+        if(memcmp(expected,&s_party.box[box_slot],sizeof(*expected))) {unlock_encounter_change();return WORLD_CAPTURE_STALE;}
+        s_starter_party.box[box_slot]=*mon;
+        memset(&s_starter_party.policies[PARTY_MAX+box_slot],0,sizeof(move_policy_t));
+    } else if (!party_receive(&s_starter_party, mon)) { unlock_encounter_change(); return WORLD_CAPTURE_FULL; }
     normalize_party_exp(&s_starter_party);
     exploration_activity_credit(&s_save_buf.exploration_updates,entry);
     uint16_t earned=exp_scaled(exp_scaled(exp_battle_base(mon->level),dex_is_caught(&s_dex,mon->species_id)?60:110),nurture_exp_percent(&s_w.pet));
@@ -868,7 +884,11 @@ bool world_capture_uid(uint16_t uid, const mon_t *mon)
                  s_party.party_count, party_total(&s_party));
     } else s_dirty = true;
     unlock_encounter_change();
-    return ok;
+    return ok?WORLD_CAPTURE_OK:WORLD_CAPTURE_SAVE_FAILED;
+}
+
+bool world_capture_uid(uint16_t uid,const mon_t *mon) {
+ return world_capture_replace_uid(uid,mon,BOX_CAPACITY,NULL)==WORLD_CAPTURE_OK;
 }
 
 bool world_take_encounter(uint8_t index, encounter_t *out)
@@ -1894,15 +1914,15 @@ bool world_battle_reward_uid(uint16_t uid,uint16_t *amount) {
  unlock_encounter_change();return ok;
 }
 
-void world_box_snapshot(mon_t out[BOX_SPECIES]){
+void world_box_snapshot(mon_t out[BOX_CAPACITY]){
  if(!out)return;
- memset(out,0,BOX_SPECIES*sizeof(mon_t));
+ memset(out,0,BOX_CAPACITY*sizeof(mon_t));
  if(!s_lock||xSemaphoreTake(s_lock,portMAX_DELAY)!=pdTRUE)return;
  memcpy(out,s_party.box,sizeof(s_party.box));xSemaphoreGive(s_lock);
 }
 world_switch_result_t world_box_release(unsigned slot, const mon_t *expected)
 {
-    if (!expected || slot >= BOX_SPECIES || !expected->species_id) return WORLD_SWITCH_INVALID;
+    if (!expected || slot >= BOX_CAPACITY || !expected->species_id) return WORLD_SWITCH_INVALID;
     const mon_t wanted = *expected;
     if (!lock_encounter_change()) return WORLD_SWITCH_STORAGE_UNAVAILABLE;
     if (!s_storage_ready || s_starter_pending) { unlock_encounter_change(); return WORLD_SWITCH_STORAGE_UNAVAILABLE; }
@@ -1928,13 +1948,14 @@ world_switch_result_t world_box_release(unsigned slot, const mon_t *expected)
     return ok ? WORLD_SWITCH_OK : WORLD_SWITCH_SAVE_FAILED;
 }
 
-world_switch_result_t world_box_exchange(uint8_t slot,const mon_t *outgoing,const mon_t *incoming){
+static world_switch_result_t box_exchange(uint8_t slot,int box_slot,const mon_t *outgoing,const mon_t *incoming){
  if(!outgoing||!incoming||slot>=PARTY_MAX||incoming->species_id<1||incoming->species_id>BOX_SPECIES)return WORLD_SWITCH_INVALID;
  mon_t old=*outgoing,in=*incoming;
  if(!lock_encounter_change())return WORLD_SWITCH_STORAGE_UNAVAILABLE;
  if(!s_storage_ready||s_starter_pending){unlock_encounter_change();return WORLD_SWITCH_STORAGE_UNAVAILABLE;}
  if(s_active.encounter.uid||s_challenge.session.active||s_challenge.league_active||dungeon_party_locked()){unlock_encounter_change();return WORLD_SWITCH_BUSY;}
- int box_slot=party_box_match(&s_party,&in);
+ if(box_slot<0)box_slot=party_box_match(&s_party,&in);
+ if(box_slot>=BOX_CAPACITY||box_slot<0||memcmp(&s_party.box[box_slot],&in,sizeof(in))){unlock_encounter_change();return WORLD_SWITCH_STALE;}
  mon_t actual=slot?s_party.party[slot]:leader_view_locked();
  if(slot>=s_party.party_count||memcmp(&old,&actual,sizeof(old))||box_slot<0){unlock_encounter_change();return WORLD_SWITCH_STALE;}
  collect_save_locked(&s_save_buf);s_starter_party=s_party;s_starter_party.party[slot]=actual;
@@ -1948,6 +1969,14 @@ world_switch_result_t world_box_exchange(uint8_t slot,const mon_t *outgoing,cons
   memset(s_battles,0,sizeof(s_battles));s_last_save_us=esp_timer_get_time();}
  else s_dirty=true;
  unlock_encounter_change();return ok?WORLD_SWITCH_OK:WORLD_SWITCH_SAVE_FAILED;
+}
+
+world_switch_result_t world_box_exchange(uint8_t slot,const mon_t *outgoing,const mon_t *incoming){
+ return box_exchange(slot,-1,outgoing,incoming);
+}
+world_switch_result_t world_box_exchange_at(uint8_t slot,unsigned box_slot,const mon_t *outgoing,const mon_t *incoming){
+ if(box_slot>=BOX_CAPACITY)return WORLD_SWITCH_INVALID;
+ return box_exchange(slot,(int)box_slot,outgoing,incoming);
 }
 
 exploration_kind_t world_research_claim(uint8_t route,uint16_t *gain){
@@ -2172,4 +2201,21 @@ bool world_region_discard(void){
  xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
  if(ok){s_regions=s_save_buf.regions;s_last_save_us=esp_timer_get_time();}else s_dirty=true;
  unlock_encounter_change();return ok;
+}
+
+bool world_box_at(unsigned slot,mon_t *out) {
+ if(!out||slot>=BOX_CAPACITY||!s_lock)return false;
+ xSemaphoreTake(s_lock,portMAX_DELAY);*out=s_party.box[slot];xSemaphoreGive(s_lock);
+ return out->species_id!=0;
+}
+unsigned world_box_view(const box_view_options_t *options,uint16_t indices[BOX_CAPACITY]) {
+ if(!options||!indices||!s_lock)return 0;
+ xSemaphoreTake(s_lock,portMAX_DELAY);
+ unsigned count=box_view_build(s_party.box,&s_inventory,options,indices);
+ xSemaphoreGive(s_lock);return count;
+}
+
+bool world_backup_exclusive(bool (*operation)(void *),void *context) {
+ if(!operation||!s_save_lock||xSemaphoreTake(s_save_lock,portMAX_DELAY)!=pdTRUE)return false;
+ bool ok=operation(context);xSemaphoreGive(s_save_lock);return ok;
 }

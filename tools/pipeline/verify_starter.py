@@ -101,6 +101,7 @@ unsigned test_mutex_count;
 int64_t test_time=1000000;
 static uint8_t disk[sizeof(save_t)+16],staged[sizeof(save_t)+16];
 static size_t disk_len,staged_len;
+static uint8_t guard_disk[32],guard_staged[32];static bool have_guard,stage_guard;
 static bool have_disk,have_opening,namespace_exists,staging,stage_opening;
 static unsigned commits,writes,erase_calls,tests;
 static int failure,init_error;
@@ -115,13 +116,15 @@ esp_err_t nvs_open(const char *ns,int mode,nvs_handle_t *out) {
     namespace_exists=true;*out=1;return ESP_OK;
 }
 esp_err_t nvs_set_blob(nvs_handle_t h,const char *key,const void *data,size_t len) {
-    (void)h;assert(!strcmp(key,"state"));writes++;
+    (void)h;assert(!strcmp(key,"state")||!strcmp(key,"state_guard"));writes++;
     if(failure==2)return ESP_FAIL;
+    if(!strcmp(key,"state_guard")){assert(len==sizeof(guard_staged));memcpy(guard_staged,data,len);stage_guard=true;return ESP_OK;}
     assert(len<=sizeof(staged));memcpy(staged,data,len);staged_len=len;staging=true;return ESP_OK;
 }
 esp_err_t nvs_get_blob(nvs_handle_t h,const char *key,void *out,size_t *len) {
-    (void)h;assert(!strcmp(key,"state"));
+    (void)h;assert(!strcmp(key,"state")||!strcmp(key,"state_guard"));
     if(failure==5)return ESP_FAIL;
+    if(!strcmp(key,"state_guard")){if(!have_guard)return ESP_ERR_NVS_NOT_FOUND;if(out){if(*len<32)return ESP_FAIL;memcpy(out,guard_disk,32);}*len=32;return ESP_OK;}
     if(!have_disk)return ESP_ERR_NVS_NOT_FOUND;
     if(out){if(*len<disk_len)return ESP_FAIL;memcpy(out,disk,disk_len);}
     *len=disk_len;return ESP_OK;
@@ -145,10 +148,11 @@ esp_err_t nvs_commit(nvs_handle_t h) {
     }
     if(failure==4)return ESP_FAIL;
     if(staging){memcpy(disk,staged,staged_len);disk_len=staged_len;have_disk=true;}
+    if(stage_guard){memcpy(guard_disk,guard_staged,32);have_guard=true;stage_guard=false;}
     if(stage_opening)have_opening=true;
     staging=stage_opening=false;commits++;return ESP_OK;
 }
-void nvs_close(nvs_handle_t h) {(void)h;staging=stage_opening=false;}
+void nvs_close(nvs_handle_t h) {(void)h;staging=stage_opening=stage_guard=false;}
 void sens_init(sens_core_t *core) {memset(core,0,sizeof(*core));}
 
 // Including production C makes only test fixtures able to seed a queue/save;
@@ -158,16 +162,50 @@ void sfx_encounter(uint8_t rarity, bool shiny) { alert_count++;alert_rarity=rari
 #define TAG starter_world_tag
 #include "world.c"
 #undef TAG
+#include "save_bank.c"
+static uint8_t bank_flash[SAVE_BANK_PARTITION_SIZE];
+static bool test_bank_read(uint32_t at,void *out,size_t n){if(at+n>sizeof(bank_flash))return false;memcpy(out,bank_flash+at,n);return true;}
+static bool test_bank_write(uint32_t at,const void *p,size_t n){if(at+n>sizeof(bank_flash))return false;for(size_t i=0;i<n;i++){if((bank_flash[at+i]&((const uint8_t*)p)[i])!=((const uint8_t*)p)[i])return false;bank_flash[at+i]&=((const uint8_t*)p)[i];}return true;}
+static bool test_bank_erase(uint32_t at,size_t n){if(at+n>sizeof(bank_flash))return false;memset(bank_flash+at,255,n);return true;}
+const save_bank_io_t *save_bank_platform(void){static const save_bank_io_t io={test_bank_read,test_bank_write,test_bank_erase};return &io;}
 #define TAG starter_save_tag
 #include "save.c"
 // Persist/validate a modern candidate through the real storage envelope. Tests
 // that construct historical layouts still write their original raw bytes.
 static void test_store_save(const save_t *s) {
-    disk_len=save_storage_encode(disk,sizeof(save_t),s,sizeof(*s));assert(disk_len);
+    if(s->version!=SAVE_VERSION){memcpy(disk,s,sizeof(*s));disk_len=sizeof(*s);return;}
+    save_bank_ref_t next;
+    assert(save_bank_prepare(save_bank_platform(),NULL,s,sizeof(*s),&next));
+    memcpy(disk,&next,sizeof(next));disk_len=sizeof(next);
 }
 static save_read_result_t test_decode_save(save_t *out,const save_t *s) {
-    uint8_t raw[sizeof(save_t)];size_t n=save_storage_encode(raw,sizeof(raw),s,sizeof(*s));
-    assert(n);return save_decode(out,raw,n,0);
+    return save_decode(out,s,sizeof(*s),0);
+}
+static void test_legacy_snapshot(save_v22_t *out,const save_t *s) {
+    memset(out,0,sizeof(*out));out->version=22;
+    out->pet=s->pet;
+    out->species=s->species;
+    out->level=s->level;
+    out->exp=s->exp;
+    out->queue=s->queue;
+    out->dex=s->dex;
+    out->motion_q10=s->motion_q10;
+    out->scans=s->scans;
+    out->last_uptime_us=s->last_uptime_us;
+    out->opening_seen=s->opening_seen;
+    out->inventory=s->inventory;
+    out->challenge=s->challenge;
+    out->achievements=s->achievements;
+    out->refresh=s->refresh;
+    out->exploration=s->exploration;
+    out->dungeon=s->dungeon;
+    out->exploration_updates=s->exploration_updates;
+    out->rest_clock=s->rest_clock;
+    out->regions=s->regions;
+    out->exploration_wins=s->exploration_wins;
+    out->playtime_s=s->playtime_s;
+    party_serialize(&s->members,out->party);
+    memcpy(out->move_policies,s->members.policies,sizeof(out->move_policies));
 }
 #include "achievements.c"
 #include "dungeon_rewards.c"
@@ -179,6 +217,8 @@ unsigned dungeon_recipients(uint32_t id,uint8_t slots[3]){(void)id;(void)slots;r
 #undef TAG
 
 static void fresh(void) {
+    have_guard=stage_guard=false;
+    memset(bank_flash,255,sizeof(bank_flash));save_bank_reserve(false);
     memset(disk,0,sizeof(disk));disk_len=0;have_disk=have_opening=namespace_exists=false;
     staging=stage_opening=inspect_commit=background_update=false;
     failure=init_error=0;commits=writes=erase_calls=0;
@@ -197,7 +237,7 @@ static void one_starter(unsigned sid) {
     assert(save_opening_seen());
     save_t persisted;assert(save_read_status(&persisted)==SAVE_READ_OK);
     assert(persisted.version==SAVE_VERSION&&persisted.species==sid&&persisted.level==1&&persisted.exp==0);
-    assert(persisted.party[0]==1&&persisted.party[2]==sid&&persisted.opening_seen);
+    assert(persisted.members.party_count==1&&persisted.members.party[0].species_id==sid&&persisted.opening_seen);
 }
 static void legacy(void) {
     fresh();save_t saved={0};saved.version=SAVE_VERSION;nurture_init(&saved.pet);
@@ -205,7 +245,7 @@ static void legacy(void) {
     party_t p;party_init(&p);
     mon_t first={.species_id=150,.level=57,.hp=83,.intimacy=42,.explore_value=89,.flags=1,.exp=exp_for_level(57)};
     mon_t second={.species_id=133,.level=23,.hp=79,.nickname_idx=3,.exp=exp_for_level(23)};
-    assert(party_receive(&p,&first)&&party_receive(&p,&second));party_serialize(&p,saved.party);
+    assert(party_receive(&p,&first)&&party_receive(&p,&second));save_store_party(&saved,&p);
     saved.species=150;saved.level=57;saved.exp=first.exp;saved.scans=7654;saved.motion_q10=12345;
     enc_queue_init(&saved.queue);encounter_t e={.species_id=74,.ts=55,.rarity=3,.hp_ratio=100,.level=25};enc_queue_push(&saved.queue,&e);
     dex_init(&saved.dex);dex_mark_caught(&saved.dex,150,true);dex_mark_caught(&saved.dex,133,false);
@@ -225,13 +265,13 @@ static void protected_error(int which) {
     else if(which==2)failure=5;
     else if(which==3)init_error=ESP_ERR_NVS_NO_FREE_PAGES;
     else if(which==4)init_error=ESP_ERR_NVS_NEW_VERSION_FOUND;
-    else if(which==5)damaged.party[2]=0;
+    else if(which==5)damaged.members.party[0].species_id=0;
     else if(which==6)failure=1;
-    else if(which==7){damaged.party[2+PARTY_MAX*MON_BYTES]=152;damaged.party[2+PARTY_MAX*MON_BYTES+1]=12;}
-    else if(which==8){memset(damaged.party,0,PARTY_BYTES);damaged.species=damaged.level=damaged.exp=0;}
-    else if(which==9){memset(damaged.party,0,PARTY_BYTES);damaged.species=damaged.level=damaged.exp=0;memset(damaged.dex.caught,0,DEX_BYTES);}
-    else if(which==10){damaged.party[2+PARTY_MAX*MON_BYTES]=2;damaged.party[2+PARTY_MAX*MON_BYTES+1]=12;}
-    else if(which==11)damaged.party[2+2*MON_BYTES+7]=1;
+    else if(which==7){damaged.members.box[0].species_id=152;damaged.members.box[0].level=12;}
+    else if(which==8){memset(&damaged.members,0,sizeof(damaged.members));damaged.species=damaged.level=damaged.exp=0;}
+    else if(which==9){memset(&damaged.members,0,sizeof(damaged.members));damaged.species=damaged.level=damaged.exp=0;memset(damaged.dex.caught,0,DEX_BYTES);}
+    else if(which==10){damaged.members.box[0].species_id=2;damaged.members.box[0].level=12;}
+    else if(which==11)damaged.members.party[2].flags=1;
     else if(which==12)damaged.queue.count=255;
     else if(which==13)damaged.queue.count=ENC_QUEUE_CAP+1;
     else if(which==14)damaged.queue.items[0].species_id=0;
@@ -246,7 +286,7 @@ static void protected_error(int which) {
     else if(which==23)memset(&damaged.queue.items[0].exp_granted,2,sizeof(bool));
     else if(which==24)memset(&damaged.opening_seen,2,sizeof(bool));
     if(which==0){memcpy(disk,&damaged,sizeof(damaged));disk_len=sizeof(damaged);}
-    else if(which==10){damaged.version=11;disk_len=sizeof(save_v14_t);memcpy(disk,&damaged,disk_len);}
+    else if(which==10){save_v22_t old_layout;test_legacy_snapshot(&old_layout,&damaged);old_layout.version=11;disk_len=sizeof(save_v14_t);memcpy(disk,&old_layout,disk_len);}
     else {test_store_save(&damaged);if(which==1)disk_len--;}
     memcpy(old,disk,sizeof(old));unsigned before=writes;reboot();
     assert(world_needs_starter());
@@ -350,7 +390,7 @@ def main() -> int:
                    "-Wno-unused-variable", "-Wno-unused-function", "-Wno-unused-parameter",
                    "-ffunction-sections", "-fdata-sections", "-I", str(temp), "-I", str(MAIN),
                    str(temp / "driver.c"), str(temp/'assets.S'), *[str(MAIN / name) for name in
-                   ("party.c", "encounter.c", "nurture.c", "exp.c", "items.c", "exploration.c", "trainer.c", "combat.c", "battle.c", "evolution.c", "assets.c", "pokemon_names.c")], "-lz",
+                   ("box_view.c", "party.c", "encounter.c", "nurture.c", "exp.c", "items.c", "exploration.c", "trainer.c", "combat.c", "battle.c", "evolution.c", "assets.c", "pokemon_names.c")], "-lz",
                    "-Wl,-dead_strip" if sys.platform == "darwin" else "-Wl,--gc-sections",
                    "-o", str(temp / "verify")]
         if args.sanitize:

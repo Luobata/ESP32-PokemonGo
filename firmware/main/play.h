@@ -70,8 +70,9 @@ typedef struct {
     uint8_t selected;
     bool details;
     bool box, skills;
-    uint8_t box_row;
-    uint8_t box_matches, box_slot, box_menu, box_filter, box_type, box_sort;
+    uint16_t box_row;
+    uint16_t box_matches, box_slot;
+    uint8_t box_menu, box_filter, box_type, box_sort;
     bool box_paging;
     bool release_confirm;
     uint8_t release_choice;

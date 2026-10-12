@@ -40,12 +40,12 @@ async function save(q){
 }
 async function nextChunk(id,offset){
   const t=transfer;
-  if(!t?.backedUp||id!==t.id||offset!==t.offset||offset>SIZE)throw Error('导入接收状态不匹配');
-  if(offset===SIZE){await send(`!PWBACKUP RFIN ${session} ${id}`);status('传送完成，设备正在校验并暂存…');return;}
+  if(!t?.backedUp||id!==t.id||offset!==t.offset||offset>t.file.bytes.length)throw Error('导入接收状态不匹配');
+  if(offset===t.file.bytes.length){await send(`!PWBACKUP RFIN ${session} ${id}`);status('传送完成，设备正在校验并暂存…');return;}
   const hex=Array.from(t.file.bytes.slice(offset,offset+128),b=>b.toString(16).padStart(2,'0')).join('');
   t.offset+=128;
   await send(`!PWBACKUP RDATA ${session} ${id} ${offset} ${hex}`);
-  $('progress').value=t.offset/SIZE;status(`正在导入 ${Math.round(t.offset/SIZE*100)}%`);
+  $('progress').value=t.offset/t.file.bytes.length;status(`正在导入 ${Math.round(t.offset/t.file.bytes.length*100)}%`);
 }
 async function line(text){
   const result=receiver.accept(text);
@@ -108,7 +108,7 @@ $('disconnect').onclick=async()=>{
 $('import-file').onchange=async()=>{
   selectedImport=null;controls();
   try{const file=$('import-file').files[0];if(!file)return;
-    if(file.size>45000)throw Error('备份文件过大');selectedImport=await decodeBackup(await file.text());
+    if(file.size>90000)throw Error('备份文件过大');selectedImport=await decodeBackup(await file.text());
     $('import-info').textContent=`${file.name} · 校验通过 · 存档 V${selectedImport.metadata.save_version}`;
   }catch(e){$('import-info').textContent=e.message;status(e.message,true);}controls();
 };
@@ -118,7 +118,7 @@ $('import').onclick=async()=>{
     const d=selectedImport.metadata;if(d.device_id!==device)throw Error('备份不属于当前设备');
     if(await directory.queryPermission({mode:'readwrite'})!=='granted')throw Error('请重新选择有写入权限的备份目录');
     transfer={file:selectedImport};controls();
-    await send(`!PWBACKUP OFFER ${session} ${d.device_id} ${d.firmware} ${d.save_version} ${d.nvs_size} ${d.crc32}`);
+    await send(`!PWBACKUP OFFER ${session} ${d.device_id} ${d.firmware} ${d.save_version} ${selectedImport.bytes.length} ${d.crc32}`);
     status('等待设备确认导入请求…');
   }catch(e){transfer=null;status(e.message,true);controls();}
 };

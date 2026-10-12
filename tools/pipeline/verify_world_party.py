@@ -91,7 +91,7 @@ static void every_position(void) {
         mon_t chosen=expected[index];
         for(unsigned i=index;i>0;i--)expected[i]=expected[i-1];expected[0]=chosen;
         assert(world_set_leader(index,&before.members[index],&after)==WORLD_SWITCH_OK);
-        assert(commits==committed+1&&after.count==6&&after.box_count==3&&!after.switch_locked);
+        assert(commits==committed+2&&after.count==6&&after.box_count==3&&!after.switch_locked);
         assert(!memcmp(after.members,expected,sizeof(expected)));
         assert(!memcmp(s_party.party,expected,sizeof(expected))&&!memcmp(s_party.box,old.box,sizeof(old.box)));
         assert(s_w.species==chosen.species_id&&s_w.level==chosen.level&&s_w.exp==chosen.exp);
@@ -173,7 +173,8 @@ static void individual_bond(void) {
     world_party_snapshot(&view);assert(view.members[0].intimacy==73&&view.members[1].intimacy==41);tests++;
 }
 static void legacy_and_protection(void) {
-    seed_team();save_t decoded;assert(save_read(&decoded));save_v5_t old;memcpy(&old,&decoded,sizeof(old));old.version=5;
+    seed_team();save_t decoded;assert(save_read(&decoded));save_v22_t legacy;test_legacy_snapshot(&legacy,&decoded);save_v5_t old;memcpy(&old,&legacy,sizeof(old));old.version=5;
+    uint8_t *base=old.party+2+PARTY_MAX*MON_BYTES;memmove(base+148*MON_BYTES,base,3*MON_BYTES);memset(base,0,3*MON_BYTES);
     memcpy(disk,&old,sizeof(old));disk_len=sizeof(old);reboot();
     assert(!s_dirty && save_read_status(&decoded)==SAVE_READ_OK && decoded.version==SAVE_VERSION);
     world_party_t view;world_party_snapshot(&view);
@@ -216,12 +217,12 @@ static void concurrent_care(void) {
 }
 static void easier_curve_preserves_progress(void) {
     seed_team();
-    for(unsigned i=0;i<PARTY_MAX+BOX_SPECIES;i++){
+    for(unsigned i=0;i<PARTY_MAX+BOX_CAPACITY;i++){
         mon_t *m=i<PARTY_MAX?&s_party.party[i]:&s_party.box[i-PARTY_MAX];
         if(m->species_id)m->exp=5u*m->level*m->level*m->level/2u;
     }
     s_w.exp=s_party.party[0].exp;world_debug_save();party_t expected=s_party;
-    for(unsigned i=0;i<PARTY_MAX+BOX_SPECIES;i++){
+    for(unsigned i=0;i<PARTY_MAX+BOX_CAPACITY;i++){
         mon_t *m=i<PARTY_MAX?&expected.party[i]:&expected.box[i-PARTY_MAX];
         if(m->species_id){uint8_t previous=m->level;m->level=exp_to_level(m->exp,LEVEL_MAX);assert(m->level>=previous);}
     }
@@ -230,44 +231,50 @@ static void easier_curve_preserves_progress(void) {
     reboot();assert(!memcmp(&s_party,&expected,sizeof(expected)));tests++;
 }
 static void duplicate_box_exchange(void) {
-    seed_team();world_party_t view;world_party_snapshot(&view);
-    mon_t outgoing=view.members[5],incoming=s_party.box[148],duplicate=s_party.box[149];
-    party_t before=s_party;uint8_t stored[sizeof(disk)];memcpy(stored,disk,sizeof(stored));
-    failure=4;assert(world_box_exchange(5,&outgoing,&incoming)==WORLD_SWITCH_SAVE_FAILED);failure=0;
-    assert(!memcmp(&before,&s_party,sizeof(before))&&!memcmp(stored,disk,sizeof(stored)));
-    assert(world_box_exchange(5,&outgoing,&incoming)==WORLD_SWITCH_OK);
-    assert(!memcmp(&s_party.party[5],&incoming,sizeof(incoming)));
-    assert(!memcmp(&s_party.box[148],&outgoing,sizeof(outgoing))&&!memcmp(&s_party.box[149],&duplicate,sizeof(duplicate)));
-    assert(party_total(&s_party)==9);party_t swapped=s_party;reboot();assert(!memcmp(&s_party,&swapped,sizeof(swapped)));
-    assert(world_box_exchange(5,&outgoing,&incoming)==WORLD_SWITCH_STALE);
-    // Choose the second individual of the same species, not the first match.
-    world_party_snapshot(&view);assert(world_box_exchange(5,&view.members[5],&duplicate)==WORLD_SWITCH_OK);
-    assert(!memcmp(&s_party.party[5],&duplicate,sizeof(duplicate))&&!memcmp(&s_party.box[148],&outgoing,sizeof(outgoing)));
-    // A partially occupied party follows exactly the same non-destructive swap.
-    seed_team();s_party.party_count=1;memset(&s_party.party[1],0,5*sizeof(mon_t));
-    s_party.box[0]=s_party.party[0];s_party.box[0].flags^=1;world_debug_save();world_party_snapshot(&view);
-    outgoing=view.members[0];incoming=s_party.box[148];duplicate=s_party.box[0];
-    assert(world_box_exchange(0,&outgoing,&incoming)==WORLD_SWITCH_OK);
-    assert(s_party.party_count==1&&!memcmp(&s_party.box[0],&duplicate,sizeof(duplicate))&&!memcmp(&s_party.box[148],&outgoing,sizeof(outgoing)));
-    swapped=s_party;reboot();assert(!memcmp(&s_party,&swapped,sizeof(swapped)));tests+=7;
+    const unsigned positions[]={0,150,151,255,256,452};
+    for(unsigned k=0;k<sizeof(positions)/sizeof(positions[0]);k++) {
+        seed_team();unsigned index=positions[k];
+        mon_t same={.species_id=150,.level=55,.hp=100,.exp=exp_for_level(55),.nickname_idx=255};
+        for(unsigned i=0;i<BOX_CAPACITY;i++)s_party.box[i]=same;
+        move_policy_set(&s_party.policies[PARTY_MAX+index],33,false);
+        world_debug_save();world_party_t view;world_party_snapshot(&view);
+        mon_t outgoing=view.members[5];party_t before=s_party;
+        uint8_t stored[sizeof(disk)];memcpy(stored,disk,sizeof(stored));
+        failure=4;assert(world_box_exchange_at(5,index,&outgoing,&same)==WORLD_SWITCH_SAVE_FAILED);failure=0;
+        assert(!memcmp(&before,&s_party,sizeof(before))&&!memcmp(stored,disk,sizeof(stored)));
+        assert(world_box_exchange_at(5,index,&outgoing,&same)==WORLD_SWITCH_OK);
+        assert(!memcmp(&s_party.party[5],&same,sizeof(same)));
+        assert(!memcmp(&s_party.policies[5],&before.policies[PARTY_MAX+index],sizeof(move_policy_t)));
+        before.party[5]=same;before.box[index]=outgoing;
+        move_policy_t old_policy=before.policies[5];before.policies[5]=before.policies[PARTY_MAX+index];before.policies[PARTY_MAX+index]=old_policy;
+        assert(!memcmp(&before,&s_party,sizeof(before))&&party_total(&s_party)==459);
+        reboot();assert(!memcmp(&before,&s_party,sizeof(before)));
+        assert(world_box_exchange_at(5,index,&outgoing,&same)==WORLD_SWITCH_STALE);tests+=3;
+    }
 }
 static void box_migration_and_capacity(void) {
-    seed_team();save_t decoded;assert(save_read(&decoded));party_t before=s_party;decoded.version=11;disk_len=sizeof(save_v14_t);memcpy(disk,&decoded,disk_len);
-    reboot();assert(((save_t*)disk)->version==SAVE_VERSION&&!memcmp(&before,&s_party,sizeof(before)));
-    seed_team();assert(save_read(&decoded));decoded.version=11;decoded.party[2+(PARTY_MAX+148)*MON_BYTES]=150;disk_len=sizeof(save_v14_t);memcpy(disk,&decoded,disk_len);
+    seed_team();save_t decoded;assert(save_read(&decoded));save_v22_t legacy;test_legacy_snapshot(&legacy,&decoded);
+    legacy.version=11;
+    // V11 was species-addressed. Move the three known legacy individuals to
+    // their original physical positions before feeding the genuine old layout.
+    uint8_t *base=legacy.party+2+PARTY_MAX*MON_BYTES;
+    memmove(base+148*MON_BYTES,base,3*MON_BYTES);memset(base,0,3*MON_BYTES);
+    disk_len=sizeof(save_v14_t);memcpy(disk,&legacy,disk_len);
+    reboot();assert(((save_bank_ref_t*)disk)->bytes[0]==SAVE_VERSION&&party_total(&s_party)==9);
+    legacy.party[2+(PARTY_MAX+148)*MON_BYTES]=150;memcpy(disk,&legacy,disk_len);
     save_t invalid;assert(save_read_status(&invalid)==SAVE_READ_ERROR);
     party_t p;party_init(&p);p.party_count=6;
     for(unsigned i=0;i<6;i++)p.party[i]=(mon_t){.species_id=25,.level=10,.exp=exp_for_level(10)+i};
-    for(unsigned i=0;i<BOX_SPECIES;i++)p.box[i]=(mon_t){.species_id=(uint8_t)(i+1),.level=20,.exp=exp_for_level(20)+i};
-    before=p;assert(party_exchange_at(&p,0,150)&&party_total(&p)==157);
-    uint8_t raw[PARTY_BYTES];party_serialize(&p,raw);party_t restored;assert(party_deserialize(&restored,raw,sizeof(raw))&&!memcmp(&p,&restored,sizeof(p)));
+    for(unsigned i=0;i<151;i++)p.box[i]=(mon_t){.species_id=(uint8_t)(i+1),.level=20,.exp=exp_for_level(20)+i};
+    party_t before=p;assert(party_exchange_at(&p,0,150)&&party_total(&p)==157);
+    uint8_t raw[LEGACY_PARTY_BYTES];party_serialize(&p,raw);party_t restored;assert(party_deserialize(&restored,raw,sizeof(raw))&&!memcmp(&p,&restored,sizeof(p)));
     assert(party_exchange_at(&restored,0,150)&&!memcmp(&restored,&before,sizeof(before)));tests+=4;
 }
 int main(void) {
     snapshot_readonly();every_position();failures_and_stale();battle_lock();play_stamina_boundary();individual_bond();
     legacy_and_protection();concurrent_care();easier_curve_preserves_progress();duplicate_box_exchange();box_migration_and_capacity();
     printf("{\"cases\":%u,\"party_slots\":%d,\"box_slots\":%d,\"mon_bytes\":%zu,\"save_version\":%d,\"save_bytes\":%zu,\"erase_calls\":%u}\n",
-        tests,PARTY_MAX,BOX_SPECIES,sizeof(mon_t),SAVE_VERSION,sizeof(save_t),erase_calls);
+        tests,PARTY_MAX,BOX_CAPACITY,sizeof(mon_t),SAVE_VERSION,sizeof(save_t),erase_calls);
     return 0;
 }
 '''
@@ -292,7 +299,7 @@ def run(root: Path) -> dict:
                    '-ffunction-sections', '-fdata-sections', '-pthread', '-I', str(temp),
                    '-I', str(root / 'firmware/main'), str(temp / 'driver.c'),
                    *[str(root / 'firmware/main' / name) for name in
-                     ('party.c', 'encounter.c', 'exploration.c', 'battle.c', 'combat.c', 'nurture.c', 'exp.c', 'items.c')], '-lz',
+                     ('box_view.c','party.c', 'encounter.c', 'exploration.c', 'battle.c', 'combat.c', 'nurture.c', 'exp.c', 'items.c')], '-lz',
                    '-Wl,-dead_strip' if sys.platform == 'darwin' else '-Wl,--gc-sections',
                    '-o', str(temp / 'probe')]
         subprocess.run(command, check=True, capture_output=True, text=True)

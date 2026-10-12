@@ -1,0 +1,158 @@
+[
+  {
+    "check": "verify_usb_backup",
+    "exit_code": 0,
+    "seconds": 2.5,
+    "error": ""
+  },
+  {
+    "check": "verify_usb_import",
+    "exit_code": 0,
+    "seconds": 3.8,
+    "error": ""
+  },
+  {
+    "check": "verify_usb_stream",
+    "exit_code": 0,
+    "seconds": 2.0,
+    "error": ""
+  },
+  {
+    "check": "verify_save_import_compatibility",
+    "exit_code": 0,
+    "seconds": 3.9,
+    "error": ""
+  },
+  {
+    "check": "verify_save_storage",
+    "exit_code": 0,
+    "seconds": 8.4,
+    "error": ""
+  },
+  {
+    "check": "verify_usb_import_device",
+    "exit_code": 0,
+    "seconds": 0.6,
+    "error": ""
+  },
+  {
+    "check": "verify_usb_backup_checkpoint",
+    "exit_code": 0,
+    "seconds": 3.1,
+    "error": ""
+  },
+  {
+    "check": "verify_save_manager_distribution",
+    "exit_code": 0,
+    "seconds": 1.6,
+    "error": ""
+  },
+  {
+    "check": "verify_firmware_update",
+    "exit_code": 0,
+    "seconds": 0.8,
+    "error": ""
+  },
+  {
+    "check": "verify_nvs_restore_roundtrip",
+    "exit_code": 0,
+    "seconds": 10.8,
+    "error": ""
+  },
+  {
+    "check": "verify_region_expansion",
+    "exit_code": 0,
+    "seconds": 5.6,
+    "error": ""
+  },
+  {
+    "check": "verify_dungeon_stack",
+    "exit_code": 0,
+    "seconds": 0.5,
+    "error": ""
+  },
+  {
+    "check": "verify_save_stack",
+    "exit_code": 0,
+    "seconds": 0.5,
+    "error": ""
+  },
+  {
+    "check": "verify_party",
+    "exit_code": 0,
+    "seconds": 0.6,
+    "error": ""
+  },
+  {
+    "check": "verify_world_party",
+    "exit_code": 0,
+    "seconds": 3.4,
+    "error": ""
+  },
+  {
+    "check": "verify_box_browser",
+    "exit_code": 0,
+    "seconds": 12.2,
+    "error": ""
+  },
+  {
+    "check": "verify_box_exchange",
+    "exit_code": 0,
+    "seconds": 0.4,
+    "error": ""
+  },
+  {
+    "check": "verify_box_release",
+    "exit_code": 0,
+    "seconds": 3.8,
+    "error": ""
+  },
+  {
+    "check": "verify_box_release_ui",
+    "exit_code": 0,
+    "seconds": 0.5,
+    "error": ""
+  },
+  {
+    "check": "verify_capture_capacity",
+    "exit_code": 0,
+    "seconds": 4.7,
+    "error": ""
+  },
+  {
+    "check": "verify_capture_capacity_ui",
+    "exit_code": 0,
+    "seconds": 0.3,
+    "error": ""
+  },
+  {
+    "check": "verify_move_settings",
+    "exit_code": 0,
+    "seconds": 4.5,
+    "error": ""
+  },
+  {
+    "check": "verify_move_settings_ui",
+    "exit_code": 0,
+    "seconds": 0.9,
+    "error": ""
+  },
+  {
+    "check": "verify_move_settings_dungeon",
+    "exit_code": 0,
+    "seconds": 5.1,
+    "error": ""
+  },
+  {
+    "check": "verify_legacy_party_exp",
+    "exit_code": 0,
+    "seconds": 4.4,
+    "error": ""
+  },
+  {
+    "check": "verify_save_import_web",
+    "exit_code": 0,
+    "seconds": 0.3,
+    "error": ""
+  }
+]

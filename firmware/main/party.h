@@ -7,7 +7,9 @@
 #define PARTY_MAX     6
 #define BOX_SPECIES 151
 #define MON_BYTES    12
-#define PARTY_BYTES (2 + (PARTY_MAX + BOX_SPECIES) * MON_BYTES)
+#define BOX_CAPACITY 453
+#define LEGACY_PARTY_BYTES (2 + (PARTY_MAX + 151) * MON_BYTES)
+#define PARTY_BYTES LEGACY_PARTY_BYTES // Historical codec only; V23 stores native members.
 
 typedef struct {
     uint8_t  species_id, level, hp, intimacy;
@@ -19,12 +21,14 @@ typedef struct {
 typedef struct {
     mon_t   party[PARTY_MAX];
     uint8_t party_count;
-    mon_t   box[BOX_SPECIES];       // physical slots; duplicates remain distinct after exchanges
-    move_policy_t policies[PARTY_MAX + BOX_SPECIES]; // follows physical individuals
+    mon_t   box[BOX_CAPACITY];       // physical slots; duplicates remain distinct after exchanges
+    move_policy_t policies[PARTY_MAX + BOX_CAPACITY]; // follows physical individuals
 } party_t;
 
 void    party_init(party_t *p);
 bool    party_better(const mon_t *a, const mon_t *b);
+// Every capture is an individual. Full storage requires explicit replacement.
+bool    party_can_receive(const party_t *p, uint16_t species);
 bool    party_receive(party_t *p, const mon_t *m);
 bool    party_set_leader(party_t *p, uint8_t index);
 const mon_t *party_leader(const party_t *p);

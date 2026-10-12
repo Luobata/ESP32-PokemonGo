@@ -91,10 +91,62 @@ static bool s_caught;
 static bool s_fled;
 static bool s_no_ball;
 static bool s_save_failed;
+static bool s_box_full;
 static bool s_capture_pending;
+static mon_t s_pending_mon;
+enum { REPLACE_NONE, REPLACE_LIST, REPLACE_CONFIRM, REPLACE_DISCARD };
+static unsigned s_replace, s_replace_choice, s_replace_row, s_replace_count, s_replace_slot;
+static uint16_t s_replace_ids[BOX_CAPACITY];
+static mon_t s_replace_expected;
+static box_view_options_t s_replace_options;
+static const char *s_replace_message;
+static void load_replacements(void) {
+    s_replace_count=world_box_view(&s_replace_options,s_replace_ids);
+    if(s_replace_row>=s_replace_count)s_replace_row=0;
+}
+static void capture_member_label(const mon_t *mon,char *out,size_t size) {
+    species_t sp;
+    if(assets_species(mon->species_id,&sp))snprintf(out,size,"%.*s Lv%u%s",sp.name_zh_len,sp.name_zh,mon->level,mon->flags&1?" ★":"");
+    else snprintf(out,size,"#%u Lv%u",mon->species_id,mon->level);
+}
+static void draw_replacements(int band) {
+    char text[80];
+    game_ui_title(band,s_replace==REPLACE_LIST?"仓库已满":s_replace==REPLACE_DISCARD?"放走新伙伴？":"替换伙伴？","453格");
+
+    if(s_replace==REPLACE_LIST){
+        game_ui_text_fitted(band,12,64,216,"选择要替换的仓库伙伴",GAME_UI_INK);
+        for(unsigned i=0,top=s_replace_row/5*5;i<5&&top+i<s_replace_count;i++){
+            mon_t m;if(!world_box_at(s_replace_ids[top+i],&m))continue;
+            capture_member_label(&m,text,sizeof(text));
+            game_ui_text_fitted(band,36,94+i*30,192,text,GAME_UI_INK);
+            game_ui_list_marker(band,14,94+i*30,top+i,s_replace_count,s_replace_row);
+        }
+        game_ui_text_fitted(band,12,252,216,s_replace_message?s_replace_message:"长按A切换排序",GAME_UI_MUTED);
+        game_ui_footer(band,"A上 B下 C选择 长按B放走");
+    }else{
+        game_ui_box(band,8,80,224,136);
+        if(s_replace==REPLACE_CONFIRM){
+            game_ui_text_fitted(band,20,96,200,"将放生以下伙伴",GAME_UI_INK);
+            capture_member_label(&s_replace_expected,text,sizeof(text));
+            game_ui_text_fitted(band,20,130,200,text,GAME_UI_INK);
+            game_ui_text_fitted(band,20,174,200,s_replace_expected.flags&1?"这是闪光伙伴，无法撤销":"替换后无法撤销",GAME_UI_ACCENT);
+        }else{
+            game_ui_text_fitted(band,20,108,200,"保留仓库所有伙伴",GAME_UI_INK);
+            game_ui_text_fitted(band,20,156,200,"新捕获的伙伴将离开",GAME_UI_ACCENT);
+        }
+        if(s_replace_message)game_ui_text_fitted(band,12,244,216,s_replace_message,GAME_UI_ACCENT);
+        static const char *const replace_actions[]={"取消","确认替换"};
+        static const char *const discard_actions[]={"取消","确认放走"};
+        game_ui_actions(band,s_replace==REPLACE_CONFIRM?replace_actions:discard_actions,2,s_replace_choice);
+    }
+    // Draw the common incoming identity last, above either list or modal.
+    capture_member_label(&s_pending_mon,text,sizeof(text));
+    game_ui_text_fitted(band,12,40,216,text,GAME_UI_ACCENT);
+}
+
 static bool s_chain_prompt;
 static uint8_t s_chain_choice;
-static mon_t s_pending_mon;
+
 static bool s_hold_active;
 static bool s_return_to_battle;
 static uint16_t s_capture_exp;
@@ -257,6 +309,7 @@ static void draw_bar_band(int band_y)
 static void draw_band(int band_y)
 {
     screen_band_clear(GAME_UI_BG);
+    if(s_replace && !s_animating){draw_replacements(band_y);screen_push_band(band_y);return;}
     #define Y(v) ((v) - band_y)
 
     const nav_ctx_t *c = nav_ctx();
@@ -318,7 +371,7 @@ static void draw_band(int band_y)
     snprintf(buf, sizeof(buf), "%s ×%u", cap_ball_name(s_ball),
              s_inventory.quantity[s_ball]);
     render_text(44, Y(BALL_Y + 4), buf, GAME_UI_INK);
-    render_text(12, Y(INSTRUCTION_Y), s_session.won ? "战斗获胜，仅此一球"
+    render_text(12, Y(INSTRUCTION_Y), s_box_full ? "满仓：捕获后选择替换" : s_session.won ? "战斗获胜，仅此一球"
                 : "在蓝色区域投球", GAME_UI_MUTED);
 
     // 判定条
@@ -341,6 +394,8 @@ static void draw_band(int band_y)
         render_text(12, Y(MSG_Y), "跑掉了", GAME_UI_INK);
     } else if (s_return_to_battle) {
         render_text(12, Y(MSG_Y), "捕获失败，准备反击", GAME_UI_INK);
+    } else if (s_box_full) {
+        render_text(12, Y(MSG_Y), "仓库已满，可手动替换", GAME_UI_INK);
     } else if (s_save_failed) {
         render_text(12, Y(MSG_Y), "保存失败，请重试", GAME_UI_INK);
     } else if (s_no_ball) {
@@ -350,7 +405,7 @@ static void draw_band(int band_y)
     }
 
     game_ui_footer(band_y, s_animating ? "捕获中……" : s_capture_pending ? "[C]重试保存" : s_hold_active ? "[C]继续"
-        : (s_caught || s_fled ? "[C]继续" : "A上 B下 C投球 长按B返回"));
+                : (s_caught || s_fled ? "[C]继续" : "A上 B下 C投球 长按B返回"));
 
     #undef Y
     screen_push_band(band_y);
@@ -361,20 +416,33 @@ static void draw_all(void)
     for (int y = 0; y < SCR_H; y += BAND_H) draw_band(y);
 }
 
-static bool save_caught_result(void)
+static bool save_caught_result_at(unsigned slot,const mon_t *expected)
 {
     nav_ctx_t *c = nav_ctx();world_t before,after;world_snapshot(&before);
-    if (!world_capture_uid(c->uid, &s_pending_mon)) {
+    world_capture_result_t result=world_capture_replace_uid(c->uid,&s_pending_mon,slot,expected);
+    if (result!=WORLD_CAPTURE_OK) {
+        s_save_failed=result!=WORLD_CAPTURE_FULL && result!=WORLD_CAPTURE_STALE;
+        if(result==WORLD_CAPTURE_FULL){
+            s_replace=REPLACE_LIST;s_replace_choice=s_replace_row=0;
+            s_replace_options=(box_view_options_t){.sort=BOX_SORT_LEVEL_ASC};load_replacements();
+            s_replace_message=NULL;
+        }else if(result==WORLD_CAPTURE_STALE){
+            s_replace=REPLACE_LIST;load_replacements();s_replace_message="伙伴已变，请重新选择";
+        }else s_replace_message="保存失败，请重试";
         s_capture_pending = true;
         return false;
     }
     world_snapshot(&after);s_capture_exp=(uint16_t)(after.exp-before.exp);
     s_capture_pending = false;
+    s_save_failed=false;
+    s_replace=REPLACE_NONE;s_replace_message=NULL;
     s_caught = true;
     c->done_note = NAV_NOTE_CAUGHT;
     c->valid = false;
     return true;
 }
+
+static bool save_caught_result(void){return save_caught_result_at(BOX_CAPACITY,NULL);}
 
 static void redraw_for_dump(void)
 {
@@ -415,7 +483,7 @@ static void tick(lv_timer_t *t)
         return;
     }
 
-    if (s_caught || s_fled) return;
+    if (s_caught || s_fled || s_capture_pending) return;
     // **只重画判定条那一带** —— 指针在动，别的都是静态的。
     // 全屏重画 150KB/帧跑不动 1.2 秒的往复。
     draw_band(BAR_BAND * BAND_H);
@@ -458,6 +526,9 @@ void play_capture_enter(void)
     s_press_handled = false;
     s_save_failed = false;
     s_capture_pending = false;
+    s_save_failed=false;
+    s_replace=REPLACE_NONE;s_replace_message=NULL;
+    s_box_full = !world_capture_has_room(current.species_id);
     s_chain_prompt = exploration_chain_encounter(&current) && world_exploration_chain() > 0;
     s_chain_choice = 0;
     memset(&s_pending_mon, 0, sizeof(s_pending_mon));
@@ -531,6 +602,37 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         ev = BSP_BTN_CLICK;
     }
     if (s_animating) return;
+    if(s_replace){
+        bool confirm=nav_confirm(btn,ev),back=nav_return(btn,ev);
+        int direction=nav_direction(btn,ev);
+        if(s_replace==REPLACE_LIST){
+            if(back){s_replace=REPLACE_DISCARD;s_replace_choice=0;s_replace_message=NULL;}
+            else if(btn==BSP_BTN_UP && ev==BSP_BTN_LONG){
+                s_replace_options.sort=s_replace_options.sort==BOX_SORT_LEVEL_ASC?BOX_SORT_DEX:BOX_SORT_LEVEL_ASC;
+                load_replacements();s_replace_message=NULL;
+            }else if(direction){s_replace_row=nav_list_selection(btn,ev,s_replace_count,s_replace_row);s_replace_message=NULL;}
+            else if(confirm && s_replace_row<s_replace_count){
+                s_replace_slot=s_replace_ids[s_replace_row];
+                if(world_box_at(s_replace_slot,&s_replace_expected)){s_replace=REPLACE_CONFIRM;s_replace_choice=0;s_replace_message=NULL;}
+                else{load_replacements();s_replace_message="伙伴已变，请重新选择";}
+            }
+        }else{
+            s_replace_choice=nav_list_selection(btn,ev,2,s_replace_choice);
+            if(back || (confirm&&!s_replace_choice)){s_replace=REPLACE_LIST;s_replace_message=NULL;}
+            else if(confirm){
+                if(s_replace==REPLACE_DISCARD){
+                    world_take_uid(nav_ctx()->uid,NULL);nav_ctx()->valid=false;
+                    s_capture_pending=false;s_replace=REPLACE_NONE;
+                    music_director_play(s_previous_music);nav_end_encounter();return;
+                }
+                if(save_caught_result_at(s_replace_slot,&s_replace_expected)){
+                    capture_reveal();s_hold_active=true;s_hold=0;
+                }
+            }
+        }
+        draw_all();return;
+    }
+
     // 停留期任何页面按键都只加速同一条 timer 导航路径。
     if (s_hold_active) {
         if (nav_confirm(btn, ev)) s_hold = (s_caught ? 80 : HOLD_TICKS) - 1;
@@ -555,6 +657,7 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
     switch (btn) {
     case BSP_BTN_OK: {                     // Confirm throws immediately
         if (s_thrown) return;
+        s_box_full = !world_capture_has_room(c->enc.species_id);
         if (!world_battle_get_uid(c->uid, &s_session)) {
             c->valid = false; nav_end_encounter(); return;
         }

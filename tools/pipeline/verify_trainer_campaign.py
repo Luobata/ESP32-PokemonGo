@@ -60,11 +60,11 @@ static void transactions(void){
 static void migration(void){
  for(unsigned version=5;version<=6;version++){
   seed();save_t saved;assert(save_read_status(&saved)==SAVE_READ_OK);
-  saved.version=version;disk_len=version==5?sizeof(save_v5_t):version==6?sizeof(save_v6_t):sizeof(save_v7_t);memcpy(disk,&saved,disk_len);
+  save_v22_t legacy;test_legacy_snapshot(&legacy,&saved);legacy.version=version;disk_len=version==5?sizeof(save_v5_t):version==6?sizeof(save_v6_t):sizeof(save_v7_t);memcpy(disk,&legacy,disk_len);
   save_t migrated;assert(save_read_status(&migrated)==SAVE_READ_MIGRATED);assert(migrated.version==SAVE_VERSION&&migrated.challenge.wild_wins==1);
-  assert(!memcmp(saved.party,migrated.party,PARTY_BYTES));reboot();assert(s_w.species==3&&s_w.level==90&&s_party.party_count==6);world_debug_save();assert(disk_len==sizeof(save_t));
+  assert(!memcmp(&saved.members,&migrated.members,sizeof(party_t)));reboot();assert(s_w.species==3&&s_w.level==90&&s_party.party_count==6);world_debug_save();assert(disk_len==sizeof(save_bank_ref_t));
  }
- seed();assert(world_challenge_begin(0));save_t bad;assert(save_read_status(&bad)==SAVE_READ_OK);bad.challenge.session.sides[0].mons[0].hp=65535;memcpy(disk,&bad,sizeof(bad));
+ seed();assert(world_challenge_begin(0));save_t bad;assert(save_read_status(&bad)==SAVE_READ_OK);bad.challenge.session.sides[0].mons[0].hp=65535;test_store_save(&bad);
  uint8_t original[sizeof(disk)];memcpy(original,disk,sizeof(disk));reboot();assert(!s_storage_ready);world_debug_save();assert(!memcmp(original,disk,sizeof(disk))&&erase_calls==0);tests++;
 }
 static void edge_cases(void){
@@ -90,7 +90,7 @@ def run():
   for n in ('gen1.bin','gen1_front.bin','gen1_back.bin','palettes.bin','font16.bin','moves.bin','ui.bin'):
    sy='_binary_'+n.replace('.','_');asm += ['.balign 4',f'.global {sy}_start',f'.global {sy}_end',f'{sy}_start:',f'.incbin "{ROOT/"assets"/n}"',f'{sy}_end:']
   (t/'assets.S').write_text('\n'.join(asm)+'\n')
-  cmd=['cc','-std=gnu11','-DHOST_BUILD','-O1','-g','-Wall','-Wextra','-Werror','-Wno-unused-variable','-Wno-unused-function','-Wno-unused-parameter','-fsanitize=address,undefined','-fno-omit-frame-pointer','-ffunction-sections','-fdata-sections','-pthread','-I',str(t),'-I',str(ROOT/'firmware/main'),'-I',str(ROOT/'firmware/components/bsp/include'),str(t/'driver.c'),str(t/'assets.S')]+[str(ROOT/'firmware/main'/n) for n in ('party.c','encounter.c','exploration.c','nurture.c','exp.c','items.c','evolution.c','trainer.c','combat.c','battle.c','assets.c','pokemon_names.c')]+['-lz',('-Wl,-dead_strip' if sys.platform=='darwin' else '-Wl,--gc-sections'),'-o',str(t/'probe')]
+  cmd=['cc','-std=gnu11','-DHOST_BUILD','-O1','-g','-Wall','-Wextra','-Werror','-Wno-unused-variable','-Wno-unused-function','-Wno-unused-parameter','-fsanitize=address,undefined','-fno-omit-frame-pointer','-ffunction-sections','-fdata-sections','-pthread','-I',str(t),'-I',str(ROOT/'firmware/main'),'-I',str(ROOT/'firmware/components/bsp/include'),str(t/'driver.c'),str(t/'assets.S')]+[str(ROOT/'firmware/main'/n) for n in ('box_view.c','party.c','encounter.c','exploration.c','nurture.c','exp.c','items.c','evolution.c','trainer.c','combat.c','battle.c','assets.c','pokemon_names.c')]+['-lz',('-Wl,-dead_strip' if sys.platform=='darwin' else '-Wl,--gc-sections'),'-o',str(t/'probe')]
   c=subprocess.run(cmd,capture_output=True,text=True);assert c.returncode==0,c.stderr
   c=subprocess.run([str(t/'probe')],capture_output=True,text=True,timeout=40);assert c.returncode==0,c.stdout+c.stderr
   print(c.stdout)

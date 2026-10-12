@@ -24,19 +24,19 @@ int main(void){
  assert(persisted_playtime()==66);assert(!world_backup_snapshot(reader,&copy));failure=0;
  assert(world_backup_snapshot(reader,&copy)&&copy.playtime_s==72);reboot();assert(world_playtime_seconds()==72);
  // All old V19 fields and even its undefined tail remain in the frozen prefix.
- save_v19_t old=copy.v19;old.version=19;old.exploration_wins=91;
+ save_v22_t legacy;test_legacy_snapshot(&legacy,&copy);save_v19_t old=legacy.v19;old.version=19;old.exploration_wins=91;
  memset((uint8_t*)&old+offsetof(save_v19_t,exploration_wins)+sizeof(uint32_t),0xa5,
         sizeof(old)-offsetof(save_v19_t,exploration_wins)-sizeof(uint32_t));
  save_t next;assert(save_decode(&next,&old,sizeof(old),0)==SAVE_READ_MIGRATED);
  assert(!next.playtime_s&&next.exploration_wins==91&&next.inventory.quantity[ITEM_BERRY]==copy.inventory.quantity[ITEM_BERRY]);
- assert(!memcmp(next.party,old.party,PARTY_BYTES));
+ party_t old_members;assert(party_deserialize(&old_members,old.party,LEGACY_PARTY_BYTES));assert(!memcmp(&next.members,&old_members,sizeof(party_t)));
  next.playtime_s=UINT32_MAX;assert(save_write(&next));reboot();world_playtime_set_paused(false);
  test_time+=100000000000LL;assert(world_playtime_seconds()==UINT32_MAX);world_debug_save();reboot();assert(world_playtime_seconds()==UINT32_MAX);
  playtime_clock_t clock;playtime_init(&clock,0,1000000);playtime_pause(&clock,1000000,false);
  for(unsigned i=0;i<10;i++){playtime_pause(&clock,clock.last_us+100000,true);playtime_pause(&clock,clock.last_us+1000000000,false);}
  assert(clock.seconds==1&&!clock.fraction_us);
  playtime_advance(&clock,1);assert(clock.seconds==1);playtime_advance(&clock,1000001);assert(clock.seconds==2);
- puts("{\"passed\":true,\"save_version\":20,\"running_sleep_reboot\":true,\"fractional_resume\":true,\"backup_and_retry\":true,\"old_padding_ignored\":true,\"saturation\":true,\"sanitized\":true}");return 0;
+ puts("{\"passed\":true,\"save_version\":23,\"running_sleep_reboot\":true,\"fractional_resume\":true,\"backup_and_retry\":true,\"old_padding_ignored\":true,\"saturation\":true,\"sanitized\":true}");return 0;
 }
 '''
 if __name__=='__main__':

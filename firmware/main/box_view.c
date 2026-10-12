@@ -27,11 +27,11 @@ static bool precedes(const mon_t *a, const mon_t *b, unsigned sort)
     return false;
 }
 
-unsigned box_view_build(const mon_t box[BOX_SPECIES], const inventory_t *inventory,
-                        const box_view_options_t *options, uint8_t indices[BOX_SPECIES])
+unsigned box_view_build(const mon_t box[BOX_CAPACITY], const inventory_t *inventory,
+                        const box_view_options_t *options, uint16_t indices[BOX_CAPACITY])
 {
     unsigned count = 0;
-    for (unsigned slot = 0; slot < BOX_SPECIES; slot++) {
+    for (unsigned slot = 0; slot < BOX_CAPACITY; slot++) {
         const mon_t *mon = &box[slot];
         species_t species;
         if (!mon->species_id || !assets_species(mon->species_id, &species)) continue;

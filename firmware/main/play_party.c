@@ -41,8 +41,8 @@ static bool s_release_confirm;
 static unsigned s_release_choice, s_release_slot;
 static mon_t s_release_expected;
 static unsigned s_end_choice;
-static mon_t s_box[BOX_SPECIES];
-static uint8_t s_box_ids[BOX_SPECIES],s_box_count,s_box_row;
+static mon_t s_box_selected;
+static uint16_t s_box_ids[BOX_CAPACITY],s_box_count,s_box_row;
 static box_view_options_t s_box_options;
 enum { BOX_MENU_CLOSED, BOX_MENU_OPTIONS, BOX_MENU_FILTER, BOX_MENU_TYPE, BOX_MENU_SORT };
 static unsigned s_box_menu, s_box_menu_row;
@@ -63,7 +63,7 @@ static int s_sway;
 
 static const mon_t *view_member(void)
 {
-    if (s_box_mode) return s_box_count ? &s_box[s_box_ids[s_box_row]] : NULL;
+    if (s_box_mode) return s_box_row<s_box_count && world_box_at(s_box_ids[s_box_row], &s_box_selected) ? &s_box_selected : NULL;
     return s_selected < s_party.count ? &s_party.members[s_selected] : NULL;
 }
 
@@ -173,17 +173,14 @@ static void draw_detail(int band_y)
 }
 
 static void load_box(void){
- unsigned previous = s_box_row < s_box_count ? s_box_ids[s_box_row] : BOX_SPECIES;
- inventory_t inventory;
- world_box_snapshot(s_box);
- world_inventory_snapshot(&inventory);
- s_box_count = box_view_build(s_box, &inventory, &s_box_options, s_box_ids);
+ unsigned previous = s_box_row < s_box_count ? s_box_ids[s_box_row] : BOX_CAPACITY;
+ s_box_count = world_box_view(&s_box_options, s_box_ids);
  if (s_box_row >= s_box_count) s_box_row = s_box_count ? s_box_count - 1 : 0;
  for (unsigned i = 0; i < s_box_count; i++) if (s_box_ids[i] == previous) s_box_row = i;
  if (!s_box_count) s_box_details = s_skills = false;
 }
 static void draw_box(int band){
- char text[72],name[48];snprintf(text,sizeof(text),"%u只",s_party.box_count);game_ui_title(band,"仓库",text);
+ char text[72],name[48];snprintf(text,sizeof(text),"%u/%u",s_party.box_count,BOX_CAPACITY);game_ui_title(band,"仓库",text);
  snprintf(text,sizeof(text),"%s / %s / %s",s_box_filters[s_box_options.filter],s_box_types[s_box_options.type],s_box_options.sort==BOX_SORT_LEVEL?"等级降序":s_box_options.sort==BOX_SORT_LEVEL_ASC?"等级升序":"编号");
  game_ui_text_centered(band,8,36,224,16,text,GAME_UI_MUTED);
  game_ui_box(band,8,56,224,168);
@@ -192,7 +189,7 @@ static void draw_box(int band){
   game_ui_text_centered(band,16,144,208,16,"长按A调整筛选",GAME_UI_MUTED);
  }
  for(unsigned i=0,top=s_box_row/5*5;i<5&&top+i<s_box_count;i++){
-  mon_t *m=&s_box[s_box_ids[top+i]];int y=68+i*32;member_name(m,name,sizeof(name));render_text(54,y-band,name,GAME_UI_INK);
+  mon_t row; if(!world_box_at(s_box_ids[top+i],&row))continue; const mon_t *m=&row;int y=68+i*32;member_name(m,name,sizeof(name));render_text(54,y-band,name,GAME_UI_INK);
   if(m->flags&1)render_text(34,y-band,"★",GAME_UI_ACCENT);
   snprintf(text,sizeof(text),"Lv%u",m->level);render_text(216-render_text_width(text),y-band,text,GAME_UI_INK);
   game_ui_list_marker(band,20,y,top+i,s_box_count,s_box_row);
@@ -334,7 +331,7 @@ void play_party_presentation_snapshot(play_party_view_t *out)
 {
     if (out) *out = (play_party_view_t){.selected = s_selected, .details = s_box_mode ? s_box_details : s_details,
         .box = s_box_mode, .box_row = s_box_row, .skills = s_skills,
-        .box_matches = s_box_count, .box_slot = s_box_row < s_box_count ? s_box_ids[s_box_row] : 255,
+        .box_matches = s_box_count, .box_slot = s_box_row < s_box_count ? s_box_ids[s_box_row] : UINT16_MAX,
         .box_menu = s_box_menu, .box_filter = s_box_options.filter, .box_type = s_box_options.type,
         .box_sort = s_box_options.sort, .box_paging = s_box_paging,
         .release_confirm = s_release_confirm, .release_choice = s_release_choice,
@@ -369,7 +366,7 @@ static void select_leader(void)
 
 static void exchange_member(void)
 {
-    world_switch_result_t result = world_box_exchange(s_selected, &s_party.members[s_selected], &s_box[s_box_ids[s_box_row]]);
+    world_switch_result_t result = world_box_exchange_at(s_selected, s_box_ids[s_box_row], &s_party.members[s_selected], view_member());
     if (result == WORLD_SWITCH_BUSY && dungeon_party_locked()) {
         s_end_dungeon = true;
         s_end_choice = 0;

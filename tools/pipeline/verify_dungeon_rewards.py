@@ -48,9 +48,9 @@ static void receipts(void){
  assert(dungeon_retire());assert(dungeon_finish());assert(run.phase==DUNGEON_LOST&&run.xp==xp&&!memcmp(&before,&s_party,sizeof(before))&&!memcmp(&inv,&s_inventory,sizeof(inv)));tests++;
 }
 static void migration(void){
- setup();save_t saved;assert(save_read_status(&saved)==SAVE_READ_OK);saved.version=14;saved.exploration.research_flags=3;
+ setup();save_t current;assert(save_read_status(&current)==SAVE_READ_OK);save_v22_t saved;test_legacy_snapshot(&saved,&current);saved.version=14;saved.exploration.research_flags=3;
  memcpy(disk,&saved,sizeof(save_v14_t));disk_len=sizeof(save_v14_t);save_t next;assert(save_read_status(&next)==SAVE_READ_MIGRATED);
- assert(next.version==SAVE_VERSION&&next.exploration.research_flags==3&&next.dungeon.run_id==0);assert(!memcmp(next.party,saved.party,PARTY_BYTES));tests++;
+ assert(next.version==SAVE_VERSION&&next.exploration.research_flags==3&&next.dungeon.run_id==0);assert(!memcmp(&next.members,&current.members,sizeof(current.members)));tests++;
  saved.version=15;memcpy(disk,&saved,sizeof(save_v14_t));assert(save_read_status(&next)==SAVE_READ_ERROR);tests++;
 }
 static void rewards(void){

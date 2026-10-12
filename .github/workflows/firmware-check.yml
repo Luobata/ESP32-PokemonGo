@@ -31,6 +31,10 @@ jobs:
           python3 tools/pipeline/verify_wifi_time.py
           python3 tools/pipeline/verify_usb_backup.py
           python3 tools/pipeline/verify_usb_import.py
+          python3 tools/pipeline/verify_usb_stream.py
+          python3 tools/pipeline/verify_party.py
+          python3 tools/pipeline/verify_world_party.py
+          python3 tools/pipeline/verify_box_browser.py
           python3 tools/pipeline/verify_save_import_compatibility.py
           python3 tools/pipeline/verify_save_storage.py
           python3 tools/pipeline/verify_usb_import_device.py
@@ -48,6 +52,8 @@ jobs:
           python3 tools/pipeline/verify_move_settings_dungeon.py
           python3 tools/pipeline/verify_box_release.py
           python3 tools/pipeline/verify_box_release_ui.py
+          python3 tools/pipeline/verify_capture_capacity.py
+          python3 tools/pipeline/verify_capture_capacity_ui.py
           python3 tools/pipeline/verify_dungeon_rewards.py
           python3 tools/pipeline/verify_region_expansion.py
           python3 tools/pipeline/verify_exploration_balance.py

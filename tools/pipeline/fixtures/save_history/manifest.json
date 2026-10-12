@@ -1,5 +1,5 @@
 {
-  "current_version": 22,
+  "current_version": 23,
   "oldest_version": 5,
   "description": "Synthetic progress, no player/device data. Little-endian, 8-byte int64 alignment.",
   "fixtures": [
@@ -1802,6 +1802,23 @@
         "firmware/main/save_storage.h": "dd70d29be79cafcd1efee4684b2516f0a8a3254a303410aecadba9e07f0918f4"
       },
       "provenance": "Initial V22 storage fixture, encoded from the named synthetic historical V21 bytes; source_commit identifies that logical layout, encoder identified by source_hashes. No player data."
+    },
+    {
+      "file": "v23-expanded.bin",
+      "version": 23,
+      "size": 18632,
+      "sha256": "e82dc99b04b31904f3501b770f65c214e2ddcffc00db215935c0dbe8478a1d62",
+      "source_commit": "1b2dc81c2f4bf37a735b0c84e3f7b4c5f4092303",
+      "source_type": "save_t V23 decoded dual-bank payload (not an NVS blob)",
+      "source_fixture": "v22-pwz1.bin",
+      "source_hashes": {
+        "firmware/main/save.h": "638c8c0d9ce247fa964f7f568b23b09b73b6d709d554db65e37de499b0cf7ba6",
+        "firmware/main/save_legacy.h": "21d29bbaba060d85580bad125d8ef5f810db85caa71efd820aaf9769bc434858",
+        "firmware/main/save_legacy.inc": "ab14dd9f165ca682cae561f5d694f95f800eb829f383f4d9cc2cae011b71c65a",
+        "firmware/main/party.h": "bb08f53703e261427200d92aad223d5370faff5d6bcbd14b43042ba934911a9f",
+        "firmware/main/save.c": "270bf9e5039eacf3a711f39ac0c06db13e9108f6147940c767a950107bb642e2"
+      },
+      "provenance": "Initial synthetic V23 payload migrated from the immutable V22 fixture by the production decoder; source_commit is the base, uncommitted V23 decoder identified by source_hashes. No player data."
     }
   ]
 }

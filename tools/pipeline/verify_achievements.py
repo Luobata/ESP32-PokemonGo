@@ -27,10 +27,10 @@ static void claims(void){
  assert(all.claimed==65535);tests++;
 }
 static void achievement_legacy(void){
- save_t current;assert(save_read(&current));save_v7_t old={0};memcpy(&old,&current,sizeof(save_v6_t));old.challenge.defeated=255;old.version=7;
+ save_t current;assert(save_read(&current));save_v22_t legacy;test_legacy_snapshot(&legacy,&current);save_v7_t old={0};memcpy(&old,&legacy,sizeof(save_v6_t));old.challenge.defeated=255;old.version=7;
  disk_len=sizeof(save_v7_t);memcpy(disk,&old,disk_len);save_t migrated;assert(save_read_status(&migrated)==SAVE_READ_MIGRATED);
  assert(migrated.version==SAVE_VERSION&&migrated.challenge.defeated==255&&!migrated.achievements.claimed&&!migrated.achievements.evolutions);
- assert(!memcmp(current.party,migrated.party,PARTY_BYTES)&&!memcmp(&current.inventory,&migrated.inventory,sizeof(inventory_t)));
+ assert(!memcmp(&current.members,&migrated.members,sizeof(party_t))&&!memcmp(&current.inventory,&migrated.inventory,sizeof(inventory_t)));
  reboot();achievement_view_t v;world_achievements_snapshot(&v);assert(achievement_progress(&v,13)==8&&v.shiny==1);
  assert(world_achievement_claim(13)==ACH_CLAIM_OK);reboot();assert(world_achievement_claim(13)==ACH_CLAIM_ALREADY);assert(!erase_calls);tests++;
 }

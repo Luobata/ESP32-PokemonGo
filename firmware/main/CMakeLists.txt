@@ -28,7 +28,7 @@ idf_component_register(
          "encounter.c"
          "exploration.c"
          "play_exploration.c"
-         "save.c"
+         "save.c" "save_bank.c" "save_bank_device.c"
          "opening.c"
          "transition.c"
          "nav.c"

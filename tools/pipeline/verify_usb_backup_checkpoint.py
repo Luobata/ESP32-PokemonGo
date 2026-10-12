@@ -6,7 +6,7 @@ static unsigned reads;
 static bool reader(void *out){reads++;return save_decode(out,disk,disk_len,0)==SAVE_READ_OK;}
 static bool failed_reader(void *out){(void)out;reads++;return false;}
 typedef struct {save_t blob;size_t length;bool fail;uint8_t encoded[sizeof(save_t)];} import_t;
-static void encode_import(import_t *candidate){candidate->length=save_storage_encode(candidate->encoded,sizeof(candidate->encoded),&candidate->blob,sizeof(candidate->blob));assert(candidate->length);}
+static void encode_import(import_t *candidate){candidate->length=sizeof(candidate->blob);memcpy(candidate->encoded,&candidate->blob,candidate->length);}
 static bool import_reader(void *context,void *out,size_t *size,uint8_t *opening){
  import_t *candidate=context;assert(*size==sizeof(save_t));assert(s_save_lock);
  memcpy(out,candidate->encoded,sizeof(candidate->encoded));*size=candidate->length;*opening=1;
@@ -25,7 +25,7 @@ static void validate_without_adopting(const save_t *saved){
  candidate.length=sizeof(save_t)+1;assert(!world_backup_validate(import_reader,&candidate,SAVE_VERSION));
  candidate.length=encoded_length;candidate.fail=true;assert(!world_backup_validate(import_reader,&candidate,SAVE_VERSION));
  candidate.fail=false;save_put16(candidate.encoded,SAVE_VERSION+1);assert(!world_backup_validate(import_reader,&candidate,SAVE_VERSION+1));
- candidate.blob.party[0]=PARTY_MAX+1;encode_import(&candidate);assert(!world_backup_validate(import_reader,&candidate,SAVE_VERSION));
+ candidate.blob.members.party_count=PARTY_MAX+1;encode_import(&candidate);assert(!world_backup_validate(import_reader,&candidate,SAVE_VERSION));
  assert(!world_backup_validate(NULL,&candidate,SAVE_VERSION));
  assert(!memcmp(&w,&s_w,sizeof(w))&&!memcmp(&party,&s_party,sizeof(party)));
  assert(!memcmp(&inventory,&s_inventory,sizeof(inventory))&&!memcmp(&dex,&s_dex,sizeof(dex))&&!memcmp(&queue,&s_queue,sizeof(queue)));

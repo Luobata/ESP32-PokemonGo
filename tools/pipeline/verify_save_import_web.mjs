@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 import {webcrypto} from 'node:crypto';
-import {Receiver,envelope,decodeBackup,SIZE,crc32} from '../save-manager/web/backup.mjs';
+import {Receiver,envelope,decodeBackup,SIZE,EXTENDED_SIZE,crc32} from '../save-manager/web/backup.mjs';
 const nodes=new Map();
 globalThis.document={getElementById(id){if(!nodes.has(id))nodes.set(id,{classList:{toggle(){}},prepend(){}});return nodes.get(id);},createElement(){return {};}};
 globalThis.window={showDirectoryPicker(){}};
@@ -97,3 +97,25 @@ for(const detail of ['', ' FUTURE_REASON', ' constructor', ' __proto__']){
  assert.throws(()=>rx.accept('!PWBACKUP ERROR STAGE'+detail),/存档内容不兼容或暂存失败，原存档未替换/);
 }
 console.log('detailed stage errors, legacy/unknown fallback and production disconnect handling: passed');
+
+// V23 wire transfer and backup format 2 contain both NVS and the referenced bank.
+for(const version of [23,24,65535]){
+ const payload=Uint8Array.from({length:EXTENDED_SIZE},(_,i)=>(i*37+i/256)&255);
+ const hash=crc32(payload),rx=new Receiver('v23');
+ rx.accept(`!PWBACKUP BEGIN v23 2 001122334455 ${'a'.repeat(64)} ${version} 36864 ${payload.length} ${hash}`);
+ for(let offset=0;offset<payload.length;offset+=128){
+  const hex=Buffer.from(payload.slice(offset,offset+128)).toString('hex');
+  const result=rx.accept(`!PWBACKUP DATA 2 ${offset} ${hex}`);
+  assert.equal(result.progress,(offset+128)/payload.length);
+ }
+ const q=rx.accept(`!PWBACKUP END 2 ${hash}`).complete;
+ const encoded=await envelope(q),decoded=await decodeBackup(JSON.stringify(encoded));
+ assert.equal(encoded.format_version,2);assert.deepEqual(decoded.bytes,payload);
+ for(const [field,value] of [['store_offset',0x390000],['store_partition_size',0x10000],['store_record_size',123],['payload_size',SIZE],['format_version',1],['save_version',22],['sha256','0'.repeat(64)],['crc32','0'.repeat(8)]])
+  await assert.rejects(()=>decodeBackup(JSON.stringify({...encoded,[field]:value})));
+ let saved='';const fixture={sent:[],directory:{async queryPermission(){return 'granted';},async getFileHandle(){return {async createWritable(){return {async write(text){saved=text;},async close(){}};},async getFile(){return {async text(){return saved;}};}};}}};
+ const result=await run(Receiver,envelope,decodeBackup,SIZE,fixture,q,{device_id:q.device,save_version:22});
+ assert(result.backedUp);assert.match(fixture.sent[0],/ ACK /);
+ assert.deepEqual((await decodeBackup(saved)).bytes,payload);
+}
+console.log('format 2, full 48 KiB transfer/prebackup, future schemas and partition/digest rejection: passed');

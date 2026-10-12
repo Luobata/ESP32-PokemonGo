@@ -7,7 +7,7 @@ spec=importlib.util.spec_from_file_location('pw_partition_check',ROOT/'tools/rel
 build=ROOT/'release/community';merged=(build/'FoloToy-AI-Passport-full.bin').read_bytes()
 m.verify_protected_layout(merged,build)
 parts,_=m.parse_partition_table(merged[0x8000:0x8c00]);negative=[]
-for name in ['nvs','cardid','save_restore','wifi_config','recovery','factory']:
+for name in ['nvs','cardid','save_restore','wifi_config','recovery','factory','pokewalk_store']:
  copy=bytearray(merged);table=bytearray()
  for p in parts:
   offset=p.offset+(0x1000 if p.label==name else 0)
@@ -17,5 +17,5 @@ for name in ['nvs','cardid','save_restore','wifi_config','recovery','factory']:
  try:m.verify_protected_layout(bytes(copy),build)
  except ValueError:negative.append(name)
  else:raise AssertionError('accepted moved '+name)
-assert len(negative)==6
+assert len(negative)==7
 print(json.dumps({'protected_partitions':negative,'valid_md5_moves_rejected':True,'factory_bytes':m.APP_MAX_SIZE}))

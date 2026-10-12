@@ -5,9 +5,10 @@
 #include "exp.h"
 #include "dungeon.h"
 #include "save_history_cases.h"
-static uint8_t flash[0x380000],image[USB_BACKUP_BYTES];
+static uint8_t flash[0x3a0000],image[USB_BACKUP_EXTENDED_BYTES];
 static esp_partition_t live={1,2,0x9000,USB_BACKUP_BYTES,"nvs",false,false};
 static esp_partition_t temp={1,0x40,0x360000,RESTORE_STAGE_SIZE,"save_restore",false,false};
+static esp_partition_t store_partition={1,0x41,0x380000,SAVE_BANK_PARTITION_SIZE,"pokewalk_store",false,false};
 static esp_app_desc_t app={{0x12,0x34}};
 static save_t current;
 static bool fail_storage_write;
@@ -35,7 +36,7 @@ static void remember_unrelated(void){
  retained_count=0;nvs_iterator_t it=NULL;
  esp_err_t e=nvs_entry_find("nvs",NULL,NVS_TYPE_ANY,&it);
  while(e==ESP_OK){nvs_entry_info_t info;nvs_entry_info(it,&info);
-  if(strcmp(info.namespace_name,"pokewalk")|| (strcmp(info.key,"state")&&strcmp(info.key,"opening"))){
+  if(strcmp(info.namespace_name,"pokewalk")|| (strcmp(info.key,"state")&&strcmp(info.key,"state_guard")&&strcmp(info.key,"opening"))){
    assert(retained_count<128);retained[retained_count].info=info;retained[retained_count].size=4096;
    read_entry(&info,retained[retained_count].data,&retained[retained_count].size);retained_count++;
   }
@@ -48,7 +49,7 @@ static void check_unrelated(void){
   read_entry(&retained[i].info,bytes,&n);assert(n==retained[i].size&&!memcmp(bytes,retained[i].data,n));}
 }
 static size_t stored_size(void){nvs_handle_t h;size_t n=0;assert(nvs_open("pokewalk",NVS_READONLY,&h)==ESP_OK);assert(nvs_get_blob(h,"state",NULL,&n)==ESP_OK);nvs_close(h);return n;}
-const esp_partition_t *esp_partition_find_first(unsigned type,unsigned sub,const char *label){(void)type;(void)sub;return !strcmp(label,"nvs")?&live:!strcmp(label,"save_restore")?&temp:NULL;}
+const esp_partition_t *esp_partition_find_first(unsigned type,unsigned sub,const char *label){(void)type;(void)sub;return !strcmp(label,"nvs")?&live:!strcmp(label,"save_restore")?&temp:!strcmp(label,"pokewalk_store")?&store_partition:NULL;}
 uint32_t esp_partition_get_main_flash_sector_size(void){return 4096;}
 esp_err_t esp_partition_read(const esp_partition_t *p,size_t at,void *out,size_t n){assert(at+n<=p->size);memcpy(out,flash+p->address+at,n);return ESP_OK;}
 esp_err_t esp_partition_write(const esp_partition_t *p,size_t at,const void *in,size_t n){if(fail_storage_write||flash_fault())return ESP_FAIL;assert(at+n<=p->size);for(size_t i=0;i<n;i++)flash[p->address+at+i]&=((const uint8_t*)in)[i];return ESP_OK;}
@@ -70,10 +71,26 @@ bool world_backup_validate(world_backup_reader_t reader,void *ctx,unsigned versi
 bool world_backup_snapshot(bool(*reader)(void*),void *out){return save_write(&current)&&reader(out);}
 void usb_backup_init(bool(*r)(uint8_t*,size_t),void(*e)(const char*),const char *d,const char *f,unsigned v){(void)r;(void)e;(void)d;(void)f;(void)v;}
 void usb_backup_restore_hooks(bool(*s)(const uint8_t*,size_t,unsigned),void(*r)(void),int b,uint32_t crc){(void)s;(void)r;(void)b;(void)crc;}
+static size_t image_length;
+static bool reboot_restore(void){save_bank_reserve(false);upload_reserved=false;return usb_backup_restore_before_boot();}
+static bool read_nvs(void *out){image_length=USB_BACKUP_BYTES;return read_part(false,0,out,USB_BACKUP_BYTES);}
+static bool snapshot(uint8_t *out,size_t size){
+ uint32_t bytes,crc;if(size!=USB_BACKUP_EXTENDED_BYTES||!export_begin(&bytes,&crc))return false;
+ assert(bytes==USB_BACKUP_EXTENDED_BYTES);image_length=bytes;
+ return export_read(0,out,bytes)&&restore_crc32(out,bytes)==crc;
+}
+static bool stage(const uint8_t *data,size_t n,unsigned version){
+ cancel();if(!import_begin(n,version))return false;
+ for(size_t at=0;at<n;at+=128)if(!import_write(at,data+at,128)){cancel();return false;}
+ if(import_finish(restore_crc32(data,n)))return true;
+ cancel();return false;
+}
+bool world_backup_exclusive(bool(*fn)(void*),void *ctx){return fn(ctx);}
+void usb_backup_stream_hooks(const usb_backup_stream_t *hooks){(void)hooks;}
 static void make_save(uint16_t species,unsigned level){
  memset(&current,0,sizeof(current));current.version=SAVE_VERSION;current.species=species;current.level=level;current.exp=exp_for_level(level);current.opening_seen=true;
  party_t party;party_init(&party);mon_t mon={.species_id=species,.level=level,.exp=current.exp,.hp=100};assert(party_receive(&party,&mon));mon.flags=1;mon.species_id=149;mon.level=60;mon.exp=exp_for_level(60);party.box[3]=mon;
- party_serialize(&party,current.party);dex_mark_caught(&current.dex,species,false);dex_mark_caught(&current.dex,149,true);
+ save_store_party(&current,&party);dex_mark_caught(&current.dex,species,false);dex_mark_caught(&current.dex,149,true);
  current.pet.stamina=45*NURT_Q;current.challenge.wild_wins=7;current.challenge.defeated=1;
  current.dungeon.clears=2;items_inventory_init(&current.inventory);exploration_init(&current.exploration);
  assert(save_write(&current));
@@ -90,17 +107,19 @@ static void historical_restore(void){
   // Write historical bytes using the real NVS engine, producing a complete
   // partition image, then replace live progress with a different modern save.
   nvs_handle_t h;assert(nvs_open("pokewalk",NVS_READWRITE,&h)==ESP_OK);
-  assert(nvs_set_blob(h,"state",history[i].data,history[i].size)==ESP_OK);
+  if(history[i].version!=23)assert(nvs_set_blob(h,"state",history[i].data,history[i].size)==ESP_OK);
   assert(nvs_set_u8(h,"volume",61)==ESP_OK&&nvs_set_u8(h,"brightness",73)==ESP_OK);
-  assert(nvs_commit(h)==ESP_OK);nvs_close(h);assert(read_nvs(image));
+  assert(nvs_commit(h)==ESP_OK);nvs_close(h);
+  if(history[i].version==23){assert(save_decode(&current,history[i].data,history[i].size,0)==SAVE_READ_OK);assert(snapshot(image,sizeof(image)));}
+  else assert(read_nvs(image));
   make_save(1,7);save_t before=current,loaded;party_t party;
   uint8_t unchanged[USB_BACKUP_BYTES];memcpy(unchanged,flash+live.address,sizeof(unchanged));
-  assert(!stage(image,sizeof(image),history[i].version+1));
+  assert(!stage(image,image_length,history[i].version+1));
   assert(!memcmp(unchanged,flash+live.address,sizeof(unchanged))); // forged metadata
-  assert(stage(image,sizeof(image),history[i].version));
+  assert(stage(image,image_length,history[i].version));
   assert(save_read(&loaded)&&!memcmp(&loaded,&before,sizeof(before)));
-  assert(nvs_flash_deinit()==ESP_OK&&usb_backup_restore_before_boot()&&boot_result==1);
-  assert(boot_crc==restore_crc32(image,sizeof(image))&&save_init());
+  assert(nvs_flash_deinit()==ESP_OK&&reboot_restore()&&boot_result==1);
+  assert(boot_crc==restore_crc32(image,image_length)&&save_init());
   assert(save_read(&loaded)&&save_validate_world(&loaded,&party));
   history_assert(&loaded,history[i].version);
   assert(nvs_open("pw_dungeon",NVS_READONLY,&h)==ESP_OK);
@@ -114,10 +133,10 @@ static void historical_restore(void){
   // more, then reboot. No repeated rewards or double HP/stat conversion.
   save_t migrated=loaded;current=loaded;assert(save_write(&current));assert(snapshot(image,sizeof(image)));
   make_save(1,7);assert(stage(image,sizeof(image),SAVE_VERSION));
-  assert(nvs_flash_deinit()==ESP_OK&&usb_backup_restore_before_boot()&&boot_result==1&&save_init());
+  assert(nvs_flash_deinit()==ESP_OK&&reboot_restore()&&boot_result==1&&save_init());
   assert(save_read_status(&loaded)==SAVE_READ_OK&&!memcmp(&loaded,&migrated,sizeof(loaded)));
   history_assert(&loaded,history[i].version);
-  assert(nvs_flash_deinit()==ESP_OK&&usb_backup_restore_before_boot()&&boot_result==0&&save_init());
+  assert(nvs_flash_deinit()==ESP_OK&&reboot_restore()&&boot_result==0&&save_init());
   assert(save_read_status(&loaded)==SAVE_READ_OK);history_assert(&loaded,history[i].version);
  }
 }
@@ -134,7 +153,7 @@ static void policy_capacity_stress(void){
  assert(nvs_open("pw_dungeon",NVS_READONLY,&legacy)==ESP_OK);size_t obsolete=0;
  assert(nvs_get_blob(legacy,"run_v1",NULL,&obsolete)==ESP_ERR_NVS_NOT_FOUND);nvs_close(legacy);
  make_save(25,32);party_t p;party_init(&p);p.party_count=PARTY_MAX;
- for(unsigned i=0;i<PARTY_MAX+BOX_SPECIES;i++){
+ for(unsigned i=0;i<PARTY_MAX+BOX_CAPACITY;i++){
   mon_t *m=i<PARTY_MAX?&p.party[i]:&p.box[i-PARTY_MAX];
   *m=(mon_t){.species_id=i==0?25:1+i%151,.level=32,.exp=exp_for_level(32),.hp=100};
   // Dense varied bits are much less compressible than one disabled move.
@@ -146,32 +165,32 @@ static void policy_capacity_stress(void){
  // Full warehouse + dense policies + shared Wi-Fi/other-game occupancy, using
  // real NVS copy-on-write, page garbage collection and remount.
  for(unsigned i=0;i<300;i++){
-  current.playtime_s++;move_policy_set(&current.move_policies[i%(PARTY_MAX+BOX_SPECIES)],85,i&1);
+  current.playtime_s++;move_policy_set(&current.members.policies[i%(PARTY_MAX+BOX_CAPACITY)],85,i&1);
   assert(save_write(&current));save_t loaded;assert(save_read(&loaded)&&!memcmp(&loaded,&current,sizeof(current)));
   if(i%17==0){assert(nvs_flash_deinit()==ESP_OK&&save_init());assert(save_read(&loaded)&&!memcmp(&loaded,&current,sizeof(current)));}
  }
  assert(snapshot(image,sizeof(image)));save_t expected=current;make_save(1,7);assert(stage(image,sizeof(image),SAVE_VERSION));
- assert(nvs_flash_deinit()==ESP_OK&&usb_backup_restore_before_boot()&&boot_result==1&&save_init());
+ assert(nvs_flash_deinit()==ESP_OK&&reboot_restore()&&boot_result==1&&save_init());
  save_t loaded;assert(save_read(&loaded)&&save_validate_world(&loaded,&p)&&!memcmp(&loaded,&expected,sizeof(expected)));
  check_unrelated();
- printf("V22 full 157-individual dense policies: stored=%zu, 300 writes, GC/remount and export/import passed\n",stored_size());
+ printf("V23 full 459-individual dense policies: stored=%zu, 300 writes, GC/remount and export/import passed\n",stored_size());
 }
 static void write_faults(void){
- uint8_t baseline[USB_BACKUP_BYTES];memcpy(baseline,flash+live.address,sizeof(baseline));
+ uint8_t baseline[USB_BACKUP_BYTES],bank_baseline[SAVE_BANK_PARTITION_SIZE];memcpy(baseline,flash+live.address,sizeof(baseline));memcpy(bank_baseline,flash+SAVE_BANK_PARTITION_AT,sizeof(bank_baseline));
  save_t old,next,got;assert(save_read(&old));next=old;next.playtime_s+=333;
  bool complete=false;unsigned failures=0;remember_unrelated();
  for(unsigned cut=0;cut<1024;cut++){
-  assert(nvs_flash_deinit()==ESP_OK);memcpy(flash+live.address,baseline,sizeof(baseline));assert(save_init());
+  assert(nvs_flash_deinit()==ESP_OK);memcpy(flash+live.address,baseline,sizeof(baseline));memcpy(flash+SAVE_BANK_PARTITION_AT,bank_baseline,sizeof(bank_baseline));assert(save_init());
   flash_operations_left=(int)cut;bool ok=save_write(&next);flash_operations_left=-1;
   assert(nvs_flash_deinit()==ESP_OK&&save_init());
-  assert(save_read_status(&got)==SAVE_READ_OK);
+  save_read_result_t read_result=save_read_status(&got);if(read_result!=SAVE_READ_OK)fprintf(stderr,"write fault cut=%u result=%u saved=%u size=%zu\n",cut,read_result,ok,(size_t)0);assert(read_result==SAVE_READ_OK);
   assert(!memcmp(&got,&old,sizeof(got))||!memcmp(&got,&next,sizeof(got)));check_unrelated();
   if(ok){assert(!memcmp(&got,&next,sizeof(got)));complete=true;break;}
   if(cut==0)assert(!memcmp(&got,&old,sizeof(got)));
   failures++;assert(save_write(&next)&&save_read(&got)&&!memcmp(&got,&next,sizeof(got)));
  }
  assert(complete&&failures);current=next;
- printf("V22 interrupted NVS writes: %u fault points, old/new complete state after remount, retry and unrelated keys passed\n",failures);
+ printf("V23 interrupted bank/NVS writes: %u fault points, old/new complete state after remount, retry and unrelated keys passed\n",failures);
 }
 static void shared_occupancy(void);
 static void legacy_capacity_regression(void){
@@ -181,7 +200,10 @@ static void legacy_capacity_regression(void){
  nvs_handle_t h;dungeon_t d={0};memcpy(&d,dungeon_history,sizeof(dungeon_history));d.version=4;
  assert(nvs_open("pw_dungeon",NVS_READWRITE,&h)==ESP_OK);
  assert(nvs_set_blob(h,"run_v4",&d,sizeof(d))==ESP_OK&&nvs_commit(h)==ESP_OK);nvs_close(h);
- bool full=false;save_t raw=current;raw.version=21;
+ bool full=false;save_v22_t raw={0};raw.version=21;
+ raw.species=current.species;raw.level=current.level;raw.exp=current.exp;raw.pet=current.pet;
+ party_serialize(&current.members,raw.party);raw.dex=current.dex;raw.inventory=current.inventory;raw.exploration=current.exploration;
+ raw.challenge=current.challenge;raw.dungeon=current.dungeon;
  for(unsigned i=0;i<8;i++){
   raw.playtime_s++;assert(nvs_open("pokewalk",NVS_READWRITE,&h)==ESP_OK);
   esp_err_t e=nvs_set_blob(h,"state",&raw,sizeof(raw));nvs_close(h);
@@ -190,7 +212,7 @@ static void legacy_capacity_regression(void){
  assert(full);assert(save_read(&current));remember_unrelated();
  for(unsigned i=0;i<300;i++){current.playtime_s++;assert(save_write(&current));}
  check_unrelated();
- puts("Synthetic shared-device occupancy: V21 raw save reproduces NOT_ENOUGH_SPACE; V22 preserves all keys and saves 300 times");
+ puts("Synthetic shared-device occupancy: V21 raw save reproduces NOT_ENOUGH_SPACE; V23 preserves all keys and saves 300 times");
 }
 static void shared_occupancy(void){
  // Synthetic values only. Sizes/types reproduce a shared device's ordinary
@@ -213,8 +235,8 @@ static void private_roundtrip(void){
  remember_unrelated();assert(read_nvs(image));
  nvs_handle_t h;uint16_t source_version;uint8_t source[sizeof(save_t)];size_t n=sizeof(source);
  assert(nvs_open("pokewalk",NVS_READONLY,&h)==ESP_OK&&nvs_get_blob(h,"state",source,&n)==ESP_OK);nvs_close(h);memcpy(&source_version,source,2);
- save_t expected=current;assert(stage(image,sizeof(image),source_version));
- assert(nvs_flash_deinit()==ESP_OK&&usb_backup_restore_before_boot()&&boot_result==1&&save_init());
+ save_t expected=current;assert(save_write(&current));assert(stage(image,image_length,source_version));
+ assert(nvs_flash_deinit()==ESP_OK&&reboot_restore()&&boot_result==1&&save_init());
  assert(save_read(&current)&&!memcmp(&current,&expected,sizeof(current)));check_unrelated();
  for(unsigned i=0;i<300;i++){
   current.playtime_s++;assert(save_write(&current));
@@ -225,9 +247,9 @@ static void private_roundtrip(void){
  // Make durable data observably different before restoring the new backup.
  current.playtime_s+=100;assert(save_write(&current));
  assert(stage(image,sizeof(image),SAVE_VERSION));
- assert(nvs_flash_deinit()==ESP_OK&&usb_backup_restore_before_boot()&&boot_result==1&&save_init());
+ assert(nvs_flash_deinit()==ESP_OK&&reboot_restore()&&boot_result==1&&save_init());
  assert(save_read_status(&current)==SAVE_READ_OK&&!memcmp(&current,&expected,sizeof(current)));check_unrelated();
- assert(nvs_flash_deinit()==ESP_OK&&usb_backup_restore_before_boot()&&boot_result==0&&save_init());
+ assert(nvs_flash_deinit()==ESP_OK&&reboot_restore()&&boot_result==0&&save_init());
  assert(save_read_status(&current)==SAVE_READ_OK&&!memcmp(&current,&expected,sizeof(current)));
  printf("Private isolated NVS: old import/boot, 300 writes/remount, new export/import with distinct progress; stored=%zu, unrelated_keys=%u unchanged\n",stored_size(),retained_count);
 }
@@ -271,10 +293,12 @@ int main(int argc,char **argv){
   if(argc>2&&!strcmp(argv[2],"validate")){
    nvs_handle_t h;assert(nvs_open("pokewalk",NVS_READONLY,&h)==ESP_OK);
    save_t source;size_t n=sizeof(source);assert(nvs_get_blob(h,"state",&source,&n)==ESP_OK);nvs_close(h);
-   assert(read_nvs(image));uint32_t original_crc=restore_crc32(image,sizeof(image));
-   bool valid=validate_image(image,source.version);
-   assert(restore_crc32(image,sizeof(image))==original_crc);
-   assert(!memcmp(image,flash+live.address,sizeof(image)));
+   assert(read_nvs(image));uint32_t original_crc=restore_crc32(image,image_length);
+   assert(save_read(&current)&&save_write(&current));
+   uint8_t live_before[USB_BACKUP_BYTES];memcpy(live_before,flash+live.address,sizeof(live_before));
+   bool valid=stage(image,image_length,source.version);
+   assert(restore_crc32(image,image_length)==original_crc);
+   assert(!memcmp(live_before,flash+live.address,sizeof(live_before)));
    printf("Private isolated import validation: schema=%u bytes=%zu accepted=%u source_unchanged=1\n",source.version,n,valid);
    assert(valid);return 0;
   }
@@ -290,14 +314,14 @@ int main(int argc,char **argv){
  uint8_t unchanged[USB_BACKUP_BYTES];memcpy(unchanged,flash+live.address,sizeof(unchanged));
  assert(!stage(image,sizeof(image),SAVE_VERSION-1));assert(!memcmp(unchanged,flash+live.address,sizeof(unchanged)));
  assert(stage(image,sizeof(image),SAVE_VERSION));assert(save_read(&loaded)&&loaded.species==1); // live remains old until reboot
- assert(nvs_flash_deinit()==ESP_OK);assert(usb_backup_restore_before_boot());assert(boot_result==1&&boot_crc==restore_crc32(image,sizeof(image)));assert(save_init());
+ assert(nvs_flash_deinit()==ESP_OK);assert(reboot_restore());assert(boot_result==1&&boot_crc==restore_crc32(image,image_length));assert(save_init());
  assert(save_read_status(&loaded)==SAVE_READ_OK&&save_validate_world(&loaded,&party));
  assert(loaded.species==25&&loaded.level==32&&!memcmp(&loaded,&wanted,sizeof(wanted)));
  nvs_handle_t h;uint8_t value;assert(nvs_open("pokewalk",NVS_READONLY,&h)==ESP_OK);
  assert(nvs_get_u8(h,"volume",&value)==ESP_OK&&value==32);assert(nvs_get_u8(h,"brightness",&value)==ESP_OK&&value==42);nvs_close(h);
- assert(nvs_flash_deinit()==ESP_OK);assert(usb_backup_restore_before_boot());assert(boot_result==0);assert(save_init());assert(save_read(&loaded)&&loaded.species==25); // another boot stays restored
+ assert(nvs_flash_deinit()==ESP_OK);assert(reboot_restore());assert(boot_result==0);assert(save_init());assert(save_read(&loaded)&&loaded.species==25); // another boot stays restored
  current=loaded;assert(snapshot(image,sizeof(image)));make_save(1,7);assert(stage(image,sizeof(image),SAVE_VERSION));
- flash[temp.address+0x1000]^=1;assert(nvs_flash_deinit()==ESP_OK);assert(usb_backup_restore_before_boot());assert(boot_result==2);assert(save_init());assert(save_read(&loaded)&&!memcmp(&loaded,&before,sizeof(before)));
+ flash[temp.address+0x1000]^=1;assert(nvs_flash_deinit()==ESP_OK);assert(reboot_restore());assert(boot_result==2);assert(save_init());assert(save_read(&loaded)&&!memcmp(&loaded,&before,sizeof(before)));
  historical_restore();shared_occupancy();policy_capacity_stress();write_faults();
- assert(nvs_flash_deinit()==ESP_OK);puts("Real ESP-IDF NVS + production save/device/journal: historical V5-V22, distinct saves, schema rejection, settings, restore, second boot and rollback passed");
+ assert(nvs_flash_deinit()==ESP_OK);puts("Real ESP-IDF NVS + production save/device/journal: historical V5-V23, distinct saves, schema rejection, settings, restore, second boot and rollback passed");
 }

@@ -39,7 +39,7 @@ report = {'artifact': merged.name, 'size': merged.stat().st_size,
 # Do not submit the application-only binary to a community flash-at-zero flow.
 app = (BUILD / 'PokeWalk.bin').read_bytes()
 table = (BUILD / 'partition_table/partition-table.bin').read_bytes()
-update = {'format': 'pokewalk-app-update-v1', 'address': 0x10000, 'size': len(app),
+update = {'format': 'pokewalk-app-update-v2', 'address': 0x10000, 'size': len(app),
           'sha256': hashlib.sha256(app).hexdigest(),
           'partition_sha256': hashlib.sha256(table).hexdigest()}
 update_zip = OUT / 'PokeWalk-update.zip'
@@ -52,6 +52,8 @@ with zipfile.ZipFile(update_zip, 'w', zipfile.ZIP_DEFLATED) as z:
 report['usb_update'] = {'artifact': update_zip.name,
                        'sha256': hashlib.sha256(update_zip.read_bytes()).hexdigest(),
                        'writes': [{'address': 0x10000, 'size': len(app)}],
-                       'requires_existing_matching_partition_table': True}
+                       'requires_existing_matching_partition_table': False,
+                       'allows_only_additive_store_partition': True,
+                       'conditional_writes': [{'address': 0x8000, 'size': 4096, 'when': 'approved additive store migration only'}]}
 (OUT / 'manifest.json').write_text(json.dumps(report, indent=2) + '\n')
 print(json.dumps(report))

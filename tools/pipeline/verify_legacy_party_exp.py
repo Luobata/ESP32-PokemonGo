@@ -52,8 +52,8 @@ static void seed_legacy(bool v5) {
     save_t saved;assert(save_read_status(&saved)==SAVE_READ_OK);
     saved.species=raw_party.party[0].species_id;saved.level=raw_party.party[0].level;
     saved.exp=raw_party.party[0].exp;saved.pet.intimacy=27*NURT_Q;
-    party_serialize(&raw_party,saved.party);assert(save_write(&saved));
-    if(v5){save_v5_t old;memcpy(&old,disk,sizeof(old));old.version=5;
+    saved.members=raw_party;assert(save_write(&saved));
+    if(v5){save_v22_t legacy;test_legacy_snapshot(&legacy,&saved);save_v5_t old;memcpy(&old,&legacy,sizeof(old));old.version=5;
         memcpy(disk,&old,sizeof(old));disk_len=sizeof(old);}
     expected_party=raw_party;
     for(unsigned i=0;i<PARTY_MAX+BOX_SPECIES;i++) {
@@ -71,9 +71,9 @@ static void repaired(void) {
 static void all_slots_and_restart(void) {
     for(unsigned v5=0;v5<2;v5++) {
         seed_legacy(v5);unsigned before=commits;reboot();repaired();
-        assert(commits==before+1&&!s_dirty&&disk_len==sizeof(save_t));
+        assert(commits==before+2&&!s_dirty&&disk_len==sizeof(save_bank_ref_t));
         save_t saved;assert(save_read_status(&saved)==SAVE_READ_OK&&saved.version==SAVE_VERSION);
-        party_t persisted;assert(party_deserialize(&persisted,saved.party,PARTY_BYTES));
+        party_t persisted=saved.members;
         assert(!memcmp(&persisted,&expected_party,sizeof(persisted)));
         unsigned once=commits;reboot();repaired();assert(commits==once&&!s_dirty&&erase_calls==0);tests++;
     }
@@ -94,7 +94,7 @@ static void repair_save_failures(void) {
         repair_write_failure=(int[]){1,2,4}[i];reboot();failure=0;
         repaired();assert(s_storage_ready&&s_dirty&&commits==before);
         assert(disk_len==original_len&&!memcmp(original,disk,sizeof(original))&&erase_calls==0);
-        world_debug_save();assert(!s_dirty&&commits==before+1);reboot();repaired();tests++;
+        world_debug_save();assert(!s_dirty&&commits==before+2);reboot();repaired();tests++;
     }
 }
 static void runtime_guards(void) {
@@ -118,9 +118,9 @@ static void runtime_guards(void) {
 }
 static void malformed_protection(void) {
     for(unsigned mode=0;mode<2;mode++) {
-        seed_legacy(false);save_t saved;memcpy(&saved,disk,sizeof(saved));
-        if(mode)saved.party[2+MON_BYTES+1]=0;else saved.version=7;
-        memcpy(disk,&saved,sizeof(saved));uint8_t old[sizeof(disk)];memcpy(old,disk,sizeof(old));
+        seed_legacy(false);save_t saved;assert(save_read(&saved));
+        if(mode)saved.members.party[1].level=0;else saved.version=7;
+        test_store_save(&saved);uint8_t old[sizeof(disk)];memcpy(old,disk,sizeof(old));
         unsigned before=commits;reboot();world_debug_save();
         assert(!s_storage_ready&&commits==before&&!memcmp(old,disk,sizeof(old))&&erase_calls==0);tests++;
     }
@@ -147,7 +147,7 @@ def main():
         changes = [
             ('load repair', 'uint16_t exp_repaired = normalize_party_exp(&s_party);', 'uint16_t exp_repaired = 0;'),
             ('box repair',
-             'for (unsigned i = 0; i < PARTY_MAX + BOX_SPECIES; i++) {\n        if (i < PARTY_MAX && i >= party->party_count)',
+             'for (unsigned i = 0; i < PARTY_MAX + BOX_CAPACITY; i++) {\n        if (i < PARTY_MAX && i >= party->party_count)',
              'for (unsigned i = 0; i < PARTY_MAX; i++) {\n        if (i < PARTY_MAX && i >= party->party_count)'),
             ('immediate persistence', 'save_now("legacy_experience");', '(void)exp_repaired;'),
             ('keep higher EXP', 'if (member->exp < minimum)', 'if (member->exp != minimum)'),

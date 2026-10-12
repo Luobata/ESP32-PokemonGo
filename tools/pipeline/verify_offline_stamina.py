@@ -43,9 +43,9 @@ static void faults(void){
  assert(world_sync_time(UTC+MINUTE,NULL)&&s_w.pet.stamina==NURT_STAMINA_RECOVER_PH/60);tests+=4;
  // Imported V16 progress survives and establishes a fresh time baseline.
  seed();s_w.pet.stamina=23*NURT_Q;world_debug_save();save_t current;assert(save_read_status(&current)==SAVE_READ_OK);
- save_v16_t old;memcpy(&old,&current,sizeof(old));old.version=16;memcpy(disk,&old,sizeof(old));disk_len=sizeof(old);
+ save_v22_t legacy;test_legacy_snapshot(&legacy,&current);save_v16_t old;memcpy(&old,&legacy,sizeof(old));old.version=16;memcpy(disk,&old,sizeof(old));disk_len=sizeof(old);
  save_t migrated;assert(save_read_status(&migrated)==SAVE_READ_MIGRATED&&migrated.version==SAVE_VERSION&&!migrated.rest_clock.epoch_us);
- assert(!memcmp(migrated.party,current.party,PARTY_BYTES)&&migrated.pet.stamina==23*NURT_Q);
+ assert(!memcmp(&migrated.members,&current.members,sizeof(party_t))&&migrated.pet.stamina==23*NURT_Q);
  reboot();assert(world_sync_time(UTC,NULL)&&s_w.pet.stamina==23*NURT_Q&&erase_calls==0);tests++;
 }
 int main(void){sync_tests();faults();printf("{\"checks\":%u,\"save_version\":%d,\"offline_cap_minutes\":60,\"nvs_failure_atomic\":true,\"v16_migration\":true,\"sanitizers\":[\"ASan\",\"UBSan\"]}\n",tests,SAVE_VERSION);return 0;}

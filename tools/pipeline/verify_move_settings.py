@@ -55,6 +55,12 @@ static void transactions(void){
  assert(!move_policy_allows(&s_party.policies[PARTY_MAX+box_slot],85)&&move_policy_allows(&s_party.policies[0],85));
  reboot();assert(!move_policy_allows(&s_party.policies[PARTY_MAX+box_slot],85));
  assert(world_move_set(PARTY_MAX+box_slot,&s_party.box[box_slot],85,true)==WORLD_SWITCH_OK);
+ for(unsigned slot=256;slot<BOX_CAPACITY;slot+=196){
+  s_party.box[slot]=s_party.box[box_slot];world_debug_save();mon_t target=s_party.box[slot];
+  assert(world_move_set(PARTY_MAX+slot,&target,85,false)==WORLD_SWITCH_OK);reboot();
+  assert(!move_policy_allows(&s_party.policies[PARTY_MAX+slot],85));
+  assert(move_policy_allows(&s_party.policies[PARTY_MAX+box_slot],85));
+ }
  assert(world_challenge_begin(0));world_party_snapshot(&view);
  assert(world_move_set(0,&view.members[0],33,false)==WORLD_SWITCH_BUSY);tests++;
 }
@@ -71,8 +77,8 @@ static void growth_and_identity(void){
  assert(move_policy_allows(&p.policies[PARTY_MAX],45));assert(party_exchange_at(&p,0,0));
  assert(!move_policy_allows(&p.policies[PARTY_MAX],45)&&move_policy_allows(&p.policies[0],45));
  save_t saved={.version=SAVE_VERSION},out;save_store_party(&saved,&p);
- assert(!memcmp(saved.move_policies,p.policies,sizeof(p.policies)));
- saved.move_policies[0].disabled[23]|=128;assert(test_decode_save(&out,&saved)==SAVE_READ_ERROR);tests++;
+ assert(!memcmp(saved.members.policies,p.policies,sizeof(p.policies)));
+ saved.members.policies[0].disabled[23]|=128;assert(test_decode_save(&out,&saved)==SAVE_READ_ERROR);tests++;
 }
 static void filtered_battles(void){
  setup();move_policy_t policy[PARTY_MAX]={0};uint16_t ids[COMBAT_MOVE_CAP];int n=combat_known_moves(25,60,ids,COMBAT_MOVE_CAP);

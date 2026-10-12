@@ -10,15 +10,17 @@ try:
     f.cmd('party_add 25 40 85 500 1')
     f.cmd('party_add 133 30 50 200 0')
     assert f.state()['party_count']==6 and f.state()['box_count']==2
-    f.key('A',True);f.key('B');f.shot(out,'before-exchange')
-    before=f.state()['party'];f.cmd('save_fail 1');f.key('A')
+    # A/B navigate, C confirms, long B returns. Enter leader actions → warehouse.
+    f.key('C')
+    for _ in range(3):f.key('B')
+    f.key('C');f.key('B');f.shot(out,'before-exchange')
+    before=f.state()['party'];f.key('C');f.cmd('save_fail 1');f.key('C')
     assert f.state()['party']==before and f.state()['box_count']==2
     assert '保存失败' in f.state()['party_view']['feedback'];f.shot(out,'save-failure')
-    f.key('A');assert f.state()['pet']==133 and f.state()['box_count']==2
+    f.key('C');assert f.state()['pet']==133 and f.state()['box_count']==2
     assert f.state()['party_count']==6;f.shot(out,'exchanged')
-    # There are now two distinct Pikachu in the warehouse; select the shiny one.
-    f.key('A',True);f.shot(out,'duplicate-individuals');f.key('A')
-    assert f.state()['pet']==25 and f.state()['level']==40 and f.state()['party'][0]['flags']==1
+    f.key('C');f.shot(out,'duplicate-individuals');f.key('C');f.key('C')
+    assert f.state()['pet']==25 and f.state()['level']==40 and f.state()['party'][0]['flags']==1, f.state()['party_view']
     assert f.state()['box_count']==2;f.shot(out,'shiny-exchanged')
     result={'status':'PASS','renderer':version,'checks':f.checks,'collision_swap':True,'save_retry':True,'distinct_shiny_selection':True}
     (out/'ui.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result))

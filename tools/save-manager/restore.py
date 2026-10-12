@@ -21,16 +21,22 @@ SIZE, ADDRESS = 0x6000, 0x9000
 
 def decode(path):
     path=Path(path)
-    if path.stat().st_size>45000: raise ValueError('备份文件过大')
+    if path.stat().st_size>90000: raise ValueError('备份文件过大')
     d=json.loads(path.read_text())
-    if any(d.get(k)!=v for k,v in {'format':'pokewalk-nvs-backup','format_version':1,'chip':'esp32c3','nvs_offset':ADDRESS,'nvs_size':SIZE}.items()):
+    if any(d.get(k)!=v for k,v in {'format':'pokewalk-nvs-backup','chip':'esp32c3','nvs_offset':ADDRESS,'nvs_size':SIZE}.items()):
         raise ValueError('备份格式、存档版本或分区不支持')
+    if d.get('format_version') not in (1,2):raise ValueError('备份格式不支持')
+    size=SIZE
+    if d['format_version']==2:
+        if any(d.get(k)!=v for k,v in {'payload_size':0xc000,'store_offset':0x380000,'store_partition_size':0x20000,'store_record_size':SIZE}.items()):raise ValueError('扩展存档布局不支持')
+        size=0xc000
     if type(d.get('save_version')) is not int or not 1 <= d['save_version'] <= 0xffff:
         raise ValueError('存档版本字段无效')
+    if d['format_version']==2 and d['save_version']<23:raise ValueError('扩展备份版本无效')
     if not re.fullmatch('[a-f0-9]{12}',d.get('device_id','')): raise ValueError('设备标识无效')
     if not re.fullmatch('[a-f0-9]{64}',d.get('firmware','')): raise ValueError('固件版本无效')
     raw=base64.b64decode(d['payload_base64'],validate=True)
-    if len(raw)!=SIZE or hashlib.sha256(raw).hexdigest()!=d.get('sha256') or f'{zlib.crc32(raw):08x}'!=d.get('crc32'):
+    if len(raw)!=size or hashlib.sha256(raw).hexdigest()!=d.get('sha256') or f'{zlib.crc32(raw):08x}'!=d.get('crc32'):
         raise ValueError('备份长度或校验值不符，禁止恢复')
     return d,raw
 
@@ -66,7 +72,7 @@ def staging_address(raw):
     return None
 
 def journal_pending(raw):
-    return len(raw)>=52 and struct.unpack_from('<II',raw)==(0x31525750,SIZE) and struct.unpack_from('<I',raw,48)[0]==zlib.crc32(raw[:48])
+    return len(raw)>=52 and struct.unpack_from('<I',raw)[0] in (0x31525750,0x32525750) and struct.unpack_from('<I',raw,4)[0]==SIZE and struct.unpack_from('<I',raw,48)[0]==zlib.crc32(raw[:48])
 
 def app_identity(raw):
     if len(raw)<208 or raw[0]!=0xe9 or struct.unpack_from('<I',raw,32)[0]!=0xabcd5432:raise ValueError('不是可识别的 PokeWalk 应用')
@@ -77,6 +83,7 @@ def app_identity(raw):
 
 def restore(path,port,confirm,backup_dir,runner=None):
     meta,payload=decode(path)
+    if meta['format_version']!=1:raise ValueError('扩展仓库存档请使用在线或离线网页导入；开发命令不直接写扩展分区')
     if confirm!=meta['device_id']:raise ValueError('需要 --confirm-device 与备份中的完整设备标识一致')
     # esptool 4.x is provided by this project's ESP-IDF environment.
     def run(*args,first=False,reset=False):
@@ -93,6 +100,10 @@ def restore(path,port,confirm,backup_dir,runner=None):
         run('read_flash','0x8000','0xc00',tmp/'partitions.bin')
         partitions=(tmp/'partitions.bin').read_bytes()
         if not partition_valid(partitions):raise ValueError('连接设备的 NVS 分区与备份不兼容')
+        for i in range(0,len(partitions)-31,32):
+            entry=struct.unpack_from('<HBBII16sI',partitions,i)
+            if entry[0]==0x50aa and entry[5].rstrip(b'\0')==b'pokewalk_store':
+                raise ValueError('扩展仓库设备请使用网页导入，开发命令不能完整预备份当前仓库')
         stage=staging_address(partitions)
         if stage is not None:
             run('read_flash',hex(stage),'0x1000',tmp/'journal.bin')

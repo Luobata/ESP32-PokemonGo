@@ -16,7 +16,7 @@ static void release(void){
  setup();mon_t wanted=s_party.box[3];party_t before=s_party;
  dex_t dex=s_dex;achievement_store_t achievements=s_achievements;
  uint8_t bytes[sizeof(disk)];memcpy(bytes,disk,sizeof(bytes));
- assert(world_box_release(BOX_SPECIES,&wanted)==WORLD_SWITCH_INVALID);
+ assert(world_box_release(BOX_CAPACITY,&wanted)==WORLD_SWITCH_INVALID);
  assert(world_box_release(3,NULL)==WORLD_SWITCH_INVALID);
  mon_t stale=wanted;stale.exp++;
  assert(world_box_release(3,&stale)==WORLD_SWITCH_STALE);
@@ -35,7 +35,7 @@ static void release(void){
  reboot();assert(!s_party.box[3].species_id&&move_policy_allows(&s_party.policies[PARTY_MAX+3],153));
  assert(world_box_release(3,&wanted)==WORLD_SWITCH_STALE);
  wanted=s_party.box[80];assert(world_box_release(80,&wanted)==WORLD_SWITCH_OK);reboot();
- for(unsigned i=0;i<BOX_SPECIES;i++)assert(!s_party.box[i].species_id);
+ for(unsigned i=0;i<BOX_CAPACITY;i++)assert(!s_party.box[i].species_id);
  assert(!memcmp(&dex,&s_dex,sizeof(dex)));tests++;
 }
 static void locks(void){

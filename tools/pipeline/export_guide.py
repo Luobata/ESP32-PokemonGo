@@ -23,7 +23,7 @@ def catalog(root):
   pools=json.loads(re.search(r'POOLS\[4\]\[5\]\[16\]=\s*(\{.*?\});',(source/'exploration.c').read_text(),re.S).group(1).replace('{','[').replace('}',']'))
   for i in range(4):data['maps'][i]['pool']=sum(pools[i],[])
   data['cards']=list(zip(*[re.findall(r'"([^"]+)"',re.search(r'dungeon_'+key+r'\[DUNGEON_CARD_COUNT\]=\{(.*?)\};',(source/'dungeon.c').read_text(),re.S).group(1)) for key in ('cards','desc')]))
-  data['features']={'careEvents':development,'shinyEntry':(source/'shiny_entry.c').exists(),'nostalgicMoves':'pokemon_move_names_override' in (source/'pokemon_names.c').read_text(),'moveSettings':(source/'move_policy.h').exists(),'boxRelease':'world_box_release' in (source/'world.c').read_text(),'importStageDiagnostics':'world_backup_validate' in (source/'world.c').read_text(),'compressedSave':(source/'save_storage.h').exists()}
+  data['features']={'expandedWarehouse':(source/'save_bank.h').exists(),'careEvents':development,'shinyEntry':(source/'shiny_entry.c').exists(),'nostalgicMoves':'pokemon_move_names_override' in (source/'pokemon_names.c').read_text(),'moveSettings':(source/'move_policy.h').exists(),'boxRelease':'world_box_release' in (source/'world.c').read_text(),'importStageDiagnostics':'world_backup_validate' in (source/'world.c').read_text(),'compressedSave':(source/'save_storage.h').exists()}
   data['sourceHashes']={str(f.relative_to(root)):hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(source.glob('*')) if f.suffix in ('.c','.h')}
   assert len(data['pokemon'])==151 and len(data['items'])==19 and len(data['achievements'])==16
   return data

@@ -68,9 +68,18 @@ bool party_better(const mon_t *a, const mon_t *b)
     return a->exp > b->exp;
 }
 
+bool party_can_receive(const party_t *p, uint16_t species)
+{
+    if (!p || species < 1 || species > BOX_SPECIES) return false;
+    if (p->party_count < PARTY_MAX) return true;
+    for (unsigned i = 0; i < BOX_CAPACITY; i++)
+        if (!p->box[i].species_id) return true;
+    return false;
+}
+
 bool party_receive(party_t *p, const mon_t *m)
 {
-    if (!p || !m || m->species_id < 1 || m->species_id > BOX_SPECIES) {
+    if (!m || !party_can_receive(p, m->species_id)) {
         return false;
     }
 
@@ -80,16 +89,11 @@ bool party_receive(party_t *p, const mon_t *m)
         return true;
     }
 
-    int index = party_box_find(p, m->species_id);
-    if (index < 0) {
-        index = m->species_id - 1;
-        if (p->box[index].species_id) {
-            for (index = 0; index < BOX_SPECIES && p->box[index].species_id; index++) {}
-            if (index == BOX_SPECIES) return false;
-        }
-    }
-    mon_t *slot = &p->box[index];
-    if (slot->species_id == 0 || party_better(m, slot)) { *slot = *m; memset(&p->policies[PARTY_MAX+index],0,sizeof(move_policy_t)); }
+    unsigned index = 0;
+    while(index < BOX_CAPACITY && p->box[index].species_id) index++;
+    if(index == BOX_CAPACITY) return false;
+    p->box[index] = *m;
+    memset(&p->policies[PARTY_MAX+index],0,sizeof(move_policy_t));
     return true;
 }
 
@@ -114,7 +118,7 @@ uint16_t party_total(const party_t *p)
 {
     if (!p) return 0;
     uint16_t total = p->party_count;
-    for (uint16_t i = 0; i < BOX_SPECIES; i++) {
+    for (uint16_t i = 0; i < BOX_CAPACITY; i++) {
         if (p->box[i].species_id) total++;
     }
     return total;
@@ -173,16 +177,16 @@ bool party_deserialize(party_t *p, const uint8_t *in, uint16_t len)
 
 int party_box_find(const party_t *p, uint16_t species) {
  if (!p || species < 1 || species > BOX_SPECIES) return -1;
- for (unsigned i=0;i<BOX_SPECIES;i++) if(p->box[i].species_id==species)return i;
+ for (unsigned i=0;i<BOX_CAPACITY;i++) if(p->box[i].species_id==species)return i;
  return -1;
 }
 int party_box_match(const party_t *p,const mon_t *mon) {
  if(!p||!mon||!mon->species_id)return -1;
- for(unsigned i=0;i<BOX_SPECIES;i++)if(!memcmp(&p->box[i],mon,sizeof(*mon)))return i;
+ for(unsigned i=0;i<BOX_CAPACITY;i++)if(!memcmp(&p->box[i],mon,sizeof(*mon)))return i;
  return -1;
 }
 bool party_exchange_at(party_t *p,uint8_t slot,uint16_t box_slot) {
- if(!p||slot>=p->party_count||box_slot>=BOX_SPECIES||!p->box[box_slot].species_id)return false;
+ if(!p||slot>=p->party_count||box_slot>=BOX_CAPACITY||!p->box[box_slot].species_id)return false;
  move_policy_t policy=p->policies[slot];p->policies[slot]=p->policies[PARTY_MAX+box_slot];p->policies[PARTY_MAX+box_slot]=policy;
  mon_t outgoing=p->party[slot];p->party[slot]=p->box[box_slot];p->box[box_slot]=outgoing;
  return true;

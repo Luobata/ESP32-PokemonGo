@@ -184,7 +184,7 @@ static void base_route_rules(void){
 }
 static void migration_v18(void){
  setup();save_t current;assert(save_read_status(&current)==SAVE_READ_OK);
- save_v18_t old=current.v18;old.version=18;save_t out;
+ save_v22_t legacy;test_legacy_snapshot(&legacy,&current);save_v18_t old=legacy.v18;old.version=18;save_t out;
  assert(save_decode(&out,&old,sizeof(old),0)==SAVE_READ_MIGRATED&&!out.exploration_wins);
  old.queue.items[0].activity=9;assert(save_decode(&out,&old,sizeof(old),0)==SAVE_READ_ERROR);
  old.queue.items[0].activity=0;old.regions.region[0].pity=6;assert(save_decode(&out,&old,sizeof(old),0)==SAVE_READ_ERROR);

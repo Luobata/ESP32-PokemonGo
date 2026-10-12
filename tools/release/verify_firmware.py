@@ -85,6 +85,7 @@ def verify_protected_layout(merged: bytes, build_dir: Path) -> None:
     if len(by_label) != len(partitions):
         raise ValueError("duplicate partition labels")
     expected = {
+        "pokewalk_store": Partition(1, 0x41, 0x380000, 0x20000, "pokewalk_store"),
         "nvs": Partition(1, 2, 0x9000, 0x6000, "nvs"),
         "save_restore": Partition(1, 0x40, 0x360000, 0x10000, "save_restore"),
         "wifi_config": Partition(1, 2, 0x370000, 0x6000, "wifi_config"),

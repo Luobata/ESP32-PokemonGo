@@ -1,0 +1,122 @@
+[
+  {
+    "check": "verify_power_audio",
+    "exit_code": 0,
+    "seconds": 1.4,
+    "error": ""
+  },
+  {
+    "check": "verify_power_worker",
+    "exit_code": 0,
+    "seconds": 1.4,
+    "error": ""
+  },
+  {
+    "check": "verify_display_init",
+    "exit_code": 0,
+    "seconds": 0.9,
+    "error": ""
+  },
+  {
+    "check": "verify_display_sleep",
+    "exit_code": 0,
+    "seconds": 1.1,
+    "error": ""
+  },
+  {
+    "check": "verify_silent_boot",
+    "exit_code": 0,
+    "seconds": 7.1,
+    "error": ""
+  },
+  {
+    "check": "verify_display_settings",
+    "exit_code": 0,
+    "seconds": 1.0,
+    "error": ""
+  },
+  {
+    "check": "verify_wifi_time",
+    "exit_code": 0,
+    "seconds": 1.3,
+    "error": ""
+  },
+  {
+    "check": "verify_audio_settings",
+    "exit_code": 0,
+    "seconds": 0.5,
+    "error": ""
+  },
+  {
+    "check": "verify_offline_stamina",
+    "exit_code": 0,
+    "seconds": 4.2,
+    "error": ""
+  },
+  {
+    "check": "verify_achievement_capacity",
+    "exit_code": 0,
+    "seconds": 3.8,
+    "error": ""
+  },
+  {
+    "check": "verify_shiny_sources",
+    "exit_code": 0,
+    "seconds": 4.6,
+    "error": ""
+  },
+  {
+    "check": "verify_shiny_entry",
+    "exit_code": 0,
+    "seconds": 10.1,
+    "error": ""
+  },
+  {
+    "check": "verify_move_names",
+    "exit_code": 0,
+    "seconds": 5.4,
+    "error": ""
+  },
+  {
+    "check": "verify_dungeon_rewards",
+    "exit_code": 0,
+    "seconds": 3.9,
+    "error": ""
+  },
+  {
+    "check": "verify_exploration_balance",
+    "exit_code": 0,
+    "seconds": 7.5,
+    "error": ""
+  },
+  {
+    "check": "verify_playtime",
+    "exit_code": 0,
+    "seconds": 3.9,
+    "error": ""
+  },
+  {
+    "check": "verify_exploration_events",
+    "exit_code": 0,
+    "seconds": 4.6,
+    "error": ""
+  },
+  {
+    "check": "verify_care_events_preview",
+    "exit_code": 0,
+    "seconds": 1.0,
+    "error": ""
+  },
+  {
+    "check": "verify_region_trails_preview",
+    "exit_code": 0,
+    "seconds": 2.2,
+    "error": ""
+  },
+  {
+    "check": "verify_achievements",
+    "exit_code": 0,
+    "seconds": 3.5,
+    "error": ""
+  }
+]

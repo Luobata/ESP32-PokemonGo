@@ -3,6 +3,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #define USB_BACKUP_BYTES 0x6000
+#define USB_BACKUP_EXTENDED_BYTES 0xc000
 // All calls are serialized by the UI lock. The snapshot callback must quiesce
 // other NVS writers until the complete partition has been copied.
 typedef enum { USB_BACKUP_IDLE, USB_BACKUP_NO_HOST, USB_BACKUP_SENDING,
@@ -26,3 +27,15 @@ void usb_backup_import_mode(bool enabled); // device must explicitly enter impor
 bool usb_backup_import_mode_active(void);
 void usb_backup_restore_confirm(bool accept);
 bool usb_backup_restore_before_boot(void);
+
+// V23 uses bounded chunks and an immutable flash snapshot. Legacy callbacks
+// remain available for older protocol fixtures; the device always uses streams.
+typedef struct {
+ bool (*export_begin)(uint32_t *bytes,uint32_t *crc);
+ bool (*export_read)(uint32_t at,void *out,size_t size);
+ bool (*import_begin)(uint32_t bytes,unsigned version);
+ bool (*import_write)(uint32_t at,const void *data,size_t size);
+ bool (*import_finish)(uint32_t crc);
+ void (*cancel)(void);
+} usb_backup_stream_t;
+void usb_backup_stream_hooks(const usb_backup_stream_t *hooks);

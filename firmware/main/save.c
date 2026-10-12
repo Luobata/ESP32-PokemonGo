@@ -8,22 +8,25 @@
 
 #include "save.h"
 #include "save_storage.h"
+#include "save_bank.h"
 #include "exp.h"
 
 static const char *TAG = "save";
-// Fixed 7792-byte scratch budget, shared by encode and aliased import decode.
+// Fixed 7792-byte scratch budget for legacy decode and migration.
 // C3's separate RTC SRAM keeps this out of the main heap: ordinary BSS would
-// leave no 24 KiB contiguous USB backup buffer. No retained contents are read:
-// encode writes every emitted byte; decode first copies the entire input.
+// consumed the contiguous headroom needed by USB/network operation. V23 uses
+// flash-backed streaming; the legacy scratch remains separate from main DRAM.
+// No retained contents are read: decode first copies the entire input.
 // The existing rest clock already retains RTC SRAM during sleep. Callers
 // serialize via the world save lock (boot is single-threaded).
 #if defined(ESP_PLATFORM) && !defined(HOST_BUILD)
 #include "esp_attr.h"
-static RTC_NOINIT_ATTR uint8_t storage_buf[sizeof(save_t)];
+static RTC_NOINIT_ATTR uint8_t storage_buf[sizeof(save_v22_t)] __attribute__((aligned(8)));
 #else
-static uint8_t storage_buf[sizeof(save_t)];
+static uint8_t storage_buf[sizeof(save_v22_t)] __attribute__((aligned(8)));
 #endif
-_Static_assert(SAVE_VERSION==SAVE_STORAGE_VERSION,"Update the versioned storage codec with the save schema");
+_Static_assert(sizeof(save_v22_t)==7792,"Legacy RTC budget must remain fixed");
+_Static_assert(sizeof(save_t)<=SAVE_BANK_PAYLOAD_MAX,"World must fit a bank/backup segment");
 
 // NVS 初始化。**存档必须自己负责这件事**，不能指望别人先做。
 //
@@ -49,6 +52,7 @@ bool save_init(void)
 #define NS "pokewalk"      // NVS 命名空间
 #define KEY "state"        // One versioned storage blob; decoded layout is save_t.
 #define KEY_OPENING "opening"
+#define KEY_GUARD "state_guard"
 
 // 整块存而不是逐字段存 kv。
 //
@@ -62,42 +66,49 @@ bool save_init(void)
 // 原子性也更好：要么整块新的，要么整块旧的，不会出现
 // 「图鉴是新的而队列是旧的」这种半更新状态。
 
-static bool policies_valid(const save_t *s) {
- for(unsigned i=0;i<PARTY_MAX+BOX_SPECIES;i++){
-  if(!move_policy_valid(&s->move_policies[i]))return false;
-  bool active=i<PARTY_MAX?i<s->party[0]:s->party[2+i*MON_BYTES]!=0;
-  if(!active)for(unsigned b=0;b<MOVE_POLICY_BYTES;b++)if(s->move_policies[i].disabled[b])return false;
- }
- return true;
-}
+
+static bool fields_valid(const save_t *s);
+static bool members_valid(const save_t *s);
+static bool s_bank_reserved;
+void save_bank_reserve(bool reserved) { s_bank_reserved=reserved; }
 bool save_write(const save_t *s)
 {
-    if (!s || s->version != SAVE_VERSION || !policies_valid(s) || !items_inventory_valid(&s->inventory) || !trainer_store_valid(&s->challenge) || !enc_refresh_valid(&s->refresh) || !exploration_valid(&s->exploration) || !exploration_regions_valid(&s->regions) || !exploration_updates_valid(&s->exploration_updates) || !rest_clock_valid(&s->rest_clock) || !dungeon_progress_valid(&s->dungeon)) return false;
-    size_t stored_size=save_storage_encode(storage_buf,sizeof(storage_buf),s,sizeof(*s));
-    if(!stored_size){ESP_LOGE(TAG,"存档编码超出工作区，保留原档");return false;}
+    if(s_bank_reserved || !s || s->version!=SAVE_VERSION || !fields_valid(s) || !members_valid(s))return false;
     nvs_handle_t h;
-    esp_err_t e = nvs_open(NS, NVS_READWRITE, &h);
-    if (e != ESP_OK) {
-        ESP_LOGE(TAG, "打开失败: %s", esp_err_to_name(e));
-        return false;
+    if(nvs_open(NS,NVS_READWRITE,&h)!=ESP_OK)return false;
+    const char *source=KEY;
+    size_t len=0;esp_err_t e=nvs_get_blob(h,source,NULL,&len);
+    if(e==ESP_ERR_NVS_NOT_FOUND){source=KEY_GUARD;e=nvs_get_blob(h,source,NULL,&len);}
+    save_bank_ref_t old, next;const save_bank_ref_t *current=NULL;
+    if(e!=ESP_OK && e!=ESP_ERR_NVS_NOT_FOUND){nvs_close(h);return false;}
+    if(e==ESP_OK && len==sizeof(old)) {
+        if(nvs_get_blob(h,source,&old,&len)!=ESP_OK || !save_bank_ref_valid(&old)){nvs_close(h);return false;}
+        current=&old;
+    } else if(e==ESP_OK && (len<sizeof(save_v5_t) || len>sizeof(save_v22_t))) {
+        // PWZ1 may compress below the raw V5 size. Check its schema/magic via
+        // a bounded read; the caller already validated the actual legacy world.
+        if(len>SAVE_BANK_REF_SIZE && len<=sizeof(storage_buf)) {
+            size_t n=len;
+            if(nvs_get_blob(h,source,storage_buf,&n)!=ESP_OK || n!=len ||
+               save_le16(storage_buf)!=22 || len<SAVE_STORAGE_HEADER || memcmp(storage_buf+2,"PWZ1",4)) {
+                nvs_close(h);return false;
+            }
+        } else {nvs_close(h);return false;}
     }
-
-    e = nvs_set_blob(h, KEY, storage_buf, stored_size);
-    // opening_seen 是单调标记。world 的快照不拥有它，传 false 时绝不
-    // 擦掉已经写入的 true；显式传 true 的调用方则一并持久化。
-    if (e == ESP_OK && s->opening_seen) {
-        e = nvs_set_u8(h, KEY_OPENING, 1);
-    }
-    if (e == ESP_OK) {
-        // Keep the NVS API transaction boundary, including the opening marker.
-        e = nvs_commit(h);
-    }
+    const save_bank_io_t *io=save_bank_platform();
+    // Keep an independent old reference before recycling the inactive bank.
+    // If a failed NVS update loses the primary key, boot can still find this
+    // exact record. Never use an arbitrary newer/unreferenced bank as a save.
+    if(current && (nvs_set_blob(h,KEY_GUARD,current,sizeof(*current))!=ESP_OK || nvs_commit(h)!=ESP_OK)){nvs_close(h);return false;}
+    if(!save_bank_prepare(io,current,s,sizeof(*s),&next)){nvs_close(h);return false;}
+    // The opening marker is monotonic. Write it before the authoritative ref,
+    // so a marker failure cannot report a failed transaction after adoption.
+    if(!current && (nvs_set_blob(h,KEY_GUARD,&next,sizeof(next))!=ESP_OK || nvs_commit(h)!=ESP_OK)){nvs_close(h);return false;}
+    if(s->opening_seen)e=nvs_set_u8(h,KEY_OPENING,1);else e=ESP_OK;
+    if(e==ESP_OK)e=nvs_set_blob(h,KEY,&next,sizeof(next));
+    if(e==ESP_OK)e=nvs_commit(h);
     nvs_close(h);
-
-    if (e != ESP_OK) {
-        ESP_LOGE(TAG, "写入失败: %s", esp_err_to_name(e));
-        return false;
-    }
+    if(e!=ESP_OK){ESP_LOGE(TAG,"扩展存档提交失败: %s",esp_err_to_name(e));return false;}
     return true;
 }
 
@@ -110,7 +121,9 @@ save_read_result_t save_read_status(save_t *out)
     if (e != ESP_OK) return SAVE_READ_ERROR;
 
     size_t len = 0;
-    e = nvs_get_blob(h, KEY, NULL, &len);
+    const char *source=KEY;
+    e = nvs_get_blob(h, source, NULL, &len);
+    if(e==ESP_ERR_NVS_NOT_FOUND){source=KEY_GUARD;e=nvs_get_blob(h,source,NULL,&len);}
     if (e == ESP_ERR_NVS_NOT_FOUND) {
         nvs_close(h);
         return SAVE_READ_EMPTY;
@@ -121,7 +134,7 @@ save_read_result_t save_read_status(save_t *out)
     }
     size_t expected_len = len;
     memset(out, 0, sizeof(*out));
-    e = nvs_get_blob(h, KEY, out, &len);
+    e = nvs_get_blob(h, source, out, &len);
     uint8_t opening_seen = 0;
     if (e == ESP_OK) (void)nvs_get_u8(h, KEY_OPENING, &opening_seen);
     nvs_close(h);
@@ -129,143 +142,6 @@ save_read_result_t save_read_status(save_t *out)
     return save_decode(out, out, len, opening_seen);
 }
 
-save_read_result_t save_decode(save_t *out, const void *blob, size_t len, uint8_t opening_seen)
-{
-    if (!out || !blob || len < sizeof(uint16_t) || len > sizeof(*out)) return SAVE_READ_ERROR;
-    if(save_le16(blob)==SAVE_VERSION){
-        // The importer reads into out. Preserve compressed input before expansion.
-        memmove(storage_buf,blob,len);
-        if(!save_storage_decode(out,sizeof(*out),storage_buf,len))return SAVE_READ_ERROR;
-        blob=out;len=sizeof(*out);
-    }
-    bool legacy = len == sizeof(save_v5_t);
-    bool version6 = len == sizeof(save_v6_t);
-    bool version7 = len == sizeof(save_v7_t);
-    bool version8 = len == sizeof(save_v8_t);
-    bool version9 = len == sizeof(save_v9_t);
-    bool version10 = len == sizeof(save_v10_t);
-    bool version15 = len == sizeof(save_v15_t);
-    bool version16 = len == sizeof(save_v16_t);
-    bool version17 = len == sizeof(save_v17_t);
-    bool version18 = len == sizeof(save_v18_t);
-    bool version19 = len == sizeof(save_v19_t);
-    bool version20 = len == sizeof(save_v20_t);
-    bool version21 = len == sizeof(save_v21_t) && save_le16(blob)==21;
-    if (!legacy && !version6 && !version7 && !version8 && !version9 && !version10 &&
-        !version15 && !version16 && !version17 && !version18 && !version19 && !version20 && len != sizeof(save_v14_t) && len != sizeof(*out))
-        return SAVE_READ_ERROR;
-    memmove(out, blob, len);
-    memset((uint8_t *)out + len, 0, sizeof(*out) - len);
-    bool version14 = len == sizeof(save_v14_t) && out->version == 14;
-    bool version13 = len == sizeof(save_v14_t) && out->version == 13;
-    bool version12 = len == sizeof(save_v14_t) && out->version == 12;
-    bool version11 = len == sizeof(save_v14_t) && out->version == 11;
-    if(len==sizeof(save_v14_t)&&!(version11||version12||version13||version14))return SAVE_READ_ERROR;
-    if (out->version != (legacy ? SAVE_LEGACY_VERSION : version6 ? 6 : version7 ? 7 : version8 ? 8 : version9 ? 9 : version10 ? 10 : version11 ? 11 : version12 ? 12 : version13 ? 13 : version14 ? 14 : version15 ? 15 : version16 ? 16 : version17 ? 17 : version18 ? 18 : version19 ? 19 : version20 ? 20 : version21 ? 21 : SAVE_VERSION)) {
-        ESP_LOGW(TAG, "存档版本 %u ≠ %d —— 保留原档，禁止新游戏覆盖",
-                 out->version, SAVE_VERSION);
-        return SAVE_READ_ERROR;
-    }
-    if(out->version<21)memset(out->move_policies,0,sizeof(out->move_policies));
-    if(!policies_valid(out))return SAVE_READ_ERROR;
-    if(out->version<20)out->playtime_s=0;
-    bool pre19=out->version<19;
-    bool pre18=out->version<18;
-    bool pre16=out->version<16;
-    if(pre16)for(unsigned i=0;i<ENC_QUEUE_CAP;i++){out->queue.items[i].level=0;out->queue.items[i].activity=0;}
-    if(!pre16)for(unsigned i=0;i<ENC_QUEUE_CAP;i++)if(out->queue.items[i].level>100||out->queue.items[i].activity>(pre19?8:ENC_ACTIVITY_EXPLORATION))return SAVE_READ_ERROR;
-    if(pre19)out->exploration_wins=0;
-    if(version15||version16||version17||version18||version19||version20||version21)out->version=SAVE_VERSION;
-    // V5-V11 used species-indexed cells. Validate before adopting physical slots.
-    if (out->version < 12) {
-        for(unsigned i=0;i<BOX_SPECIES;i++) {
-            uint8_t id=out->party[2+(PARTY_MAX+i)*MON_BYTES];
-            if(id && id!=i+1)return SAVE_READ_ERROR;
-        }
-    }
-    if(version11||version12||version13||version14)out->version=SAVE_VERSION;
-    // A raw blob can contain an invalid _Bool representation. Compare its bytes
-    // before evaluating it so malformed data is rejected without undefined reads.
-    const bool no = false, yes = true;
-    if (memcmp(&out->opening_seen, &no, sizeof(no)) != 0 &&
-        memcmp(&out->opening_seen, &yes, sizeof(yes)) != 0) return SAVE_READ_ERROR;
-    out->opening_seen = out->opening_seen || opening_seen != 0;
-    if (legacy) {
-        items_inventory_init(&out->inventory);
-        out->version = SAVE_VERSION;
-    } else if (!items_inventory_valid(&out->inventory)) return SAVE_READ_ERROR;
-    if (legacy || version6) {
-        out->version = SAVE_VERSION;
-        // Older saves have no victory counter: grandfather existing adventurers.
-        out->challenge.wild_wins = out->species != 0;
-    }
-    if (version7 || version8) {
-        // Read old tail before overwriting it: expanded mons have different strides.
-        trainer_store_v8_t previous;
-        memcpy(&previous,(uint8_t *)out+sizeof(save_v6_t),sizeof(previous));
-        achievement_store_t achievements={0};
-        if(version8)memcpy(&achievements,(uint8_t *)out+offsetof(save_v8_t,achievements),sizeof(achievements));
-        trainer_store_t *next=&out->challenge;memset(next,0,sizeof(*next));
-        next->wild_wins=previous.wild_wins;next->defeated=previous.defeated;
-        next->league_stage=previous.league_stage;next->league_active=previous.league_active;
-        // Session header has identical fields; only side/mon strides changed.
-        memcpy(&next->session.rng,&previous.session.rng,sizeof(previous.session)-offsetof(trainer_session_v8_t,rng));
-        next->session.pending_move=0;
-        for(unsigned side=0;side<2;side++){
-            trainer_side_t *d=&next->session.sides[side];const trainer_side_v8_t *s=&previous.session.sides[side];
-            d->count=s->count;d->active=s->active;d->reflect=s->reflect;d->light_screen=s->light_screen;
-            for(unsigned i=0;i<6;i++)memcpy(&d->mons[i],&s->mons[i],sizeof(s->mons[i]));
-        }
-        out->achievements=achievements;out->version=SAVE_VERSION;
-    }
-    if (legacy || version6 || version7 || version8 || version9) {
-        memset(&out->refresh,0,sizeof(out->refresh));
-        uint64_t seconds=out->last_uptime_us>0?(uint64_t)out->last_uptime_us/1000000:0;
-        out->refresh.online_s=seconds>UINT32_MAX-ENC_BASE_INTERVAL_S?UINT32_MAX-ENC_BASE_INTERVAL_S:(uint32_t)seconds;
-        // Existing players do not receive another boot gift on migration.
-        out->refresh.base_started=out->scans!=0 || out->species!=0;
-        out->refresh.next_base_s=out->refresh.online_s+ENC_BASE_INTERVAL_S;
-        out->version=SAVE_VERSION;
-    }
-    if (legacy || version6 || version7 || version8 || version9 || version10) {
-        exploration_init(&out->exploration);
-        out->version=SAVE_VERSION;
-    }
-    // Early V11 called this byte reserved[0], with no range constraint. Later
-    // V11 builds introduced tracking without a schema bump. Preserve valid
-    // tracked species from those builds; an impossible ID means no old target.
-    // V12+ owned and validated the field, so malformed modern IDs still fail.
-    if (version11 && out->exploration.tracked_species > DEX_SPECIES)
-        out->exploration.tracked_species = 0;
-    // V15/V16 receipt tail bytes were C padding, not partner reward fields.
-    // Never interpret an old padding value as a new reward (or corrupt save).
-    if (version15 || version16) {
-        out->dungeon.receipt.partner_species = 0;
-        out->dungeon.receipt.partner_shiny = 0;
-    }
-    if (!exploration_valid(&out->exploration)) return SAVE_READ_ERROR;
-    if(pre18){memset(&out->regions,0,sizeof(out->regions));out->regions.selected=out->exploration.route;}
-    if(version18)for(unsigned i=0;i<EXPLORATION_REGIONS;i++)if(out->regions.region[i].pity>5)return SAVE_READ_ERROR;
-    if(!exploration_regions_valid(&out->regions))return SAVE_READ_ERROR;
-    if (!enc_refresh_valid(&out->refresh)) return SAVE_READ_ERROR;
-    if (!trainer_store_valid(&out->challenge)) return SAVE_READ_ERROR;
-    bool migrated=legacy||version6||version7||version8||version9||version10||version11||version12;
-    if(migrated){
-        for(unsigned side=0;side<2;side++){
-            trainer_side_t *t=&out->challenge.session.sides[side];
-            if(t->count>TRAINER_SLOTS)return SAVE_READ_ERROR;
-            for(unsigned i=0;i<t->count;i++){
-                if(!combat_valid(&t->mons[i]))return SAVE_READ_ERROR;
-                combat_migrate_gen2(&t->mons[i]);
-            }
-        }
-    }
-    if(migrated||version13)out->exploration.research_flags=0;
-    if(!rest_clock_valid(&out->rest_clock))return SAVE_READ_ERROR;
-    if(!exploration_updates_valid(&out->exploration_updates))return SAVE_READ_ERROR;
-    if(!dungeon_progress_valid(&out->dungeon))return SAVE_READ_ERROR;
-    return migrated||version13||version14||version15||version16||version17||version18||version19||version20||version21 ? SAVE_READ_MIGRATED : SAVE_READ_OK;
-}
 
 bool save_read(save_t *out) {
     save_read_result_t result = save_read_status(out);
@@ -303,6 +179,7 @@ bool save_exists(void)
     if (nvs_open(NS, NVS_READONLY, &h) != ESP_OK) return false;
     size_t len = 0;
     esp_err_t e = nvs_get_blob(h, KEY, NULL, &len);
+    if(e==ESP_ERR_NVS_NOT_FOUND)e=nvs_get_blob(h,KEY_GUARD,NULL,&len);
     nvs_close(h);
     // Presence is not validity, and a variable-length V22 is still an existing
     // save. Full validation remains in save_read_status; never offer to erase it.
@@ -314,8 +191,9 @@ bool save_erase(void)
     nvs_handle_t h;
     if (nvs_open(NS, NVS_READWRITE, &h) != ESP_OK) return false;
     esp_err_t state_e = nvs_erase_key(h, KEY);
+    esp_err_t guard_e=nvs_erase_key(h,KEY_GUARD);
     esp_err_t opening_e = nvs_erase_key(h, KEY_OPENING);
-    bool state_ok = state_e == ESP_OK || state_e == ESP_ERR_NVS_NOT_FOUND;
+    bool state_ok = (state_e == ESP_OK || state_e == ESP_ERR_NVS_NOT_FOUND) && (guard_e==ESP_OK || guard_e==ESP_ERR_NVS_NOT_FOUND);
     bool opening_ok = opening_e == ESP_OK || opening_e == ESP_ERR_NVS_NOT_FOUND;
     esp_err_t e = (state_ok && opening_ok) ? nvs_commit(h) : ESP_FAIL;
     nvs_close(h);
@@ -338,6 +216,7 @@ static bool loaded_queue_valid(const enc_queue_t *queue)
         const encounter_t *entry = &queue->items[i];
         if (!entry->uid || entry->species_id < 1 || entry->species_id > DEX_SPECIES ||
             entry->rarity < 1 || entry->rarity > 5 || entry->hp_ratio > 100 ||
+            entry->level > LEVEL_MAX || entry->activity > ENC_ACTIVITY_EXPLORATION ||
             !saved_bool_valid(&entry->is_shiny) ||
             !saved_bool_valid(&entry->is_transient) ||
             !saved_bool_valid(&entry->exp_granted)) return false;
@@ -349,39 +228,84 @@ static bool loaded_queue_valid(const enc_queue_t *queue)
     return true;
 }
 
-static bool loaded_party_valid(const save_t *saved, party_t *party)
-{
-    const uint8_t *raw = saved->party;
-    if (raw[0] > PARTY_MAX) return false;
-    uint8_t box_count = 0;
-    for (unsigned i = 0; i < PARTY_MAX + BOX_SPECIES; i++) {
-        const uint8_t *mon = raw + 2 + i*MON_BYTES;
-        bool active = i < PARTY_MAX ? i < raw[0] : mon[0] != 0;
-        if (!active) {
-            for (unsigned b = 0; b < MON_BYTES; b++) if (mon[b] != 0) return false;
+
+#include "save_legacy.inc"
+static bool fields_valid(const save_t *s) {
+    return saved_bool_valid(&s->opening_seen) && loaded_queue_valid(&s->queue) &&
+        items_inventory_valid(&s->inventory) && trainer_store_valid(&s->challenge) &&
+        enc_refresh_valid(&s->refresh) && exploration_valid(&s->exploration) &&
+        exploration_regions_valid(&s->regions) && exploration_updates_valid(&s->exploration_updates) &&
+        rest_clock_valid(&s->rest_clock) && dungeon_progress_valid(&s->dungeon);
+}
+static bool members_valid(const save_t *s) {
+    const party_t *p=&s->members;
+    if(p->party_count>PARTY_MAX)return false;
+    for(unsigned i=0;i<PARTY_MAX+BOX_CAPACITY;i++) {
+        const mon_t *m=i<PARTY_MAX?&p->party[i]:&p->box[i-PARTY_MAX];
+        bool active=i<PARTY_MAX?i<p->party_count:m->species_id!=0;
+        if(!move_policy_valid(&p->policies[i]))return false;
+        if(active) {
+            if(!m->species_id||m->species_id>BOX_SPECIES||!m->level||m->level>LEVEL_MAX)return false;
         } else {
-            if (mon[0] < 1 || mon[0] > BOX_SPECIES || mon[1] < 1 || mon[1] > LEVEL_MAX)
-                return false;
-            if (i >= PARTY_MAX) {
-                box_count++;
-            }
+            const uint8_t *raw=(const uint8_t*)m;
+            for(unsigned b=0;b<sizeof(*m);b++)if(raw[b])return false;
+            for(unsigned b=0;b<MOVE_POLICY_BYTES;b++)if(p->policies[i].disabled[b])return false;
         }
     }
-    if (raw[1] != box_count ||
-        !party_deserialize(party, raw, sizeof(saved->party))) return false;
-    memcpy(party->policies,saved->move_policies,sizeof(party->policies));
-    if (!party->party_count) {
-        // Empty V5 snapshots are produced while a fresh game awaits a choice.
-        // An absent leader with prior ownership/progress is not a new game.
-        for (unsigned i = 0; i < DEX_BYTES; i++)
-            if (saved->dex.caught[i] || saved->dex.shiny_caught[i]) return false;
-        return party_total(party) == 0 && saved->species == 0 &&
-               saved->level == 0 && saved->exp == 0;
+    if(!p->party_count) {
+        for(unsigned i=0;i<DEX_BYTES;i++)if(s->dex.caught[i]||s->dex.shiny_caught[i])return false;
+        return !party_total(p)&&!s->species&&!s->level&&!s->exp;
     }
     return true;
 }
-
-bool save_validate_world(const save_t *saved, party_t *party)
-{
-    return saved && party && policies_valid(saved) && loaded_queue_valid(&saved->queue) && loaded_party_valid(saved, party);
+bool save_validate_world(const save_t *s,party_t *party) {
+    if(!s||!party||s->version!=SAVE_VERSION||!fields_valid(s)||!members_valid(s))return false;
+    if(party!=&s->members)*party=s->members;
+    return true;
+}
+save_read_result_t save_decode(save_t *out,const void *blob,size_t len,uint8_t opening_seen) {
+    if(!out||!blob||len<2||len>sizeof(*out))return SAVE_READ_ERROR;
+    unsigned version=save_le16(blob);
+    if(version==SAVE_VERSION) {
+        if(len==sizeof(save_bank_ref_t)) {
+            save_bank_ref_t ref;memcpy(&ref,blob,sizeof(ref));
+            if(save_bank_length(&ref)!=sizeof(*out)||!save_bank_read(save_bank_platform(),&ref,out,sizeof(*out)))return SAVE_READ_ERROR;
+        } else if(len==sizeof(*out))memmove(out,blob,len);
+        else return SAVE_READ_ERROR;
+        if(out->version!=SAVE_VERSION||!fields_valid(out)||!members_valid(out))return SAVE_READ_ERROR;
+        out->opening_seen=out->opening_seen||opening_seen!=0;
+        return SAVE_READ_OK;
+    }
+    if(len>sizeof(save_v22_t))return SAVE_READ_ERROR;
+    save_v22_t *old=(save_v22_t*)out;
+    save_read_result_t result=save_decode_legacy(old,blob,len,opening_seen);
+    if((result!=SAVE_READ_OK&&result!=SAVE_READ_MIGRATED)||!legacy_party_valid(old)||!loaded_queue_valid(&old->queue))return SAVE_READ_ERROR;
+    // The compressed input is no longer needed. Reuse the SAME fixed RTC area
+    // for normalized legacy bytes, before expanding into the transaction buffer.
+    memcpy(storage_buf,old,sizeof(*old));old=(save_v22_t*)storage_buf;
+    memset(out,0,sizeof(*out));out->version=SAVE_VERSION;
+    out->pet=old->pet;
+    out->species=old->species;
+    out->level=old->level;
+    out->exp=old->exp;
+    out->queue=old->queue;
+    out->dex=old->dex;
+    out->motion_q10=old->motion_q10;
+    out->scans=old->scans;
+    out->last_uptime_us=old->last_uptime_us;
+    out->opening_seen=old->opening_seen;
+    out->inventory=old->inventory;
+    out->challenge=old->challenge;
+    out->achievements=old->achievements;
+    out->refresh=old->refresh;
+    out->exploration=old->exploration;
+    out->dungeon=old->dungeon;
+    out->exploration_updates=old->exploration_updates;
+    out->rest_clock=old->rest_clock;
+    out->regions=old->regions;
+    out->exploration_wins=old->exploration_wins;
+    out->playtime_s=old->playtime_s;
+    if(!party_deserialize(&out->members,old->party,sizeof(old->party)))return SAVE_READ_ERROR;
+    memcpy(out->members.policies,old->move_policies,sizeof(old->move_policies));
+    return fields_valid(out)&&members_valid(out)?SAVE_READ_MIGRATED:SAVE_READ_ERROR;
 }

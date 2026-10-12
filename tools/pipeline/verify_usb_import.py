@@ -47,6 +47,32 @@ int main(void){
  reset();memcpy(stage,committed,sizeof(stage));failwrite=1;assert(restore_journal_apply(&io,build,&crc)==2);assert(!memcmp(nvs,original,sizeof(nvs)));
  reset();memcpy(stage,committed,sizeof(stage));unsigned char other[32]={0};assert(restore_journal_apply(&io,other,&crc)==-1);assert(!memcmp(nvs,original,sizeof(nvs)));
  reset();memcpy(stage,committed,sizeof(stage));stage[0x1000]^=1;stage[0x7000]^=1;assert(restore_journal_apply(&io,build,&crc)==-1);assert(!memcmp(nvs,original,sizeof(nvs)));
+
+ // V23 already-staged NVS plus a full-payload receipt. Interrupt every read,
+ // half write and half erase; replay is idempotent and never starts a new save.
+ reset();memcpy(stage+0x1000,incoming,sizeof(incoming));calls=0;
+ assert(restore_journal_prepare_staged(&io,build,0xcafef00d));int staged_calls=calls;
+ memcpy(committed,stage,sizeof(stage));calls=0;
+ assert(restore_journal_apply(&io,build,&crc)==1&&crc==0xcafef00d);int staged_apply=calls;
+ for(int k=1;k<=staged_calls;k++){
+  reset();memcpy(stage+0x1000,incoming,sizeof(incoming));cut=k;
+  if(!setjmp(power))restore_journal_prepare_staged(&io,build,0xcafef00d);
+  cut=0;assert(!memcmp(nvs,original,sizeof(nvs)));
+  int result=restore_journal_apply(&io,build,&crc);assert(result>=-1&&result<=1);
+  assert(!memcmp(nvs,result==1?incoming:original,sizeof(nvs)));
+  if(result==1)assert(crc==0xcafef00d);
+ }
+ for(int k=1;k<=staged_apply;k++){
+  reset();memcpy(stage,committed,sizeof(stage));cut=k;
+  if(!setjmp(power))restore_journal_apply(&io,build,&crc);
+  cut=0;int result=restore_journal_apply(&io,build,&crc);assert(result==0||result==1);
+  assert(!memcmp(nvs,incoming,sizeof(nvs)));
+ }
+ reset();memcpy(stage,committed,sizeof(stage));stage[56]^=1;
+ assert(restore_journal_apply(&io,build,&crc)==-1&&!memcmp(nvs,original,sizeof(nvs)));
+ reset();memcpy(stage,committed,sizeof(stage));stage[0x1000]^=1;
+ assert(restore_journal_apply(&io,build,&crc)==2&&crc==0xcafef00d&&!memcmp(nvs,original,sizeof(nvs)));
+ fprintf(stderr,"V23 staged journal interruption boundaries: %d prepare, %d apply\n",staged_calls,staged_apply);
  init();usb_backup_restore_hooks(prepare,restart,1,0x12345678);cmd("HELLO");assert(strstr(transcript,"RESTORED"));
  usb_backup_import_mode(true);offer();usb_backup_restore_confirm(false);transcript[0]=0;cmd("HELLO");assert(!strstr(transcript,"RESTORED"));
  init();usb_backup_import_mode(true);

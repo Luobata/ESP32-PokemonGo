@@ -36,6 +36,7 @@
 #include "nurture.h"
 #include "items.h"
 #include "party.h"
+#include "box_view.h"
 #include "trainer.h"
 #include "sensing.h"
 
@@ -83,11 +84,12 @@ bool world_wifi_ready(void);
 // 不可从 ISR 调用（互斥量可能阻塞）。
 void world_snapshot(world_t *out);
 
-// Six visible members, in current order; box_count counts occupied species
+// Six visible members, in current order; box_count counts individual occupied slots
 // slots, not total captures. No pointers into mutable world storage escape.
 typedef struct {
     mon_t members[PARTY_MAX];
-    uint8_t count, box_count;
+    uint8_t count;
+    uint16_t box_count;
     bool switch_locked; // Storage unavailable, no starter, or active P3/P4.
 } world_party_t;
 typedef enum {
@@ -102,7 +104,7 @@ typedef enum {
 } world_switch_result_t;
 
 void world_party_snapshot(world_party_t *out);
-// Slot 0..5 party, 6..156 warehouse. Read/set validates the displayed individual.
+// Slot 0..5 party, 6..458 warehouse. Read/set validates the displayed individual.
 bool world_move_policy(unsigned slot,const mon_t *expected,move_policy_t *out);
 world_switch_result_t world_move_set(unsigned slot,const mon_t *expected,unsigned move,bool enabled);
 void world_move_policies(move_policy_t out[PARTY_MAX]);
@@ -177,7 +179,13 @@ bool world_evolve_leader(uint16_t expected_species, uint16_t evolve_to);
 
 // 一次提交捕获：收容、点亮图鉴、按 uid 出队在同一个临界区完成，
 // 随后立即把包含三者的完整状态存档。无效/已淘汰 uid 返回 false。
+typedef enum { WORLD_CAPTURE_OK, WORLD_CAPTURE_FULL, WORLD_CAPTURE_INVALID,
+    WORLD_CAPTURE_STALE, WORLD_CAPTURE_SAVE_FAILED } world_capture_result_t;
+world_capture_result_t world_capture_replace_uid(uint16_t uid,const mon_t *mon,
+    unsigned box_slot,const mon_t *expected);
 bool world_capture_uid(uint16_t uid, const mon_t *mon);
+// Read-only capacity check; never copies the full party or changes progress.
+bool world_capture_has_room(uint16_t species);
 
 // 遭遇队列与图鉴。**返回指针而不是拷贝** —— 队列保留 V5 的16槽、
 // 图鉴 76 字节，每帧拷一遍不划算，而页面只读不写。
@@ -281,10 +289,13 @@ exploration_event_t world_explore_path(unsigned direction);
 
 bool world_battle_reward_uid(uint16_t uid,uint16_t *amount);
 
-void world_box_snapshot(mon_t out[BOX_SPECIES]);
+void world_box_snapshot(mon_t out[BOX_CAPACITY]); // bulk test/export callers only
+bool world_box_at(unsigned slot,mon_t *out);
+unsigned world_box_view(const box_view_options_t *options,uint16_t indices[BOX_CAPACITY]);
 // Physical warehouse slot + displayed individual; save before publishing removal.
 world_switch_result_t world_box_release(unsigned slot, const mon_t *expected);
 world_switch_result_t world_box_exchange(uint8_t slot,const mon_t *outgoing,const mon_t *incoming);
+world_switch_result_t world_box_exchange_at(uint8_t slot,unsigned box_slot,const mon_t *outgoing,const mon_t *incoming);
 
 exploration_kind_t world_exploration_track(uint16_t species);
 
@@ -294,3 +305,6 @@ exploration_event_t world_exploration_activity(unsigned id,bool claim);
 
 // Absolute UTC in microseconds, accepted only after network time synchronization.
 bool world_sync_time(int64_t utc_us,uint8_t *recovered);
+
+// Serialize bounded backup flash work without collecting/saving another world.
+bool world_backup_exclusive(bool (*operation)(void *),void *context);

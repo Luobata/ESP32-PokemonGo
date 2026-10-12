@@ -74,7 +74,7 @@ def run(idf, private_nvs=None, prune_legacy=False, validate_only=False, private_
   incs=[t,nvs/'include',nvs/'private_include',nvs/'src',idf/'esp_common/include',idf/'esp_rom/include',ROOT/'firmware/main',ROOT/'firmware/components/bsp/include']
   flags=['-DLINUX_TARGET=1','-DESP_PLATFORM','-DHOST_BUILD','-DDUNGEON_REAL_NVS_TEST','-O1','-g','-fsanitize=address,undefined','-ffunction-sections','-fdata-sections']+[x for i in incs for x in ['-I',str(i)]]
   sources=['nvs_api','nvs_item_hash_list','nvs_page','nvs_pagemanager','nvs_storage','nvs_handle_simple','nvs_handle_locked','nvs_partition','nvs_partition_lookup','nvs_partition_manager','nvs_types','nvs_platform']
-  game=['save','restore_journal','party','encounter','exploration','nurture','exp','items','evolution','trainer','combat','battle','assets','pokemon_names','dungeon','dungeon_rewards']
+  game=['save','save_bank','save_bank_device','restore_journal','party','encounter','exploration','nurture','exp','items','evolution','trainer','combat','battle','assets','pokemon_names','dungeon','dungeon_rewards']
   for name in sources:
    subprocess.run(['c++','-std=c++17',*flags,'-c',str(nvs/'src'/f'{name}.cpp'),'-o',str(t/f'{name}.o')],check=True)
   for name in game+['driver']:

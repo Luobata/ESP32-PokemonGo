@@ -4,7 +4,9 @@
 #define NEW_AT 0x1000u
 #define OLD_AT 0x7000u
 #define MAGIC 0x31525750u
+#define MAGIC_V2 0x32525750u
 struct header { uint32_t magic,size,new_crc,old_crc;uint8_t build[32];uint32_t crc; };
+struct header_v2 { struct header base;uint32_t receipt_crc,crc; };
 static uint32_t update(uint32_t c,const uint8_t *p,size_t n) {
  while(n--){c^=*p++;for(unsigned i=0;i<8;i++)c=(c>>1)^(0xedb88320u&(0u-(c&1)));}return c;
 }
@@ -36,6 +38,27 @@ bool restore_journal_prepare(const restore_io_t *io,const uint8_t *image,const u
  // if clearing also fails, require a reboot to resolve it before game mutations.
  return !io->erase(true,0,0x1000);
 }
+
+bool restore_journal_prepare_staged(const restore_io_t *io,const uint8_t build[32],uint32_t receipt_crc) {
+ struct header_v2 h={.base={.magic=MAGIC_V2,.size=RESTORE_IMAGE_SIZE},.receipt_crc=receipt_crc};
+ uint8_t buf[256];uint32_t check;memcpy(h.base.build,build,32);
+ if(!io||!io->erase(true,0,0x1000)||!io->erase(true,OLD_AT,RESTORE_IMAGE_SIZE))return false;
+ if(!digest(io,true,NEW_AT,&h.base.new_crc))return false;
+ uint32_t old=~0u;
+ for(unsigned i=0;i<RESTORE_IMAGE_SIZE;i+=sizeof(buf)){
+  if(!io->read(false,i,buf,sizeof(buf))||!io->write(true,OLD_AT+i,buf,sizeof(buf)))return false;
+  old=update(old,buf,sizeof(buf));
+ }
+ h.base.old_crc=~old;
+ if(!digest(io,true,OLD_AT,&check)||check!=h.base.old_crc)return false;
+ h.base.crc=restore_crc32((const uint8_t*)&h.base,offsetof(struct header,crc));
+ h.crc=restore_crc32((const uint8_t*)&h,offsetof(struct header_v2,crc));
+ struct header_v2 readback;
+ if(io->write(true,0,&h,sizeof(h))&&io->read(true,0,&readback,sizeof(readback))&&!memcmp(&h,&readback,sizeof(h)))return true;
+ // An ambiguous durable marker requires reboot before further mutations.
+ return !io->erase(true,0,0x1000);
+}
+
 static bool install(const restore_io_t *io,uint32_t at,uint32_t expected) {
  uint8_t buf[256];uint32_t crc;
  if(!io->erase(false,0,RESTORE_IMAGE_SIZE))return false;
@@ -46,7 +69,14 @@ static bool install(const restore_io_t *io,uint32_t at,uint32_t expected) {
 int restore_journal_apply(const restore_io_t *io,const uint8_t build[32],uint32_t *crc) {
  struct header h;uint32_t c;
  if(!io->read(true,0,&h,sizeof(h)))return -1;
- if(h.magic!=MAGIC||h.size!=RESTORE_IMAGE_SIZE||h.crc!=restore_crc32((const uint8_t*)&h,offsetof(struct header,crc)))return 0;
+ if((h.magic!=MAGIC&&h.magic!=MAGIC_V2)||h.size!=RESTORE_IMAGE_SIZE||h.crc!=restore_crc32((const uint8_t*)&h,offsetof(struct header,crc)))return 0;
+ uint32_t receipt=h.new_crc;
+ if(h.magic==MAGIC_V2){
+  struct header_v2 extended;
+  if(!io->read(true,0,&extended,sizeof(extended)))return -1;
+  if(extended.crc!=restore_crc32((const uint8_t*)&extended,offsetof(struct header_v2,crc)))return -1;
+  receipt=extended.receipt_crc;
+ }
  if(memcmp(h.build,build,32))return -1;
  bool fresh=digest(io,true,NEW_AT,&c)&&c==h.new_crc;
  bool old=digest(io,true,OLD_AT,&c)&&c==h.old_crc;
@@ -57,6 +87,6 @@ int restore_journal_apply(const restore_io_t *io,const uint8_t build[32],uint32_
  // No game mutation is possible until this marker is cleared. A reset before
  // clearing retries the exact same image; a reset afterwards boots a verified NVS.
  if(!io->erase(true,0,0x1000))return -1;
- if(crc)*crc=h.new_crc;
+ if(crc)*crc=receipt;
  return result;
 }

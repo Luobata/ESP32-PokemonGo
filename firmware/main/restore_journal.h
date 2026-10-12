@@ -15,3 +15,7 @@ bool restore_journal_prepare(const restore_io_t *io,const uint8_t *image,const u
 // Called before NVS/Wi-Fi/world initialization. 0 none; 1 restored; 2 rolled back;
 // -1 durable request cannot yet be recovered: caller must not start the game.
 int restore_journal_apply(const restore_io_t *io,const uint8_t build[32],uint32_t *crc);
+
+// V23: upload already resides at NEW_AT. Preserve it, copy original NVS,
+// and bind the reboot receipt to the entire multi-partition backup checksum.
+bool restore_journal_prepare_staged(const restore_io_t *io,const uint8_t build[32],uint32_t receipt_crc);
