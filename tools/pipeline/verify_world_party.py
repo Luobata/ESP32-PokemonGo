@@ -199,7 +199,8 @@ static void observe_commit(void) {
     assert(!s_lock->held&&s_save_lock->held);
     world_party_t actual;world_party_snapshot(&actual);assert(!memcmp(&actual,&commit_view,sizeof(actual)));
     assert(!pthread_create(&rest_thread,NULL,rest_worker,NULL));
-    while(!atomic_load(&worker_waiting))sched_yield();assert(!atomic_load(&worker_done));
+    while(!atomic_load(&worker_waiting)){sched_yield();}
+    assert(!atomic_load(&worker_done));
     world_mark_seen(74,true);extra_commit_hook=NULL;
 }
 static void concurrent_care(void) {
