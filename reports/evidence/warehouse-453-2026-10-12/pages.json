@@ -1,0 +1,48 @@
+{
+  "base": "https://luobata.github.io/ESP32-PokemonGo",
+  "all_match": true,
+  "web_files": [
+    {
+      "file": "index.html",
+      "sha256": "3248c49fc2478137fbfe6d9bfc88d33677b428ac408668b01bde3c94b904325f"
+    },
+    {
+      "file": "style.css",
+      "sha256": "dd7ad1a2d55d8025c4990a6bb173d6342af46f2c0857f3f6cb5244a18182a831"
+    },
+    {
+      "file": "app.mjs",
+      "sha256": "33a4eb0067273fd797a8c9cd693b4d40b7507b29dc3eb17d80b9f31216a3a518"
+    },
+    {
+      "file": "backup.mjs",
+      "sha256": "59103b7651825e676e19b9d0feff3ac4c7d23bc15cf131b9391f8d4bf98e0dec"
+    },
+    {
+      "file": "guide/index.html",
+      "sha256": "45a360b1388f8dc086ce872d9ffb7dd8e9b4910a1ec7e956adbdafcda8b68de6"
+    },
+    {
+      "file": "guide/guide.css",
+      "sha256": "65a42515341b2bd30ded1a776f8a1b58a896c201c8bf6f3d7cfa6e6bc611a942"
+    },
+    {
+      "file": "guide/guide.mjs",
+      "sha256": "1a7dccef0f00d473e3576db8d32e2b0be2273e31a23f23b79fb6ff39ff8b9b6b"
+    },
+    {
+      "file": "guide/catalog.js",
+      "sha256": "0d3cf88ed58bd0f46e55a3b45d6087f5c3e61b90f12a8a6d979c5b5f4cc050af"
+    },
+    {
+      "file": "guide/pokemon.png",
+      "sha256": "5622dfb02fb67b50f40d945fd2c9672de0932829d205f69bbc74070a0d4e090b"
+    },
+    {
+      "file": "guide/battle.png",
+      "sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6"
+    }
+  ],
+  "offline_files": 12,
+  "zip_sha256": "146b501cb81a08c485ae11b01dfdda829072c8b7d2f361da6cbe41417e503e62"
+}

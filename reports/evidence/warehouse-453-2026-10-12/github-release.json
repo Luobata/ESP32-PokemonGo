@@ -1,0 +1,51 @@
+{
+  "assets": [
+    {
+      "apiUrl": "https://api.github.com/repos/Luobata/ESP32-PokemonGo/releases/assets/633216364",
+      "contentType": "application/octet-stream",
+      "createdAt": "2026-10-12T08:52:53Z",
+      "digest": "sha256:d3ebd000bbb9135ca2300986f2c4a4bed6ea756ad634d524423d5eba10efa0ac",
+      "downloadCount": 0,
+      "id": "RA_kwDOUL8Dnc4lvh1s",
+      "label": "",
+      "name": "FoloToy-AI-Passport-full.bin",
+      "size": 3258032,
+      "state": "uploaded",
+      "updatedAt": "2026-10-12T08:52:55Z",
+      "url": "https://github.com/Luobata/ESP32-PokemonGo/releases/download/v2026.10.12-warehouse/FoloToy-AI-Passport-full.bin"
+    },
+    {
+      "apiUrl": "https://api.github.com/repos/Luobata/ESP32-PokemonGo/releases/assets/633216370",
+      "contentType": "application/json",
+      "createdAt": "2026-10-12T08:52:53Z",
+      "digest": "sha256:0c02eb97697bee53f84f2cefac00c35ada03ff2389e943b75fe66fc9f19d61b2",
+      "downloadCount": 0,
+      "id": "RA_kwDOUL8Dnc4lvh1y",
+      "label": "",
+      "name": "manifest.json",
+      "size": 1068,
+      "state": "uploaded",
+      "updatedAt": "2026-10-12T08:52:53Z",
+      "url": "https://github.com/Luobata/ESP32-PokemonGo/releases/download/v2026.10.12-warehouse/manifest.json"
+    },
+    {
+      "apiUrl": "https://api.github.com/repos/Luobata/ESP32-PokemonGo/releases/assets/633216365",
+      "contentType": "application/zip",
+      "createdAt": "2026-10-12T08:52:53Z",
+      "digest": "sha256:87a4fa794e3824fe3a126dd64a1153e98fb420767285e2bfcc11e852ab8c224f",
+      "downloadCount": 0,
+      "id": "RA_kwDOUL8Dnc4lvh1t",
+      "label": "",
+      "name": "PokeWalk-update.zip",
+      "size": 1423827,
+      "state": "uploaded",
+      "updatedAt": "2026-10-12T08:52:55Z",
+      "url": "https://github.com/Luobata/ESP32-PokemonGo/releases/download/v2026.10.12-warehouse/PokeWalk-update.zip"
+    }
+  ],
+  "isDraft": false,
+  "tagName": "v2026.10.12-warehouse",
+  "targetCommitish": "0c768bc973d2db90166ef46f9e43de452abe0ffc",
+  "url": "https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.12-warehouse",
+  "asset_bytes_and_digests_match_local": true
+}
