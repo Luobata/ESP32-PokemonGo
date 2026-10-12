@@ -64,3 +64,11 @@ for module,limit in module_limits.items():
             symbols=subprocess.check_output([str(nm),'-S',str(obj)],text=True)
             assert not any(x.split()[-1] in ('malloc','calloc','realloc','heap_caps_malloc','heap_caps_calloc','alloca') for x in symbols.splitlines()),module
 print(json.dumps({'expanded_storage_max_frame':module_frames,'new_storage_heap_allocations':0,'runtime_stack_measured':False,'passed':True}))
+
+# Wi-Fi throughput optimizations otherwise consume the RAM reclaimed for V23.
+# Static budgets are necessary but do not replace connected-device import tests.
+config=json.loads((ROOT/'firmware/build/config/sdkconfig.json').read_text())
+assert not config.get('ESP_WIFI_IRAM_OPT') and not config.get('ESP_WIFI_RX_IRAM_OPT'), 'Warehouse RAM budget requires Wi-Fi flash execution'
+iram=sum(int(x.split()[1]) for x in sizes.splitlines() if x.startswith('.iram'))
+assert iram<=80*1024, ('IRAM budget exceeded',iram)
+print(json.dumps({'wifi_hotpaths_in_flash':True,'iram_bytes':iram,'iram_budget_bytes':80*1024,'runtime_heap_measured':False,'passed':True}))

@@ -55,3 +55,8 @@ CONFIG_BT_NIMBLE_NVS_PERSIST=n
 
 # Offline stamina sync: primary and fallback NTP servers.
 CONFIG_LWIP_SNTP_MAX_SERVERS=2
+
+# V23 warehouse: prefer free internal RAM over high-throughput Wi-Fi IRAM paths.
+# ESP-IDF keeps these functions in flash when disabled; scanning/NTP/AP remain enabled.
+# CONFIG_ESP_WIFI_IRAM_OPT is not set
+# CONFIG_ESP_WIFI_RX_IRAM_OPT is not set
