@@ -1,0 +1,90 @@
+{
+  "physical_device": true,
+  "application_source": "0c768bc",
+  "flash_capacity_bytes": 8388608,
+  "update_zip_verified": true,
+  "additive_partition_update_data_preserved": true,
+  "final_app_update_data_preserved": true,
+  "boot": {
+    "species": 115,
+    "level": 52,
+    "exp": 216594,
+    "dex": 113,
+    "party": 6,
+    "total": 106,
+    "dungeon_phase": 5,
+    "dungeon_node": 7,
+    "dungeon_run": 2
+  },
+  "restore": {
+    "cross-build": {
+      "passed": true,
+      "mode": "cross-build",
+      "production_web_logic": true,
+      "physical_device": true,
+      "native_browser_permissions_tested": false,
+      "cancel_verified": true,
+      "prebackup_readback_verified": true,
+      "source_version": 22,
+      "cross_build": true,
+      "receipt": "设备已确认：存档导入完成。请在设备核对伙伴、等级和图鉴。",
+      "before": {
+        "pet": 115,
+        "level": 52,
+        "exp": 216594
+      },
+      "after": {
+        "pet": 115,
+        "level": 52,
+        "exp": 216594
+      },
+      "files_saved": 1,
+      "brightness_restore": {
+        "source": 100,
+        "before_import": 89,
+        "after": 100
+      }
+    },
+    "roundtrip-marker": {
+      "passed": true,
+      "mode": "roundtrip-marker",
+      "production_web_logic": true,
+      "physical_device": true,
+      "native_browser_permissions_tested": false,
+      "cancel_verified": true,
+      "prebackup_readback_verified": true,
+      "source_version": 23,
+      "cross_build": false,
+      "receipt": "设备已确认：存档导入完成。请在设备核对伙伴、等级和图鉴。",
+      "before": {
+        "pet": 115,
+        "level": 52,
+        "exp": 216594
+      },
+      "after": {
+        "pet": 115,
+        "level": 52,
+        "exp": 216594
+      },
+      "files_saved": 2,
+      "brightness_restore": {
+        "source": 100,
+        "before_import": 89,
+        "after": 100
+      }
+    }
+  },
+  "wifi_soak_seconds": 300,
+  "memory": {
+    "sample_count": 39,
+    "minimum_ever_free_bytes": 21216,
+    "minimum_sampled_largest_block_bytes": 20480,
+    "minimum_debug_task_stack_bytes": 720,
+    "other_task_high_water_measured": false
+  },
+  "offline_zip_sha256": "146b501cb81a08c485ae11b01dfdda829072c8b7d2f361da6cbe41417e503e62",
+  "native_browser_permissions_tested": false,
+  "ble_full_install_tested": false,
+  "full_warehouse_physical_test": false,
+  "physical_power_cut_test": false
+}

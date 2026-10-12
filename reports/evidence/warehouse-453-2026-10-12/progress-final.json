@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "format": 2,
+  "source_version": 23,
+  "payload_bytes": 49152,
+  "record_bytes": 18632,
+  "fields_equal_original_v22_migration": [
+    "species",
+    "level",
+    "exp",
+    "members",
+    "dex",
+    "inventory",
+    "challenge",
+    "achievements",
+    "dungeon",
+    "exploration_updates",
+    "regions",
+    "exploration_wins"
+  ],
+  "settings_equal_original": true,
+  "other_nvs_keys_unchanged": 6,
+  "independent_dungeon_equal": true,
+  "playtime_and_time_driven_nurture_excluded": true
+}

@@ -1,0 +1,40 @@
+{
+  "artifact": "FoloToy-AI-Passport-full.bin",
+  "size": 3258032,
+  "sha256": "d3ebd000bbb9135ca2300986f2c4a4bed6ea756ad634d524423d5eba10efa0ac",
+  "flash_address": "0x0",
+  "protected_layout_pass": true,
+  "checker_source": "FoloToy/ai-passport@cd73a8a6f1f95e010bfd83a08e2b915e38408308 + PokeWalk data protection",
+  "application_size": 3192496,
+  "full_install_preserves_nvs": false,
+  "full_install_warning": "Full image padding overwrites NVS; back up before installation and import afterwards.",
+  "community_upload_performed": false,
+  "ble_install_tested": false,
+  "usb_update": {
+    "artifact": "PokeWalk-update.zip",
+    "sha256": "87a4fa794e3824fe3a126dd64a1153e98fb420767285e2bfcc11e852ab8c224f",
+    "writes": [
+      {
+        "address": 65536,
+        "size": 3192496
+      }
+    ],
+    "requires_existing_matching_partition_table": false,
+    "allows_only_additive_store_partition": true,
+    "conditional_writes": [
+      {
+        "address": 32768,
+        "size": 4096,
+        "when": "approved additive store migration only"
+      }
+    ]
+  },
+  "source_commit": "0c768bc973d2db90166ef46f9e43de452abe0ffc",
+  "application_sha256": "6dcd561e7b211d8948cbb8098692b8e61bba137cce5b197ec2e75fb63e61ae5a",
+  "flash_limit": 8388608,
+  "highest_partition_end": 8388608,
+  "ci": {
+    "url": "https://github.com/Luobata/ESP32-PokemonGo/actions/runs/38224043685",
+    "conclusion": "success"
+  }
+}
