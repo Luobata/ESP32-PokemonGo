@@ -89,7 +89,8 @@ static void every_position(void) {
         enc_queue_t queue=s_queue;unsigned committed=commits;
         mon_t expected[PARTY_MAX];memcpy(expected,before.members,sizeof(expected));
         mon_t chosen=expected[index];
-        for(unsigned i=index;i>0;i--)expected[i]=expected[i-1];expected[0]=chosen;
+        for(unsigned i=index;i>0;i--){expected[i]=expected[i-1];}
+        expected[0]=chosen;
         assert(world_set_leader(index,&before.members[index],&after)==WORLD_SWITCH_OK);
         assert(commits==committed+2&&after.count==6&&after.box_count==3&&!after.switch_locked);
         assert(!memcmp(after.members,expected,sizeof(expected)));
@@ -302,7 +303,10 @@ def run(root: Path) -> dict:
                      ('box_view.c','party.c', 'encounter.c', 'exploration.c', 'battle.c', 'combat.c', 'nurture.c', 'exp.c', 'items.c')], '-lz',
                    '-Wl,-dead_strip' if sys.platform == 'darwin' else '-Wl,--gc-sections',
                    '-o', str(temp / 'probe')]
-        subprocess.run(command, check=True, capture_output=True, text=True)
+        try:
+            subprocess.run(command, check=True, capture_output=True, text=True)
+        except subprocess.CalledProcessError as exc:
+            raise RuntimeError(exc.stderr) from exc
         result = subprocess.run([str(temp / 'probe')], capture_output=True, text=True, timeout=30)
         if result.returncode:
             raise AssertionError(result.stdout + '\n' + result.stderr)

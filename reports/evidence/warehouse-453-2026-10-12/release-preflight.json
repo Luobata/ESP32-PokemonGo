@@ -1,0 +1,21 @@
+{
+  "source_commit": "224ab1f9eeab4463bdf8018395b01291dcdd3ad6",
+  "flash_limit_bytes": 8388608,
+  "highest_partition_end": 8388608,
+  "app_bytes": 3193472,
+  "app_limit": 3407872,
+  "app_headroom_bytes": 214400,
+  "app_sha256": "91bd9432b520bf16ca53c436a820cec5615f96faa1b362889b8ce185ff130e5d",
+  "full_image_bytes": 3259008,
+  "full_image_sha256": "f4f8872cfddb2c6a61171a6e6b80741e9094cce0f0d412fb1fd6e4b93d4168ca",
+  "new_store_offset": 3670016,
+  "new_store_bytes": 131072,
+  "all_old_partitions_unchanged": true,
+  "partitions_no_overlap": true,
+  "package_checks_passed": true,
+  "runtime_hardware_validation": false,
+  "hardware_connection": "USB enumerated; debug query/reset and ROM handshake returned no data; no writes performed",
+  "firmware_ci": "https://github.com/Luobata/ESP32-PokemonGo/actions/runs/38221758433",
+  "ci_result": "running",
+  "community_status": "not submitted; authorization expired"
+}
