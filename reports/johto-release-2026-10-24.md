@@ -1,6 +1,6 @@
 # 2026-10-24：城都的来信发布记录
 
-本次合并自上一公开版本 REV-2661（2026-10-12，V23 / 453 格仓库）以来的城都开发工作，发布源码、固件和配套攻略。代码已合入 main，官网与在线/离线工具已部署。GitHub 固件版本仍为草稿，社区尚未提交；devbox 公司登录过期，等待恢复后同步配套工具，再完成正式发布。
+本次合并自上一公开版本 REV-2661（2026-10-12，V23 / 453 格仓库）以来的城都开发工作，发布源码、固件和配套攻略。代码已合入 main，官网与在线/离线工具已部署。GitHub 固件版本已公开，社区 REV-3636 已提交审核、尚未公开。devbox 公司登录过期；在说明项目同步要求后，用户明确选择先完成 GitHub 和社区发布，因此该部署单独留待登录恢复。
 
 ## 交付内容
 
@@ -14,7 +14,7 @@
 
 ## 兼容性与升级路径
 
-- 当前逻辑 V31，39,944 B；扩展分区位置和大小不变；格式 4 的 72 KiB 备份，继续接受容器 1～4、逻辑 V5～V31。历史结构固定样本与来源校验没有覆盖。
+- 当前逻辑 V31，39,944 B；扩展分区位置和大小不变；格式 4 的 72 KiB 备份，继续接受容器 1～4、逻辑 V5～V31。历史结构固定样本未改写，来源校验已通过。
 - 同设备升级保留队伍/仓库、等级经验、闪光、图鉴、背包、挑战/秘境和设置。已有开发版城都进度由对应版本迁移；新增叙事默认状态不替玩家领取奖励。拒绝不支持的新格式倒灌旧固件、错误设备、损坏数据和不匹配布局。
 - 使用 USB 保档更新包前仍须导出备份。社区完整安装包从 0x0 写入，空白填充会覆盖 NVS，不能当保档更新；完整安装前备份、安装后通过新版网页导入。
 - 新功能需要升级固件，备份网站需刷新，旧离线工具需重新下载。CLI 的同设备/同构建和扩展仓库恢复限制保持，不宣称与网页同样支持跨版本。
@@ -44,11 +44,11 @@ Linux CI 补充验证中发现宿主编译器与依赖顺序差异：两处有�
 
 ## 提交、部署与当前发布状态
 
-- [PR #3](https://github.com/Luobata/ESP32-PokemonGo/pull/3) 已合并，合并提交 `023d3b80fbc9fc792fcdfe39094b11e1a6d8346a`；网站最终页面提交 `58f990ca79242fe8bd734d9e1eeb584aa59cde85`。[合并回执](evidence/johto-release-2026-10-24/merge.json)。
-- [固件 CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/40101647091) 全部通过，包含宿主回归、ESP-IDF 构建、真实 NVS、目标栈、LVGL 实际引擎及分区保护。此前失败保留在 ci-repairs.json；主分支自动重复运行另行进行，不代替已通过的同内容 PR 验收。[最终回执](evidence/johto-release-2026-10-24/ci-final.json)。
-- [Pages CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/40102797227) 成功。[生产资源核对](evidence/johto-release-2026-10-24/pages-deployment.json) 对在线 11 项资源及离线 ZIP 共 12 项逐字节检查，全部与本次源码一致；离线 ZIP 是确定性打包，内容未包含私有文件。[官网截图](evidence/johto-release-2026-10-24/website-updates.png)。
-- GitHub `v2026.10.24-johto` 已建草稿，包含完整安装、保档更新、离线存档工具和 manifest。所有附件已下载回读一致：[附件校验](evidence/johto-release-2026-10-24/github-assets.json)。**草稿未公开，不能表述为新版本已经发布。**
-- 社区项目 234 / pokewalk 的上一公开版本仍为 REV-2661 approved；本次双语介绍、说明、更新和原封面/四张附图已验证准备好，**没有执行 submit**。[提交预览](evidence/johto-release-2026-10-24/community-preview.json)。
-- devbox 的现有别名为 `devbox-online`。其网页可访问，但 `backup.mjs` 仍是旧版本；SSH 因公司 Kerberos 凭据过期拒绝 GSSAPI，自动续期失败。已向用户请求完成公司登录。[未完成项](evidence/johto-release-2026-10-24/deployment-devbox.json)。项目约定要求存档工具变化时同时部署 Pages/devbox，因此本轮停在正式固件/社区发布前；不能将旧 devbox 或其 ZIP 标为已经支持新备份。
+- [PR #3](https://github.com/Luobata/ESP32-PokemonGo/pull/3) 已合并，合并提交 `023d3b80fbc9fc792fcdfe39094b11e1a6d8346a`。官网最终页面提交 `58f990ca79242fe8bd734d9e1eeb584aa59cde85`；发布前又纠正两处旧中文说明中的 V23 当前版本措辞，并同步完整社区 payload，GitHub 发布标签对应 `590aaa794c3408b6da09931412cbe2b12a8aaf9a`。这些后续提交未改变固件程序和资源。
+- [PR 固件 CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/40101647091) 与 [main 固件 CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/40102746582) 均通过，包含宿主回归、ESP-IDF 构建、真实 NVS、目标栈、LVGL 实际引擎及分区保护。此前失败保留在 ci-repairs.json；[main 回执](evidence/johto-release-2026-10-24/ci-main.json)。
+- [Pages CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/40102797227) 成功。[生产资源核对](evidence/johto-release-2026-10-24/pages-deployment.json) 对在线 11 项资源及离线 ZIP 共 12 项逐字节检查，全部与本次源码一致；离线 ZIP 是确定性打包，未包含私有文件。[官网截图](evidence/johto-release-2026-10-24/website-updates.png)。
+- [GitHub v2026.10.24-johto](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.24-johto) 已于 2026-10-24 15:34:40 UTC 公开，并标记为 Latest。完整安装、保档更新、离线存档工具和 manifest 四个附件已从公开版本重新下载，大小、SHA-256 及原文件字节均匹配：[发布回读](evidence/johto-release-2026-10-24/github-published.json)。首次公开请求使用短提交号被 GitHub 422 拒绝；检查草稿仍未变后，改用已推送的完整 SHA 成功，未新建重复版本。
+- 社区项目 234 / pokewalk 新版本 **REV-3636** 为 **pending（待审核，尚未公开）**，上一公开版仍为 REV-2661 approved。双语标题、介绍、操作说明、更新日志八个字段、源码地址、固件长度与摘要均回读一致：[社区回执](evidence/johto-release-2026-10-24/community-submitted.json)。沿用原封面与四张附图，逐张检查了实际上传文件；API 只确认 hasImage，不返回待审图库字节，不能宣称服务器图片内容已回读。没有额外发送评论。
+- devbox 的现有别名为 `devbox-online`，SSH 因公司 Kerberos 凭据过期拒绝 GSSAPI。先前发布草稿保留是为满足 AGENTS.md 的同步要求；用户随后明确回复 **“先完成 GitHub 和社区发布”**，授权本次暂缓 devbox 后先发布。该例外与未完成状态已记入 [部署记录](evidence/johto-release-2026-10-24/deployment-devbox.json)。当前应使用 GitHub Pages 或 Release 离线 ZIP，旧 devbox 尚不能作为新版备份入口；登录恢复后补部署并做 12 项资源比对。
 
-继续时先完成 devbox 部署及 12 项资源/离线 ZIP 比对，再将现有 GitHub 草稿公开并向原社区项目提交已准备的完整版本，回读实际审核状态。不得创建重复项目或重复版本。原私有存档及真机状态没有在本次发布工作中再次修改。
+发布应用仍为真机验收的 `bd7eb3b4…` 原文件。本轮仅执行代码、网页与发布操作，没有再次烧录、重置或改动用户设备进度；私人存档、原始 NVS 与 Flash 备份没有提交仓库或社区。已发布附件中的 manifest 是打包时的验证快照，`community_upload_performed: false` 表示打包时尚未上传，当前提交状态以上述独立社区回执为准。

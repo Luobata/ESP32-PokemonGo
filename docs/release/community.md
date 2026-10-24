@@ -1,12 +1,18 @@
 # AI Passport 社区发布
 
-## 2026-10-24 · 城都的来信（准备完成，待正式发布）
+## 2026-10-24 · 城都的来信：REV-3636 已提交审核
 
-城都代码、官网攻略及发布说明已提交并合入 main；[PR #3](https://github.com/Luobata/ESP32-PokemonGo/pull/3) 的固件完整 CI 通过。官网与新版离线存档工具已部署，12 项资源回读一致。支持 251 只图鉴、753 格仓库、城都路线/道馆/活动、17 处伙伴协作调查与 V5～V31 同设备存档迁移。
+城都代码已提交推送并合入 main；[PR #3](https://github.com/Luobata/ESP32-PokemonGo/pull/3) 及合并后的 [main 固件 CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/40102746582) 均通过。[GitHub v2026.10.24-johto](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.24-johto) 已公开，标签对应 `590aaa794c3408b6da09931412cbe2b12a8aaf9a`。完整安装包、USB 保档更新包、manifest 和离线工具四个附件已从公开版本下载回读，与本地验收产物一致。
 
-GitHub `v2026.10.24-johto` 仍为草稿，附件已回读校验；**社区尚未提交**，公开版仍为 REV-2661。devbox 公司凭据过期，旧服务尚未同步；按项目存档工具同步要求，等待登录恢复后完成部署，再公开固件版本并向原项目提交审核。保留原皮卡丘对战暴鲤龙封面与四张附图。
+社区原项目 **234 / pokewalk** 新版本 **REV-3636** 当前 **pending（待审核，尚未公开）**；上一公开版本仍为 REV-2661。双语介绍、使用说明、更新日志、源码地址及固件摘要回读一致。沿用原皮卡丘对战暴鲤龙封面与四张附图，上传前逐张查看；API 未返回待审图库字节，不宣称服务器图片内容已回读。没有另发评论。
 
-[完整更新内容](2026-10-24-johto/changelog.zh.md) · [验证与待完成事项](../../reports/johto-release-2026-10-24.md) · [官网](https://luobata.github.io/ESP32-PokemonGo/guide/#updates)。本次须升级固件并刷新网页或重下离线工具；完整安装可能清档，已有设备优先使用 USB 保档更新包，更新前先备份。
+新增 251 只图鉴、753 格仓库、城都路线与八座道馆、冠军重赛、空木传说阵容、红色暴鲤龙剧情、调查与远征，以及 17 处伙伴协作现场。官网攻略、折叠解法与更新说明已部署，在线 11 项资源和离线 ZIP 共 12 项回读一致。支持同设备 V5～V31；历史格式经宿主和隔离真实 NVS 验证，最终固件另完成真机 V30→V31 / V31→V31 亮度变化后覆盖恢复。不能将此写成所有历史用户文件或全剧情均已真机验证。
+
+**devbox 同步尚未完成。** 公司凭据过期后，用户明确选择“先完成 GitHub 和社区发布”，本次依此暂缓该部署。请使用已更新的 GitHub Pages 存档网页或本次 Release 的离线 ZIP；旧 devbox 服务不作为新版备份入口。登录恢复后再同步并核对资源。
+
+必须升级固件，并刷新在线存档网页或重新下载离线工具。已有 PokeWalk 优先使用 USB 保档更新包，更新前先备份；社区完整安装会覆盖存档区域，须先备份、安装后恢复。
+
+[完整更新内容](2026-10-24-johto/changelog.zh.md) · [验证与覆盖边界](../../reports/johto-release-2026-10-24.md) · [GitHub 回读](../../reports/evidence/johto-release-2026-10-24/github-published.json) · [社区回执](../../reports/evidence/johto-release-2026-10-24/community-submitted.json) · [官网](https://luobata.github.io/ESP32-PokemonGo/guide/#updates)。
 
 ## 2026-10-12 仓库扩容：REV-2661 已提交审核
 

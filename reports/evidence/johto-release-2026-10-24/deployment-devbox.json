@@ -1,8 +1,11 @@
 {
   "target": "existing devbox service",
   "ssh_alias": "devbox-online",
-  "status": "blocked_authentication",
+  "status": "deferred_by_user",
   "reason": "Kerberos credentials expired; renewal failed; SSH rejected GSSAPI authentication. User asked to renew company login.",
   "deployed": false,
-  "resource_hash_verified": false
+  "resource_hash_verified": false,
+  "authentication": "expired",
+  "user_instruction": "先完成 GitHub 和社区发布",
+  "release_exception": "Explicit instruction received after explaining the AGENTS.md Pages/devbox synchronization requirement. GitHub Pages and the offline ZIP are current; devbox remains unchanged."
 }
