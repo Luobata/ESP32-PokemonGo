@@ -18,7 +18,7 @@ const block = (name, body) => `<section class="chapter"><h2>${esc(name)}</h2>${b
 const note = body => `<aside class="callout">${body}</aside>`;
 const table = (heads, rows) => `<div class="table-wrap"><table><thead><tr>${heads.map(h => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
 const numbered = rows => `<ol class="steps">${rows.map(([a,b]) => `<li><strong>${a}</strong><p>${b}</p></li>`).join('')}</ol>`;
-const versionNote = () => `<p class="version-note">GitHub 发布版：${esc(data.version)}。社区可下载版本以社区审核结果为准。</p>`;
+const versionNote = () => `<p class="version-note">攻略版本：${esc(data.version)}。社区可下载版本以社区审核结果为准。</p>`;
 const atlas = new Image(); atlas.src = 'pokemon.png';
 function drawSprites() { if (!atlas.complete || !atlas.naturalWidth) return; for (const c of content.querySelectorAll('canvas[data-mon]')) { const n = Number(c.dataset.mon)-1; const ctx=c.getContext('2d'); ctx.imageSmoothingEnabled=false; ctx.clearRect(0,0,64,64); ctx.drawImage(atlas,(n%16)*64,Math.floor(n/16)*64,64,64,0,0,64,64); } }
 atlas.addEventListener('load',drawSprites);
