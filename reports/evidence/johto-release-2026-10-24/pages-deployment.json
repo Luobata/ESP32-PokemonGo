@@ -1,0 +1,104 @@
+{
+  "base_url": "https://luobata.github.io/ESP32-PokemonGo/",
+  "source_commit": "58f990ca79242fe8bd734d9e1eeb584aa59cde85",
+  "files": [
+    {
+      "path": "index.html",
+      "status": 200,
+      "size": 4713,
+      "sha256": "3248c49fc2478137fbfe6d9bfc88d33677b428ac408668b01bde3c94b904325f",
+      "expected_sha256": "3248c49fc2478137fbfe6d9bfc88d33677b428ac408668b01bde3c94b904325f",
+      "matches": true
+    },
+    {
+      "path": "style.css",
+      "status": 200,
+      "size": 1379,
+      "sha256": "dd7ad1a2d55d8025c4990a6bb173d6342af46f2c0857f3f6cb5244a18182a831",
+      "expected_sha256": "dd7ad1a2d55d8025c4990a6bb173d6342af46f2c0857f3f6cb5244a18182a831",
+      "matches": true
+    },
+    {
+      "path": "app.mjs",
+      "status": 200,
+      "size": 9554,
+      "sha256": "4a9c1030a9d78bd0114957cb52e9de90bc63846009b90c4ed1a20504e03775ef",
+      "expected_sha256": "4a9c1030a9d78bd0114957cb52e9de90bc63846009b90c4ed1a20504e03775ef",
+      "matches": true
+    },
+    {
+      "path": "backup.mjs",
+      "status": 200,
+      "size": 6548,
+      "sha256": "197ea35784c75d77eaaefe268ad7d34bbb79f86ee0813e62b03ca1dab8a114ef",
+      "expected_sha256": "197ea35784c75d77eaaefe268ad7d34bbb79f86ee0813e62b03ca1dab8a114ef",
+      "matches": true
+    },
+    {
+      "path": "guide/index.html",
+      "status": 200,
+      "size": 1996,
+      "sha256": "1f57e6cbc8a815c15b27f4cc94d8a7a9b55e8a7d348f3fac70156e231d8bb016",
+      "expected_sha256": "1f57e6cbc8a815c15b27f4cc94d8a7a9b55e8a7d348f3fac70156e231d8bb016",
+      "matches": true
+    },
+    {
+      "path": "guide/guide.css",
+      "status": 200,
+      "size": 14150,
+      "sha256": "0f064be1e6575d828e21ee2529e4b350742f7df6891e5169cf9e16a6234ec1bf",
+      "expected_sha256": "0f064be1e6575d828e21ee2529e4b350742f7df6891e5169cf9e16a6234ec1bf",
+      "matches": true
+    },
+    {
+      "path": "guide/guide.mjs",
+      "status": 200,
+      "size": 55067,
+      "sha256": "0bb770fac6796d10a8c0b035015e05cfab5890dccbb6605c7147684e2d50d6a2",
+      "expected_sha256": "0bb770fac6796d10a8c0b035015e05cfab5890dccbb6605c7147684e2d50d6a2",
+      "matches": true
+    },
+    {
+      "path": "guide/catalog.js",
+      "status": 200,
+      "size": 248397,
+      "sha256": "8061dabfb08ed0aca87624527259de0f90d5436faad96711854a2eff0267bfef",
+      "expected_sha256": "8061dabfb08ed0aca87624527259de0f90d5436faad96711854a2eff0267bfef",
+      "matches": true
+    },
+    {
+      "path": "guide/fieldwork.js",
+      "status": 200,
+      "size": 17428,
+      "sha256": "05d9ba75f671eb17f500ef9e7bc02e3b19554d92a4e913246d71b793cd935339",
+      "expected_sha256": "05d9ba75f671eb17f500ef9e7bc02e3b19554d92a4e913246d71b793cd935339",
+      "matches": true
+    },
+    {
+      "path": "guide/pokemon.png",
+      "status": 200,
+      "size": 171117,
+      "sha256": "7203864a983c4c9c7bfff4a19fc93c8ddc9aab522ed328e8e401616c1aa5a444",
+      "expected_sha256": "7203864a983c4c9c7bfff4a19fc93c8ddc9aab522ed328e8e401616c1aa5a444",
+      "matches": true
+    },
+    {
+      "path": "guide/battle.png",
+      "status": 200,
+      "size": 61861,
+      "sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6",
+      "expected_sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6",
+      "matches": true
+    },
+    {
+      "path": "download/PokeWalkSaveManager.zip",
+      "status": 200,
+      "size": 328378,
+      "sha256": "928ed57ca038a1babc375b33bef8acea633d9d02151b60f4c9abfa550d1315e4",
+      "expected_sha256": "928ed57ca038a1babc375b33bef8acea633d9d02151b60f4c9abfa550d1315e4",
+      "matches": true
+    }
+  ],
+  "passed": true,
+  "offline_bundle_exact": true
+}

@@ -1,0 +1,30 @@
+{
+  "draft": true,
+  "tag": "v2026.10.24-johto",
+  "roundtrip": [
+    {
+      "name": "FoloToy-AI-Passport-full.bin",
+      "bytes": 3267744,
+      "sha256": "e0c90b984c40f42c2a1439c883da891f5355378ef4a702299483f3b6c3fbe2b1",
+      "matches": true
+    },
+    {
+      "name": "PokeWalk-update.zip",
+      "bytes": 1619927,
+      "sha256": "29c627f66ab41f2caa93e928d1e7a169a29d5139830a9788624d93a8c08b6372",
+      "matches": true
+    },
+    {
+      "name": "manifest.json",
+      "bytes": 1223,
+      "sha256": "3a9aa4389895f6c908a8e9148bf92ff228d55c346aa8a078a06b0947b8e7c234",
+      "matches": true
+    },
+    {
+      "name": "PokeWalkSaveManager.zip",
+      "bytes": 328378,
+      "sha256": "928ed57ca038a1babc375b33bef8acea633d9d02151b60f4c9abfa550d1315e4",
+      "matches": true
+    }
+  ]
+}

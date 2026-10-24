@@ -7,14 +7,14 @@
   "checker_source": "FoloToy/ai-passport@cd73a8a6f1f95e010bfd83a08e2b915e38408308 + PokeWalk data protection",
   "application_size": 3202208,
   "application_sha256": "bd7eb3b4b2be3df9a3e89fdca705fa5f8c27171738096cbdc3761bbb7eb3ac56",
-  "source_commit": "7950282aae6b1b53999990d729a374c6446e7205",
+  "source_commit": "dc329fe8c06f639f519b88d56148179d7abe6b40",
   "full_install_preserves_nvs": false,
   "full_install_warning": "Full image padding overwrites NVS; back up before installation and import afterwards.",
   "community_upload_performed": false,
   "ble_install_tested": false,
   "usb_update": {
     "artifact": "PokeWalk-update.zip",
-    "sha256": "10fc8989b2f2e7d912116d233cbea7379460d54f457c8eefeb5381f23bdbf4b4",
+    "sha256": "29c627f66ab41f2caa93e928d1e7a169a29d5139830a9788624d93a8c08b6372",
     "writes": [
       {
         "address": 65536,

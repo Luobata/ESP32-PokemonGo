@@ -1,6 +1,6 @@
 # 2026-10-24：城都的来信发布记录
 
-本次合并自上一公开版本 REV-2661（2026-10-12，V23 / 453 格仓库）以来的城都开发工作，发布源码、固件和配套攻略。社区结果、源码标识和部署核对在提交后补录；准备阶段不表示已经公开上线。
+本次合并自上一公开版本 REV-2661（2026-10-12，V23 / 453 格仓库）以来的城都开发工作，发布源码、固件和配套攻略。代码已合入 main，官网与在线/离线工具已部署。GitHub 固件版本仍为草稿，社区尚未提交；devbox 公司登录过期，等待恢复后同步配套工具，再完成正式发布。
 
 ## 交付内容
 
@@ -21,7 +21,7 @@
 
 ## 验证范围与发现
 
-[发布门禁](evidence/johto-release-2026-10-24/checks.json) 完成 43 项检查；官网目录/549 个页面变体、在线离线分发、目标构建另行核对。新增城都、保存、动画和串口门禁已加入 GitHub CI。
+[发布门禁](evidence/johto-release-2026-10-24/checks.json) 完成 44 项检查；官网目录/549 个页面变体、在线离线分发、目标构建另行核对。新增城都、保存、动画和串口门禁已加入 GitHub CI。
 
 补跑原有 CI 的 30 项检查时，8 项旧测试初次失败：[原记录](evidence/johto-release-2026-10-24/extra-checks.json)。涉及写死的 453 格容量、旧背包布局、旧音频时钟桩、尚未出招就截取招式名称，以及原关都成就和新研究奖励的领取口径。已更新测试夹具与明确断言；未改生产逻辑绕过测试。最终捕获覆盖 251 物种 × 胜负两种状态及两项边界，共 504 场景；新增 648、752 仓位与稳定个体属性断言。[修复复测](evidence/johto-release-2026-10-24/repair-checks.json)。历史证据图片恢复原字节，本轮生成的旧目录输出另留本地，不覆盖旧验收结论。
 
@@ -36,3 +36,19 @@
 打包器增加 `--build-dir`，明确使用已验收的构建快照，不覆盖当前 IDF build 目录。普通系统 Python 缺少 esptool 的第一次打包未完成；改用项目 ESP-IDF Python 后，官方检查器、项目分区保护检查及七项篡改拒绝检查通过。恢复区 1 MiB 小于主应用是既有布局，安装/更新仅写 factory 主应用，不尝试把游戏写入 recovery；主应用余量 205,664 B。
 
 [包与摘要](evidence/johto-release-2026-10-24/package.json) 同时记录完整安装和保档更新 ZIP；最终回归结果见 [检查汇总](evidence/johto-release-2026-10-24/final-checks.json)。
+
+
+Linux CI 补充验证中发现宿主编译器与依赖顺序差异：两处有符号/无符号比较显式化后，目标程序和资源仍逐字节一致；严格 C11 的 USB 测试补上 POSIX 声明与不可恢复 UBSan；五项事务测试加上明确循环括号，显示所有权检查改在真实 LVGL 依赖安装后运行，按平台链接且保留负向对照。未通过关闭告警或删除断言绕过。首次运行记录和修复对应见 [CI 差异](evidence/johto-release-2026-10-24/ci-repairs.json) 与 [六项本地复测](evidence/johto-release-2026-10-24/portable-checks.json)。
+
+最终固件源代码位于 `8209fc69433ca0d01f8c640a6ce3dc4720f5340e`（后续提交仅测试/文档），官网目录已重新从该提交导出；其重新构建与验收应用的程序和资源一致，见 [最终代码对照](evidence/johto-release-2026-10-24/portable-build-identity.json)。
+
+## 提交、部署与当前发布状态
+
+- [PR #3](https://github.com/Luobata/ESP32-PokemonGo/pull/3) 已合并，合并提交 `023d3b80fbc9fc792fcdfe39094b11e1a6d8346a`；网站最终页面提交 `58f990ca79242fe8bd734d9e1eeb584aa59cde85`。[合并回执](evidence/johto-release-2026-10-24/merge.json)。
+- [固件 CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/40101647091) 全部通过，包含宿主回归、ESP-IDF 构建、真实 NVS、目标栈、LVGL 实际引擎及分区保护。此前失败保留在 ci-repairs.json；主分支自动重复运行另行进行，不代替已通过的同内容 PR 验收。[最终回执](evidence/johto-release-2026-10-24/ci-final.json)。
+- [Pages CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/40102797227) 成功。[生产资源核对](evidence/johto-release-2026-10-24/pages-deployment.json) 对在线 11 项资源及离线 ZIP 共 12 项逐字节检查，全部与本次源码一致；离线 ZIP 是确定性打包，内容未包含私有文件。[官网截图](evidence/johto-release-2026-10-24/website-updates.png)。
+- GitHub `v2026.10.24-johto` 已建草稿，包含完整安装、保档更新、离线存档工具和 manifest。所有附件已下载回读一致：[附件校验](evidence/johto-release-2026-10-24/github-assets.json)。**草稿未公开，不能表述为新版本已经发布。**
+- 社区项目 234 / pokewalk 的上一公开版本仍为 REV-2661 approved；本次双语介绍、说明、更新和原封面/四张附图已验证准备好，**没有执行 submit**。[提交预览](evidence/johto-release-2026-10-24/community-preview.json)。
+- devbox 的现有别名为 `devbox-online`。其网页可访问，但 `backup.mjs` 仍是旧版本；SSH 因公司 Kerberos 凭据过期拒绝 GSSAPI，自动续期失败。已向用户请求完成公司登录。[未完成项](evidence/johto-release-2026-10-24/deployment-devbox.json)。项目约定要求存档工具变化时同时部署 Pages/devbox，因此本轮停在正式固件/社区发布前；不能将旧 devbox 或其 ZIP 标为已经支持新备份。
+
+继续时先完成 devbox 部署及 12 项资源/离线 ZIP 比对，再将现有 GitHub 草稿公开并向原社区项目提交已准备的完整版本，回读实际审核状态。不得创建重复项目或重复版本。原私有存档及真机状态没有在本次发布工作中再次修改。

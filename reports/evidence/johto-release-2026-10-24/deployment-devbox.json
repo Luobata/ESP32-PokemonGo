@@ -1,0 +1,8 @@
+{
+  "target": "existing devbox service",
+  "ssh_alias": "devbox-online",
+  "status": "blocked_authentication",
+  "reason": "Kerberos credentials expired; renewal failed; SSH rejected GSSAPI authentication. User asked to renew company login.",
+  "deployed": false,
+  "resource_hash_verified": false
+}

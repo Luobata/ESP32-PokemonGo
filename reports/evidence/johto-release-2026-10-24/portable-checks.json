@@ -1,0 +1,32 @@
+[
+  {
+    "command": "python3 tools/pipeline/verify_display_ownership.py",
+    "exitCode": 0,
+    "seconds": 6.94
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_fieldwork.py",
+    "exitCode": 0,
+    "seconds": 5.38
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_activity.py",
+    "exitCode": 0,
+    "seconds": 4.92
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_story.py",
+    "exitCode": 0,
+    "seconds": 4.21
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_champion.py",
+    "exitCode": 0,
+    "seconds": 4.42
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_narrative.py",
+    "exitCode": 0,
+    "seconds": 4.41
+  }
+]
