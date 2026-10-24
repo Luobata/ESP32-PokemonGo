@@ -25,13 +25,13 @@ static void stories(void){
  assert(!s_johto.legend_clues[0]&&!s_johto.legend_clues[1]&&!s_johto.legend_clues[2]);
  s_johto.legend_clues[0]=s_johto.legend_clues[1]=3;s_johto.legend_clues[2]=2;
  q=(story_request_t){.op=STORY_PURIFY,.choice=1};assert(world_story_action(&q,&out)==ACT_OK&&s_johto.legend_clues[2]==3);
- for(unsigned i=0;i<5;i++)s_johto.legend_clues[i]=3;s_activities.silver_feather=1;assert(world_johto_final_available());assert(world_challenge_start(TRAINER_JOHTO_FIRST+9)==WORLD_CHALLENGE_LOCKED);
+ for(unsigned i=0;i<5;i++){s_johto.legend_clues[i]=3;}s_activities.silver_feather=1;assert(world_johto_final_available());assert(world_challenge_start(TRAINER_JOHTO_FIRST+9)==WORLD_CHALLENGE_LOCKED);
  s_johto.phase=JOHTO_COMPLETE;q=(story_request_t){.op=STORY_FINAL_PRIZE,.choice=0};s_inventory.quantity[ITEM_SUN_STONE]=items_capacity(ITEM_SUN_STONE);assert(world_story_action(&q,&out)==ACT_FULL&&!s_johto.final_reward_claimed);s_inventory.quantity[ITEM_SUN_STONE]--;assert(world_story_action(&q,&out)==ACT_OK&&s_johto.final_reward_claimed);assert(world_story_action(&q,&out)==ACT_LOCKED);reboot();assert(s_johto.final_reward_claimed);
 }
 static void full_rescue(void){
  seed_story();story_request_t q={.op=STORY_RESCUE_BEGIN,.seed=32,.box_slot=BOX_CAPACITY};story_result_t out;assert(world_story_action(&q,&out)==ACT_OK);
  for(unsigned i=0;i<2;i++){q.op=STORY_RESCUE_CHOOSE;q.choice=johto_rescue_answer(&s_story);assert(world_story_action(&q,&out)==ACT_OK);}
- for(unsigned i=1;i<6;i++)s_party.party[i]=(mon_t){.species_id=25,.level=10,.exp=exp_for_level(10),.hp=100};s_party.party_count=6;
+ for(unsigned i=1;i<6;i++){s_party.party[i]=(mon_t){.species_id=25,.level=10,.exp=exp_for_level(10),.hp=100};}s_party.party_count=6;
  for(unsigned i=0;i<BOX_CAPACITY;i++)s_party.box[i]=(mon_t){.species_id=1+i%251,.level=20,.exp=exp_for_level(20),.hp=100,.flags=i%2};
  q.op=STORY_RESCUE_CLAIM;assert(world_story_action(&q,&out)==ACT_FULL&&s_story.rescue_step==3);q.box_slot=752;q.expected=s_party.box[752];q.expected.level++;assert(world_story_action(&q,&out)==ACT_STALE);
  q.expected=s_party.box[752];mon_t neighbor=s_party.box[751];failure=4;assert(world_story_action(&q,&out)==ACT_SAVE_FAILED&&!memcmp(&q.expected,&s_party.box[752],sizeof(mon_t)));failure=0;

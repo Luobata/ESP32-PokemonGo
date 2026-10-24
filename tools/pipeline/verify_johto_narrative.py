@@ -83,7 +83,7 @@ static void migration(void){
   assert(save_decode(&s,history[i].data,history[i].size,0)!=SAVE_READ_ERROR);history_assert(&s,history[i].version);
  }
  ready();s_story.version=1;s_story.tower_seen=1;s_story.ruins=15;s_story.rescues=2;s_activities.silver_feather=1;
- for(unsigned i=0;i<5;i++)s_johto.legend_clues[i]=3;collect_save_locked(&s);
+ for(unsigned i=0;i<5;i++){s_johto.legend_clues[i]=3;}collect_save_locked(&s);
  static save_v30_t old;memcpy(&old,&s,sizeof(old));old.prefix.version=30;
  assert(save_decode(&s,&old,sizeof(old),0)==SAVE_READ_MIGRATED&&s.narrative.legacy_final&&!s.narrative.bug_evidence);
  assert(!memcmp(&s.story,&s_story,sizeof(s_story))&&!memcmp(&s.members,&s_party,sizeof(s_party)));

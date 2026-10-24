@@ -71,7 +71,6 @@ jobs:
           run_check python3 tools/pipeline/verify_region_trails_preview.py
           run_check python3 tools/pipeline/verify_achievements.py
           run_check python3 tools/pipeline/verify_transition_bands.py
-          run_check python3 tools/pipeline/verify_display_ownership.py
           run_check python3 tools/pipeline/verify_device_screenshot.py
           run_check python3 tools/pipeline/verify_firmware_preview.py
           run_check python3 tools/pipeline/verify_render_bounds.py
@@ -114,6 +113,7 @@ jobs:
             cd firmware
             idf.py build
             cd ..
+            python tools/pipeline/verify_display_ownership.py
             python tools/pipeline/verify_nvs_restore_roundtrip.py
             python tools/pipeline/verify_dungeon_stack.py
             python tools/pipeline/verify_save_stack.py

@@ -8,7 +8,7 @@ static activity_request_t q;
 static activity_result_t act(unsigned op,unsigned value){q=(activity_request_t){.op=op,.choice=value,.box_slot=BOX_CAPACITY,.elapsed=300};return world_activity_action(&q,&event);}
 static void setup(unsigned level){fresh();assert(world_choose_starter(25)==WORLD_STARTER_OK);s_johto.phase=JOHTO_ACTIVE;s_johto.starter=152;s_johto.badges=255;
  for(unsigned i=0;i<3;i++){s_party.party[i]=(mon_t){.species_id=(unsigned[]){145,154,248}[i],.level=level,.exp=exp_for_level(level),.hp=100,.intimacy=80};}s_party.party_count=3;s_w.species=145;s_w.level=level;s_w.exp=exp_for_level(level);s_w.pet.stamina=100*NURT_Q;s_exploration_wins=100;
- for(unsigned i=0;i<ITEM_COUNT;i++)s_inventory.quantity[i]=items_capacity(i);world_debug_save();}
+ for(unsigned i=0;i<ITEM_COUNT;i++){s_inventory.quantity[i]=items_capacity(i);}world_debug_save();}
 static activity_result_t start(unsigned kind,unsigned seed){q=(activity_request_t){.op=ACTION_BEGIN,.choice=kind,.slots={0,1,2},.count=kind==ACT_BUG?1:3,.seed=seed};return world_activity_action(&q,&event);}
 static void histories(void){static save_t s;for(unsigned i=0;i<sizeof(history)/sizeof(*history);i++){memcpy(&s,history[i].data,history[i].size);assert(save_decode(&s,&s,history[i].size,0)!=SAVE_READ_ERROR);history_assert(&s,history[i].version);assert(!s.activities.run.kind&&!s.activities.bug_completed&&!s.activities.sea_clears);}}
 static void bug_cases(void){
@@ -24,7 +24,7 @@ static void bug_cases(void){
  }
  assert(s_activities.run.phase==ACT_SETTLE&&activity_score(&s_activities.run)>=50);mon_t won=s_activities.run.candidate;
  while(s_party.party_count<6){mon_t m={.species_id=25,.level=10,.hp=100};assert(party_receive(&s_party,&m));}
- for(unsigned i=0;i<BOX_CAPACITY;i++)s_party.box[i]=(mon_t){.species_id=1+i%251,.level=10,.exp=exp_for_level(10),.hp=100,.flags=i%2};world_debug_save();
+ for(unsigned i=0;i<BOX_CAPACITY;i++){s_party.box[i]=(mon_t){.species_id=1+i%251,.level=10,.exp=exp_for_level(10),.hp=100,.flags=i%2};}world_debug_save();
  assert(act(ACTION_SETTLE,0)==ACT_FULL);reboot();assert(!memcmp(&won,&s_activities.run.candidate,sizeof(won)));
  q=(activity_request_t){.op=ACTION_SETTLE,.box_slot=452,.expected=s_party.box[452]};mon_t sibling=s_party.box[451];q.expected.level++;assert(world_activity_action(&q,&event)==ACT_STALE);q.expected=s_party.box[452];
  failure=4;assert(world_activity_action(&q,&event)==ACT_SAVE_FAILED&&s_party.box[452].species_id!=won.species_id);failure=0;

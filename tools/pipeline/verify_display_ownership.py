@@ -3,7 +3,7 @@
 SPI is the only mocked display boundary. Gameplay timers must keep ticking.
 """
 from pathlib import Path
-import subprocess,shutil,json
+import subprocess,shutil,json,sys
 ROOT=Path(__file__).resolve().parents[2];OUT=ROOT/'.build/display-ownership';OUT.mkdir(parents=True,exist_ok=True)
 inc=OUT/'include';inc.mkdir(exist_ok=True)
 for p in (ROOT/'tools/inspector/host/include').glob('*.h'):
@@ -90,13 +90,13 @@ add_executable(probe probe.c)
 target_include_directories(probe PRIVATE "{inc}" "{ROOT/'firmware/main'}")
 target_compile_definitions(probe PRIVATE HOST_BUILD=1)
 target_compile_options(probe PRIVATE -ffunction-sections -fdata-sections)
-target_link_options(probe PRIVATE -Wl,-dead_strip)
+target_link_options(probe PRIVATE {'-Wl,-dead_strip' if sys.platform=='darwin' else '-Wl,--gc-sections'})
 target_link_libraries(probe PRIVATE lvgl)
 add_executable(probe_negative probe_negative.c)
 target_include_directories(probe_negative PRIVATE "{inc}" "{ROOT/'firmware/main'}")
 target_compile_definitions(probe_negative PRIVATE HOST_BUILD=1)
 target_compile_options(probe_negative PRIVATE -ffunction-sections -fdata-sections)
-target_link_options(probe_negative PRIVATE -Wl,-dead_strip)
+target_link_options(probe_negative PRIVATE {'-Wl,-dead_strip' if sys.platform=='darwin' else '-Wl,--gc-sections'})
 target_link_libraries(probe_negative PRIVATE lvgl)
 ''')
 for cmd in [['cmake','-S',str(OUT),'-B',str(OUT/'build')],['cmake','--build',str(OUT/'build'),'-j','8']]:

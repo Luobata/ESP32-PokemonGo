@@ -22,7 +22,7 @@ static void ready(unsigned id){
  s_w.species=25;s_w.level=60;s_w.exp=exp_for_level(60);s_w.pet.stamina=100*NURT_Q;
  johto_init(&s_johto);johto_story_init(&s_story);const johto_probe_t *p=johto_probe(id);assert(p);
  s_johto.phase=p->legend==5?JOHTO_COMPLETE:JOHTO_ACTIVE;s_johto.starter=152;s_johto.badges=255;
- for(unsigned i=0;i<6;i++)s_johto.legend_clues[i]=3;s_johto.legend_clues[p->legend]=p->step;
+ for(unsigned i=0;i<6;i++){s_johto.legend_clues[i]=3;}s_johto.legend_clues[p->legend]=p->step;
  s_story.tower_seen=1;s_story.forest_visits=3;s_activities.silver_feather=1;
  assert(johto_receive_egg(&s_johto,123));world_debug_save();assert(save_read(&before));
 }

@@ -65,7 +65,7 @@ static void lake(void){
  q.op=STORY_LAKE_SWITCH;q.choice=0;assert(world_story_action(&q,&out)==ACT_LOCKED);q.choice=1;assert(world_story_action(&q,&out)==ACT_OK);
  assert(world_challenge_start(TRAINER_LAKE_BOSS)==WORLD_CHALLENGE_OK&&s_endgame.battle.kind==GYM_LAKE);assert(s_challenge.session.sides[1].mons[0].species==130&&s_challenge.session.sides[1].mons[0].level==85);
  s_challenge.session.finished=s_challenge.session.won=1;assert(world_challenge_settle());reboot();assert(s_endgame.lake_stage==LAKE_CALM&&s_exploration_wins==chain);
- for(unsigned i=1;i<6;i++)s_party.party[i]=(mon_t){.species_id=25,.level=10,.exp=exp_for_level(10),.hp=100};s_party.party_count=6;
+ for(unsigned i=1;i<6;i++){s_party.party[i]=(mon_t){.species_id=25,.level=10,.exp=exp_for_level(10),.hp=100};}s_party.party_count=6;
  for(unsigned i=0;i<BOX_CAPACITY;i++){s_party.box[i]=(mon_t){.species_id=1+i%251,.level=20,.exp=exp_for_level(20),.hp=100,.flags=i%2};for(unsigned b=0;b<32;b++)s_party.policies[6+i].disabled[b]=(i*17+b*73)&255;s_party.policies[6+i].disabled[31]&=7;}
  q.op=STORY_LAKE_CLAIM;q.box_slot=BOX_CAPACITY;assert(world_story_action(&q,&out)==ACT_FULL&&s_endgame.lake_stage==LAKE_CALM);q.box_slot=752;q.expected=s_party.box[752];q.expected.level++;assert(world_story_action(&q,&out)==ACT_STALE);
  q.expected=s_party.box[752];mon_t neighbor=s_party.box[751];failure=4;assert(world_story_action(&q,&out)==ACT_SAVE_FAILED&&!memcmp(&q.expected,&s_party.box[752],sizeof(mon_t)));failure=0;
