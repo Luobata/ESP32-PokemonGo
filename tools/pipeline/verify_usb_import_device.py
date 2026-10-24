@@ -136,5 +136,5 @@ with tempfile.TemporaryDirectory() as d:
     for name in ('esp_partition.h','esp_app_desc.h','esp_mac.h','esp_system.h','esp_log.h','nvs.h','nvs_flash.h'):
         (t/name).write_text('#include "device.h"\n')
     (t/'test.c').write_text(C)
-    subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-I',str(t),'-I',str(ROOT/'firmware/main'),str(t/'test.c'),str(ROOT/'firmware/main/save_bank.c'),'-o',str(t/'test')],check=True)
+    subprocess.run(['cc','-std=c11','-D_POSIX_C_SOURCE=200809L','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all','-I',str(t),'-I',str(ROOT/'firmware/main'),str(t/'test.c'),str(ROOT/'firmware/main/save_bank.c'),'-o',str(t/'test')],check=True)
     subprocess.run([str(t/'test')],check=True)
