@@ -1,0 +1,32 @@
+{
+  "head": "67a4a25749463d50750c9448ff9d5217d1379094",
+  "committed": false,
+  "files": {
+    "firmware/main/presentation_clock.h": "8e10cf50351f91867f752e09d303881af4237cbbf1277996657724a9982a787a",
+    "firmware/main/battle_timing.h": "e6901cf075546e7d561121c6e271bc367238064b971bd6fceedc8ca0d615f446",
+    "firmware/main/capture_presentation.h": "e849d815a4f601c2e158a5271dfe13efb599928ad8f8a302e156be65f2dc11b9",
+    "firmware/main/play_battle.c": "fc1873863941b6de936345358bd569d08d0c12d8cd24233c05bea56bf6f24730",
+    "firmware/main/play_trainer.c": "50f733be4e88415dc3240eaf8b8ce05d83bc3cc7902af61636c11256a333b8db",
+    "firmware/main/play_capture.c": "8fc0e1badb37f41c2ba279d78d24793e034c38cf45008866fb78c9ae42c41e02",
+    "firmware/main/play_activity.c": "7d510bd4061ca8d37fba2babdab88e48a0a826e6406b1e16d4f945ff662df663",
+    "firmware/main/play_story.c": "fd0efc85a66e4725f67ca9f3a85e3dfb3f31eb40855a127c86d583ebe33bd763",
+    "firmware/main/play_enc.c": "0fab07d7aaecaa742bbc494fdac9f26e9f175402b4a648b9b60014c63337614c",
+    "firmware/main/play_dungeon.c": "c4e45d2db1c4ef538253bb4e968701b320cb1e3b111ff06aa25c4fcf6bb102f9",
+    "firmware/main/growth_ui.c": "825c04b140b3a4a7b54da93a7fa4bd15d4b8b144f9aa1c0f66c7125887cf5766",
+    "firmware/main/nav.c": "e65ec8f40f371033465fefdc7c0999775073ed8c588ed05a2d80c503b24a93e1",
+    "firmware/main/play.h": "91709b350bcaa371cdc2813240da07cbd768b637a4d2c621735b52f0e92b1b9d",
+    "tools/inspector/host/runtime.c": "a22ac4eacc385737ef155eded1d284a8f8f59fd14afe4fd855cf084e923e28c2",
+    "tools/pipeline/verify_battle_timeline.py": "240c228900852036cab0adbc5c0330afd0c0c42166c8a9a1aca794821fb0949d",
+    "tools/pipeline/verify_battle_timeline_ui.py": "539a702da6e88a88f5a8f5b08ec77dd13a0b43e5c2b6b9406d480d2c416264f8",
+    "tools/pipeline/verify_scene_pacing.py": "7a4d28420041906038142060877ad19d6eb660165b63430b38ef9db3b51d610c",
+    "tools/pipeline/verify_johto_activity_ui.py": "03157fbb9174a702d3d9c816bb67ea690c9a176dd21e66f8161af499d6ada62e",
+    "tools/pipeline/verify_johto_champion_ui.py": "34cb9ae070f47381f438e966bf7e25dcf7576ee839286b73eecf0cc79540fdbc"
+  },
+  "firmware": {
+    "format": "pokewalk-app-update-v2",
+    "address": 65536,
+    "size": 3161344,
+    "sha256": "17477b450109d01a8cbd84e349a6348236678c0facdd7b484a4ad02fef4f84b0",
+    "partition_sha256": "f0f6a27d3d10eba17bc1f6829f3890acee3a23ea637b3537dfa79d50b3174780"
+  }
+}

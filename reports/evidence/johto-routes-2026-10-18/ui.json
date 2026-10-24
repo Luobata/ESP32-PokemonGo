@@ -1,0 +1,6 @@
+{
+  "passed": true,
+  "native_build": "013fd59de6bbe4bdb19d",
+  "checks": 292,
+  "scope": "actual C pages + host adapter; save transactions tested separately; no hardware timing claim"
+}

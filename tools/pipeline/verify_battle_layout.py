@@ -67,25 +67,26 @@ def read_palettes(data: bytes) -> list[tuple[int, ...]]:
     return [struct.unpack_from("<4H", data, 12 + index*8) for index in range(sets)]
 
 
-def read_fronts(data: bytes) -> dict[int, tuple[int, bytes]]:
+def read_fronts(data: bytes, species_count: int = 151) -> dict[int, tuple[int, bytes]]:
     require(len(data) >= 8, "gen1_front.bin: truncated header")
     magic, version, segment_count = struct.unpack_from("<4sHH", data)
     require((magic, version, segment_count) == (b"FRNT", 1, 3), "gen1_front.bin: unsupported segments")
     base = 8 + segment_count*12
     require(len(data) >= base, "gen1_front.bin: truncated segment directory")
+    species_ids = set(range(1, species_count + 1))
     sprites, sizes, ranges = {}, set(), []
     for segment in range(segment_count):
         size, per, count, offset = struct.unpack_from("<HHII", data, 8+segment*12)
         require(size in (40, 48, 56) and size not in sizes, "gen1_front.bin: invalid or duplicate size class")
         sizes.add(size)
-        require(per == size*size//4 and 0 < count <= 151, "gen1_front.bin: invalid sprite stride/count")
+        require(per == size*size//4 and 0 < count <= species_count, "gen1_front.bin: invalid sprite stride/count")
         start, end = base+offset, base+offset+count*(2+per)
         require(base <= start < end <= len(data), "gen1_front.bin: segment outside file")
         ranges.append((start, end))
         cursor = start
         for _ in range(count):
             species = struct.unpack_from("<H", data, cursor)[0]
-            require(species in SPECIES_IDS and species not in sprites,
+            require(species in species_ids and species not in sprites,
                     f"gen1_front.bin: invalid or duplicate species {species}")
             sprites[species] = (size, data[cursor+2:cursor+2+per])
             cursor += 2+per
@@ -94,7 +95,7 @@ def read_fronts(data: bytes) -> dict[int, tuple[int, bytes]]:
         require(start == cursor, "gen1_front.bin: overlapping, missing, or unaccounted segment bytes")
         cursor = end
     require(cursor == len(data), "gen1_front.bin: unaccounted trailing bytes")
-    require(set(sprites) == SPECIES_IDS, f"gen1_front.bin: missing species {sorted(SPECIES_IDS-set(sprites))}")
+    require(set(sprites) == species_ids, f"gen1_front.bin: missing species {sorted(species_ids-set(sprites))}")
     return sprites
 
 

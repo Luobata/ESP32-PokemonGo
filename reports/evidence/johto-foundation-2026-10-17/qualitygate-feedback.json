@@ -1,0 +1,30 @@
+{
+  "mode": "FAST_SCRIPT_FEEDBACK",
+  "trigger": "semantic_checkpoint",
+  "eligible": false,
+  "decision": {
+    "eligible": false,
+    "trigger": "semantic_checkpoint",
+    "reasons": [
+      "no script rule matched the changed paths"
+    ],
+    "repo_root": "/Users/bytedance/luobata/ESP32-PokemonGo",
+    "paths": [
+      "firmware/main/gold_fx.c",
+      "firmware/main/johto.c",
+      "tools/pipeline/convert_johto.py"
+    ],
+    "matched_rule_ids": [],
+    "fingerprint": "",
+    "report_only": true
+  },
+  "block_merge": false,
+  "report_only": true,
+  "findings": [],
+  "status": "skipped",
+  "execution": {
+    "engine_started": false,
+    "elapsed_ms": 15.2,
+    "timeout_budget_sec": 5
+  }
+}

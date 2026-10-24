@@ -1,5 +1,22 @@
 // Frozen V5–V22 on-disk layouts. Never resize these when runtime capacity changes.
 #pragma once
+typedef struct { uint16_t evolutions, claimed; } achievement_v25_t;
+// Historical Pokedex bitmaps are always 151 bits (19 bytes each).
+typedef struct { uint8_t seen[19],caught[19],shiny_seen[19],shiny_caught[19]; } dex_v23_t;
+typedef struct { uint8_t disabled[24]; } move_policy_v23_t;
+typedef struct {
+    mon_v27_t party[6];
+    uint8_t party_count;
+    mon_v27_t box[453];
+    move_policy_v23_t policies[459];
+} party_v23_t;
+_Static_assert(sizeof(party_v23_t)==16528,"V23 party layout is immutable");
+typedef struct { uint8_t disabled[32]; } move_policy_v24_t;
+typedef struct {
+ mon_v27_t party[6]; uint8_t party_count; mon_v27_t box[453];
+ move_policy_v24_t policies[459];
+} party_v24_t;
+_Static_assert(sizeof(party_v24_t)==20200,"V24 party layout is immutable");
 typedef struct {
     uint16_t version;
 
@@ -16,7 +33,7 @@ typedef struct {
 
     // 遭遇队列（S1）与图鉴（S5/S8）
     enc_queue_t queue;
-    dex_t dex;
+    dex_v23_t dex;
 
     // 累积量：今日行程的来源、诊断用的扫描计数
     uint32_t motion_q10;
@@ -43,12 +60,12 @@ typedef struct {
     uint32_t exp;
     uint8_t party[LEGACY_PARTY_BYTES];
     enc_queue_t queue;
-    dex_t dex;
+    dex_v23_t dex;
     uint32_t motion_q10, scans;
     int64_t last_uptime_us;
     bool opening_seen;
     uint8_t legacy_padding[sizeof(save_v5_t) - offsetof(save_v5_t, opening_seen) - sizeof(bool)];
-    inventory_t inventory;
+    inventory_v25_t inventory;
 } save_v6_t;
 
 typedef struct {
@@ -62,12 +79,12 @@ typedef struct {
     uint32_t exp;
     uint8_t party[LEGACY_PARTY_BYTES];
     enc_queue_t queue;
-    dex_t dex;
+    dex_v23_t dex;
     uint32_t motion_q10, scans;
     int64_t last_uptime_us;
     bool opening_seen;
     uint8_t legacy_padding[sizeof(save_v5_t) - offsetof(save_v5_t, opening_seen) - sizeof(bool)];
-    inventory_t inventory;
+    inventory_v25_t inventory;
 
         };
     };
@@ -88,19 +105,19 @@ typedef struct {
     uint32_t exp;
     uint8_t party[LEGACY_PARTY_BYTES];
     enc_queue_t queue;
-    dex_t dex;
+    dex_v23_t dex;
     uint32_t motion_q10, scans;
     int64_t last_uptime_us;
     bool opening_seen;
     uint8_t legacy_padding[sizeof(save_v5_t) - offsetof(save_v5_t, opening_seen) - sizeof(bool)];
-    inventory_t inventory;
+    inventory_v25_t inventory;
 
         };
     };
     trainer_store_v8_t challenge;
         };
     };
-    achievement_store_t achievements;
+    achievement_v25_t achievements;
 } save_v8_t;
 
 // V9 keeps the established V6 party/inventory prefix, then the expanded combat state.
@@ -109,14 +126,14 @@ typedef struct {
   save_v6_t v6;
   struct {
    uint16_t version; nurture_t pet; uint16_t species; uint8_t level; uint32_t exp;
-   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_t dex; uint32_t motion_q10,scans;
+   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_v23_t dex; uint32_t motion_q10,scans;
    int64_t last_uptime_us; bool opening_seen;
    uint8_t legacy_padding[sizeof(save_v5_t)-offsetof(save_v5_t,opening_seen)-sizeof(bool)];
-   inventory_t inventory;
+   inventory_v25_t inventory;
   };
  };
  trainer_store_t challenge;
- achievement_store_t achievements;
+ achievement_v25_t achievements;
 } save_v9_t;
 typedef struct {
  union {
@@ -126,14 +143,14 @@ typedef struct {
   save_v6_t v6;
   struct {
    uint16_t version; nurture_t pet; uint16_t species; uint8_t level; uint32_t exp;
-   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_t dex; uint32_t motion_q10,scans;
+   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_v23_t dex; uint32_t motion_q10,scans;
    int64_t last_uptime_us; bool opening_seen;
    uint8_t legacy_padding[sizeof(save_v5_t)-offsetof(save_v5_t,opening_seen)-sizeof(bool)];
-   inventory_t inventory;
+   inventory_v25_t inventory;
   };
  };
  trainer_store_t challenge;
- achievement_store_t achievements;
+ achievement_v25_t achievements;
 
   };
  };
@@ -150,14 +167,14 @@ typedef struct {
   save_v6_t v6;
   struct {
    uint16_t version; nurture_t pet; uint16_t species; uint8_t level; uint32_t exp;
-   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_t dex; uint32_t motion_q10,scans;
+   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_v23_t dex; uint32_t motion_q10,scans;
    int64_t last_uptime_us; bool opening_seen;
    uint8_t legacy_padding[sizeof(save_v5_t)-offsetof(save_v5_t,opening_seen)-sizeof(bool)];
-   inventory_t inventory;
+   inventory_v25_t inventory;
   };
  };
  trainer_store_t challenge;
- achievement_store_t achievements;
+ achievement_v25_t achievements;
 
   };
  };
@@ -181,14 +198,14 @@ typedef struct {
   save_v6_t v6;
   struct {
    uint16_t version; nurture_t pet; uint16_t species; uint8_t level; uint32_t exp;
-   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_t dex; uint32_t motion_q10,scans;
+   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_v23_t dex; uint32_t motion_q10,scans;
    int64_t last_uptime_us; bool opening_seen;
    uint8_t legacy_padding[sizeof(save_v5_t)-offsetof(save_v5_t,opening_seen)-sizeof(bool)];
-   inventory_t inventory;
+   inventory_v25_t inventory;
   };
  };
  trainer_store_t challenge;
- achievement_store_t achievements;
+ achievement_v25_t achievements;
 
   };
  };
@@ -216,14 +233,14 @@ typedef struct {
   save_v6_t v6;
   struct {
    uint16_t version; nurture_t pet; uint16_t species; uint8_t level; uint32_t exp;
-   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_t dex; uint32_t motion_q10,scans;
+   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_v23_t dex; uint32_t motion_q10,scans;
    int64_t last_uptime_us; bool opening_seen;
    uint8_t legacy_padding[sizeof(save_v5_t)-offsetof(save_v5_t,opening_seen)-sizeof(bool)];
-   inventory_t inventory;
+   inventory_v25_t inventory;
   };
  };
  trainer_store_t challenge;
- achievement_store_t achievements;
+ achievement_v25_t achievements;
 
   };
  };
@@ -253,14 +270,14 @@ typedef struct {
   save_v6_t v6;
   struct {
    uint16_t version; nurture_t pet; uint16_t species; uint8_t level; uint32_t exp;
-   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_t dex; uint32_t motion_q10,scans;
+   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_v23_t dex; uint32_t motion_q10,scans;
    int64_t last_uptime_us; bool opening_seen;
    uint8_t legacy_padding[sizeof(save_v5_t)-offsetof(save_v5_t,opening_seen)-sizeof(bool)];
-   inventory_t inventory;
+   inventory_v25_t inventory;
   };
  };
  trainer_store_t challenge;
- achievement_store_t achievements;
+ achievement_v25_t achievements;
 
   };
  };
@@ -291,14 +308,14 @@ typedef struct {
   save_v6_t v6;
   struct {
    uint16_t version; nurture_t pet; uint16_t species; uint8_t level; uint32_t exp;
-   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_t dex; uint32_t motion_q10,scans;
+   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_v23_t dex; uint32_t motion_q10,scans;
    int64_t last_uptime_us; bool opening_seen;
    uint8_t legacy_padding[sizeof(save_v5_t)-offsetof(save_v5_t,opening_seen)-sizeof(bool)];
-   inventory_t inventory;
+   inventory_v25_t inventory;
   };
  };
  trainer_store_t challenge;
- achievement_store_t achievements;
+ achievement_v25_t achievements;
 
   };
  };
@@ -333,14 +350,14 @@ typedef struct {
   save_v6_t v6;
   struct {
    uint16_t version; nurture_t pet; uint16_t species; uint8_t level; uint32_t exp;
-   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_t dex; uint32_t motion_q10,scans;
+   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_v23_t dex; uint32_t motion_q10,scans;
    int64_t last_uptime_us; bool opening_seen;
    uint8_t legacy_padding[sizeof(save_v5_t)-offsetof(save_v5_t,opening_seen)-sizeof(bool)];
-   inventory_t inventory;
+   inventory_v25_t inventory;
   };
  };
  trainer_store_t challenge;
- achievement_store_t achievements;
+ achievement_v25_t achievements;
 
   };
  };
@@ -381,14 +398,14 @@ typedef struct {
   save_v6_t v6;
   struct {
    uint16_t version; nurture_t pet; uint16_t species; uint8_t level; uint32_t exp;
-   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_t dex; uint32_t motion_q10,scans;
+   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_v23_t dex; uint32_t motion_q10,scans;
    int64_t last_uptime_us; bool opening_seen;
    uint8_t legacy_padding[sizeof(save_v5_t)-offsetof(save_v5_t,opening_seen)-sizeof(bool)];
-   inventory_t inventory;
+   inventory_v25_t inventory;
   };
  };
  trainer_store_t challenge;
- achievement_store_t achievements;
+ achievement_v25_t achievements;
 
   };
  };
@@ -433,14 +450,14 @@ typedef struct {
   save_v6_t v6;
   struct {
    uint16_t version; nurture_t pet; uint16_t species; uint8_t level; uint32_t exp;
-   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_t dex; uint32_t motion_q10,scans;
+   uint8_t party[LEGACY_PARTY_BYTES]; enc_queue_t queue; dex_v23_t dex; uint32_t motion_q10,scans;
    int64_t last_uptime_us; bool opening_seen;
    uint8_t legacy_padding[sizeof(save_v5_t)-offsetof(save_v5_t,opening_seen)-sizeof(bool)];
-   inventory_t inventory;
+   inventory_v25_t inventory;
   };
  };
  trainer_store_t challenge;
- achievement_store_t achievements;
+ achievement_v25_t achievements;
 
   };
  };
@@ -464,7 +481,7 @@ typedef struct {
  };
  uint32_t playtime_s; // Cumulative visible game time; no offline/screen-off time.
  }; };
- move_policy_t move_policies[157];
+ move_policy_v23_t move_policies[157];
 } save_v22_t;
 typedef save_v22_t save_v21_t; // V22 keeps the decoded V21 layout; only storage changes.
 _Static_assert(sizeof(save_v21_t)==7792,"Freeze V21 decoded world layout");
@@ -492,3 +509,234 @@ _Static_assert(offsetof(save_v22_t, challenge) == sizeof(save_v6_t), "V7 preserv
 _Static_assert(sizeof(save_v5_t) == 2296, "legacy save layout changed");
 _Static_assert(offsetof(save_v22_t, inventory) == sizeof(save_v5_t), "V6 must preserve the complete V5 prefix");
 _Static_assert(offsetof(save_v22_t, opening_seen) == offsetof(save_v5_t, opening_seen), "V5 field offset changed");
+
+// Public V23 world layout, independent of the current policy stride.
+typedef struct {
+    uint16_t version;
+    nurture_t pet;
+    uint16_t species;
+    uint8_t level;
+    uint32_t exp;
+    party_v23_t members;
+    enc_queue_t queue;
+    dex_v23_t dex;
+    uint32_t motion_q10, scans;
+    int64_t last_uptime_us;
+    bool opening_seen;
+    inventory_v25_t inventory;
+    trainer_store_t challenge;
+    achievement_v25_t achievements;
+    enc_refresh_state_t refresh;
+    exploration_state_t exploration;
+    dungeon_progress_t dungeon;
+    exploration_updates_t exploration_updates;
+    rest_clock_t rest_clock;
+    exploration_regions_t regions;
+    uint32_t exploration_wins, playtime_s;
+} save_v23_t;
+_Static_assert(sizeof(save_v23_t)==18632,"Freeze the published V23 layout");
+
+// Internal V24 development checkpoint; retain its fixed migration fixture.
+typedef struct {
+    uint16_t version;
+    nurture_t pet;
+    uint16_t species;
+    uint8_t level;
+    uint32_t exp;
+    party_v24_t members;
+    enc_queue_t queue;
+    dex_v23_t dex;
+    uint32_t motion_q10, scans;
+    int64_t last_uptime_us;
+    bool opening_seen;
+    inventory_v25_t inventory;
+    trainer_store_t challenge;
+    achievement_v25_t achievements;
+    enc_refresh_state_t refresh;
+    exploration_state_t exploration;
+    dungeon_progress_t dungeon;
+    exploration_updates_t exploration_updates;
+    rest_clock_t rest_clock;
+    exploration_regions_t regions;
+    uint32_t exploration_wins, playtime_s;
+    johto_state_t johto;
+} save_v24_t;
+_Static_assert(sizeof(save_v24_t)==22352,"Freeze V24 layout");
+
+// Frozen V25: 251-species dex and first playable Johto chapter.
+typedef struct {
+    uint16_t version;
+    nurture_t pet;
+    uint16_t species;
+    uint8_t level;
+    uint32_t exp;
+    party_v24_t members;
+    enc_queue_t queue;
+    dex_t dex;
+    uint32_t motion_q10, scans;
+    int64_t last_uptime_us;
+    bool opening_seen;
+    inventory_v25_t inventory;
+    trainer_store_t challenge;
+    achievement_v25_t achievements;
+    enc_refresh_state_t refresh;
+    exploration_state_t exploration;
+    dungeon_progress_t dungeon;
+    exploration_updates_t exploration_updates;
+    rest_clock_t rest_clock;
+    exploration_regions_t regions;
+    uint32_t exploration_wins, playtime_s;
+    johto_state_t johto;
+} save_v25_t;
+_Static_assert(sizeof(save_v25_t)==22400,"Freeze V25 layout");
+
+// Fixed V26 inventory, claims and research receipts.
+typedef struct { uint16_t quantity[24]; } inventory_v26_t;
+typedef struct {uint16_t evolutions,cross_gen_evolutions;uint32_t claimed;} achievement_v26_t;
+typedef struct {
+    uint16_t version;
+    nurture_t pet;
+    uint16_t species;
+    uint8_t level;
+    uint32_t exp;
+    party_v24_t members;
+    enc_queue_t queue;
+    dex_t dex;
+    uint32_t motion_q10, scans;
+    int64_t last_uptime_us;
+    bool opening_seen;
+    inventory_v26_t inventory;
+    trainer_store_t challenge;
+    achievement_v26_t achievements;
+    enc_refresh_state_t refresh;
+    exploration_state_t exploration;
+    dungeon_progress_t dungeon;
+    exploration_updates_t exploration_updates;
+    rest_clock_t rest_clock;
+    exploration_regions_t regions;
+    uint32_t exploration_wins, playtime_s;
+    johto_state_t johto;
+    uint16_t research_rewards[5]; // Claimed repeat milestones, one per new evolution item.
+} save_v26_t;
+_Static_assert(sizeof(save_v26_t)==22424,"Freeze V26 layout");
+
+// V27 activity and world are frozen independently of current capacity/traits.
+typedef struct {
+ trainer_store_t battle; move_policy_v24_t policies[3];
+ mon_v27_t members[3],found,candidate; inventory_v26_t earned;
+ uint32_t seed,xp,banked_xp;uint16_t observed;
+ uint8_t kind,phase,node,attempts,slots[3],count,base_level,hard,path,banked,won;
+} activity_run_v27_t;
+typedef struct {
+ activity_run_v27_t run;inventory_v26_t pending;uint32_t runs;
+ uint16_t bug_completed,bug_choices,sea_clears;
+ uint8_t version,bug_first_silver,silver_feather,reserved;
+} activity_v27_t;
+_Static_assert(sizeof(activity_v27_t)==1056,"Freeze V27 activities");
+typedef struct {
+    uint16_t version;
+    nurture_t pet;
+    uint16_t species;
+    uint8_t level;
+    uint32_t exp;
+    party_v24_t members;
+    enc_queue_t queue;
+    dex_t dex;
+    uint32_t motion_q10, scans;
+    int64_t last_uptime_us;
+    bool opening_seen;
+    inventory_t inventory;
+    trainer_store_t challenge;
+    achievement_store_t achievements;
+    enc_refresh_state_t refresh;
+    exploration_state_t exploration;
+    dungeon_progress_t dungeon;
+    exploration_updates_t exploration_updates;
+    rest_clock_t rest_clock;
+    exploration_regions_t regions;
+    uint32_t exploration_wins, playtime_s;
+    johto_state_t johto;
+    uint16_t research_rewards[5]; // Claimed repeat milestones, one per new evolution item.
+    _Alignas(8) activity_v27_t activities;
+} save_v27_t;
+
+_Static_assert(sizeof(save_v27_t)==23480,"Freeze V27 world");
+
+typedef struct {uint8_t species_id,level,hp,intimacy;uint16_t explore_value;uint8_t nickname_idx,flags;uint32_t exp;uint8_t special[4];} mon_v28_t;
+typedef struct {mon_v28_t party[6];uint8_t party_count;mon_v28_t box[753];move_policy_t policies[759];} party_v28_t;
+typedef struct {trainer_store_t battle;move_policy_t policies[3];mon_v28_t members[3],found,candidate;inventory_t earned;uint32_t seed,xp,banked_xp;uint16_t observed;uint8_t kind,phase,node,attempts,slots[3],count,base_level,hard,path,banked,won;} activity_run_v28_t;
+typedef struct {activity_run_v28_t run;inventory_t pending;uint32_t runs;uint16_t bug_completed,bug_choices,sea_clears;uint8_t version,bug_first_silver,silver_feather,reserved;} activity_v28_t;
+// Frozen V28 753-slot record; member extension semantics are explicit in party.h.
+typedef struct {
+    uint16_t version;
+    nurture_t pet;
+    uint16_t species;
+    uint8_t level;
+    uint32_t exp;
+    party_v28_t members;
+    enc_queue_t queue;
+    dex_t dex;
+    uint32_t motion_q10, scans;
+    int64_t last_uptime_us;
+    bool opening_seen;
+    inventory_t inventory;
+    trainer_store_t challenge;
+    achievement_store_t achievements;
+    enc_refresh_state_t refresh;
+    exploration_state_t exploration;
+    dungeon_progress_t dungeon;
+    exploration_updates_t exploration_updates;
+    rest_clock_t rest_clock;
+    exploration_regions_t regions;
+    uint32_t exploration_wins, playtime_s;
+    johto_state_t johto;
+    uint16_t research_rewards[5]; // Claimed repeat milestones, one per new evolution item.
+    _Alignas(8) activity_v28_t activities;
+} save_v28_t;
+
+_Static_assert(sizeof(save_v28_t)==39744,"Freeze V28 world");
+
+// The V29 chapter tail is frozen independently of current story content.
+typedef struct {
+ uint32_t forms_seen,forms_caught,rescue_seed,rescue_next;
+ uint32_t legend_at[6];
+ mon_v28_t rescue_partner;
+ uint16_t rescues;
+ uint8_t version,ruins,ruin_group,ruin_step,ruin_misses[4];
+ uint8_t rescue_step,tower_seen,legend_visits,forest_visits,ending_seen;
+} story_v29_t;
+typedef struct {
+    uint16_t version;
+    nurture_t pet;
+    uint16_t species;
+    uint8_t level;
+    uint32_t exp;
+    party_v28_t members;
+    enc_queue_t queue;
+    dex_t dex;
+    uint32_t motion_q10, scans;
+    int64_t last_uptime_us;
+    bool opening_seen;
+    inventory_t inventory;
+    trainer_store_t challenge;
+    achievement_store_t achievements;
+    enc_refresh_state_t refresh;
+    exploration_state_t exploration;
+    dungeon_progress_t dungeon;
+    exploration_updates_t exploration_updates;
+    rest_clock_t rest_clock;
+    exploration_regions_t regions;
+    uint32_t exploration_wins, playtime_s;
+    johto_state_t johto;
+    uint16_t research_rewards[5]; // Claimed repeat milestones, one per new evolution item.
+    _Alignas(8) activity_v28_t activities;
+    _Alignas(8) story_v29_t story;
+} save_v29_t;
+_Static_assert(sizeof(save_v29_t)==39816,"Freeze V29 world");
+
+// Frozen V30 suffix. Do not alias future runtime champion/lake structures.
+typedef struct {uint16_t until,exposed;uint8_t entered,broken,hits,player,type,once;} gym_member_v30_t;
+typedef struct {gym_member_v30_t member[6];uint16_t round,pause_until,switch_after;uint8_t version,kind,stacks,switches;} gym_rules_v30_t;
+typedef struct {gym_rules_v30_t battle;mon_v28_t lake_partner;uint16_t claimed;uint8_t version,champion_gyms,champion_elm,lake_stage,lake_level;} endgame_v30_t;
+typedef struct {save_v29_t prefix;_Alignas(8) endgame_v30_t endgame;} save_v30_t;
+_Static_assert(sizeof(save_v30_t)==39912,"Freeze V30 world");

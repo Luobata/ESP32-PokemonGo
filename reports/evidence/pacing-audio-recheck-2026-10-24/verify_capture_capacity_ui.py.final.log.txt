@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/verify_capture_capacity_ui.py", line 102, in <module>
+    main()
+  File "/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/verify_capture_capacity_ui.py", line 42, in main
+    assert r.inspect()['page']==4 and r.inspect()['box_count']==453
+AssertionError

@@ -20,17 +20,21 @@ static void claims(void){
  failure=4;assert(world_item_use(25,ITEM_THUNDER_STONE,&result)==ITEM_USE_SAVE_FAILED);assert(s_w.species==25&&!s_achievements.evolutions);
  failure=0;assert(world_item_use(25,ITEM_THUNDER_STONE,&result)==ITEM_USE_OK);assert(s_w.species==26&&s_achievements.evolutions==1);
  reboot();assert(s_achievements.evolutions==1);assert(world_achievement_claim(9)==ACH_CLAIM_OK);reboot();assert(world_achievement_claim(9)==ACH_CLAIM_ALREADY);
- // Every goal uses capped progress and a stable reward; no partial grants.
+ // Original 16 goals retain their scope and claim bits; Johto is tested separately.
  dex_t full;dex_init(&full);for(unsigned id=1;id<=151;id++)dex_mark_caught(&full,id,true);
  achievement_store_t all={.evolutions=5};achievement_view(&view,&all,&full,16383);inventory_t bag={0};
- for(unsigned i=0;i<ACHIEVEMENT_COUNT;i++){memset(&bag,0,sizeof(bag));assert(achievement_progress(&view,i)==achievement_info(i)->target);assert(achievement_claim(&all,&bag,&view,i)==ACH_CLAIM_OK);assert(achievement_claim(&all,&bag,&view,i)==ACH_CLAIM_ALREADY);}
+ for(unsigned i=0;i<16;i++){memset(&bag,0,sizeof(bag));assert(achievement_progress(&view,i)==achievement_info(i)->target);assert(achievement_claim(&all,&bag,&view,i)==ACH_CLAIM_OK);assert(achievement_claim(&all,&bag,&view,i)==ACH_CLAIM_ALREADY);}
  assert(all.claimed==65535);tests++;
 }
 static void achievement_legacy(void){
  save_t current;assert(save_read(&current));save_v22_t legacy;test_legacy_snapshot(&legacy,&current);save_v7_t old={0};memcpy(&old,&legacy,sizeof(save_v6_t));old.challenge.defeated=255;old.version=7;
  disk_len=sizeof(save_v7_t);memcpy(disk,&old,disk_len);save_t migrated;assert(save_read_status(&migrated)==SAVE_READ_MIGRATED);
  assert(migrated.version==SAVE_VERSION&&migrated.challenge.defeated==255&&!migrated.achievements.claimed&&!migrated.achievements.evolutions);
- assert(!memcmp(&current.members,&migrated.members,sizeof(party_t))&&!memcmp(&current.inventory,&migrated.inventory,sizeof(inventory_t)));
+ // V7 stored 12-byte individuals; V29 individual battle traits did not exist.
+ // Preserve every historical field, and require explicit zero defaults for the extension.
+ party_t expected=current.members;
+ for(unsigned i=0;i<PARTY_MAX+BOX_CAPACITY;i++){mon_t *m=i<PARTY_MAX?&expected.party[i]:&expected.box[i-PARTY_MAX];memset(&m->special,0,sizeof(m->special));}
+ assert(!memcmp(&expected,&migrated.members,sizeof(party_t))&&!memcmp(&current.inventory,&migrated.inventory,sizeof(inventory_t)));
  reboot();achievement_view_t v;world_achievements_snapshot(&v);assert(achievement_progress(&v,13)==8&&v.shiny==1);
  assert(world_achievement_claim(13)==ACH_CLAIM_OK);reboot();assert(world_achievement_claim(13)==ACH_CLAIM_ALREADY);assert(!erase_calls);tests++;
 }

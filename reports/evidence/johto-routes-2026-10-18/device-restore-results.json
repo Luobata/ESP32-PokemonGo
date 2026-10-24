@@ -1,0 +1,31 @@
+{
+  "startup_v29_to_v30_equal": true,
+  "old_v29_import_reboot_receipt_matches": true,
+  "old_v29_import_brightness": [
+    100,
+    90,
+    100
+  ],
+  "old_v29_import_progress_equal": true,
+  "current_v30_import_reboot_receipt_matches": true,
+  "current_v30_import_brightness": [
+    100,
+    90,
+    100
+  ],
+  "final_vs_original_migrated_progress_equal": true,
+  "compared_fields": [
+    "members (party, warehouse, individual move policy)",
+    "level",
+    "experience",
+    "pokedex",
+    "inventory",
+    "challenge",
+    "johto",
+    "activities",
+    "story",
+    "endgame"
+  ],
+  "test_rewards_and_research_restored": true,
+  "actual_browser_ui_exercised": false
+}

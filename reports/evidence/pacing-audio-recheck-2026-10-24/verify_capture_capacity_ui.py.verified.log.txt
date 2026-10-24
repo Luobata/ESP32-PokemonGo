@@ -1,0 +1,1 @@
+{"passed": true, "build": "79970ab052062ffbbe3c", "frame_checks": 77, "full_box_manual_replacement": true, "same_ball_retry": true, "physical_device": false}

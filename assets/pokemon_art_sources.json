@@ -4,14 +4,14 @@
   "source_mode": "Crystal front first square frame and 48x48 back; four original shades",
   "palette_rule": "pinned Makefile + tools/gbcpal.c; original shiny.pal, paired deduplication",
   "white_contract": "index 3 remains source white; transparent rendering requires white page background",
-  "gameplay_sha256_except_palette_byte_23": "2ca2c2a5bc7876fea8ebf746d548904518cd548c2e7a074ac337ab628e1b516e",
+  "gameplay_sha256_except_palette_byte_23": "c7cb77bfafb867d7585615dd415af2318559a55830ab2b73677845078a83ebd0",
   "front_size_counts": {
-    "40": 48,
-    "48": 46,
-    "56": 57
+    "40": 77,
+    "48": 84,
+    "56": 90
   },
-  "palette_pair_count": 146,
-  "source_white_pixels_preserved": 383338,
+  "palette_pair_count": 245,
+  "source_white_pixels_preserved": 640494,
   "inputs": {
     "data/pokemon/palettes.asm": {
       "git_blob": "d2667005c03263a3eb78af4e69f866ddc345e8ef",
@@ -1844,6 +1844,1206 @@
     "gfx/pokemon/mew/shiny.pal": {
       "git_blob": "9b1a1cced6f247ab8160519d1c746d3721f38080",
       "sha256": "d49caef8c49d034986badfc3d42060de0fa390e69fbb2f59675f66cfd07c8e47"
+    },
+    "gfx/pokemon/chikorita/front.png": {
+      "git_blob": "584f05cbcf23325611acfe7b653431351a982a05",
+      "sha256": "a0892f3e750ee5def3bd322a003f00d85953c816213079890e7ff36aaa247e3e"
+    },
+    "gfx/pokemon/chikorita/back.png": {
+      "git_blob": "5ce5ae068a66ae60f3c49780176a17a98eca3745",
+      "sha256": "100d8f0bafebe5661bb4f4e3759ee9eb339d6dc2f2e2aa1ab22ce428d591bb5d"
+    },
+    "gfx/pokemon/chikorita/shiny.pal": {
+      "git_blob": "c2ff6a3f80efb2576c3a25b27b315a6ee9c07a21",
+      "sha256": "d8726cf2b475690d9545b02b5f57211b5e497e22f28ecb66426701259b04b5e2"
+    },
+    "gfx/pokemon/bayleef/front.png": {
+      "git_blob": "9fd993152cc71e53f9256146a99a5c7f3fd5fd3c",
+      "sha256": "c94103e4f36253627edab8fa1075ce540525c4b2101d59ced7713c5ae9f31858"
+    },
+    "gfx/pokemon/bayleef/back.png": {
+      "git_blob": "1e95d7b08ca43eb678568c7d328debca6f665308",
+      "sha256": "d5c1e6d75ceaac5f54d2867f5ea2cc699da57c473c898eaf75b7d01d2c1283d6"
+    },
+    "gfx/pokemon/bayleef/shiny.pal": {
+      "git_blob": "fcacccc1920ff9b98f01697b45563abd53691124",
+      "sha256": "0598968750aabbf6286d60ba7c8d3a795ec2f7088b4527d285b5abd361847b90"
+    },
+    "gfx/pokemon/meganium/front.png": {
+      "git_blob": "f520626a9bbf4022c6f02373fea8bfd728278ab3",
+      "sha256": "02de18f150578cea59b2e654e3afff5c8976520b89ed10bb57ca619c7bba1a0b"
+    },
+    "gfx/pokemon/meganium/back.png": {
+      "git_blob": "5f51bdbff8498e1df9aa95764bb85bf07c1931fe",
+      "sha256": "395d2c51965838b94f8796b51ee478fe57be140be1385a77b3814fe80276c58e"
+    },
+    "gfx/pokemon/meganium/shiny.pal": {
+      "git_blob": "b09a172f6a527525091e5b9c7497b9c544aece1e",
+      "sha256": "0481ffd25006e6e9f395f822c3f0f708561c35dd70f3664061e94f1eca4e5422"
+    },
+    "gfx/pokemon/cyndaquil/front.png": {
+      "git_blob": "4edae6bc6fb41c47edd49db54436d6a5d06a8ce1",
+      "sha256": "a9259927e2383daec359736c162575d25de8c01b2464fcfd752643a310e19cb2"
+    },
+    "gfx/pokemon/cyndaquil/back.png": {
+      "git_blob": "4e0664be0485f0077b313088128e203d6d9d5625",
+      "sha256": "f38e5e62a0e70c14b4f7523a1149eff23065a985f9c7a006368c65df927cdbc1"
+    },
+    "gfx/pokemon/cyndaquil/shiny.pal": {
+      "git_blob": "5b3df0b4e01a220e0952154f7289cc9b02f952e6",
+      "sha256": "a015ef9b52969fa3224332e6ec095e9ecf42c4a8b2c4d6d058b2585bb1e83933"
+    },
+    "gfx/pokemon/quilava/front.png": {
+      "git_blob": "96ccbb55165693b8b33449fa4cf6c80f429bb663",
+      "sha256": "1427e0c90583495506936725f72426d65d7926e5a85aabc2376c091e5f38e142"
+    },
+    "gfx/pokemon/quilava/back.png": {
+      "git_blob": "79b50b9b098ea9d33a319ac425697613a977237b",
+      "sha256": "28511217e81f9e22f69d65d6ef37f7bfb0d44047dadca95e2f3b329390b4bb8b"
+    },
+    "gfx/pokemon/quilava/shiny.pal": {
+      "git_blob": "5b3df0b4e01a220e0952154f7289cc9b02f952e6",
+      "sha256": "a015ef9b52969fa3224332e6ec095e9ecf42c4a8b2c4d6d058b2585bb1e83933"
+    },
+    "gfx/pokemon/typhlosion/front.png": {
+      "git_blob": "aef81a01b6862da7e8f05ebec194ddeed6bef6ee",
+      "sha256": "15793d35748e4cf6c14725bb6ccbc6bbfdff0fe496b3c985f48dbbc8f4fe5aa0"
+    },
+    "gfx/pokemon/typhlosion/back.png": {
+      "git_blob": "1808f308970bf5f87c35bc57597285946c04a95f",
+      "sha256": "f8b6249946858a00e8b7b2357aaca55b2d7d5d4781364a7f0c89dbf75af637dc"
+    },
+    "gfx/pokemon/typhlosion/shiny.pal": {
+      "git_blob": "5b3df0b4e01a220e0952154f7289cc9b02f952e6",
+      "sha256": "a015ef9b52969fa3224332e6ec095e9ecf42c4a8b2c4d6d058b2585bb1e83933"
+    },
+    "gfx/pokemon/totodile/front.png": {
+      "git_blob": "634d04189495339222b2b927607bd68d56f04db6",
+      "sha256": "04672e1eca5af229f011f7d2ceaf2b86da09923f8feebb84e479dcdb55143dae"
+    },
+    "gfx/pokemon/totodile/back.png": {
+      "git_blob": "5cf6adf4287a08b51dfd6ed5478ecac9eacf2e70",
+      "sha256": "0c83db57b0b0fb1e173a8f1412443723e7db6ce1b4081b40c1c34fbe1358d3e6"
+    },
+    "gfx/pokemon/totodile/shiny.pal": {
+      "git_blob": "c947fe43a08e6bb4ad21f0cb94f307302ff11f39",
+      "sha256": "d5c6cf057df37b7cb1b2a8925f625c54bf7ca42a4e7bc7bc4059abf1cdb91564"
+    },
+    "gfx/pokemon/croconaw/front.png": {
+      "git_blob": "8fabda95c58025937d7cf0533fa4c8b512d8bc48",
+      "sha256": "081a5da5573e99925f5a56ed6e2dd97505bd447340cb81f70483082154b9b4e3"
+    },
+    "gfx/pokemon/croconaw/back.png": {
+      "git_blob": "1c745387a70d1f0c2ac770c124d171ce5f025631",
+      "sha256": "e5d05e6f774373695ac9c60d9649885d9a69c121ce4e4230677062bfe3d4d14c"
+    },
+    "gfx/pokemon/croconaw/shiny.pal": {
+      "git_blob": "efba52bea584d07dc4521df99daba4eaea5178c7",
+      "sha256": "2e2fcaad3c332c17e2ff2ce7fb1fb54aeabd35016d370445e520b542accb8bef"
+    },
+    "gfx/pokemon/feraligatr/front.png": {
+      "git_blob": "c3057a8cb1cb4b176a82398638a938827155f7a0",
+      "sha256": "a750934943c1c6fa1be09c3fcc73e2f88852bf938dabe94513284d29703bffdb"
+    },
+    "gfx/pokemon/feraligatr/back.png": {
+      "git_blob": "8f1e632037747756c1bc7e4f2d343495b0aaa863",
+      "sha256": "c41a6b4b5ceb7f7964de79430505d9baac70575613f30a08201fdfa4836a787e"
+    },
+    "gfx/pokemon/feraligatr/shiny.pal": {
+      "git_blob": "afe21b2b2ef013cf2d9c1b753d5ab84a0d52daf2",
+      "sha256": "c0e8b9d852f44d2cc2eef738438e8a13ffba3e0ad78747fd24ff646305d2024c"
+    },
+    "gfx/pokemon/sentret/front.png": {
+      "git_blob": "6e080188acd00b37f142b3a95be04498be905504",
+      "sha256": "13c519caba2616ccbddd5e9ee9bfe17959785cba0430df503a5b3b11b0633f30"
+    },
+    "gfx/pokemon/sentret/back.png": {
+      "git_blob": "ce452af47418422c9bd0b77f99d0e5c4149198e8",
+      "sha256": "912287e5a6c4ef52760b7b99aef97d208f5d47bf709bd546b35a8ed197ef0093"
+    },
+    "gfx/pokemon/sentret/shiny.pal": {
+      "git_blob": "86ba2ffbadb318dc95017be4903f7c86392bee03",
+      "sha256": "f088e6c8c070d1f0bc7dc2209f7fd5b8811b5b71d5a46a94fa88a9f006c8afd2"
+    },
+    "gfx/pokemon/furret/front.png": {
+      "git_blob": "3ae88bf70f3ca1ab70246b83a38fb9a3c027a081",
+      "sha256": "45980c37d90f1d4270f5146be89c657c86622d695ff3248f3198acec4ea19856"
+    },
+    "gfx/pokemon/furret/back.png": {
+      "git_blob": "906e6e7f1eae8586ed16b2ec90db8994bd079a1f",
+      "sha256": "c7a734b46589a389338a0d95aeb1d070da0150f84d9f2309a4ef90042d87535a"
+    },
+    "gfx/pokemon/furret/shiny.pal": {
+      "git_blob": "fe5870bd6a66808c5e2cbb118bf414b7db1df761",
+      "sha256": "c9303b5fff182804a8477c445a36986df7b6efd9732127c47aae2a1a89054531"
+    },
+    "gfx/pokemon/hoothoot/front.png": {
+      "git_blob": "97500e77cbdb35fe99c546a0f0db56bd9b194276",
+      "sha256": "90e8e6b2d776d415620631c88894ea73931e9a3b0a049034df77d3af16dcf76c"
+    },
+    "gfx/pokemon/hoothoot/back.png": {
+      "git_blob": "73247ff34dfb409aa344218d8a3a0ba76624765e",
+      "sha256": "65cc281df37ae695928ebdb677802be3c2f155c4a3703ab48e2f22df7c36efc1"
+    },
+    "gfx/pokemon/hoothoot/shiny.pal": {
+      "git_blob": "36068558114636a6aa654cb23051807abd2b71c1",
+      "sha256": "6439b7d0dc9caa7f05e768447b7045823345de32c9969f805d42c17dd6f2373d"
+    },
+    "gfx/pokemon/noctowl/front.png": {
+      "git_blob": "bbc8b16236f128feb96ecf6b95fa7369b9937bc5",
+      "sha256": "3c22044dbc8bf980b7b4257dcae1b290485bf735ada5b055767a01279c674b9b"
+    },
+    "gfx/pokemon/noctowl/back.png": {
+      "git_blob": "6f7237943303ea473f1a2815d57e722aa9da7ec0",
+      "sha256": "759078f3e51da66f7158be88daa8b6a20f5e7a565adc0a75c9ebcf5604310cae"
+    },
+    "gfx/pokemon/noctowl/shiny.pal": {
+      "git_blob": "d53a230e7e662cabe1f7d3bde41a8b52c9e89cb3",
+      "sha256": "27bec686d5e76cd8a80fbc32ca50488639bf104d6ee23cad843db0d6de6a6afc"
+    },
+    "gfx/pokemon/ledyba/front.png": {
+      "git_blob": "3176706321e67b6e08c9a68672e1534dd4c0e639",
+      "sha256": "a7d3ce244b4d84e61b60aab29cf2684cbcbf25533182ed3d58607facc7b7b215"
+    },
+    "gfx/pokemon/ledyba/back.png": {
+      "git_blob": "e9f080747086d333138911284235d5a49894f476",
+      "sha256": "67c6b6093453f59059e382aa1794abe110eee9b700226feeac28599da8ea3b22"
+    },
+    "gfx/pokemon/ledyba/shiny.pal": {
+      "git_blob": "f404bc1d153b7a91db58eb6d4e24a6d79b2b0d26",
+      "sha256": "e3876c85e9fa431ebd44cd0faa4141c2949cf379f95c46c866d9ebdd5fc5ebf2"
+    },
+    "gfx/pokemon/ledian/front.png": {
+      "git_blob": "d5773cbbaba0b286a94726b97c47ddbcd2923e56",
+      "sha256": "c8ed816f130c5cd0465d57f4d10e3e026bdfdb977270e98e7bc56703305b716c"
+    },
+    "gfx/pokemon/ledian/back.png": {
+      "git_blob": "6dcd7eb538ef548023ed696d5479028607751b80",
+      "sha256": "d32f3e7257a80e1ddb33a96638b9c831ce3336397a01b8d969f1409a74afe074"
+    },
+    "gfx/pokemon/ledian/shiny.pal": {
+      "git_blob": "f404bc1d153b7a91db58eb6d4e24a6d79b2b0d26",
+      "sha256": "e3876c85e9fa431ebd44cd0faa4141c2949cf379f95c46c866d9ebdd5fc5ebf2"
+    },
+    "gfx/pokemon/spinarak/front.png": {
+      "git_blob": "e35c28646a58934db2e8b3448a7007da5ef9d962",
+      "sha256": "c5f433d6345079e9d63e51daedaa85ab33b2db59ec722373a1abd447aa16a93f"
+    },
+    "gfx/pokemon/spinarak/back.png": {
+      "git_blob": "52f9eb053d124dc0f9ac86f4c7e37b98e95c4d00",
+      "sha256": "af0dedbb367229ce31d8cf086b10028f3dfa6247f7a3f9813808715fe517a3ed"
+    },
+    "gfx/pokemon/spinarak/shiny.pal": {
+      "git_blob": "931425e3c2fd1a0a3a2f1f09fdabe8506fc9f511",
+      "sha256": "880fce0fb2793b324ef270275722c8e238798859817a9651a605386bc1369dfe"
+    },
+    "gfx/pokemon/ariados/front.png": {
+      "git_blob": "ba40159e6e0f6632056411fad7831fce8f4ca8b2",
+      "sha256": "717667f8f47802c8df2e8b9be95a04437c41c48554c6e7606b171f07705e39b1"
+    },
+    "gfx/pokemon/ariados/back.png": {
+      "git_blob": "6d0bc737d31e520c0c4e3ea7d0d860466b8f7fa6",
+      "sha256": "499ab0c105b163b77cf99dfd5f09a5a47390cff6033dfedbd0d667de7ad98723"
+    },
+    "gfx/pokemon/ariados/shiny.pal": {
+      "git_blob": "1dae64a4f0578e8786d6d4900de12c8923ba5e49",
+      "sha256": "104ebe58936ebcbab69ee1557033d302bc66c24081ed72c945b1175b78ec8583"
+    },
+    "gfx/pokemon/crobat/front.png": {
+      "git_blob": "b1e989facf3ae38def7b515185e0c8b0641ae47c",
+      "sha256": "94c0ba4985fe13cb851391d3dc2ca3ecc8cdb3c68bf43470078d8b801dfabfd4"
+    },
+    "gfx/pokemon/crobat/back.png": {
+      "git_blob": "944c3a872ddbf27308080b0fa6628eac68feaea2",
+      "sha256": "a2929bfcd31854a574ace2fb3a335895d4a89fa698a929bda9fcadb976e2905f"
+    },
+    "gfx/pokemon/crobat/shiny.pal": {
+      "git_blob": "2cb1d6cedda4acb3e7969bfcbf7a0d1e81d688a9",
+      "sha256": "dbdd76334fd24702e739a0f34e7e6802fc653b7e1c4501881785707b480bbcf7"
+    },
+    "gfx/pokemon/chinchou/front.png": {
+      "git_blob": "4af95c53eb623a5804dd17b53e326f6fb3ffbda7",
+      "sha256": "0f7c163a8ad9c191bef630221324f4149d398c906c6eb2f2c426868fff29e3c6"
+    },
+    "gfx/pokemon/chinchou/back.png": {
+      "git_blob": "5de7df3bae127a53cf8fd627e565fda6fbe4149a",
+      "sha256": "5ed20a02b5da41fb2d9547d7944cb89a35e72b8366384349dc922974784ed127"
+    },
+    "gfx/pokemon/chinchou/shiny.pal": {
+      "git_blob": "334561248491ecd258324c3adc4dc64443dfbaa7",
+      "sha256": "477cc84b32dc75d3ee41dd1584e7f562fb3647963a0f524990981e718f4b9e34"
+    },
+    "gfx/pokemon/lanturn/front.png": {
+      "git_blob": "5b2eaeb5bc9932df839ae28f812e470249a88d2f",
+      "sha256": "6ce0b19f594ddfe0f826037b0e934de78bf09597e29f35738929ed7197934c96"
+    },
+    "gfx/pokemon/lanturn/back.png": {
+      "git_blob": "f80ffc742f42dc1d52b13fdfaeb43163572d0cd4",
+      "sha256": "5bc7ab659f04ec26c5679c37110dc3cb45fb4d4e00ffe99f3cb37d2bf3aeeaaf"
+    },
+    "gfx/pokemon/lanturn/shiny.pal": {
+      "git_blob": "e1e3e4fe81c6da2f2e5bdb8e587cdafbbbdc783f",
+      "sha256": "a36d36e95ffb564723e1b943539cac6ede20e3bc884ec39750d09c105a3ccaf6"
+    },
+    "gfx/pokemon/pichu/front.png": {
+      "git_blob": "1557f73fb1ac0cdb33dca3ce3a1da49e466defae",
+      "sha256": "237cc22079ebd5a4617572f040701771fdf16afb26adb5e62ef41c5d1bf810e4"
+    },
+    "gfx/pokemon/pichu/back.png": {
+      "git_blob": "830cf34f4974357edf83c86a82656fba156e692d",
+      "sha256": "37abb1cdfdbfe95d342dc82b768af9ee7dc67c7928325f631ae879ecae5bbf6a"
+    },
+    "gfx/pokemon/pichu/shiny.pal": {
+      "git_blob": "a89172f54503905cdff99026c369056e1b16fd70",
+      "sha256": "64470e13e66c59086db27b666299de2ecb960df34f5138d5959b8e9dc980b788"
+    },
+    "gfx/pokemon/cleffa/front.png": {
+      "git_blob": "6c411c3adc42174978637e9d01b6c230eb8e57d7",
+      "sha256": "2604633c8f93a8bca6521cafc7fecb3353f2364873c5dfb8146c69c79326f878"
+    },
+    "gfx/pokemon/cleffa/back.png": {
+      "git_blob": "c888fef1061c7a2ceddfa2643af7696f6e722011",
+      "sha256": "c399262ae26640f362e85a77957d446ba9679fb51cbf918898d708bb5d7b9c4b"
+    },
+    "gfx/pokemon/cleffa/shiny.pal": {
+      "git_blob": "1c0871557b1ba8b91f6a7ea4d40dd3eb25dc34fa",
+      "sha256": "98a801d2380377ac35e96b24cfb0af27daf5e6433e7ed7a3ec5f42c45b37fafa"
+    },
+    "gfx/pokemon/igglybuff/front.png": {
+      "git_blob": "2fb7dbb789c96f1aef2f42a088f7cda259c29463",
+      "sha256": "cb9358f6ba1d660725bd6b1791a09fe2cee27a87a919dd98e807c48910c46811"
+    },
+    "gfx/pokemon/igglybuff/back.png": {
+      "git_blob": "7b34a17ff7db6d69cb8e97b3e3c3733f47477af5",
+      "sha256": "4db646714d46eea848ad4790468b73eb0c998aaf8396026dfd663970eb33d8d8"
+    },
+    "gfx/pokemon/igglybuff/shiny.pal": {
+      "git_blob": "38ce5d76dede39e75bb81e3c8409f293dc0c974c",
+      "sha256": "a6b16250a532b70bf97bf783e4a8b30a8a89a40cb155acb8d805702477d54d34"
+    },
+    "gfx/pokemon/togepi/front.png": {
+      "git_blob": "3fc23b9d781ca7e3fcfa2f33569555d1ac8a88da",
+      "sha256": "2a56921856c98f62dc79745567a4aab0473861c1fff9f605b700835d4b23e787"
+    },
+    "gfx/pokemon/togepi/back.png": {
+      "git_blob": "de6bc8a400af43a7a5af38161adf91937404ca76",
+      "sha256": "3d3501df89e7bb72f7e1334e1c098f7f999d767bc49dbc69a0e6034c40850bf0"
+    },
+    "gfx/pokemon/togepi/shiny.pal": {
+      "git_blob": "6e194e5d9e3b90243db940a3231b1d0c8fed675e",
+      "sha256": "67aa90de2e3019f3e6de076432c1c3dc5d19bde0705181c47eb82fa5c375b865"
+    },
+    "gfx/pokemon/togetic/front.png": {
+      "git_blob": "9851c901102937c2094f0b56fcde49c45845489f",
+      "sha256": "1f9523f9c7ccfb1ffe6b66545d4d2843cbbafcff865daad6cb53c1ffd1c132db"
+    },
+    "gfx/pokemon/togetic/back.png": {
+      "git_blob": "9a92e0970fb4b71d886323242b93ba6211edc0e1",
+      "sha256": "d4440d91693ab45e12b71e3f2ba21e0909a2d0f078e759ae2be69020bbffb27c"
+    },
+    "gfx/pokemon/togetic/shiny.pal": {
+      "git_blob": "10e7182f5849af0d93d545a7ef2abaf771d87747",
+      "sha256": "f208b0d190f66dd07c397b79ceee9df698f3f15c092a8aaaa45e74f61a838758"
+    },
+    "gfx/pokemon/natu/front.png": {
+      "git_blob": "4360e5b606762ecbe173e4b61cb32e4cf9e28e34",
+      "sha256": "18934414dd8e5b11af77a20997d1695088a3d6764656a7fb2f68ec63ac0b78ba"
+    },
+    "gfx/pokemon/natu/back.png": {
+      "git_blob": "923e342305bd8ed15dbba4f9a7f48aaff5a7c61d",
+      "sha256": "09a1f18f235011020d08647adcf53c3c58e71d66d7b90ca0141e97dc21a91216"
+    },
+    "gfx/pokemon/natu/shiny.pal": {
+      "git_blob": "0ee2b82af2647b03cd1afb36ce660f8ff5d352de",
+      "sha256": "bc8382be8e68444fef13323ef546bcbaa8eb5f7e7aa52a015af8cd98dbd2948f"
+    },
+    "gfx/pokemon/xatu/front.png": {
+      "git_blob": "f6335d27d99be3fb18b33fe73abb3843cc309d27",
+      "sha256": "9dbdf4ee7164db8bb08749309b66bdf243950364d8d3cfd27e4c66d8807b90cd"
+    },
+    "gfx/pokemon/xatu/back.png": {
+      "git_blob": "94f56f87dc543b716a2194121de7d9188007f984",
+      "sha256": "acfe9fd073af71160f1d4c33b45bb1f75a6517624e1e2a9be9d3ba5075dd4e43"
+    },
+    "gfx/pokemon/xatu/shiny.pal": {
+      "git_blob": "00ac323719d7835b808c09c50ed7181cc635fea0",
+      "sha256": "b70077cc5c40ff238434ec0306c6a746f6f3a681c6406112bf8aac476737f600"
+    },
+    "gfx/pokemon/mareep/front.png": {
+      "git_blob": "3ab91d605d722e81451dd92998ddec1896134084",
+      "sha256": "948b80a888ab2e44fea82e79ef8ce1f500cfc979bacc8649d833787a4862eeb3"
+    },
+    "gfx/pokemon/mareep/back.png": {
+      "git_blob": "f0a89696c7bd99ecc074b6cdddfd58a6aa8ccb9d",
+      "sha256": "42592306958ef22a0ede83d59fbf7ce8c21c89a79cade494d557e217bc7418db"
+    },
+    "gfx/pokemon/mareep/shiny.pal": {
+      "git_blob": "7e4fe925b37b47451c5132f6e81366276bfb553a",
+      "sha256": "967204605bb1c83ecc8e0bc0a1d9d9661656b841272a31a32ecc78686c391387"
+    },
+    "gfx/pokemon/flaaffy/front.png": {
+      "git_blob": "f42a3b7490cb95bf2efa20de8b66855fa555217b",
+      "sha256": "b406bafa28985f58d3f43b60fea52d9d3652a5c116a0c8bea0bc60d5d8b2d0bf"
+    },
+    "gfx/pokemon/flaaffy/back.png": {
+      "git_blob": "36259453c44b0904cf6cd381a9b7b1d04ef9aa25",
+      "sha256": "12737e5926de68078e0a5b54d7bf43c571023667977ac1b84446bfc3e7a6d39c"
+    },
+    "gfx/pokemon/flaaffy/shiny.pal": {
+      "git_blob": "50c88df2efab5ccf617cb2d75c0fb7b7153201c4",
+      "sha256": "64f30f43b172ec03ada769c4b0e9e962c6c474ffa9bb86a10250a025de47cd5c"
+    },
+    "gfx/pokemon/ampharos/front.png": {
+      "git_blob": "0cf155177e6f2650f834d4047bfea68af423c0ef",
+      "sha256": "6c44498010eaf6a9e5b09e0d939c8d11396fe26b9d7c33f759e188e380a69292"
+    },
+    "gfx/pokemon/ampharos/back.png": {
+      "git_blob": "0e1075491d434e5ea87604a1b53098c1967149c3",
+      "sha256": "e7348a40f7ce1a81356a5755b63e28a6b6e79860dc0d1e5395460efe35efbef7"
+    },
+    "gfx/pokemon/ampharos/shiny.pal": {
+      "git_blob": "67451112f61aeaca7f84acfb82d92df3676b7ab4",
+      "sha256": "3165382e752d613f4b07c32f964c101a87957caf50c5ef37bdf049fe833076c2"
+    },
+    "gfx/pokemon/bellossom/front.png": {
+      "git_blob": "f77907c45d3072bb5ccd6d030d917ee49891a6ac",
+      "sha256": "df49d61caec3b23f81c30842dc65b9c3f3eeebaf8a06e725a763e7c45423dc06"
+    },
+    "gfx/pokemon/bellossom/back.png": {
+      "git_blob": "53b24c2b435d9640e156b2cc5254058df68e3971",
+      "sha256": "3251f340c5b9623a39e729b3e0bc3eb0df66285ca78ce3dee5f1d3c9419d735d"
+    },
+    "gfx/pokemon/bellossom/shiny.pal": {
+      "git_blob": "a099a594e29f1b9ff59a3d782d1878a41b037c6b",
+      "sha256": "ce56421f0eeb14c6a1ca0b052858c3b9a7e2a90a90d82bb8024be2774fa7721a"
+    },
+    "gfx/pokemon/marill/front.png": {
+      "git_blob": "5b07959aaaa5f2307f10c9151b110ee32215920c",
+      "sha256": "3e1b4d522a39d7b971c05fc418d00f0a3a9b328d1490dd7e879c306a46487b89"
+    },
+    "gfx/pokemon/marill/back.png": {
+      "git_blob": "59af13b350fde1a5f8fe3672066085bf751901dd",
+      "sha256": "a10bbee5c379f31db176e16bf9d3ea1d8ab9085afaef65a9d2c295b6c0a43d12"
+    },
+    "gfx/pokemon/marill/shiny.pal": {
+      "git_blob": "e75fe9208a07dae160dfa69c5ed07f00d75c4b73",
+      "sha256": "8077633872f689eca048989d8fbfaec60659044eb05d6c3fea514df8a3f35412"
+    },
+    "gfx/pokemon/azumarill/front.png": {
+      "git_blob": "9a51d67397a9038638490d56b54de58ec880dbd9",
+      "sha256": "5d8f757dbe7364998698330a5025f919c1989a81f377ab3964d42804368d7bad"
+    },
+    "gfx/pokemon/azumarill/back.png": {
+      "git_blob": "581c0e9269cf8324542f6b7f6952f8e7e39cd0c5",
+      "sha256": "b44745a07cd6ae66370c3189a8fe17a4fc158694fb2430f18b48f7fad5342e04"
+    },
+    "gfx/pokemon/azumarill/shiny.pal": {
+      "git_blob": "18cfd119594d096450f4642ab5e11b424d590493",
+      "sha256": "9813a70b6b15358d351e05f7817fd114068e7644ff9ba34b4612e73ad690cbe2"
+    },
+    "gfx/pokemon/sudowoodo/front.png": {
+      "git_blob": "cc794899a3b259b5dc29861e82fe27ee999e6b16",
+      "sha256": "601ccc93774cd27ffa3a4f1d34868eb84047fde338182e8aa81c50fd3de5cff8"
+    },
+    "gfx/pokemon/sudowoodo/back.png": {
+      "git_blob": "cd7466ac386a45530e64969c7034bbc6b97a064d",
+      "sha256": "95a51bd0069afc6b0578b50b3a2fc054f5fe4d8e02cf83369d49f609f05622da"
+    },
+    "gfx/pokemon/sudowoodo/shiny.pal": {
+      "git_blob": "b82128b5058b42b2b08cb7248ad5ecd77d1a6eb2",
+      "sha256": "33e4918eae94e76a2b4cfde11fc543062a2ce612f87ae3ad104cca9d23e01979"
+    },
+    "gfx/pokemon/politoed/front.png": {
+      "git_blob": "03aa089e3851c6bdf60ca82d3bc813316774b08a",
+      "sha256": "929fb85b058e036607515b94395cc1dbb4a4630d91049a7b63f4b879668ac80b"
+    },
+    "gfx/pokemon/politoed/back.png": {
+      "git_blob": "4376ca6ae7c52b6ac27a89367ec7338efe74f2fe",
+      "sha256": "7ac3f9122ec4bacc73110ee662c3089af92d72949745c39d14a9a1883396093e"
+    },
+    "gfx/pokemon/politoed/shiny.pal": {
+      "git_blob": "1ba49cbc5dc15d3bbc4ab57ee3c41b949f159ebf",
+      "sha256": "909730883ce33920aeb68623019f42440317f3ad889dca328c6b3896b2ace23d"
+    },
+    "gfx/pokemon/hoppip/front.png": {
+      "git_blob": "19cd0d4739ba166ad19e8b21ee15b166d05a4319",
+      "sha256": "73548965872743d101212a40c5492a825aca546c15d4401d0c57f35a309d7b43"
+    },
+    "gfx/pokemon/hoppip/back.png": {
+      "git_blob": "325c089931900b94751b1f6d9053ca77b4503f78",
+      "sha256": "3a4b7200f9054e44c2355a3aa31e8af03aa287b2a9ffe27a4b35a2b23aad3c4e"
+    },
+    "gfx/pokemon/hoppip/shiny.pal": {
+      "git_blob": "4a4afec4290773e32df437edbb3b6d4c6e797ce9",
+      "sha256": "e3c90eea96cebda3b7c41dfe2d43afab4cb70c1d0dc91e31bb4e176d04e35312"
+    },
+    "gfx/pokemon/skiploom/front.png": {
+      "git_blob": "313b5c9f3a4c310ede920bec985c827443f90950",
+      "sha256": "9c4bb0017bbe9a2939f6c130a56e8c9b3a7e1ddb79cd0ada842ba725b955456a"
+    },
+    "gfx/pokemon/skiploom/back.png": {
+      "git_blob": "ffe1de9183a625944be70f39032152a05d45f4a8",
+      "sha256": "e6031a2a75a971ab4852b8b0b8a743ccc5b7522dab3fd4636c450171f57dc18a"
+    },
+    "gfx/pokemon/skiploom/shiny.pal": {
+      "git_blob": "3165d8ee799110b79f2cf9b2d1b70c66abc39e1d",
+      "sha256": "2cf00829b4f797ece0c27a6335091fe1c0336438151556239c6ed0588cb6d62c"
+    },
+    "gfx/pokemon/jumpluff/front.png": {
+      "git_blob": "1048e3937b80f8d46d48747a4ca0087959fdefc9",
+      "sha256": "b4a63868322e03678ecf80d3962a92fe7ebf94f484f0c7b1c5fca1613b640695"
+    },
+    "gfx/pokemon/jumpluff/back.png": {
+      "git_blob": "1b72ecf2f02991b35a74de44362fefdb8020c114",
+      "sha256": "2616a10b67693273ae9e54f8e2269c9cff347e90458a270dee883be4728cc093"
+    },
+    "gfx/pokemon/jumpluff/shiny.pal": {
+      "git_blob": "c553ebebfaa6612eaa400eb795a4896888acb15a",
+      "sha256": "30704f58662ed1ab564037ca1a9d3c79cb7a7b6f1f7a50a04548a353208bbfaa"
+    },
+    "gfx/pokemon/aipom/front.png": {
+      "git_blob": "72cc3b7183b4e697ec29c30654073b7789e46ba1",
+      "sha256": "65b7673e169f883b78ecf1ef86aa12949ae4d1d7ab25d9a0deffacd66d17f309"
+    },
+    "gfx/pokemon/aipom/back.png": {
+      "git_blob": "0be9d9ed00a1019c1d7a6116a01e30b4b71184f4",
+      "sha256": "cbad39563b2ca2f170aa1889e573eba0108ca86276315ae350d04aa98a93fb70"
+    },
+    "gfx/pokemon/aipom/shiny.pal": {
+      "git_blob": "a01f18d1ae2a1ace6e21d458ab24861294b1e18c",
+      "sha256": "86abd586f28cb0edf1c82a9453da27b55b791e844118dd777736870bc33d683d"
+    },
+    "gfx/pokemon/sunkern/front.png": {
+      "git_blob": "5bc994e6de5315b84cffd71049706f25dac50780",
+      "sha256": "ecc113454ac51057c2b429514f82bbefd8c321c234bf7028b405004e249e7443"
+    },
+    "gfx/pokemon/sunkern/back.png": {
+      "git_blob": "f6a12a8300d7eab6c3404348d84f679dcc3a4b29",
+      "sha256": "26d8f145e9c81e64adbc9aa7a68bf153c4ddba75d881ac787a49513fa5fc0bd9"
+    },
+    "gfx/pokemon/sunkern/shiny.pal": {
+      "git_blob": "3215a861c21c335dd2c891e9a035544dca32cecf",
+      "sha256": "98ab05eb1850e6ffbdc2b5b8e7d52c1b230c16e6cd3de31707cde1fd052bcb4a"
+    },
+    "gfx/pokemon/sunflora/front.png": {
+      "git_blob": "3771243637b6b037a30ce099d30b239ab03d9035",
+      "sha256": "a5644011008e45ac1603fc82aa7967f51a4b559aadcd7a4fec6b09ab2a675ac2"
+    },
+    "gfx/pokemon/sunflora/back.png": {
+      "git_blob": "e30eca3b086efaa8289fd51e5e456d87d2e74511",
+      "sha256": "b4aeecebf7665ceae7f6082ca58daabfbefedcc370f0c12787b7da43ae1f4a33"
+    },
+    "gfx/pokemon/sunflora/shiny.pal": {
+      "git_blob": "a52ad6f966321d7c7a5a99195e919689e3c8761b",
+      "sha256": "903de7918d74cf1ce3583070549e7cb066a77c41686a5efb063212a1862de840"
+    },
+    "gfx/pokemon/yanma/front.png": {
+      "git_blob": "1812eea586b52a38177a96fee052309960958e31",
+      "sha256": "0e549190681f9f6b6ef86454f29729d8c20ea8a60fcaed9ad1fe26617a462029"
+    },
+    "gfx/pokemon/yanma/back.png": {
+      "git_blob": "cc21b1a28c8a4eab183757a15104a77e2a0740a7",
+      "sha256": "8c15b5dec83a775a7beb57d28cabda5496c3b414497239e13d8f90ba1e06db79"
+    },
+    "gfx/pokemon/yanma/shiny.pal": {
+      "git_blob": "cbbdc755b6fd31b3de508918add88004078b4d08",
+      "sha256": "5c900f8a28aded1c39db8d2ec590eb9d1070e7c0e8581cc2a8520d65d146178e"
+    },
+    "gfx/pokemon/wooper/front.png": {
+      "git_blob": "9a232b113c4b4eadacd74c03692d6e6c068c3f84",
+      "sha256": "dd786c7d35bafe8d4e2991b0ec3b06a3956f33533bfc6298d14b49ca0087becf"
+    },
+    "gfx/pokemon/wooper/back.png": {
+      "git_blob": "83fca2bf54182f241ffd85c6e4aae23e91765054",
+      "sha256": "b43a2251a7b26770e15fbba2b2f1a03032e24066314225ce07b5959d39a5abc3"
+    },
+    "gfx/pokemon/wooper/shiny.pal": {
+      "git_blob": "aa3475256d0ee0c3a85b66b9447cb9d1dcc985ef",
+      "sha256": "111c07f8562dc3045e07649e23f44d5382b79a6f7ebe7e5551df70057de7851b"
+    },
+    "gfx/pokemon/quagsire/front.png": {
+      "git_blob": "d64fe3709568efeed7cb7f675476fb054895034d",
+      "sha256": "d976958bcbfa73c428eda465f0ad6a1c272b51743a5b15e620a8920978a6ed63"
+    },
+    "gfx/pokemon/quagsire/back.png": {
+      "git_blob": "d83a1b810b5865ba279b0ab8043f2bc7121f9abf",
+      "sha256": "59d18e03c467ecfab9b93c1a7a715c32fcc04d8b3a07e84ed1f3df1123f192da"
+    },
+    "gfx/pokemon/quagsire/shiny.pal": {
+      "git_blob": "05ed0f64a6a00e29e7220925c0dc6d94b2cb75ef",
+      "sha256": "e03996659d3cef4a88b9c5260e7620dcf9d73e67aea0fc20072660bd6f6356a8"
+    },
+    "gfx/pokemon/espeon/front.png": {
+      "git_blob": "dd68a6c1894c9701e69260fa4bd06cb8864ee449",
+      "sha256": "8670cd6f2fef2ab51935e1af5f09fec98eb10eaca36466dab22008c641c3cf81"
+    },
+    "gfx/pokemon/espeon/back.png": {
+      "git_blob": "26d2d29735425c2b9485155033b51f95fe6d1e90",
+      "sha256": "b973707e9bd939d7ef04f76e542913bf3b29284d8b6fb893dba383ccf5838cfd"
+    },
+    "gfx/pokemon/espeon/shiny.pal": {
+      "git_blob": "8f2343d8938367e66b69151a4b884093a66d40a1",
+      "sha256": "6997efd4c7147c76cdf730060ed668e8c2e6e01ca778a5f4c9b2f6b3d9616628"
+    },
+    "gfx/pokemon/umbreon/front.png": {
+      "git_blob": "c1bf9c2f8a3d0b8e14ed87608e7361ea22a7d132",
+      "sha256": "5b0441714e0334824acd1e9feef0fcee0b7ab42fd3fdfe5a40ebe6ff188a3658"
+    },
+    "gfx/pokemon/umbreon/back.png": {
+      "git_blob": "f1cce4fc8aae49050350e281e983a21a2dfb00f3",
+      "sha256": "7abe6cd2fe882173b2b2fddaa8f58aa5eb475367758275283acb62a575adeeab"
+    },
+    "gfx/pokemon/umbreon/shiny.pal": {
+      "git_blob": "9173bbb15289f962d931f915e589134e17db2e84",
+      "sha256": "69464322037a3ffdb75092c4a73977c48b1675c6b52d7784f9f5c84d01c926fe"
+    },
+    "gfx/pokemon/murkrow/front.png": {
+      "git_blob": "b17cf2d6c55a6444f2fc3d7babe6ef9a969a0fc8",
+      "sha256": "a998f7e06af462fe7943cb581ae0748f0b75376c63dc75ac53474f2bb5794920"
+    },
+    "gfx/pokemon/murkrow/back.png": {
+      "git_blob": "255471a39796de54390d7b7b1b5b658dce4273ad",
+      "sha256": "c6ff7cc4ea55e2605a3041d9914bac50d6600a903bbd25dd8e1ac4b410eac0b1"
+    },
+    "gfx/pokemon/murkrow/shiny.pal": {
+      "git_blob": "8f015f0feb6a5d2ce207ad399e68e0912501ac17",
+      "sha256": "e3d074603d284630c07ae4c62159ab111eb0c7161bb9e2beef9814915520321b"
+    },
+    "gfx/pokemon/slowking/front.png": {
+      "git_blob": "d648e8f0cb0ef539e3159bfd29cda3f19fe8df48",
+      "sha256": "cecc1e69656b34f74425f1645d737833ef98581f12ec73288a197340e2cd0a01"
+    },
+    "gfx/pokemon/slowking/back.png": {
+      "git_blob": "a2308a98afaa3d7c08fc4cb6dc406c7fb5dce935",
+      "sha256": "7ab92d9d6a9acee6c53b100b424cf670adadc1e69a710904bb5d3ec51f6b8685"
+    },
+    "gfx/pokemon/slowking/shiny.pal": {
+      "git_blob": "6a893a09094cfac1acd264e4c5d2a0a0eb26ab47",
+      "sha256": "682dde5325584d2fdd029be53f9f4b579231ca973e3b5d318576280e89e89062"
+    },
+    "gfx/pokemon/misdreavus/front.png": {
+      "git_blob": "05c2dd338555f6b392015aa763156efe031818db",
+      "sha256": "cd727786cf2081e0c30280344c0a9e134e1070df478f90a44ca6cb240c936ddc"
+    },
+    "gfx/pokemon/misdreavus/back.png": {
+      "git_blob": "890f1da221fe7be45b97a9d3b82d487c741bf6af",
+      "sha256": "cd78b02e0919ca22917e68dcdf25273a095016f16bf90148ea809d4ccd0c7704"
+    },
+    "gfx/pokemon/misdreavus/shiny.pal": {
+      "git_blob": "dbd1aac54be8cf420472b5d12432e029694f70e4",
+      "sha256": "a11929d25108f9cc9c9fed47e5233326bd27f4007c9ace7cd63b64af883c795c"
+    },
+    "gfx/pokemon/unown_a/front.png": {
+      "git_blob": "decbe95442b96f00578e9e29fd9244ad31aee4db",
+      "sha256": "f907bdb79c96916fcf8edb4dfbeea9e61690ce360e53c39bec0da3723bae3629"
+    },
+    "gfx/pokemon/unown_a/back.png": {
+      "git_blob": "b1d6de88a1061fb527019eec2dda66d580cfda94",
+      "sha256": "9130463255823373147598c48b43f077fbda5c5467eca287e9e3a05b781934e6"
+    },
+    "gfx/pokemon/unown/shiny.pal": {
+      "git_blob": "6a30f11e6d931a15bb8f6087913f08b3e2f8e520",
+      "sha256": "ffc679781d14206c5c8b3a5fa86c1665636bd13e36b762a5f88d92efdbe92b5a"
+    },
+    "gfx/pokemon/wobbuffet/front.png": {
+      "git_blob": "e1b7935aadf3eadf4553ad4cea0ff5157b12ffd4",
+      "sha256": "fdf8389b4665988642136851da953e9be41953937659d8b5efd7f261775a67fa"
+    },
+    "gfx/pokemon/wobbuffet/back.png": {
+      "git_blob": "103f69106c44ac87bf7537e29ab54e0820e2bdda",
+      "sha256": "ba55eb093e6e12304ba12724a3d52f6bfc0935d53881aee629dcbe80bb059093"
+    },
+    "gfx/pokemon/wobbuffet/shiny.pal": {
+      "git_blob": "c721c9ba68628b61619a1f2cf2a4d025747b9719",
+      "sha256": "b0bf8fd42036d76d375581111e437fb2b8f6ad7b7067058ca1bb620c9bbc625b"
+    },
+    "gfx/pokemon/girafarig/front.png": {
+      "git_blob": "18071ac820c2344bc6dc285d8e592920e17c8fc6",
+      "sha256": "b266df5bc7246e2bb697ff2db08154115c30f320853518c5f688eee8be5d1c2d"
+    },
+    "gfx/pokemon/girafarig/back.png": {
+      "git_blob": "6ca3e0deaae860a0716fc2b62226dbaf31ebff9b",
+      "sha256": "5535ba8a81fc47caa8e5fe7c0ca8722426874ff0422b8f6ae54fcc0e74b91edc"
+    },
+    "gfx/pokemon/girafarig/shiny.pal": {
+      "git_blob": "51b7f3847affc3a2f1b44ef84288c7feba550cfc",
+      "sha256": "3ba510d9da5f221f4d8a0f5553c1d224ef98de7c1e5bf1ccd2dc0a4e5e163041"
+    },
+    "gfx/pokemon/pineco/front.png": {
+      "git_blob": "2d91d593256d089d2a10f366800a9b6d751b0df1",
+      "sha256": "d72b5c7faeb5b725658922c0ac0971590782e25917a7df439c948f330acaffc8"
+    },
+    "gfx/pokemon/pineco/back.png": {
+      "git_blob": "ae6299015472c57f75c817bda831ba330616e0c3",
+      "sha256": "4e9b4959fd2abc206ac1eb797d2dd1cdf090b80d25989070877808a71dccff33"
+    },
+    "gfx/pokemon/pineco/shiny.pal": {
+      "git_blob": "33ee632d5771a0f0435d980be22fe69982425950",
+      "sha256": "8f4d6e2bb36fb1629d8ccfa6d5735470a39d8ad58f6a63086addbf9f29caf9f8"
+    },
+    "gfx/pokemon/forretress/front.png": {
+      "git_blob": "065237310a39b19d38d76adfde5af6a6ed17cf3b",
+      "sha256": "c04a1829decfedbccfa8712c8fd9dc91bf33a9862fbcc304b766417ed261a8f3"
+    },
+    "gfx/pokemon/forretress/back.png": {
+      "git_blob": "a64fb148046b960826c4a985aaa8d3944c7fac07",
+      "sha256": "6712c3165aa310589f942c52865b79efba3134aaa3247914e7138eccea5504ed"
+    },
+    "gfx/pokemon/forretress/shiny.pal": {
+      "git_blob": "84aa229d217bdca8f1acfab382c1f5fe64930c7f",
+      "sha256": "858782942d5a0e206c6f6439a4eb81c43ca52d5846c9553603af8ade6d878dc9"
+    },
+    "gfx/pokemon/dunsparce/front.png": {
+      "git_blob": "a2fbc6f189675346828005974b6cc207fbfe0e4c",
+      "sha256": "70fd7762e4499ec0b96410906f1b81c7a36093f994c7c61ffd13b069af3f19c2"
+    },
+    "gfx/pokemon/dunsparce/back.png": {
+      "git_blob": "d3fc9cc85eaf94dfc0213987f2a39edd197fd08e",
+      "sha256": "582f0c549cc9d29369b8436009faffdf7aa6d4b1852a82cdc95c8866d3c55411"
+    },
+    "gfx/pokemon/dunsparce/shiny.pal": {
+      "git_blob": "a86589ee4077bfa0694c9bbad4320396f702739a",
+      "sha256": "e690e4f7526ef923444a28e4b071948f5bb75672a610e340ab484b980e4e7185"
+    },
+    "gfx/pokemon/gligar/front.png": {
+      "git_blob": "729bc9d7f54a7ac71e3b817ca7cfbefb51e139bf",
+      "sha256": "14949bbf7b88c815d044dfaace3607c1788c57f90dcfd9dd83bb7cdab0766efc"
+    },
+    "gfx/pokemon/gligar/back.png": {
+      "git_blob": "64bcc503f88eb7dd838d4f97eb8791e8c35ecdff",
+      "sha256": "e7ce5c784cfbb4a4166241f84a723d1c4f5bcb6bce6a9c3564f0145b2e133a88"
+    },
+    "gfx/pokemon/gligar/shiny.pal": {
+      "git_blob": "b33b2c373faacaf3ea7333735c49ea0cced3c783",
+      "sha256": "fd9c6ac17bcdf8df3698d5d83842cd3674f9202495a6909185bd386ad4d8b452"
+    },
+    "gfx/pokemon/steelix/front.png": {
+      "git_blob": "30df74f27f8a3dd47f8deb80ff2adb9fb2062880",
+      "sha256": "3735d079ddcdd4e6404937e988487ba3fe4439ea77e74484373f4cdddf11114b"
+    },
+    "gfx/pokemon/steelix/back.png": {
+      "git_blob": "6788dacd9ea68de9043e7cbb9ee3080ed78b13e1",
+      "sha256": "24c9c3c421b35fdb60e1feba35ce1931271d56564c490b64f9e23c052a1a55f5"
+    },
+    "gfx/pokemon/steelix/shiny.pal": {
+      "git_blob": "d929c214f62733bb2884a9a29ed06e3dec3d3d21",
+      "sha256": "fcd35f49a1a017d8f5da8fc42676908034d81034e8910de1c5e61bb39d93a570"
+    },
+    "gfx/pokemon/snubbull/front.png": {
+      "git_blob": "ee352f0e32aa91415d77ecfe76260e0536bc77bc",
+      "sha256": "d0ce4fac3a2aa1c6b1319071c2e9b824d1b9360b1ef0f5838f4988bb34791c0a"
+    },
+    "gfx/pokemon/snubbull/back.png": {
+      "git_blob": "2c9635344c918aeb000892be9e9410bc82edc9d5",
+      "sha256": "3209b0d1a60fd4be68718d5e2f528b405819b9f1bef56c3c0796aa9e23105460"
+    },
+    "gfx/pokemon/snubbull/shiny.pal": {
+      "git_blob": "04cda49ec6646fe6558914f760a112e3f3f6b968",
+      "sha256": "2c2897751ed88c5451edf0c1010378e903e52a6b26843243b17ebb46ffa57bfc"
+    },
+    "gfx/pokemon/granbull/front.png": {
+      "git_blob": "911bc59ae12d2170784e0d40f2a8fc729042001c",
+      "sha256": "5e452722eadc130e055f7bcbf81c5027ced4baa765a5956dab843f9a1df63086"
+    },
+    "gfx/pokemon/granbull/back.png": {
+      "git_blob": "9ffdc7c992311fea066449d58c2793edd5e4dc3d",
+      "sha256": "6b545fa1cb8d643e58d2ee6e229db2cdb6a95255f0c8b8924c1054e6d90a5db3"
+    },
+    "gfx/pokemon/granbull/shiny.pal": {
+      "git_blob": "b15bd641cedfa9fd2c79885df35fff079f2bfdb4",
+      "sha256": "98de90b04ee0e6b73317479d7c0ec6c16f095dbc5c21ed3dc811d7089dd75561"
+    },
+    "gfx/pokemon/qwilfish/front.png": {
+      "git_blob": "15a0415cb9121fea5ed99a9ed17621889a7bbb7f",
+      "sha256": "be7ea995236e286a5a6e7faf915a2bf56aa29432080abb948d8ad276b6996b02"
+    },
+    "gfx/pokemon/qwilfish/back.png": {
+      "git_blob": "107af1018fa30a71b1278887697def4281ae1c60",
+      "sha256": "84b2ff85d63694ec25c2f5b3798782e6e914d58acdb97a5c2821f98d1bcf6ab9"
+    },
+    "gfx/pokemon/qwilfish/shiny.pal": {
+      "git_blob": "97c36795e8a24560e3808d1fbe26808ca3a33c74",
+      "sha256": "af4120805796228516fb096d5d2d5439755a22fd408491b7e164f6faba224030"
+    },
+    "gfx/pokemon/scizor/front.png": {
+      "git_blob": "2adfb879f4089ce406b9afe3d3e04418d85ebeff",
+      "sha256": "40dbc734cb38be8ca5a2442f33b7d85ad90b45279448155a36bac2db10994d22"
+    },
+    "gfx/pokemon/scizor/back.png": {
+      "git_blob": "53cef907e5e4ced5ff1261949dccc3a3205a841f",
+      "sha256": "08f12a1af1e14202c46a02849a93ddcb6760c3d1a327fd365ddbd5612b406f34"
+    },
+    "gfx/pokemon/scizor/shiny.pal": {
+      "git_blob": "e4f5cf30edbeea668de83cb0a9ff3065823d18ca",
+      "sha256": "ebfbcb3f33c4d5a3cd1990a34a852561d0f087af6db4cc37cc0a1549527b9adc"
+    },
+    "gfx/pokemon/shuckle/front.png": {
+      "git_blob": "5220fe21dc636d0770d2d1abc6d8928d8b2c7569",
+      "sha256": "3fd5866afb8eb2f27eb6b57868b7b4373ff0de1ae8dae76e619a7792b75e67c9"
+    },
+    "gfx/pokemon/shuckle/back.png": {
+      "git_blob": "9e38480d77114a8f68ad1a5f57cd5aafa238e0a4",
+      "sha256": "290db682d483286f1ea3990d271a5960cd72abfd8f90ff17ad31663565fe8d38"
+    },
+    "gfx/pokemon/shuckle/shiny.pal": {
+      "git_blob": "63b3644abbd610f9efe15e0ae57070e8c7fb9798",
+      "sha256": "dedfca25bf3afe66c635b4d413faeec879c4c9dbd1858377e784d6395e561e91"
+    },
+    "gfx/pokemon/heracross/front.png": {
+      "git_blob": "a8908ab865854fb2926be9cca5cf8d4c038d965d",
+      "sha256": "d86d05a09d775b24a9d6da5606ffb50e23a7f2b37264ef48210c4585b29efa99"
+    },
+    "gfx/pokemon/heracross/back.png": {
+      "git_blob": "f3ee9d73d932ecefad53f34b811934ea94704d36",
+      "sha256": "29d2287908f0431d6adf1f69dba76d08a304bf3488cf67eec680090b0f515646"
+    },
+    "gfx/pokemon/heracross/shiny.pal": {
+      "git_blob": "3bc81cbdc785ed095d4e5ef680e2d91ea516e970",
+      "sha256": "d10b92fc965af368393332850146459d98676fe8480c125275da568a08610314"
+    },
+    "gfx/pokemon/sneasel/front.png": {
+      "git_blob": "958d314d93c920db9057258a8ae14d72d9098438",
+      "sha256": "76b5bc1062c11ea7a57d17fda49e470f2040e78e01e70fc4ed78cf3b5c60ff4e"
+    },
+    "gfx/pokemon/sneasel/back.png": {
+      "git_blob": "4b1921c2a4f02a8ecd49dae426f5a4fceadba139",
+      "sha256": "316a7afc1eb01682573d7be3c643440193779f54c3c952e867ee763e3437c4a6"
+    },
+    "gfx/pokemon/sneasel/shiny.pal": {
+      "git_blob": "951cc378630a7fb5c10839545d0dfcfdedb03033",
+      "sha256": "71e126abfa88372187fc0e66fe5e3b529e436bb7eb5884fd0b29aa4ad93e4c3b"
+    },
+    "gfx/pokemon/teddiursa/front.png": {
+      "git_blob": "83dd4896d4097faa67db93676f7ebef115b85e98",
+      "sha256": "41ecd6e9f54715b264aed27ea2de883b6e31ddab3f23e3747f2c887284e4c462"
+    },
+    "gfx/pokemon/teddiursa/back.png": {
+      "git_blob": "0d4640318a4a6375f64bad6c54a670eedaa20e0f",
+      "sha256": "da46997447d07c6e96822211d6109ca9898e971225562c2b67694233831a5691"
+    },
+    "gfx/pokemon/teddiursa/shiny.pal": {
+      "git_blob": "f3b9973295e51870f11433569b4db32d81f6d8c9",
+      "sha256": "857a5475f1a43ec61b27d6353c285c2d49403aa795b0bad44ad2f9c95f2727ce"
+    },
+    "gfx/pokemon/ursaring/front.png": {
+      "git_blob": "31c28d585cf89437e8ebeaf25981b652a82cdc3f",
+      "sha256": "be2cb9f3ba18b631a508cbc49e3fc91a6ed2746aab5fe5f90c1f5d71ab1c727b"
+    },
+    "gfx/pokemon/ursaring/back.png": {
+      "git_blob": "26621852222a8b3c45cde75bbe4b07e6f6c76361",
+      "sha256": "22938017375bc15c15311322fc2e3b6ad72c6a08fa2d5b28eb3bef2842d7d219"
+    },
+    "gfx/pokemon/ursaring/shiny.pal": {
+      "git_blob": "b2e472ea340ce17394a810a488679ee178e6f34d",
+      "sha256": "4582e5644f1513507bca2a8b643f864c680dacec8af3124d0ec429bbf1e71459"
+    },
+    "gfx/pokemon/slugma/front.png": {
+      "git_blob": "ce63adac68d80d0c971006d92f412a51dda39f82",
+      "sha256": "911c17a6040c0d99f07a02800c215aae8168202ef6f77ea4ec15fec91d2e4efc"
+    },
+    "gfx/pokemon/slugma/back.png": {
+      "git_blob": "f0fedc230d1f5697def7bb355a4bd7ab0ded19b8",
+      "sha256": "43e1b94a15ed16c7202843b9b0a4c705374f4131a9e7fc92ceaf5983f6ce11a3"
+    },
+    "gfx/pokemon/slugma/shiny.pal": {
+      "git_blob": "b66ef094d4c1d7099523f6c604bc3d2a1d3066a8",
+      "sha256": "3c7e324e5b5b6fe7dbdd4209662a19d6837158104c32b59cead169888c6f7db8"
+    },
+    "gfx/pokemon/magcargo/front.png": {
+      "git_blob": "f5be029bf622167e80ab791527888f07f588623d",
+      "sha256": "5ef9b4a737ca7ebae550bc9e1a113059ac7053637f81e906f03d209a4a30fff0"
+    },
+    "gfx/pokemon/magcargo/back.png": {
+      "git_blob": "a1db71ec2dfe13746bcd8ac120d7459c3188cb2f",
+      "sha256": "eb87a6a0588d5344ff271ad85c1ce7382d472cabd0b8bcb765300d3f78e415b1"
+    },
+    "gfx/pokemon/magcargo/shiny.pal": {
+      "git_blob": "a31d8288fe531148f0491ea73f7ed40dedf9157f",
+      "sha256": "06e808f9305191c4ffc60bc4c51e5459aa6a76c9ebe374a175b031d291d7460d"
+    },
+    "gfx/pokemon/swinub/front.png": {
+      "git_blob": "52fcadadeb9418d12d1bb4e901f6a949ea2ac89f",
+      "sha256": "81e17dff032ce5016fdb8b5bdf9627f60d45adc56a8022d282a0a68a57c138f2"
+    },
+    "gfx/pokemon/swinub/back.png": {
+      "git_blob": "254b08e273e8bd75a57b667ed65f6f993afa54bf",
+      "sha256": "7605061780343375ecff736bc627f1ac85582844ccdb39d95e6d957f0526437c"
+    },
+    "gfx/pokemon/swinub/shiny.pal": {
+      "git_blob": "4e3eadacb07657555eca659433f79ca01b43be55",
+      "sha256": "7495b1c45f665dd21c23f3471bc7666c7964b1ae9891be77aaa48b79470fb68e"
+    },
+    "gfx/pokemon/piloswine/front.png": {
+      "git_blob": "822759c1cc579581cb2760812ba6f6d635e031f4",
+      "sha256": "22bf2096efffe83044f65b4d3088cc782f676c981d2c0edb2a335f6c95872f36"
+    },
+    "gfx/pokemon/piloswine/back.png": {
+      "git_blob": "b2963e86fe7dc1501724c550e429370f4d3faf7e",
+      "sha256": "616e6c10aaae7b3554ab36cd44126e6ebabb644740fec280092af0bb9d89c6f3"
+    },
+    "gfx/pokemon/piloswine/shiny.pal": {
+      "git_blob": "3afb0539d6087d62f363450421f20fc1fa9946fa",
+      "sha256": "f13172ab4d504677085fb4534ea79d12185f30f25fea47f7f23dbb4e6401bc05"
+    },
+    "gfx/pokemon/corsola/front.png": {
+      "git_blob": "210b508e7eb4ded78e4db5f8d346e4c89d17141d",
+      "sha256": "08a13d5d139ca609b8bdee72dca4839e318a9d1007ca111f79d381c6453bceaf"
+    },
+    "gfx/pokemon/corsola/back.png": {
+      "git_blob": "8550813abee7a45015ee3a694ba3ed14847b5e83",
+      "sha256": "66a8c9397e1d4c335639ee53596dae481ea601c0a2bd0bfda83ab3b064930395"
+    },
+    "gfx/pokemon/corsola/shiny.pal": {
+      "git_blob": "8aec60de2bb9fea4b716763f7acb4b13f042b083",
+      "sha256": "70a7a3fd4c361d8868368cbf6031437c2e7f5f2b95a4f8057812f181ffe1ee20"
+    },
+    "gfx/pokemon/remoraid/front.png": {
+      "git_blob": "d92ff58381e689d9299c76d22113416d3867c470",
+      "sha256": "efdf4df4fa28dc2e8e167513e7c416ac29f9bf6f3d75b201eff69224c9e67623"
+    },
+    "gfx/pokemon/remoraid/back.png": {
+      "git_blob": "2abcc55e0e85e144caca72416be96ad5fa85056c",
+      "sha256": "175e50089a8a2a34f9ed02f65e96d1c883b249d0b5c5afc1d048c878c11e35bd"
+    },
+    "gfx/pokemon/remoraid/shiny.pal": {
+      "git_blob": "669e14e4a98fc9d4f6144c0ea91ec6803189f551",
+      "sha256": "66c989ff6427b713a8ef8e2c6801671982a63d3dc19eefa1bd01a76b35859050"
+    },
+    "gfx/pokemon/octillery/front.png": {
+      "git_blob": "a2359dc98d3094bf22794f851d5eff6a60125285",
+      "sha256": "f5ac16ae5df807902f3148625ea93ae0c62dc4531c74facf6e2a1e7a787eb475"
+    },
+    "gfx/pokemon/octillery/back.png": {
+      "git_blob": "8717ea0716571f2e59fc9b692ed1602334ff7e83",
+      "sha256": "f9a6ae9e41a33c981493fb2bcc60f0a3ecd75b30cb9f0245fac069de771f0637"
+    },
+    "gfx/pokemon/octillery/shiny.pal": {
+      "git_blob": "a5bdc9b71b5637efcc467eb491b18ad9eb32aa5b",
+      "sha256": "da9db249c54ee2c7e8788d68772860933130717fa9ab55a256ce621454ebade8"
+    },
+    "gfx/pokemon/delibird/front.png": {
+      "git_blob": "591271b3abb6b2b46a403fec9ec238de2a3f182f",
+      "sha256": "fe83b11c00910861b8dc19d75629ceee99837f932b07906aff4449e682dd40f7"
+    },
+    "gfx/pokemon/delibird/back.png": {
+      "git_blob": "367d6055ac2b93aeff26c1a0b89426153efab173",
+      "sha256": "0ba7242b6c19e6aa3f746d070dd3ac6c72a0434ab2a3a82bf6ddd7067b61db05"
+    },
+    "gfx/pokemon/delibird/shiny.pal": {
+      "git_blob": "4c4ee713f71c9ad530a53cbcbbb03771f74c5e65",
+      "sha256": "4cb8e821c3a1af63739ad28ad7712e5e229545cedd04796bc405e520c7100d8f"
+    },
+    "gfx/pokemon/mantine/front.png": {
+      "git_blob": "1102eb41bb6243f48906ecd300546b6fa25cf751",
+      "sha256": "9dbd7de570eb3f31e815a860dec362df93b6cc11c9c0deac7d1d0c36600e2df7"
+    },
+    "gfx/pokemon/mantine/back.png": {
+      "git_blob": "dfb363f40f87fa5f350672f5f4d59c57f5ec4a89",
+      "sha256": "58ee722f8a70d1f335a109541a0be80e1c4ede32343d05feb1441c49ad47d09a"
+    },
+    "gfx/pokemon/mantine/shiny.pal": {
+      "git_blob": "cd743d8baaf69a1537079f7e93c40961094a99e1",
+      "sha256": "a267187cc9d5d0f5f9d705c45423b7da86bb76e7ec5b1faa771eedb6e52fdb60"
+    },
+    "gfx/pokemon/skarmory/front.png": {
+      "git_blob": "68e39d93dc39782875f03d18a6d9ba94c6f82c0f",
+      "sha256": "3e6cfd70de3eb2c7b303dcaf3d4e912266079a59f7884aeaae29d8d35e45dbf3"
+    },
+    "gfx/pokemon/skarmory/back.png": {
+      "git_blob": "7005cb3368cc449e793f49f6c4573ca53843725e",
+      "sha256": "08731aab8fc8a7b10c529fd25a37e9e575561f3896d716cddbeb870b638bdf36"
+    },
+    "gfx/pokemon/skarmory/shiny.pal": {
+      "git_blob": "80c53554de0f74e4f1b4f030e17f2d93b96f2291",
+      "sha256": "1a5bc9aea5fabce75061a14d1abea6e7ec77d7a7da9ad83f068a963d99dad819"
+    },
+    "gfx/pokemon/houndour/front.png": {
+      "git_blob": "b002b0f15f0bb868d276a9a0f20e7527f94f4d86",
+      "sha256": "fddf5d92321d3f80e67ce522b120f3514d6a6a5dc34d3b04acd3e6b8b96e62e2"
+    },
+    "gfx/pokemon/houndour/back.png": {
+      "git_blob": "bcaf2c7ca460f64417a32743914fec0265821c53",
+      "sha256": "f4ce422790ea8880cac3d3b08a0010a24111de580473091dce23f9e40bffb13d"
+    },
+    "gfx/pokemon/houndour/shiny.pal": {
+      "git_blob": "c7296ab337dd8f95f4666f9d23bb5d0eb0791bad",
+      "sha256": "60ce7d38aeffa500bb9adca333acfbcdb766a55872a648c8cfca84c1f75bc025"
+    },
+    "gfx/pokemon/houndoom/front.png": {
+      "git_blob": "0a831573460a3e9cf642d1ca8aa8643158278fd7",
+      "sha256": "6e251c008df87d0e5584f46eb3eef057f2e93324fcc5f027aa2ca76f63b87983"
+    },
+    "gfx/pokemon/houndoom/back.png": {
+      "git_blob": "e9137ba775d20f36e6c170bbf59817424b70b80b",
+      "sha256": "cd7d34d81ff7c964cbe3888877fac8edfdc0b2db6db266db7d3fd3d7c5011176"
+    },
+    "gfx/pokemon/houndoom/shiny.pal": {
+      "git_blob": "cf16faf2cc609b8251e7e9c8159d42cc3741c3c8",
+      "sha256": "bf427737bc6e135c1606945c51c82e49581c1ce51bfe7b6e29478c0aa68c00ba"
+    },
+    "gfx/pokemon/kingdra/front.png": {
+      "git_blob": "978f8e91ccea598a5de9d712051ae0003168f980",
+      "sha256": "d45d2ce525903e16fa1e8e6adf65be85090387ced7d1a9518eaf46b68523b41a"
+    },
+    "gfx/pokemon/kingdra/back.png": {
+      "git_blob": "9f0784999c41c956162039fa0d4bed0ebfc74d0d",
+      "sha256": "6b27f0cbdcb4f595a44416a3dba3c1cf5245dfc969ebcfb9e62799bbe1b10070"
+    },
+    "gfx/pokemon/kingdra/shiny.pal": {
+      "git_blob": "2a65783f160a3f6e59ca61aa676fae2518f3d1d6",
+      "sha256": "bc325dac131cc4c8671bfc6a54bad8298aaca8e0b0e91f2610bf0688e6937697"
+    },
+    "gfx/pokemon/phanpy/front.png": {
+      "git_blob": "e2e0eeb14ead474cefb4f68ab3931667f868b604",
+      "sha256": "0c9080369a628d33d1cca5142530379eccd2f6a8b68c9b013e9db539e5824a01"
+    },
+    "gfx/pokemon/phanpy/back.png": {
+      "git_blob": "5efafc74ba470d25169962d08ed41e21073bd589",
+      "sha256": "a28d34e5ff0a686cd44c5fc67672d888ce318a4fedd896ed1741b793b5793ad8"
+    },
+    "gfx/pokemon/phanpy/shiny.pal": {
+      "git_blob": "64b15d904ac96afd4660e881887ff16d4aa6639c",
+      "sha256": "ccdbe54be3263db9218a07cc34bc39b7cf1cce47b2f6a54d20ddcc3e015513b9"
+    },
+    "gfx/pokemon/donphan/front.png": {
+      "git_blob": "9dc93c065aead801ba7540436256085c6a827fc1",
+      "sha256": "780d52670f86c4c52e2011fea70e4260f8fbfcd743a1c2a9cf4bf85bb0dbd5c3"
+    },
+    "gfx/pokemon/donphan/back.png": {
+      "git_blob": "a156f85bf1449176e77e87932c333f5844278a5f",
+      "sha256": "afa2ee6c9983c0f48e315746b0ecd72b9964d0cb468cff151dee3dd437d2f36c"
+    },
+    "gfx/pokemon/donphan/shiny.pal": {
+      "git_blob": "d705694c2e5ce96cb6376f527f0049bc2950a8c5",
+      "sha256": "66a4864040ea5a45a7701dcf6d95225202913039267fcfe3856bfd066aef4ce2"
+    },
+    "gfx/pokemon/porygon2/front.png": {
+      "git_blob": "16e8d44e6e381c1d2a2d92e0de12bd7dea2bf8a1",
+      "sha256": "0f77881f08e2071f5389d6fecf217b2c07865d77de93f7434588ea64098da34e"
+    },
+    "gfx/pokemon/porygon2/back.png": {
+      "git_blob": "a8d7ed4e624ba73e17c3fd003c13e273e36a7d47",
+      "sha256": "9432400fd0693abcb6b711d3972a4e744af66d5ad53cb13cbbc03da9db3e90cf"
+    },
+    "gfx/pokemon/porygon2/shiny.pal": {
+      "git_blob": "3b0c4dabe8d6590f18c104fa974d76ca7a733ce5",
+      "sha256": "8b0f4dfb4e3c06b7b4e504d4c5189e3e4f0dc9c37383f0a3735b10b5169a24a1"
+    },
+    "gfx/pokemon/stantler/front.png": {
+      "git_blob": "ac8628445dcff5ca376606c86bbbad8c70d69777",
+      "sha256": "f4d7b37e0ff24c4f5f9ce1817a6519c96f2278fe9cc13426aa6e92e5ca33c9fe"
+    },
+    "gfx/pokemon/stantler/back.png": {
+      "git_blob": "90e7b4a65b35902e48db4f459e7591d55c8108b1",
+      "sha256": "e90e12993201ccaaf07ee3e7453f99689355d2ad87e01e1c7ecd0f66f50197a5"
+    },
+    "gfx/pokemon/stantler/shiny.pal": {
+      "git_blob": "efdc404e9d2c691da8fba60ccf04ae64e8c290b4",
+      "sha256": "391ed2ab2d24a41522153f1a57306622f35937b1d1ab2db99367b380f46f502b"
+    },
+    "gfx/pokemon/smeargle/front.png": {
+      "git_blob": "2c4a905088df2a064478d935296fadf335334b26",
+      "sha256": "cc235a638bd8738d8012cc633f7196439b671b1c090bf76963d789027be16c7f"
+    },
+    "gfx/pokemon/smeargle/back.png": {
+      "git_blob": "22ba83c3c4186e8757610f99cdf58ae02f301eab",
+      "sha256": "1228ade026533c2319e4a8142b30e6f16aa531f96ca9c82c84c1d4e5ad8fd6fd"
+    },
+    "gfx/pokemon/smeargle/shiny.pal": {
+      "git_blob": "3b0290ba1be786bc2138280d9bb2d5625ddb23f7",
+      "sha256": "fbd40d8269fafa19a902a4c519889887e4e2479064ace2dd2b13551c97ca1f8e"
+    },
+    "gfx/pokemon/tyrogue/front.png": {
+      "git_blob": "af8af4a4eee37db6cc0f01bbb907d6e9b976dae7",
+      "sha256": "d92b3d5a181c4aee097fe08fe76e516b34f4c22bdfa566fc5e0b9f9fb2b6b149"
+    },
+    "gfx/pokemon/tyrogue/back.png": {
+      "git_blob": "22c1d61c47cf30cf69150e976b04714694c8aa2b",
+      "sha256": "87f80fc20314e457b17793b3a5f3ddd469e07f5607fa8f7a7f72686510c5ddb7"
+    },
+    "gfx/pokemon/tyrogue/shiny.pal": {
+      "git_blob": "53e0a5c1e7b929a96b4dca015ebc99fd62c08c1b",
+      "sha256": "991a107177befd5e01385794e873bd3186120f8311405e100d67eb7f786379e9"
+    },
+    "gfx/pokemon/hitmontop/front.png": {
+      "git_blob": "3c580896d7d5005c32f153490179ad13ed2d98e5",
+      "sha256": "7ac5d37434bf6cfa94f9dbd95f371126930c7a5ab4ec430b004afb3164d5ae4a"
+    },
+    "gfx/pokemon/hitmontop/back.png": {
+      "git_blob": "95a1faa4c1a48c39962ab3938d28bd9e4eab351d",
+      "sha256": "446f3d679aa4e3333670c288614e15c31282afa3ee89fbce431915db504afa29"
+    },
+    "gfx/pokemon/hitmontop/shiny.pal": {
+      "git_blob": "5c88a27e07bf5f226de36a4b8c10ef361eca2eba",
+      "sha256": "90457d7979f706592bfcaac4e2fdf7f4325d35c518b8a50f5627b86d92ecdb39"
+    },
+    "gfx/pokemon/smoochum/front.png": {
+      "git_blob": "49ba7563938e723b383513cd8ad4af9c216edb8c",
+      "sha256": "d46b6593a984d31cb2434ea03ff755195b4624b190899c9aaf75a3a0f5a40cd4"
+    },
+    "gfx/pokemon/smoochum/back.png": {
+      "git_blob": "e5167842ea676f019eb46b3d5087bf3fc2a4bdf9",
+      "sha256": "6a1ae84fe79cb5b111c0f407fd19feaea610796a62349a12dce85232ab926437"
+    },
+    "gfx/pokemon/smoochum/shiny.pal": {
+      "git_blob": "ee3baba53e8e211ddbbb97873decc7a3e52002e9",
+      "sha256": "6ac6cc8c95e26612d4a0b45a61a432f1136bbe0058c769f0ef09315b7eb289f1"
+    },
+    "gfx/pokemon/elekid/front.png": {
+      "git_blob": "eaefbdc6c56a40c39f073fca8d8fd5ff21c777ce",
+      "sha256": "95ccf12f44fa1b2a495685badb1614bc0933ad755e18919198eb05700870c3c1"
+    },
+    "gfx/pokemon/elekid/back.png": {
+      "git_blob": "8049ca5ad5b08b27d62f71a94121b860714da189",
+      "sha256": "09dd8f18f7339341b276523f668df20e42586eed772079292a9f0ea95ac9b2ac"
+    },
+    "gfx/pokemon/elekid/shiny.pal": {
+      "git_blob": "4eb42c6d422cf6cde2ebbe24c5559e0369df6e6e",
+      "sha256": "b7703fac53c522aca16699ca9b63bc9d9e548880f15b52cec79fc8dcfcc0f72f"
+    },
+    "gfx/pokemon/magby/front.png": {
+      "git_blob": "a966313d748a4aa8497089edbe06e27a59dbf0b2",
+      "sha256": "498bb6e5dfac8bac77e7e41c0ab2dae935f9e06b7e53ea986ec3d5d3b92bc941"
+    },
+    "gfx/pokemon/magby/back.png": {
+      "git_blob": "8d38c2ccbdaa4883007ef4f008e267d7c4fedc18",
+      "sha256": "19ec3a92b9aaf15d5fb2a14637c688a6bd5cc0810461e5ee8a73712aa519998c"
+    },
+    "gfx/pokemon/magby/shiny.pal": {
+      "git_blob": "ee96fafd26bfeb3761e6762385b220d91519c287",
+      "sha256": "fbe0b462f1f7506697af576464f42fe449248a9954d8812474891c4409c0f9fc"
+    },
+    "gfx/pokemon/miltank/front.png": {
+      "git_blob": "b0965c8f660045bd243175f3a4d71e84735bdb49",
+      "sha256": "67af967f7845529d410e0cba514affe9c861f4df63a669a2750bbabd34b378ac"
+    },
+    "gfx/pokemon/miltank/back.png": {
+      "git_blob": "28c4a906fbd581ba6aca8d467fa52642caf80ae9",
+      "sha256": "2e34a8121fb7f7ae7457924411e66893be107f9d30aa43436d60a006bbe25dd6"
+    },
+    "gfx/pokemon/miltank/shiny.pal": {
+      "git_blob": "37792fe7edb32e982b673b99aa6f3f7cd286809b",
+      "sha256": "18455336cb6dc16bb7ec01787a9a287566add334871b6ef7ac89ca1ef1b7c5fc"
+    },
+    "gfx/pokemon/blissey/front.png": {
+      "git_blob": "3d44eb5d6a78770f19804cd85d42b6b6320aa1be",
+      "sha256": "6bdd7476381f3eff427be4fb1dd95dcc09541f5092704756e36469341f8778fd"
+    },
+    "gfx/pokemon/blissey/back.png": {
+      "git_blob": "858ad5d40c69540a1ed259355364627422353abb",
+      "sha256": "1e2d97e6b748aecc8c8beb59211bf76f95d3aa8ef58f5d243bf4dd819e24ecba"
+    },
+    "gfx/pokemon/blissey/shiny.pal": {
+      "git_blob": "862858e75639bc3fa60582bffcfb39c9ef482ed3",
+      "sha256": "16e006f6e489ef8acb84f231b820ae55bc3cca67b967467ea674afee981c274b"
+    },
+    "gfx/pokemon/raikou/front.png": {
+      "git_blob": "4854f2571439f82bed937c6b146f32c1ba7f311e",
+      "sha256": "19a884f2b874d5f318f4cac5fc573437aec675ee29bada25a9bb675b718c0277"
+    },
+    "gfx/pokemon/raikou/back.png": {
+      "git_blob": "0214e673cd1635d50f850017012e5c764c882f54",
+      "sha256": "18d2ba5afe000d52b5648714be610c26b35dae1da0e443c74e73b688693ecbbd"
+    },
+    "gfx/pokemon/raikou/shiny.pal": {
+      "git_blob": "509a54c483ec68f2f7b28175a0089267f1f900ae",
+      "sha256": "a216d53660a1c8050fb6ae91dd8be5250d4c66917f0eff84dc6d689397628af3"
+    },
+    "gfx/pokemon/entei/front.png": {
+      "git_blob": "220bcf9a6ad5c5c619c5a5e251a273942f7ea6fb",
+      "sha256": "321a5f21c1d650930a0385116356908da2a7fb6d93048ab721d758717cdc0249"
+    },
+    "gfx/pokemon/entei/back.png": {
+      "git_blob": "fa966a3c9a316611700e5015f8449debbe72a9bd",
+      "sha256": "a600e9c305d4db38d853573baf673c4b1b27d6cbd223945d57146242f3a67ce5"
+    },
+    "gfx/pokemon/entei/shiny.pal": {
+      "git_blob": "e806f7e002f4dcd1225b7f214f93058597ea8368",
+      "sha256": "9e2d043981f042cf9c19446c4793d97955a88de840d6a4d16c61cb1e4e2a32dc"
+    },
+    "gfx/pokemon/suicune/front.png": {
+      "git_blob": "f369cff81a957e0019610968d0b004da916d6573",
+      "sha256": "37c5778a238f47bff055a207a80602037ddceb908a7dd457eacd512888f5c35a"
+    },
+    "gfx/pokemon/suicune/back.png": {
+      "git_blob": "b0245605569d845ba1a47a2339fc431ca695b339",
+      "sha256": "f190b4155d03d087ba8d9b89d285c14f819ba48845911bdfe8c9e364b00692e8"
+    },
+    "gfx/pokemon/suicune/shiny.pal": {
+      "git_blob": "776effbc35eef561a85dbb6001d95213b7dc5dd9",
+      "sha256": "46be5379ca7b30a3c800a52ca88e8cf09beb7c978ef31631eba6234589d5fac8"
+    },
+    "gfx/pokemon/larvitar/front.png": {
+      "git_blob": "3f58d0be6ff4d8909c396bccbbe8e18d1297f39c",
+      "sha256": "cf006c24d5093a39528568809a54305f9c19a507c2f5e4c829303fe014afeac4"
+    },
+    "gfx/pokemon/larvitar/back.png": {
+      "git_blob": "84e51b20b01b85e7633f33391361a5c408658746",
+      "sha256": "9527abde7d4a291c0333f7efea09555f28f50d5a78c03d387729554518828a00"
+    },
+    "gfx/pokemon/larvitar/shiny.pal": {
+      "git_blob": "025a819dca19ebf909b3db4aa4cf19556c6d7542",
+      "sha256": "d7155bdb2e72d1ce2a640b9a64b5c9214779e4b5b741af0e2de427782d6271e7"
+    },
+    "gfx/pokemon/pupitar/front.png": {
+      "git_blob": "afc1897d19324bbd2165448e5ec41773be5fa2de",
+      "sha256": "9adda6f70f1c7e50e4c8b57d7b3c4630da7b3272b869003def2888a6d24e47fa"
+    },
+    "gfx/pokemon/pupitar/back.png": {
+      "git_blob": "ae19688abc36c5792b2dc05adbf5fdb7418b35e6",
+      "sha256": "5015d706e68e3dd4828818152dc977c211ea192df4774e8976e87cca71f704d0"
+    },
+    "gfx/pokemon/pupitar/shiny.pal": {
+      "git_blob": "a8c6cb74f23f5208ded89f744defb77f453c758f",
+      "sha256": "561436fb8ca95857005f3cd1bd22cf829a33580be2e4948def39f68220368876"
+    },
+    "gfx/pokemon/tyranitar/front.png": {
+      "git_blob": "4b1ba3416a9d7c53293656bc3a50f83b70751973",
+      "sha256": "5429b05e8bbfb742edb70f6ba6c61556570fbdecf9fde36227272b13e6c472d5"
+    },
+    "gfx/pokemon/tyranitar/back.png": {
+      "git_blob": "07f6d1b5768ccbc4c97d0c60ad945929660564aa",
+      "sha256": "8592dc21f57888d20a51d9acc21a0ed8352b7408413ccc1d8f0c77a67fdf8983"
+    },
+    "gfx/pokemon/tyranitar/shiny.pal": {
+      "git_blob": "4eebd8b4f8c1b71aac2c239c9139cc3750f92178",
+      "sha256": "03b7c944b0bdf4489a4ee6eeb3ffec5127038005ff350bd85495302b618774bb"
+    },
+    "gfx/pokemon/lugia/front.png": {
+      "git_blob": "29c21ee3cb2110f509914239008c6d94a8bb446e",
+      "sha256": "a0db00ec90a576c690acb856712870e8d71e9e1ade043e6205fe107519da2912"
+    },
+    "gfx/pokemon/lugia/back.png": {
+      "git_blob": "07e502f416ec4f3b1abef5a1c313fe596aff51b8",
+      "sha256": "066639e5336525294edb63c64d9effc0d85fb08a89d847452d9057af07034c05"
+    },
+    "gfx/pokemon/lugia/shiny.pal": {
+      "git_blob": "22a7970ff7a98b65c213d51e1b94d261ac2eddf3",
+      "sha256": "cd7c56404af3db8ddc3a506f9ea687f263653e6f0dfe887403f7fc5f3da894f8"
+    },
+    "gfx/pokemon/ho_oh/front.png": {
+      "git_blob": "52598814d7617247ab6b11060c4bca01afc0c5b0",
+      "sha256": "2fe4d7f02ca691a9f82546af37b218a116b1ff23567793ced0d6edc9c307f9ac"
+    },
+    "gfx/pokemon/ho_oh/back.png": {
+      "git_blob": "c28d038d93fab25cc7ab5ec0ae8d9080951672c2",
+      "sha256": "24cf27b4feec95f78837c7e306bdfc2e85059518e8de14950621a94adca9d983"
+    },
+    "gfx/pokemon/ho_oh/shiny.pal": {
+      "git_blob": "64a56ec5295c6768e5748dc7c84116c4473e252d",
+      "sha256": "4fe35c198aade16ccd93a05577aea61bd78b02c3b1b1b67b0b0b22fe095b0de9"
+    },
+    "gfx/pokemon/celebi/front.png": {
+      "git_blob": "66bcd2e70a9ce65f4907f5d092497e19760393ab",
+      "sha256": "b1a55b7199a00cf294acdefc59395370f660c7ee4806ad80177886cd54e093bc"
+    },
+    "gfx/pokemon/celebi/back.png": {
+      "git_blob": "ebb79c020703a328b2e3dfd338452eb6b4b10b94",
+      "sha256": "ed4ae6e851a7bae7732731e19dc90627be1da33755f0c2fa51953f55df13e0a8"
+    },
+    "gfx/pokemon/celebi/shiny.pal": {
+      "git_blob": "1d73c80433dd67c8e501886b9f93cc7df481736a",
+      "sha256": "bd258a74e6b86de1a55fab36416456fd1f8b77293be969a47f94d41c8e5034e4"
     }
   },
   "species": [
@@ -11208,24 +12408,6224 @@
         "packed_sha256": "ae82247174502417d2b6722eb9e58ff36bad1cd017f1eefd2e40464da40d1185",
         "source_white_pixels_preserved": 1449
       }
+    },
+    {
+      "id": 152,
+      "source_name": "chikorita",
+      "palette_pair": 146,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          21,
+          23,
+          12
+        ],
+        [
+          3,
+          20,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          29,
+          23,
+          12
+        ],
+        [
+          26,
+          14,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "7250c2f239494dcf999765e28b96e8c5dc643334287cb0663d0b8e7cbd8e4c6b",
+        "source_white_pixels_preserved": 748
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "9a156c84fe66058b788d3734844829d765965d4411e5d03d8bbd1cc6d0a11e06",
+        "source_white_pixels_preserved": 1243
+      }
+    },
+    {
+      "id": 153,
+      "source_name": "bayleef",
+      "palette_pair": 147,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          27,
+          25,
+          6
+        ],
+        [
+          11,
+          16,
+          2
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          27,
+          20,
+          13
+        ],
+        [
+          25,
+          15,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "6d30c3cbdd300058a3b3d3f7d433017a6b07d3596efee0e06dc15c9e56d44a50",
+        "source_white_pixels_preserved": 1165
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "477cdb277b8bbe940f2654e9e6a060f309bf3e3af2230ecabe3846baf56bfd36",
+        "source_white_pixels_preserved": 928
+      }
+    },
+    {
+      "id": 154,
+      "source_name": "meganium",
+      "palette_pair": 148,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          13,
+          24,
+          3
+        ],
+        [
+          21,
+          1,
+          10
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          24,
+          24,
+          0
+        ],
+        [
+          28,
+          12,
+          5
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "fbda1b114740d12679bd5989c663ec987e14ab9c0dc8e57a90501623b27f9c4c",
+        "source_white_pixels_preserved": 1409
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "4249fac430c84188b5bb3f8108a3dcd6f75c05d7d8f1e0a7fd50481fa5e9b325",
+        "source_white_pixels_preserved": 1319
+      }
+    },
+    {
+      "id": 155,
+      "source_name": "cyndaquil",
+      "palette_pair": 149,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          27,
+          0
+        ],
+        [
+          31,
+          7,
+          5
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          29,
+          23,
+          9
+        ],
+        [
+          22,
+          0,
+          19
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "7463f4f75f6b2382bb4773d3d6127050deadbed7c6e0cb8301561c38e00155c1",
+        "source_white_pixels_preserved": 664
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "a68d60796d337914cb2bf71adcc96c9ea73d4a2050acc8de4735e2fb42a97fd8",
+        "source_white_pixels_preserved": 982
+      }
+    },
+    {
+      "id": 156,
+      "source_name": "quilava",
+      "palette_pair": 150,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          28,
+          4
+        ],
+        [
+          31,
+          9,
+          3
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          29,
+          23,
+          9
+        ],
+        [
+          22,
+          0,
+          19
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "05ec3170f89cdbbf3765c147d2d06d573ddd1e8a305072d442e3e9e818fd1ccc",
+        "source_white_pixels_preserved": 1140
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "f0f77452dede5ecdc4ea0f5aeef595d39ee7a8cf8bdcc231fbf27abcc8aaa5c1",
+        "source_white_pixels_preserved": 1083
+      }
+    },
+    {
+      "id": 157,
+      "source_name": "typhlosion",
+      "palette_pair": 151,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          27,
+          9
+        ],
+        [
+          27,
+          6,
+          3
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          29,
+          23,
+          9
+        ],
+        [
+          22,
+          0,
+          19
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "e4afc441c2339d4f23122faf3f17f1f51b38edaa90715010caba67c33c839bbb",
+        "source_white_pixels_preserved": 1471
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "180548804d29727867bb1ce1981930400e9f125433b41a4c35366e511935e7f5",
+        "source_white_pixels_preserved": 917
+      }
+    },
+    {
+      "id": 158,
+      "source_name": "totodile",
+      "palette_pair": 152,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          12,
+          17,
+          26
+        ],
+        [
+          28,
+          9,
+          4
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          18,
+          26,
+          15
+        ],
+        [
+          14,
+          9,
+          28
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "7ed2781ad1bf889f0e6e9b60f84c0ac2db46c7071192160e0b824246490c72ac",
+        "source_white_pixels_preserved": 747
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "e4594a0abeab7aa9a2f6a7fdcad6cbe37f1d4882881ca21fa6130cda12e6b939",
+        "source_white_pixels_preserved": 1158
+      }
+    },
+    {
+      "id": 159,
+      "source_name": "croconaw",
+      "palette_pair": 153,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          12,
+          17,
+          29
+        ],
+        [
+          26,
+          8,
+          7
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          15,
+          21,
+          14
+        ],
+        [
+          13,
+          9,
+          23
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "fa1b3aaa59141a8be12fc76a82792903dbc80997d31da8fa04f63a40439e3638",
+        "source_white_pixels_preserved": 1265
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "ff55699003ab7a1f0686ac987d51ba8d2f5643d7655e254101749b1b35eb6dec",
+        "source_white_pixels_preserved": 1139
+      }
+    },
+    {
+      "id": 160,
+      "source_name": "feraligatr",
+      "palette_pair": 154,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          11,
+          14,
+          29
+        ],
+        [
+          21,
+          6,
+          1
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          8,
+          17,
+          13
+        ],
+        [
+          12,
+          7,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "5bbf8072e5f0d70ad6c2d9b37c4a838a02608d8886741c0bd36c83b0cc6c755b",
+        "source_white_pixels_preserved": 1331
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "476b60d898d7934270dd82613d44c4ca7cee2c648343104f8773618a4513b46e",
+        "source_white_pixels_preserved": 928
+      }
+    },
+    {
+      "id": 161,
+      "source_name": "sentret",
+      "palette_pair": 155,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          22,
+          15,
+          10
+        ],
+        [
+          15,
+          7,
+          4
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          24,
+          19,
+          2
+        ],
+        [
+          21,
+          5,
+          20
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "1e8bba17be0dea25236a2675486a0c52620349387e32d2c9a76130e11fbe247a",
+        "source_white_pixels_preserved": 1682
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "5d83e0483d0dc7ef02aecfdcd3bc7c7052dd06ded98c99618675e83e19f698ec",
+        "source_white_pixels_preserved": 1419
+      }
+    },
+    {
+      "id": 162,
+      "source_name": "furret",
+      "palette_pair": 156,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          23,
+          21,
+          4
+        ],
+        [
+          14,
+          9,
+          2
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          30,
+          13,
+          31
+        ],
+        [
+          15,
+          10,
+          2
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "19c2b16329be0022a2fab364d8b82d8d0d395c85b7add78f5f1fb7f8e12abdea",
+        "source_white_pixels_preserved": 1116
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "b000addbb20e8e918dd2f9f82848415f65a720b8c59ecbf932bc354e7a7edc90",
+        "source_white_pixels_preserved": 849
+      }
+    },
+    {
+      "id": 163,
+      "source_name": "hoothoot",
+      "palette_pair": 157,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          23,
+          13,
+          6
+        ],
+        [
+          4,
+          6,
+          16
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          23,
+          22,
+          6
+        ],
+        [
+          22,
+          2,
+          24
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "810e9546b3b32eb357bb836e25a694faab444d1acf3a2cb79f87d363115a52b2",
+        "source_white_pixels_preserved": 837
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "3ab93b78c9ea4047112fccfc419b00c4f835b5982d1fe87409f9da411df68fd8",
+        "source_white_pixels_preserved": 1148
+      }
+    },
+    {
+      "id": 164,
+      "source_name": "noctowl",
+      "palette_pair": 158,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          18,
+          12,
+          4
+        ],
+        [
+          11,
+          5,
+          6
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          18,
+          23,
+          4
+        ],
+        [
+          23,
+          10,
+          6
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "38fa726f89c3159fe75f8689be49a9b78ee402ea0b2c8fee5f1db29dcabc292d",
+        "source_white_pixels_preserved": 2042
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "2d7f8dc400c51e5485ae3102bc6542bd84c865ca97834075b90c16cb17a01590",
+        "source_white_pixels_preserved": 1169
+      }
+    },
+    {
+      "id": 165,
+      "source_name": "ledyba",
+      "palette_pair": 159,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          26,
+          19,
+          8
+        ],
+        [
+          27,
+          6,
+          5
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          26,
+          0
+        ],
+        [
+          31,
+          17,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "21da4cd020e006c622208ba33ece60af4647fc7c60017e8ec84f7b45cd7f5270",
+        "source_white_pixels_preserved": 1390
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "b745e78b359c8c06cc3fb8ef6162a2133868ad17a620d2c983dc82ebdfc860f7",
+        "source_white_pixels_preserved": 1193
+      }
+    },
+    {
+      "id": 166,
+      "source_name": "ledian",
+      "palette_pair": 160,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          22,
+          4
+        ],
+        [
+          27,
+          6,
+          5
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          26,
+          0
+        ],
+        [
+          31,
+          17,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "3cea106b97f1ec2b4dfed54bf0d9e9bb69474567804ec970df3eec5ec9ca3dab",
+        "source_white_pixels_preserved": 1426
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "f4381cea55d008c6fda0cd0685d0be90c6fda9919b0df163ec75a26ff1d3a0c2",
+        "source_white_pixels_preserved": 933
+      }
+    },
+    {
+      "id": 167,
+      "source_name": "spinarak",
+      "palette_pair": 161,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          28,
+          21,
+          12
+        ],
+        [
+          9,
+          20,
+          5
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          12,
+          31
+        ],
+        [
+          20,
+          9,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "f62e984826c842c165f210378f4e42544b32aa14b35d1bcc0cc92fad2dda796b",
+        "source_white_pixels_preserved": 1059
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "3b1896c888ff2e2e7771ac7aa4a7c6a433a99dfff8e2f7af89ce7dde60500c5e",
+        "source_white_pixels_preserved": 1545
+      }
+    },
+    {
+      "id": 168,
+      "source_name": "ariados",
+      "palette_pair": 162,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          27,
+          10,
+          8
+        ],
+        [
+          14,
+          6,
+          20
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          21,
+          3,
+          26
+        ],
+        [
+          5,
+          9,
+          29
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "7a8ab18210d850f8aac07bb12bafeffa6a94f8524d22bf4dbbf02d88d4b411d6",
+        "source_white_pixels_preserved": 2227
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "f436d931e82f5e2a11065f4d4203364777ed31cb47ac47bb26fa76e24edbe125",
+        "source_white_pixels_preserved": 1501
+      }
+    },
+    {
+      "id": 169,
+      "source_name": "crobat",
+      "palette_pair": 163,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          18,
+          8,
+          21
+        ],
+        [
+          4,
+          9,
+          15
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          29,
+          12,
+          19
+        ],
+        [
+          7,
+          15,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "e82554965eaf48669d0295e65cb2fd35e109097ac6d5e3b07c978456eabd2839",
+        "source_white_pixels_preserved": 2225
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "f94436c3b59ceed0ee1ecb4eae2e1c85c8ed034d7a9fdc798776558cc0ae5b3f",
+        "source_white_pixels_preserved": 1445
+      }
+    },
+    {
+      "id": 170,
+      "source_name": "chinchou",
+      "palette_pair": 164,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          27,
+          22,
+          7
+        ],
+        [
+          13,
+          10,
+          28
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          22,
+          28,
+          12
+        ],
+        [
+          12,
+          14,
+          20
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "1adbcbf7285ed24aa0620a219af04c29f29b00917820b05d2e6750ffa46c0571",
+        "source_white_pixels_preserved": 1390
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "b8b064884f5f84921b36b4c5e8cec7636d7a0ef5412eb7167cf93bd724a58eb2",
+        "source_white_pixels_preserved": 1241
+      }
+    },
+    {
+      "id": 171,
+      "source_name": "lanturn",
+      "palette_pair": 165,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          29,
+          24,
+          14
+        ],
+        [
+          13,
+          10,
+          28
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          20,
+          23,
+          10
+        ],
+        [
+          16,
+          10,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "ec2f0696f91aed5e391472c11bcd64e9911e7b514638fe8c41e201befa878023",
+        "source_white_pixels_preserved": 1203
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "4c55fe8204518660148ca9860283770880ac21293035a07dda1e7d340dd7fc02",
+        "source_white_pixels_preserved": 1246
+      }
+    },
+    {
+      "id": 172,
+      "source_name": "pichu",
+      "palette_pair": 24,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          29,
+          26,
+          5
+        ],
+        [
+          26,
+          6,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          17,
+          0
+        ],
+        [
+          20,
+          2,
+          11
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "3dd172b066942630f585c1a4c14dd0563b406573ca8b0893a91c7219af7aa7a6",
+        "source_white_pixels_preserved": 985
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "cce30d3f2788a5cb2be97dc378982271f49edff96d6fdd9dd12f17439dbc57e0",
+        "source_white_pixels_preserved": 1290
+      }
+    },
+    {
+      "id": 173,
+      "source_name": "cleffa",
+      "palette_pair": 166,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          13,
+          25
+        ],
+        [
+          13,
+          7,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          13,
+          25
+        ],
+        [
+          8,
+          18,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "89afbcc1f7f5353884923e1a86dd13d0a883074a7da97af45a770aebd04f57de",
+        "source_white_pixels_preserved": 832
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "5079439bf6450dbaa4b59c054eeb12d0d12b13f3fae3ee0f282cf788a9b7b211",
+        "source_white_pixels_preserved": 1246
+      }
+    },
+    {
+      "id": 174,
+      "source_name": "igglybuff",
+      "palette_pair": 167,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          16,
+          24
+        ],
+        [
+          22,
+          5,
+          5
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          17,
+          31
+        ],
+        [
+          9,
+          24,
+          3
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "f8aec5e1ba25898b5b39c537491a8fa8792d2d946da02e0fd07553a2e74a99cd",
+        "source_white_pixels_preserved": 816
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "2645f4380b3373ad262743ea38af943f867687adad7e3e6904be34083d67e767",
+        "source_white_pixels_preserved": 1051
+      }
+    },
+    {
+      "id": 175,
+      "source_name": "togepi",
+      "palette_pair": 168,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          30,
+          26,
+          11
+        ],
+        [
+          31,
+          6,
+          17
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          30,
+          26,
+          11
+        ],
+        [
+          8,
+          15,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "fea2d6b1701cb7d60cfea0a58ea05e8bef5dc89d8c906c5ccbc613affc4b15f0",
+        "source_white_pixels_preserved": 1216
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "f2bd88dc9cbc95596b15f9143a180728aafdd68505ed6009887b97c43dfb2fd0",
+        "source_white_pixels_preserved": 1698
+      }
+    },
+    {
+      "id": 176,
+      "source_name": "togetic",
+      "palette_pair": 169,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          23,
+          20,
+          30
+        ],
+        [
+          28,
+          7,
+          6
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          24,
+          8
+        ],
+        [
+          2,
+          16,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "b86c7e4484002e9a62e3edf58e3d5455d0c002d8f59d44ba7057ae9aee15ef2e",
+        "source_white_pixels_preserved": 2279
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "bb02757b385dbbb7d2adc6a042643125c0100265f262bc2fa5cc8013f4b3063b",
+        "source_white_pixels_preserved": 1373
+      }
+    },
+    {
+      "id": 177,
+      "source_name": "natu",
+      "palette_pair": 170,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          10,
+          23,
+          13
+        ],
+        [
+          20,
+          5,
+          6
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          20,
+          30,
+          19
+        ],
+        [
+          21,
+          21,
+          10
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "5d129c13767f973285e092bec0569ae22adda7759702f3aeee568ced91330499",
+        "source_white_pixels_preserved": 1159
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "70cfe7bee5c74b4e20bc1151588adcc6a77b20c9d1bdfed7a200dbfdfa7bcd1a",
+        "source_white_pixels_preserved": 1614
+      }
+    },
+    {
+      "id": 178,
+      "source_name": "xatu",
+      "palette_pair": 171,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          10,
+          23,
+          13
+        ],
+        [
+          20,
+          5,
+          6
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          19,
+          27,
+          0
+        ],
+        [
+          23,
+          12,
+          2
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "667e056b2567208ccc8efbfe61dadb550051572203df6aae3a60753a40f3b3b6",
+        "source_white_pixels_preserved": 1567
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "50580909c7e2fd00f7614ca7eb2fdab65ad2eafe4145f8328e0eef91d4342997",
+        "source_white_pixels_preserved": 1401
+      }
+    },
+    {
+      "id": 179,
+      "source_name": "mareep",
+      "palette_pair": 172,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          24,
+          20,
+          7
+        ],
+        [
+          10,
+          5,
+          19
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          16,
+          31
+        ],
+        [
+          10,
+          5,
+          19
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "fbdb652fc9a3476805172e5ffc6841c82bba73dee68953e0bd457115415281d8",
+        "source_white_pixels_preserved": 813
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "e0f87baec4a7084846761901ad66c7b2c7b1705bc0d9592fded9b9f24973ca81",
+        "source_white_pixels_preserved": 978
+      }
+    },
+    {
+      "id": 180,
+      "source_name": "flaaffy",
+      "palette_pair": 173,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          13,
+          19
+        ],
+        [
+          10,
+          3,
+          14
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          16,
+          29
+        ],
+        [
+          16,
+          8,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "be2121c9a16131cf8f1cc467ec0301630975809e7edcda48d535632baca5b2a2",
+        "source_white_pixels_preserved": 1511
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "2c904ab0ce3bd8cdff7cf5580c570665a252b5befec4b21b524a0de2a93e38ad",
+        "source_white_pixels_preserved": 1522
+      }
+    },
+    {
+      "id": 181,
+      "source_name": "ampharos",
+      "palette_pair": 174,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          31,
+          2
+        ],
+        [
+          21,
+          10,
+          1
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          24,
+          20,
+          21
+        ],
+        [
+          14,
+          5,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "cd00ca93e23718287678f38881c535048b8cbdcbab189f5b41f9b71f0976dbb8",
+        "source_white_pixels_preserved": 2253
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "70aad49c4c14449c7b75571fed7cc4eef2647a9f4e4035d6728e54acd7796d17",
+        "source_white_pixels_preserved": 1467
+      }
+    },
+    {
+      "id": 182,
+      "source_name": "bellossom",
+      "palette_pair": 175,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          27,
+          8,
+          6
+        ],
+        [
+          6,
+          17,
+          8
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          28,
+          11,
+          6
+        ],
+        [
+          11,
+          14,
+          25
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "be61b20995c4e87787df92c3e345d1764f0e126e3ff098a210981784b5a25492",
+        "source_white_pixels_preserved": 2159
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "f37a9b83bf414e0e5b32de89db65d2d1c15e2163b9af5cd3f5d42880cc424d0c",
+        "source_white_pixels_preserved": 1092
+      }
+    },
+    {
+      "id": 183,
+      "source_name": "marill",
+      "palette_pair": 176,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          9,
+          13,
+          29
+        ],
+        [
+          25,
+          8,
+          5
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          8,
+          23,
+          11
+        ],
+        [
+          31,
+          3,
+          30
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "0f0229d1cf001032591d1f895e712155dbf7ec59f88abdefc479ede3b29485e0",
+        "source_white_pixels_preserved": 906
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "ade263b9bb70da14172af23f67d7235afec92777b65fe41fff5425696ae65616",
+        "source_white_pixels_preserved": 1031
+      }
+    },
+    {
+      "id": 184,
+      "source_name": "azumarill",
+      "palette_pair": 177,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          10,
+          15,
+          24
+        ],
+        [
+          22,
+          7,
+          4
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          26,
+          20,
+          5
+        ],
+        [
+          18,
+          9,
+          7
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "4949bf1b8fe9d631066777b9940badb13800a1f9b70a1cf8a7c571b5e2f2d9b8",
+        "source_white_pixels_preserved": 1664
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "8055680d7ddcb44fdc664d11aa8b94af71965d1e6b650c7ba37dbd2f3223abd8",
+        "source_white_pixels_preserved": 882
+      }
+    },
+    {
+      "id": 185,
+      "source_name": "sudowoodo",
+      "palette_pair": 178,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          18,
+          11,
+          8
+        ],
+        [
+          6,
+          14,
+          7
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          16,
+          20,
+          8
+        ],
+        [
+          29,
+          3,
+          12
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "9353da08007534bebed9c8779fd8af0698333039448c5bc488852a71d7b00747",
+        "source_white_pixels_preserved": 1263
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "ae25b649587265827b7f38ef6cc0af84af504c44608a5524913e889e99ace038",
+        "source_white_pixels_preserved": 1203
+      }
+    },
+    {
+      "id": 186,
+      "source_name": "politoed",
+      "palette_pair": 179,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          25,
+          31,
+          4
+        ],
+        [
+          7,
+          20,
+          6
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          25,
+          19,
+          31
+        ],
+        [
+          11,
+          16,
+          15
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "b91321f1899c707f43740540ca6c624228f3d1f9ee6673ca71ee3b2b0cdfa79f",
+        "source_white_pixels_preserved": 1608
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "92b87e2582b7736fe7379a789ef3ce8bf9274d0d3711407a43363ac86be02d4d",
+        "source_white_pixels_preserved": 1010
+      }
+    },
+    {
+      "id": 187,
+      "source_name": "hoppip",
+      "palette_pair": 180,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          11,
+          23,
+          6
+        ],
+        [
+          21,
+          6,
+          7
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          14,
+          29,
+          6
+        ],
+        [
+          9,
+          12,
+          3
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "4b18aa3ced79119f473a8ba2c2d4103ce77e1037e6b7f570b7f73e243a975646",
+        "source_white_pixels_preserved": 863
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "da018ef6eb055b980c28afbe3e35e5bdb44e08c7761da22b70830f77bf2defb6",
+        "source_white_pixels_preserved": 1346
+      }
+    },
+    {
+      "id": 188,
+      "source_name": "skiploom",
+      "palette_pair": 181,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          22,
+          5
+        ],
+        [
+          8,
+          18,
+          7
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          30,
+          24,
+          3
+        ],
+        [
+          18,
+          0,
+          20
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "e10407a95ce8e9cad7465d524d50a87edc4fdc643dfa64fcae44914fc91214b4",
+        "source_white_pixels_preserved": 1376
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "472f7cc298782ce7b27a480998f43aaefadcb5f35db4ac0d6f5cec69f30180d7",
+        "source_white_pixels_preserved": 1169
+      }
+    },
+    {
+      "id": 189,
+      "source_name": "jumpluff",
+      "palette_pair": 182,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          28,
+          23,
+          13
+        ],
+        [
+          9,
+          8,
+          24
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          25,
+          16,
+          29
+        ],
+        [
+          31,
+          8,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "0921eab125ff42d0c4e750f86eaa47b8b71cffbeafd50fe08b78d13ace5ac4a4",
+        "source_white_pixels_preserved": 2063
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "bef927aa3cc563a72c41203761638091cb36fa5cfcdf2eeb0df0ab3d813f3294",
+        "source_white_pixels_preserved": 1425
+      }
+    },
+    {
+      "id": 190,
+      "source_name": "aipom",
+      "palette_pair": 183,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          29,
+          23,
+          12
+        ],
+        [
+          12,
+          4,
+          14
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          25,
+          16,
+          18
+        ],
+        [
+          22,
+          3,
+          25
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "58add18766118702b55e5b8826fd7c335a3260fc8b08ee538a00974b3adb1be5",
+        "source_white_pixels_preserved": 747
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "678162a2a5739f73605c44c2ba69c28aee08143dac997fdd14f5f97d658015bc",
+        "source_white_pixels_preserved": 1017
+      }
+    },
+    {
+      "id": 191,
+      "source_name": "sunkern",
+      "palette_pair": 184,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          29,
+          28,
+          1
+        ],
+        [
+          13,
+          18,
+          8
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          31,
+          1
+        ],
+        [
+          14,
+          22,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "34d796b7db3b8e5e4fc69526ce2088a607363b10f6f8168178b58c363881cff2",
+        "source_white_pixels_preserved": 928
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "1fe0d510d3efe47f8c566f2d060ff63bc44b386d41e3ec35ee94715d5eacb7ba",
+        "source_white_pixels_preserved": 1261
+      }
+    },
+    {
+      "id": 192,
+      "source_name": "sunflora",
+      "palette_pair": 185,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          26,
+          22,
+          3
+        ],
+        [
+          10,
+          21,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          31,
+          4
+        ],
+        [
+          18,
+          18,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "9981bf7de726af56392214a9bc09796c5e826255a968cf211f5ee9c16da77e26",
+        "source_white_pixels_preserved": 958
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "5f593cbcad7ccf42367ea2bbe6ac50663288938ac164cf06c677c6f0e1db8acc",
+        "source_white_pixels_preserved": 918
+      }
+    },
+    {
+      "id": 193,
+      "source_name": "yanma",
+      "palette_pair": 186,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          9,
+          26,
+          10
+        ],
+        [
+          20,
+          7,
+          7
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          9,
+          26,
+          10
+        ],
+        [
+          13,
+          14,
+          30
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "fa1dcb63fda283814531ded6982314969bf390edc2b650001fee68340a496124",
+        "source_white_pixels_preserved": 1508
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "00987303b9448b1cd5112b43042b041563ccf3b31fd5a332c07c65177dff2da4",
+        "source_white_pixels_preserved": 1398
+      }
+    },
+    {
+      "id": 194,
+      "source_name": "wooper",
+      "palette_pair": 187,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          16,
+          20,
+          25
+        ],
+        [
+          17,
+          8,
+          14
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          17,
+          31
+        ],
+        [
+          31,
+          21,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "6b84a2bceb023ccf428ab8d74904f65ccb32c4b18e145199db1079af3920e990",
+        "source_white_pixels_preserved": 912
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "5698029bd3d9a329e9b85becabe9c21c4da5f63dc21df23d5415d655c7d8c723",
+        "source_white_pixels_preserved": 1464
+      }
+    },
+    {
+      "id": 195,
+      "source_name": "quagsire",
+      "palette_pair": 188,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          14,
+          21,
+          28
+        ],
+        [
+          14,
+          3,
+          20
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          23,
+          21,
+          26
+        ],
+        [
+          28,
+          4,
+          30
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "bf52cf47f1a7869c00ac206173d420b3ffaceff89649a05862c582bcde27894f",
+        "source_white_pixels_preserved": 1076
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "381f58624acd0f439d54ac8a4f6e767d355132fe7aa77ee1ac0cd4406637ac0b",
+        "source_white_pixels_preserved": 835
+      }
+    },
+    {
+      "id": 196,
+      "source_name": "espeon",
+      "palette_pair": 189,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          25,
+          15,
+          26
+        ],
+        [
+          15,
+          5,
+          18
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          14,
+          31,
+          10
+        ],
+        [
+          10,
+          16,
+          8
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "5943b7c58c83fe48384475cfdf2641903bb3ed2c13c200807fc2b03093b35eb4",
+        "source_white_pixels_preserved": 1196
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "0412a41975a898b69bf18ff78c91012c676e39e8a8a8ec887c9ec02b837559b1",
+        "source_white_pixels_preserved": 1385
+      }
+    },
+    {
+      "id": 197,
+      "source_name": "umbreon",
+      "palette_pair": 190,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          23,
+          17,
+          0
+        ],
+        [
+          6,
+          7,
+          5
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          10,
+          11,
+          31
+        ],
+        [
+          6,
+          7,
+          5
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "bbb08b3cc023f32c5c63d944c4d848290c1932a973b910e3fc2d0f377dbcf87a",
+        "source_white_pixels_preserved": 1214
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "47aa04b7f84666a9396bd2100ed8cf7284602d103f30c475057381c0dce0000a",
+        "source_white_pixels_preserved": 1122
+      }
+    },
+    {
+      "id": 198,
+      "source_name": "murkrow",
+      "palette_pair": 191,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          26,
+          26,
+          3
+        ],
+        [
+          7,
+          7,
+          17
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          29,
+          31,
+          3
+        ],
+        [
+          20,
+          2,
+          22
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "e3611e97f8f287bcc6e15179c50ed59cf21d68459ab49654bf56f721e1d8bd2d",
+        "source_white_pixels_preserved": 938
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "8577ca13120b1a36eddc909566ecd1dd6151d968d6a8a972b12404e8a0ee7a41",
+        "source_white_pixels_preserved": 1170
+      }
+    },
+    {
+      "id": 199,
+      "source_name": "slowking",
+      "palette_pair": 192,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          14,
+          18
+        ],
+        [
+          23,
+          5,
+          2
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          10,
+          31
+        ],
+        [
+          9,
+          5,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "aa0901f983ae986edd20f35f7646ccf71e582f86a7ee031f6c432d78402f74a2",
+        "source_white_pixels_preserved": 2037
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "ebe8afa10d123665fa70892bac1b28fa6ce6617cf26b651229e0ba86274d25d7",
+        "source_white_pixels_preserved": 1558
+      }
+    },
+    {
+      "id": 200,
+      "source_name": "misdreavus",
+      "palette_pair": 193,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          30,
+          6,
+          19
+        ],
+        [
+          9,
+          9,
+          17
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          25,
+          3
+        ],
+        [
+          15,
+          14,
+          3
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "96bb704cd6d2abd506b11d18427cc1009b36b7eb1dd0b2787977ac6a25249043",
+        "source_white_pixels_preserved": 1048
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "beefd659ef064b71540a9ab8e30d0ed8fe3256dd80f729caf35ef7b23da46bb2",
+        "source_white_pixels_preserved": 933
+      }
+    },
+    {
+      "id": 201,
+      "source_name": "unown",
+      "palette_pair": 194,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          15,
+          15,
+          16
+        ],
+        [
+          7,
+          7,
+          8
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          14,
+          19,
+          31
+        ],
+        [
+          2,
+          11,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "2fed65bed94063b1da875666fe41f4227eebb903645e10ef63b18b1e1b1c8038",
+        "source_white_pixels_preserved": 1270
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "e932191e638bbb8a6cd33b5e6472137894de1e8ac521b7e99402917408c97749",
+        "source_white_pixels_preserved": 1933
+      }
+    },
+    {
+      "id": 202,
+      "source_name": "wobbuffet",
+      "palette_pair": 195,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          12,
+          21,
+          31
+        ],
+        [
+          7,
+          14,
+          16
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          23,
+          7,
+          25
+        ],
+        [
+          7,
+          9,
+          16
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "0da701f1f1c41352fd459da80e9350f027d6261792429b3a78549b000e8573dd",
+        "source_white_pixels_preserved": 1129
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "69e88da1be7f693e15229f7c72b9813bd32f0a467c045d2b9ca1ac93940c521f",
+        "source_white_pixels_preserved": 1024
+      }
+    },
+    {
+      "id": 203,
+      "source_name": "girafarig",
+      "palette_pair": 196,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          22,
+          4
+        ],
+        [
+          28,
+          10,
+          16
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          19,
+          0
+        ],
+        [
+          5,
+          4,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "cbae1c6ec1ebe77971355f23c0ed777755ae888537c036a194ec17ff7a11fcdd",
+        "source_white_pixels_preserved": 1903
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "90e1ff7117f94ef76580b7e9be2e9dbf0646465051d7f09ef82133d09be934b5",
+        "source_white_pixels_preserved": 1183
+      }
+    },
+    {
+      "id": 204,
+      "source_name": "pineco",
+      "palette_pair": 197,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          20,
+          22,
+          22
+        ],
+        [
+          10,
+          17,
+          20
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          31,
+          5
+        ],
+        [
+          28,
+          10,
+          5
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "e1d03434105c7f70bb6da308773b9ca6e3c862fd8b66e4c0c74c0899a5763e9d",
+        "source_white_pixels_preserved": 686
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "774c1ef9413705c18e96a8df2d67e049b25d64f4e40052dee2f3bbb5f1a55c18",
+        "source_white_pixels_preserved": 1115
+      }
+    },
+    {
+      "id": 205,
+      "source_name": "forretress",
+      "palette_pair": 198,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          24,
+          11,
+          26
+        ],
+        [
+          19,
+          2,
+          9
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          18,
+          16,
+          2
+        ],
+        [
+          10,
+          10,
+          1
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "68f80ce03d5069af733380cc23000e0ee63a33dd941231ecffa1e1441269dcdd",
+        "source_white_pixels_preserved": 1498
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "3a64e60b978d7c05cc0821d9e59f432a07ee711f4a3a1913796d8280bf6cb71b",
+        "source_white_pixels_preserved": 1896
+      }
+    },
+    {
+      "id": 206,
+      "source_name": "dunsparce",
+      "palette_pair": 199,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          24,
+          6
+        ],
+        [
+          8,
+          15,
+          23
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          24,
+          6
+        ],
+        [
+          31,
+          5,
+          21
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "812b670ea686b02c97674c7c42bad4922af99da7fb3c4a802cd2827877028f95",
+        "source_white_pixels_preserved": 1520
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "2552543e6f2ccac9b3e39c92a7cde3ec996274a7b52f4aa8a6e1b6f6805fc2e0",
+        "source_white_pixels_preserved": 1730
+      }
+    },
+    {
+      "id": 207,
+      "source_name": "gligar",
+      "palette_pair": 200,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          25,
+          6,
+          18
+        ],
+        [
+          8,
+          7,
+          20
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          19,
+          15,
+          19
+        ],
+        [
+          6,
+          6,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "fdfb3eb2da500cee680f993aa8717d7dd8949a6d85bb887fbf80da6566b9c5fb",
+        "source_white_pixels_preserved": 1046
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "039d2e0ae3c39ad15a760c1c451ec5307f10446360e9f20e0907fc2a120035fa",
+        "source_white_pixels_preserved": 981
+      }
+    },
+    {
+      "id": 208,
+      "source_name": "steelix",
+      "palette_pair": 201,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          17,
+          15,
+          26
+        ],
+        [
+          12,
+          8,
+          12
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          19,
+          15,
+          3
+        ],
+        [
+          15,
+          8,
+          8
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "6d8599c7bcf3de554550206f7f08ede0fa879ada11fe8d6882be8bcea0d11585",
+        "source_white_pixels_preserved": 1576
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "a29702a44b15ecbf4ee8905d5542114268707982484ca413ce9a94236b8faa54",
+        "source_white_pixels_preserved": 1380
+      }
+    },
+    {
+      "id": 209,
+      "source_name": "snubbull",
+      "palette_pair": 202,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          28,
+          14,
+          13
+        ],
+        [
+          7,
+          10,
+          13
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          18,
+          21,
+          24
+        ],
+        [
+          26,
+          0,
+          26
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "7939aa1e2bbd4391f612277383f9fbe2e4dfd02761e4ae3c757f42f73199ddba",
+        "source_white_pixels_preserved": 1201
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "4266add477b9469270be1eb64e15a56be0a7359f728a4f0afdfe1be9a21b4a7f",
+        "source_white_pixels_preserved": 1017
+      }
+    },
+    {
+      "id": 210,
+      "source_name": "granbull",
+      "palette_pair": 203,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          23,
+          12,
+          22
+        ],
+        [
+          15,
+          4,
+          17
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          19,
+          20,
+          16
+        ],
+        [
+          14,
+          12,
+          12
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "01f426770c475ee849ecf51fd1dc7096ec1ea91198cf0b34b5c774d94e64b8d3",
+        "source_white_pixels_preserved": 1080
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "39013f6cc2ef34c60cc6e07c3868e9815917f2ff103829460da7e2cddfb66c84",
+        "source_white_pixels_preserved": 1061
+      }
+    },
+    {
+      "id": 211,
+      "source_name": "qwilfish",
+      "palette_pair": 204,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          27,
+          29,
+          11
+        ],
+        [
+          4,
+          6,
+          16
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          24,
+          21,
+          22
+        ],
+        [
+          18,
+          0,
+          11
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "bf78f74fcc11c13d9a12ff30871c9b87c615b30e3827a76f5d1f3b30cbb299c8",
+        "source_white_pixels_preserved": 918
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "e9a98a63bc67b073c815904bd97d5fc4553bbd0713be84355a16440805629cc9",
+        "source_white_pixels_preserved": 971
+      }
+    },
+    {
+      "id": 212,
+      "source_name": "scizor",
+      "palette_pair": 205,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          26,
+          8,
+          8
+        ],
+        [
+          7,
+          8,
+          13
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          22,
+          22,
+          8
+        ],
+        [
+          6,
+          14,
+          7
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "ff4cc35a3fd9d300e5de082e83b65b127aa91b654c69e836004e99f4386d38f5",
+        "source_white_pixels_preserved": 1707
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "fe23ddf5b6167fd7aeaf4f89fdb29a315178802cfe136451524541b989212d78",
+        "source_white_pixels_preserved": 1092
+      }
+    },
+    {
+      "id": 213,
+      "source_name": "shuckle",
+      "palette_pair": 206,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          22,
+          5
+        ],
+        [
+          21,
+          4,
+          3
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          22,
+          5
+        ],
+        [
+          15,
+          7,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "7ae3ab0d816a938b1946609f0e99749905736b8c9d2c44dac12a7f80ffb7c759",
+        "source_white_pixels_preserved": 949
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "05fe216440023694909642465b78333ae7f0be280a55f7d409fccb00cd83f14d",
+        "source_white_pixels_preserved": 1720
+      }
+    },
+    {
+      "id": 214,
+      "source_name": "heracross",
+      "palette_pair": 207,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          10,
+          9,
+          19
+        ],
+        [
+          4,
+          3,
+          16
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          15,
+          9,
+          24
+        ],
+        [
+          13,
+          3,
+          16
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "fd7d42aef370028b887633e2c91f38a799821a594fe93e4dc6833925072b6bc6",
+        "source_white_pixels_preserved": 1109
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "6ea3f2f8e1eeb88038aeb4e6f476ea2b21c5a51c25706be160a1376038178d21",
+        "source_white_pixels_preserved": 1175
+      }
+    },
+    {
+      "id": 215,
+      "source_name": "sneasel",
+      "palette_pair": 208,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          6,
+          18
+        ],
+        [
+          7,
+          7,
+          11
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          28,
+          28,
+          9
+        ],
+        [
+          31,
+          9,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "cb4be781da6bd47b1efde561e88c1ee05eb80ef9142883e002b7d962a35de489",
+        "source_white_pixels_preserved": 1213
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "0568e263a34b0d82d2de1c634ee63b06c4a7255f7da69753285545c37465ddfc",
+        "source_white_pixels_preserved": 1083
+      }
+    },
+    {
+      "id": 216,
+      "source_name": "teddiursa",
+      "palette_pair": 209,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          22,
+          14,
+          6
+        ],
+        [
+          14,
+          7,
+          4
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          20,
+          29,
+          10
+        ],
+        [
+          13,
+          20,
+          1
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "0760ca49ec534b7debb57ea9390d9cdc4a6610e28a298a600af964c8fe909e7d",
+        "source_white_pixels_preserved": 890
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "a46a101660af19e90ecffec1a9d33bfeb46a20a2d6940ff2fd94dcbeca116116",
+        "source_white_pixels_preserved": 961
+      }
+    },
+    {
+      "id": 217,
+      "source_name": "ursaring",
+      "palette_pair": 210,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          31,
+          6
+        ],
+        [
+          20,
+          11,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          26,
+          29,
+          25
+        ],
+        [
+          18,
+          22,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "1bbec5d026450ed14be149f392643400e78c5587faa52acd0c2b7fa26b2cc330",
+        "source_white_pixels_preserved": 1200
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "a59521cac763c214e5542c71765ff0cd7aad5c068066981c3a673ced9f21800c",
+        "source_white_pixels_preserved": 960
+      }
+    },
+    {
+      "id": 218,
+      "source_name": "slugma",
+      "palette_pair": 211,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          30,
+          28,
+          15
+        ],
+        [
+          24,
+          6,
+          4
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          21,
+          21,
+          21
+        ],
+        [
+          11,
+          11,
+          11
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "2277ab0c5e26648e4ec3dac2e88e6d4bfbaf18ecd1aff555abe3778bd8a39a2c",
+        "source_white_pixels_preserved": 829
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "629c49b66060a131c2758b00e897ba90f9e7878b22b21073d1bb81f4109e538a",
+        "source_white_pixels_preserved": 1214
+      }
+    },
+    {
+      "id": 219,
+      "source_name": "magcargo",
+      "palette_pair": 212,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          26,
+          7,
+          9
+        ],
+        [
+          10,
+          8,
+          15
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          12,
+          11,
+          28
+        ],
+        [
+          15,
+          6,
+          6
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "53df3946a8c78d7228450fd3542eb069ad68b15270cde0df3cf7b59906182419",
+        "source_white_pixels_preserved": 932
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "b1f7b14834448149c61e7e594a4d66f762ee9febcf62143e0747911b743b9674",
+        "source_white_pixels_preserved": 1081
+      }
+    },
+    {
+      "id": 220,
+      "source_name": "swinub",
+      "palette_pair": 213,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          23,
+          16,
+          3
+        ],
+        [
+          19,
+          6,
+          4
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          15,
+          18,
+          30
+        ],
+        [
+          31,
+          6,
+          4
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "0454920064c16c19a9d41bf395bdcf754b332c11a6f61914b11417873c5f62f0",
+        "source_white_pixels_preserved": 984
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "f0bd3598cc5125e1b8b7ac43310f7e50f3a70f0aa043574c2bd2ae928d47be5c",
+        "source_white_pixels_preserved": 1622
+      }
+    },
+    {
+      "id": 221,
+      "source_name": "piloswine",
+      "palette_pair": 214,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          23,
+          17,
+          10
+        ],
+        [
+          14,
+          10,
+          10
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          22,
+          19,
+          0
+        ],
+        [
+          19,
+          11,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "85145f59a421e4fc0fa94fa587e728f5d73a173d2fee68209d2b0936a7b88d84",
+        "source_white_pixels_preserved": 980
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "62f5e101bc64f8df335987552febb91ae8b3180c89e60b754c8729a94d3a4ac4",
+        "source_white_pixels_preserved": 1416
+      }
+    },
+    {
+      "id": 222,
+      "source_name": "corsola",
+      "palette_pair": 215,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          11,
+          31
+        ],
+        [
+          28,
+          7,
+          13
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          13,
+          25,
+          28
+        ],
+        [
+          7,
+          14,
+          10
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "ab625972c7267fdcbe4425b1f688cb243ef9f838a19054c9e146681c1843fc8e",
+        "source_white_pixels_preserved": 1158
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "38593b2d31cfb70786ce1a46fa8c29d64c94014b5bfd4120c2826f808ef0bd14",
+        "source_white_pixels_preserved": 1400
+      }
+    },
+    {
+      "id": 223,
+      "source_name": "remoraid",
+      "palette_pair": 216,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          18,
+          17,
+          30
+        ],
+        [
+          7,
+          10,
+          15
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          14,
+          11,
+          14
+        ],
+        [
+          9,
+          9,
+          8
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "abf1805555a43f9e2a6ecfb845e590d8f1d284f5aecc9e34538a61b069006724",
+        "source_white_pixels_preserved": 966
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "d7b56ecaf5feb3380e0cfd0855ce6c5f6bbd0b7ab4d2fd861f59339b0383d349",
+        "source_white_pixels_preserved": 1546
+      }
+    },
+    {
+      "id": 224,
+      "source_name": "octillery",
+      "palette_pair": 217,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          22,
+          4
+        ],
+        [
+          31,
+          6,
+          3
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          22,
+          28,
+          14
+        ],
+        [
+          20,
+          18,
+          3
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "71a1a1ec62cd2262b6342d777c6b93a729d70ee8e030aa613a1583e4977f8112",
+        "source_white_pixels_preserved": 1067
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "8100913626190c7d7865793acef98f12a2eab917047256ba562504cf2e907278",
+        "source_white_pixels_preserved": 970
+      }
+    },
+    {
+      "id": 225,
+      "source_name": "delibird",
+      "palette_pair": 218,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          21,
+          16,
+          31
+        ],
+        [
+          30,
+          8,
+          2
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          26,
+          0
+        ],
+        [
+          26,
+          1,
+          26
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "52d8b1da44ea65a7b7c8342638a4d14261d457dcdf2420492060ffa427b62c04",
+        "source_white_pixels_preserved": 1312
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "aac11c68c852edf5e1af094b519cdf59d85e8da26b885c751b2020a6f2bb0b4a",
+        "source_white_pixels_preserved": 1087
+      }
+    },
+    {
+      "id": 226,
+      "source_name": "mantine",
+      "palette_pair": 219,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          25,
+          16,
+          31
+        ],
+        [
+          10,
+          3,
+          21
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          24,
+          27,
+          31
+        ],
+        [
+          6,
+          17,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "df3e10af46a111c4d4e72cada07105beae79122e4a0118a51ca5d7916ffe8c27",
+        "source_white_pixels_preserved": 1495
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "7804668f0d637f9573a619c357b6ef550b817e3310d9552cbd0e6baa58c6c99a",
+        "source_white_pixels_preserved": 1430
+      }
+    },
+    {
+      "id": 227,
+      "source_name": "skarmory",
+      "palette_pair": 220,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          19,
+          13,
+          31
+        ],
+        [
+          17,
+          7,
+          4
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          18,
+          22,
+          13
+        ],
+        [
+          5,
+          15,
+          1
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "20542098ca22b13e2640c118169310de61deceea2a4039369e4b971b2c29b21a",
+        "source_white_pixels_preserved": 1772
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "948a52271031121acb75b2774b6a4d5354e6f08096e3df89e91b20eede287fab",
+        "source_white_pixels_preserved": 1684
+      }
+    },
+    {
+      "id": 228,
+      "source_name": "houndour",
+      "palette_pair": 221,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          12,
+          0
+        ],
+        [
+          6,
+          8,
+          10
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          21,
+          19,
+          18
+        ],
+        [
+          8,
+          7,
+          24
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "2be4e3bf8c93ee021f8ecfca64d77e4d8c9a0cddad1a483651786ae9e13dca96",
+        "source_white_pixels_preserved": 1471
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "5ba78b586b2295bd6656aeaf1100d95f64fa094df8d7b0aa67ae17e7d1099ee7",
+        "source_white_pixels_preserved": 1455
+      }
+    },
+    {
+      "id": 229,
+      "source_name": "houndoom",
+      "palette_pair": 222,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          12,
+          0
+        ],
+        [
+          9,
+          4,
+          17
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          19,
+          18,
+          20
+        ],
+        [
+          8,
+          7,
+          20
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "c1a17f871c07690cb6936a964d520f1584bf91f806d9244eeb858bca6f6d8ab7",
+        "source_white_pixels_preserved": 1810
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "5fad9152c22ea207d6ef3153378dfd2726e73250b8340700da86642c6ee5b86d",
+        "source_white_pixels_preserved": 1459
+      }
+    },
+    {
+      "id": 230,
+      "source_name": "kingdra",
+      "palette_pair": 223,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          23,
+          7
+        ],
+        [
+          12,
+          17,
+          30
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          20,
+          17,
+          15
+        ],
+        [
+          17,
+          11,
+          19
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "f58b88486c762cc6c7cb4dae9bc2e3fc3ca6e068328a50eee41c7bb2ccccf130",
+        "source_white_pixels_preserved": 1858
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "beb66f1b13c195f96557dc0a0fea10f4e391799f380c06c453c00fec4893c29e",
+        "source_white_pixels_preserved": 1401
+      }
+    },
+    {
+      "id": 231,
+      "source_name": "phanpy",
+      "palette_pair": 224,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          17,
+          20,
+          26
+        ],
+        [
+          23,
+          9,
+          6
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          22,
+          24,
+          25
+        ],
+        [
+          24,
+          1,
+          6
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "8732470e71d5e632250b45902f884f23f5629d07d53c91a0fcc60661af1d369f",
+        "source_white_pixels_preserved": 747
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "58a7e60c8593ff569da849886c0299f1551df9892710c6072d428083e1078fb5",
+        "source_white_pixels_preserved": 1148
+      }
+    },
+    {
+      "id": 232,
+      "source_name": "donphan",
+      "palette_pair": 225,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          18,
+          20,
+          19
+        ],
+        [
+          5,
+          11,
+          8
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          20,
+          21,
+          20
+        ],
+        [
+          20,
+          10,
+          7
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "5acd1e46af69a0e18720bc94014f468c0ce2438e3ba6b2ee68151ac8cf693502",
+        "source_white_pixels_preserved": 1524
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "453617e40786dbd3d1c63a74fd380690e6eb1da07656b6cabf9618d3f9acc35e",
+        "source_white_pixels_preserved": 1681
+      }
+    },
+    {
+      "id": 233,
+      "source_name": "porygon2",
+      "palette_pair": 226,
+      "reverse_middle_order": true,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          10,
+          12,
+          24
+        ],
+        [
+          25,
+          9,
+          10
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          20,
+          19,
+          24
+        ],
+        [
+          8,
+          11,
+          23
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "3a730ba14143beb5c49b23c8f5e446f444e8c2779ebfd05ac7ba588397600bbc",
+        "source_white_pixels_preserved": 1543
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "d3588e022a962224bff1766dc3d2226ac3ca22f6dbbb1d7eebc94648675eb623",
+        "source_white_pixels_preserved": 1366
+      }
+    },
+    {
+      "id": 234,
+      "source_name": "stantler",
+      "palette_pair": 227,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          23,
+          15,
+          7
+        ],
+        [
+          4,
+          5,
+          16
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          19,
+          20,
+          7
+        ],
+        [
+          20,
+          5,
+          1
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "de73d9d8faa7bd2e06cff3bbe93c10f6e3ed55431a2b6316fe62fa382eb6ea8d",
+        "source_white_pixels_preserved": 2042
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "6696694e40f79b1467adcecbf924cbbf2b9883c1a38150231e7753f17ad6c170",
+        "source_white_pixels_preserved": 1515
+      }
+    },
+    {
+      "id": 235,
+      "source_name": "smeargle",
+      "palette_pair": 228,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          23,
+          21,
+          8
+        ],
+        [
+          14,
+          5,
+          6
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          24,
+          25,
+          8
+        ],
+        [
+          9,
+          23,
+          2
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "f738fdd879a84ef10f62c385f8a41ab140510ad3b2f3e3c99dc56b8bdbe3753d",
+        "source_white_pixels_preserved": 1986
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "791948ecb730151cdb23e7021c5b8347b4510435497659b1de5632aef49a5702",
+        "source_white_pixels_preserved": 1270
+      }
+    },
+    {
+      "id": 236,
+      "source_name": "tyrogue",
+      "palette_pair": 229,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          23,
+          15,
+          18
+        ],
+        [
+          17,
+          7,
+          3
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          19,
+          19,
+          18
+        ],
+        [
+          9,
+          13,
+          29
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "d045f9902e6f8243eddf1dd42c870b01c609900984e56adb9f322672e212cfec",
+        "source_white_pixels_preserved": 857
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "cf035c3c24ca2977e6150a412dd6de9d0b4736642aa3d3f3dcd5f4dc0b236d3f",
+        "source_white_pixels_preserved": 1166
+      }
+    },
+    {
+      "id": 237,
+      "source_name": "hitmontop",
+      "palette_pair": 230,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          24,
+          19,
+          4
+        ],
+        [
+          10,
+          10,
+          21
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          20,
+          17,
+          20
+        ],
+        [
+          17,
+          7,
+          29
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "40e825ec7a4ec898e34d7b642bcc0ea44531c996041a3de99e3410983074a623",
+        "source_white_pixels_preserved": 1827
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "0fbe3a973f9dabe866da49df5198647c8d1bb689cf900e3f83d9843bff79c322",
+        "source_white_pixels_preserved": 893
+      }
+    },
+    {
+      "id": 238,
+      "source_name": "smoochum",
+      "palette_pair": 231,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          29,
+          24,
+          4
+        ],
+        [
+          20,
+          1,
+          19
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          26,
+          7
+        ],
+        [
+          31,
+          12,
+          25
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "1ed5b4df4bf14f8f007e7a48734e64a7348b0f2b6beeb20060b8207aeae07074",
+        "source_white_pixels_preserved": 901
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "9c67afba7ff3e234c82eb23b293fae22959546d56172d84a6b996cb82659f7aa",
+        "source_white_pixels_preserved": 1212
+      }
+    },
+    {
+      "id": 239,
+      "source_name": "elekid",
+      "palette_pair": 232,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          31,
+          5
+        ],
+        [
+          15,
+          10,
+          3
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          24,
+          5
+        ],
+        [
+          15,
+          15,
+          17
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "f5a627fe8f8624aa3a03d7bd93e7887ed4f2fcbc25836ae88c34b859f56269fc",
+        "source_white_pixels_preserved": 1202
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "300ba4aae2299f0a8fe8d7ad0bb38069077c4ac828c4d07d1dcc5305048a4a8e",
+        "source_white_pixels_preserved": 924
+      }
+    },
+    {
+      "id": 240,
+      "source_name": "magby",
+      "palette_pair": 233,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          18,
+          9
+        ],
+        [
+          23,
+          2,
+          11
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          30,
+          26,
+          9
+        ],
+        [
+          31,
+          16,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "7f65db0c6ca0a5431b9a44c701bd86f81c3e42efc6f1d26719ef6fda8f43a0d2",
+        "source_white_pixels_preserved": 1382
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "c49e46ed743ffa2996e30186a5f742f07d80b843a1290513ae5128183ad9f58f",
+        "source_white_pixels_preserved": 1314
+      }
+    },
+    {
+      "id": 241,
+      "source_name": "miltank",
+      "palette_pair": 234,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          27,
+          15,
+          18
+        ],
+        [
+          6,
+          6,
+          13
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          23,
+          22,
+          26
+        ],
+        [
+          29,
+          10,
+          13
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "e3dee7cb3d9f76af891095c0ba434de41f2532d984bc318429690bb70f3c9c1d",
+        "source_white_pixels_preserved": 1162
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "125ce278f3be1fca1421eac258d498c30c095459514b5439bc677727592ca80d",
+        "source_white_pixels_preserved": 939
+      }
+    },
+    {
+      "id": 242,
+      "source_name": "blissey",
+      "palette_pair": 235,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          28,
+          12,
+          14
+        ],
+        [
+          18,
+          5,
+          8
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          13,
+          29
+        ],
+        [
+          14,
+          13,
+          24
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "1180c777f77288bc672268ab5b182fd6c09ed8453371b55f2d44db0cfc789228",
+        "source_white_pixels_preserved": 1746
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "251910757cb526601aaa4a242ffc9e089ff3c3e9fd92f2ae35a370c2779112ae",
+        "source_white_pixels_preserved": 1033
+      }
+    },
+    {
+      "id": 243,
+      "source_name": "raikou",
+      "palette_pair": 236,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          31,
+          0
+        ],
+        [
+          19,
+          6,
+          18
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          15,
+          0
+        ],
+        [
+          25,
+          21,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "db9ceea0df1258f790b15b927b85fdca4406f6ba29c6d312306c5bafb9b3a980",
+        "source_white_pixels_preserved": 1746
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "b7446ee3496477be9b86b4f236a9b01f3ad486b07cffe4fae28a376da528828a",
+        "source_white_pixels_preserved": 1709
+      }
+    },
+    {
+      "id": 244,
+      "source_name": "entei",
+      "palette_pair": 237,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          24,
+          14,
+          0
+        ],
+        [
+          21,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          20,
+          10,
+          1
+        ],
+        [
+          10,
+          10,
+          8
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "c741208229d57eab50a9c8bb87cca9dd035d7acdd3db530d20cb2bd153d4231d",
+        "source_white_pixels_preserved": 1645
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "7bf6c0a226abe67563f55a1c5c7aa8a7af12bb0b56beedb3b6a4523799a3d192",
+        "source_white_pixels_preserved": 1558
+      }
+    },
+    {
+      "id": 245,
+      "source_name": "suicune",
+      "palette_pair": 238,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          11,
+          23,
+          31
+        ],
+        [
+          14,
+          2,
+          20
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          25,
+          24,
+          31
+        ],
+        [
+          16,
+          19,
+          24
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "547636af75972e850ece05d06c9933614034c1d15f9d455883cfbf4a52a2d122",
+        "source_white_pixels_preserved": 1566
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "baf383f9ced0e8ad1d66d410804088bd658fec1f47e104bdf463ee3dab12dfce",
+        "source_white_pixels_preserved": 1097
+      }
+    },
+    {
+      "id": 246,
+      "source_name": "larvitar",
+      "palette_pair": 239,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          12,
+          24,
+          1
+        ],
+        [
+          25,
+          7,
+          16
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          18,
+          23,
+          10
+        ],
+        [
+          20,
+          7,
+          23
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "0e56cf211c789fcfe63b61e572f17bf6db72786df6f8f281820739c8200e8dd9",
+        "source_white_pixels_preserved": 820
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "95a340a10e528178ad632ef7344315b855df5373ead608394c6b62b453771e68",
+        "source_white_pixels_preserved": 1253
+      }
+    },
+    {
+      "id": 247,
+      "source_name": "pupitar",
+      "palette_pair": 240,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          15,
+          20,
+          28
+        ],
+        [
+          15,
+          6,
+          6
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          19,
+          11,
+          28
+        ],
+        [
+          15,
+          6,
+          6
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "1f2676a027cb888cf044e00e2862d428e13e9261e2fba50ce97b1e23b7f7ce24",
+        "source_white_pixels_preserved": 1317
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "828282d09b74d2643196e882e18027a3b10f832c5af5231db4e833aea5d4bc6d",
+        "source_white_pixels_preserved": 907
+      }
+    },
+    {
+      "id": 248,
+      "source_name": "tyranitar",
+      "palette_pair": 241,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          16,
+          28,
+          0
+        ],
+        [
+          15,
+          10,
+          27
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          21,
+          18,
+          15
+        ],
+        [
+          19,
+          1,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "008163403cd00fbe3060c77edc0dc7f48f688790d4d8e166da9c9fdd8a1651d5",
+        "source_white_pixels_preserved": 1518
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "a0943590afcc928fcbe9eb1a96dadfb5d76255cba8f7c59e8d44fe87290845a2",
+        "source_white_pixels_preserved": 997
+      }
+    },
+    {
+      "id": 249,
+      "source_name": "lugia",
+      "palette_pair": 242,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          25,
+          17,
+          28
+        ],
+        [
+          10,
+          0,
+          31
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          18,
+          28,
+          28
+        ],
+        [
+          27,
+          0,
+          14
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "0eb1391d07983cc3fa8409ce52c9e64e8653b4ef5ea50d0123998f75b9cd800d",
+        "source_white_pixels_preserved": 2042
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "1ee5634f35473ace6ed3311e6ab99a2b98ea165513f1ebefdea573f4b1eb63ff",
+        "source_white_pixels_preserved": 1551
+      }
+    },
+    {
+      "id": 250,
+      "source_name": "ho_oh",
+      "palette_pair": 243,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          7,
+          3
+        ],
+        [
+          7,
+          15,
+          3
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          25,
+          20,
+          0
+        ],
+        [
+          31,
+          8,
+          4
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 56,
+        "height": 56,
+        "packed_sha256": "7f9a2cbbd3e363b1ea61d86f8cafa647fcdb61b75d708d8562a5bd2451d096e4",
+        "source_white_pixels_preserved": 1520
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "c16d9b822eb27aab62ac92b1c753cade3ac364bd9aeed8d930f9809760ba3c6b",
+        "source_white_pixels_preserved": 1628
+      }
+    },
+    {
+      "id": 251,
+      "source_name": "celebi",
+      "palette_pair": 244,
+      "reverse_middle_order": false,
+      "normal_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          10,
+          31,
+          0
+        ],
+        [
+          3,
+          13,
+          28
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "shiny_rgb5_gbc_order": [
+        [
+          31,
+          31,
+          31
+        ],
+        [
+          31,
+          15,
+          15
+        ],
+        [
+          15,
+          4,
+          18
+        ],
+        [
+          0,
+          0,
+          0
+        ]
+      ],
+      "front": {
+        "width": 40,
+        "height": 40,
+        "packed_sha256": "b090441c8de8388002a33ef236c8d6a5fd1ed0c74fa9874d80554d7f100f8e16",
+        "source_white_pixels_preserved": 1145
+      },
+      "back": {
+        "width": 48,
+        "height": 48,
+        "packed_sha256": "3822cad83b70a156839be16161f9aa7069266d4ba69930a686b9ddf61000e143",
+        "source_white_pixels_preserved": 1504
+      }
     }
   ],
   "outputs": {
     "gen1_front.bin": {
-      "bytes": 90730,
-      "sha256": "e9a36fbec5ab678333dbe94e400e1a2398c2974abf5332fbe23baab129bce114"
+      "bytes": 150290,
+      "sha256": "06ddf4ff50a6837b0516c1521886f7edbe805a686be401c062e586d03d065cd1"
     },
     "gen1_back.bin": {
-      "bytes": 86992,
-      "sha256": "ca451aa71e8a92440eb715ab7f511d4146ee7f89e203c50c37e0f6d8baacf690"
+      "bytes": 144592,
+      "sha256": "fa1837e496ffb1a76761d69c77ff25980ea2e400b92ccd6859b9702bad258047"
     },
     "palettes.bin": {
-      "bytes": 2499,
-      "sha256": "4217560355328ba3c2016e6c6c859a94c8c64fba74d1918dbdb3c50a1177279d"
+      "bytes": 4183,
+      "sha256": "684c3e3378776508bcebdb4e3e7f690e0280b299719b5333bb6b0a8f91d15b70"
     },
     "gen1.bin": {
-      "bytes": 7304,
-      "sha256": "00c511b56bfe41c7ad1859841f740c537ae09f32a4b1fc8ba39975f547db8489"
+      "bytes": 12159,
+      "sha256": "4eb0acf61b227ace9f66b9324099d0ca610ea684ff0a969ead05b84247ed7508"
     }
   }
 }

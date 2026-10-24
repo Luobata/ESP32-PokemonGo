@@ -39,6 +39,10 @@ typedef enum {
     PAGE_ACHIEVEMENTS,   // P14 成就与奖励
     PAGE_EXPLORATION,    // P15 路线探索
     PAGE_DUNGEON,       // P16 isolated roguelike playtest
+    PAGE_JOHTO,         // P17 城都之旅
+    PAGE_ACTIVITY,      // P18 城都调查与远征
+    PAGE_STORY,         // P19 冒险笔记
+    PAGE_NARRATIVE,     // P20 Guided investigation and resumable dialogue.
     PAGE_COUNT,
 } page_id_t;
 
@@ -104,7 +108,9 @@ typedef struct {
     // 实测症状是「打的是 #64，抓到的是 #23」。见 encounter.h。
     uint16_t uid;
     bool valid;
-    bool exploring; // Return route discoveries to P15 after the encounter.
+    bool exploring; // Return route discoveries to their exploration page.
+    bool johto_exploring; // Transient navigation only, never serialized.
+    bool narrative; // Return a guided discovery to its investigation, not the FIFO.
 
     // P3 打完留下的：给 P4 用
     bool battled;

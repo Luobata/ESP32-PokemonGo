@@ -1,0 +1,9 @@
+{
+  "local_gate": "pass",
+  "central_review": "transport_timeout_before_dispatch",
+  "attempts": 2,
+  "model_review_performed": false,
+  "pre_edit_rules": "no_matching_rules",
+  "local_gate_paths": 21,
+  "local_gate_result": ".device-backup/lcd-pipeline-20261023/qualitygate-final-2.json"
+}

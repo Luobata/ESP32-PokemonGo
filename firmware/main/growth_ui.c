@@ -5,6 +5,9 @@
 #include "evolution.h"
 #include "game_ui.h"
 #include "lvgl.h"
+#include "esp_timer.h"
+#include "presentation_clock.h"
+static presentation_clock_t motion_clock;
 #include "nav.h"
 #include "play.h"
 #include "pokemon_animation.h"
@@ -76,7 +79,9 @@ static bool ready(void) {
 static void tick(lv_timer_t *timer) {
     (void)timer;
     if(s_active) {
-        if(!screen_idle_is_off()&&pokemon_idle_step(&s_motion,120))screen_redraw_current();
+        unsigned old=motion_clock.elapsed_ms;
+        unsigned ms=presentation_clock_sample(&motion_clock,(uint32_t)(esp_timer_get_time()/1000),screen_idle_is_off());
+        if(!screen_idle_is_off()&&pokemon_idle_step(&s_motion,ms-old))screen_redraw_current();
         return;
     }
     if(!ready()||!world_growth_pop(&s_event))return;
@@ -87,6 +92,7 @@ static void tick(lv_timer_t *timer) {
     uint16_t known[COMBAT_MOVE_CAP];int count=combat_known_moves(s_event.species,s_event.after,known,COMBAT_MOVE_CAP);
     for(int i=0;i<count;i++)if(combat_learn_level(s_event.species,known[i])>s_event.before)s_moves[s_count++]=known[i];
     pokemon_idle_reset(&s_motion,s_event.species);
+    presentation_clock_start(&motion_clock,(uint32_t)(esp_timer_get_time()/1000));
     s_active=true;screen_set_overlay(draw_band);screen_idle_note_activity();
     sfx_play(SFX_LEVEL_UP);screen_redraw_current();
 }

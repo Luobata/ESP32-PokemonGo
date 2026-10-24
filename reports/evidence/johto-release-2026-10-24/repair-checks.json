@@ -1,0 +1,41 @@
+[
+  {
+    "check": "verify_power_worker.py",
+    "exitCode": 0
+  },
+  {
+    "check": "verify_party.py",
+    "exitCode": 0
+  },
+  {
+    "check": "verify_world_party.py",
+    "exitCode": 0
+  },
+  {
+    "check": "verify_achievement_capacity.py",
+    "exitCode": 0
+  },
+  {
+    "check": "verify_shiny_sources.py",
+    "exitCode": 0
+  },
+  {
+    "check": "verify_capture_capacity.py",
+    "exitCode": 1
+  },
+  {
+    "check": "verify_dungeon_rewards.py",
+    "exitCode": 0
+  },
+  {
+    "check": "verify_move_names.py",
+    "exitCode": 0
+  },
+  {
+    "command": "python3 tools/pipeline/verify_capture_capacity.py",
+    "exitCode": 0,
+    "cases": 504,
+    "log": "verify_capture_capacity.py.final.log",
+    "correction": "Expected stable encounter hp_type, Smeargle sketch union; full 251-species / 753-slot coverage"
+  }
+]

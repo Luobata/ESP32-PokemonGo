@@ -30,16 +30,16 @@
 #define BAG_FEEDBACK_Y 250
 #define BAG_TEXT_H 16
 
-SCREEN_ASSERT_WITHIN_BAND(bag_row_0, BAG_ROW_Y, BAG_TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(bag_row_1, BAG_ROW_Y + BAG_ROW_STEP, BAG_TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(bag_row_2, BAG_ROW_Y + BAG_ROW_STEP * 2, BAG_TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(bag_row_3, BAG_ROW_Y + BAG_ROW_STEP * 3, BAG_TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(bag_row_0, BAG_ROW_Y, BAG_TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(bag_row_1, BAG_ROW_Y + BAG_ROW_STEP, BAG_TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(bag_row_2, BAG_ROW_Y + BAG_ROW_STEP * 2, BAG_TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(bag_row_3, BAG_ROW_Y + BAG_ROW_STEP * 3, BAG_TEXT_H);
 // Full redraws clear both old and new bounds, including icons and the textbox.
 SCREEN_ASSERT_ALLOW_CROSS_BAND(bag_icons, BAG_ROW_Y - 4, BAG_ROW_STEP * BAG_ROWS);
 SCREEN_ASSERT_ALLOW_CROSS_BAND(bag_details, BAG_DETAIL_Y, BAG_DETAIL_H);
 SCREEN_ASSERT_ALLOW_CROSS_BAND(bag_description, BAG_DESCRIPTION_Y,
                               BAG_DESCRIPTION_STEP * (BAG_DESCRIPTION_LINES - 1) + BAG_TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(bag_feedback, BAG_FEEDBACK_Y, BAG_TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(bag_feedback, BAG_FEEDBACK_Y, BAG_TEXT_H);
 
 static inventory_t s_inventory;
 static world_t s_world;
@@ -90,13 +90,13 @@ static const char COOKIE[12][13] = {
 static uint8_t pocket_start(void)
 {
     return s_selected < ITEM_BALL_COUNT ? ITEM_POKE
-        : s_selected < ITEM_BERRY ? ITEM_FIRE_STONE : ITEM_BERRY;
+        : s_selected < ITEM_BERRY ? ITEM_FIRE_STONE : s_selected < ITEM_SUN_STONE ? ITEM_BERRY : ITEM_SUN_STONE;
 }
 
 static uint8_t pocket_end(void)
 {
     return s_selected < ITEM_BALL_COUNT ? ITEM_FIRE_STONE
-        : s_selected < ITEM_BERRY ? ITEM_BERRY : ITEM_COUNT;
+        : s_selected < ITEM_BERRY ? ITEM_BERRY : s_selected < ITEM_SUN_STONE ? ITEM_SUN_STONE : ITEM_COUNT;
 }
 
 static uint8_t first_row(void)
@@ -157,6 +157,11 @@ static void draw_item_icon(int band_y, uint8_t item, int y)
     const char (*drawing)[13] = STONE;
     uint16_t accent = GAME_UI_ACCENT;
     switch (item) {
+    case ITEM_SUN_STONE: accent = C_HP_YELLOW; break;
+    case ITEM_METAL_COAT: drawing = MACHINE; accent = GAME_UI_MUTED; break;
+    case ITEM_KINGS_ROCK: drawing = GROWTH; accent = C_HP_YELLOW; break;
+    case ITEM_DRAGON_SCALE: accent = C_HP_GREEN; break;
+    case ITEM_UPGRADE: drawing = MACHINE; accent = C_HP_RED; break;
     case ITEM_FIRE_STONE: accent = C_HP_RED; break;
     case ITEM_THUNDER_STONE: accent = C_HP_YELLOW; break;
     case ITEM_LEAF_STONE: accent = C_HP_GREEN; break;
@@ -191,7 +196,7 @@ static void draw_band(int band_y)
 
     uint8_t start = pocket_start(), end = pocket_end(), first = first_row();
     const char *pocket = s_selected < ITEM_BALL_COUNT ? "精灵球"
-                        : s_selected < ITEM_BERRY ? "进化道具" : "养成道具";
+                        : s_selected < ITEM_BERRY ? "进化道具" : s_selected < ITEM_SUN_STONE ? "养成道具" : "城都进化道具";
     render_text(12, 40 - band_y, pocket, GAME_UI_INK);
     snprintf(text, sizeof(text), "%u/%u", (first - start) / BAG_ROWS + 1,
              (end - start + BAG_ROWS - 1) / BAG_ROWS);

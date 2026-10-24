@@ -16,6 +16,8 @@ from dungeon_history_fixtures import c_dungeon_history
 
 ROOT=Path(__file__).resolve().parents[2]
 headers={
+ 'freertos/FreeRTOS.h':'#pragma once\n',
+ 'freertos/task.h':'#pragma once\n#include <assert.h>\nstatic inline void vTaskDelay(unsigned ticks){assert(ticks==1); /* scheduler modeled separately */}\n',
  'sdkconfig.h':'#define CONFIG_NVS_ASSERT_ERROR_CHECK 1\n',
  'esp_attr.h':'#define IDF_DEPRECATED(x)\n#define IRAM_ATTR\n',
  'esp_log.h':'#define ESP_LOGE(...) ((void)0)\n#define ESP_LOGW(...) ((void)0)\n#define ESP_LOGI(...) ((void)0)\n#define ESP_LOGD(...) ((void)0)\n#define ESP_LOGV(...) ((void)0)\n#define ESP_LOG_LEVEL(...) ((void)0)\n',
@@ -72,9 +74,9 @@ def run(idf, private_nvs=None, prune_legacy=False, validate_only=False, private_
   for name,content in headers.items():
    p=t/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(content)
   incs=[t,nvs/'include',nvs/'private_include',nvs/'src',idf/'esp_common/include',idf/'esp_rom/include',ROOT/'firmware/main',ROOT/'firmware/components/bsp/include']
-  flags=['-DLINUX_TARGET=1','-DESP_PLATFORM','-DHOST_BUILD','-DDUNGEON_REAL_NVS_TEST','-O1','-g','-fsanitize=address,undefined','-ffunction-sections','-fdata-sections']+[x for i in incs for x in ['-I',str(i)]]
+  flags=['-DLINUX_TARGET=1','-DESP_PLATFORM','-DHOST_BUILD','-DDUNGEON_REAL_NVS_TEST','-O1','-g','-fsanitize=address,undefined','-fno-sanitize-recover=all','-ffunction-sections','-fdata-sections']+[x for i in incs for x in ['-I',str(i)]]
   sources=['nvs_api','nvs_item_hash_list','nvs_page','nvs_pagemanager','nvs_storage','nvs_handle_simple','nvs_handle_locked','nvs_partition','nvs_partition_lookup','nvs_partition_manager','nvs_types','nvs_platform']
-  game=['save','save_bank','save_bank_device','restore_journal','party','encounter','exploration','nurture','exp','items','evolution','trainer','combat','battle','assets','pokemon_names','dungeon','dungeon_rewards']
+  game=['johto','johto_story','story_transactions','johto_activity','activity_transactions','capture','save','save_bank','save_bank_device','restore_journal','party','encounter','exploration','nurture','exp','items','evolution','trainer','gym_rules','combat','battle','assets','pokemon_names','dungeon','dungeon_rewards']
   for name in sources:
    subprocess.run(['c++','-std=c++17',*flags,'-c',str(nvs/'src'/f'{name}.cpp'),'-o',str(t/f'{name}.o')],check=True)
   for name in game+['driver']:
@@ -85,7 +87,7 @@ def run(idf, private_nvs=None, prune_legacy=False, validate_only=False, private_
    sy='_binary_'+name.replace('.','_');asm+=['.balign 4',f'.global {sy}_start',f'.global {sy}_end',f'{sy}_start:',f'.incbin "{ROOT/"assets"/name}"',f'{sy}_end:']
   (t/'assets.S').write_text('\n'.join(asm)+'\n')
   subprocess.run(['cc','-c',str(t/'assets.S'),'-o',str(t/'asset_data.o')],check=True)
-  subprocess.run(['c++','-fsanitize=address,undefined',*[str(t/f'{n}.o') for n in sources+game+['driver','asset_data']],'-lz','-Wl,-dead_strip' if sys.platform=='darwin' else '-Wl,--gc-sections','-o',str(t/'test')],check=True)
+  subprocess.run(['c++','-fsanitize=address,undefined','-fno-sanitize-recover=all',*[str(t/f'{n}.o') for n in sources+game+['driver','asset_data']],'-lz','-Wl,-dead_strip' if sys.platform=='darwin' else '-Wl,--gc-sections','-o',str(t/'test')],check=True)
   mode=["roundtrip"] if private_roundtrip else ["validate"] if validate_only else ["prune"] if prune_legacy else []
   subprocess.run([str(t/'test')]+([str(private_nvs)]+mode if private_nvs else []),check=True)
   if not private_nvs:

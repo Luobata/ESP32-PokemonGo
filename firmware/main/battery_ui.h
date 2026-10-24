@@ -7,6 +7,8 @@
 void battery_ui_draw(int band_y, int right, int y);
 void battery_ui_start(void);
 void battery_ui_stop(void);
+// The owning page may refresh just its visible status rows under the LVGL lock.
+void battery_ui_set_redraw(void (*redraw)(void));
 
 // Right-aligned title above the battery; still visible when battery is hidden.
 void battery_ui_playtime_text(char *out, size_t size);

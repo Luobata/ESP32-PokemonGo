@@ -1,0 +1,2 @@
+V25: 251 unique policy bits, 459 dense V23 individuals, alias/reference migration, failures, reboot and chapter/egg persistence, real world transactions, 8 gyms/final, paid discoveries and full-box eggs passed
+

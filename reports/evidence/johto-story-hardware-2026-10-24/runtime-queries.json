@@ -1,0 +1,922 @@
+[
+  {
+    "source": "before-state",
+    "line": "I (23243537) dbg: @@DISPLAY_STATE off=1 brightness=0 page=2 scans=75623 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5615"
+  },
+  {
+    "source": "before-state",
+    "line": "I (23243537) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1760"
+  },
+  {
+    "source": "before-state",
+    "line": "I (23243538) dbg: @@MEMORY_STATE free=17116 minimum=11208 largest=10752 stack_free=1760"
+  },
+  {
+    "source": "before-state",
+    "line": "I (23243538) dbg: @@AUDIO_PROFILE chunks=35593 render_avg_us=2096 render_max_us=139537 gap_max_us=139586 late=87 switches=21 switch_render_max_us=14242 opens=3 errors=0 stack_free=1980"
+  },
+  {
+    "source": "before-state",
+    "line": "I (23243539) dbg: @@UI_STACK timer_free=1384 lvgl_free=4348"
+  },
+  {
+    "source": "before-state",
+    "line": "I (23244681) dbg: @@DISPLAY_STATE off=0 brightness=100 page=2 scans=75623 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5612"
+  },
+  {
+    "source": "before-state",
+    "line": "I (23244681) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1360"
+  },
+  {
+    "source": "before-state",
+    "line": "I (23244682) dbg: @@MEMORY_STATE free=17116 minimum=11208 largest=10752 stack_free=1360"
+  },
+  {
+    "source": "before-state",
+    "line": "I (23244682) dbg: @@AUDIO_PROFILE chunks=35612 render_avg_us=2096 render_max_us=139537 gap_max_us=139586 late=87 switches=21 switch_render_max_us=14242 opens=4 errors=0 stack_free=1980"
+  },
+  {
+    "source": "before-state",
+    "line": "I (23244683) dbg: @@UI_STACK timer_free=1384 lvgl_free=4348"
+  },
+  {
+    "source": "after-update-reset",
+    "line": "I (6249) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75630 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5465"
+  },
+  {
+    "source": "after-update-reset",
+    "line": "I (6249) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=2108"
+  },
+  {
+    "source": "after-update-reset",
+    "line": "I (6250) dbg: @@MEMORY_STATE free=16108 minimum=10268 largest=9728 stack_free=2108"
+  },
+  {
+    "source": "after-update-reset",
+    "line": "I (6250) dbg: @@AUDIO_PROFILE chunks=225 render_avg_us=1350 render_max_us=1902 gap_max_us=22421 late=0 switches=1 switch_render_max_us=1602 opens=1 errors=0 stack_free=1992"
+  },
+  {
+    "source": "after-update-reset",
+    "line": "I (6251) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "chapter-entry",
+    "line": "I (38429) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75631 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5438"
+  },
+  {
+    "source": "chapter-entry",
+    "line": "I (38429) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=2108"
+  },
+  {
+    "source": "chapter-entry",
+    "line": "I (38430) dbg: @@MEMORY_STATE free=16108 minimum=10268 largest=9728 stack_free=2108"
+  },
+  {
+    "source": "chapter-entry",
+    "line": "I (38430) dbg: @@AUDIO_PROFILE chunks=1703 render_avg_us=2206 render_max_us=4438 gap_max_us=22990 late=0 switches=1 switch_render_max_us=1602 opens=1 errors=0 stack_free=1992"
+  },
+  {
+    "source": "chapter-entry",
+    "line": "I (38431) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "chapter-entry",
+    "line": "I (54917) dbg: @@DISPLAY_STATE off=0 brightness=100 page=18 scans=75631 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5423"
+  },
+  {
+    "source": "chapter-entry",
+    "line": "I (54917) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1800"
+  },
+  {
+    "source": "chapter-entry",
+    "line": "I (54918) dbg: @@MEMORY_STATE free=16108 minimum=10268 largest=9728 stack_free=1800"
+  },
+  {
+    "source": "chapter-entry",
+    "line": "I (54918) dbg: @@AUDIO_PROFILE chunks=492 render_avg_us=2379 render_max_us=2838 gap_max_us=43110 late=0 switches=1 switch_render_max_us=2012 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "chapter-entry",
+    "line": "I (54919) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (234937) dbg: @@DISPLAY_STATE off=1 brightness=0 page=18 scans=75636 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5273"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (234937) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1736"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (234938) dbg: @@MEMORY_STATE free=15072 minimum=10268 largest=9728 stack_free=1736"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (234938) dbg: @@AUDIO_PROFILE chunks=2843 render_avg_us=2500 render_max_us=4416 gap_max_us=43110 late=0 switches=1 switch_render_max_us=2012 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (234939) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (236054) dbg: @@DISPLAY_STATE off=0 brightness=100 page=18 scans=75637 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5273"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (236054) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1736"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (236055) dbg: @@MEMORY_STATE free=16108 minimum=10268 largest=9728 stack_free=1736"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (236055) dbg: @@AUDIO_PROFILE chunks=2860 render_avg_us=2501 render_max_us=4416 gap_max_us=43110 late=0 switches=1 switch_render_max_us=2012 opens=1 errors=0 stack_free=1992"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (236059) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (251947) dbg: @@DISPLAY_STATE off=0 brightness=100 page=18 scans=75638 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5255"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (251950) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1736"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (251951) dbg: @@MEMORY_STATE free=16100 minimum=10268 largest=9728 stack_free=1736"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (251951) dbg: @@AUDIO_PROFILE chunks=172 render_avg_us=2573 render_max_us=2838 gap_max_us=21967 late=0 switches=0 switch_render_max_us=0 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (251952) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (256671) dbg: @@DISPLAY_STATE off=0 brightness=100 page=18 scans=75638 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5252"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (256674) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1736"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (256674) dbg: @@MEMORY_STATE free=16100 minimum=10268 largest=9728 stack_free=1736"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (256675) dbg: @@AUDIO_PROFILE chunks=172 render_avg_us=2573 render_max_us=2797 gap_max_us=22033 late=0 switches=0 switch_render_max_us=0 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (256676) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (261400) dbg: @@DISPLAY_STATE off=0 brightness=100 page=18 scans=75638 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5249"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (261400) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1736"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (261401) dbg: @@MEMORY_STATE free=16100 minimum=10268 largest=9728 stack_free=1736"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (261401) dbg: @@AUDIO_PROFILE chunks=171 render_avg_us=2551 render_max_us=2765 gap_max_us=21964 late=0 switches=0 switch_render_max_us=0 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (261402) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (271169) dbg: @@DISPLAY_STATE off=0 brightness=100 page=18 scans=75638 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5240"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (271172) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1736"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (271172) dbg: @@MEMORY_STATE free=15172 minimum=10268 largest=9728 stack_free=1736"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (271173) dbg: @@AUDIO_PROFILE chunks=620 render_avg_us=2561 render_max_us=4397 gap_max_us=39956 late=0 switches=0 switch_render_max_us=0 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "story-pause-resume",
+    "line": "I (271173) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (297463) dbg: @@DISPLAY_STATE off=0 brightness=100 page=18 scans=75639 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5216"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (297463) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1736"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (297464) dbg: @@MEMORY_STATE free=16108 minimum=10268 largest=9728 stack_free=1736"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (297464) dbg: @@AUDIO_PROFILE chunks=1827 render_avg_us=2516 render_max_us=4397 gap_max_us=39956 late=0 switches=0 switch_render_max_us=0 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (297465) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (298848) dbg: @@DISPLAY_STATE off=0 brightness=100 page=15 scans=75639 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5216"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (298848) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1736"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (298849) dbg: @@MEMORY_STATE free=16108 minimum=10268 largest=9728 stack_free=1736"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (298849) dbg: @@AUDIO_PROFILE chunks=1891 render_avg_us=2518 render_max_us=4397 gap_max_us=39956 late=0 switches=0 switch_render_max_us=0 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (298850) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (304897) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=75640 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5213"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (304897) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1736"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (304898) dbg: @@MEMORY_STATE free=16100 minimum=10268 largest=9728 stack_free=1736"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (304898) dbg: @@AUDIO_PROFILE chunks=2169 render_avg_us=2526 render_max_us=4397 gap_max_us=39956 late=0 switches=0 switch_render_max_us=0 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (304899) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (305908) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75640 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5210"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (305908) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1736"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (305909) dbg: @@MEMORY_STATE free=16100 minimum=10268 largest=9728 stack_free=1736"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (305909) dbg: @@AUDIO_PROFILE chunks=2215 render_avg_us=2518 render_max_us=4397 gap_max_us=39956 late=0 switches=1 switch_render_max_us=1492 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (305910) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (306886) dbg: @@DISPLAY_STATE off=0 brightness=100 page=6 scans=75640 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5210"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (306886) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1736"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (306887) dbg: @@MEMORY_STATE free=16100 minimum=10268 largest=9728 stack_free=1736"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (306887) dbg: @@AUDIO_PROFILE chunks=2260 render_avg_us=2502 render_max_us=4397 gap_max_us=39956 late=0 switches=2 switch_render_max_us=2885 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (306888) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (319256) dbg: @@DISPLAY_STATE off=0 brightness=100 page=6 scans=75640 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5198"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (319259) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1736"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (319259) dbg: @@MEMORY_STATE free=16100 minimum=10268 largest=9728 stack_free=1736"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (319260) dbg: @@AUDIO_PROFILE chunks=492 render_avg_us=2461 render_max_us=2874 gap_max_us=21943 late=0 switches=0 switch_render_max_us=0 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (319261) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (320240) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75640 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5198"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (320240) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1608"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (320241) dbg: @@MEMORY_STATE free=16100 minimum=10268 largest=9728 stack_free=1608"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (320241) dbg: @@AUDIO_PROFILE chunks=537 render_avg_us=2428 render_max_us=2874 gap_max_us=22058 late=0 switches=1 switch_render_max_us=1486 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (320242) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (321598) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=75640 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5198"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (321598) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1608"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (321599) dbg: @@MEMORY_STATE free=16100 minimum=10268 largest=9728 stack_free=1608"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (321599) dbg: @@AUDIO_PROFILE chunks=599 render_avg_us=2315 render_max_us=2874 gap_max_us=22062 late=0 switches=1 switch_render_max_us=1486 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (321600) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (322972) dbg: @@DISPLAY_STATE off=0 brightness=100 page=10 scans=75640 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5195"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (322972) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1608"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (322973) dbg: @@MEMORY_STATE free=16100 minimum=10268 largest=9728 stack_free=1608"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (322973) dbg: @@AUDIO_PROFILE chunks=662 render_avg_us=2221 render_max_us=2874 gap_max_us=22062 late=0 switches=1 switch_render_max_us=1486 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (322974) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (335332) dbg: @@DISPLAY_STATE off=0 brightness=100 page=10 scans=75640 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5186"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (335332) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1608"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (335333) dbg: @@MEMORY_STATE free=15272 minimum=10268 largest=9728 stack_free=1608"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (335333) dbg: @@AUDIO_PROFILE chunks=492 render_avg_us=2005 render_max_us=3683 gap_max_us=22853 late=0 switches=0 switch_render_max_us=0 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (335334) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (336679) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75641 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5186"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (336679) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1432"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (336680) dbg: @@MEMORY_STATE free=16108 minimum=10268 largest=9728 stack_free=1432"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (336680) dbg: @@AUDIO_PROFILE chunks=554 render_avg_us=2068 render_max_us=3801 gap_max_us=22853 late=0 switches=0 switch_render_max_us=0 opens=0 errors=0 stack_free=1992"
+  },
+  {
+    "source": "core-pages",
+    "line": "I (336681) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "before-restore-test-reset",
+    "line": "I (6236) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75642 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5171"
+  },
+  {
+    "source": "before-restore-test-reset",
+    "line": "I (6236) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=2104"
+  },
+  {
+    "source": "before-restore-test-reset",
+    "line": "I (6237) dbg: @@MEMORY_STATE free=16100 minimum=10060 largest=9728 stack_free=2104"
+  },
+  {
+    "source": "before-restore-test-reset",
+    "line": "I (6237) dbg: @@AUDIO_PROFILE chunks=235 render_avg_us=1353 render_max_us=2851 gap_max_us=21945 late=0 switches=1 switch_render_max_us=1709 opens=1 errors=0 stack_free=1968"
+  },
+  {
+    "source": "before-restore-test-reset",
+    "line": "I (6238) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "brightness-change",
+    "line": "I (9989) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75642 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5168"
+  },
+  {
+    "source": "brightness-change",
+    "line": "I (9989) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=2100"
+  },
+  {
+    "source": "brightness-change",
+    "line": "I (9990) dbg: @@MEMORY_STATE free=16100 minimum=10060 largest=9728 stack_free=2084"
+  },
+  {
+    "source": "brightness-change",
+    "line": "I (9990) dbg: @@AUDIO_PROFILE chunks=408 render_avg_us=1419 render_max_us=2851 gap_max_us=21945 late=0 switches=1 switch_render_max_us=1709 opens=1 errors=0 stack_free=1968"
+  },
+  {
+    "source": "brightness-change",
+    "line": "I (9991) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "brightness-change",
+    "line": "I (18329) dbg: @@DISPLAY_STATE off=0 brightness=89 page=9 scans=75642 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5162"
+  },
+  {
+    "source": "brightness-change",
+    "line": "I (18329) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1844"
+  },
+  {
+    "source": "brightness-change",
+    "line": "I (18330) dbg: @@MEMORY_STATE free=16100 minimum=10060 largest=9728 stack_free=1844"
+  },
+  {
+    "source": "brightness-change",
+    "line": "I (18330) dbg: @@AUDIO_PROFILE chunks=791 render_avg_us=1879 render_max_us=2912 gap_max_us=33359 late=0 switches=1 switch_render_max_us=1709 opens=1 errors=0 stack_free=1968"
+  },
+  {
+    "source": "brightness-change",
+    "line": "I (18331) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "new-format-change",
+    "line": "I (53688) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=75629 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5477"
+  },
+  {
+    "source": "new-format-change",
+    "line": "I (53688) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1816"
+  },
+  {
+    "source": "new-format-change",
+    "line": "I (53689) dbg: @@MEMORY_STATE free=15968 minimum=9928 largest=9728 stack_free=1816"
+  },
+  {
+    "source": "new-format-change",
+    "line": "I (53689) dbg: @@AUDIO_PROFILE chunks=2392 render_avg_us=2257 render_max_us=4399 gap_max_us=41849 late=0 switches=1 switch_render_max_us=1458 opens=1 errors=0 stack_free=2000"
+  },
+  {
+    "source": "new-format-change",
+    "line": "I (53690) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "new-format-change",
+    "line": "I (55788) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75629 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5474"
+  },
+  {
+    "source": "new-format-change",
+    "line": "I (55788) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1816"
+  },
+  {
+    "source": "new-format-change",
+    "line": "I (55789) dbg: @@MEMORY_STATE free=15968 minimum=9928 largest=9728 stack_free=1816"
+  },
+  {
+    "source": "new-format-change",
+    "line": "I (55789) dbg: @@AUDIO_PROFILE chunks=2488 render_avg_us=2266 render_max_us=4399 gap_max_us=41849 late=0 switches=1 switch_render_max_us=1458 opens=1 errors=0 stack_free=2000"
+  },
+  {
+    "source": "new-format-change",
+    "line": "I (55790) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "new-format-change",
+    "line": "I (64137) dbg: @@DISPLAY_STATE off=0 brightness=89 page=9 scans=75629 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5468"
+  },
+  {
+    "source": "new-format-change",
+    "line": "I (64137) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1816"
+  },
+  {
+    "source": "new-format-change",
+    "line": "I (64138) dbg: @@MEMORY_STATE free=16100 minimum=9928 largest=9728 stack_free=1816"
+  },
+  {
+    "source": "new-format-change",
+    "line": "I (64138) dbg: @@AUDIO_PROFILE chunks=2872 render_avg_us=2298 render_max_us=4399 gap_max_us=41849 late=0 switches=1 switch_render_max_us=1458 opens=1 errors=0 stack_free=2000"
+  },
+  {
+    "source": "new-format-change",
+    "line": "I (64139) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "console-final-reset",
+    "line": "I (6228) dbg: @@DISPLAY_STATE off=0 brightness=89 page=0 scans=75648 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=4931"
+  },
+  {
+    "source": "console-final-reset",
+    "line": "I (6228) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=2104"
+  },
+  {
+    "source": "console-final-reset",
+    "line": "I (6229) dbg: @@MEMORY_STATE free=16024 minimum=10184 largest=9728 stack_free=2100"
+  },
+  {
+    "source": "console-final-reset",
+    "line": "I (6229) dbg: @@AUDIO_PROFILE chunks=235 render_avg_us=1352 render_max_us=2075 gap_max_us=22985 late=0 switches=1 switch_render_max_us=1649 opens=1 errors=0 stack_free=1888"
+  },
+  {
+    "source": "console-final-reset",
+    "line": "I (6230) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "fixed-v30-receipt-summary",
+    "line": "I (10189) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75628 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5513"
+  },
+  {
+    "source": "fixed-v30-receipt-summary",
+    "line": "I (10189) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1888"
+  },
+  {
+    "source": "fixed-v30-receipt-summary",
+    "line": "I (10190) dbg: @@MEMORY_STATE free=15896 minimum=9956 largest=9728 stack_free=1888"
+  },
+  {
+    "source": "fixed-v30-receipt-summary",
+    "line": "I (10190) dbg: @@AUDIO_PROFILE chunks=394 render_avg_us=1398 render_max_us=2281 gap_max_us=22310 late=0 switches=1 switch_render_max_us=1614 opens=1 errors=0 stack_free=2000"
+  },
+  {
+    "source": "fixed-v30-receipt-summary",
+    "line": "I (10191) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (67208) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=75629 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5465"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (67209) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1824"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (67209) dbg: @@MEMORY_STATE free=15660 minimum=9956 largest=9728 stack_free=1824"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (67209) dbg: @@AUDIO_PROFILE chunks=3013 render_avg_us=2300 render_max_us=4220 gap_max_us=38816 late=0 switches=1 switch_render_max_us=1614 opens=1 errors=0 stack_free=2000"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (67210) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (69309) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75630 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5465"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (69309) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1824"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (69310) dbg: @@MEMORY_STATE free=15896 minimum=9956 largest=9728 stack_free=1824"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (69310) dbg: @@AUDIO_PROFILE chunks=3110 render_avg_us=2307 render_max_us=4374 gap_max_us=38816 late=0 switches=1 switch_render_max_us=1614 opens=1 errors=0 stack_free=2000"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (69311) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (75459) dbg: @@DISPLAY_STATE off=0 brightness=100 page=18 scans=75630 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5456"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (75459) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1824"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (75460) dbg: @@MEMORY_STATE free=15896 minimum=9956 largest=9728 stack_free=1824"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (75460) dbg: @@AUDIO_PROFILE chunks=3392 render_avg_us=2315 render_max_us=4374 gap_max_us=40107 late=0 switches=2 switch_render_max_us=2076 opens=1 errors=0 stack_free=2000"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (75461) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (94072) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75630 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5441"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (94072) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1728"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (94073) dbg: @@MEMORY_STATE free=15896 minimum=9956 largest=9728 stack_free=1728"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (94073) dbg: @@AUDIO_PROFILE chunks=826 render_avg_us=2431 render_max_us=2866 gap_max_us=21904 late=0 switches=1 switch_render_max_us=1648 opens=0 errors=0 stack_free=2000"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (94074) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (95071) dbg: @@DISPLAY_STATE off=0 brightness=100 page=1 scans=75630 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5441"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (95071) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1728"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (95072) dbg: @@MEMORY_STATE free=15896 minimum=9956 largest=9728 stack_free=1728"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (95072) dbg: @@AUDIO_PROFILE chunks=872 render_avg_us=2371 render_max_us=2866 gap_max_us=21904 late=0 switches=2 switch_render_max_us=1648 opens=0 errors=0 stack_free=2000"
+  },
+  {
+    "source": "final-ui-and-change",
+    "line": "I (95073) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (133203) dbg: @@DISPLAY_STATE off=0 brightness=100 page=1 scans=75631 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5408"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (133204) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1728"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (133204) dbg: @@MEMORY_STATE free=15160 minimum=9956 largest=9728 stack_free=1728"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (133205) dbg: @@AUDIO_PROFILE chunks=2624 render_avg_us=2402 render_max_us=4341 gap_max_us=22255 late=0 switches=2 switch_render_max_us=1648 opens=0 errors=0 stack_free=2000"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (133205) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (134213) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75631 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5408"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (134213) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1728"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (134214) dbg: @@MEMORY_STATE free=15160 minimum=9956 largest=9728 stack_free=1728"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (134214) dbg: @@AUDIO_PROFILE chunks=2670 render_avg_us=2395 render_max_us=4341 gap_max_us=22255 late=0 switches=3 switch_render_max_us=1650 opens=0 errors=0 stack_free=2000"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (134215) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (135191) dbg: @@DISPLAY_STATE off=0 brightness=100 page=6 scans=75632 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5408"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (135191) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1728"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (135192) dbg: @@MEMORY_STATE free=15896 minimum=9956 largest=9728 stack_free=1728"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (135192) dbg: @@AUDIO_PROFILE chunks=2715 render_avg_us=2384 render_max_us=4341 gap_max_us=22489 late=0 switches=4 switch_render_max_us=2856 opens=0 errors=0 stack_free=2000"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (135193) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (146531) dbg: @@DISPLAY_STATE off=0 brightness=100 page=6 scans=75632 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5396"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (146531) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1728"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (146532) dbg: @@MEMORY_STATE free=15896 minimum=9956 largest=9728 stack_free=1728"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (146532) dbg: @@AUDIO_PROFILE chunks=492 render_avg_us=2463 render_max_us=2898 gap_max_us=21980 late=0 switches=0 switch_render_max_us=0 opens=0 errors=0 stack_free=2000"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (146533) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (147529) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75632 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5396"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (147529) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1648"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (147530) dbg: @@MEMORY_STATE free=15896 minimum=9956 largest=9728 stack_free=1648"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (147530) dbg: @@AUDIO_PROFILE chunks=538 render_avg_us=2430 render_max_us=2898 gap_max_us=21980 late=0 switches=1 switch_render_max_us=1682 opens=0 errors=0 stack_free=2000"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (147531) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (155799) dbg: @@DISPLAY_STATE off=0 brightness=89 page=9 scans=75632 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5390"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (155799) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1648"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (155800) dbg: @@MEMORY_STATE free=16028 minimum=9956 largest=9728 stack_free=1648"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (155800) dbg: @@AUDIO_PROFILE chunks=918 render_avg_us=2000 render_max_us=2898 gap_max_us=39262 late=0 switches=1 switch_render_max_us=1682 opens=0 errors=0 stack_free=2000"
+  },
+  {
+    "source": "final-care-change",
+    "line": "I (155801) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "fixed-v31-receipt-summary",
+    "line": "I (11821) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75629 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5495"
+  },
+  {
+    "source": "fixed-v31-receipt-summary",
+    "line": "I (11821) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1896"
+  },
+  {
+    "source": "fixed-v31-receipt-summary",
+    "line": "I (11822) dbg: @@MEMORY_STATE free=15904 minimum=9964 largest=9728 stack_free=1896"
+  },
+  {
+    "source": "fixed-v31-receipt-summary",
+    "line": "I (11822) dbg: @@AUDIO_PROFILE chunks=478 render_avg_us=1542 render_max_us=2776 gap_max_us=22591 late=0 switches=1 switch_render_max_us=1597 opens=1 errors=0 stack_free=1992"
+  },
+  {
+    "source": "fixed-v31-receipt-summary",
+    "line": "I (11823) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (200996) dbg: @@DISPLAY_STATE off=1 brightness=0 page=9 scans=75635 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5333"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (200996) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1848"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (200997) dbg: @@MEMORY_STATE free=15904 minimum=9964 largest=9728 stack_free=1848"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (200997) dbg: @@AUDIO_PROFILE chunks=5661 render_avg_us=2358 render_max_us=4397 gap_max_us=40552 late=0 switches=1 switch_render_max_us=1597 opens=2 errors=0 stack_free=1992"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (200998) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (202131) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=75635 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5330"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (202132) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1848"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (202132) dbg: @@MEMORY_STATE free=15768 minimum=9964 largest=9728 stack_free=1848"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (202132) dbg: @@AUDIO_PROFILE chunks=5679 render_avg_us=2358 render_max_us=4397 gap_max_us=40552 late=0 switches=1 switch_render_max_us=1597 opens=3 errors=0 stack_free=1972"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (202133) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (203864) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75635 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5330"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (203864) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1768"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (203865) dbg: @@MEMORY_STATE free=15168 minimum=9964 largest=9728 stack_free=1768"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (203865) dbg: @@AUDIO_PROFILE chunks=5759 render_avg_us=2361 render_max_us=4397 gap_max_us=40552 late=0 switches=1 switch_render_max_us=1597 opens=3 errors=0 stack_free=1972"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (203866) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (212558) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=75636 pending=3 pet=115 level=58 exp=293221 stamina_q10=102400 mood_q10=5321"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (212558) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1708"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (212559) dbg: @@MEMORY_STATE free=15904 minimum=9964 largest=9728 stack_free=1708"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (212559) dbg: @@AUDIO_PROFILE chunks=6158 render_avg_us=2370 render_max_us=4397 gap_max_us=40552 late=0 switches=1 switch_render_max_us=1597 opens=3 errors=0 stack_free=1972"
+  },
+  {
+    "source": "final-idle-restored",
+    "line": "I (212560) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+  }
+]

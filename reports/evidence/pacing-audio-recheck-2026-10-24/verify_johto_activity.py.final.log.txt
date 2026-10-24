@@ -1,0 +1,2 @@
+V27 historical migrations, bug six nodes/three balls/full box, exact-slot replacement, sea relay/deep/retreat, persisted RNG, save failures and chain isolation passed
+

@@ -1,0 +1,20 @@
+{
+  "format": "pokewalk-app-update-v2",
+  "address": 65536,
+  "size": 3155936,
+  "sha256": "a9d7961891bebcf54337cc7a112feb8ad25d51ac8778c09ff7cf75194ec3c258",
+  "partition_sha256": "f0f6a27d3d10eba17bc1f6829f3890acee3a23ea637b3537dfa79d50b3174780",
+  "base_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+  "dirty_worktree": true,
+  "save_version": 30,
+  "backup_container": 4,
+  "app_capacity_bytes": 3407872,
+  "source_hashes": {
+    "firmware/main/capture_presentation.h": "7070f7d47b9521b0343c4bc6fe4ac9eb38f08cb295c6dc6f389e4ae1df6363cd",
+    "firmware/main/play_capture.c": "46efc40997eb2d777d4bbc43409df9ebf56ccb4dfcae8a8843d783cf1fb4cea3",
+    "firmware/main/play_battle.c": "26c2b2ff31128af036fe64b01e815803bcb94b7fd0dc999460f282105fb0594f",
+    "firmware/main/play_trainer.c": "311ddd4b2ea30b737394ac1d0d51b40686388a284517c8edb5a3fbede815047b",
+    "firmware/main/battle_presentation.h": "0a77d27f8220b6fe6f71491f1a3a16f3d2d8cf7791534f3638adb1fc37d2c5c6",
+    "firmware/main/battle_fx.h": "509ce8a777f7989bd975de2bc574a19861eb1090d6ab0f4a4562b096e890189c"
+  }
+}

@@ -1,5 +1,16 @@
 [
   {
+    "id": 166,
+    "name": "SKETCH",
+    "effect": "EFFECT_SKETCH",
+    "power": 0,
+    "type": "NORMAL",
+    "accuracy": 100,
+    "pp": 1,
+    "chance": 0,
+    "name_zh": "写生"
+  },
+  {
     "id": 172,
     "name": "FLAME_WHEEL",
     "effect": "EFFECT_FLAME_WHEEL",
@@ -198,6 +209,17 @@
     "chance": 30
   },
   {
+    "id": 237,
+    "name": "HIDDEN_POWER",
+    "effect": "EFFECT_HIDDEN_POWER",
+    "power": 1,
+    "type": "NORMAL",
+    "accuracy": 100,
+    "pp": 15,
+    "chance": 0,
+    "name_zh": "觉醒力量"
+  },
+  {
     "id": 238,
     "name": "CROSS_CHOP",
     "effect": "EFFECT_NORMAL_HIT",
@@ -229,6 +251,17 @@
     "name_zh": "咬碎",
     "pp": 15,
     "chance": 20
+  },
+  {
+    "id": 243,
+    "name": "MIRROR_COAT",
+    "effect": "EFFECT_MIRROR_COAT",
+    "power": 1,
+    "type": "PSYCHIC",
+    "accuracy": 100,
+    "pp": 20,
+    "chance": 0,
+    "name_zh": "镜面反射"
   },
   {
     "id": 245,

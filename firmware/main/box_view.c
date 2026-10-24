@@ -3,18 +3,12 @@
 #include "battle.h"
 #include "evolution.h"
 
-static bool can_evolve(const mon_t *mon, const species_t *species, const inventory_t *inventory)
+static bool can_evolve(const mon_t *mon,const species_t *species,const inventory_t *bag,unsigned badges)
 {
-    if (evo_level_ready(mon->level, species->evolve_trigger, species->evolve_to,
-                        species->evolve_level)) return true;
-    if (!inventory) return false;
-    nurture_t nurture = {0};
-    item_use_result_t result;
-    for (unsigned item = ITEM_FIRE_STONE; item <= ITEM_GROWTH_MACHINE; item++) {
-        if (inventory->quantity[item] &&
-            items_apply(item, mon->species_id, mon->level, &nurture, &result) == ITEM_USE_OK &&
-            result.species_after != mon->species_id) return true;
-    }
+    evo_option_t options[EVO_OPTION_MAX];
+    unsigned n=evo_options(mon->species_id,species->evolve_trigger,species->evolve_to,species->evolve_level,options);
+    for(unsigned i=0;i<n;i++)if(evo_option_ready(&options[i],mon->level,mon->intimacy,badges,
+        bag&&options[i].item!=ITEM_NONE?bag->quantity[options[i].item]:0))return true;
     return false;
 }
 
@@ -36,7 +30,7 @@ unsigned box_view_build(const mon_t box[BOX_CAPACITY], const inventory_t *invent
         species_t species;
         if (!mon->species_id || !assets_species(mon->species_id, &species)) continue;
         if (options->filter == BOX_FILTER_SHINY && !(mon->flags & 1)) continue;
-        if (options->filter == BOX_FILTER_EVOLVABLE && !can_evolve(mon, &species, inventory)) continue;
+        if (options->filter == BOX_FILTER_EVOLVABLE && !can_evolve(mon, &species, inventory,options->johto_badges)) continue;
         if (options->type && species.type1 + 1 != options->type &&
             (species.type2 == TY_NONE || species.type2 + 1 != options->type)) continue;
         unsigned at = count++;

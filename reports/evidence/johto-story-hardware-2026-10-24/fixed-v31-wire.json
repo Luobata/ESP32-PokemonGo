@@ -1,0 +1,7 @@
+{
+  "upload_chunks": 576,
+  "complete_offsets": true,
+  "wifi_scan_records_during_transfer": 3,
+  "embedded_protocol_records": 0,
+  "staged": true
+}

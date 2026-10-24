@@ -1,0 +1,48 @@
+[
+  {
+    "tag": "before",
+    "native": "/Users/bytedance/luobata/ESP32-PokemonGo/.build/firmware-preview/33f3cbbf25e4858a65de/preview",
+    "presentation": {
+      "phase": "attack",
+      "visible_pet_hp": 70,
+      "visible_wild_hp": 71,
+      "visible_exp": 40500,
+      "visible_level": 30,
+      "pet_dx": 0,
+      "wild_dx": 0,
+      "wild_frame": 0,
+      "shiny_side": 0,
+      "move_id": 9,
+      "by_pet": true,
+      "elapsed_ms": 0,
+      "duration_ms": 4887,
+      "hit_ms": 2010,
+      "hp_ms": 2714,
+      "feedback_ms": 3987,
+      "stage": 0
+    }
+  },
+  {
+    "tag": "after",
+    "native": "/Users/bytedance/luobata/ESP32-PokemonGo/.build/firmware-preview/290e517edce250e32c42/preview",
+    "presentation": {
+      "phase": "attack",
+      "visible_pet_hp": 70,
+      "visible_wild_hp": 71,
+      "visible_exp": 40500,
+      "visible_level": 30,
+      "pet_dx": 0,
+      "wild_dx": 0,
+      "wild_frame": 0,
+      "shiny_side": 0,
+      "move_id": 9,
+      "by_pet": true,
+      "elapsed_ms": 0,
+      "duration_ms": 5900,
+      "hit_ms": 2385,
+      "hp_ms": 3302,
+      "feedback_ms": 5000,
+      "stage": 0
+    }
+  }
+]

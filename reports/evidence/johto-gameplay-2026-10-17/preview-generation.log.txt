@@ -1,0 +1,66 @@
+{"species": 251, "staging": "/Users/bytedance/luobata/ESP32-PokemonGo/assets/johto-candidate", "art_bytes": 311224, "animation_bytes": 140875}
+/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/convert_font.py:264: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
+  px = list(img.getdata())
+字体 PingFang SC Regular (index 2) @ 16px
+
+字符集 1435 个
+  宝可梦名字 319　UI 文案 1313　重叠 197
+
+/Users/bytedance/luobata/ESP32-PokemonGo/assets/johto-candidate/font16.bin
+  头部         14 B
+  码点索引   2870 B  (1435 × 2)
+  字形      45920 B  (1435 × 32)
+  合计      48804 B = 47.7 KB
+
+  对照：GB2312 全字库 6700 字 = 209 KB　子集省了 165 KB
+  字符集清单 → /Users/bytedance/luobata/ESP32-PokemonGo/assets/johto-candidate/font16_charset.txt
+{
+  "status": "PASS",
+  "repository": "https://github.com/pret/pokecrystal",
+  "commit": "7a7881d0d62e0ddbd82dcf10e7116807487ac651",
+  "stats": {
+    "source_images": 502,
+    "source_pixels": 1177280,
+    "source_white_pixels_preserved": 640494,
+    "c_renders": 1004,
+    "compared_c_screen_pixels": 77107200
+  },
+  "front_size_counts": {
+    "40": 77,
+    "48": 84,
+    "56": 90
+  },
+  "back_size": [
+    48,
+    48
+  ],
+  "palette_pairs": 245,
+  "maximum_combined_palette_index": 489,
+  "reverse_kanto_species": [
+    "spearow",
+    "fearow",
+    "farfetch_d",
+    "hitmonlee",
+    "scyther",
+    "jynx",
+    "porygon",
+    "porygon2"
+  ],
+  "source_index_mismatches": 0,
+  "normal_palette_mismatches": 0,
+  "shiny_palette_mismatches": 0,
+  "actual_c_pixel_mismatches": 0,
+  "gameplay_sha256_except_palette_byte_23": "c7cb77bfafb867d7585615dd415af2318559a55830ab2b73677845078a83ebd0",
+  "gameplay_reference_checked": null,
+  "asset_sha256": {
+    "gen1.bin": "4eb0acf61b227ace9f66b9324099d0ca610ea684ff0a969ead05b84247ed7508",
+    "gen1_front.bin": "06ddf4ff50a6837b0516c1521886f7edbe805a686be401c062e586d03d065cd1",
+    "gen1_back.bin": "fa1837e496ffb1a76761d69c77ff25980ea2e400b92ccd6859b9702bad258047",
+    "palettes.bin": "684c3e3378776508bcebdb4e3e7f690e0280b299719b5333bb6b0a8f91d15b70"
+  },
+  "scope": "static Crystal first front frame and back; integer 2x normal/shiny C rendering on white",
+  "limits": "Index 3 stays original white but is transparent in renderer; white page background required. P6 nearest-neighbor 32px thumbnails are reduced representations, not source-pixel 1:1."
+}
+PASS original front animations: {'species': 251, 'timing_samples': 37923, 'decoded_frames': 1303, 'c_renders': 2606, 'rgb565_pixels': 32689664}
+PASS: old progress gates, 8 gyms, 4000 level bounds, locked egg, full-box retry, duplicate actions and final reward; planned reachability 251/251
+Verified local review: http://127.0.0.1:8766/johto.html

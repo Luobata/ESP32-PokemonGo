@@ -135,7 +135,7 @@ def _firmware_chars(repo: str) -> tuple[set, int]:
     return chars, n
 
 
-def collect_charset(gen1_json: str) -> tuple[set, dict]:
+def collect_charset(gen1_json: str, species_bin: str | None = None) -> tuple[set, dict]:
     """收集需要的字符集。返回 (字符集, 分类统计)。"""
     chars: set = set()
     stat = {"names": 0, "ui": 0}
@@ -143,7 +143,9 @@ def collect_charset(gen1_json: str) -> tuple[set, dict]:
     # 物种中文名：先试入库的 gen1.bin，回退到 /tmp 的中间 json
     repo = os.path.dirname(os.path.dirname(os.path.dirname(
         os.path.abspath(__file__))))
-    name_chars = _names_from_bin(os.path.join(repo, "assets", "gen1.bin"))
+    if species_bin and not os.path.isfile(species_bin):
+        raise ValueError('Specified species asset is missing: '+species_bin)
+    name_chars = _names_from_bin(species_bin or os.path.join(repo, "assets", "gen1.bin"))
     if not name_chars and os.path.exists(gen1_json):
         with open(gen1_json, encoding="utf-8") as f:
             mons = json.load(f)
@@ -278,6 +280,7 @@ def main() -> int:
     ap.add_argument("--src", default="/tmp/gen1c",
                     help="fetch_gen1.py 的输出（取 gen1.json 的中文名）")
     ap.add_argument("--out", default="assets")
+    ap.add_argument("--species-bin", help="Isolated species catalog for candidate font generation")
     ap.add_argument("--size", type=int, default=GLYPH_SIZE)
     ap.add_argument("--font", default="", help="指定字体路径")
     ap.add_argument("--font-index", type=int, default=0,
@@ -354,7 +357,7 @@ def main() -> int:
                 print("  " + line)
         return 0
 
-    chars, stat = collect_charset(os.path.join(args.src, "gen1.json"))
+    chars, stat = collect_charset(os.path.join(args.src, "gen1.json"), args.species_bin)
     ordered = sorted(chars)
 
     print(f"\n字符集 {len(ordered)} 个")

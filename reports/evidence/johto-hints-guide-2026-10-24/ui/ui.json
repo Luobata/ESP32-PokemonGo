@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "native_build": "7078f69f7ee618899440",
+  "pixel_checks": 976,
+  "sites": 17,
+  "scope": "production C pages + host world adapter; transactions separately tested; no hardware FPS claim"
+}

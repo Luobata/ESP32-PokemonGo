@@ -26,6 +26,7 @@
 #include "esp_lcd_panel_io.h"
 #include "esp_lcd_panel_ops.h"
 #include "esp_log.h"
+#include "esp_timer.h"
 
 #include "lvgl.h"
 
@@ -35,12 +36,22 @@
 
 static const char *TAG = "screen";
 
-// 一条横带的帧缓冲。240×80×2 = 37.5KB。
+// 一条横带的帧缓冲。240×20×2 = 9,600 B。
 //
 // 不开整屏（150KB）：可用堆 231KB，WiFi 栈与 LVGL 还要用。
 // 这也正是 docs/01-constitution.md 那条「无法整帧缓冲，必须分块
 // 横带渲染」的落地 —— 那条约束一直写在纸上，到这里才真的执行。
 static uint16_t s_band[SCREEN_W * SCREEN_BAND_H];
+static uint16_t *s_draw = s_band, *s_spare;
+static bool s_dma_pending;
+static void wait_dma_done(void);
+
+void screen_flush(void)
+{
+    if (!s_dma_pending) return;
+    wait_dma_done();
+    s_dma_pending = false;
+}
 
 // 截图**不缓存整屏**。
 //
@@ -54,6 +65,103 @@ static uint16_t s_band[SCREEN_W * SCREEN_BAND_H];
 static screen_redraw_cb_t s_redraw;
 static bool s_dumping;
 static bool s_fap_capture;
+static bool s_profiling;
+static uint32_t s_profile_bands;
+static int64_t s_profile_push_us;
+
+// Bounded diagnostic: 2 x 64 x uint16_t histogram bins (8 ms resolution).
+// Rendering completion is measured after all queued band transfers of
+// a timer callback, not once per band. Intentional idle holds remain visible
+// as fewer presented frames; callback cadence is reported separately.
+static struct {
+    bool enabled, inside;
+    unsigned period, ticks, frames, bands, current_bands, late;
+    int64_t started, tick_started, previous_tick, previous_frame, last_frame;
+    uint64_t render_us;
+    uint32_t max_tick_us, max_frame_us, max_render_us;
+    uint16_t tick_hist[64], frame_hist[64];
+} s_cadence;
+
+static void cadence_interval(uint16_t *hist, uint32_t us)
+{
+    unsigned bin = us ? (us - 1) / 8000 : 0;
+    if (bin > 63) bin = 63;
+    if (hist[bin] < UINT16_MAX) hist[bin]++;
+}
+
+static unsigned cadence_percentile(const uint16_t *hist, unsigned percentile)
+{
+    unsigned n = 0, sum = 0;
+    for (unsigned i = 0; i < 64; i++) n += hist[i];
+    if (!n) return 0;
+    unsigned target = (n * percentile + 99) / 100;
+    for (unsigned i = 0; i < 64; i++) {
+        sum += hist[i];
+        if (sum >= target) return i == 63 ? UINT32_MAX : (i + 1) * 8;
+    }
+    return 0;
+}
+
+void screen_cadence_start(void)
+{
+    memset(&s_cadence, 0, sizeof(s_cadence));
+    s_cadence.started = esp_timer_get_time();
+    s_cadence.enabled = true;
+    ESP_LOGI(TAG, "@@CADENCE_START");
+}
+
+void screen_cadence_begin(unsigned period_ms)
+{
+    if (!s_cadence.enabled || s_profiling || s_dumping || s_fap_capture) return;
+    if (screen_idle_is_off()) { s_cadence.enabled = false; return; }
+    int64_t now = esp_timer_get_time();
+    if (now - s_cadence.started > 30000000) { s_cadence.enabled = false; return; }
+    s_cadence.inside = true;
+    s_cadence.current_bands = 0;
+    s_cadence.period = period_ms;
+    s_cadence.tick_started = now;
+    if (s_cadence.previous_tick) {
+        uint32_t gap = now - s_cadence.previous_tick;
+        cadence_interval(s_cadence.tick_hist, gap);
+        if (gap > s_cadence.max_tick_us) s_cadence.max_tick_us = gap;
+        if (gap > period_ms * 1000u) s_cadence.late++;
+    }
+    s_cadence.previous_tick = now;
+    s_cadence.ticks++;
+}
+
+void screen_cadence_end(void)
+{
+    screen_flush();
+    if (!s_cadence.inside) return;
+    s_cadence.inside = false;
+    if (!s_cadence.current_bands) return;
+    int64_t now = esp_timer_get_time();
+    uint32_t duration = now - s_cadence.tick_started;
+    if (s_cadence.previous_frame) {
+        uint32_t gap = now - s_cadence.previous_frame;
+        cadence_interval(s_cadence.frame_hist, gap);
+        if (gap > s_cadence.max_frame_us) s_cadence.max_frame_us = gap;
+    }
+    s_cadence.previous_frame = s_cadence.last_frame = now;
+    s_cadence.render_us += duration;
+    if (duration > s_cadence.max_render_us) s_cadence.max_render_us = duration;
+    s_cadence.bands += s_cadence.current_bands;
+    s_cadence.frames++;
+}
+
+void screen_cadence_report(void)
+{
+    s_cadence.enabled = false;
+    ESP_LOGI(TAG, "@@CADENCE period_ms=%u ticks=%u frames=%u bands=%u window_us=%lld render_us=%llu render_max_us=%lu tick_p50_ms=%u tick_p95_ms=%u tick_max_us=%lu late=%u frame_p50_ms=%u frame_p95_ms=%u frame_max_us=%lu bytes=%u",
+             s_cadence.period, s_cadence.ticks, s_cadence.frames, s_cadence.bands,
+             (long long)(s_cadence.last_frame ? s_cadence.last_frame - s_cadence.started : 0),
+             (unsigned long long)s_cadence.render_us, (unsigned long)s_cadence.max_render_us,
+             cadence_percentile(s_cadence.tick_hist, 50), cadence_percentile(s_cadence.tick_hist, 95),
+             (unsigned long)s_cadence.max_tick_us, s_cadence.late,
+             cadence_percentile(s_cadence.frame_hist, 50), cadence_percentile(s_cadence.frame_hist, 95),
+             (unsigned long)s_cadence.max_frame_us, (unsigned)sizeof(s_cadence));
+}
 
 // 唯一的那张 LVGL 屏。**只建一次**，之后页面切换不碰它 ——
 // 见 screen.h 里那段「让 LVGL 闭嘴」。
@@ -68,7 +176,7 @@ void screen_own_display(void)
     lv_obj_set_style_bg_color(s_lv_scr, lv_color_hex(0xffffff), 0);
     lv_screen_load(s_lv_scr);
     // Loading an empty screen queues a full LVGL refresh. If it runs after
-    // nav_start draws the game, its background overwrites our four bands.
+    // nav_start draws the game, its background overwrites the game bands.
     // Idle animation redraws only selected bands, leaving a persistent stripe.
     // Own pixel output exclusively; keep the LVGL task and gameplay timers alive.
     // Called while holding bsp_lvgl_lock, before the first game frame.
@@ -76,50 +184,33 @@ void screen_own_display(void)
     lv_display_enable_invalidation(display, false);
     lv_timer_t *refresh = lv_display_get_refr_timer(display);
     if (refresh) lv_timer_pause(refresh);
-    ESP_LOGI(TAG, "Game owns panel; LVGL pixel refresh disabled");
+    // The refresh timer is paused before borrowing its existing DMA buffer.
+    // LVGL retains ownership/lifetime; never free or resize it while borrowed.
+    // This overlaps 20-row rendering and DMA without another allocation.
+    lv_draw_buf_t *buffer = lv_display_get_buf_active(display);
+    if (buffer && buffer->data && buffer->data_size >= sizeof(s_band) &&
+        ((uintptr_t)buffer->data % 4u) == 0) s_spare = (uint16_t *)buffer->data;
+    ESP_LOGI(TAG, "Game owns panel; LVGL refresh paused; pipeline=%d", s_spare != NULL);
 }
 
-uint16_t *screen_band(void) { return s_band; }
+uint16_t *screen_band(void) { return s_draw; }
 
 void screen_band_clear(uint16_t rgb565)
 {
-    for (int i = 0; i < SCREEN_W * SCREEN_BAND_H; i++) s_band[i] = rgb565;
+    for (int i = 0; i < SCREEN_W * SCREEN_BAND_H; i++) s_draw[i] = rgb565;
 }
 
 void screen_px(int x, int y, uint16_t rgb565)
 {
     if (x < 0 || x >= SCREEN_W || y < 0 || y >= SCREEN_BAND_H) return;
-    s_band[y * SCREEN_W + x] = rgb565;
+    s_draw[y * SCREEN_W + x] = rgb565;
 }
 
-// 只有一块 s_band，而 **esp_lcd_panel_draw_bitmap 是异步的** ——
-// 它把传输排进 SPI 队列（trans_queue_depth=10）就返回，DMA 在后台读。
-// 四条带连着画的话：
-//   带 0 排队 → 立刻回来 → 带 1 重填 s_band → 带 0 的 DMA 读到带 1 的像素
-//
-// 实测表现正是用户报的：颜色错乱（紫/绿混杂）、底部闪烁
-// （最后一条带最容易撞上，因为它排队后没有下一条带来「顶」它）。
-//
-// ## 为什么不注册 on_color_trans_done 回调
-//
-// 试过，直接把设备打进看门狗复位循环 —— **那个回调已经被
-// esp_lvgl_port 占了**（esp_lvgl_port_disp.c:124 的
-// lvgl_port_flush_io_ready_callback）。我一注册就把 LVGL 的顶掉，
-// 它的 flush 永远等不到完成通知，整个 UI 卡死。
-// 一个 panel_io 只有一个回调槽，而这块面板是与 LVGL 共用的。
-//
-// ## 为什么不开双缓冲
-//
-// 再要 37.5KB DRAM。而下面这招零内存开销。
-//
-// ## 用一次 tx_param 逼出同步点
-//
-// 读 esp_lcd_panel_io_spi.c 发现：**任何 polling 传输之前，
-// 驱动会先把队列里所有在途传输收干净**（panel_io_spi_rx_param 与
-// tx_param 都有那段 `for (num_trans_inflight) get_trans_result`）。
-// 所以发一条最便宜的命令就等于「等前面画完」。
-//
-// 用 NOP（0x00）—— ST7789 收到它什么都不做，代价是几微秒的 SPI 时钟。
+// Rendering uses the inactive buffer while SPI owns the previous one. Before
+// queueing it, a polling NOP drains the existing transfer. Do not replace the
+// esp_lvgl_port completion callback: it owns the panel's sole IRQ callback.
+// Without an eligible paused LVGL buffer, push stays synchronous and uses the
+// original 9,600-byte band only. Neither path allocates more frame memory.
 static void wait_dma_done(void)
 {
     esp_lcd_panel_io_handle_t io = bsp_display_io();
@@ -131,11 +222,12 @@ void screen_set_overlay(void (*draw_band)(int)) { s_overlay = draw_band; }
 
 void screen_push_band(int band_y)
 {
+    int64_t start = s_profiling ? esp_timer_get_time() : 0;
     if (s_overlay) s_overlay(band_y);
     if (s_fap_capture) {
         // Logical RGB565 in the existing little-endian band buffer. No extra
         // 150 KiB framebuffer and no panel/backlight writes during capture.
-        fwrite(s_band, 1, sizeof(s_band), stdout);
+        fwrite(s_draw, 1, sizeof(s_band), stdout);
         return;
     }
     if (screen_idle_is_off() && !s_dumping) return;
@@ -148,8 +240,8 @@ void screen_push_band(int band_y)
     // 原地交换：交换后这块缓冲就不能再当逻辑颜色读了 ——
     // 所以截图要在交换**之后**做（见下面那段）。
     for (int i = 0; i < SCREEN_W * SCREEN_BAND_H; i++) {
-        uint16_t v = s_band[i];
-        s_band[i] = (uint16_t)((v >> 8) | (v << 8));
+        uint16_t v = s_draw[i];
+        s_draw[i] = (uint16_t)((v >> 8) | (v << 8));
     }
 
     // dump 模式：吐**交换之后**的字节，也就是屏幕真正收到的东西。
@@ -160,11 +252,20 @@ void screen_push_band(int band_y)
     // 观测手段必须能看见故障，否则它只是在确认我的预期。
     if (s_dumping) screen_emit_band(band_y);
 
-    esp_lcd_panel_draw_bitmap(panel, 0, band_y, SCREEN_W,
-                              band_y + SCREEN_BAND_H, s_band);
-
-    // **画完就等** —— 下一次调用会立刻重填 s_band。
-    wait_dma_done();
+    // Finish the previous buffer only after drawing the next one. The active
+    // DMA buffer is never modified; the panel and LVGL keep their existing IRQ.
+    screen_flush();
+    esp_err_t result = esp_lcd_panel_draw_bitmap(panel, 0, band_y, SCREEN_W,
+                              band_y + SCREEN_BAND_H, s_draw);
+    if (result == ESP_OK) s_dma_pending = true;
+    if (s_spare) s_draw = s_draw == s_band ? s_spare : s_band;
+    else screen_flush(); // Safe single-buffer fallback.
+    if (s_dumping) screen_flush();
+    if (s_cadence.inside) s_cadence.current_bands++;
+    if (s_profiling) {
+        s_profile_push_us += esp_timer_get_time() - start;
+        s_profile_bands++;
+    }
 }
 
 // ---------------------------------------------------------------------------
@@ -175,12 +276,34 @@ static const char B64[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 void screen_set_redraw(screen_redraw_cb_t cb) { s_redraw = cb; }
-void screen_redraw_current(void) { if (s_redraw) s_redraw(); }
+void screen_redraw_current(void) { if (s_redraw) s_redraw(); screen_flush(); }
+
+// The caller holds the LVGL lock. Replay only: no ticks, input, save or large
+// buffer allocation. Push time is CPU submission plus exposed DMA wait;
+// overlapped wire time is not counted twice. Total includes the final drain.
+void screen_profile_current(void)
+{
+    if (!s_redraw || s_dumping || s_fap_capture || screen_idle_is_off()) return;
+    screen_flush();
+    for (unsigned i = 0; i < 3; i++) {
+        s_profile_bands = 0; s_profile_push_us = 0; s_profiling = true;
+        int64_t start = esp_timer_get_time();
+        s_redraw();
+        int64_t drain_start = esp_timer_get_time();
+        screen_flush();
+        s_profile_push_us += esp_timer_get_time() - drain_start;
+        int64_t total = esp_timer_get_time() - start;
+        s_profiling = false;
+        ESP_LOGI(TAG, "@@RENDER_PROFILE sample=%u bands=%lu total_us=%lld draw_us=%lld push_us=%lld",
+                 i, (unsigned long)s_profile_bands, (long long)total,
+                 (long long)(total - s_profile_push_us), (long long)s_profile_push_us);
+    }
+}
 
 // 把当前横带 base64 吐到串口。由 screen_push_band 在 dump 模式下调用。
 void screen_emit_band(int band_y)
 {
-    const uint8_t *p = (const uint8_t *)s_band;
+    const uint8_t *p = (const uint8_t *)s_draw;
     size_t n = (size_t)SCREEN_W * SCREEN_BAND_H * 2;
 
     printf("@@BAND %d\n", band_y);

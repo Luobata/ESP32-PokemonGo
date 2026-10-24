@@ -2145,6 +2145,19 @@
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
+    "id": 166,
+    "name": "写生",
+    "type": 0,
+    "power": 0,
+    "accuracy": 100,
+    "effect": "EFFECT_SKETCH",
+    "chance": 0,
+    "new": true,
+    "animation": "GOLD_TRACK",
+    "legacy_name": "写生",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
+  },
+  {
     "id": 172,
     "name": "火焰轮",
     "type": 1,
@@ -2379,6 +2392,19 @@
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {
+    "id": 237,
+    "name": "觉醒力量",
+    "type": 0,
+    "power": 1,
+    "accuracy": 100,
+    "effect": "EFFECT_HIDDEN_POWER",
+    "chance": 0,
+    "new": true,
+    "animation": "GOLD_TRACK",
+    "legacy_name": "觉醒力量",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
+  },
+  {
     "id": 238,
     "name": "十字劈",
     "type": 6,
@@ -2415,6 +2441,19 @@
     "new": true,
     "animation": "GOLD_TRACK",
     "legacy_name": "咬碎",
+    "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
+  },
+  {
+    "id": 243,
+    "name": "镜面反射",
+    "type": 10,
+    "power": 1,
+    "accuracy": 100,
+    "effect": "EFFECT_MIRROR_COAT",
+    "chance": 0,
+    "new": true,
+    "animation": "GOLD_TRACK",
+    "legacy_name": "镜面反射",
     "animation_note": "原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）"
   },
   {

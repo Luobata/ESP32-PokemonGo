@@ -17,6 +17,7 @@ static usb_restore_detail_t restore_detail;
 static uint8_t *payload;
 static const usb_backup_stream_t *stream;
 static uint32_t export_size=USB_BACKUP_BYTES,import_size=USB_BACKUP_BYTES,received_crc;
+static uint32_t last_data_ms;
 static uint32_t crc_update(uint32_t c,const uint8_t *p,size_t n){
  while(n--){c^=*p++;for(unsigned b=0;b<8;b++)c=(c>>1)^(0xedb88320u&-(c&1u));}return c;
 }
@@ -73,8 +74,9 @@ static void command(void) {
     }
     if(sscanf(line,"!PWBACKUP %11s %32s %u %c",verb,token,&id,&extra)==3 && !strcmp(token,session)&&id==request_id) {
         if(!strcmp(verb,"ACK")&&state==USB_BACKUP_WAIT_ACK) {
-            if(!importing)state=USB_BACKUP_DONE;
+            if(!importing){if(stream&&stream->cancel)stream->cancel();state=USB_BACKUP_DONE;}
             else {
+                if(stream&&stream->cancel)stream->cancel();
                 if(stream){restore_detail=USB_RESTORE_DETAIL_NONE;if(!stream->import_begin(import_size,import_version)){stage_error();return;}}
                 else{payload=malloc(USB_BACKUP_BYTES);if(!payload){fail();error("MEMORY");return;}}
                 received_crc=~0u;
@@ -98,7 +100,7 @@ static void command(void) {
         if(!connected||strcmp(token,session)||!recent(heartbeat,15000))return;
         if(!import_mode||(!stage_import&&!stream)){error("OPEN_IMPORT");return;}
         if(busy()||state==USB_RESTORE_OFFER){error("BUSY");return;}
-        if(strcmp(mac,device_id)||!hex(fw,64)||version<5||version>schema||!(((version<=22||!stream)&&size==USB_BACKUP_BYTES)||(stream&&version==23&&size==USB_BACKUP_EXTENDED_BYTES))||!hex(crc,8)){error("INCOMPATIBLE");return;}
+        if(strcmp(mac,device_id)||!hex(fw,64)||version<5||version>schema||!(((version<=22||!stream)&&size==USB_BACKUP_BYTES)||(stream&&version==23&&size==USB_BACKUP_EXTENDED_BYTES)||(stream&&version>=24&&version<=27&&size==USB_BACKUP_EXPANDED_BYTES)||(stream&&version>=28&&size==USB_BACKUP_WAREHOUSE_BYTES))||!hex(crc,8)){error("INCOMPATIBLE");return;}
         boot_result=0;boot_crc=0; // A new offer invalidates the previous boot receipt.
         import_size=size;import_version=version;import_crc=(uint32_t)strtoul(crc,NULL,16);importing=true;state=USB_RESTORE_OFFER;started=now;send_line("!PWBACKUP OFFERED\n");return;
     }
@@ -149,6 +151,11 @@ void usb_backup_tick(uint32_t ms) {
     if(!busy()&&state!=USB_RESTORE_OFFER)return;
     if(!recent(started,60000)||!connected||!recent(heartbeat,15000)) {fail();error("TIMEOUT");return;}
     if(state!=USB_BACKUP_SENDING)return;
+    // dbg polls once per received character as well as on its idle timer.
+    // Heartbeats must not turn into a burst of DATA lines that overflows the
+    // USB console while the host is processing them. Do not catch up in bursts.
+    if(offset&&recent(last_data_ms,20))return;
+    last_data_ms=now;
     char out[330];int n=snprintf(out,sizeof(out),"!PWBACKUP DATA %lu %lu ",(unsigned long)request_id,(unsigned long)offset);
     uint8_t chunk[128];
     if(stream){if(!stream->export_read(offset,chunk,sizeof(chunk))){fail();error("SNAPSHOT");return;}}

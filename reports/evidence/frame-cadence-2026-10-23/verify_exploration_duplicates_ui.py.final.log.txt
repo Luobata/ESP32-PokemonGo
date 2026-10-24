@@ -1,0 +1,1 @@
+{"passed": true, "native_build": "41c969022f709a56aae6", "checks": 13, "old_uid": 5, "new_uid": 6, "scope": "Production C UI with host world adapter; real world/save transactions are checked separately; no hardware claim"}

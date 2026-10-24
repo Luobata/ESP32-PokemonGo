@@ -21,18 +21,19 @@ SIZE, ADDRESS = 0x6000, 0x9000
 
 def decode(path):
     path=Path(path)
-    if path.stat().st_size>90000: raise ValueError('备份文件过大')
+    if path.stat().st_size>120000: raise ValueError('备份文件过大')
     d=json.loads(path.read_text())
     if any(d.get(k)!=v for k,v in {'format':'pokewalk-nvs-backup','chip':'esp32c3','nvs_offset':ADDRESS,'nvs_size':SIZE}.items()):
         raise ValueError('备份格式、存档版本或分区不支持')
-    if d.get('format_version') not in (1,2):raise ValueError('备份格式不支持')
+    if d.get('format_version') not in (1,2,3,4):raise ValueError('备份格式不支持')
     size=SIZE
-    if d['format_version']==2:
-        if any(d.get(k)!=v for k,v in {'payload_size':0xc000,'store_offset':0x380000,'store_partition_size':0x20000,'store_record_size':SIZE}.items()):raise ValueError('扩展存档布局不支持')
-        size=0xc000
+    if d['format_version']>=2:
+        record=0xc000 if d['format_version']==4 else 0x8000 if d['format_version']==3 else SIZE
+        if any(d.get(k)!=v for k,v in {'payload_size':SIZE+record,'store_offset':0x380000,'store_partition_size':0x20000,'store_record_size':record}.items()):raise ValueError('扩展存档布局不支持')
+        size=SIZE+record
     if type(d.get('save_version')) is not int or not 1 <= d['save_version'] <= 0xffff:
         raise ValueError('存档版本字段无效')
-    if d['format_version']==2 and d['save_version']<23:raise ValueError('扩展备份版本无效')
+    if d['format_version']>=2 and d['save_version']<(28 if d['format_version']==4 else 24 if d['format_version']==3 else 23):raise ValueError('扩展备份版本无效')
     if not re.fullmatch('[a-f0-9]{12}',d.get('device_id','')): raise ValueError('设备标识无效')
     if not re.fullmatch('[a-f0-9]{64}',d.get('firmware','')): raise ValueError('固件版本无效')
     raw=base64.b64decode(d['payload_base64'],validate=True)

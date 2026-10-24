@@ -1,0 +1,18 @@
+{
+  "gate": "pass",
+  "raw_gate": "pass",
+  "block_merge": false,
+  "execution_complete": true,
+  "mutation_status": "not_applicable",
+  "quality_confidence": "full",
+  "incomplete_engines": [],
+  "actionable_block_findings": 0,
+  "deferred_block_findings": 0,
+  "findings": [],
+  "semantic_status": "completed",
+  "semantic_planning": "no_targets",
+  "model_review_performed": false,
+  "fingerprint": "qgcf_1e6f34dd84eb1fa3f95df0acb9d062933681a860280afcb9645d8d1bcb4820c5",
+  "coverage_note": "No matching C/Python rules were supplied. Empty findings and local gate pass do not establish semantic coverage. Project-specific checks are recorded separately.",
+  "repair_rounds": 0
+}

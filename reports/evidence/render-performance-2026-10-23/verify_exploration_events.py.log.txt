@@ -1,0 +1,3 @@
+events low=4917 high=12798 sparkle=252/6305
+{"passed":true,"visitors":true,"events":true,"care":true,"rollback_reboot":true,"save_version":30}
+

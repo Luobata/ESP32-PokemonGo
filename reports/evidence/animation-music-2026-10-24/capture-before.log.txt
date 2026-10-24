@@ -1,0 +1,27 @@
+I (78435) dbg: @@MEMORY_STATE free=17444 minimum=11604 largest=11264 stack_free=1628
+I (78435) dbg: @@AUDIO_PROFILE chunks=3085 render_avg_us=3011 render_max_us=5148 gap_max_us=22478 late=0 switches=6 switch_render_max_us=3612 opens=0 errors=0 stack_free=1976
+I (78436) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924
+I (80120) dbg: @@MEMORY_STATE free=17444 minimum=11604 largest=11264 stack_free=1628
+I (80122) dbg: @@AUDIO_PROFILE chunks=3163 render_avg_us=3012 render_max_us=5148 gap_max_us=22478 late=0 switches=7 switch_render_max_us=3612 opens=0 errors=0 stack_free=1976
+I (80123) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924
+I (80763) screen: @@CADENCE_START
+I (88878) dbg: @@MEMORY_STATE free=17444 minimum=11604 largest=11264 stack_free=1628
+I (88878) dbg: @@AUDIO_PROFILE chunks=372 render_avg_us=2086 render_max_us=4727 gap_max_us=22020 late=0 switches=1 switch_render_max_us=1906 opens=0 errors=0 stack_free=1976
+I (88879) dbg: @@UI_STACK timer_free=3544 lvgl_free=4892
+I (89836) dbg: @@MEMORY_STATE free=17444 minimum=11604 largest=11264 stack_free=1596
+I (89836) dbg: @@AUDIO_PROFILE chunks=416 render_avg_us=2070 render_max_us=4727 gap_max_us=22020 late=0 switches=1 switch_render_max_us=1906 opens=0 errors=0 stack_free=1976
+I (89837) dbg: @@UI_STACK timer_free=3544 lvgl_free=4892
+I (90476) screen: @@CADENCE period_ms=40 ticks=183 frames=68 bands=766 window_us=9695165 render_us=2407677 render_max_us=73748 tick_p50_ms=48 tick_p95_ms=56 tick_max_us=90000 late=147 frame_p50_ms=56 frame_p95_ms=104 frame_max_us=4337215 bytes=352
+I (91102) screen: @@CADENCE_START
+I (91914) bsp_audio: Codec sleep verified (REG45 pull-ups disabled)
+I (92837) bsp_audio: codec 打开 22050Hz/16bit/1ch
+I (92878) bsp_audio: Codec sleep verified (REG45 pull-ups disabled)
+I (93447) bsp_audio: codec 打开 22050Hz/16bit/1ch
+I (93488) bsp_audio: Codec sleep verified (REG45 pull-ups disabled)
+I (94057) bsp_audio: codec 打开 22050Hz/16bit/1ch
+I (94098) bsp_audio: Codec sleep verified (REG45 pull-ups disabled)
+I (94667) bsp_audio: codec 打开 22050Hz/16bit/1ch
+I (101232) screen: @@CADENCE period_ms=45 ticks=219 frames=111 bands=1662 window_us=6761826 render_us=4383556 render_max_us=61102 tick_p50_ms=48 tick_p95_ms=56 tick_max_us=541477 late=140 frame_p50_ms=48 frame_p95_ms=64 frame_max_us=1067082 bytes=352
+I (101835) dbg: @@MEMORY_STATE free=17444 minimum=11604 largest=11264 stack_free=1596
+I (101835) dbg: @@AUDIO_PROFILE chunks=367 render_avg_us=2123 render_max_us=5249 gap_max_us=46176 late=2 switches=2 switch_render_max_us=5249 opens=4 errors=0 stack_free=1880
+I (101836) dbg: @@UI_STACK timer_free=3544 lvgl_free=4652

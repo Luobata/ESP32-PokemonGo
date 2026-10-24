@@ -1,0 +1,19 @@
+{
+  "unchanged_since_turn_start": {
+    "firmware/main/save.h": true,
+    "firmware/main/save.c": true,
+    "firmware/main/save_legacy.h": true,
+    "firmware/main/save_legacy.inc": true,
+    "firmware/main/save_bank.c": true,
+    "firmware/main/save_bank.h": true,
+    "firmware/main/save_bank_device.c": true,
+    "firmware/main/usb_backup.c": true,
+    "firmware/main/usb_backup.h": true,
+    "firmware/main/usb_backup_device.c": true,
+    "firmware/partitions.csv": true,
+    "tools/save-manager/web/backup.mjs": true
+  },
+  "logical_version": 30,
+  "container_format": 4,
+  "container_bytes": 73728
+}

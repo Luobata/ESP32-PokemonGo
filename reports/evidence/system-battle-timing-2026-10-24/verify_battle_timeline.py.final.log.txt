@@ -1,0 +1,1 @@
+{"cases": 6208, "cadences": 240, "negative_controls": 2, "source_hashes": {}, "passed": true}

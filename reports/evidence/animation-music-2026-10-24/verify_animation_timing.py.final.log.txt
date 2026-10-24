@@ -1,0 +1,1 @@
+{"species": 251, "clock_samples": 37170, "original_scripts_verified": false, "move_clips": 776, "max_resample_error_ms": 44.1961669921875, "hp_ms": 540, "move_lead_ms": 118}

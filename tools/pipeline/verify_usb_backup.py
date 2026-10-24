@@ -22,10 +22,11 @@ static void *backup_test_malloc(size_t n){return deny_allocation?NULL:malloc(n);
 #undef malloc
 static unsigned test_schema=SAVE_VERSION;
 static char transcript[70000];static int reads;static bool readable=true;
-static void emit(const char *s){assert(strlen(transcript)+strlen(s)<sizeof(transcript));strcat(transcript,s);}
+static unsigned data_count;static uint32_t previous_data_ms;
+static void emit(const char *s){if(!strncmp(s,"!PWBACKUP DATA ",15)){if(data_count)assert((uint32_t)(now-previous_data_ms)>=20);previous_data_ms=now;data_count++;}assert(strlen(transcript)+strlen(s)<sizeof(transcript));strcat(transcript,s);}
 static bool snapshot(uint8_t *out,size_t size){reads++;for(unsigned i=0;i<size;i++)out[i]=i;return readable;}
 static void feed(const char *s){while(*s)assert(usb_backup_feed(*s++));}
-static void init(void){transcript[0]=0;reads=0;readable=true;usb_backup_init(snapshot,emit,"001122334455","1111111111111111111111111111111111111111111111111111111111111111",test_schema);}
+static void init(void){transcript[0]=0;reads=0;readable=true;data_count=0;usb_backup_init(snapshot,emit,"001122334455","1111111111111111111111111111111111111111111111111111111111111111",test_schema);}
 static const char *hello="!PWBACKUP HELLO 0123456789abcdef0123456789abcdef\n";
 int main(int argc,char **argv){
  if(argc==2)test_schema=(unsigned)strtoul(argv[1],NULL,10);
@@ -40,7 +41,7 @@ int main(int argc,char **argv){
  feed("!PWBACKUP ACK 0123456789abcdef0123456789abcdef 1\n");assert(usb_backup_state()==USB_BACKUP_SENDING);
  usb_backup_tick(32000);assert(usb_backup_state()==USB_BACKUP_FAILED); // disconnected host
  init();feed(hello);usb_backup_request();usb_backup_request();assert(reads==1);
- for(unsigned i=0;i<192;i++)usb_backup_tick(i);
+ for(unsigned i=0;i<192;i++){for(unsigned j=0;j<100;j++)usb_backup_tick(i*20);assert(data_count==i+1);}
  assert(usb_backup_state()==USB_BACKUP_WAIT_ACK);
  feed("!PWBACKUP ACK ffffffffffffffffffffffffffffffff 1\n");assert(usb_backup_state()==USB_BACKUP_WAIT_ACK);
  feed("!PWBACKUP ACK 0123456789abcdef0123456789abcdef 2\n");assert(usb_backup_state()==USB_BACKUP_WAIT_ACK);
@@ -48,7 +49,7 @@ int main(int argc,char **argv){
  puts(transcript);
  usb_backup_request();assert(usb_backup_state()==USB_BACKUP_SENDING);
  feed("!PWBACKUP BYE 0123456789abcdef0123456789abcdef\n");assert(usb_backup_state()==USB_BACKUP_FAILED);
- init();feed(hello);usb_backup_request();for(unsigned i=0;i<192;i++)usb_backup_tick(i);
+ init();feed(hello);usb_backup_request();for(unsigned i=0;i<192;i++)usb_backup_tick(i*20);
  usb_backup_tick(61000);assert(usb_backup_state()==USB_BACKUP_FAILED); // no disk ACK
  return 0;
 }
@@ -89,7 +90,7 @@ def main():
     spec=importlib.util.spec_from_file_location('restore',ROOT/'tools/save-manager/restore.py');m=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)
     with tempfile.TemporaryDirectory() as tmp:
         t=Path(tmp);(t/'test.c').write_text(C);(t/'test.mjs').write_text(JS)
-        subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-I',str(ROOT/'firmware/main'),str(t/'test.c'),str(ROOT/'firmware/main/restore_journal.c'),'-o',str(t/'test')],check=True)
+        subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all','-I',str(ROOT/'firmware/main'),str(t/'test.c'),str(ROOT/'firmware/main/restore_journal.c'),'-o',str(t/'test')],check=True)
         result=subprocess.run([str(t/'test')],capture_output=True,text=True,check=True);(t/'wire.txt').write_text(result.stdout)
         result=subprocess.run(['node',str(t/'test.mjs'),(ROOT/'tools/save-manager/web/backup.mjs').as_uri(),str(t/'wire.txt'),str(ROOT/'firmware/main/save.h')],capture_output=True,text=True,check=True)
         f=t/'test.pksave';f.write_text(result.stdout);meta,raw=m.decode(f);assert len(raw)==24576

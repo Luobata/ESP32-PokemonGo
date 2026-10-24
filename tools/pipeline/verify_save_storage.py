@@ -40,14 +40,14 @@ if __name__ == '__main__':
         p = Path(d)
         (p/'test.c').write_text(SOURCE)
         subprocess.run(['cc', '-std=c11', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
-                        '-fsanitize=address,undefined', '-I', str(ROOT/'firmware/main'),
+                        '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-I', str(ROOT/'firmware/main'),
                         str(p/'test.c'), '-o', str(p/'test')], check=True)
         subprocess.run([str(p/'test')], check=True)
 
     with tempfile.TemporaryDirectory(prefix='pokewalk-save-bank-') as d:
         p=Path(d)
         subprocess.run(['cc','-std=c11','-O1','-g','-Wall','-Wextra','-Werror',
-            '-fsanitize=address,undefined','-I',str(ROOT/'firmware/main'),
+            '-fsanitize=address,undefined', '-fno-sanitize-recover=all','-I',str(ROOT/'firmware/main'),
             str(ROOT/'firmware/main/save_bank.c'),str(ROOT/'tools/pipeline/fixtures/warehouse/bank_faults.c'),
             '-o',str(p/'banks')],check=True)
         subprocess.run([str(p/'banks')],check=True)

@@ -1,0 +1,12 @@
+{
+  "format": "pokewalk-app-update-v2",
+  "address": 65536,
+  "size": 3144528,
+  "sha256": "00e740ad166bf6625e610d2b11b57e8e93e6cba9a6814dae765742a13820f769",
+  "partition_sha256": "f0f6a27d3d10eba17bc1f6829f3890acee3a23ea637b3537dfa79d50b3174780",
+  "base_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+  "uncommitted_worktree": true,
+  "flash_updated": true,
+  "protected_data_unchanged": true,
+  "partition_added": false
+}

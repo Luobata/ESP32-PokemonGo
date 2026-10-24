@@ -1,0 +1,107 @@
+[
+  {
+    "test": "build",
+    "exit": 0,
+    "seconds": 17.8
+  },
+  {
+    "test": "verify_usb_backup.py",
+    "exit": 0,
+    "seconds": 1.8
+  },
+  {
+    "test": "verify_usb_import.py",
+    "exit": 0,
+    "seconds": 3.9
+  },
+  {
+    "test": "verify_usb_stream.py",
+    "exit": 0,
+    "seconds": 1.6
+  },
+  {
+    "test": "verify_save_import_compatibility.py",
+    "exit": 0,
+    "seconds": 4.1
+  },
+  {
+    "test": "verify_save_storage.py",
+    "exit": 0,
+    "seconds": 9.7
+  },
+  {
+    "test": "verify_usb_import_device.py",
+    "exit": 0,
+    "seconds": 0.6
+  },
+  {
+    "test": "verify_save_import_web.mjs",
+    "exit": 0,
+    "seconds": 0.3
+  },
+  {
+    "test": "verify_usb_backup_checkpoint.py",
+    "exit": 0,
+    "seconds": 4.1
+  },
+  {
+    "test": "verify_save_manager_distribution.py",
+    "exit": 0,
+    "seconds": 1.5
+  },
+  {
+    "test": "verify_firmware_update.py",
+    "exit": 0,
+    "seconds": 1.1
+  },
+  {
+    "test": "verify_nvs_restore_roundtrip.py",
+    "exit": 0,
+    "seconds": 11.0
+  },
+  {
+    "test": "verify_region_expansion.py",
+    "exit": 0,
+    "seconds": 6.1
+  },
+  {
+    "test": "verify_dungeon_stack.py",
+    "exit": 0,
+    "seconds": 0.5
+  },
+  {
+    "test": "verify_johto_activity.py",
+    "exit": 0,
+    "seconds": 4.7
+  },
+  {
+    "test": "verify_johto_activity_ui.py",
+    "exit": 0,
+    "seconds": 7.3
+  },
+  {
+    "test": "verify_johto_evolution.py",
+    "exit": 0,
+    "seconds": 4.1
+  },
+  {
+    "test": "verify_johto_evolution_ui.py",
+    "exit": 0,
+    "seconds": 0.8
+  },
+  {
+    "test": "verify_johto_save.py",
+    "exit": 0,
+    "seconds": 4.3
+  },
+  {
+    "test": "verify_trainer_campaign.py",
+    "exit": 0,
+    "seconds": 3.7
+  },
+  {
+    "test": "verify_save_stack.py",
+    "exit": 0,
+    "seconds": 3.4
+  }
+]

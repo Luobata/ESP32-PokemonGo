@@ -1,0 +1,101 @@
+[
+  {
+    "stage": "boot-stack",
+    "observations": [
+      "@@DISPLAY_STATE off=0 brightness=100 page=0 scans=61149 pending=3 pet=115 level=54 exp=237203 stamina_q10=101560 mood_q10=0",
+      "@@MEMORY_STATE free=13280 minimum=10388 largest=10240 stack_free=2212",
+      "@@UI_STACK timer_free=3552 lvgl_free=5048",
+      "@@DISPLAY_STATE off=0 brightness=100 page=0 scans=61149 pending=3 pet=115 level=54 exp=237203 stamina_q10=101560 mood_q10=0",
+      "@@MEMORY_STATE free=13280 minimum=10388 largest=10240 stack_free=2192",
+      "@@UI_STACK timer_free=3552 lvgl_free=5048",
+      "@@DISPLAY_STATE off=0 brightness=100 page=0 scans=61149 pending=3 pet=115 level=54 exp=237203 stamina_q10=101560 mood_q10=0",
+      "@@MEMORY_STATE free=17248 minimum=10388 largest=10240 stack_free=2192",
+      "@@UI_STACK timer_free=3552 lvgl_free=5048",
+      "@@DISPLAY_STATE off=0 brightness=100 page=0 scans=61150 pending=3 pet=115 level=54 exp=237203 stamina_q10=101560 mood_q10=0",
+      "@@MEMORY_STATE free=17988 minimum=10388 largest=10240 stack_free=2192",
+      "@@UI_STACK timer_free=3552 lvgl_free=5048",
+      "@@DISPLAY_STATE off=0 brightness=100 page=0 scans=61150 pending=3 pet=115 level=54 exp=237203 stamina_q10=101560 mood_q10=0",
+      "@@MEMORY_STATE free=17988 minimum=10388 largest=10240 stack_free=2192",
+      "@@UI_STACK timer_free=3552 lvgl_free=5048",
+      "@@DISPLAY_STATE off=0 brightness=100 page=0 scans=61150 pending=3 pet=115 level=54 exp=237203 stamina_q10=101660 mood_q10=0",
+      "@@MEMORY_STATE free=17988 minimum=10388 largest=10240 stack_free=2192",
+      "@@UI_STACK timer_free=3544 lvgl_free=5048"
+    ]
+  },
+  {
+    "stage": "stack-route-result",
+    "observations": [
+      "@@DISPLAY_STATE off=0 brightness=100 page=15 scans=61150 pending=4 pet=115 level=54 exp=237203 stamina_q10=96640 mood_q10=0",
+      "@@MEMORY_STATE free=17856 minimum=10388 largest=10240 stack_free=1952",
+      "@@UI_STACK timer_free=3544 lvgl_free=5048"
+    ]
+  },
+  {
+    "stage": "stack-battle",
+    "observations": [
+      "@@DISPLAY_STATE off=0 brightness=100 page=2 scans=61151 pending=4 pet=115 level=54 exp=237203 stamina_q10=97540 mood_q10=0",
+      "@@MEMORY_STATE free=17856 minimum=10388 largest=10240 stack_free=1924",
+      "@@UI_STACK timer_free=3544 lvgl_free=5048"
+    ]
+  },
+  {
+    "stage": "stack-route-return",
+    "observations": [
+      "@@DISPLAY_STATE off=0 brightness=100 page=2 scans=61152 pending=3 pet=115 level=54 exp=237203 stamina_q10=98340 mood_q10=0",
+      "@@MEMORY_STATE free=17856 minimum=10388 largest=10240 stack_free=1120",
+      "@@UI_STACK timer_free=3544 lvgl_free=4876"
+    ]
+  },
+  {
+    "stage": "old-brightness-changed",
+    "observations": [
+      "@@DISPLAY_STATE off=0 brightness=89 page=9 scans=61158 pending=3 pet=115 level=54 exp=237203 stamina_q10=102400 mood_q10=0",
+      "@@MEMORY_STATE free=17988 minimum=10388 largest=10240 stack_free=1120",
+      "@@UI_STACK timer_free=3544 lvgl_free=4876"
+    ]
+  },
+  {
+    "stage": "old-restore",
+    "observations": [
+      "@@IMPORT_MEMORY valid=1 free=16504 minimum=10388 largest=10240 stack_free=1120"
+    ]
+  },
+  {
+    "stage": "old-restored",
+    "observations": [
+      "@@DISPLAY_STATE off=0 brightness=100 page=0 scans=61136 pending=3 pet=115 level=54 exp=237203 stamina_q10=102400 mood_q10=0",
+      "@@MEMORY_STATE free=17988 minimum=12148 largest=11776 stack_free=1900",
+      "@@UI_STACK timer_free=3544 lvgl_free=5048"
+    ]
+  },
+  {
+    "stage": "new-brightness-changed",
+    "observations": [
+      "@@DISPLAY_STATE off=0 brightness=89 page=9 scans=61138 pending=3 pet=115 level=54 exp=237203 stamina_q10=102400 mood_q10=0",
+      "@@MEMORY_STATE free=17620 minimum=12148 largest=11776 stack_free=1868",
+      "@@UI_STACK timer_free=3544 lvgl_free=5048"
+    ]
+  },
+  {
+    "stage": "new-restore",
+    "observations": [
+      "@@IMPORT_MEMORY valid=1 free=16020 minimum=12148 largest=11776 stack_free=1772"
+    ]
+  },
+  {
+    "stage": "new-restored",
+    "observations": [
+      "@@DISPLAY_STATE off=0 brightness=100 page=0 scans=61138 pending=3 pet=115 level=54 exp=237203 stamina_q10=102400 mood_q10=0",
+      "@@MEMORY_STATE free=17992 minimum=12152 largest=11776 stack_free=1888",
+      "@@UI_STACK timer_free=3544 lvgl_free=5048"
+    ]
+  },
+  {
+    "stage": "final-route",
+    "observations": [
+      "@@DISPLAY_STATE off=0 brightness=100 page=15 scans=61140 pending=3 pet=115 level=54 exp=237203 stamina_q10=102400 mood_q10=0",
+      "@@MEMORY_STATE free=17992 minimum=12152 largest=11776 stack_free=1856",
+      "@@UI_STACK timer_free=3544 lvgl_free=5048"
+    ]
+  }
+]

@@ -1,0 +1,15 @@
+I (13387) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=74079 pending=1 pet=115 level=55 exp=257175 stamina_q10=97360 mood_q10=56768
+I (13388) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=2100
+I (13388) dbg: @@MEMORY_STATE free=17436 minimum=11496 largest=11264 stack_free=2100
+I (13389) dbg: @@AUDIO_PROFILE chunks=565 render_avg_us=1655 render_max_us=2856 gap_max_us=22298 late=0 switches=1 switch_render_max_us=1655 opens=1 errors=0 stack_free=2000
+I (13389) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924
+I (19803) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=74079 pending=1 pet=115 level=55 exp=257175 stamina_q10=97560 mood_q10=56762
+I (19803) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1860
+I (19804) dbg: @@MEMORY_STATE free=17436 minimum=11496 largest=11264 stack_free=1860
+I (19804) dbg: @@AUDIO_PROFILE chunks=859 render_avg_us=1929 render_max_us=2884 gap_max_us=22298 late=0 switches=1 switch_render_max_us=1655 opens=1 errors=0 stack_free=2000
+I (19805) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924
+I (24269) dbg: @@DISPLAY_STATE off=0 brightness=89 page=9 scans=74079 pending=1 pet=115 level=55 exp=257175 stamina_q10=97660 mood_q10=56759
+I (24269) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1860
+I (24270) dbg: @@MEMORY_STATE free=17436 minimum=11496 largest=11264 stack_free=1860
+I (24270) dbg: @@AUDIO_PROFILE chunks=1060 render_avg_us=2034 render_max_us=2884 gap_max_us=49459 late=3 switches=1 switch_render_max_us=1655 opens=1 errors=0 stack_free=2000
+I (24271) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924

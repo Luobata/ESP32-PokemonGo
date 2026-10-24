@@ -1,0 +1,13 @@
+{
+  "firmware/main/johto_routes.c": "a7ac20b8df6b57f715739604008ff27e190e1a114fa2e8c4596ff5f39fa4db97",
+  "firmware/main/johto_routes.h": "36ae1e141eaf9201316da99a791cc02cdfb88b9e16b064b6273103f5fbcb89f6",
+  "firmware/main/play_johto.c": "21272492c8bb0c95cba7c6612b2e79771edf27ea58a587ed5c40a842890e7869",
+  "firmware/main/world_johto.inc": "9fa984acdad6eabd2077abdb7e73187a115b8b6b56755aaa7d06c16708ffcb3c",
+  "firmware/main/nav.c": "126a214ba3f52024b22d3643e4bddc4cb81d84f0995d07c7d6ae996616d4adf9",
+  "firmware/main/nav.h": "b1ca2f316bbd3deaba1f7ee75709a15dd586fe2b49fe90df13eb770494d3e8a9",
+  "firmware/main/world.h": "61ec423b58c019a50c4c6934adb43ef20a589a50b4733bde2eb635025cd6f38a",
+  "assets/font16.bin": "c35fe9160fcc77550b335b9f7d0bed3801895bba02409f7fb4158af73dc07453",
+  "tools/inspector/host/runtime.c": "614f6e51552925b23351f95594996b329ed44c2f4381fea9b1ebdf378803c6ce",
+  "tools/pipeline/verify_johto_routes.py": "c4ab8ab2dc80699979f5311e9d3926fa075f1021b4c3fce38fc7652273a643a6",
+  "tools/pipeline/verify_johto_routes_ui.py": "8a34cc103a957409608738a007eab43d2cddba19751a771f26de44818c2a7d4b"
+}

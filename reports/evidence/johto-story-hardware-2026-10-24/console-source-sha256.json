@@ -1,0 +1,13 @@
+{
+  "firmware/main/console_record.h": "35d7a2fad7b13e4ed021743d4fc9f3769be975f3fdd7a1cbda2f69ede5c1e6bb",
+  "firmware/main/console_record.c": "a98f1b40ff150812140693b063710886d7d8fee4764108b93a70b3f1b1d3da18",
+  "firmware/main/main.c": "a260543216f0c3b0d5191fd0a2b55d4cf425a67fb78098ab3f155cc1b0ca9720",
+  "firmware/main/world.c": "d5c85af11728a1e43d2510b4645817b8d802951f5026c7b531836c12c82ff66c",
+  "firmware/main/usb_backup_device.c": "fe62c0c87745af72addcac547ecdb87864f7e7c72add51d2029f0ab3865a76bb",
+  "firmware/main/CMakeLists.txt": "9c4a448e69531af6582526489f75c4cc0d2adc5d60c33b824b5d4b21cebeb045",
+  "tools/pipeline/verify_usb_console.py": "1dc988f38bc88b633fedc617cd89fe766aafe2951d9020e54e465617b9dfad84",
+  "tools/pipeline/verify_save_stack.py": "ed7389dcd4894d1fa10e041eae6de5076afdeaf3f8b0178362af6c59aa657f91",
+  "AGENTS.md": "835875935ac3f005296c9627fedae2010dd54f3b512e4d3781d6f3413126f8b8",
+  "tools/device/screenshot.py": "381ed4fe7e8f0ecead8cdc79799b24a7f10638841542b03ec04e9f49c94232e6",
+  "tools/pipeline/verify_device_screenshot.py": "1a335d952db499a8e10923b6a5b6a884c9b016e85a3e05a421721f2a2c415c8b"
+}

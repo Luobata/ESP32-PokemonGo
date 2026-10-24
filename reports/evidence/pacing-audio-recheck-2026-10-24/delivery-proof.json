@@ -1,0 +1,20 @@
+{
+  "application_sha256": "dfae28132527056fa501d7064e684ff0567d2a28b3284efe203579c11d29de61",
+  "application_bytes": 3155808,
+  "partition_unchanged": true,
+  "protected_data_readback_equal": true,
+  "backup_format": 4,
+  "save_version": 30,
+  "compatibility_host_versions": "V5-V30",
+  "device_source_version": 30,
+  "device_source_build_differs": true,
+  "restore_ack_backup_saved_and_verified": true,
+  "first_import_timeout_safely_rejected": true,
+  "retry_import_completed": true,
+  "reboot_receipt_matches_payload_crc": true,
+  "brightness_before": 89,
+  "brightness_restored": 100,
+  "original_progress_equal_after_reexport": true,
+  "final_page": "idle",
+  "acoustic_recording": false
+}

@@ -1,0 +1,57 @@
+[
+  {
+    "name": "verify_usb_backup.py",
+    "exit_code": 0,
+    "seconds": 1.5
+  },
+  {
+    "name": "verify_usb_import.py",
+    "exit_code": 0,
+    "seconds": 3.7
+  },
+  {
+    "name": "verify_usb_stream.py",
+    "exit_code": 0,
+    "seconds": 2.2
+  },
+  {
+    "name": "verify_usb_import_device.py",
+    "exit_code": 0,
+    "seconds": 0.4
+  },
+  {
+    "name": "verify_usb_backup_checkpoint.py",
+    "exit_code": 0,
+    "seconds": 3.4
+  },
+  {
+    "name": "verify_save_import_web.mjs",
+    "exit_code": 0,
+    "seconds": 0.4
+  },
+  {
+    "name": "verify_save_import_compatibility.py",
+    "exit_code": 0,
+    "seconds": 4.5
+  },
+  {
+    "name": "verify_save_storage.py",
+    "exit_code": 0,
+    "seconds": 12.0
+  },
+  {
+    "name": "verify_nvs_restore_roundtrip.py",
+    "exit_code": 0,
+    "seconds": 12.4
+  },
+  {
+    "name": "verify_save_manager_distribution.py",
+    "exit_code": 0,
+    "seconds": 1.5
+  },
+  {
+    "name": "verify_firmware_update.py",
+    "exit_code": 0,
+    "seconds": 1.1
+  }
+]

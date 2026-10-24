@@ -1,0 +1,157 @@
+[
+  {
+    "name": "verify_exploration_routes.py",
+    "exit_code": 1,
+    "seconds": 2.3
+  },
+  {
+    "name": "verify_exploration_updates.py",
+    "exit_code": 1,
+    "seconds": 2.3
+  },
+  {
+    "name": "verify_exploration_campaign.py",
+    "exit_code": 1,
+    "seconds": 4.6
+  },
+  {
+    "name": "verify_exploration_balance.py",
+    "exit_code": 0,
+    "seconds": 9.1
+  },
+  {
+    "name": "verify_exploration_events.py",
+    "exit_code": 0,
+    "seconds": 6.7
+  },
+  {
+    "name": "verify_usb_backup.py",
+    "exit_code": 0,
+    "seconds": 2.6
+  },
+  {
+    "name": "verify_usb_import.py",
+    "exit_code": 0,
+    "seconds": 3.8
+  },
+  {
+    "name": "verify_usb_stream.py",
+    "exit_code": 0,
+    "seconds": 2.1
+  },
+  {
+    "name": "verify_save_import_compatibility.py",
+    "exit_code": 0,
+    "seconds": 4.8
+  },
+  {
+    "name": "verify_save_storage.py",
+    "exit_code": 0,
+    "seconds": 12.8
+  },
+  {
+    "name": "verify_usb_import_device.py",
+    "exit_code": 0,
+    "seconds": 0.8
+  },
+  {
+    "name": "verify_save_import_web.mjs",
+    "exit_code": 0,
+    "seconds": 0.5
+  },
+  {
+    "name": "verify_usb_backup_checkpoint.py",
+    "exit_code": 0,
+    "seconds": 3.7
+  },
+  {
+    "name": "verify_save_manager_distribution.py",
+    "exit_code": 0,
+    "seconds": 1.9
+  },
+  {
+    "name": "verify_firmware_update.py",
+    "exit_code": 0,
+    "seconds": 1.1
+  },
+  {
+    "name": "verify_nvs_restore_roundtrip.py",
+    "exit_code": 0,
+    "seconds": 15.3
+  },
+  {
+    "name": "verify_region_expansion.py",
+    "exit_code": 0,
+    "seconds": 7.2
+  },
+  {
+    "name": "verify_dungeon_stack.py",
+    "exit_code": 0,
+    "seconds": 0.9
+  },
+  {
+    "name": "verify_save_stack.py",
+    "exit_code": 0,
+    "seconds": 5.9
+  },
+  {
+    "name": "verify_johto_save.py",
+    "exit_code": 0,
+    "seconds": 5.1
+  },
+  {
+    "name": "verify_johto_routes.py",
+    "exit_code": 0,
+    "seconds": 5.2
+  },
+  {
+    "name": "verify_johto_routes_ui.py",
+    "exit_code": 0,
+    "seconds": 3.1
+  },
+  {
+    "name": "verify_johto_evolution.py",
+    "exit_code": 0,
+    "seconds": 5.2
+  },
+  {
+    "name": "verify_johto_evolution_ui.py",
+    "exit_code": 0,
+    "seconds": 2.2
+  },
+  {
+    "name": "verify_johto_activity.py",
+    "exit_code": 0,
+    "seconds": 5.2
+  },
+  {
+    "name": "verify_johto_activity_ui.py",
+    "exit_code": 0,
+    "seconds": 5.8
+  },
+  {
+    "name": "verify_johto_story.py",
+    "exit_code": 0,
+    "seconds": 4.8
+  },
+  {
+    "name": "verify_johto_story_ui.py",
+    "exit_code": 0,
+    "seconds": 1.0
+  },
+  {
+    "name": "verify_johto_champion.py",
+    "exit_code": 0,
+    "seconds": 4.9
+  },
+  {
+    "name": "verify_johto_champion_ui.py",
+    "exit_code": 0,
+    "seconds": 2.3
+  },
+  {
+    "name": "verify_johto_champion_balance.py",
+    "exit_code": 0,
+    "seconds": 8.3
+  }
+]

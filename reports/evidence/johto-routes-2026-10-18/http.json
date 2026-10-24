@@ -1,0 +1,25 @@
+{
+  "passed": true,
+  "frames": [
+    {
+      "Page": "P17",
+      "Version": "c592e240060b57d01a6d",
+      "Mismatch": "0"
+    },
+    {
+      "Page": "P17",
+      "Version": "c592e240060b57d01a6d",
+      "Mismatch": "0"
+    },
+    {
+      "Page": "P17",
+      "Version": "c592e240060b57d01a6d",
+      "Mismatch": "0"
+    },
+    {
+      "Page": "P17",
+      "Version": "c592e240060b57d01a6d",
+      "Mismatch": "0"
+    }
+  ]
+}

@@ -86,6 +86,8 @@ static void outcomes(void){
  }
 }
 static void recover_during_write(void){
+ /* One background tick; a save may commit both its guard and primary reference. */
+ extra_commit_hook=NULL;
  xSemaphoreTake(s_lock,portMAX_DELAY);s_w.pet.stamina+=NURT_Q;s_dirty=true;xSemaphoreGive(s_lock);
 }
 static void recovery(void){

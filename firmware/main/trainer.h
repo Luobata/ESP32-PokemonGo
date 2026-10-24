@@ -5,10 +5,15 @@
 #include "battle.h"
 #include "combat.h"
 #include "items.h"
+#include "gym_rules.h"
 #define TRAINER_COUNT 14 // Persistent campaign bits, never include route trainers.
 #define TRAINER_ROUTE_FIRST TRAINER_COUNT
 #define TRAINER_ROUTE_COUNT 12
-#define TRAINER_TOTAL (TRAINER_COUNT+TRAINER_ROUTE_COUNT)
+#define TRAINER_JOHTO_FIRST (TRAINER_COUNT+TRAINER_ROUTE_COUNT)
+#define TRAINER_JOHTO_COUNT 11
+#define TRAINER_LAKE_GUARD (TRAINER_JOHTO_FIRST+TRAINER_JOHTO_COUNT)
+#define TRAINER_LAKE_BOSS (TRAINER_LAKE_GUARD+1)
+#define TRAINER_TOTAL (TRAINER_LAKE_BOSS+1)
 #define TRAINER_SLOTS 6
 #define TRAINER_MOVES 4
 
@@ -27,7 +32,7 @@ typedef struct {
  trainer_mon_t mons[6];
  uint8_t count,active,reflect,light_screen;
 } trainer_side_t;
-typedef struct {
+typedef struct trainer_session {
  trainer_side_t sides[2];
  uint32_t rng;
  uint16_t turns,ability;
@@ -73,3 +78,11 @@ void trainer_grant_items(const trainer_store_t *store,inventory_t *bag);
 
 bool trainer_is_route(unsigned id);
 unsigned trainer_route_level(unsigned id,const trainer_store_t *,const mon_t *,unsigned count);
+
+bool trainer_is_johto(unsigned id);
+
+static inline bool trainer_champion(const trainer_store_t *st){return st&&(st->defeated&(1u<<13));}
+const trainer_info_t *trainer_info_progress(uint8_t,const trainer_store_t *);
+bool trainer_step_rules(trainer_store_t *,trainer_event_t *,const move_policy_t *,gym_rules_t *);
+bool trainer_switch_rules(trainer_store_t *,uint8_t,bool,const move_policy_t *,gym_rules_t *);
+void trainer_rules_begin(trainer_store_t *,gym_rules_t *,const move_policy_t *);

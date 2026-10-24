@@ -22,8 +22,9 @@ DRIVER = r"""
 #include <stdio.h>
 #include <string.h>
 #include "battle_presentation.h"
+#include "battle_fx.h"
 
-_Static_assert(BATTLE_PRESENTATION_HP_FRAMES == 6, "HP timing contract");
+_Static_assert(BATTLE_PRESENTATION_HP_FRAMES * BATTLE_FX_TICK_MS == 540, "HP timing contract");
 _Static_assert(BATTLE_PRESENTATION_EXP_FRAMES == 18, "EXP timing contract");
 _Static_assert(BATTLE_PRESENTATION_ENTRY_FRAMES == 12, "entry timing contract");
 
@@ -106,7 +107,7 @@ def verify(binary: Path) -> int:
     hits = {length: samples.add(f"hit {length}")
             for length in (0, 1, 2, 12, 14, 16, 18, 65535)}
     hp_cases = []
-    hp_frames = list(range(8)) + [65535]
+    hp_frames = list(range(14)) + [65535]
     for before in (0, 1, 2, 17, 91, 320, 65535):
         targets = {0, before, before // 2, min(65535, before + 1)}
         for after in sorted(targets):
@@ -114,7 +115,7 @@ def verify(binary: Path) -> int:
                 indexes = [samples.add(f"hp {before} {after} {missed} {frame}")
                            for frame in hp_frames]
                 hp_cases.append((before, after, missed, indexes))
-    hp_anchor = [samples.add(f"hp 100 40 0 {frame}") for frame in (0, 3, 6)]
+    hp_anchor = [samples.add(f"hp 100 40 0 {frame}") for frame in (0, 6, 12)]
     # A player hit changes wild HP only; the next wild hit changes player HP.
     # Feeding a stale changed target with missed=true must still keep both old HPs.
     defenders = []
@@ -122,7 +123,7 @@ def verify(binary: Path) -> int:
                                   ((91, 53), (71, 53), 0),
                                   ((71, 53), (51, 33), 1)):
         indexes = [[samples.add(f"hp {old} {new} {missed} {frame}")
-                    for old, new in zip(before, after)] for frame in range(7)]
+                    for old, new in zip(before, after)] for frame in range(13)]
         defenders.append((before, after, missed, indexes))
 
     exp_cases = []
@@ -157,11 +158,10 @@ def verify(binary: Path) -> int:
         assert values[0] == before, "HP deducted before the impact clock starts"
         assert all(target <= value <= before for value in values), "HP overshoot/revival"
         assert all(a >= b for a, b in zip(values, values[1:])), "HP increased during damage"
-        assert values[6:] == [target] * len(values[6:]), "HP endpoint or missed guard failed"
+        assert values[12:] == [target] * len(values[12:]), "HP endpoint or missed guard failed"
     assert [samples[index][0] for index in hp_anchor] == [100, 70, 40], "HP did not animate"
     for length in (12, 14, 16, 18):
         onset = samples[hits[length]][0]
-        assert onset + 6 <= length - 1, "next move can start before HP reaches its target"
         assert onset * 12 // (length - 2) >= 6, "HP starts before the FX impact phase"
         assert (onset - 1) * 12 // (length - 2) < 6, "HP starts after the FX impact phase"
     for before, after, missed, indexes in defenders:

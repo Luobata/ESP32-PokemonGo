@@ -1,0 +1,82 @@
+[
+  {
+    "path": "firmware/main/save.c",
+    "sha256": "4bef8bdf5190d7228307b37a6dc29507a3d7c19102160a77056f9d97aaa49d9d",
+    "unchanged_this_adjustment": true
+  },
+  {
+    "path": "firmware/main/save.h",
+    "sha256": "45619c4228970336012686d03ffdb70a6e9c7c20bd19399025c39e04fca60b3f",
+    "unchanged_this_adjustment": true
+  },
+  {
+    "path": "firmware/main/save_legacy.h",
+    "sha256": "1f540fed494bd416f80662e07fee4f627d775b6de52fcca71e658332aa94bb8c",
+    "unchanged_this_adjustment": true
+  },
+  {
+    "path": "firmware/main/save_legacy.inc",
+    "sha256": "dc15009b6072593adef3b815a8224102811db4199b9d266b74aa6ba66c8b7647",
+    "unchanged_this_adjustment": true
+  },
+  {
+    "path": "firmware/main/save_bank.c",
+    "sha256": "45bbab3fc1e2182df55b5c337b783939a8ad8dbd6f502366cce6c32dae144974",
+    "unchanged_this_adjustment": true
+  },
+  {
+    "path": "firmware/main/save_bank.h",
+    "sha256": "45460b8994acb391ca9487047477ffb1a659277f7e81d3795482ec5ad3ed511c",
+    "unchanged_this_adjustment": true
+  },
+  {
+    "path": "firmware/main/save_bank_device.c",
+    "sha256": "d979e2f1eee5e5d8457cf9f1d6286fc7e0407b702ffea117d1d61b0c51766338",
+    "unchanged_this_adjustment": true
+  },
+  {
+    "path": "firmware/main/usb_backup.c",
+    "sha256": "1e0977991b4e84560ba41948a231eab77a60db5fce2ac4971e4164d600f9f890",
+    "unchanged_this_adjustment": true
+  },
+  {
+    "path": "firmware/main/usb_backup_device.c",
+    "sha256": "5e0efcfe65731f13152e78be77f6a0588384ccef3640393b4263d0056cf2ceaf",
+    "unchanged_this_adjustment": true
+  },
+  {
+    "path": "firmware/main/world.c",
+    "sha256": "4642c2c548cd2d50af5657129bd71c67ea8703ea2f84095ebc1d2e8a9c8e6d06",
+    "unchanged_this_adjustment": true
+  },
+  {
+    "path": "firmware/main/world.h",
+    "sha256": "61ec423b58c019a50c4c6934adb43ef20a589a50b4733bde2eb635025cd6f38a",
+    "unchanged_this_adjustment": true
+  },
+  {
+    "path": "firmware/main/party.c",
+    "sha256": "86f2e1f7581a463217ad4a97458ad8a562d133990a96e3801493cb430d6bfcf4",
+    "unchanged_this_adjustment": true
+  },
+  {
+    "path": "firmware/main/party.h",
+    "sha256": "767bb109a2157206be162761c5d2af67976ff2fa2d82bd726bda89501832ecd6",
+    "unchanged_this_adjustment": true
+  },
+  {
+    "path": "firmware/main/capture.c",
+    "sha256": "c30667876d52f173e57fceeab3c6a9150807f3a2808833c0e9cd03407e5d6fbb",
+    "unchanged_this_adjustment": true
+  },
+  {
+    "path": "firmware/main/combat.c",
+    "sha256": "ac66fea5977f03e6689308f5c33d27ba3fd5c861547f9b6f587aca5abfa67eb2",
+    "unchanged_this_adjustment": true
+  },
+  {
+    "path": "firmware/main/trainer.c",
+    "sha256": "009c08b487d0bbf323dc4598cc408c872b98bdefbf11ebcb0ac7713df507e95b",
+    "unchanged_this_adjustment": true
+  }
+]

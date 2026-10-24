@@ -6539,6 +6539,50 @@
       "verified_original": false
     },
     {
+      "id": 166,
+      "name": "写生",
+      "script": "BattleAnim_Sketch",
+      "source_url": "https://github.com/pret/pokegold/blob/656583c939d30f920a316177311a502dd222b57c/data/moves/animations.asm#L3102",
+      "command_indices": [
+        2322,
+        2323,
+        2324,
+        2325,
+        2326,
+        2327,
+        2328,
+        2329,
+        2330,
+        2331,
+        3742,
+        3743,
+        3744,
+        3745,
+        3750,
+        3751,
+        3752,
+        3753,
+        3754,
+        3755
+      ],
+      "objects": [
+        "BATTLE_ANIM_OBJ_SKETCH"
+      ],
+      "functions": [
+        "BattleAnimFunction_MetronomeSparkleSketch"
+      ],
+      "background_effects": [
+        "BATTLE_BG_EFFECT_BATTLEROBJ_1ROW",
+        "BATTLE_BG_EFFECT_CYCLE_MON_LIGHT_DARK_REPEATING",
+        "BATTLE_BG_EFFECT_SHOW_MON"
+      ],
+      "palette_commands": [],
+      "sound_effects": [
+        "SFX_SKETCH"
+      ],
+      "verified_original": false
+    },
+    {
       "id": 172,
       "name": "火焰轮",
       "script": "BattleAnim_FlameWheel",
@@ -7394,6 +7438,74 @@
       "verified_original": false
     },
     {
+      "id": 237,
+      "name": "觉醒力量",
+      "script": "BattleAnim_HiddenPower",
+      "source_url": "https://github.com/pret/pokegold/blob/656583c939d30f920a316177311a502dd222b57c/data/moves/animations.asm#L4315",
+      "command_indices": [
+        3344,
+        3345,
+        3346,
+        3347,
+        3348,
+        3349,
+        3350,
+        3351,
+        3352,
+        3353,
+        3354,
+        3355,
+        3356,
+        3357,
+        3358,
+        3359,
+        3360,
+        3361,
+        3362,
+        3363,
+        3364,
+        3365,
+        3366,
+        3367,
+        3368,
+        3369,
+        3370,
+        3371,
+        3372,
+        3373,
+        3374,
+        3742,
+        3743,
+        3744,
+        3745,
+        3750,
+        3751,
+        3752,
+        3753,
+        3754,
+        3755
+      ],
+      "objects": [
+        "BATTLE_ANIM_OBJ_HIDDEN_POWER",
+        "BATTLE_ANIM_OBJ_HIT_BIG_YFIX"
+      ],
+      "functions": [
+        "BattleAnimFunction_HiddenPower",
+        "BattleAnimFunction_Null"
+      ],
+      "background_effects": [
+        "BATTLE_BG_EFFECT_BATTLEROBJ_1ROW",
+        "BATTLE_BG_EFFECT_CYCLE_MID_OBPALS_GRAY_AND_YELLOW",
+        "BATTLE_BG_EFFECT_CYCLE_MON_LIGHT_DARK_REPEATING",
+        "BATTLE_BG_EFFECT_SHOW_MON"
+      ],
+      "palette_commands": [],
+      "sound_effects": [
+        "SFX_SWORDS_DANCE"
+      ],
+      "verified_original": false
+    },
+    {
       "id": 238,
       "name": "十字劈",
       "script": "BattleAnim_CrossChop",
@@ -7526,6 +7638,45 @@
       ],
       "sound_effects": [
         "SFX_BITE"
+      ],
+      "verified_original": false
+    },
+    {
+      "id": 243,
+      "name": "镜面反射",
+      "script": "BattleAnim_MirrorCoat",
+      "source_url": "https://github.com/pret/pokegold/blob/656583c939d30f920a316177311a502dd222b57c/data/moves/animations.asm#L4430",
+      "command_indices": [
+        3444,
+        3445,
+        3446,
+        3447,
+        3448,
+        3449,
+        3450,
+        3451,
+        3452,
+        3453,
+        3454,
+        3455,
+        3456,
+        3457,
+        3458
+      ],
+      "objects": [
+        "BATTLE_ANIM_OBJ_SCREEN",
+        "BATTLE_ANIM_OBJ_SHOOTING_SPARKLE"
+      ],
+      "functions": [
+        "BattleAnimFunction_MoveFromUserToTarget",
+        "BattleAnimFunction_Null"
+      ],
+      "background_effects": [
+        "BATTLE_BG_EFFECT_CYCLE_OBPALS_GRAY_AND_YELLOW"
+      ],
+      "palette_commands": [],
+      "sound_effects": [
+        "SFX_SHINE"
       ],
       "verified_original": false
     },
@@ -44177,9 +44328,9 @@
     "BATTLE_BG_EFFECT_WOBBLE_SCREEN": "BattleBGEffect_WobbleScreen"
   },
   "summary": {
-    "moves": 191,
-    "scripts_with_backgrounds": 107,
-    "object_functions": 60,
+    "moves": 194,
+    "scripts_with_backgrounds": 110,
+    "object_functions": 61,
     "background_functions": 39,
     "verified_original": 0
   }

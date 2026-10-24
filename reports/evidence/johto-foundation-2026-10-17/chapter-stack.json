@@ -1,0 +1,99 @@
+{
+  "target": "riscv32 ESP32-C3 compiler, isolated object",
+  "max_static_frame": 32,
+  "functions": [
+    {
+      "function": "johto_init",
+      "bytes": 16,
+      "kind": "static"
+    },
+    {
+      "function": "johto_badges",
+      "bytes": 0,
+      "kind": "static"
+    },
+    {
+      "function": "johto_valid",
+      "bytes": 32,
+      "kind": "static"
+    },
+    {
+      "function": "johto_offer",
+      "bytes": 0,
+      "kind": "static"
+    },
+    {
+      "function": "johto_depart",
+      "bytes": 0,
+      "kind": "static"
+    },
+    {
+      "function": "johto_choose_starter",
+      "bytes": 0,
+      "kind": "static"
+    },
+    {
+      "function": "johto_route_open",
+      "bytes": 16,
+      "kind": "static"
+    },
+    {
+      "function": "johto_route_level",
+      "bytes": 0,
+      "kind": "static"
+    },
+    {
+      "function": "johto_gym_open",
+      "bytes": 16,
+      "kind": "static"
+    },
+    {
+      "function": "johto_gym_win",
+      "bytes": 16,
+      "kind": "static"
+    },
+    {
+      "function": "johto_explore",
+      "bytes": 32,
+      "kind": "static"
+    },
+    {
+      "function": "johto_receive_egg",
+      "bytes": 0,
+      "kind": "static"
+    },
+    {
+      "function": "johto_egg_shiny",
+      "bytes": 0,
+      "kind": "static"
+    },
+    {
+      "function": "johto_hatch",
+      "bytes": 0,
+      "kind": "static"
+    },
+    {
+      "function": "johto_legend_ready",
+      "bytes": 0,
+      "kind": "static"
+    },
+    {
+      "function": "johto_final_open",
+      "bytes": 16,
+      "kind": "static"
+    },
+    {
+      "function": "johto_final_win",
+      "bytes": 16,
+      "kind": "static"
+    },
+    {
+      "function": "johto_claim_final",
+      "bytes": 0,
+      "kind": "static"
+    }
+  ],
+  "live_task_high_water_measured": false,
+  "warnings_as_errors": true,
+  "warning_suppressions": []
+}

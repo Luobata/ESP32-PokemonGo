@@ -62,6 +62,37 @@ jobs:
           python3 tools/pipeline/verify_care_events_preview.py
           python3 tools/pipeline/verify_region_trails_preview.py
           python3 tools/pipeline/verify_achievements.py
+          python3 tools/pipeline/verify_transition_bands.py
+          python3 tools/pipeline/verify_display_ownership.py
+          python3 tools/pipeline/verify_device_screenshot.py
+          python3 tools/pipeline/verify_firmware_preview.py
+          python3 tools/pipeline/verify_render_bounds.py
+          python3 tools/pipeline/verify_animation_timing.py
+          python3 tools/pipeline/verify_scene_pacing.py
+          python3 tools/pipeline/verify_battle_timeline.py
+          python3 tools/pipeline/verify_battle_motion.py
+          python3 tools/pipeline/verify_battle_timeline_ui.py
+          python3 tools/pipeline/verify_battle_pace_ui.py
+          python3 tools/pipeline/compile_pokemon_slow_timing.py --check
+          python3 tools/pipeline/verify_audio_switch.py
+          python3 tools/pipeline/verify_music.py
+          python3 tools/pipeline/verify_usb_console.py
+          python3 tools/pipeline/verify_johto_save.py
+          python3 tools/pipeline/verify_johto_routes.py
+          python3 tools/pipeline/verify_johto_routes_ui.py
+          python3 tools/pipeline/verify_johto_fieldwork.py
+          python3 tools/pipeline/verify_johto_fieldwork_ui.py
+          python3 tools/pipeline/verify_johto_evolution.py
+          python3 tools/pipeline/verify_johto_evolution_ui.py
+          python3 tools/pipeline/verify_johto_activity.py
+          python3 tools/pipeline/verify_johto_activity_ui.py
+          python3 tools/pipeline/verify_johto_story.py
+          python3 tools/pipeline/verify_johto_story_ui.py
+          python3 tools/pipeline/verify_johto_champion.py
+          python3 tools/pipeline/verify_johto_champion_ui.py
+          python3 tools/pipeline/verify_johto_champion_balance.py
+          python3 tools/pipeline/verify_johto_narrative.py
+          python3 tools/pipeline/verify_johto_narrative_ui.py
       - name: Build and verify release components
         uses: espressif/esp-idf-ci-action@9d38657f3d789ca759b2b37aaf5ceffbc42c4f0d # v1
         with:

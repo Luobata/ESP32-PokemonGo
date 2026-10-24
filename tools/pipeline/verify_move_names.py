@@ -19,10 +19,10 @@ OUT.mkdir(parents=True, exist_ok=True)
 document = json.loads(MOVE_DATA.read_text())
 records = {r['id']: r['name'] for r in document['records']}
 catalog = json.loads((ROOT/'tools/inspector/move-catalog.json').read_text())
-assert set(records) == {r['id'] for r in catalog} and len(records) == 191
+assert set(records) == {r['id'] for r in catalog} - {166,237,243} and len(records) == 191
 assert OUTPUT.read_text() == generate()
 for r in catalog:
-    assert r['legacy_name'] == records[r['id']]
+    assert r['legacy_name'] == records.get(r['id'],r['name'])
 # Independent historical anchors catch table swaps (official IDs, not translated labels).
 assert {i: records[i] for i in (22, 33, 57, 63, 85, 127, 138, 160, 163)} == {
     22:'鹤鞭',33:'击杀',57:'友泊',63:'饰拳',85:'铅杀',127:'攀瀑',138:'奇妙',160:'全部',163:'神合'}
@@ -65,7 +65,7 @@ int main(void){
  int count=combat_known_moves(151,100,ids,COMBAT_MOVE_CAP);assert(assets_known_moves(151,100,moves,COMBAT_MOVE_CAP)==count);
  for(int i=0;i<count;i++){move_t m;assert(combat_move(ids[i],&m));assert(moves[i].name_zh==m.name_zh);}
  world_debug_save();assert(save_read(&after));assert(!memcmp(&saved,&after,sizeof(saved)));
- printf("{\"moves\":191,\"paired_combat_turns\":1528,\"save_unchanged\":true,\"sanitized\":true}\n");return 0;
+ printf("{\"moves\":194,\"paired_combat_turns\":1552,\"save_unchanged\":true,\"sanitized\":true}\n");return 0;
 }
 '''
 with contextlib.redirect_stdout(io.StringIO()) as output:
@@ -148,10 +148,13 @@ finally:r.close()
 r=Renderer(exe)
 try:
     command(r,'boot 13 25 20 74 3 123 0 0 0');command(r,'key 2 1')
-    for _ in range(250):
-        command(r,'tick 45')
-        if r.inspect()['challenge']['mode']==3:break
-    assert r.inspect()['challenge']['mode']==3, r.inspect()
+    renamed={m['id'] for m in catalog if m['name']!=m['legacy_name']}
+    # FIGHT starts before its first attack. Wait for a real renamed move,
+    # independent of the sendout/animation time scale.
+    for _ in range(1200):
+        command(r,'tick 45');state=r.inspect()
+        if state['challenge']['mode']==3 and state['presentation']['move_id'] in renamed:break
+    else:raise AssertionError(('No renamed trainer move reached',r.inspect()))
     roundtrip(r,274,18,'trainer')
 finally:r.close()
 result={'core':core,'font_characters':len(chars),'build':version,'native_moves':len(catalog),'renamed_moves':differing,'redraw_checks':checks}

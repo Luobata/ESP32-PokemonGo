@@ -233,7 +233,7 @@ static void easier_curve_preserves_progress(void) {
     reboot();assert(!memcmp(&s_party,&expected,sizeof(expected)));tests++;
 }
 static void duplicate_box_exchange(void) {
-    const unsigned positions[]={0,150,151,255,256,452};
+    const unsigned positions[]={0,150,151,255,256,452,648,752};
     for(unsigned k=0;k<sizeof(positions)/sizeof(positions[0]);k++) {
         seed_team();unsigned index=positions[k];
         mon_t same={.species_id=150,.level=55,.hp=100,.exp=exp_for_level(55),.nickname_idx=255};
@@ -249,7 +249,7 @@ static void duplicate_box_exchange(void) {
         assert(!memcmp(&s_party.policies[5],&before.policies[PARTY_MAX+index],sizeof(move_policy_t)));
         before.party[5]=same;before.box[index]=outgoing;
         move_policy_t old_policy=before.policies[5];before.policies[5]=before.policies[PARTY_MAX+index];before.policies[PARTY_MAX+index]=old_policy;
-        assert(!memcmp(&before,&s_party,sizeof(before))&&party_total(&s_party)==459);
+        assert(!memcmp(&before,&s_party,sizeof(before))&&party_total(&s_party)==759);
         reboot();assert(!memcmp(&before,&s_party,sizeof(before)));
         assert(world_box_exchange_at(5,index,&outgoing,&same)==WORLD_SWITCH_STALE);tests+=3;
     }
@@ -297,11 +297,11 @@ def run(root: Path) -> dict:
         (temp / 'driver.c').write_text(driver)
         command = ['cc', '-std=gnu11', '-DHOST_BUILD', '-O1', '-g', '-Wall', '-Wextra', '-Werror',
                    '-Wno-unused-variable', '-Wno-unused-function', '-Wno-unused-parameter',
-                   '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
+                   '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-fno-omit-frame-pointer',
                    '-ffunction-sections', '-fdata-sections', '-pthread', '-I', str(temp),
                    '-I', str(root / 'firmware/main'), str(temp / 'driver.c'),
                    *[str(root / 'firmware/main' / name) for name in
-                     ('box_view.c','party.c', 'encounter.c', 'exploration.c', 'battle.c', 'combat.c', 'nurture.c', 'exp.c', 'items.c')], '-lz',
+                     ('box_view.c','party.c', 'encounter.c', 'exploration.c', 'battle.c', 'combat.c', 'gym_rules.c', 'pokemon_names.c', 'nurture.c', 'exp.c', 'items.c')], '-lz',
                    '-Wl,-dead_strip' if sys.platform == 'darwin' else '-Wl,--gc-sections',
                    '-o', str(temp / 'probe')]
         try:

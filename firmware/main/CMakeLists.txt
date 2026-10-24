@@ -1,3 +1,13 @@
+# Isolated asset capacity probe; never enabled by the shipping build.
+set(POKEWALK_ASSET_PROBE_DIR "" CACHE PATH "Candidate 251-species assets, build-only")
+set(POKEWALK_ART_DIR "${CMAKE_CURRENT_LIST_DIR}/../../assets")
+set(POKEWALK_FONT "${POKEWALK_ART_DIR}/font16.bin")
+if(POKEWALK_ASSET_PROBE_DIR)
+    set(POKEWALK_ART_DIR "${POKEWALK_ASSET_PROBE_DIR}")
+    set(POKEWALK_FONT "${POKEWALK_ART_DIR}/font16.bin")
+    message(WARNING "Asset capacity probe: gameplay/save support remains 151. Do not flash or publish.")
+endif()
+
 idf_component_register(
     SRCS "main.c"
          "ui_pixel.c"
@@ -11,8 +21,8 @@ idf_component_register(
          "evolution.c"
          "party.c"
          "box_view.c"
-         "world.c" "wifi_time.c"
-         "combat.c" "trainer.c" "achievements.c" "play_achievements.c"
+         "world.c" "wifi_time.c" "johto.c" "johto_routes.c" "johto_story.c" "story_transactions.c" "johto_activity.c" "activity_transactions.c"
+         "combat.c" "trainer.c" "gym_rules.c" "achievements.c" "play_achievements.c"
          "battle.c"
          "battle_escape.c"
          "battle_presentation.c"
@@ -39,7 +49,7 @@ idf_component_register(
          "sfx.c" "audio_settings.c" "display_settings.c"
          "play_opening.c"
          "play_starter.c"
-         "dbg.c" "usb_backup.c" "usb_backup_device.c" "restore_journal.c"
+         "dbg.c" "console_record.c" "usb_backup.c" "usb_backup_device.c" "restore_journal.c"
          "play_enc.c"
          "play_battle.c"
          "play_capture.c"
@@ -53,7 +63,7 @@ idf_component_register(
          "play_bag.c"
          "play_menu.c"
          "play_party.c"
-         "play_trainer.c" "dungeon.c" "dungeon_rewards.c" "play_dungeon.c"
+         "play_trainer.c" "dungeon.c" "dungeon_rewards.c" "play_dungeon.c" "play_johto.c" "play_activity.c" "play_story.c" "play_narrative.c" "narrative_script.c"
          "play_collect.c"
          "demo_button.c"
          "demo_battery.c"
@@ -65,11 +75,11 @@ idf_component_register(
     # 不另开数据分区：那要多一套分区表与烧写步骤，而这点体积完全放得下。
     #
     # 符号名由文件名推导：gen1_front.bin → _binary_gen1_front_bin_start
-    EMBED_FILES "${CMAKE_CURRENT_LIST_DIR}/../../assets/gen1.bin"
-                "${CMAKE_CURRENT_LIST_DIR}/../../assets/gen1_front.bin"
-                "${CMAKE_CURRENT_LIST_DIR}/../../assets/gen1_back.bin"
-                "${CMAKE_CURRENT_LIST_DIR}/../../assets/palettes.bin"
-                "${CMAKE_CURRENT_LIST_DIR}/../../assets/font16.bin"
+    EMBED_FILES "${POKEWALK_ART_DIR}/gen1.bin"
+                "${POKEWALK_ART_DIR}/gen1_front.bin"
+                "${POKEWALK_ART_DIR}/gen1_back.bin"
+                "${POKEWALK_ART_DIR}/palettes.bin"
+                "${POKEWALK_FONT}"
                 "${CMAKE_CURRENT_LIST_DIR}/../../assets/moves.bin"
                 "${CMAKE_CURRENT_LIST_DIR}/../../assets/ui.bin"
 )
@@ -80,3 +90,18 @@ option(CONFIG_POKEWALK_DEBUG_KEYS "Enable PokeWalk debug key injection" ON)
 if(CONFIG_POKEWALK_DEBUG_KEYS)
     target_compile_definitions(${COMPONENT_LIB} PRIVATE CONFIG_POKEWALK_DEBUG_KEYS=1)
 endif()
+
+if(POKEWALK_ASSET_PROBE_DIR)
+    target_compile_definitions(${COMPONENT_LIB} PRIVATE
+        POKEWALK_ANIMATION_HEADER="${POKEWALK_ART_DIR}/pokemon_animation_assets.h")
+endif()
+
+# Raster hot loops run on every 20-row band. Keep debug symbols/assertions, but
+# optimize these stateless pixel kernels as in the native preview (-O2).
+set_source_files_properties(screen.c render.c game_ui.c gold_fx.c battle_hud.c
+    battle_fx.c pokemon_animation.c PROPERTIES COMPILE_OPTIONS "-O2")
+
+# The higher-priority PCM producer shares the C3's single core with LVGL.
+# Preserve every sample and tempo; reduce time spent in synthesis per chunk.
+set_source_files_properties(audio.c music.c cry.c sound_mixer.c
+    PROPERTIES COMPILE_OPTIONS "-O2")

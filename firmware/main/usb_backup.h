@@ -3,7 +3,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #define USB_BACKUP_BYTES 0x6000
-#define USB_BACKUP_EXTENDED_BYTES 0xc000
+#define USB_BACKUP_EXTENDED_BYTES 0xc000 // Published v2/V23 envelope
+#define USB_BACKUP_WAREHOUSE_BYTES 0x12000 // v4/V28: NVS + 48 KiB bank
+#define USB_BACKUP_EXPANDED_BYTES 0xe000 // v3/V24: NVS + full 32 KiB bank
 // All calls are serialized by the UI lock. The snapshot callback must quiesce
 // other NVS writers until the complete partition has been copied.
 typedef enum { USB_BACKUP_IDLE, USB_BACKUP_NO_HOST, USB_BACKUP_SENDING,

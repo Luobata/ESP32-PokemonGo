@@ -43,6 +43,7 @@
 #include "usb_backup.h"
 #include "nav.h"
 #include "world.h"
+#include "play.h"
 #include "dungeon.h"
 #include "esp_system.h"
 #include "screen.h"
@@ -182,6 +183,20 @@ static void dispatch(char c)
     case 's':                       // 截图，不经过按键
         if (bsp_lvgl_lock(2000)) { screen_dump(); bsp_lvgl_unlock(); }
         return;
+    case 'J':
+        sfx_profile_reset();
+        if (bsp_lvgl_lock(2000)) { screen_cadence_start(); bsp_lvgl_unlock(); }
+        return;
+    case 'K':
+        if (bsp_lvgl_lock(2000)) { screen_cadence_report(); bsp_lvgl_unlock(); }
+        return;
+    case 'j':                       // Replay the current page for LCD timing.
+        if (bsp_lvgl_lock(2000)) {
+            ESP_LOGI(TAG, "@@RENDER_PAGE page=%u", (unsigned)nav_current());
+            screen_profile_current();
+            bsp_lvgl_unlock();
+        }
+        return;
     case 'e':                       // 造一条遭遇（不然要等 4 小时排程）
         world_debug_spawn();
         return;
@@ -204,6 +219,27 @@ static void dispatch(char c)
                      (unsigned)heap_caps_get_minimum_free_size(caps),
                      (unsigned)heap_caps_get_largest_free_block(caps),
                      (unsigned)uxTaskGetStackHighWaterMark(NULL));
+            TaskHandle_t timer_task = xTaskGetHandle("esp_timer");
+            TaskHandle_t lvgl_task = xTaskGetHandle("taskLVGL");
+            TaskHandle_t sound_task = xTaskGetHandle("sound");
+            sfx_profile_t audio = sfx_profile_read();
+            ESP_LOGI(TAG,"@@AUDIO_PROFILE chunks=%lu render_avg_us=%lu render_max_us=%lu gap_max_us=%lu late=%lu switches=%lu switch_render_max_us=%lu opens=%lu errors=%lu stack_free=%u",
+                     (unsigned long)audio.chunks,(unsigned long)(audio.chunks?audio.render_us/audio.chunks:0),
+                     (unsigned long)audio.render_max_us,(unsigned long)audio.gap_max_us,(unsigned long)audio.late_chunks,
+                     (unsigned long)audio.switches,(unsigned long)audio.switch_render_max_us,(unsigned long)audio.opens,
+                     (unsigned long)audio.errors,sound_task?(unsigned)uxTaskGetStackHighWaterMark(sound_task):0);
+            ESP_LOGI(TAG,"@@UI_STACK timer_free=%u lvgl_free=%u",
+                     timer_task ? (unsigned)uxTaskGetStackHighWaterMark(timer_task) : 0,
+                     lvgl_task ? (unsigned)uxTaskGetStackHighWaterMark(lvgl_task) : 0);
+            if (nav_current() == PAGE_BATTLE) {
+                play_battle_view_t battle;
+                play_battle_presentation_snapshot(&battle);
+                ESP_LOGI(TAG, "@@BATTLE_VIEW phase=%s move=%u by_pet=%d pet_hp=%u wild_hp=%u",
+                         battle.phase, battle.move_id, battle.by_pet,
+                         battle.pet_hp, battle.wild_hp);
+            }
+            if (nav_current() == PAGE_TRAINER)
+                ESP_LOGI(TAG, "@@TRAINER_VIEW mode=%u", play_trainer_mode());
             bsp_lvgl_unlock();
         }
         return;
@@ -314,7 +350,9 @@ void dbg_start(void)
     // 而不是轮询（表现为「注入没反应」，而日志一切正常）。
     setvbuf(stdin, NULL, _IONBF, 0);
 
-    xTaskCreate(dbg_task, "dbg", 3072, NULL, 3, NULL);
+    // USB restore and injected navigation share this task. Route -> battle ->
+    // escape used all but 108 bytes of the old 3 KiB stack on ESP32-C3.
+    xTaskCreate(dbg_task, "dbg", 4096, NULL, 3, NULL);
 #ifdef CONFIG_POKEWALK_DEBUG_KEYS
     ESP_LOGI(TAG, "按键注入已开：a/b/c 上/下/确认 g 长下返回 h 按键观察 s 截图 e 造遭遇 w 存档 v evo-ready p <id> 音效 m <seed> 战斗种子 r 回采");
 #else

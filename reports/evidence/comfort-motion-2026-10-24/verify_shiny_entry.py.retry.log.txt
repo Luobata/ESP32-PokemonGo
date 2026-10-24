@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/verify_shiny_entry.py", line 126, in <module>
+    dungeon()
+  File "/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/verify_shiny_entry.py", line 118, in dungeon
+    command(r,'tick 1100');assert not r.inspect()['shiny_entry_side']
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

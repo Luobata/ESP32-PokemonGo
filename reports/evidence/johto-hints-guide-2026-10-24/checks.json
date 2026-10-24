@@ -1,0 +1,32 @@
+[
+  {
+    "name": "guide-source",
+    "exit_code": 0,
+    "seconds": 0.06
+  },
+  {
+    "name": "guide",
+    "exit_code": 0,
+    "seconds": 0.23
+  },
+  {
+    "name": "distribution",
+    "exit_code": 0,
+    "seconds": 1.5
+  },
+  {
+    "name": "fieldwork-core",
+    "exit_code": 0,
+    "seconds": 5.67
+  },
+  {
+    "name": "fieldwork-ui",
+    "exit_code": 0,
+    "seconds": 12.69
+  },
+  {
+    "name": "save-compatibility",
+    "exit_code": 0,
+    "seconds": 4.53
+  }
+]

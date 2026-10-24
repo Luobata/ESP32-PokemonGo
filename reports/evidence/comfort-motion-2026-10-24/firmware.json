@@ -1,0 +1,16 @@
+{
+  "base_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+  "includes_uncommitted_johto_work": true,
+  "app_bytes": 3162896,
+  "app_capacity": 3407872,
+  "free_app_bytes": 244976,
+  "sha256": "292d9ad6e62ad0cd0755f78d184f4bf165e624d95be978d593dc87e4525bf7b2",
+  "elf_sha256": "d4007c06fdb42cb73845c8251c45bda53a257fcf828ce1fa713000a209b04a70",
+  "flash_bytes": 8388608,
+  "partition_unchanged": true,
+  "save_version": 30,
+  "backup_format": 4,
+  "backup_payload_bytes": 73728,
+  "native_before": "33f3cbbf25e4858a65de",
+  "native_after": "290e517edce250e32c42"
+}

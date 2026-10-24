@@ -1,0 +1,19 @@
+I (47392) dbg: @@MEMORY_STATE free=17444 minimum=11404 largest=11264 stack_free=1624
+I (47392) dbg: @@AUDIO_PROFILE chunks=1309 render_avg_us=1993 render_max_us=3991 gap_max_us=22634 late=0 switches=6 switch_render_max_us=2904 opens=0 errors=0 stack_free=1972
+I (47393) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924
+I (49086) dbg: @@MEMORY_STATE free=17444 minimum=11404 largest=11264 stack_free=1624
+I (49086) dbg: @@AUDIO_PROFILE chunks=1387 render_avg_us=2002 render_max_us=3991 gap_max_us=22634 late=0 switches=7 switch_render_max_us=2904 opens=0 errors=0 stack_free=1972
+I (49087) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924
+I (49720) screen: @@CADENCE_START
+I (57851) dbg: @@MEMORY_STATE free=17444 minimum=11404 largest=11264 stack_free=1624
+I (57851) dbg: @@AUDIO_PROFILE chunks=373 render_avg_us=1483 render_max_us=3798 gap_max_us=21972 late=0 switches=1 switch_render_max_us=1376 opens=0 errors=0 stack_free=1972
+I (57852) dbg: @@UI_STACK timer_free=3544 lvgl_free=4892
+I (58840) dbg: @@MEMORY_STATE free=17444 minimum=11404 largest=11264 stack_free=1592
+I (58840) dbg: @@AUDIO_PROFILE chunks=418 render_avg_us=1470 render_max_us=3798 gap_max_us=21972 late=0 switches=1 switch_render_max_us=1376 opens=0 errors=0 stack_free=1972
+I (58841) dbg: @@UI_STACK timer_free=3544 lvgl_free=4892
+I (59481) screen: @@CADENCE period_ms=40 ticks=185 frames=68 bands=766 window_us=9742322 render_us=2286651 render_max_us=67765 tick_p50_ms=48 tick_p95_ms=56 tick_max_us=118002 late=141 frame_p50_ms=56 frame_p95_ms=104 frame_max_us=4450773 bytes=352
+I (60077) screen: @@CADENCE_START
+I (70196) screen: @@CADENCE period_ms=45 ticks=219 frames=113 bands=1696 window_us=6905662 render_us=4367853 render_max_us=55535 tick_p50_ms=48 tick_p95_ms=56 tick_max_us=505095 late=162 frame_p50_ms=48 frame_p95_ms=56 frame_max_us=1039540 bytes=352
+I (70830) dbg: @@MEMORY_STATE free=17444 minimum=11404 largest=11264 stack_free=1592
+I (70830) dbg: @@AUDIO_PROFILE chunks=490 render_avg_us=1209 render_max_us=4293 gap_max_us=46446 late=1 switches=2 switch_render_max_us=4040 opens=0 errors=0 stack_free=1972
+I (70831) dbg: @@UI_STACK timer_free=3544 lvgl_free=4652

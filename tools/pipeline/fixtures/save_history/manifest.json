@@ -1,5 +1,5 @@
 {
-  "current_version": 23,
+  "current_version": 31,
   "oldest_version": 5,
   "description": "Synthetic progress, no player/device data. Little-endian, 8-byte int64 alignment.",
   "fixtures": [
@@ -1819,6 +1819,137 @@
         "firmware/main/save.c": "270bf9e5039eacf3a711f39ac0c06db13e9108f6147940c767a950107bb642e2"
       },
       "provenance": "Initial synthetic V23 payload migrated from the immutable V22 fixture by the production decoder; source_commit is the base, uncommitted V23 decoder identified by source_hashes. No player data."
+    },
+    {
+      "file": "v24-johto-policy.bin",
+      "version": 24,
+      "size": 22352,
+      "sha256": "8f9be87fb9ac03a8f5a4714aa988af183bb261930d2159efb340afa26808f5e6",
+      "source_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+      "source_type": "save_t V24 decoded bank payload; 459 independent 32-byte policies and versioned chapter",
+      "source_fixture": "v23-expanded.bin",
+      "source_hashes": {
+        "firmware/main/save.h": "2dc9485cfe386f26ff5ccb6cf78b0cd2df5b818455eae06c1d013e1f18018713",
+        "firmware/main/save.c": "e57ce2c2e7ef326df63c9e7ebca238231e545597663aacfdd24d6b45cf671745",
+        "firmware/main/save_legacy.h": "57378dd861bb2ec98a27dd55d4f43336dabbf8ff53fccc37ee1226138d8ec3b6",
+        "firmware/main/save_legacy.inc": "9337114e08d855b65004775e5018f4519889a47983860768fd3ed71aa04823ca",
+        "firmware/main/move_policy.h": "032b948c08c7e741f0d7a5a8185e0455de71fe5110688abd16c818006456d593",
+        "firmware/main/johto.h": "d2411d54945740fbd81ba0f8ef20bef57ee3633c752c14dce834add60c37c8f5"
+      },
+      "provenance": "Initial synthetic V24 payload migrated by production decoder from immutable V23 bytes. Base commit plus uncommitted source hashes; no player data."
+    },
+    {
+      "file": "v25-johto-dex.bin",
+      "version": 25,
+      "size": 22400,
+      "sha256": "0a103d02ef67a28d3c74f7319510a11ea330d128b57ffe044269436d466df0f1",
+      "source_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+      "source_type": "save_t V25 decoded bank payload; 459 independent 32-byte policies and versioned chapter and 251-species dex",
+      "source_fixture": "v23-expanded.bin",
+      "source_hashes": {
+        "firmware/main/save.h": "8bd7e146fe042bdc65291e301ebd6ebed8d65ce08b9b09a21234dc49bc6a82cb",
+        "firmware/main/save.c": "cd93ebce219ce23c5fe11dde74a6f632b888b96f015ecb0a625cf77680286049",
+        "firmware/main/save_legacy.h": "c2fb2a5f9b06143561cfdd408b0c2b86a42113c243bb25a77a97d873d63b2719",
+        "firmware/main/save_legacy.inc": "ea107737be858625ab70261f0de81261cd4fcf73e95fc87ef80309f553a31b7c",
+        "firmware/main/move_policy.h": "6344800ffb6d20fdd3c435949b63bd7a6d91af795444e351f295e25e2717a3e3",
+        "firmware/main/johto.h": "d2411d54945740fbd81ba0f8ef20bef57ee3633c752c14dce834add60c37c8f5"
+      },
+      "provenance": "Initial synthetic V25 payload migrated by production decoder from immutable V23 bytes. Base commit plus uncommitted source hashes; no player data."
+    },
+    {
+      "file": "v26-johto-evolution.bin",
+      "version": 26,
+      "size": 22424,
+      "sha256": "271228d477a37e47720cb23c967dc75e0663fe6abb8d89a64cfc183c944cc88f",
+      "source_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+      "source_type": "save_t V26 bank payload, append-only 24 items and 32 achievements",
+      "source_fixture": "v25-johto-dex.bin",
+      "source_hashes": {
+        "firmware/main/save.h": "28a00b055a6a93c81eabf7bb2296b69de72eeaf3802173fe5f72c09f348ab887",
+        "firmware/main/save.c": "8678f011d49d3130c879e8802411ad32bfbc2b7b9311c69358f456ec79eb8b33",
+        "firmware/main/save_legacy.h": "f9342892c04fac3a919f5590dffda6685add9c0018d9522dee9eb30dfa8b7f55",
+        "firmware/main/items.h": "38da3163f4c80509883561003b99fd8c730a14b45b770e01c46ccbcbf1823b1f",
+        "firmware/main/achievements.h": "84bd987ede765bf1871f8794bfdfe552614d83499c4540cdda16cef4d3966809"
+      },
+      "provenance": "Synthetic V26 migrated from immutable V25 bytes using production decoder. Base commit plus exact uncommitted source hashes; no player data."
+    },
+    {
+      "file": "v27-johto-activities.bin",
+      "version": 27,
+      "size": 23480,
+      "sha256": "f61593cb95c8690e637b0cf5104eb367d65f5c2fce4800ac11ffbe27fd89a115",
+      "source_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+      "source_type": "save_t V27 bank payload, 1056-byte independent Johto activity record",
+      "source_fixture": "v26-johto-evolution.bin",
+      "source_hashes": {
+        "firmware/main/save.h": "9318534224b6bcbc2495fc3c246a2f6586645872df854e3e301f3bab1f7db40f",
+        "firmware/main/save.c": "fe19fda29cee76bffde68e51ed3919e85f7d1a850ac2c12de27265a97f73dd27",
+        "firmware/main/save_legacy.h": "d656cfb211cf2fbd403cc491b1d97aa47a392d9ce88974a1bb7efd1f06c80431",
+        "firmware/main/johto_activity.h": "d95bb8389a009c9a7c9b257703bd245bd458f15914edb6ced3d919e352d78ede"
+      },
+      "provenance": "Synthetic immutable V26 migrated by production decoder, with an explicitly initialized empty activity record. No player data."
+    },
+    {
+      "file": "v28-warehouse-753.bin",
+      "version": 28,
+      "size": 39744,
+      "sha256": "30a4c7362e7567eb3f45d93806f6092bffdc214e369bf72a3525271566deec27",
+      "source_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+      "source_type": "save_t (V28 development layout)",
+      "source_hashes": {
+        "firmware/main/save.h": "c60ca5cb07d0ce3be4e525f7b262ad211709a0b59c56272f203817f037db5389",
+        "firmware/main/party.h": "767bb109a2157206be162761c5d2af67976ff2fa2d82bd726bda89501832ecd6",
+        "firmware/main/save_legacy.h": "d1157034a82540391f2967b6e1aac6ad4c8523daaece15dacd746f425b4cea3d"
+      },
+      "provenance": "Production V27 fixture migrated through production decoder; no player data"
+    },
+    {
+      "file": "v29-johto-story.bin",
+      "version": 29,
+      "size": 39816,
+      "sha256": "41767687e354e451f1ad67b1ea01d84e5d2a3006d5f5d655268908bb9ecf8505",
+      "source_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+      "source_type": "save_t V29 explicit story and individual mechanics",
+      "source_hashes": {
+        "firmware/main/save.h": "e41ab838cc34497c5c5fb7ad21e22be7fa42a575d817e07a103246df32df5292",
+        "firmware/main/save.c": "14471ca83010402ac83b0d6e479afbdc948f4c43e525c851dd6cc80657f26d92",
+        "firmware/main/johto_story.h": "08b126ee640e5f4f7e8eaca558c945953e59d7d718281b34038d4d1294b545ac",
+        "firmware/main/party.h": "767bb109a2157206be162761c5d2af67976ff2fa2d82bd726bda89501832ecd6"
+      },
+      "provenance": "Synthetic V28 fixture migrated by production decoder. No player data."
+    },
+    {
+      "file": "v30-champion-story.bin",
+      "version": 30,
+      "size": 39912,
+      "sha256": "5144c2223a28cfdff0ef011763fe5d0cbe26dcf390566ada523014d84304d19b",
+      "source_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+      "source_type": "save_t V30 append-only champion and lake sidecar",
+      "source_fixture": "v29-johto-story.bin",
+      "source_hashes": {
+        "firmware/main/save.h": "45619c4228970336012686d03ffdb70a6e9c7c20bd19399025c39e04fca60b3f",
+        "firmware/main/save.c": "93abe2dc00d1ae7960713ef8c064115848f4fd0fd2acf3cd1baf0a47a9442a3e",
+        "firmware/main/save_legacy.h": "1f540fed494bd416f80662e07fee4f627d775b6de52fcca71e658332aa94bb8c",
+        "firmware/main/endgame.h": "0a935dfdb3f36c202ebe8dad9e8d050f83ed83768b8b1d41b5eb04b5feb88b02",
+        "firmware/main/gym_rules.h": "70b4133f5c4539beb3be38a35d8e514232e92f10e3ae7a83577b05cc53f493df"
+      },
+      "provenance": "Immutable synthetic V29 migrated by production decoder. Base commit plus uncommitted source hashes, no player data."
+    },
+    {
+      "file": "v31-guided-narrative.bin",
+      "version": 31,
+      "size": 39944,
+      "sha256": "d3229c0cdcd33753f1f59493f51ab97f79ba55bdca25eb022dcb2ec689222737",
+      "source_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+      "source_type": "save_t V31 frozen V30 prefix plus interrupted narrative",
+      "source_fixture": "v30-champion-story.bin",
+      "source_hashes": {
+        "firmware/main/save.h": "0debd7ee2e8a0d1baa22119ae0a2542054de896ff0a86c998ac992e221a8d6fa",
+        "firmware/main/save.c": "5aa9f5a00261a4fddd9cf4bbdc217bc906927c027effa0d4e54ef9dd4fc79fc8",
+        "firmware/main/save_legacy.h": "29dd58df82a8cef39a2ba1063f4926160b2bbab03f697b3064af098f0694d4e8",
+        "firmware/main/narrative.h": "216e1e59ef85437506b69b615d54329814b53607d3ec91d2ca05445d468f1d51"
+      },
+      "provenance": "Synthetic fixture; frozen V30 prefix retained byte for byte except version, explicit V31 32-byte suffix. No player data."
     }
   ]
 }

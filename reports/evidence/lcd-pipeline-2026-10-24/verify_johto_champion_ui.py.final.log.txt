@@ -1,0 +1,1 @@
+{'passed': True, 'native_build': 'af43579bf923594ed111', 'checks': 259, 'scope': 'native UI with fixtures; production battle/persistence validated separately'}

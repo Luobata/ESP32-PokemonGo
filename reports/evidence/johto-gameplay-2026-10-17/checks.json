@@ -1,0 +1,109 @@
+[
+  {
+    "check": "verify_usb_backup.py",
+    "exit": 0,
+    "seconds": 1.8,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/verify_usb_backup.py.log.txt"
+  },
+  {
+    "check": "verify_usb_import.py",
+    "exit": 0,
+    "seconds": 3.8,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/verify_usb_import.py.log.txt"
+  },
+  {
+    "check": "verify_usb_stream.py",
+    "exit": 0,
+    "seconds": 1.8,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/verify_usb_stream.py.log.txt"
+  },
+  {
+    "check": "verify_save_import_compatibility.py",
+    "exit": 0,
+    "seconds": 4.4,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/verify_save_import_compatibility.py.log.txt"
+  },
+  {
+    "check": "verify_save_storage.py",
+    "exit": 0,
+    "seconds": 9.1,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/verify_save_storage.py.log.txt",
+    "initial_exit": 1,
+    "initial_failure": "Test used 25 as unknown version after V25 was added; corrected fixture expectation to 26.",
+    "retry_log": "reports/evidence/johto-gameplay-2026-10-17/save-storage-retry.log.txt"
+  },
+  {
+    "check": "verify_usb_import_device.py",
+    "exit": 0,
+    "seconds": 1.9,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/verify_usb_import_device.py.log.txt"
+  },
+  {
+    "check": "verify_save_import_web.mjs",
+    "exit": 0,
+    "seconds": 0.3,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/verify_save_import_web.mjs.log.txt"
+  },
+  {
+    "check": "verify_usb_backup_checkpoint.py",
+    "exit": 0,
+    "seconds": 3.9,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/verify_usb_backup_checkpoint.py.log.txt"
+  },
+  {
+    "check": "verify_save_manager_distribution.py",
+    "exit": 0,
+    "seconds": 2.1,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/verify_save_manager_distribution.py.log.txt"
+  },
+  {
+    "check": "verify_firmware_update.py",
+    "exit": 0,
+    "seconds": 1.2,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/verify_firmware_update.py.log.txt"
+  },
+  {
+    "check": "verify_nvs_restore_roundtrip.py",
+    "exit": 0,
+    "seconds": 12.3,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/verify_nvs_restore_roundtrip.py.log.txt"
+  },
+  {
+    "check": "verify_region_expansion.py",
+    "exit": 0,
+    "seconds": 7.0,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/verify_region_expansion.py.log.txt"
+  },
+  {
+    "check": "verify_dungeon_stack.py",
+    "exit": 0,
+    "seconds": 0.8,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/verify_dungeon_stack.py.log.txt"
+  },
+  {
+    "check": "verify_save_stack.py",
+    "exit": 0,
+    "seconds": 2.2,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/verify_save_stack.py.log.txt"
+  },
+  {
+    "check": "firmware build",
+    "exit": 0,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/build.log.txt"
+  },
+  {
+    "check": "verify_johto_save.py",
+    "exit": 0,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/world-transactions.log.txt"
+  },
+  {
+    "check": "verify_move_settings.py",
+    "exit": 0,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/move-settings.log.txt"
+  },
+  {
+    "check": "verify_save_stack.py (latest target including Johto modules)",
+    "exit": 0,
+    "log": "reports/evidence/johto-gameplay-2026-10-17/target-stack.log.txt"
+  }
+]

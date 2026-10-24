@@ -1,0 +1,62 @@
+[
+  {
+    "class": "falkner",
+    "url": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/falkner.png",
+    "sha256": "9d9b3bd06b313cc18d89f3e9cfedabc2798e904d442491a2e078c0d5c3a867cd"
+  },
+  {
+    "class": "bugsy",
+    "url": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/bugsy.png",
+    "sha256": "d90f0da818e6f6d4a38c36d4c17c797ac76fe7df29eff8d326d162b5d00b42dd"
+  },
+  {
+    "class": "whitney",
+    "url": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/whitney.png",
+    "sha256": "f12a2b177d0392218ca3dc695f64b2e15f0306b70a7a1ca56d8553ea813e273f"
+  },
+  {
+    "class": "morty",
+    "url": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/morty.png",
+    "sha256": "f98d56c4778ec9ce2af64f06ee522aa02ba2815bbcceb7cddc02a19d9333f244"
+  },
+  {
+    "class": "chuck",
+    "url": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/chuck.png",
+    "sha256": "ae118ffdcd3fd60378d2b1deb7c644d2582dea365b7752b3f15c629ce4d52084"
+  },
+  {
+    "class": "jasmine",
+    "url": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/jasmine.png",
+    "sha256": "6604fe2c559f14f3b80a507f8e32be288d2550d349a600e844b088477250c4ec"
+  },
+  {
+    "class": "pryce",
+    "url": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/pryce.png",
+    "sha256": "ae7c59a2087ea81cd7c3b2a7b7c28058adfe6404cff1de5921303808f5af3f55"
+  },
+  {
+    "class": "clair",
+    "url": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainers/clair.png",
+    "sha256": "bbfb935facf84ac9313ed67e022eb6d7f6e7955e96bf66420abff4a907edc83e"
+  },
+  {
+    "class": "elm",
+    "url": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/sprites/elm.png",
+    "sha256": "3dfa48fe2f3371344e74f31aed1aca3a5964aad0119c823fdbb15d0878ab7090"
+  },
+  {
+    "class": "badges",
+    "url": "https://github.com/pret/pokecrystal/blob/7a7881d0d62e0ddbd82dcf10e7116807487ac651/gfx/trainer_card/badges.png",
+    "sha256": "d89bf9193198261a887296d81b5ead91471a26a769c998b380d055bb070832db",
+    "campaign_rows": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      4,
+      6,
+      7
+    ]
+  }
+]

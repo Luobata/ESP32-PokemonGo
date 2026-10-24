@@ -14,8 +14,11 @@ def catalog(root):
    symbol='_binary_'+name.replace('.','_');assembly += ['.balign 4',f'.global {symbol}_start',f'.global {symbol}_end',f'{symbol}_start:',f'.incbin "{root/"assets"/name}"',f'{symbol}_end:']
   (p/'assets.S').write_text('\n'.join(assembly)+'\n')
   source=root/'firmware/main';development='exploration_visitors(' in (source/'exploration.c').read_text()
+  johto=(source/'johto.c').exists()
   files=['assets.c','pokemon_names.c','exploration.c','items.c','encounter.c','nurture.c','party.c','trainer.c','combat.c','battle.c','exp.c','evolution.c','achievements.c']
+  if johto:files+=['johto.c','johto_routes.c','johto_story.c','johto_activity.c','gym_rules.c']
   command=['cc','-std=gnu11','-DHOST_BUILD','-O1','-ffunction-sections','-fdata-sections','-I',str(source),'-I',str(p),str(ROOT/'tools/pipeline/guide_catalog.c'),str(p/'assets.S')]+[str(source/f) for f in files]+['-lz',('-Wl,-dead_strip' if sys.platform=='darwin' else '-Wl,--gc-sections'),'-o',str(p/'catalog')]
+  if johto:command.insert(1,'-DGUIDE_JOHTO')
   if development:command.insert(1,'-DGUIDE_VISITORS')
   result=subprocess.run(command,capture_output=True,text=True);assert result.returncode==0,result.stderr
   result=subprocess.run([str(p/'catalog')],capture_output=True,text=True);assert result.returncode==0,result.stderr
@@ -25,13 +28,16 @@ def catalog(root):
   data['cards']=list(zip(*[re.findall(r'"([^"]+)"',re.search(r'dungeon_'+key+r'\[DUNGEON_CARD_COUNT\]=\{(.*?)\};',(source/'dungeon.c').read_text(),re.S).group(1)) for key in ('cards','desc')]))
   data['features']={'expandedWarehouse':(source/'save_bank.h').exists(),'careEvents':development,'shinyEntry':(source/'shiny_entry.c').exists(),'nostalgicMoves':'pokemon_move_names_override' in (source/'pokemon_names.c').read_text(),'moveSettings':(source/'move_policy.h').exists(),'boxRelease':'world_box_release' in (source/'world.c').read_text(),'importStageDiagnostics':'world_backup_validate' in (source/'world.c').read_text(),'compressedSave':(source/'save_storage.h').exists()}
   data['sourceHashes']={str(f.relative_to(root)):hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(source.glob('*')) if f.suffix in ('.c','.h')}
-  assert len(data['pokemon'])==151 and len(data['items'])==19 and len(data['achievements'])==16
+  data['features']['johto']=johto
+  data['warehouseCapacity']=int(re.search(r'#define BOX_CAPACITY\s+(\d+)',(source/'party.h').read_text()).group(1))
+  data['saveVersion']=int(re.search(r'#define SAVE_VERSION\s+(\d+)',(source/'save.h').read_text()).group(1))
+  assert len(data['pokemon'])==(251 if johto else 151) and len(data['items'])==(24 if johto else 19) and len(data['achievements'])==(43 if johto else 16)
   return data
 
 def atlas(root,out):
  mons=load_data(root/'assets/gen1.bin');front=load_front(root/'assets/gen1_front.bin')[0];pals=load_palettes(root/'assets/palettes.bin')
  # Dimensions are encoded in the byte count; sheets contain actual front art.
- size=64;width=16*size;height=10*size;rows=[bytearray(width*4) for _ in range(height)]
+ size=64;width=16*size;height=((len(mons)+15)//16)*size;rows=[bytearray(width*4) for _ in range(height)]
  for mon in mons:
   raw=base64.b64decode(front[mon['id']]);side=int((len(raw)*4)**.5);palette=pals['normal'][mon['pal']]
   ox=(mon['id']-1)%16*size+(size-side)//2;oy=(mon['id']-1)//16*size+(size-side)//2
@@ -52,10 +58,10 @@ def version_catalog(ref,version):
  return data
 
 def main():
- p=argparse.ArgumentParser();p.add_argument('--release-ref',default='99c3fab44622c0609491c1ce77851e3c89a54bb7');p.add_argument('--previous-ref',default='5defc7fa1f0aede1a063cf807be898164bc1030d')
- p.add_argument('--release-version',default='2026.10.09 · 存档容量修复');p.add_argument('--previous-version',default='2026.10.08 · 存档导入修复');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--release-ref',default='v2026.10.24-johto');p.add_argument('--previous-ref',default='0c768bc')
+ p.add_argument('--release-version',default='2026.10.24 · 城都的来信');p.add_argument('--previous-version',default='2026.10.12 · 453 格仓库');a=p.parse_args()
  out=ROOT/'tools/save-manager/web/guide';out.mkdir(parents=True,exist_ok=True)
  release=version_catalog(a.release_ref,a.release_version);previous=version_catalog(a.previous_ref,a.previous_version)
  (out/'catalog.js').write_text('export const CATALOG = '+json.dumps({'release':release,'previous':previous},ensure_ascii=False,separators=(',',':'))+';\n')
- atlas(ROOT,out);print(json.dumps({'pokemon':151,'maps':len(release['maps']),'moves':len(release['moves']),'items':19,'achievements':16,'release':release['sourceRef']}))
+ atlas(ROOT,out);print(json.dumps({'pokemon':len(release['pokemon']),'maps':len(release['maps']),'moves':len(release['moves']),'items':len(release['items']),'achievements':len(release['achievements']),'release':release['sourceRef']}))
 if __name__=='__main__':main()

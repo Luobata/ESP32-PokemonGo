@@ -36,7 +36,7 @@ CONFIG_LV_FONT_MONTSERRAT_14=y
 CONFIG_LV_FONT_MONTSERRAT_20=y
 # LVGL 内置 malloc 池大小(KB)。它是独立静态区、不与系统堆共享,配大了会白白占用 RAM。
 # 本 demo UI 简单,24KB 足够;若自建复杂界面出现绘制卡死/看门狗,调大此值。
-CONFIG_LV_MEM_SIZE_KILOBYTES=24
+CONFIG_LV_MEM_SIZE_KILOBYTES=16
 
 # --- 系统 ---
 CONFIG_FREERTOS_HZ=1000
@@ -60,3 +60,7 @@ CONFIG_LWIP_SNTP_MAX_SERVERS=2
 # ESP-IDF keeps these functions in flash when disabled; scanning/NTP/AP remain enabled.
 # CONFIG_ESP_WIFI_IRAM_OPT is not set
 # CONFIG_ESP_WIFI_RX_IRAM_OPT is not set
+
+# Keep the existing audio DMA ring serviced during save-sector erases.
+# This only moves the I2S ISR path to IRAM; no larger PCM buffers.
+CONFIG_I2S_ISR_IRAM_SAFE=y

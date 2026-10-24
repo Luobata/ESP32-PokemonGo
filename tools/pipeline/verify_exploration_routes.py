@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 """Production C route/credit/save transactions; ASan + UBSan + real V10 migration."""
-import argparse,json,subprocess
+import argparse,hashlib,json,subprocess
 from pathlib import Path
 import verify_world_party as harness
 ROOT=harness.ROOT
+def history_array(version):
+ manifest=json.loads((ROOT/'tools/pipeline/fixtures/save_history/manifest.json').read_text())
+ record=next(f for f in manifest['fixtures'] if f['version']==version)
+ data=(ROOT/'tools/pipeline/fixtures/save_history'/record['file']).read_bytes()
+ assert len(data)==record['size'] and hashlib.sha256(data).hexdigest()==record['sha256']
+ return f'static const unsigned char fixed_v{version}[]={{'+','.join(map(str,data))+'};\n'
+
 CASES=r'''
 bool assets_species(uint16_t id,species_t *out){if(id<1||id>151)return false;memset(out,0,sizeof(*out));out->id=id;out->hp=out->attack=out->defense=out->special=out->speed=40;return true;}
 uint32_t assets_species_count(void){return 151;}
@@ -20,14 +27,15 @@ static void core(void){
    assert(x.energy==24&&x.steps==step+1);
    if(e.species){assert(e.uid!=1&&dex_is_seen(&d,e.species));enc_queue_init(&q);}
    if(step==5)assert(x.clues[route]==3);
-   if(step==6)assert(e.species==exploration_route(route)->target&&e.rarity>=3&&!x.clues[route]);
+   if(step==6){unsigned native;assert(exploration_habitat(e.species,&native)>=0);assert(e.species==exploration_route(route)->target&&e.rarity==native&&!x.clues[route]);}
   }
  }
- // A target already pending must retain the full trail and its opportunity.
+ // A pending target cannot block exploration; it remains a separate individual.
  exploration_state_t x={.energy=1,.clues={3}};enc_refresh_state_t r={0};enc_queue_t q;enc_queue_init(&q);dex_t d;dex_init(&d);
  encounter_t e={.species_id=25,.rarity=2,.hp_ratio=100};enc_queue_push(&q,&e);
- exploration_state_t old=x;assert(exploration_step(&x,&r,&q,&d,0).kind==EXPLORE_BLOCKED&&!memcmp(&old,&x,sizeof(x)));
- x.energy=0;enc_queue_init(&q);assert(exploration_step(&x,&r,&q,&d,0).kind==EXPLORE_TARGET && x.energy==0);
+ encounter_t old=q.items[0];exploration_event_t again=exploration_step(&x,&r,&q,&d,0);
+ assert(again.kind==EXPLORE_TARGET&&again.species==25&&again.uid!=old.uid&&q.count==2&&!memcmp(&old,&q.items[0],sizeof(old))&&!x.clues[0]);
+ x.energy=0;x.clues[0]=3;enc_queue_init(&q);assert(exploration_step(&x,&r,&q,&d,0).kind==EXPLORE_TARGET && x.energy==0);
  // Long play: clues never consume rarity pity; route changes do not reset it.
  unsigned rare=0,elite=0,seen[152]={0},monsters=0;
  exploration_init(&x);memset(&r,0,sizeof(r));
@@ -37,7 +45,7 @@ static void core(void){
   exploration_event_t out=exploration_step(&x,&r,&q,&d,0);
   if(out.kind==EXPLORE_CLUE){assert(a==r.since_rare&&b==r.since_elite);continue;}
   assert(out.kind==EXPLORE_ENCOUNTER||out.kind==EXPLORE_TARGET);monsters++;seen[out.species]++;
-  rare++;elite++;assert(rare<=8&&elite<=30);if(out.rarity>=4)rare=0;if(out.rarity==5)elite=0;
+  if(out.kind!=EXPLORE_TARGET){rare++;elite++;}assert(rare<=8&&elite<=30);if(out.rarity>=4)rare=0;if(out.rarity==5)elite=0;
   assert(enc_refresh_valid(&r)&&exploration_valid(&x));
  }
  for(unsigned i=1;i<=151;i++)assert(seen[i]);assert(monsters>10000);
@@ -93,12 +101,19 @@ static void transactions(void){
  tests+=8;
 }
 static void migration(const char *path){
- fresh();assert(world_choose_starter(25)==WORLD_STARTER_OK);save_t current;assert(save_read(&current));
- save_v10_t old=current.v10;old.version=10;old.refresh.hunt_q10=768;old.refresh.since_rare=6;old.refresh.since_elite=20;
+ fresh();assert(world_choose_starter(25)==WORLD_STARTER_OK);save_v10_t old;assert(sizeof(old)==sizeof(fixed_v10));memcpy(&old,fixed_v10,sizeof(old));
  if(path){FILE*f=fopen(path,"rb");assert(f);assert(fread(&old,1,sizeof(old),f)==sizeof(old));assert(fgetc(f)==EOF);fclose(f);assert(old.version==10);}
+ // This route harness stubs active trainer validation; test a copy with no campaign.
+ // The unmodified historical bytes are covered by verify_save_import_compatibility.
+ old.challenge=(trainer_store_t){0};
  memcpy(disk,&old,sizeof(old));disk_len=sizeof(old);
  save_t next;assert(save_read_status(&next)==SAVE_READ_MIGRATED&&next.version==SAVE_VERSION);
- for(unsigned i=2;i<sizeof(old);i++)if(i!=offsetof(save_v10_t,opening_seen))assert(((uint8_t*)&next)[i]==((uint8_t*)&old)[i]);
+ assert(next.species==old.species&&next.level==old.level&&next.exp==old.exp);
+ assert(!memcmp(&next.pet,&old.pet,sizeof(old.pet))&&!memcmp(&next.refresh,&old.refresh,sizeof(old.refresh)));
+ enc_queue_t queue=old.queue;for(unsigned i=0;i<ENC_QUEUE_CAP;i++){queue.items[i].level=0;queue.items[i].activity=0;}
+ assert(!memcmp(&next.queue,&queue,sizeof(queue)));
+ party_t decoded;assert(save_validate_world(&next,&decoded));
+ assert(decoded.party_count==old.party[0]);
  assert(next.exploration.energy==0&&next.exploration.steps==0);assert(save_write(&next));
  next.exploration.energy=1;next.exploration.clues[2]=2;assert(save_write(&next));
  assert(save_read_status(&next)==SAVE_READ_OK&&next.exploration.energy==1&&next.exploration.clues[2]==2);
@@ -110,7 +125,7 @@ int main(void){core();credits();supply_loop();transactions();migration(REAL_SAVE
 '''
 def main():
  p=argparse.ArgumentParser();p.add_argument('--save',type=Path);a=p.parse_args()
- harness.CASES=CASES.replace('REAL_SAVE',json.dumps(str(a.save.resolve())) if a.save else 'NULL')
+ harness.CASES=history_array(10)+CASES.replace('REAL_SAVE',json.dumps(str(a.save.resolve())) if a.save else 'NULL')
  try:r=harness.run(ROOT)
  except subprocess.CalledProcessError as e:print(e.stdout,e.stderr);raise
  r.update(real_v10_tested=bool(a.save),sanitizers=['ASan','UBSan'])

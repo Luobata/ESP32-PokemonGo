@@ -1,0 +1,2 @@
+Persisted party/warehouse including policies, level/experience, Pokedex, inventory, challenge, Johto, activities, story and endgame are equal after migration
+

@@ -11,8 +11,8 @@ C=r'''
 #include "sound_mixer.h"
 static int16_t a[220500],b[220500];
 int main(void){
- unsigned shortest=99999,longest=0;unsigned long long hashes[152]={0};
- for(unsigned id=1;id<=151;id++){
+ unsigned shortest=99999,longest=0;unsigned long long hashes[252]={0};
+ for(unsigned id=1;id<=251;id++){
   cry_player_t p;cry_start(&p,id);unsigned n=0,nonzero=0;int16_t x;
   while(cry_sample(&p,&x)){assert(++n<220500);assert(abs(x)<=8100);nonzero+=x!=0;hashes[id]=hashes[id]*31+(uint16_t)x;}
   unsigned ms=cry_duration_ms(id);assert(abs((int)(n*1000/22050)-(int)ms)<=3);assert(nonzero>100);
@@ -24,8 +24,8 @@ int main(void){
   sound_mixer_cry(&m,id);sound_mixer_cry(&m,0);assert(!m.active);
  }
  assert(hashes[1]!=hashes[2]&&hashes[2]!=hashes[3]&&hashes[25]!=hashes[26]);
- assert(!cry_duration_ms(0)&&!cry_duration_ms(152));
- printf("{\"species\":151,\"shortest_ms\":%u,\"longest_ms\":%u,\"chunk_invariant\":true,\"sanitized\":true}\n",shortest,longest);
+ assert(!cry_duration_ms(0)&&!cry_duration_ms(252));
+ printf("{\"species\":251,\"shortest_ms\":%u,\"longest_ms\":%u,\"chunk_invariant\":true,\"sanitized\":true}\n",shortest,longest);
 }
 '''
 with tempfile.TemporaryDirectory() as d:

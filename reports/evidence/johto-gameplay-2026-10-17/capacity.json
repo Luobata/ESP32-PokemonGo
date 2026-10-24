@@ -1,0 +1,24 @@
+{
+  "base_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+  "source_state": "uncommitted working tree; not a release",
+  "app_bytes": 2998336,
+  "app_sha256": "8a649964b3887ea45ade77b1bdf7fe4bb376cf762f369552c7115db2980fca8f",
+  "factory_bytes": 3407872,
+  "factory_free_bytes": 409536,
+  "flash_bytes": 8388608,
+  "partition_table_changed": false,
+  "save_version": 25,
+  "world_bytes": 22400,
+  "policy_bytes_per_individual": 32,
+  "individual_capacity": 459,
+  "backup_containers": {
+    "v1": 24576,
+    "v2": 49152,
+    "v3": 57344
+  },
+  "device_flash_performed": false,
+  "device_heap_measurement": false,
+  "device_restore_with_changed_setting": false,
+  "public_web_deployed": false,
+  "published": false
+}

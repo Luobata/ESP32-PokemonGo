@@ -1,0 +1,97 @@
+[
+  {
+    "name": "verify_usb_console.py",
+    "exit_code": 0,
+    "seconds": 2.14
+  },
+  {
+    "name": "verify_usb_backup.py",
+    "exit_code": 0,
+    "seconds": 2.28
+  },
+  {
+    "name": "verify_usb_import.py",
+    "exit_code": 0,
+    "seconds": 4.47
+  },
+  {
+    "name": "verify_usb_stream.py",
+    "exit_code": 0,
+    "seconds": 2.09
+  },
+  {
+    "name": "verify_save_import_compatibility.py",
+    "exit_code": 0,
+    "seconds": 4.63
+  },
+  {
+    "name": "verify_save_storage.py",
+    "exit_code": 0,
+    "seconds": 18.2
+  },
+  {
+    "name": "verify_usb_import_device.py",
+    "exit_code": 0,
+    "seconds": 0.97
+  },
+  {
+    "name": "verify_save_import_web.mjs",
+    "exit_code": 0,
+    "seconds": 0.42
+  },
+  {
+    "name": "verify_usb_backup_checkpoint.py",
+    "exit_code": 0,
+    "seconds": 3.59
+  },
+  {
+    "name": "verify_save_manager_distribution.py",
+    "exit_code": 0,
+    "seconds": 1.8
+  },
+  {
+    "name": "verify_firmware_update.py",
+    "exit_code": 0,
+    "seconds": 0.98
+  },
+  {
+    "name": "verify_nvs_restore_roundtrip.py",
+    "exit_code": 0,
+    "seconds": 12.62
+  },
+  {
+    "name": "verify_region_expansion.py",
+    "exit_code": 0,
+    "seconds": 6.18
+  },
+  {
+    "name": "verify_dungeon_stack.py",
+    "exit_code": 0,
+    "seconds": 0.46
+  },
+  {
+    "name": "verify_johto_narrative.py",
+    "exit_code": 0,
+    "seconds": 4.39
+  },
+  {
+    "name": "verify_johto_fieldwork.py",
+    "exit_code": 0,
+    "seconds": 5.48
+  },
+  {
+    "name": "verify_display_ownership.py",
+    "exit_code": 0,
+    "seconds": 7.46
+  },
+  {
+    "name": "verify_audio_switch.py",
+    "exit_code": 0,
+    "seconds": 1.77
+  },
+  {
+    "name": "verify_silent_boot.py",
+    "exit_code": 0,
+    "seconds": 6.93
+  }
+]

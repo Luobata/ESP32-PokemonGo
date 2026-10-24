@@ -58,7 +58,7 @@ def gameplay_hash(data: bytes) -> str:
     # Zero only presentation byte 23. Flags, stats, moves-related reserved bytes
     # and both string pools remain part of this immutable gameplay fingerprint.
     magic, ver, stride, count, pool = struct.unpack_from('<4sHHII', data)
-    if (magic, ver, stride, count) != (b'GEN1', 1, 32, 151) or len(data) != 16 + stride*count + pool:
+    if (magic, ver, stride) != (b'GEN1', 1, 32) or count not in (151,251) or len(data) != 16 + stride*count + pool:
         raise ValueError('unsupported gen1.bin')
     copy = bytearray(data)
     for sid in range(count):
@@ -67,20 +67,21 @@ def gameplay_hash(data: bytes) -> str:
 
 
 def generate(src: Path, current_data: bytes) -> dict[str, bytes]:
+    before = gameplay_hash(current_data)
+    count = struct.unpack_from('<I', current_data, 8)[0]
     tree = PinnedTree(src)
     palette_table = tree.read('data/pokemon/palettes.asm').decode()
-    names = re.findall(r'INCBIN "gfx/pokemon/([^/]+)/normal\.gbcpal", middle_colors', palette_table)[:151]
+    names = re.findall(r'INCBIN "gfx/pokemon/([^/]+)/normal\.gbcpal", middle_colors', palette_table)[:count]
     base_names = re.findall(r'INCLUDE "data/pokemon/base_stats/([^/]+)\.asm"',
-                            tree.read('data/pokemon/base_stats.asm').decode())[:151]
-    if len(names) != 151 or names != base_names:
+                            tree.read('data/pokemon/base_stats.asm').decode())[:count]
+    if len(names) != count or names != base_names:
         raise ValueError('source species order differs between palette and base-stat tables')
     makefile = tree.read('Makefile').decode()
     reverse = set(re.findall(r'gfx/pokemon/([^/]+)/normal\.gbcpal: tools/gbcpal \+= --reverse', makefile))
     tree.read('tools/gbcpal.c')
     tree.read('tools/common.h')
-    before = gameplay_hash(current_data)
     data = bytearray(current_data)
-    pool_start = 16 + 151*32
+    pool_start = 16 + count*32
     fronts, backs, pairs, pair_ids, details = {}, {}, [], {}, []
     white_pixels = 0
 
@@ -93,7 +94,7 @@ def generate(src: Path, current_data: bytes) -> dict[str, bytes]:
         decoded = {}
         colors = set()
         for view in ('front', 'back'):
-            relative = f'gfx/pokemon/{name}/{view}.png'
+            relative = f'gfx/pokemon/{"unown_a" if name == "unown" else name}/{view}.png'
             tree.read(relative)
             w, h, rows, palette, _indices = read_png_full(str(src / relative))
             if not palette or w not in (40, 48, 56) or (view == 'front' and h % w) or (view == 'back' and (w, h) != (48, 48)):
@@ -147,11 +148,11 @@ def generate(src: Path, current_data: bytes) -> dict[str, bytes]:
         for sid, blob in entries:
             body += struct.pack('<H', sid) + blob
     front = struct.pack('<4sHH', b'FRNT', 1, len(SIZES)) + directory + body
-    back = struct.pack('<4sHHHHI', b'BACK', 1, 48, 48, 576, 151) + b''.join(backs[sid][1] for sid in range(1, 152))
+    back = struct.pack('<4sHHHHI', b'BACK', 1, 48, 48, 576, count) + b''.join(backs[sid][1] for sid in range(1, count+1))
     palette_body = b''.join(struct.pack('<4H', *pair[variant])
                             for variant in (0, 1) for pair in pairs)
-    mapping = bytes(data[16 + (sid-1)*32 + 23] for sid in range(1, 152))
-    palette_blob = struct.pack('<4sHHHH', b'PALS', 1, len(pairs), 4, 151) + palette_body + mapping
+    mapping = bytes(data[16 + (sid-1)*32 + 23] for sid in range(1, count+1))
+    palette_blob = struct.pack('<4sHHHH', b'PALS', 1, len(pairs), 4, count) + palette_body + mapping
     if gameplay_hash(data) != before:
         raise ValueError('conversion modified gameplay bytes')
     products = {'gen1_front.bin': bytes(front), 'gen1_back.bin': back,
@@ -185,7 +186,7 @@ def main() -> int:
         else:
             args.out.mkdir(parents=True, exist_ok=True)
             target.write_bytes(blob)
-    print(f'{"verified" if args.check else "generated"} 302 Crystal images + original normal/shiny palettes; {COMMIT}')
+    print(f'{"verified" if args.check else "generated"} Crystal images + original normal/shiny palettes; {COMMIT}')
     return 0
 
 

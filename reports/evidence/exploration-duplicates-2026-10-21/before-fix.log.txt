@@ -1,0 +1,7 @@
+Traceback (most recent call last):
+  File "/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/verify_exploration_duplicates.py", line 90, in <module>
+    harness.run()
+  File "/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/verify_trainer_campaign.py", line 95, in run
+    c=subprocess.run([str(t/'probe')],capture_output=True,text=True,timeout=40);assert c.returncode==0,c.stdout+c.stderr
+AssertionError: Assertion failed: (e.kind==EXPLORE_TARGET&&e.species==target&&e.uid!=old.uid&&e.uid!=UINT16_MAX), function targets, file driver.c, line 281.
+

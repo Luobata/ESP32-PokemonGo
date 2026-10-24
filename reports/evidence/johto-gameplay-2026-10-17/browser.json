@@ -1,0 +1,18 @@
+{
+  "preview_build": "80d39006644394e4c341",
+  "url": "http://127.0.0.1:8766/firmware.html?progress=4&level=40#P17",
+  "observed_flow": [
+    "invitation",
+    "starter selection",
+    "Chikorita received",
+    "Johto menu",
+    "route 0 level range 35-44",
+    "Hoothoot level 41 discovery",
+    "encounter queue",
+    "wild battle menu"
+  ],
+  "band_redraw_different_pixels": 0,
+  "runtime_adapter": "host world simulator; C production UI/render",
+  "device_save_access": false,
+  "paused_at": "wild battle menu"
+}

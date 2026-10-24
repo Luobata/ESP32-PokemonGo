@@ -14,11 +14,11 @@ static void campaign(void){
   bool found_item=false;unsigned seen_items=0;
   exploration_state_t x;exploration_init(&x);enc_refresh_state_t r={0};enc_queue_t q;dex_t d;dex_init(&d);inventory_t bag={0};
   for(unsigned i=0;i<4000;i++){
-   enc_queue_init(&q);x.route=i%4;x.energy=24;
+   enc_queue_init(&q);x.route=i%4;x.energy=24;bag=(inventory_t){0};
    exploration_event_t e=exploration_step_progress(&x,&r,&q,&d,0,masks[c],&bag);
    if(e.species)assert(exploration_species_open(e.species,masks[c]));
    assert(items_inventory_valid(&bag));if(e.item_full)assert(!e.quantity&&bag.quantity[e.item]==items_capacity(e.item));
-   if(e.item!=ITEM_NONE){seen_items|=1u<<e.item;found_item=true;bool allowed=false;for(unsigned k=0;k<=c;k++)allowed|=exploration_chapter(k)->item==e.item;assert(allowed);}
+   if(e.item!=ITEM_NONE){seen_items|=1u<<e.item;found_item=true;bool allowed=e.item==ITEM_BERRY||e.item==ITEM_MILK||e.item==ITEM_ENERGY_ROOT||e.item==ITEM_JOY_COOKIE;for(unsigned k=0;k<=c;k++)allowed|=exploration_chapter(k)->item==e.item;assert(allowed);}
   }
   assert(found_item&&(seen_items&(1u<<exploration_chapter(c)->item)));
   for(unsigned route=0;route<4;route++){
@@ -36,11 +36,12 @@ static void campaign(void){
   exploration_state_t x=s_exploration;enc_refresh_state_t r=s_refresh;enc_queue_t q=s_queue;dex_t d=s_dex;inventory_t bag=s_inventory;
   exploration_event_t e=exploration_step_progress(&x,&r,&q,&d,0,s_challenge.defeated,&bag);
   if(!e.quantity)continue;
-  inventory_t prior=s_inventory;exploration_state_t previous=s_exploration;
+  inventory_t prior=s_inventory;exploration_state_t previous=s_exploration;int32_t stamina=s_w.pet.stamina;
   failure=4;assert(world_explore().kind==EXPLORE_SAVE_FAILED);failure=0;
   assert(!memcmp(&prior,&s_inventory,sizeof(prior))&&!memcmp(&previous,&s_exploration,sizeof(previous)));
-  e=world_explore();assert(e.quantity==1&&s_inventory.quantity[e.item]==prior.quantity[e.item]+1);
-  world_debug_save();reboot();assert(s_challenge.defeated==16383&&s_exploration.energy==23&&s_inventory.quantity[e.item]==prior.quantity[e.item]+1);
+  e=world_explore();assert(e.quantity>0&&s_inventory.quantity[e.item]==prior.quantity[e.item]+e.quantity);
+  assert(s_w.pet.stamina==stamina-NURT_EXPLORE_COST);
+  world_debug_save();reboot();assert(s_challenge.defeated==16383&&s_exploration.energy==24&&s_inventory.quantity[e.item]==prior.quantity[e.item]+e.quantity);
   tested=true;break;
  }
  assert(tested);

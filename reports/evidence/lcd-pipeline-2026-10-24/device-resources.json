@@ -1,0 +1,23 @@
+{
+  "before_import": {
+    "free": 17728,
+    "minimum": 9896,
+    "largest": 9728,
+    "dbg_stack": 1940,
+    "timer_stack": 3544,
+    "lvgl_stack": 4924
+  },
+  "after_restore_and_export": {
+    "free": 17476,
+    "minimum": 9916,
+    "largest": 9728,
+    "dbg_stack": 1900,
+    "timer_stack": 3544,
+    "lvgl_stack": 4924
+  },
+  "minimum_observed_dbg_stack_across_combat_tests": 1328,
+  "wifi_scanning": true,
+  "continuous_router_connection_tested": false,
+  "device_individual_count": 114,
+  "device_max_capacity_tested": false
+}

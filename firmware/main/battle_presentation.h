@@ -4,11 +4,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-// Number of timer intervals, not the count of sampled frames: render 0..N.
-// With the existing 90 ms battle timer these last 540 / 1620 / 1080 ms.
-#define BATTLE_PRESENTATION_HP_FRAMES 6
+// Authoring samples 0..N, not callback counters. HP uses a 45 ms source clock;
+// EXP/entry use 90 ms. Battle motion stretches these independently of refresh.
+#define BATTLE_PRESENTATION_HP_FRAMES 12
 #define BATTLE_PRESENTATION_EXP_FRAMES 18
 #define BATTLE_PRESENTATION_ENTRY_FRAMES 12
+// These are presentation holds, independent of the original move track speed.
+// Keep the pre-Johto 32 * 90 ms sendout minimum, including 10 throw ticks.
+#define BATTLE_PRESENTATION_SENDOUT_MOTION_MS 1980u
+// Give the HP result time to register before announcing the next attack.
+#define BATTLE_PRESENTATION_TURN_PAUSE_MS 900u
 
 typedef struct {
     uint32_t total, got, need;

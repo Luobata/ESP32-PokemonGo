@@ -1,0 +1,64 @@
+{
+  "decision": {
+    "source": "qualitygate.gate.orchestrator",
+    "scope": "final_quality_gate_decision",
+    "gate": "pass",
+    "raw_gate": "pass",
+    "block_merge": false,
+    "execution_complete": true,
+    "incomplete_engines": [],
+    "blocking_execution_complete": true,
+    "blocking_incomplete_engines": [],
+    "advisory_incomplete_engines": [],
+    "mutation_status": "not_applicable",
+    "validation_lanes": {
+      "production_compile": {
+        "status": "not_applicable",
+        "finding_count": 0,
+        "affected_scope_count": 0
+      },
+      "go_rules": {
+        "status": "completed",
+        "checked_files": 0,
+        "finding_count": 0
+      },
+      "ut_compile": {
+        "status": "not_applicable",
+        "finding_count": 0,
+        "affected_scope_count": 0,
+        "blocked_scope_count": 0
+      },
+      "ut_rules": {
+        "status": "not_applicable",
+        "finding_count": 0,
+        "reason": "no changed *_test.go files"
+      }
+    },
+    "quality_confidence": "full",
+    "runtime_incidents": [],
+    "actionable_block_findings": 0,
+    "deferred_block_findings": 0,
+    "engine_results_are_raw_signals": true
+  },
+  "agent_action": {
+    "schema_version": "qualitygate.agent-action.v1",
+    "state": "local_checks_passed",
+    "next_action": "finalize_semantic_and_tests",
+    "task_complete": false,
+    "actionable_block_count": 0,
+    "repair_round": 0,
+    "stop_reasons": [],
+    "repair_findings": [],
+    "required_validation": [
+      "format",
+      "diff_check",
+      "compile",
+      "focused_tests"
+    ],
+    "completion_requires": "current-fingerprint semantic result consumed and relevant validation passed; local PASS alone is insufficient"
+  },
+  "semantic_fingerprint": "qgcf_01dcc39461652b0402aa5c20bf62fd633f83edc4b62de60d2d34e4f5c622b206",
+  "semantic_status": "completed",
+  "model_review_performed": false,
+  "planning_status": "no_targets"
+}

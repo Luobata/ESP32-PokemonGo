@@ -1,0 +1,182 @@
+[
+  {
+    "command": "python3 tools/pipeline/verify_transition_bands.py",
+    "exit_code": 0,
+    "seconds": 2.13
+  },
+  {
+    "command": "python3 tools/pipeline/verify_display_ownership.py",
+    "exit_code": 0,
+    "seconds": 6.31
+  },
+  {
+    "command": "python3 tools/pipeline/verify_firmware_preview.py",
+    "exit_code": 0,
+    "seconds": 14.55
+  },
+  {
+    "command": "python3 tools/pipeline/verify_render_bounds.py",
+    "exit_code": 0,
+    "seconds": 0.83
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_backup.py",
+    "exit_code": 0,
+    "seconds": 1.65
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_import.py",
+    "exit_code": 0,
+    "seconds": 3.37
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_stream.py",
+    "exit_code": 0,
+    "seconds": 2.09
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_console.py",
+    "exit_code": 0,
+    "seconds": 1.13
+  },
+  {
+    "command": "python3 tools/pipeline/verify_save_import_compatibility.py",
+    "exit_code": 0,
+    "seconds": 4.83
+  },
+  {
+    "command": "python3 tools/pipeline/verify_save_storage.py",
+    "exit_code": 0,
+    "seconds": 12.15
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_import_device.py",
+    "exit_code": 0,
+    "seconds": 0.63
+  },
+  {
+    "command": "node tools/pipeline/verify_save_import_web.mjs",
+    "exit_code": 0,
+    "seconds": 0.42
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_backup_checkpoint.py",
+    "exit_code": 0,
+    "seconds": 3.46
+  },
+  {
+    "command": "python3 tools/pipeline/verify_save_manager_distribution.py",
+    "exit_code": 0,
+    "seconds": 1.76
+  },
+  {
+    "command": "python3 tools/pipeline/verify_firmware_update.py",
+    "exit_code": 0,
+    "seconds": 0.83
+  },
+  {
+    "command": "python3 tools/pipeline/verify_nvs_restore_roundtrip.py",
+    "exit_code": 0,
+    "seconds": 12.37
+  },
+  {
+    "command": "python3 tools/pipeline/verify_region_expansion.py",
+    "exit_code": 0,
+    "seconds": 6.16
+  },
+  {
+    "command": "python3 tools/pipeline/verify_dungeon_stack.py",
+    "exit_code": 0,
+    "seconds": 0.53
+  },
+  {
+    "command": "python3 tools/pipeline/verify_save_stack.py",
+    "exit_code": 0,
+    "seconds": 6.36
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_save.py",
+    "exit_code": 0,
+    "seconds": 4.69
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_routes.py",
+    "exit_code": 0,
+    "seconds": 4.37
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_routes_ui.py",
+    "exit_code": 0,
+    "seconds": 2.0
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_evolution.py",
+    "exit_code": 0,
+    "seconds": 4.29
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_evolution_ui.py",
+    "exit_code": 0,
+    "seconds": 0.7
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_activity.py",
+    "exit_code": 0,
+    "seconds": 4.56
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_activity_ui.py",
+    "exit_code": 0,
+    "seconds": 2.19
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_story.py",
+    "exit_code": 0,
+    "seconds": 4.13
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_story_ui.py",
+    "exit_code": 0,
+    "seconds": 0.69
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_champion.py",
+    "exit_code": 0,
+    "seconds": 4.15
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_champion_ui.py",
+    "exit_code": 0,
+    "seconds": 1.4
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_champion_balance.py",
+    "exit_code": 0,
+    "seconds": 7.56
+  },
+  {
+    "command": "python3 tools/pipeline/verify_render_bounds.py",
+    "exit_code": 0,
+    "seconds": 0.79
+  },
+  {
+    "command": "python3 tools/pipeline/verify_exploration_duplicates.py",
+    "exit_code": 0,
+    "seconds": 4.0
+  },
+  {
+    "command": "python3 tools/pipeline/verify_exploration_duplicates_ui.py",
+    "exit_code": 0,
+    "seconds": 0.22
+  },
+  {
+    "command": "python3 tools/pipeline/verify_box_details.py",
+    "exit_code": 0,
+    "seconds": 0.47
+  },
+  {
+    "command": "python3 tools/pipeline/verify_box_release.py",
+    "exit_code": 0,
+    "seconds": 3.9
+  }
+]

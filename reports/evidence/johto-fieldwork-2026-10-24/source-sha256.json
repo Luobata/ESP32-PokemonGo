@@ -1,0 +1,33 @@
+{
+  "source_head": "67a4a25749463d50750c9448ff9d5217d1379094",
+  "changed_sources": {
+    "firmware/main/play.h": "0397ac53a6dc2fd28ec0572deb034e40bb923e5366b0e1aeddfc2acb733115b9",
+    "firmware/main/world_johto.inc": "3ed4713a0103fd5a3de5a21dd9c6e20fb13551ecfea5ea6d7e8bcf4eecb0c2a4",
+    "firmware/main/johto_routes.h": "e636a15d269b30061adde3d6ad8fbf9d4bd324b2f0a6e8c53b13a3a21beabc52",
+    "firmware/main/johto_story.c": "e6083a83ab46d40b238a1f68515387855b7a92732846c7e4e48e189df6e1f3d9",
+    "firmware/main/johto_routes.c": "e872bb1f875b10c2ea792c3e1559c5109d7fea02c219f7d7f86749b13b0d2e29",
+    "firmware/main/world.h": "6092d21f7139ea4e442121b479fd7485dfcdb342212be94f0b1d7bf6f91e3cc0",
+    "firmware/main/narrative_script.c": "f1045f66c17bb285d4f6309ed0a492d83c84193be8113559773cc41cbf436e15",
+    "firmware/main/play_johto.c": "c8d281d221eb36084b58adc15bbe7283c3dcc6c6e4dff9ad1fa21737933418e0",
+    "tools/inspector/server.py": "2fcce07d6f1c3befa302107921444eae9d7eef8d7d69b569b11d0cf842b25ebf",
+    "tools/inspector/firmware.js": "e6ff80d00fe952dc654f2bb70501803b0ffa6e717313f6f50545618ec1e22fc9",
+    "tools/inspector/firmware.html": "719ba3e7d1a2314007579170f486b7912e688a40a53210253143f875ff713697",
+    "tools/inspector/host/runtime.c": "ad10505fb928cd00b71b5ff90eab4a2f431f394cc5c6c3706eb7f8aaf8ab950e",
+    "tools/pipeline/verify_johto_routes_ui.py": "ada92cb1f78d0cb445781eec2cdc9b106f66b49f22e5b783287f48a9d788dcfe",
+    "tools/pipeline/verify_johto_champion_ui.py": "228955639d798597c5c93dc98e82c1d69a1e713e32dc30eb63c7126453a44616",
+    "tools/pipeline/verify_johto_evolution_ui.py": "2be7b01601c57570b836aa1ed9c48877bb39ba77d5bf9822518555186417b024",
+    "tools/pipeline/verify_johto_activity_ui.py": "39eb73a82fb0fabfa58608ff303330c92761c85b60927d2e33a432bca1843f44",
+    "tools/pipeline/verify_johto_story.py": "b9b41b839488c4e5e5a5b2569fdf4f72af5541c2db0147e275fa7d67f09ebf3d",
+    "tools/pipeline/verify_johto_save.py": "1e5199b70da58fab59581604955bae24f64aeaaccba0d3eca60d7a7b181b74a6",
+    "tools/pipeline/verify_johto_narrative.py": "4aa890ee9bcac5f3ad027b3c865066b09aacfc2ed9cbd09e7fdf45cdc50ad4a1",
+    "tools/pipeline/verify_johto_narrative_ui.py": "87878f5cdfaba134270606cabc1f8ba2c7d8285f444c3747ce464808f06a6559",
+    "tools/pipeline/verify_johto_story_ui.py": "803378a27fdf9c2547a34078c46faf5a257e515459178ef9ea6277108a6331bc",
+    "docs/design/johto-narrative.md": "7a7d2e0087e5b6e0551779109ca6e57a3491d9c512551ac71b1b96d07f7c3a54",
+    "AGENTS.md": "d48b1ba3c7ef9ff42a7a52ed70050130b9396b7c302183b3d48e496c36a63b55",
+    "assets/font16.bin": "f2f759e85978e1d0bcdc2d2116eedb12f3e0fe4e0d78718bd0faf323f54ca1c4",
+    "assets/font16_charset.txt": "f44838e1ad98f92227cb593f7281c16f81ebe2d64ec169e4dd11170fac92efbf",
+    "tools/pipeline/verify_johto_fieldwork.py": "a34370d580a1bae05c3a9f76ced22e9fac09002f38e7bbe1f2637570b3d26ae2",
+    "tools/pipeline/verify_johto_fieldwork_ui.py": "acc4fcac29b78d805e7c85586e044302cb737e780fa7db8d89fc2b4ef707bebf"
+  },
+  "historical_fixture_files_unchanged": 46
+}

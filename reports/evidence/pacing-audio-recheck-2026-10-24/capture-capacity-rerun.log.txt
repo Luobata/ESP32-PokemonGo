@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/verify_capture_capacity_ui.py", line 102, in <module>
+    main()
+  File "/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/verify_capture_capacity_ui.py", line 50, in main
+    assert any(confirmed['pixels'][40*480:56*480][i:i+2] != b'\xff\xff' for i in range(0,16*480,2))
+AssertionError

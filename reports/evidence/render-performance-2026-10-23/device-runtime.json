@@ -1,0 +1,190 @@
+{
+  "samples": [
+    {
+      "phase": "optimized.log",
+      "record": "I (3187) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=73751 pending=3 pet=115 level=54 exp=241927 stamina_q10=98140 mood_q10=55975"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (3188) dbg: @@MEMORY_STATE free=17116 minimum=11924 largest=11776 stack_free=2192"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (3188) dbg: @@UI_STACK timer_free=3544 lvgl_free=5048"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (3249) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=73751 pending=3 pet=115 level=54 exp=241927 stamina_q10=98140 mood_q10=55975"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (3250) dbg: @@MEMORY_STATE free=17116 minimum=11924 largest=11776 stack_free=2192"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (3250) dbg: @@UI_STACK timer_free=3544 lvgl_free=5048"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (4583) dbg: @@DISPLAY_STATE off=0 brightness=100 page=6 scans=73752 pending=3 pet=115 level=54 exp=241927 stamina_q10=98140 mood_q10=55975"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (4584) dbg: @@MEMORY_STATE free=17952 minimum=11924 largest=11776 stack_free=1968"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (4585) dbg: @@UI_STACK timer_free=3544 lvgl_free=5048"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (5866) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=73752 pending=3 pet=115 level=54 exp=241927 stamina_q10=98240 mood_q10=55972"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (5867) dbg: @@MEMORY_STATE free=17952 minimum=11924 largest=11776 stack_free=1712"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (5868) dbg: @@UI_STACK timer_free=3544 lvgl_free=5048"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (7217) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=73752 pending=3 pet=115 level=54 exp=241927 stamina_q10=98240 mood_q10=55972"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (7218) dbg: @@MEMORY_STATE free=17952 minimum=11924 largest=11776 stack_free=1712"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (7218) dbg: @@UI_STACK timer_free=3544 lvgl_free=5048"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (9231) dbg: @@DISPLAY_STATE off=0 brightness=100 page=10 scans=73752 pending=3 pet=115 level=54 exp=241927 stamina_q10=98340 mood_q10=55969"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (9232) dbg: @@MEMORY_STATE free=17952 minimum=11924 largest=11776 stack_free=1712"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (9232) dbg: @@UI_STACK timer_free=3544 lvgl_free=5048"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (10570) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=73752 pending=3 pet=115 level=54 exp=241927 stamina_q10=98340 mood_q10=55969"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (10571) dbg: @@MEMORY_STATE free=17952 minimum=11924 largest=11776 stack_free=1536"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (10571) dbg: @@UI_STACK timer_free=3544 lvgl_free=5048"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (16513) dbg: @@DISPLAY_STATE off=0 brightness=100 page=15 scans=73752 pending=3 pet=115 level=54 exp=241927 stamina_q10=98540 mood_q10=55963"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (16514) dbg: @@MEMORY_STATE free=17952 minimum=11924 largest=11776 stack_free=1536"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (16514) dbg: @@UI_STACK timer_free=3544 lvgl_free=5048"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (18385) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=73752 pending=3 pet=115 level=54 exp=241927 stamina_q10=98540 mood_q10=55963"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (18386) dbg: @@MEMORY_STATE free=17952 minimum=11924 largest=11776 stack_free=1536"
+    },
+    {
+      "phase": "optimized.log",
+      "record": "I (18387) dbg: @@UI_STACK timer_free=3544 lvgl_free=5048"
+    },
+    {
+      "phase": "brightness-changed.log",
+      "record": "I (83775) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=73754 pending=3 pet=115 level=54 exp=241927 stamina_q10=100440 mood_q10=55906"
+    },
+    {
+      "phase": "brightness-changed.log",
+      "record": "I (83776) dbg: @@MEMORY_STATE free=17952 minimum=11924 largest=11776 stack_free=1536"
+    },
+    {
+      "phase": "brightness-changed.log",
+      "record": "I (83776) dbg: @@UI_STACK timer_free=3544 lvgl_free=5048"
+    },
+    {
+      "phase": "brightness-changed.log",
+      "record": "I (88908) dbg: @@DISPLAY_STATE off=0 brightness=89 page=9 scans=73754 pending=3 pet=115 level=54 exp=241927 stamina_q10=100540 mood_q10=55903"
+    },
+    {
+      "phase": "brightness-changed.log",
+      "record": "I (88909) dbg: @@MEMORY_STATE free=17952 minimum=11924 largest=11776 stack_free=1536"
+    },
+    {
+      "phase": "brightness-changed.log",
+      "record": "I (88909) dbg: @@UI_STACK timer_free=3544 lvgl_free=5048"
+    },
+    {
+      "phase": "brightness-restored.log",
+      "record": "I (550212) dbg: @@DISPLAY_STATE off=1 brightness=0 page=9 scans=73769 pending=3 pet=115 level=54 exp=241927 stamina_q10=102400 mood_q10=55507"
+    },
+    {
+      "phase": "brightness-restored.log",
+      "record": "I (550213) dbg: @@MEMORY_STATE free=17820 minimum=11924 largest=11776 stack_free=1536"
+    },
+    {
+      "phase": "brightness-restored.log",
+      "record": "I (550213) dbg: @@UI_STACK timer_free=3544 lvgl_free=5048"
+    },
+    {
+      "phase": "brightness-restored.log",
+      "record": "I (552163) dbg: @@DISPLAY_STATE off=0 brightness=89 page=9 scans=73769 pending=3 pet=115 level=54 exp=241927 stamina_q10=102400 mood_q10=55507"
+    },
+    {
+      "phase": "brightness-restored.log",
+      "record": "I (552164) dbg: @@MEMORY_STATE free=17820 minimum=11924 largest=11776 stack_free=1536"
+    },
+    {
+      "phase": "brightness-restored.log",
+      "record": "I (552164) dbg: @@UI_STACK timer_free=3544 lvgl_free=5048"
+    },
+    {
+      "phase": "brightness-restored.log",
+      "record": "I (557358) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=73770 pending=3 pet=115 level=54 exp=241927 stamina_q10=102400 mood_q10=55501"
+    },
+    {
+      "phase": "brightness-restored.log",
+      "record": "I (557359) dbg: @@MEMORY_STATE free=17820 minimum=11924 largest=11776 stack_free=1536"
+    },
+    {
+      "phase": "brightness-restored.log",
+      "record": "I (557359) dbg: @@UI_STACK timer_free=3544 lvgl_free=5048"
+    }
+  ],
+  "restore_overwrite_passed": false,
+  "restore_attempts": [
+    {
+      "phase": "restore",
+      "result": "upload timeout after NEXT 29568"
+    },
+    {
+      "phase": "restore-retry",
+      "result": "prebackup DATA 47488 truncated/concatenated with DATA 47616; receiver rejected sequence"
+    },
+    {
+      "phase": "restore-drained",
+      "result": "prebackup validated and ACK sent; UPLOAD received, no NEXT received; timeout"
+    }
+  ],
+  "final_brightness": 100,
+  "same_progress_after_failed_attempts": true,
+  "private_backups_committed": false
+}

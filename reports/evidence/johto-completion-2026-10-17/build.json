@@ -1,0 +1,16 @@
+{
+  "baseline_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+  "source_state": "uncommitted development changes",
+  "save_version": 29,
+  "world_bytes": 39816,
+  "warehouse": 753,
+  "party": 6,
+  "backup_container": 4,
+  "backup_bytes": 73728,
+  "app_bytes": 3112512,
+  "app_sha256": "db4ba9094c3d9ff732186acb2c9eb2afab8e0968d54fe3d80399000335c7e7dc",
+  "app_partition_bytes": 3407872,
+  "app_remaining": 295360,
+  "flash_bytes": 8388608,
+  "partition_changes": false
+}

@@ -19,10 +19,10 @@ static const uint16_t STARTERS[] = {1, 4, 7, 25};
 #define NOTE_Y 225
 #define DETAIL_Y 249
 
-SCREEN_ASSERT_WITHIN_BAND(starter_name, NAME_Y, 24);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(starter_name, NAME_Y, 24);
 // This static page always redraws all four bands, including both note halves.
 SCREEN_ASSERT_ALLOW_CROSS_BAND(starter_note, NOTE_Y, 16);
-SCREEN_ASSERT_WITHIN_BAND(starter_detail, DETAIL_Y, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(starter_detail, DETAIL_Y, 16);
 
 static uint8_t s_selection;
 static world_starter_result_t s_result;

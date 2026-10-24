@@ -4,7 +4,7 @@ import json
 import subprocess
 import verify_world_party as h
 import verify_exploration_routes as base
-h.CASES=base.CASES[:base.CASES.index('static void core')]+r'''
+h.CASES=base.history_array(15)+base.CASES[:base.CASES.index('static void core')]+r'''
 static void rotations(void){
  const unsigned masks[]={0,1,3,7,15,31,63,127,255,4095,8191,16383};
  unsigned distinct[152]={0},legend=0,total=0;
@@ -108,14 +108,20 @@ static void activities(void){
  assert((rewards&(1u<<ITEM_GREAT))&&(rewards&(1u<<ITEM_ULTRA))&&(rewards&(1u<<ITEM_MOON_STONE)));tests++;
 }
 static void migration(void){
- fresh();assert(world_choose_starter(1)==WORLD_STARTER_OK);s_challenge.defeated=31;s_exploration.clues[0]=2;s_exploration.research_flags=17;world_debug_save();
- save_t current;assert(save_read_status(&current)==SAVE_READ_OK);save_v15_t legacy;memcpy(&legacy,&current,sizeof(legacy));legacy.version=15;
- encounter_t e={.species_id=25,.rarity=2,.hp_ratio=100,.level=255,.activity=255};enc_queue_push(&legacy.queue,&e);
- memcpy(disk,&legacy,sizeof(legacy));disk_len=sizeof(legacy);save_t next;
+ fresh();assert(world_choose_starter(1)==WORLD_STARTER_OK);save_v15_t legacy;assert(sizeof(legacy)==sizeof(fixed_v15));memcpy(&legacy,fixed_v15,sizeof(legacy));
+ // Use a copy of the fixed historical layout. This inactive-campaign harness
+ // isolates undefined V15 encounter bytes; the original fixture stays untouched.
+ legacy.challenge=(trainer_store_t){0};legacy.challenge.defeated=31;
+ legacy.queue.items[0].level=255;legacy.queue.items[0].activity=255;legacy.queue.items[0].hp_ratio=100;
+ memcpy(disk,&legacy,sizeof(legacy));disk_len=sizeof(legacy);save_t next,current;
  assert(save_read_status(&next)==SAVE_READ_MIGRATED&&next.version==SAVE_VERSION);
- assert(!next.queue.items[0].level&&!next.queue.items[0].activity&&next.exploration.clues[0]==2&&next.exploration.research_flags==17);
- assert(!memcmp(next.party,current.party,PARTY_BYTES)&&next.challenge.defeated==31);
- reboot();assert(s_queue.items[0].level>=2&&s_exploration.clues[0]==2);world_debug_save();assert(save_read_status(&next)==SAVE_READ_OK);
+ assert(!next.queue.items[0].level&&!next.queue.items[0].activity);
+ assert(!memcmp(&next.exploration,&legacy.exploration,sizeof(legacy.exploration)));
+ party_t decoded;assert(save_validate_world(&next,&decoded));
+ assert(decoded.party_count==2&&decoded.party[0].species_id==25&&decoded.party[0].level==32&&decoded.box[3].species_id==149);
+ assert(next.challenge.defeated==31);
+ reboot();assert(s_queue.count==1&&s_queue.items[0].level>=2&&s_exploration.research_flags==legacy.exploration.research_flags);
+ world_debug_save();assert(save_read_status(&next)==SAVE_READ_OK);
  next.queue.items[0].level=101;memcpy(disk,&next,sizeof(next));disk_len=sizeof(next);assert(save_read_status(&current)==SAVE_READ_ERROR);assert(erase_calls==0);tests+=4;
 }
 int main(void){rotations();levels_and_trails();activities();migration();printf("{\"checks\":%u,\"rotation_samples\":48000,\"bias_samples\":20000,\"badge_activities\":8,\"save_version\":%d,\"v15_migration\":true,\"sanitizers\":[\"ASan\",\"UBSan\"]}\n",tests,SAVE_VERSION);return 0;}

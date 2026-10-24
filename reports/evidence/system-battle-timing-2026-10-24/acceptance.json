@@ -1,0 +1,32 @@
+{
+  "firmware": {
+    "format": "pokewalk-app-update-v2",
+    "address": 65536,
+    "size": 3161344,
+    "sha256": "17477b450109d01a8cbd84e349a6348236678c0facdd7b484a4ad02fef4f84b0",
+    "partition_sha256": "f0f6a27d3d10eba17bc1f6829f3890acee3a23ea637b3537dfa79d50b3174780"
+  },
+  "checks_passed": 53,
+  "flash": {
+    "updated": true,
+    "data_unchanged": true,
+    "partition_added": false
+  },
+  "restore": {
+    "matching_reboot_receipt": true,
+    "brightness_before": 100,
+    "brightness_changed_and_saved": 89,
+    "brightness_restored": 100,
+    "level_restored": 56,
+    "exp_restored": 268240,
+    "dungeon_restored": {
+      "phase": 5,
+      "node": 7,
+      "count": 3,
+      "run": 2
+    },
+    "reexport_semantic_comparison": "passed",
+    "production_receiver_reexport_verified": true
+  },
+  "historical_versions": "V5-V30 host migration and isolated real NVS; device cross-build V30 roundtrip"
+}

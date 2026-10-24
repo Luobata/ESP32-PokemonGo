@@ -187,9 +187,12 @@ static void overflow(void){
 static void run_migration(void){
  setup();assert(sizeof(dungeon_history)==sizeof(dungeon_v3_t));
  memcpy(run_disk,dungeon_history,sizeof(dungeon_history));run_len=sizeof(dungeon_history);loaded=false;dungeon_load();
- assert(run.version==4&&!run.theme&&run.phase==DUNGEON_FORK&&run.seed==91273&&run.run_id==23);
+ assert(run.version==6&&!run.theme&&run.phase==DUNGEON_FORK&&run.seed==91273&&run.run_id==23);
  assert(run.node==1&&run.cards==(1u<<3)&&run.count==2&&run.members[0].species_id==6&&run.members[1].species_id==9&&run.members[1].flags==1);
- assert(run.battle.session.sides[0].mons[0].hp==72&&dungeon_resume());tests++;
+ assert(run.battle.session.sides[0].mons[0].hp==72&&dungeon_resume());
+ const unsigned char *fixtures[]={dungeon_history_v4,dungeon_history_v5,dungeon_history_v6};size_t sizes[]={sizeof(dungeon_history_v4),sizeof(dungeon_history_v5),sizeof(dungeon_history_v6)};
+ for(unsigned i=0;i<3;i++){memcpy(run_disk,fixtures[i],sizes[i]);run_len=sizes[i];loaded=false;dungeon_load();assert(!storage_error&&run.version==6&&run.theme==4&&run.challenge==1&&run.trail==1&&run.boss_variant==2&&run.members[1].flags==1&&run.battle.session.sides[0].mons[0].hp==72);}
+ tests++;
 }
 int main(void){assert(assets_init());habitats();odds();trail_rules();trail_levels();world_level_rules();region_transactions();theme_rewards();overflow();run_migration();printf("{\"passed\":true,\"maps\":8,\"themes\":9,\"samples\":246424,\"trail_samples\":%u,\"checks\":%u,\"save_bytes\":%zu,\"sanitizers\":true}\n",trail_samples,tests,sizeof(save_t));return 0;}
 '''

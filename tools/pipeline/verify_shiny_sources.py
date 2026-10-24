@@ -57,7 +57,7 @@ static void clear_partner(void){
  assert(!s_queue.count&&!run.receipt.partner_species);tests++;
 }
 static void legacy_layout(void){
- struct old_receipt {uint32_t xp;inventory_t items;uint8_t first_clear,first_elite,full;};
+ struct old_receipt {uint32_t xp;inventory_v25_t items;uint8_t first_clear,first_elite,full;};
  _Static_assert(sizeof(struct old_receipt)==sizeof(dungeon_receipt_t),"receipt size unchanged");
  struct old_receipt old;memset(&old,0,sizeof(old));old.xp=100;old.first_clear=1;
  dungeon_receipt_t migrated;memcpy(&migrated,&old,sizeof(old));

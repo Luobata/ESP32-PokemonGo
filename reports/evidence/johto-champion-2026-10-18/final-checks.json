@@ -1,0 +1,27 @@
+{
+  "batch_checks": 22,
+  "batch_passed": true,
+  "champion_transactions": "passed; includes ordinary V29 active battle, three Elm challenges, invalid endgame rejection and 753-slot claim",
+  "native_ui": {
+    "passed": true,
+    "native_build": "7996b7ec71651bb2d118",
+    "checks": 259,
+    "scope": "native UI with fixtures; production battle/persistence validated separately"
+  },
+  "web_preview": {
+    "status": 200,
+    "page": "P17",
+    "version": "7996b7ec71651bb2d118",
+    "mismatch": "0",
+    "bytes": 153600
+  },
+  "battle_simulations": 3780,
+  "combat_system": "passed",
+  "trainer_campaign": "passed",
+  "esp32_build": "passed",
+  "save_stack": "passed",
+  "dungeon_stack": "passed",
+  "font_missing_characters": 0,
+  "hardware_validation": false,
+  "published": false
+}

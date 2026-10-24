@@ -12,7 +12,7 @@ ROOT = Path(__file__).resolve().parent
 # Explicit public allowlist, shared by Pages, offline ZIP and deployment.
 WEB_FILES = ('index.html', 'style.css', 'app.mjs', 'backup.mjs',
              'guide/index.html', 'guide/guide.css', 'guide/guide.mjs',
-             'guide/catalog.js', 'guide/pokemon.png', 'guide/battle.png')
+             'guide/catalog.js', 'guide/fieldwork.js', 'guide/pokemon.png', 'guide/battle.png')
 BUNDLE_FILES = ('server.py', *(f'web/{name}' for name in WEB_FILES))
 
 def local_bundle():

@@ -155,7 +155,7 @@ static const char *error_text(exploration_kind_t kind){
  case EXPLORE_RESEARCH_LOCKED:return "研究条件还未完成";
  case EXPLORE_RESEARCH_CLAIMED:return "本路线奖励已领取";
  case EXPLORE_NO_STAMINA:return "体力不足 请等待恢复";
- case EXPLORE_BLOCKED:return "先处理列表中的同类伙伴";
+ case EXPLORE_BLOCKED:return "本次探索未完成 请重试";
  case EXPLORE_BUSY:return "请先完成当前对战";
  case EXPLORE_SAVE_FAILED:return "保存失败 资源未扣除";
  default:return "暂时无法探索";

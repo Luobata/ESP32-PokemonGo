@@ -67,7 +67,7 @@ typedef struct {
  exploration_region_progress_t region[EXPLORATION_REGIONS];
  uint8_t selected,dungeon_pity;
  uint16_t expedition_clears;
- inventory_t pending_items;
+ inventory_v25_t pending_items;
  encounter_t pending_partner;
 } exploration_regions_t;
 typedef struct {

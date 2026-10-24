@@ -9,7 +9,7 @@ void sound_mixer_effect(sound_mixer_t *m,sfx_id_t id) { if((unsigned)id>=SFX_COU
 void sound_mixer_move(sound_mixer_t *m,uint16_t id,uint8_t type,bool missed) {
  m->is_cry=false;m->move_id=id;m->move_type=type%17;m->missed=missed;m->is_move=m->active=true;m->effect_at=0;
 }
-void sound_mixer_cry(sound_mixer_t *m,uint16_t species) { cry_start(&m->cry,species);m->is_cry=true;m->active=species>0&&species<=151;m->is_move=false; }
+void sound_mixer_cry(sound_mixer_t *m,uint16_t species) { cry_start(&m->cry,species);m->is_cry=true;m->active=species>0&&species<=251;m->is_move=false; }
 static int16_t move_sample(const sound_mixer_t *m,uint32_t at) {
  uint32_t ms=at*1000u/AUDIO_SAMPLE_RATE;
  if(ms>=700)return 0;

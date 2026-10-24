@@ -1,0 +1,46 @@
+[
+  {
+    "file": "gold_fx_data.h",
+    "sha256": "955c8f1c0cf84aabe0505e05308d838ab29872234b122cf7837c5fdfda5c26f2"
+  },
+  {
+    "file": "pokemon_animation_assets.h",
+    "sha256": "38997024be9d18cb0c88c504207eaafc4149ee97cb4d889aa291b9a0030684c4"
+  },
+  {
+    "file": "pokemon_slow_timing.h",
+    "sha256": "18a244c05efc7af717b506525e08ac1009b79ece29c042346fc6a669d2daa455"
+  },
+  {
+    "file": "battle_fx.c",
+    "sha256": "e5cf9b570920c5e99c3f65f03ec1848c1536d79dfc3a56f2280d1570a143b455"
+  },
+  {
+    "file": "gold_fx.c",
+    "sha256": "48f59be50bab35922c526cfd1fa54fac52b31d5bdb5f06963f09da193920152a"
+  },
+  {
+    "file": "render.c",
+    "sha256": "b52ada1ce1ef4929328da72b9777a178b6a36088a7d411bf48f6a7484f228956"
+  },
+  {
+    "file": "screen.c",
+    "sha256": "81b8939413f1e46a8411c5936d86a95122f51c14d55a3effa1a8aec74e21a207"
+  },
+  {
+    "file": "music.c",
+    "sha256": "cbc557a1b9ea4a3df914a27facb51fc7fa4063fc964e78ff091bc21aafd182e9"
+  },
+  {
+    "file": "sound_mixer.c",
+    "sha256": "4b2af1fe3d0dea0421bd3b8ae8813ca99e2acee6a1a5b517746c0e9b877f182d"
+  },
+  {
+    "file": "pokemon_animation.c",
+    "sha256": "886e41777444fe04fa7d185ee0e399600319dfb3abe306d37e20d450de4818a6"
+  },
+  {
+    "file": "shiny_entry.c",
+    "sha256": "56920e371d5076a11e69e9f32a89a4dc9b0ffa1cf2f2bbbc404b13bc01d57508"
+  }
+]

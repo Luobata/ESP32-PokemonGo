@@ -1,0 +1,15 @@
+{
+  "AGENTS.md": "8240e3bb7420f2314c5945eff54786a78ca96246bc38199a4d3121c8f2689640",
+  "firmware/main/johto_routes.c": "ad6da8d770794a41f055ee07e33263ced5d1bda2f5ae624ecb5134bf141f02f8",
+  "firmware/main/johto_routes.h": "db0bf2ee3999e12f370ef0d873199d987f7b4ef261e599801c7952347638eee9",
+  "firmware/main/play_johto.c": "7fa435b9822df3e9032e2ed58fd1e26262bdbe857086c5f0032791ae71ab8e6a",
+  "assets/font16.bin": "6bd2c9738c0de1338eb6068839f08074e818ae3875b2f22bea8f858078f1e6ea",
+  "tools/pipeline/export_fieldwork_guide.py": "4096d415f631abf433c235b4f327cb60376ea7bfa7b54b392fafa66391fedbf1",
+  "tools/pipeline/verify_guide.py": "5daf9ee38392ad132d5ce51de16ee2d9ecaab45e66dbf5587de7a2e92a982504",
+  "tools/pipeline/verify_johto_fieldwork.py": "40c7031b0cce3356c5ce4e7ddf1dfcbde5301b78f676ce45110dd6b3f8dddcba",
+  "tools/pipeline/verify_johto_fieldwork_ui.py": "2b5579647d1f9d419cd288009a3e14f759dc6f75776d751b0c8faedd47992e93",
+  "tools/save-manager/server.py": "6ea58b8f7ef42a98b38b63816383126a79e85514c0320a0124fc88f3204b9852",
+  "tools/save-manager/web/guide/guide.mjs": "6cf1162d5eac5633a3bb73a1452bf879fd579bc049c9761c20741aa98f16cee4",
+  "tools/save-manager/web/guide/guide.css": "0f064be1e6575d828e21ee2529e4b350742f7df6891e5169cf9e16a6234ec1bf",
+  "tools/save-manager/web/guide/fieldwork.js": "d144933394fd040880769f68d9c0b5d1148a18d504e5fe0f1fe76ca685a85089"
+}

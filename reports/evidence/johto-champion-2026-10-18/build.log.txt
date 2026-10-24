@@ -1,0 +1,34 @@
+字库已同步（扫 firmware/main/*.c 的中文）
+Executing action: all (aliases: build)
+Running ninja in directory /Users/bytedance/luobata/ESP32-PokemonGo/firmware/build
+Executing "ninja all"...
+[1/12] Generating ../../font16.bin.S
+[2/12] Performing build step for 'bootloader'
+[1/1] cd /Users/bytedance/luobata/ESP32-PokemonGo/firmware/build/bootloader/esp-idf/esptool_py && /Users/bytedance/.espressif/python_env/idf5.5_py3.9_env/bin/python /Users/bytedance/esp/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 bootloader 0x0 /Users/bytedance/luobata/ESP32-PokemonGo/firmware/build/bootloader/bootloader.bin
+Bootloader binary size 0x5890 bytes. 0x2770 bytes (31%) free.
+[3/12] No install step for 'bootloader'
+[4/12] Completed 'bootloader'
+[5/12] Building ASM object esp-idf/main/CMakeFiles/__idf_main.dir/__/__/font16.bin.S.obj
+[6/12] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/gym_rules.c.obj
+[7/12] Building C object esp-idf/main/CMakeFiles/__idf_main.dir/world.c.obj
+[8/12] Linking C static library esp-idf/main/libmain.a
+[9/12] Generating esp-idf/esp_system/ld/sections.ld
+[10/12] Linking CXX executable PokeWalk.elf
+[11/12] Generating binary image from built executable
+esptool.py v4.12.0
+Creating esp32c3 image...
+Merged 1 ELF section
+Successfully created esp32c3 image.
+Generated /Users/bytedance/luobata/ESP32-PokemonGo/firmware/build/PokeWalk.bin
+[12/12] cd /Users/bytedance/luobata/ESP32-PokemonGo/firmware/build/esp-idf/esptool_py && /Users/bytedance/.espressif/python_env/idf5.5_py3.9_env/bin/python /Users/bytedance/esp/esp-idf/components/partition_table/check_sizes.py --offset 0x8000 partition --type app /Users/bytedance/luobata/ESP32-PokemonGo/firmware/build/partition_table/partition-table.bin /Users/bytedance/luobata/ESP32-PokemonGo/firmware/build/PokeWalk.bin
+Warning: 1/2 app partitions are too small for binary PokeWalk.bin size 0x2fbeb0:
+  - Part 'recovery' 0/32 @ 0x700000 size 0x100000 (overflow 0x1fbeb0)
+
+Project build complete. To flash, run:
+ idf.py flash
+or
+ idf.py -p PORT flash
+or
+ python -m esptool --chip esp32c3 -b 460800 --before default_reset --after hard_reset write_flash --flash_mode dio --flash_size 8MB --flash_freq 80m 0x0 build/bootloader/bootloader.bin 0x8000 build/partition_table/partition-table.bin 0x10000 build/PokeWalk.bin
+or from the "/Users/bytedance/luobata/ESP32-PokemonGo/firmware/build" directory
+ python -m esptool --chip esp32c3 -b 460800 --before default_reset --after hard_reset write_flash "@flash_args"

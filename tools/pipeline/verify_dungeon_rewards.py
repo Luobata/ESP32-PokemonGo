@@ -58,7 +58,7 @@ static void rewards(void){
  dungeon_reward_plan(7,1,&p,&r);assert(r.first_clear&&r.items.quantity[ITEM_ULTRA]==2&&r.items.quantity[ITEM_LEAF_STONE]==1);
  p.clears=2;dungeon_reward_plan(7,1,&p,&r);assert(!r.first_clear&&r.items.quantity[ITEM_LINK_MACHINE]>=1);
  p.clears=9;dungeon_reward_plan(7,1,&p,&r);assert(r.items.quantity[ITEM_GROWTH_MACHINE]==1);tests++;
- setup();assert(dungeon_new(chosen,3,20));for(unsigned i=0;i<ITEM_COUNT;i++)s_inventory.quantity[i]=items_capacity(i);world_debug_save();win(7);assert(dungeon_finish());assert(run.receipt.full);for(unsigned i=0;i<ITEM_COUNT;i++)assert(!run.receipt.items.quantity[i]);tests++;
+ setup();assert(dungeon_new(chosen,3,20));for(unsigned i=0;i<ITEM_COUNT;i++)s_inventory.quantity[i]=items_capacity(i);world_debug_save();win(7);assert(dungeon_finish());assert(run.receipt.full);for(unsigned i=0;i<ITEM_LEGACY_COUNT;i++)assert(!run.receipt.items.quantity[i]);tests++;
 }
 static void combos(void){
  setup();assert(dungeon_new(chosen,3,123));dungeon_t base=run;

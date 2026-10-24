@@ -1,0 +1,26 @@
+{
+  "tested_sha256": "bd7eb3b4b2be3df9a3e89fdca705fa5f8c27171738096cbdc3761bbb7eb3ac56",
+  "rebuild_sha256": "e65843fcca2c3de4b175fc0874afea766cb309b6e2719e584fc73dd46ff7cb3b",
+  "size": 3202208,
+  "different_bytes": 89,
+  "permitted_metadata_ranges": [
+    [
+      48,
+      80
+    ],
+    [
+      112,
+      128
+    ],
+    [
+      176,
+      208
+    ],
+    [
+      3202175,
+      3202208
+    ]
+  ],
+  "code_and_assets_equal": true,
+  "publishing_tested_original": true
+}

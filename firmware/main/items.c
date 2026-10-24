@@ -23,9 +23,14 @@ static const item_info_t INFO[ITEM_COUNT] = {
     {"活力根", "饱食加十，心情加二十", ITEM_KIND_CARE},
     {"哞哞牛奶", "饱食加二十，心情加十", ITEM_KIND_CARE},
     {"开心饼干", "心情加二十五，亲密加二", ITEM_KIND_CARE},
+    {"太阳之石", "臭臭花与向日种子进化", ITEM_KIND_STONE},
+    {"金属膜", "大岩蛇与飞天螳螂进化", ITEM_KIND_MACHINE},
+    {"王者之证", "蚊香君与呆呆兽进化", ITEM_KIND_MACHINE},
+    {"龙之鳞片", "海刺龙进化", ITEM_KIND_MACHINE},
+    {"升级数据", "多边兽进化", ITEM_KIND_MACHINE},
 };
 static const uint8_t CAPACITY[ITEM_COUNT] = {
-    99,30,20,1,20,20,20,20, 9,9,9,9,9, 5,5, 30,30,30,30,
+    99,30,20,1,20,20,20,20, 9,9,9,9,9, 5,5, 30,30,30,30, 9,9,9,9,9,
 };
 
 const item_info_t *items_info(uint8_t id) { return id < ITEM_COUNT ? &INFO[id] : NULL; }
@@ -50,6 +55,15 @@ bool items_inventory_valid(const inventory_t *inventory)
     return true;
 }
 
+bool items_legacy_inventory_valid(const inventory_v25_t *p) {
+    if (!p) return false;
+    for (unsigned i=0;i<ITEM_LEGACY_COUNT;i++) if(p->quantity[i]>CAPACITY[i]) return false;
+    return true;
+}
+void items_legacy_inventory_init(inventory_v25_t *p) {
+    inventory_t current; items_inventory_init(&current);
+    memcpy(p->quantity,current.quantity,sizeof(p->quantity));
+}
 static uint32_t next_random(uint32_t *state)
 {
     uint32_t x = *state;
@@ -141,7 +155,7 @@ static int32_t add_axis(int32_t before, int amount)
 item_use_status_t items_apply(uint8_t id, uint16_t species, uint8_t level,
                               const nurture_t *before, item_use_result_t *out)
 {
-    if (!before || !out || id >= ITEM_COUNT || species < 1 || species > 151)
+    if (!before || !out || id >= ITEM_COUNT || species < 1 || species > 251)
         return ITEM_USE_INVALID;
     *out = (item_use_result_t){.species_before = species, .species_after = species,
                              .before = *before, .after = *before};
@@ -152,9 +166,13 @@ item_use_status_t items_apply(uint8_t id, uint16_t species, uint8_t level,
         {ITEM_WATER_STONE,61,62},{ITEM_WATER_STONE,90,91},{ITEM_WATER_STONE,120,121},{ITEM_WATER_STONE,133,134},
         {ITEM_THUNDER_STONE,25,26},{ITEM_THUNDER_STONE,133,135},
         {ITEM_LEAF_STONE,44,45},{ITEM_LEAF_STONE,70,71},{ITEM_LEAF_STONE,102,103},
+        {ITEM_SUN_STONE,44,182},{ITEM_SUN_STONE,191,192},
+        {ITEM_METAL_COAT,95,208},{ITEM_METAL_COAT,123,212},
+        {ITEM_KINGS_ROCK,61,186},{ITEM_KINGS_ROCK,79,199},
+        {ITEM_DRAGON_SCALE,117,230},{ITEM_UPGRADE,137,233},
         {ITEM_MOON_STONE,30,31},{ITEM_MOON_STONE,33,34},{ITEM_MOON_STONE,35,36},{ITEM_MOON_STONE,39,40},
     };
-    if (id <= ITEM_MOON_STONE) {
+    if (id <= ITEM_MOON_STONE || id >= ITEM_SUN_STONE) {
         for (unsigned i = 0; i < sizeof(stone_targets)/sizeof(stone_targets[0]); i++)
             if (stone_targets[i][0] == id && stone_targets[i][1] == species)
                 out->species_after = stone_targets[i][2];

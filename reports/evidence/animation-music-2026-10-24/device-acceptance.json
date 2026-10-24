@@ -1,0 +1,48 @@
+{
+  "firmware_sha256": "00e740ad166bf6625e610d2b11b57e8e93e6cba9a6814dae765742a13820f769",
+  "saved_before_flash": true,
+  "flash_protected_data_unchanged": true,
+  "source_save_version": 30,
+  "target_save_version": 30,
+  "cross_build_import": true,
+  "bytes": 73728,
+  "production_web_receiver": true,
+  "prebackup_readback_ack": true,
+  "device_confirmation": true,
+  "brightness_before": 100,
+  "brightness_changed_and_persisted": 89,
+  "brightness_restored": 100,
+  "matching_reboot_receipt": true,
+  "post_restore_export_verified": true,
+  "same_persisted_fields": [
+    "party/warehouse and move policies",
+    "level/experience",
+    "Pokedex",
+    "inventory",
+    "achievements",
+    "dungeon",
+    "research rewards",
+    "exploration wins",
+    "trainer challenge",
+    "Johto",
+    "activities",
+    "story",
+    "endgame"
+  ],
+  "excluded_natural_changes": [
+    "elapsed time",
+    "Wi-Fi scans/encounter queue",
+    "time-based stamina/mood"
+  ],
+  "import_memory": {
+    "valid": 1,
+    "free": 15960,
+    "minimum": 11496,
+    "largest": 11264,
+    "stack_free": 1764
+  },
+  "final_page": "idle",
+  "no_collection_progress_changed_by_tests": true,
+  "wifi_scans_during_import": 4,
+  "scope": "Physical USB/firmware + production web Receiver with automation transport; no browser UI interaction or offline HTML UI interaction this run"
+}

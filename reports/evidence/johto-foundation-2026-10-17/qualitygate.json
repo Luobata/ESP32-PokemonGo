@@ -1,0 +1,15 @@
+{
+  "gate": "pass",
+  "raw_gate": "pass",
+  "block_merge": false,
+  "execution_complete": true,
+  "mutation_status": "not_applicable",
+  "quality_confidence": "full",
+  "incomplete_engines": [],
+  "semantic_model_review_performed": true,
+  "reason": "Central code rules did not match most embedded paths",
+  "mutation_policy": "disabled; not executed",
+  "semantic_scope": "Two JSON data files only, not the whole embedded implementation",
+  "local_run_id": "37c4a538ed7100b91683be17",
+  "local_changed_path_count": 32
+}

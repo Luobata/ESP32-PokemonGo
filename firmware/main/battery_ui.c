@@ -15,6 +15,9 @@ static int percent = -1;
 static int64_t sampled_at;
 static bool sampled;
 static uint32_t playtime_minutes;
+static void (*status_redraw)(void);
+
+void battery_ui_set_redraw(void (*redraw)(void)) { status_redraw = redraw; }
 
 void battery_ui_playtime_text(char *out, size_t size)
 {
@@ -66,17 +69,22 @@ void battery_ui_draw(int band_y, int right, int y)
 static void tick(lv_timer_t *t)
 {
     (void)t;
-    if (sample()) screen_redraw_current();
+    if (sample()) {
+        if (status_redraw) status_redraw();
+        else screen_redraw_current();
+    }
 }
 
 void battery_ui_start(void)
 {
+    status_redraw = NULL;
     sample();
     if (!timer) timer = lv_timer_create(tick, 1000, NULL);
 }
 
 void battery_ui_stop(void)
 {
+    status_redraw = NULL;
     if (timer) lv_timer_delete(timer);
     timer = NULL;
     sampled = false;

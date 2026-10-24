@@ -1,0 +1,9 @@
+{
+  "local_gate": "pass",
+  "matched_rules": 0,
+  "independent_semantic_review": false,
+  "semantic_status": "no_targets",
+  "fingerprint": "qgcf_5f6be7ef76d24dab5d5bb0e05a69ba452577919afb66f083cdb5a07d3408cb73",
+  "mutation_status": "not_applicable",
+  "note": "No matching QualityGate rules; project checks and actual device validation provide the evidence."
+}

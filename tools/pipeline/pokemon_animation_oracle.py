@@ -41,7 +41,7 @@ def rgb565(c: tuple[int, int, int]) -> int:
     return red * 2048 + (green * 2 + green // 16) * 32 + blue
 
 
-def original_ticks(text: str, frame_count: int) -> list[int]:
+def original_ticks(text: str, frame_count: int, speed: int = 0) -> list[int]:
     instructions = []
     for raw in text.splitlines():
         code = raw.partition(';')[0].strip()
@@ -71,7 +71,7 @@ def original_ticks(text: str, frame_count: int) -> list[int]:
                 current, duration = args
                 if not 0 <= current < frame_count or not 1 <= duration <= 255:
                     raise AssertionError('invalid source frame/wait')
-                wait = duration - 1
+                wait = duration + duration * speed // 16 - 1
                 frames.append(current)
                 break
             if instruction == 'setrepeat':
@@ -91,7 +91,7 @@ def original_ticks(text: str, frame_count: int) -> list[int]:
     raise AssertionError('unterminated original animation script')
 
 
-def load_original(src: Path) -> tuple[dict[int, OriginalMotion], dict[str, str]]:
+def load_original(src: Path, count: int = 151) -> tuple[dict[int, OriginalMotion], dict[str, str]]:
     listing = subprocess.check_output(['git', '-C', str(src), 'ls-tree', '-r', COMMIT], text=True)
     blobs = {line.split('\t', 1)[1]: line.split()[2] for line in listing.splitlines()}
     hashes = {}
@@ -105,8 +105,8 @@ def load_original(src: Path) -> tuple[dict[int, OriginalMotion], dict[str, str]]
         return content
 
     names = re.findall(r'INCBIN "gfx/pokemon/([^/]+)/normal\.gbcpal", middle_colors',
-                       pinned('data/pokemon/palettes.asm').decode())[:151]
-    if len(names) != 151:
+                       pinned('data/pokemon/palettes.asm').decode())[:count]
+    if count not in (151,251) or len(names) != count:
         raise AssertionError('missing original species palette mapping')
     reverse = set(re.findall(r'gfx/pokemon/([^/]+)/normal\.gbcpal: tools/gbcpal \+= --reverse',
                              pinned('Makefile').decode()))
@@ -123,7 +123,8 @@ def load_original(src: Path) -> tuple[dict[int, OriginalMotion], dict[str, str]]
         for species, slug in enumerate(names, 1):
             inputs, front_pixels, size = [], [], 0
             for view in ('front', 'back'):
-                path = f'gfx/pokemon/{slug}/{view}.png'
+                image_slug = 'unown_a' if slug == 'unown' else slug
+                path = f'gfx/pokemon/{image_slug}/{view}.png'
                 pinned(path)
                 with Image.open(src / path) as picture:
                     width, height = picture.size
@@ -151,7 +152,7 @@ def load_original(src: Path) -> tuple[dict[int, OriginalMotion], dict[str, str]]
             if len(shiny) != 4:
                 raise AssertionError('invalid original shiny palette')
             squares = [front_pixels[i:i + size*size] for i in range(0, len(front_pixels), size*size)]
-            sequence = original_ticks(pinned(f'gfx/pokemon/{slug}/anim.asm').decode(), len(squares))
+            sequence = original_ticks(pinned(f'gfx/pokemon/{image_slug}/anim.asm').decode(), len(squares))
             used = {0, *sequence}
             points = [(i % size, i // size) for frame in used
                       for i, color in enumerate(squares[frame]) if color != WHITE]

@@ -1,0 +1,39 @@
+{
+  "app_sha256": "766d96d02ea96f7b34e76a2e53c2b0c1d456d7738822bd6e6d3cc2ec4f788fec",
+  "flash": {
+    "app_only": true,
+    "protected_ranges_unchanged": true,
+    "partition_changed": false
+  },
+  "save_version": 30,
+  "container_version": 4,
+  "payload_bytes": 73728,
+  "initial_import": {
+    "result": "TIMEOUT",
+    "last_ack_offset": 27904,
+    "current_progress_preserved": true,
+    "cause_confirmed": false
+  },
+  "retry": {
+    "result": "restored",
+    "reboot_receipt_crc_matches": true,
+    "brightness_before": 100,
+    "brightness_changed": 89,
+    "brightness_after": 100,
+    "before_after_decode_equal": [
+      "members_and_policies",
+      "level_and_experience",
+      "dex",
+      "inventory",
+      "challenge",
+      "johto",
+      "activities",
+      "story",
+      "endgame"
+    ]
+  },
+  "final_page": "idle",
+  "private_backups_excluded": true,
+  "browser_ui_e2e": false,
+  "production_web_receiver_used": true
+}

@@ -1,0 +1,10 @@
+{
+  "local_gate": "pass",
+  "mutation_status": "not_applicable",
+  "semantic_status": "no_targets",
+  "model_review_performed": false,
+  "central_repository_ready": false,
+  "readiness_gap": "No matching registered domain and semantic rules for this C repository; local compile, project tests and device checks were run separately.",
+  "fingerprint": "qgcf_95871e45bbe2d2a7903c0033647ac6f7642866a868687647518bece579e51581",
+  "findings": []
+}

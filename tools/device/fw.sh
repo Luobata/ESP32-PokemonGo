@@ -86,6 +86,11 @@ backup)
   ;;
 
 flash)
+  if [ -f "$FW/build/CMakeCache.txt" ] && \
+     grep -Eq '^POKEWALK_ASSET_PROBE_DIR:[^=]*=.+$' "$FW/build/CMakeCache.txt"; then
+    echo "拒绝烧录素材容量试验构建；请先恢复正式构建配置。" >&2
+    exit 1
+  fi
   regen_font
   # 硬门禁：没有任何备份就拒绝烧写
   if ! ls "$BACKUP_DIR"/flash-*.bin >/dev/null 2>&1; then

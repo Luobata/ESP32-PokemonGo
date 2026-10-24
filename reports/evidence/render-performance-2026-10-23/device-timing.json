@@ -1,0 +1,309 @@
+{
+  "scope": "ESP32-C3 full-page redraw, 16 bands, 3 replays, medians; not animation FPS",
+  "before": [
+    {
+      "page": 0,
+      "label": "idle",
+      "samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 160814,
+          "draw_us": 115951,
+          "push_us": 44863
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 167635,
+          "draw_us": 121455,
+          "push_us": 46180
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 170189,
+          "draw_us": 126373,
+          "push_us": 43816
+        }
+      ]
+    },
+    {
+      "page": 6,
+      "label": "care",
+      "samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 265180,
+          "draw_us": 214900,
+          "push_us": 50280
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 263108,
+          "draw_us": 210391,
+          "push_us": 52717
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 264551,
+          "draw_us": 215094,
+          "push_us": 49457
+        }
+      ]
+    },
+    {
+      "page": 9,
+      "label": "menu",
+      "samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 234520,
+          "draw_us": 185895,
+          "push_us": 48625
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 233223,
+          "draw_us": 181143,
+          "push_us": 52080
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 237791,
+          "draw_us": 193517,
+          "push_us": 44274
+        }
+      ]
+    },
+    {
+      "page": 10,
+      "label": "party",
+      "samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 322237,
+          "draw_us": 277003,
+          "push_us": 45234
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 324353,
+          "draw_us": 279857,
+          "push_us": 44496
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 324403,
+          "draw_us": 276005,
+          "push_us": 48398
+        }
+      ]
+    },
+    {
+      "page": 15,
+      "label": "johto",
+      "samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 155783,
+          "draw_us": 105617,
+          "push_us": 50166
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 153662,
+          "draw_us": 101806,
+          "push_us": 51856
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 154235,
+          "draw_us": 102176,
+          "push_us": 52059
+        }
+      ]
+    }
+  ],
+  "after": [
+    {
+      "page": 0,
+      "label": "idle",
+      "samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 71918,
+          "draw_us": 24798,
+          "push_us": 47120
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 73263,
+          "draw_us": 25436,
+          "push_us": 47827
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 79947,
+          "draw_us": 33664,
+          "push_us": 46283
+        }
+      ]
+    },
+    {
+      "page": 6,
+      "label": "care",
+      "samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 100748,
+          "draw_us": 48381,
+          "push_us": 52367
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 104514,
+          "draw_us": 52045,
+          "push_us": 52469
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 107658,
+          "draw_us": 53187,
+          "push_us": 54471
+        }
+      ]
+    },
+    {
+      "page": 9,
+      "label": "menu",
+      "samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 106235,
+          "draw_us": 55421,
+          "push_us": 50814
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 108393,
+          "draw_us": 64791,
+          "push_us": 43602
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 108448,
+          "draw_us": 59839,
+          "push_us": 48609
+        }
+      ]
+    },
+    {
+      "page": 10,
+      "label": "party",
+      "samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 113053,
+          "draw_us": 68463,
+          "push_us": 44590
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 115134,
+          "draw_us": 67520,
+          "push_us": 47614
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 114115,
+          "draw_us": 69537,
+          "push_us": 44578
+        }
+      ]
+    },
+    {
+      "page": 15,
+      "label": "johto",
+      "samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 67222,
+          "draw_us": 20070,
+          "push_us": 47152
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 67141,
+          "draw_us": 16429,
+          "push_us": 50712
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 65669,
+          "draw_us": 19243,
+          "push_us": 46426
+        }
+      ]
+    }
+  ],
+  "summary": [
+    {
+      "page": "idle",
+      "before_ms": 167.635,
+      "after_ms": 73.263,
+      "reduction_percent": 56.3
+    },
+    {
+      "page": "care",
+      "before_ms": 264.551,
+      "after_ms": 104.514,
+      "reduction_percent": 60.5
+    },
+    {
+      "page": "menu",
+      "before_ms": 234.52,
+      "after_ms": 108.393,
+      "reduction_percent": 53.8
+    },
+    {
+      "page": "party",
+      "before_ms": 324.353,
+      "after_ms": 114.115,
+      "reduction_percent": 64.8
+    },
+    {
+      "page": "johto",
+      "before_ms": 154.235,
+      "after_ms": 67.141,
+      "reduction_percent": 56.5
+    }
+  ]
+}

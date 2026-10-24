@@ -48,8 +48,10 @@ with tempfile.TemporaryDirectory() as tmp:
 # Expanded storage must stay chunked. Catch accidental full-party locals and
 # fresh heap workspaces in the real target build, not just in host test binaries.
 module_limits={'save_bank':384,'save_bank_device':64,'usb_backup_device':384,
-               'restore_journal':448,'world':512,'play_capture':256,'play_party':512,'usb_backup':768}
+               'restore_journal':448,'world':512,'play_capture':256,'play_party':512,'usb_backup':768,'play_johto':1024,'johto':128,'johto_routes':256,'johto_activity':256,'activity_transactions':256,'play_activity':512,'johto_story':128,'story_transactions':256,'play_story':512,'play_narrative':512,'narrative_script':64,'gym_rules':128,'trainer':512,'combat':512,'play_trainer':1024}
 module_frames={}
+module_limits['dbg']=256  # USB and real navigation run on the serial task too.
+module_limits['console_record']=64  # Cross-task record framing; no import-time allocation.
 for module,limit in module_limits.items():
     entry=next(e for e in entries if e['file'].endswith('/main/'+module+'.c'))
     with tempfile.TemporaryDirectory() as tmp:
@@ -60,15 +62,21 @@ for module,limit in module_limits.items():
             source,size,kind=line.split('\t');assert kind=='static' and int(size)<=limit,(module,line)
             frames[source.rsplit(':',1)[-1]]=int(size)
         module_frames[module]=max(frames.values())
-        if module in ('save_bank','save_bank_device','usb_backup_device','restore_journal'):
+        if module in ('save_bank','save_bank_device','usb_backup_device','restore_journal','console_record'):
             symbols=subprocess.check_output([str(nm),'-S',str(obj)],text=True)
             assert not any(x.split()[-1] in ('malloc','calloc','realloc','heap_caps_malloc','heap_caps_calloc','alloca') for x in symbols.splitlines()),module
+            if module=='console_record':
+                mutex_bytes=sum(int(x.split()[1],16) for x in symbols.splitlines() if x.split()[-1] in ('s_record_storage','s_record_lock'))
+                assert 0<mutex_bytes<=128,mutex_bytes
+                assert 'xQueueCreateMutexStatic' in symbols and 'xQueueCreateMutex\n' not in symbols,symbols
 print(json.dumps({'expanded_storage_max_frame':module_frames,'new_storage_heap_allocations':0,'runtime_stack_measured':False,'passed':True}))
 
 # Wi-Fi throughput optimizations otherwise consume the RAM reclaimed for V23.
 # Static budgets are necessary but do not replace connected-device import tests.
 config=json.loads((ROOT/'firmware/build/config/sdkconfig.json').read_text())
 assert not config.get('ESP_WIFI_IRAM_OPT') and not config.get('ESP_WIFI_RX_IRAM_OPT'), 'Warehouse RAM budget requires Wi-Fi flash execution'
+if not config.get('POKEWALK_SILENT_BOOT'):
+    assert config.get('I2S_ISR_IRAM_SAFE'), 'Save-time audio DMA interrupt must stay cache-safe'
 iram=sum(int(x.split()[1]) for x in sizes.splitlines() if x.startswith('.iram'))
 assert iram<=80*1024, ('IRAM budget exceeded',iram)
 print(json.dumps({'wifi_hotpaths_in_flash':True,'iram_bytes':iram,'iram_budget_bytes':80*1024,'runtime_heap_measured':False,'passed':True}))

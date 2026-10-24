@@ -1,0 +1,15 @@
+/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/convert_font.py:264: DeprecationWarning: Image.Image.getdata is deprecated and will be removed in Pillow 14 (2027-10-15). Use get_flattened_data instead.
+  px = list(img.getdata())
+字体 PingFang SC Regular (index 2) @ 16px
+
+字符集 1499 个
+  宝可梦名字 319　UI 文案 1393　重叠 213
+
+assets/font16.bin
+  头部         14 B
+  码点索引   2998 B  (1499 × 2)
+  字形      47968 B  (1499 × 32)
+  合计      50980 B = 49.8 KB
+
+  对照：GB2312 全字库 6700 字 = 209 KB　子集省了 163 KB
+  字符集清单 → assets/font16_charset.txt

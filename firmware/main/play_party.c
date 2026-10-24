@@ -18,21 +18,27 @@
 #include "exp.h"
 #include "box_view.h"
 #include "battle.h"
+#include "evolution.h"
+#include "evolution_ui.h"
 
 #define ROW_Y 36
 #define ROW_H 36
 #define THUMB_SIZE 32
 
-SCREEN_ASSERT_WITHIN_BAND(party_title, 8, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(party_title, 8, 16);
 SCREEN_ASSERT_ALLOW_CROSS_BAND(party_detail_front, 64, 112);
-SCREEN_ASSERT_WITHIN_BAND(party_detail_stats, 184, 16);
-SCREEN_ASSERT_WITHIN_BAND(party_detail_exp, 208, 16);
-SCREEN_ASSERT_WITHIN_BAND(party_detail_feedback, 244, 16);
-SCREEN_ASSERT_WITHIN_BAND(party_box_count, 260, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(party_detail_stats, 184, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(party_detail_exp, 208, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(party_detail_feedback, 244, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(party_box_count, 260, 16);
 
 static world_party_t s_party;
 static uint8_t s_selected, s_action;
 static bool s_details,s_skills;
+static bool s_evolutions,s_evo_confirm;
+static unsigned s_evo_choice,s_evo_confirm_choice;
+static mon_t s_evo_expected;
+static evo_option_t s_evo_option;
 static unsigned s_skill;
 static move_policy_t s_policy;
 static bool s_box_mode,s_box_details;
@@ -90,9 +96,10 @@ static void member_name(const mon_t *member, char *out, size_t capacity)
 
 static void draw_front(int band_y, const mon_t *member, int x, int y, int w, int h, bool thumbnail)
 {
+    if (y + h <= band_y || y >= band_y + SCREEN_BAND_H) return;
     uint8_t size;
-    const uint8_t *front = assets_front_sprite(member->species_id, &size);
-    if (member == view_member() && s_motion.species == member->species_id && s_motion.sprite.data) {
+    const uint8_t *front = assets_front_form(member->species_id,member->special.traits.form, &size);
+    if (member->species_id!=201 && member == view_member() && s_motion.species == member->species_id && s_motion.sprite.data) {
         front = s_motion.sprite.data;
         size = s_motion.sprite.w;
         if (thumbnail) x += s_sway;
@@ -165,10 +172,10 @@ static void draw_detail(int band_y)
     const char *hint = s_feedback[0] ? s_feedback : s_box_mode ? GAME_UI_BACK_HINT : GAME_UI_NAV_HINT;
     game_ui_text_centered(band_y, 16, 244, 208, 16, hint,
                          s_success ? GAME_UI_ACCENT : GAME_UI_INK);
-    static const char *const party_actions[] = {"出战", "道具", "技能", "仓库"};
-    static const char *const box_actions[] = {"换入", "技能", "放生"};
+    static const char *const party_actions[] = {"出战", "道具", "技能", "仓库", "进化"};
+    static const char *const box_actions[] = {"换入", "技能", "放生", "进化"};
     game_ui_actions(band_y, s_box_mode ? box_actions : party_actions,
-                    s_box_mode ? 3 : 4, s_action);
+                    s_box_mode ? 4 : 5, s_action);
 
 }
 
@@ -236,11 +243,53 @@ static void draw_box_menu(int band)
     game_ui_text_fitted(band, 8, 252, 224, hint, GAME_UI_MUTED);
     game_ui_footer(band, GAME_UI_NAV_HINT);
 }
-static void draw_all(void)
+static unsigned evolution_options(evo_option_t out[EVO_OPTION_MAX]) {
+ const mon_t *m=view_member();species_t sp;
+ return m&&assets_species(m->species_id,&sp)?evo_options(m->species_id,sp.evolve_trigger,sp.evolve_to,sp.evolve_level,out):0;
+}
+static bool evolution_ready(const evo_option_t *o) {
+ const mon_t *m=view_member();inventory_t bag;johto_state_t j;
+ world_inventory_snapshot(&bag);world_johto_snapshot(&j);
+ return m&&evo_option_ready(o,m->level,m->intimacy,johto_badges(&j),o->item==ITEM_NONE?0:bag.quantity[o->item]);
+}
+static void draw_evolutions(int band) {
+ evo_option_t options[EVO_OPTION_MAX];unsigned n=evolution_options(options);
+ const mon_t *m=view_member();if(!m)return;
+ char text[96];game_ui_title(band,s_evo_confirm?"确认进化":"进化分支",NULL);
+ if(!n){game_ui_text_centered(band,8,120,224,16,"当前伙伴没有进化分支",GAME_UI_MUTED);game_ui_footer(band,GAME_UI_BACK_HINT);return;}
+ if(s_evo_choice>=n)s_evo_choice=0;
+ const evo_option_t *o=s_evo_confirm?&s_evo_option:&options[s_evo_choice];
+ if(s_evo_confirm){
+  species_t sp;assets_species(o->target,&sp);snprintf(text,sizeof(text),"进化成%.*s？",sp.name_zh_len,sp.name_zh);
+  game_ui_text_fitted(band,16,64,208,text,GAME_UI_INK);
+  game_ui_text_centered(band,16,108,208,16,"等级 经验 闪光保留",GAME_UI_MUTED);
+  game_ui_text_centered(band,16,140,208,16,"技能设置跟随这只伙伴",GAME_UI_MUTED);
+  snprintf(text,sizeof(text),"%s",o->item==ITEM_NONE?"不消耗道具":items_info(o->item)->name);
+  game_ui_text_centered(band,16,188,208,16,text,GAME_UI_ACCENT);
+  static const char *const labels[]={"取消","确认进化"};game_ui_actions(band,labels,2,s_evo_confirm_choice);return;
+ }
+ for(unsigned i=0;i<n;i++){
+  species_t sp;assets_species(options[i].target,&sp);snprintf(text,sizeof(text),"%.*s",sp.name_zh_len,sp.name_zh);
+  game_ui_text_fitted(band,32,44+i*27,184,text,GAME_UI_INK);
+  if(i==s_evo_choice)game_ui_cursor(band,12,48+i*27);
+ }
+ inventory_t bag;world_inventory_snapshot(&bag);johto_state_t j;world_johto_snapshot(&j);
+ if(o->item!=ITEM_NONE)snprintf(text,sizeof(text),"%s %u/1",items_info(o->item)->name,bag.quantity[o->item]);
+ else if(o->intimacy)snprintf(text,sizeof(text),"亲密 %u/%u",m->intimacy,o->intimacy);
+ else snprintf(text,sizeof(text),"等级 %u/%u",m->level,o->level);
+ game_ui_text_centered(band,8,190,224,16,text,GAME_UI_INK);
+ if(o->badges)snprintf(text,sizeof(text),"城都徽章 %u/%u",johto_badges(&j),o->badges);
+ else snprintf(text,sizeof(text),"%s",o->item==ITEM_NONE?"不消耗道具":"消耗1个对应道具");
+ game_ui_text_centered(band,8,216,224,16,text,GAME_UI_MUTED);
+ game_ui_text_centered(band,8,246,224,16,s_feedback[0]?s_feedback:o->training?o->training:evolution_ready(o)?"条件满足 C选择":"继续培养或收集道具",GAME_UI_ACCENT);
+ game_ui_footer(band,GAME_UI_NAV_HINT);
+}
+static void draw_range(int top, int bottom)
 {
-    for (int y = 0; y < SCREEN_H; y += SCREEN_BAND_H) {
+    for (int y = top / SCREEN_BAND_H * SCREEN_BAND_H; y < bottom; y += SCREEN_BAND_H) {
         screen_band_clear(GAME_UI_BG);
-        if (s_release_confirm) {
+        if (s_evolutions) draw_evolutions(y);
+        else if (s_release_confirm) {
             char name[48], level[24];
             member_name(&s_release_expected, name, sizeof(name));
             snprintf(level, sizeof(level), "Lv%u", s_release_expected.level);
@@ -277,6 +326,8 @@ static void draw_all(void)
     }
 }
 
+static void draw_all(void) { draw_range(0, SCREEN_H); }
+
 static bool refresh_snapshot(void)
 {
     world_party_t fresh;
@@ -288,7 +339,7 @@ static bool refresh_snapshot(void)
     return changed;
 }
 
-static void refresh_tick(lv_timer_t *timer)
+static void refresh_tick_impl(lv_timer_t *timer)
 {
     (void)timer;
     bool changed = refresh_snapshot();
@@ -299,8 +350,25 @@ static void refresh_tick(lv_timer_t *timer)
     int previous = s_sway;
     s_sway_tick = (s_sway_tick + 1) % 40;
     s_sway = sway[s_sway_tick / 5];
-    if (pokemon_idle_step(&s_motion, 80) || changed || previous != s_sway) draw_all();
+    bool motion = pokemon_idle_step(&s_motion, 80) || previous != s_sway;
+    if (changed) draw_all();
+    else if (motion && member && !s_skills && !s_evolutions &&
+             !s_release_confirm && !s_end_dungeon && !s_box_menu) {
+        if (s_box_mode ? s_box_details : s_details) draw_range(64, 176);
+        else if (!s_box_mode) {
+            int top = ROW_Y + s_selected * ROW_H + 2;
+            draw_range(top, top + THUMB_SIZE);
+        }
+    }
 }
+
+static void refresh_tick(lv_timer_t *timer)
+{
+    screen_cadence_begin(80);
+    refresh_tick_impl(timer);
+    screen_cadence_end();
+}
+
 
 void play_party_enter(void)
 {
@@ -311,6 +379,7 @@ void play_party_enter(void)
     s_box_paging = false;
     s_end_dungeon = false;
     s_release_confirm = false;
+    s_evolutions=s_evo_confirm=false;
     s_release_choice = 0;
     s_end_choice = 0;
     s_success = false;
@@ -339,10 +408,10 @@ void play_party_presentation_snapshot(play_party_view_t *out)
         .feedback = s_feedback};
     if(s_skills&&view_member()){
         uint16_t ids[COMBAT_MOVE_CAP];out->skill_selected=s_skill;
-        out->skill_count=combat_known_moves(view_member()->species_id,view_member()->level,ids,COMBAT_MOVE_CAP);
+        out->skill_count=combat_individual_moves(view_member(),ids,COMBAT_MOVE_CAP);
         out->skill_id=s_skill<out->skill_count?ids[s_skill]:0;
         out->skill_enabled=move_policy_allows(&s_policy,out->skill_id);
-        out->skill_enabled_count=combat_enabled_moves(view_member()->species_id,view_member()->level,&s_policy);
+        out->skill_enabled_count=combat_individual_enabled(view_member(),&s_policy);
     }
 
 }
@@ -388,6 +457,25 @@ void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
     int direction = nav_direction(btn, ev);
     bool confirm = nav_confirm(btn, ev), back = nav_return(btn, ev);
+    if(s_evolutions){
+        if(back){if(s_evo_confirm)s_evo_confirm=false;else s_evolutions=false;s_feedback[0]=0;}
+        else if(s_evo_confirm){
+            s_evo_confirm_choice=nav_list_selection(btn,ev,2,s_evo_confirm_choice);
+            if(confirm){
+                if(!s_evo_confirm_choice)s_evo_confirm=false;
+                else if(evolution_ui_begin_individual(policy_slot(),&s_evo_expected,s_evo_option.target)){s_evolutions=s_evo_confirm=false;}
+            }
+        }else{
+            evo_option_t options[EVO_OPTION_MAX];unsigned n=evolution_options(options);
+            s_evo_choice=nav_list_selection(btn,ev,n,s_evo_choice);
+            if(confirm&&n){
+                if(evolution_ready(&options[s_evo_choice])){s_evo_expected=*view_member();s_evo_option=options[s_evo_choice];s_evo_confirm=true;s_evo_confirm_choice=0;}
+                else snprintf(s_feedback,sizeof(s_feedback),"进化条件尚未满足");
+            }else s_feedback[0]=0;
+        }
+        draw_all();return;
+    }
+
     if (s_release_confirm) {
         s_release_choice = nav_list_selection(btn, ev, 2, s_release_choice);
         if (back || (confirm && s_release_choice == 0)) {
@@ -470,7 +558,7 @@ void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         if (back) {s_skills = false;s_feedback[0]=0;}
         else if (ev==BSP_BTN_CLICK && view_member()) {
             uint16_t ids[COMBAT_MOVE_CAP];
-            int count = combat_known_moves(view_member()->species_id, view_member()->level, ids, COMBAT_MOVE_CAP);
+            int count = combat_individual_moves(view_member(), ids, COMBAT_MOVE_CAP);
             if(direction){s_skill=nav_list_selection(btn,ev,count+1,s_skill);s_feedback[0]=0;}
             else if(confirm){
                 unsigned id=s_skill<(unsigned)count?ids[s_skill]:0;
@@ -491,7 +579,7 @@ void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         s_feedback[0] = 0; draw_all(); return;
     }
     bool detail = s_box_mode ? s_box_details : s_details;
-    unsigned count = detail ? (s_box_mode ? 3 : 4) : s_box_mode ? s_box_count : s_party.count;
+    unsigned count = detail ? (s_box_mode ? 4 : 5) : s_box_mode ? s_box_count : s_party.count;
     unsigned choice = detail ? s_action : s_box_mode ? s_box_row : s_selected;
     choice = nav_list_selection(btn, ev, count, choice);
     if (detail) s_action = choice; else if (s_box_mode) s_box_row = choice; else s_selected = choice;
@@ -503,6 +591,7 @@ void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         if (s_box_mode) s_box_details = true; else s_details = true;
         s_action = 0; s_feedback[0] = 0; reset_motion(); draw_all(); return;
     }
+    if (s_action == (s_box_mode?3:4)) {s_evolutions=true;s_evo_confirm=false;s_evo_choice=0;s_feedback[0]=0;draw_all();return;}
     if (s_box_mode) {
         if (s_action == 1) { s_skills = true; s_skill = 0; s_feedback[0]=0; refresh_policy(); }
         else if (s_action == 2) {

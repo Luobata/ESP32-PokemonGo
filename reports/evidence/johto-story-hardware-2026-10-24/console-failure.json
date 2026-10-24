@@ -1,0 +1,15 @@
+{
+  "candidate_app_sha256": "262815a6c8f1151782d58b4a5293a7760abfdee364dceb9dff58f3b8a4c8f940",
+  "operation": "V31 restore after confirmed and verified pre-backup",
+  "last_host_upload_offset": 48000,
+  "uploaded_block_bytes": 128,
+  "expected_ack": "!PWBACKUP NEXT 2 48128",
+  "ack_observed_inside_wifi_json": true,
+  "bytes_before_ack_on_same_line": 384,
+  "result": "TIMEOUT",
+  "staging_committed": false,
+  "current_save_overwritten": false,
+  "host_test_limitation": "previous concurrency test shared one FILE; did not establish target-wide record serialization",
+  "fix": "static task-shared record mutex around Wi-Fi NDJSON and USB protocol emission including flush",
+  "underlying_stdio_identity_root_cause": "not established"
+}

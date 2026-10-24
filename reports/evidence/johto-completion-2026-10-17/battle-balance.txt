@@ -1,0 +1,10 @@
+profile=0 trainer=34 wins=44/80 mean_steps=101 max_steps=184
+profile=0 trainer=35 wins=67/80 mean_steps=102 max_steps=164
+profile=0 trainer=36 wins=63/80 mean_steps=79 max_steps=154
+profile=1 trainer=34 wins=25/80 mean_steps=64 max_steps=127
+profile=1 trainer=35 wins=64/80 mean_steps=79 max_steps=186
+profile=1 trainer=36 wins=39/80 mean_steps=80 max_steps=153
+profile=2 trainer=34 wins=0/80 mean_steps=58 max_steps=106
+profile=2 trainer=35 wins=0/80 mean_steps=83 max_steps=173
+profile=2 trainer=36 wins=2/80 mean_steps=61 max_steps=100
+

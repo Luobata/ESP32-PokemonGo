@@ -12,16 +12,16 @@ static const char *feedback;
 static void draw_all(void) {
  const achievement_info_t *a=achievement_info(selected);char text[96];
  unsigned progress=achievement_progress(&view,selected),ready=0;
- for(unsigned i=0;i<ACHIEVEMENT_COUNT;i++)if(!(view.store.claimed&(1u<<i))&&achievement_progress(&view,i)==achievement_info(i)->target)ready++;
+ for(unsigned i=0;i<ACHIEVEMENT_COUNT;i++)if(!achievement_claimed(&view,i)&&achievement_progress(&view,i)==achievement_info(i)->target)ready++;
  for(int y=0;y<SCREEN_H;y+=SCREEN_BAND_H){
   screen_band_clear(GAME_UI_BG);
-  snprintf(text,sizeof(text),"可领取 %u",ready);game_ui_title(y,"成就",text);
+  snprintf(text,sizeof(text),"可领取 %u",ready);game_ui_title(y,selected>=32&&selected<42?"冠军挑战成就":selected<16?"关都成就":selected>=23&&selected<=28?"收集成就":"城都成就",text);
   game_ui_box(y,8,40,224,136);
   unsigned top=selected/4*4;
   for(unsigned row=0;row<4&&top+row<ACHIEVEMENT_COUNT;row++){
    unsigned id=top+row;const achievement_info_t *r=achievement_info(id);int sy=56+row*28;
    render_text(32,sy-y,r->name,GAME_UI_INK);
-   const char *mark=view.store.claimed&(1u<<id)?"已领":achievement_progress(&view,id)==r->target?"可领":"";
+   const char *mark=achievement_claimed(&view,id)?"已领":achievement_progress(&view,id)==r->target?"可领":"";
    render_text(216-render_text_width(mark),sy-y,mark,GAME_UI_ACCENT);
    if(id==selected)game_ui_cursor(y,16,sy+4);
   }
@@ -38,6 +38,6 @@ void play_achievements_key(bsp_btn_t b,bsp_btn_ev_t e){
  if(nav_direction(b,e)!=0){selected=(selected+ACHIEVEMENT_COUNT+nav_direction(b,e))%ACHIEVEMENT_COUNT;feedback=0;}
  else if(e!=BSP_BTN_CLICK&&!nav_return(b,e))return;
  else if(nav_return(b,e)){nav_back(PAGE_MENU);return;}
- else if(nav_confirm(b,e)){static const char *messages[]={"奖励已放入背包","尚未达成 继续冒险","奖励已经领取","已领取 超量道具未增加","保存失败 按确认重试"};feedback=messages[world_achievement_claim(selected)];}
+ else if(nav_confirm(b,e)){static const char *messages[]={"奖励已放入背包","尚未达成 继续冒险","奖励已经领取","已领取 超量道具未增加","保存失败 按确认重试","道具已满 奖励保留"};feedback=messages[world_achievement_claim(selected)];}
  world_achievements_snapshot(&view);draw_all();
 }

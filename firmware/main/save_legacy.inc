@@ -1,9 +1,9 @@
 // Legacy decode kept independent of V23 capacity; uses the locked RTC scratch.
 static bool legacy_policies_valid(const save_v22_t *s) {
- for(unsigned i=0;i<PARTY_MAX+BOX_SPECIES;i++){
-  if(!move_policy_valid(&s->move_policies[i]))return false;
+ for(unsigned i=0;i<157;i++){
+  if(s->move_policies[i].disabled[23]&0x80)return false;
   bool active=i<PARTY_MAX?i<s->party[0]:s->party[2+i*MON_BYTES]!=0;
-  if(!active)for(unsigned b=0;b<MOVE_POLICY_BYTES;b++)if(s->move_policies[i].disabled[b])return false;
+  if(!active)for(unsigned b=0;b<24;b++)if(s->move_policies[i].disabled[b])return false;
  }
  return true;
 }
@@ -56,7 +56,7 @@ static save_read_result_t save_decode_legacy(save_v22_t *out, const void *blob, 
     if(version15||version16||version17||version18||version19||version20||version21)out->version=22;
     // V5-V11 used species-indexed cells. Validate before adopting physical slots.
     if (out->version < 12) {
-        for(unsigned i=0;i<BOX_SPECIES;i++) {
+        for(unsigned i=0;i<LEGACY_BOX_SPECIES;i++) {
             uint8_t id=out->party[2+(PARTY_MAX+i)*MON_BYTES];
             if(id && id!=i+1)return SAVE_READ_ERROR;
         }
@@ -69,9 +69,9 @@ static save_read_result_t save_decode_legacy(save_v22_t *out, const void *blob, 
         memcmp(&out->opening_seen, &yes, sizeof(yes)) != 0) return SAVE_READ_ERROR;
     out->opening_seen = out->opening_seen || opening_seen != 0;
     if (legacy) {
-        items_inventory_init(&out->inventory);
+        items_legacy_inventory_init(&out->inventory);
         out->version = 22;
-    } else if (!items_inventory_valid(&out->inventory)) return SAVE_READ_ERROR;
+    } else if (!items_legacy_inventory_valid(&out->inventory)) return SAVE_READ_ERROR;
     if (legacy || version6) {
         out->version = 22;
         // Older saves have no victory counter: grandfather existing adventurers.
@@ -81,7 +81,7 @@ static save_read_result_t save_decode_legacy(save_v22_t *out, const void *blob, 
         // Read old tail before overwriting it: expanded mons have different strides.
         trainer_store_v8_t previous;
         memcpy(&previous,(uint8_t *)out+sizeof(save_v6_t),sizeof(previous));
-        achievement_store_t achievements={0};
+        achievement_v25_t achievements={0};
         if(version8)memcpy(&achievements,(uint8_t *)out+offsetof(save_v8_t,achievements),sizeof(achievements));
         trainer_store_t *next=&out->challenge;memset(next,0,sizeof(*next));
         next->wild_wins=previous.wild_wins;next->defeated=previous.defeated;
@@ -113,7 +113,7 @@ static save_read_result_t save_decode_legacy(save_v22_t *out, const void *blob, 
     // V11 builds introduced tracking without a schema bump. Preserve valid
     // tracked species from those builds; an impossible ID means no old target.
     // V12+ owned and validated the field, so malformed modern IDs still fail.
-    if (version11 && out->exploration.tracked_species > DEX_SPECIES)
+    if (version11 && out->exploration.tracked_species > 151)
         out->exploration.tracked_species = 0;
     // V15/V16 receipt tail bytes were C padding, not partner reward fields.
     // Never interpret an old padding value as a new reward (or corrupt save).
@@ -150,13 +150,13 @@ static bool legacy_party_valid(const save_v22_t *saved)
     const uint8_t *raw = saved->party;
     if (raw[0] > PARTY_MAX) return false;
     uint8_t box_count = 0;
-    for (unsigned i = 0; i < PARTY_MAX + BOX_SPECIES; i++) {
+    for (unsigned i = 0; i < PARTY_MAX + LEGACY_BOX_SPECIES; i++) {
         const uint8_t *mon = raw + 2 + i*MON_BYTES;
         bool active = i < PARTY_MAX ? i < raw[0] : mon[0] != 0;
         if (!active) {
             for (unsigned b = 0; b < MON_BYTES; b++) if (mon[b] != 0) return false;
         } else {
-            if (mon[0] < 1 || mon[0] > BOX_SPECIES || mon[1] < 1 || mon[1] > LEVEL_MAX)
+            if (mon[0] < 1 || mon[0] > LEGACY_BOX_SPECIES || mon[1] < 1 || mon[1] > LEVEL_MAX)
                 return false;
             if (i >= PARTY_MAX) {
                 box_count++;
@@ -167,7 +167,7 @@ static bool legacy_party_valid(const save_v22_t *saved)
     if (!raw[0]) {
         // Empty V5 snapshots are produced while a fresh game awaits a choice.
         // An absent leader with prior ownership/progress is not a new game.
-        for (unsigned i = 0; i < DEX_BYTES; i++)
+        for (unsigned i = 0; i < 19; i++)
             if (saved->dex.caught[i] || saved->dex.shiny_caught[i]) return false;
         return box_count == 0 && saved->species == 0 &&
                saved->level == 0 && saved->exp == 0;

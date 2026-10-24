@@ -26,6 +26,10 @@
 
 #include "esp_log.h"
 #include "lvgl.h"
+#include "esp_timer.h"
+#include "presentation_clock.h"
+#include "battle_motion.h"
+#include "gb_clock.h"
 
 #include "assets.h"
 #include "game_ui.h"
@@ -35,6 +39,7 @@
 #include "play.h"
 #include "render.h"
 #include "screen.h"
+#include "screen_idle.h"
 #include "transition.h"
 #include "world.h"
 
@@ -46,9 +51,7 @@ static const char *TAG = "p2";
 
 #define C_BLACK RGB_HEX(0x000000)
 
-// 布局。**每个元素都不跨横带边界**（边界在 y=80/160/240）——
-// 跨界会被两条带各画一半，刷新频率不同就撕裂（P1 栽过一次）。
-//
+// Layout coordinates are global; every raster path clips to the current band.
 // Title y8; eight rows at y40 + i*24; explanatory text y248; the shared
 // GSC key frame occupies y280..320. Input and transition redraw every band.
 #define ROW0_Y 40
@@ -67,6 +70,8 @@ static lv_timer_t *s_refresh_tick;
 #define TRANS_TICK_MS 100
 #define TRANS_FRAME_STEP 6
 static lv_timer_t *s_trans_tick;
+static presentation_clock_t s_trans_clock;
+static uint32_t s_black_ms;
 static trans_id_t s_trans_id;
 static uint16_t s_trans_frame;
 static uint16_t s_trans_q;
@@ -92,7 +97,7 @@ static void overlay_transition(int band_y)
 {
     uint16_t *band = screen_band();
     uint8_t gy0 = (uint8_t)(band_y / TRANS_TILE);
-    uint8_t gy1 = (uint8_t)((band_y + BAND_H) / TRANS_TILE);
+    uint8_t gy1 = (uint8_t)((band_y + BAND_H + TRANS_TILE - 1) / TRANS_TILE);
 
     for (uint8_t gy = gy0; gy < gy1; gy++) {
         int y0 = gy * TRANS_TILE - band_y;
@@ -100,6 +105,9 @@ static void overlay_transition(int band_y)
             if (!trans_tile_covered(s_trans_id, s_trans_q, gx, gy)) continue;
             int x0 = gx * TRANS_TILE;
             for (int dy = 0; dy < TRANS_TILE; dy++) {
+                // A 20-row band can begin/end halfway through an 8px tile.
+                // Clip before indexing, including the tile at the lower edge.
+                if ((unsigned)(y0 + dy) >= BAND_H) continue;
                 for (int dx = 0; dx < TRANS_TILE; dx++) {
                     band[(y0 + dy) * SCR_W + x0 + dx] = C_BLACK;
                 }
@@ -229,7 +237,10 @@ static uint16_t covered_tiles(void)
 
 static void transition_tick(lv_timer_t *timer)
 {
+    uint32_t ms=presentation_clock_sample(&s_trans_clock,(uint32_t)(esp_timer_get_time()/1000),screen_idle_is_off());
+    if(screen_idle_is_off())return;
     if (s_trans_finish_hold) {
+        if(ms-s_black_ms<TRANS_TICK_MS)return;
         s_trans_tick = NULL;
         lv_timer_delete(timer);
         s_trans_flash_black = false;
@@ -242,7 +253,8 @@ static void transition_tick(lv_timer_t *timer)
     }
 
     uint16_t total = trans_frames(s_trans_id);
-    uint16_t next = (uint16_t)(s_trans_frame + TRANS_FRAME_STEP);
+    uint16_t next = (uint16_t)gb_frames_from_ms(battle_motion_source_ms(ms));
+    if(next==s_trans_frame)return;
     s_trans_frame = next < total ? next : total;
 
     uint16_t geom_start = trans_has_flash(s_trans_id) ? TRANS_FLASH_FRAMES : 0;
@@ -263,7 +275,7 @@ static void transition_tick(lv_timer_t *timer)
              s_trans_flash_black ? 1u : 0u);
 
     // 满黑保留一拍再进 P3，避免最后一帧被新页面同一回调立刻覆盖。
-    if (s_trans_frame == total) s_trans_finish_hold = true;
+    if (s_trans_frame == total) {s_trans_finish_hold = true;s_black_ms=ms;}
 }
 
 static void start_transition(void)
@@ -283,6 +295,7 @@ static void start_transition(void)
     s_trans_q = 0;
     s_trans_flash_black = false;
     s_trans_finish_hold = false;
+    presentation_clock_start(&s_trans_clock,(uint32_t)(esp_timer_get_time()/1000));
     s_trans_tick = lv_timer_create(transition_tick, TRANS_TICK_MS, NULL);
     if (!s_trans_tick) {
         ESP_LOGE(TAG, "转场 timer 创建失败，直接进入战斗");

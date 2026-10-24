@@ -55,7 +55,7 @@ def wild(pet, enemy):
         after = r.inspect()
         assert sides == sorted(sides, reverse=True)  # enemy before player
         assert set(sides) == ({1} if pet else set()) | ({2} if enemy else set())
-        assert 22*(pet+enemy) <= len(sides) <= 23*(pet+enemy)
+        assert 29*(pet+enemy) <= len(sides) <= 30*(pet+enemy)
         for key in ('exp', 'party', 'queue'):
             assert before[key] == after[key], key
         if frames:
@@ -83,7 +83,7 @@ def trainer():
         until(r,lambda s:s['shiny_entry_side']==1)
         assert r.inspect()['challenge']['sendout_mask']==3
         before = r.inspect()['challenge']
-        for i in range(23):
+        for i in range(30):
             if i==6:(OUT/'trainer.png').write_bytes(png(command(r,'check')['pixels']))
             if r.inspect()['shiny_entry_side']:
                 assert r.inspect()['challenge']==before
@@ -94,7 +94,7 @@ def trainer():
         command(r,'key 1 1');command(r,'key 2 1')
         assert r.inspect()['challenge']['sendout_mask']==1
         until(r,lambda s:s['shiny_entry_side']==1)
-        command(r,'tick 1100');assert not r.inspect()['shiny_entry_side']
+        command(r,'tick 1400');assert not r.inspect()['shiny_entry_side']
         # An enemy replacement must not replay our existing shiny's sparkle.
         command(r,'challenge_hp_fixture 1 0 0')
         until(r,lambda s:s['challenge']['sendout_mask']==2)
@@ -115,7 +115,7 @@ def dungeon():
         assert r.inspect()['dungeon_team'][0]['shiny']==1
         until(r,lambda s:s['shiny_entry_side']==1)
         command(r,'tick 270');(OUT/'dungeon.png').write_bytes(png(command(r,'check')['pixels']))
-        command(r,'tick 800');assert not r.inspect()['shiny_entry_side']
+        command(r,'tick 1100');assert not r.inspect()['shiny_entry_side']
         cases.append('dungeon: selected owned shiny retains palette and entry effect')
     finally:
         r.close()

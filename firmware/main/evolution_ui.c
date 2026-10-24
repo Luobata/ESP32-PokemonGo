@@ -15,6 +15,7 @@
 #include "lvgl.h"
 #include "esp_timer.h"
 #include <stdio.h>
+#include "combat.h"
 
 // Gold: 80-frame lead-in, 8 rounds of (18-2*n) wait + n swaps,
 // each frontpic replacement waits 4 frames; final replacement 4, light show 64.
@@ -23,6 +24,9 @@
 static lv_timer_t *timer;
 static uint16_t old_species,new_species;
 static uint8_t item_id;
+static bool individual;
+static unsigned individual_slot,new_moves;
+static mon_t individual_expected;
 static unsigned frame;
 static uint32_t last_ms,remainder,audio_wait;
 static uint8_t audio_stage;
@@ -85,7 +89,9 @@ static void draw(int band){
  }else if(committed){
   if(assets_species(new_species,&named))snprintf(name,sizeof(name),"%.*s",named.name_zh_len,named.name_zh);else snprintf(name,sizeof(name),"伙伴");
   snprintf(text,sizeof(text),"进化成%s了！",name);game_ui_text_centered(band,16,248,208,16,text,GAME_UI_INK);
-  game_ui_text_centered(band,16,278,208,16,frame>=DONE_FRAME&&audio_stage>=3?"C确认继续冒险":"新伙伴诞生了",GAME_UI_MUTED);
+  if(new_moves)snprintf(text,sizeof(text),"新学会%u招 C确认",new_moves);
+  else snprintf(text,sizeof(text),"C确认继续冒险");
+  game_ui_text_centered(band,16,278,208,16,frame>=DONE_FRAME&&audio_stage>=3?text:"新伙伴诞生了",GAME_UI_MUTED);
  }else{
   game_ui_text_centered(band,16,248,208,16,"伙伴的样子正在变化！",GAME_UI_INK);
   game_ui_text_centered(band,16,278,208,16,"长按B取消进化",GAME_UI_MUTED);
@@ -93,7 +99,8 @@ static void draw(int band){
 }
 static void commit(void){
  bool ok;
- if(item_id==ITEM_NONE)ok=world_evolve_leader(old_species,new_species);
+ if(individual)ok=world_evolve_individual(individual_slot,&individual_expected,new_species)==ITEM_USE_OK;
+ else if(item_id==ITEM_NONE)ok=world_evolve_leader(old_species,new_species);
  else{item_use_result_t result;ok=world_item_use(old_species,item_id,&result)==ITEM_USE_OK;}
  if(!ok){failed=true;return;}
  committed=true;failed=false;frame=REVEAL_FRAME;
@@ -113,25 +120,37 @@ static void tick(lv_timer_t *unused){
  uint64_t time=(uint64_t)remainder+(uint64_t)dt*597275;
  unsigned ticks=time/10000000;remainder=time%10000000;
  frame+=ticks;
- if(!committed&&frame>=REVEAL_FRAME)commit();
+ if(!committed&&frame>=REVEAL_FRAME){
+  commit();
+  // The durable transaction precedes the reveal. Its flash latency must not
+  // consume the following sparkle/cry phase on the next callback.
+  last_ms=(uint32_t)(esp_timer_get_time()/1000);
+ }
  if(committed&&frame>=DONE_FRAME){frame=DONE_FRAME;music_director_play(MUSIC_NONE);sfx_cry(new_species);audio_stage=2;audio_wait=cry_duration_ms(new_species)+100;}
  screen_redraw_current();
 }
 bool evolution_ui_begin(uint16_t from,uint16_t to,uint8_t item){
- if(active||!from||!to||to>151)return false;
- world_t w;world_snapshot(&w);if(w.species!=from)return false;
+ if(active||!from||!to||to>251)return false;
+ world_t w;world_snapshot(&w);if(w.species!=from&&!individual)return false;
  timer=lv_timer_create(tick,33,NULL);if(!timer)return false;
- world_party_t party;world_party_snapshot(&party);shiny=party.count&&(party.members[0].flags&1);
+ world_party_t party;world_party_snapshot(&party);shiny=individual?(individual_expected.flags&1):party.count&&(party.members[0].flags&1);
+ new_moves=0;unsigned level=individual?individual_expected.level:w.level;
+ for(unsigned move=1;move<=251;move++)if(combat_learn_level(from,move)>level&&combat_learn_level(to,move)<=level)new_moves++;
  old_species=from;new_species=to;item_id=item;active=true;committed=failed=false;frame=remainder=0;
  last_ms=esp_timer_get_time()/1000;previous_music=music_director_current();
  audio_stage=0;audio_wait=cry_duration_ms(from)+100;music_director_play(MUSIC_NONE);sfx_cry(from);screen_set_overlay(draw);screen_idle_note_activity();screen_redraw_current();return true;
+}
+bool evolution_ui_begin_individual(unsigned slot,const mon_t *expected,unsigned target){
+ if(active||!expected)return false;
+ individual=true;individual_slot=slot;individual_expected=*expected;
+ bool ok=evolution_ui_begin(expected->species_id,target,ITEM_NONE);if(!ok)individual=false;return ok;
 }
 bool evolution_ui_active(void){return active;}
 unsigned evolution_ui_frame(void){return frame;}
 void evolution_ui_stop(void){
  if(timer){lv_timer_delete(timer);timer=NULL;}
  if(!active)return;
- active=false;sfx_cry(0);screen_set_overlay(NULL);music_director_play(previous_music);screen_redraw_current();
+ active=false;individual=false;sfx_cry(0);screen_set_overlay(NULL);music_director_play(previous_music);screen_redraw_current();
 }
 bool evolution_ui_key(bsp_btn_t b,bsp_btn_ev_t e){
  if(!active)return false;

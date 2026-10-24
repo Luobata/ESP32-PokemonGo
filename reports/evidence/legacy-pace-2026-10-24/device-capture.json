@@ -1,0 +1,291 @@
+{
+  "cadence": [
+    {
+      "period_ms": 40,
+      "ticks": 202,
+      "frames": 199,
+      "bands": 3142,
+      "window_us": 8501556,
+      "render_us": 7687744,
+      "render_max_us": 48293,
+      "tick_p50_ms": 48,
+      "tick_p95_ms": 48,
+      "tick_max_us": 309720,
+      "late": 110,
+      "frame_p50_ms": 48,
+      "frame_p95_ms": 48,
+      "frame_max_us": 345174,
+      "bytes": 352,
+      "label": "capture_1"
+    },
+    {
+      "period_ms": 40,
+      "ticks": 196,
+      "frames": 196,
+      "bands": 3094,
+      "window_us": 8620528,
+      "render_us": 7554921,
+      "render_max_us": 47184,
+      "tick_p50_ms": 48,
+      "tick_p95_ms": 48,
+      "tick_max_us": 565420,
+      "late": 116,
+      "frame_p50_ms": 48,
+      "frame_p95_ms": 48,
+      "frame_max_us": 602555,
+      "bytes": 352,
+      "label": "capture_2"
+    },
+    {
+      "period_ms": 40,
+      "ticks": 201,
+      "frames": 201,
+      "bands": 3174,
+      "window_us": 8603137,
+      "render_us": 7238552,
+      "render_max_us": 41583,
+      "tick_p50_ms": 48,
+      "tick_p95_ms": 48,
+      "tick_max_us": 548309,
+      "late": 119,
+      "frame_p50_ms": 48,
+      "frame_p95_ms": 48,
+      "frame_max_us": 580409,
+      "bytes": 352,
+      "label": "capture_1"
+    }
+  ],
+  "phases": [
+    {
+      "phase": "result",
+      "elapsed_ms": 7520
+    },
+    {
+      "phase": "end",
+      "elapsed_ms": 8105
+    },
+    {
+      "phase": "result",
+      "elapsed_ms": 7489
+    },
+    {
+      "phase": "end",
+      "elapsed_ms": 8103
+    },
+    {
+      "phase": "result",
+      "elapsed_ms": 7512
+    },
+    {
+      "phase": "end",
+      "elapsed_ms": 8101
+    }
+  ],
+  "audio": [
+    {
+      "chunks": 885,
+      "render_avg_us": 1961,
+      "render_max_us": 3117,
+      "gap_max_us": 22252,
+      "late": 0,
+      "switches": 1,
+      "switch_render_max_us": 1723,
+      "opens": 1,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 964,
+      "render_avg_us": 1990,
+      "render_max_us": 3117,
+      "gap_max_us": 22252,
+      "late": 0,
+      "switches": 2,
+      "switch_render_max_us": 1723,
+      "opens": 1,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 1454,
+      "render_avg_us": 1815,
+      "render_max_us": 3850,
+      "gap_max_us": 22252,
+      "late": 0,
+      "switches": 3,
+      "switch_render_max_us": 1723,
+      "opens": 1,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 1498,
+      "render_avg_us": 1803,
+      "render_max_us": 3850,
+      "gap_max_us": 22611,
+      "late": 0,
+      "switches": 3,
+      "switch_render_max_us": 1723,
+      "opens": 1,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 423,
+      "render_avg_us": 572,
+      "render_max_us": 4119,
+      "gap_max_us": 40183,
+      "late": 0,
+      "switches": 2,
+      "switch_render_max_us": 4119,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 818,
+      "render_avg_us": 996,
+      "render_max_us": 4119,
+      "gap_max_us": 40183,
+      "late": 0,
+      "switches": 2,
+      "switch_render_max_us": 4119,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 847,
+      "render_avg_us": 1005,
+      "render_max_us": 4119,
+      "gap_max_us": 40183,
+      "late": 0,
+      "switches": 2,
+      "switch_render_max_us": 4119,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 891,
+      "render_avg_us": 1025,
+      "render_max_us": 4119,
+      "gap_max_us": 40183,
+      "late": 0,
+      "switches": 2,
+      "switch_render_max_us": 4119,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 423,
+      "render_avg_us": 692,
+      "render_max_us": 3029,
+      "gap_max_us": 33907,
+      "late": 0,
+      "switches": 2,
+      "switch_render_max_us": 3029,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 821,
+      "render_avg_us": 1383,
+      "render_max_us": 3598,
+      "gap_max_us": 33907,
+      "late": 0,
+      "switches": 3,
+      "switch_render_max_us": 3202,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 850,
+      "render_avg_us": 1419,
+      "render_max_us": 3598,
+      "gap_max_us": 33907,
+      "late": 0,
+      "switches": 3,
+      "switch_render_max_us": 3202,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 1337,
+      "render_avg_us": 1792,
+      "render_max_us": 3598,
+      "gap_max_us": 33907,
+      "late": 0,
+      "switches": 3,
+      "switch_render_max_us": 3202,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 5392,
+      "render_avg_us": 2275,
+      "render_max_us": 4277,
+      "gap_max_us": 33907,
+      "late": 0,
+      "switches": 3,
+      "switch_render_max_us": 3202,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 5881,
+      "render_avg_us": 2210,
+      "render_max_us": 4277,
+      "gap_max_us": 33907,
+      "late": 0,
+      "switches": 4,
+      "switch_render_max_us": 3202,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 5926,
+      "render_avg_us": 2204,
+      "render_max_us": 4277,
+      "gap_max_us": 33907,
+      "late": 0,
+      "switches": 4,
+      "switch_render_max_us": 3202,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 422,
+      "render_avg_us": 647,
+      "render_max_us": 2853,
+      "gap_max_us": 40501,
+      "late": 0,
+      "switches": 2,
+      "switch_render_max_us": 2853,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1976
+    },
+    {
+      "chunks": 818,
+      "render_avg_us": 1323,
+      "render_max_us": 3757,
+      "gap_max_us": 40501,
+      "late": 0,
+      "switches": 3,
+      "switch_render_max_us": 2853,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1976
+    }
+  ],
+  "note": "First helper stopped after two cycles on a later list selection; separate third completed. No firmware or animation failure inferred from helper navigation."
+}

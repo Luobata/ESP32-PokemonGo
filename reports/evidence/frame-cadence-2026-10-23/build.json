@@ -1,0 +1,24 @@
+{
+  "head": "67a4a25749463d50750c9448ff9d5217d1379094",
+  "dirty_worktree": true,
+  "app_sha256": "766d96d02ea96f7b34e76a2e53c2b0c1d456d7738822bd6e6d3cc2ec4f788fec",
+  "app_bytes": 3139264,
+  "factory_bytes": 3407872,
+  "cadence_static_bytes": 352,
+  "screen_band_bytes": 9600,
+  "lvgl_heap_bytes": 16384,
+  "source_sha256": {
+    "firmware/main/screen.c": "fda31cc5026e378c310f0b932190f0172ad91b838a7acfefcde9a42606045466",
+    "firmware/main/screen.h": "fe6d2165ac5b55ff8f626135d18574653e254922b7f6a1183f553f4c863acd9e",
+    "firmware/main/dbg.c": "ba83611c538845030b01211cf24a2769699eb88cc78a345228e3113a1acb5633",
+    "firmware/main/play_care.c": "84f960ca1faf9e61c50f5013cbf640ea2efdc9643e0ae85876f0dbdd8e359652",
+    "firmware/main/play_party.c": "493541b24a3305c79094b2c3a49d69a6bc401bf175f0a0120b4f0347ab0ac7bd",
+    "firmware/main/play_idle.c": "8935e82c9c2d18f15709b8d861a2cf3327f21e653efccdc7d4c83bf08efcf306",
+    "firmware/main/play_battle.c": "a05f115f10a0c4d660bbe9775f126982ac655787df6a4b0f1e455685d558497e",
+    "firmware/main/play_trainer.c": "b54f26cb7be0fa4794d9c6aabc0c522d21d4da9e2b2baa5a8beaf1d6836e307c",
+    "firmware/main/play_menu.c": "3d7f1afb3a6450e0210c52c992154d92c685477aa0945a61fd2ea3769b9a658c",
+    "firmware/main/battery_ui.c": "7d0b4176e2d190e1603c90e41d773907529a41ccb28f01c70fac7439270221f9",
+    "firmware/main/battery_ui.h": "14689d8d70be62c2fac05ed9e297565c81bd46b7bd010ce6dd2f70b7b5fdcec5",
+    "firmware/main/render.c": "b52ada1ce1ef4929328da72b9777a178b6a36088a7d411bf48f6a7484f228956"
+  }
+}

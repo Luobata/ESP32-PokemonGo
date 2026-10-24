@@ -4,6 +4,8 @@
 #include "screen.h"
 #include "render.h"
 #include "esp_timer.h"
+#include "presentation_clock.h"
+#include "screen_idle.h"
 #include "lvgl.h"
 #include "sfx.h"
 #include "music_director.h"
@@ -17,9 +19,11 @@ static uint8_t theme_ids[10];static unsigned theme_count;
 static void theme_options(void){theme_count=0;for(unsigned i=0;i<10;i++)if(dungeon_theme_open(i))theme_ids[theme_count++]=i;}
 void play_dungeon_open_region(unsigned map){chosen_theme=map>=4&&map<EXPLORATION_MAPS?map-3:0;challenge_mode=false;nav_go(PAGE_DUNGEON);}
 static unsigned reward_frame;
+static presentation_clock_t reward_clock;
+static void reward_begin(void){reward_frame=0;presentation_clock_start(&reward_clock,(uint32_t)(esp_timer_get_time()/1000));}
 static const char *failure_hint;
 static lv_timer_t *reward_timer;
-static unsigned receipt_items(void){unsigned count=0;for(unsigned i=0;i<ITEM_COUNT;i++)count+=dungeon_get()->receipt.items.quantity[i]>0;return count;}
+static unsigned receipt_items(void){unsigned count=0;for(unsigned i=0;i<ITEM_LEGACY_COUNT;i++)count+=dungeon_get()->receipt.items.quantity[i]>0;return count;}
 static void label(unsigned id,char *buf,size_t size){species_t sp;if(assets_species(id,&sp))snprintf(buf,size,"%.*s",sp.name_zh_len,sp.name_zh);else snprintf(buf,size,"#%u",id);}
 static unsigned options(void){const dungeon_t *d=dungeon_get();return collecting?(discarding?1:2):themes?theme_count:selecting?owned.count+1:details?DUNGEON_CARD_COUNT:lobby?8:d->phase==DUNGEON_SETTLEMENT?(receipt_items()?(receipt_items()+2)/3:1):d->phase==DUNGEON_FORK?2:d->phase==DUNGEON_CAMP||d->phase==DUNGEON_REWARD||d->phase==DUNGEON_TRAIL?3:1;}
 static void draw(void){
@@ -28,7 +32,7 @@ static void draw(void){
   screen_band_clear(GAME_UI_BG);
   if(collecting){
    exploration_view_t v;world_exploration_snapshot(&v);unsigned kinds=0;
-   for(unsigned i=0;i<ITEM_COUNT;i++)kinds+=v.regions.pending_items.quantity[i]!=0;
+   for(unsigned i=0;i<ITEM_LEGACY_COUNT;i++)kinds+=v.regions.pending_items.quantity[i]!=0;
    game_ui_title(y,discarding?"确认放弃收获？":"暂存收获","");
    snprintf(text,sizeof(text),"待领道具 %u 种",kinds);game_ui_text_centered(y,8,70,224,16,text,GAME_UI_INK);
    if(v.regions.pending_partner.species_id){label(v.regions.pending_partner.species_id,name,sizeof(name));snprintf(text,sizeof(text),"%s%s",v.regions.pending_partner.is_shiny?"闪光 ":"伙伴 ",name);}
@@ -51,7 +55,7 @@ static void draw(void){
   }else if(selecting){
    snprintf(text,sizeof(text),"已选 %u/3",chosen_count);game_ui_title(y,"同行伙伴",text);
    unsigned index=selected<owned.count?selected:chosen_count?chosen[0]:0;
-   const mon_t *mon=&owned.members[index];unsigned id=mon->species_id;uint8_t size;species_t sp;const uint8_t *sprite=assets_front_sprite(id,&size);
+   const mon_t *mon=&owned.members[index];unsigned id=mon->species_id;uint8_t size;species_t sp;const uint8_t *sprite=assets_front_form(id,mon->special.traits.form,&size);
    if(sprite&&assets_species(id,&sp)){uint16_t pal[4];assets_palette_variant(sp.palette,mon->flags&1,pal);game_ui_sprite_centered(y,88,36,64,64,sprite,size,size,1,pal);}
    for(unsigned i=0;i<owned.count;i++){
     bool picked=false;for(unsigned j=0;j<chosen_count;j++)picked|=chosen[j]==i;
@@ -81,7 +85,7 @@ static void draw(void){
    snprintf(text,sizeof(text),"同行伙伴经验 +%lu",(unsigned long)(d->receipt.xp*reward_frame/24));game_ui_text_centered(y,8,52,224,16,text,GAME_UI_ACCENT);
    game_ui_meter(y,24,80,192,reward_frame*100/24);
    unsigned row=0,index=0;
-   for(unsigned i=0;i<ITEM_COUNT;i++)if(d->receipt.items.quantity[i]){
+   for(unsigned i=0;i<ITEM_LEGACY_COUNT;i++)if(d->receipt.items.quantity[i]){
     if(index/3==selected){snprintf(text,sizeof(text),"%s x%u",items_info(i)->name,d->receipt.items.quantity[i]);game_ui_text_fitted(y,24,116+row++*28,192,text,GAME_UI_INK);}index++;
    }
    if(!index)game_ui_text_centered(y,8,128,224,16,"本次没有额外道具",GAME_UI_MUTED);
@@ -116,11 +120,15 @@ static void draw(void){
 }
 static void launch(void){dungeon_set_playing(true);nav_go(PAGE_TRAINER);}
 bool play_dungeon_screen_busy(void){return !lobby&&!selecting&&dungeon_get()->phase==DUNGEON_SETTLEMENT&&reward_frame<24;}
-static void reward_tick(lv_timer_t *t){(void)t;if(play_dungeon_screen_busy()){reward_frame++;draw();}}
+static void reward_tick(lv_timer_t *t){
+ (void)t;bool busy=play_dungeon_screen_busy();
+ unsigned ms=presentation_clock_sample(&reward_clock,(uint32_t)(esp_timer_get_time()/1000),!busy||screen_idle_is_off());
+ if(busy&&!screen_idle_is_off()){reward_frame=presentation_sample(ms,50,24);draw();}
+}
 void play_dungeon_enter(void){
  dungeon_load();dungeon_set_playing(false);selected=chosen_count=0;selecting=details=failed=themes=collecting=discarding=false;if(!dungeon_theme_open(chosen_theme))chosen_theme=0;
  unsigned phase=dungeon_get()->phase;lobby=phase==DUNGEON_EMPTY||phase==DUNGEON_BATTLE||phase==DUNGEON_ENTRY;
- reward_frame=0;reward_timer=lv_timer_create(reward_tick,50,NULL);
+ reward_begin();reward_timer=lv_timer_create(reward_tick,50,NULL);
  music_director_play(phase==DUNGEON_WON||phase==DUNGEON_REWARD||phase==DUNGEON_SETTLEMENT?MUSIC_TRAINER_WIN:phase==DUNGEON_CAMP?MUSIC_CENTER:MUSIC_ROUTE);
  screen_set_redraw(draw);draw();
 }
@@ -157,6 +165,6 @@ void play_dungeon_key(bsp_btn_t b,bsp_btn_ev_t e){
  }else if(details){lobby=true;details=false;selected=0;}
  else if(dungeon_get()->phase==DUNGEON_WON||dungeon_get()->phase==DUNGEON_LOST){lobby=true;selected=0;}
  else if(dungeon_get()->phase==DUNGEON_SETTLEMENT&&reward_frame<24){reward_frame=24;}
- else if(dungeon_choose(dungeon_get()->phase==DUNGEON_SETTLEMENT?0:selected)){if(dungeon_get()->phase==DUNGEON_BATTLE){launch();return;}selected=0;reward_frame=0;}else failed=true;
+ else if(dungeon_choose(dungeon_get()->phase==DUNGEON_SETTLEMENT?0:selected)){if(dungeon_get()->phase==DUNGEON_BATTLE){launch();return;}selected=0;reward_begin();}else failed=true;
  draw();
 }

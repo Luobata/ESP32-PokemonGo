@@ -1,0 +1,167 @@
+{
+  "samples": [
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (1211) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=73772 pending=3 pet=115 level=54 exp=241927 stamina_q10=102400 mood_q10=55444"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (1213) dbg: @@MEMORY_STATE free=13036 minimum=10748 largest=10240 stack_free=2204"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (1213) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (1244) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=73772 pending=3 pet=115 level=54 exp=241927 stamina_q10=102400 mood_q10=55444"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (1245) dbg: @@MEMORY_STATE free=17608 minimum=10748 largest=10240 stack_free=2204"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (1245) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (2580) dbg: @@DISPLAY_STATE off=0 brightness=100 page=6 scans=73772 pending=3 pet=115 level=54 exp=241927 stamina_q10=102400 mood_q10=55444"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (2581) dbg: @@MEMORY_STATE free=16804 minimum=10748 largest=10240 stack_free=1964"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (2582) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (3928) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=73773 pending=3 pet=115 level=54 exp=241927 stamina_q10=102400 mood_q10=55444"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (3929) dbg: @@MEMORY_STATE free=17844 minimum=10748 largest=10240 stack_free=1772"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (3929) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (5274) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=73773 pending=3 pet=115 level=54 exp=241927 stamina_q10=102400 mood_q10=55444"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (5275) dbg: @@MEMORY_STATE free=17844 minimum=10748 largest=10240 stack_free=1772"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (5275) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (7282) dbg: @@DISPLAY_STATE off=0 brightness=100 page=10 scans=73773 pending=3 pet=115 level=54 exp=241927 stamina_q10=102400 mood_q10=55441"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (7284) dbg: @@MEMORY_STATE free=17844 minimum=10748 largest=10240 stack_free=1772"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (7284) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (8672) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=73773 pending=3 pet=115 level=54 exp=241927 stamina_q10=102400 mood_q10=55438"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (8673) dbg: @@MEMORY_STATE free=17844 minimum=10748 largest=10240 stack_free=1548"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (8673) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (14600) dbg: @@DISPLAY_STATE off=0 brightness=100 page=15 scans=73773 pending=3 pet=115 level=54 exp=241927 stamina_q10=102400 mood_q10=55435"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (14601) dbg: @@MEMORY_STATE free=17844 minimum=10748 largest=10240 stack_free=1548"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (14601) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (16478) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=73773 pending=3 pet=115 level=54 exp=241927 stamina_q10=102400 mood_q10=55432"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (16479) dbg: @@MEMORY_STATE free=17844 minimum=10748 largest=10240 stack_free=1548"
+    },
+    {
+      "phase": "optimized-usb.log",
+      "record": "I (16480) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+    },
+    {
+      "phase": "paced-restore.log",
+      "record": "I (177612) restore: @@IMPORT_MEMORY valid=1 free=16500 minimum=10748 largest=10240 stack_free=1548"
+    },
+    {
+      "phase": "same-build-restore.log",
+      "record": "I (185297) restore: @@IMPORT_MEMORY valid=1 free=16504 minimum=12036 largest=11776 stack_free=1760"
+    },
+    {
+      "phase": "paced-receipt-progress.log",
+      "record": "I (25765) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=73750 pending=3 pet=115 level=54 exp=241927 stamina_q10=97040 mood_q10=56008"
+    },
+    {
+      "phase": "paced-receipt-progress.log",
+      "record": "I (25766) dbg: @@MEMORY_STATE free=17976 minimum=12036 largest=11776 stack_free=1808"
+    },
+    {
+      "phase": "paced-receipt-progress.log",
+      "record": "I (25766) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+    },
+    {
+      "phase": "same-build-receipt-progress.log",
+      "record": "I (31239) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=73774 pending=3 pet=115 level=54 exp=241927 stamina_q10=102400 mood_q10=55393"
+    },
+    {
+      "phase": "same-build-receipt-progress.log",
+      "record": "I (31241) dbg: @@MEMORY_STATE free=17820 minimum=10132 largest=11264 stack_free=1900"
+    },
+    {
+      "phase": "same-build-receipt-progress.log",
+      "record": "I (31241) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924"
+    }
+  ],
+  "cross_build_restore_passed": true,
+  "same_build_restore_passed": true,
+  "backup_readback_before_ack": true,
+  "brightness_change_observed": 89,
+  "brightness_restored_observed": 100,
+  "both_reboot_receipts_match_payload_crc": true,
+  "restores_used_software_restart": true,
+  "initial_failures_preserved_in": "device-runtime.json",
+  "private_backups_committed": false,
+  "final_export_verified": true,
+  "final_progress_comparison_passed": true,
+  "final_page": "idle",
+  "preserved": [
+    "112 partners and move policies",
+    "level and experience",
+    "Pokedex",
+    "inventory",
+    "challenge",
+    "Johto",
+    "activities",
+    "story",
+    "champion"
+  ]
+}

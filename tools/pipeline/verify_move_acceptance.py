@@ -4,8 +4,8 @@ import json,sys
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT/'tools/inspector'))
 from native import Renderer,build,png
-exe,version=build();r=Renderer(exe);out=ROOT/'reports/evidence/selected-moves-2026-09-09';out.mkdir(parents=True,exist_ok=True)
-rows=json.loads((ROOT/'tools/inspector/move-catalog.json').read_text());assert len(rows)==191;checks=0
+exe,version=build();r=Renderer(exe);out=ROOT/'reports/evidence/johto-moves-2026-10-17';out.mkdir(parents=True,exist_ok=True)
+rows=json.loads((ROOT/'tools/inspector/move-catalog.json').read_text());assert len(rows)==194;checks=0
 try:
  r.command('boot 3 25 60 65 3 123 0 0 0')
  for m in rows:

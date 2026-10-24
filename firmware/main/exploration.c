@@ -156,18 +156,19 @@ static exploration_event_t step(exploration_state_t *s,enc_refresh_state_t *r,
  if(target) {
   species=target_override?target_override:campaign?exploration_focus(s,defeated):ROUTES[route].target;
   unsigned native_rarity;if(exploration_habitat(species,&native_rarity)>=0)rarity=native_rarity;
-  if(pending(q,species)){e.kind=EXPLORE_BLOCKED;return e;}
+  // Paid discoveries are separate individuals even when this species is queued.
+  // enc_queue_push keeps distinct UIDs and applies the normal five-entry FIFO.
  } else {
   const uint8_t *pool=POOLS[route][rarity-1];
   unsigned n=0;while(n<16&&pool[n])n++;
   // Three of four rolls prefer uncaught species within the same unlocked tier.
   if(campaign&&(seed&3)!=0)for(unsigned i=0;i<n;i++){
    unsigned candidate=pool[(seed/1000+i)%n];
-   if(exploration_species_open(candidate,defeated)&&!pending(q,candidate)&&!dex_is_caught(dex,candidate)){species=candidate;break;}
+   if(exploration_species_open(candidate,defeated)&&!dex_is_caught(dex,candidate)){species=candidate;break;}
   }
   for(unsigned i=0;!species&&i<n;i++) {
    unsigned candidate=pool[(seed/1000+i)%n];
-   if((!campaign||exploration_species_open(candidate,defeated))&&!pending(q,candidate)){species=candidate;break;}
+   if(!campaign||exploration_species_open(candidate,defeated)){species=candidate;break;}
   }
   if(!species){e.kind=EXPLORE_BLOCKED;return e;}
  }
@@ -456,7 +457,7 @@ static bool region_has(unsigned map,unsigned species){
  return false;
 }
 bool exploration_regions_valid(const exploration_regions_t *s){
- if(!s||s->selected>=EXPLORATION_MAPS||s->dungeon_pity>4||!items_inventory_valid(&s->pending_items))return false;
+ if(!s||s->selected>=EXPLORATION_MAPS||s->dungeon_pity>4||!items_legacy_inventory_valid(&s->pending_items))return false;
  for(unsigned i=0;i<8;i++){
   const exploration_region_progress_t *p=&s->region[i];
   if(p->clues>3||p->pulse>1||p->pity>EXPLORATION_REGION_PITY||p->deep>1||p->traced>1||p->claimed>1||p->challenge_clear>1||(p->target&&!region_has(i+4,p->target)))return false;
@@ -497,30 +498,31 @@ exploration_event_t exploration_region_step(exploration_regions_t *s,enc_refresh
   return e;
  }
  unsigned id=0,tier=0;bool traced=p->clues==3;
- if(traced){id=target;if(pending(q,id))return e;exploration_habitat(id,&tier);}
+ if(traced){id=target;exploration_habitat(id,&tier);}
  else{
   unsigned candidates[5][24],n[5]={0},weights[5]={0,30,56,12,2};
   if(p->deep){weights[1]=18;weights[3]=22;weights[4]=4;}
   bool guaranteed=p->pity>=EXPLORATION_REGION_PITY;
   const uint8_t *pool=direction?exploration_region_trail(map,direction-1)->species:r->pool;
   unsigned capacity=direction?12:24;
-  for(unsigned i=0;i<capacity&&pool[i];i++){unsigned sp=pool[i],t=0;exploration_habitat(sp,&t);if(t&&exploration_species_open(sp,defeated)&&!pending(q,sp))candidates[t-1][n[t-1]++]=sp;}
+  for(unsigned i=0;i<capacity&&pool[i];i++){unsigned sp=pool[i],t=0;exploration_habitat(sp,&t);if(t&&exploration_species_open(sp,defeated))candidates[t-1][n[t-1]++]=sp;}
   unsigned first=direction?direction-1:0,last=direction?direction:3;
   for(unsigned dir=first;dir<last;dir++){
    uint8_t guests[2];unsigned guests_n=exploration_visitors(map,dir,p->steps,defeated,guests);
    for(unsigned i=0;i<guests_n;i++){
     unsigned sp=guests[i],t=0;exploration_habitat(sp,&t);bool duplicate=false;
     for(unsigned j=0;j<n[t-1];j++)duplicate|=candidates[t-1][j]==sp;
-    if(!duplicate&&!pending(q,sp)&&n[t-1]<24)candidates[t-1][n[t-1]++]=sp;
+    if(!duplicate&&n[t-1]<24)candidates[t-1][n[t-1]++]=sp;
    }
   }
   if(guaranteed&&!n[3]&&!n[4]){ // Promised rare encounter can use a nearby habitat.
-   for(unsigned i=0;i<24&&r->pool[i];i++){unsigned sp=r->pool[i],t=0;exploration_habitat(sp,&t);if(t>=4&&exploration_species_open(sp,defeated)&&!pending(q,sp))candidates[t-1][n[t-1]++]=sp;}
+   for(unsigned i=0;i<24&&r->pool[i];i++){unsigned sp=r->pool[i],t=0;exploration_habitat(sp,&t);if(t>=4&&exploration_species_open(sp,defeated))candidates[t-1][n[t-1]++]=sp;}
   }
   unsigned roll=seed%(guaranteed?(weights[3]+weights[4]):100);
   for(tier=guaranteed?4:1;tier<5;tier++){if(roll<weights[tier-1])break;roll-=weights[tier-1];}
   // Missing tiers never magnify the rare share. Redirect downward first. A
-  // common roll can only use another common tier, or wait for pending entries.
+  // common roll can only use another common tier. Pending individuals do not
+  // change the available species or force the player to clear the queue first.
   if(!n[tier-1]){
    unsigned replacement=0;
    for(unsigned t=guaranteed?4:1;t<tier;t++)if(n[t-1])replacement=t;

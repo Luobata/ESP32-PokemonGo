@@ -1,0 +1,31 @@
+{
+  "application_partition_bytes": 3407872,
+  "flash_bytes": 8388608,
+  "partitions_changed": false,
+  "production_species": 151,
+  "candidate_species": 251,
+  "warehouse_slots": 453,
+  "save_version": 23,
+  "target_device_tested": false,
+  "firmware_flashing_performed": false,
+  "candidate_scope": "251 front/back and normal/shiny palettes, 1303 animation frames and 251-name font; NOT full gameplay implementation",
+  "object_storage_bytes_saved": 402544,
+  "buffers_added_to_runtime": 0,
+  "builds": {
+    "production": {
+      "bytes": 2790944,
+      "remaining_bytes": 616928,
+      "sha256": "427effb7ab36c5df3c3a381fc7ebed5b9f93054c2e53701a715959bd346a84ed",
+      "partition_sha256": "f0f6a27d3d10eba17bc1f6829f3890acee3a23ea637b3537dfa79d50b3174780"
+    },
+    "asset_probe": {
+      "bytes": 2971040,
+      "remaining_bytes": 436832,
+      "sha256": "d9305eb0a8a44f0bf25ee673019f0904b0620f43f96790cfaf85f3f42ba41f84",
+      "partition_sha256": "f0f6a27d3d10eba17bc1f6829f3890acee3a23ea637b3537dfa79d50b3174780"
+    }
+  },
+  "candidate_font_bytes": 48736,
+  "source_base_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+  "source_has_uncommitted_changes": true
+}

@@ -1,0 +1,3 @@
+24 branch pools / 12000 seeded investigations: clues=5136 encounters=6864; all 24 branches covered
+Johto routes: branch pools, clue/target rotation, egg/story, queue caps, atomic failures and reboot persistence passed
+

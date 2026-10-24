@@ -1,0 +1,11 @@
+{
+  "compiled": true,
+  "flashed": false,
+  "published": false,
+  "app_bytes": 3201808,
+  "app_capacity": 3407872,
+  "app_sha256": "262815a6c8f1151782d58b4a5293a7760abfdee364dceb9dff58f3b8a4c8f940",
+  "save_version": 31,
+  "world_bytes": 39944,
+  "usb_container": 4
+}

@@ -1,0 +1,1 @@
+{"build": "33f3cbbf25e4858a65de", "pages": 8, "dirty_redraw_checks": 1208, "wire_colors": 65536, "negative_dma": "caught", "negative_dirty_band": "caught", "long_press_return_preserves_queue": "passed", "evidence": "/Users/bytedance/luobata/ESP32-PokemonGo/.build/firmware-preview/evidence"}

@@ -27,6 +27,10 @@ typedef struct {
 // **顺序必须与 page_id_t 一致** —— 用下标索引，错位不会报错，
 // 只会「按 C 进了图鉴」。加页面时两处一起改。
 static const page_t PAGES[PAGE_COUNT] = {
+    [PAGE_NARRATIVE] = {"P20 城都剧情",play_narrative_enter,play_narrative_exit,play_narrative_key},
+    [PAGE_STORY] = {"P19 冒险笔记",play_story_enter,play_story_exit,play_story_key},
+    [PAGE_ACTIVITY] = {"P18 城都活动", play_activity_enter, play_activity_exit, play_activity_key},
+    [PAGE_JOHTO] = {"P17 城都", play_johto_enter, play_johto_exit, play_johto_key},
     [PAGE_DUNGEON] = {"P16 秘境", play_dungeon_enter, play_dungeon_exit, play_dungeon_key},
     [PAGE_EXPLORATION] = {"P15 探索", play_exploration_enter, play_exploration_exit, play_exploration_key},
     [PAGE_ACHIEVEMENTS] = {"P14 成就", play_achievements_enter, play_achievements_exit, play_achievements_key},
@@ -133,15 +137,22 @@ bool nav_can_leave(void)
     if (!s_entered) return true;
     if (s_cur == PAGE_BATTLE) return play_battle_can_leave();
     if (s_cur == PAGE_CAPTURE) return play_capture_can_leave();
+    if (s_cur == PAGE_STORY) return !play_story_screen_busy();
+    if (s_cur == PAGE_ACTIVITY) return !play_activity_screen_busy();
+    if (s_cur == PAGE_JOHTO) return !play_johto_screen_busy();
     if (s_cur == PAGE_EXPLORATION) return !play_exploration_screen_busy();
     return true;
 }
 
 bool nav_screen_busy(void)
 {
+    if (s_cur == PAGE_NARRATIVE) return play_narrative_screen_busy();
     if(evolution_ui_active())return true;
     if (!s_entered) return false;
     switch (s_cur) {
+    case PAGE_STORY: return play_story_screen_busy();
+    case PAGE_ACTIVITY: return play_activity_screen_busy();
+    case PAGE_JOHTO: return play_johto_screen_busy();
     case PAGE_DUNGEON: return play_dungeon_screen_busy();
     case PAGE_EXPLORATION: return play_exploration_screen_busy();
     case PAGE_OPENING: return play_opening_screen_busy();
@@ -169,6 +180,6 @@ void nav_exit_current(void)
 }
 
 void nav_end_encounter(void) {
- page_id_t next=s_ctx.exploring?PAGE_EXPLORATION:PAGE_ENCOUNTER;
- s_ctx.exploring=false;nav_go(next);
+ page_id_t next=s_ctx.narrative?PAGE_NARRATIVE:s_ctx.exploring?(s_ctx.johto_exploring?PAGE_JOHTO:PAGE_EXPLORATION):PAGE_ENCOUNTER;
+ s_ctx.narrative=s_ctx.exploring=s_ctx.johto_exploring=false;nav_go(next);
 }
