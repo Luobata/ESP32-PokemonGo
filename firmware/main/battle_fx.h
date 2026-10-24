@@ -6,8 +6,20 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "battle.h"
+#include "battle_motion.h"
 
 #define BATTLE_FX_TICK_MS 45
+// The extracted tracks begin after text and HUD setup. Reserve 600 ms for
+// our instant Chinese move announcement (the original types text), then Gold's
+// 6+1 lead frames, 4 HUD frames and 1 ClearBattleAnims frame. This hold is
+// independent of the explicitly slower motion clock (45 ms source samples).
+#define BATTLE_FX_TEXT_MS 600u
+#define BATTLE_FX_LEAD_MS (BATTLE_FX_TEXT_MS + 201u)
+static inline uint32_t battle_fx_elapsed_frame(uint32_t elapsed_ms)
+{
+    return elapsed_ms <= BATTLE_FX_LEAD_MS ? 0u :
+        battle_motion_source_ms(elapsed_ms - BATTLE_FX_LEAD_MS) / BATTLE_FX_TICK_MS;
+}
 
 typedef struct {
     int16_t x, y, w, h;   // Absolute unshifted display bounds; wild uses its visible bbox.
@@ -52,7 +64,7 @@ bool battle_fx_has_dedicated(uint16_t move_id);
 // Shared target-only hit flash; HUD and attacker remain visible.
 bool battle_fx_actor_visible(const battle_round_t *round, uint8_t frame, bool pet);
 
-// Frame 0..N-1, one frame every BATTLE_FX_TICK_MS. Last two frames are clean
+// Frame 0..N-1, authored every BATTLE_FX_TICK_MS of SOURCE time. Last two frames are clean
 // (zero displacement and no overlay); replay them to remove the previous pose.
 uint8_t battle_fx_frames(const battle_round_t *round);
 uint8_t battle_fx_hit_frame(const battle_round_t *round);

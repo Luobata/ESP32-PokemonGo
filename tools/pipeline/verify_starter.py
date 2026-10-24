@@ -169,6 +169,12 @@ static bool test_bank_write(uint32_t at,const void *p,size_t n){if(at+n>sizeof(b
 static bool test_bank_erase(uint32_t at,size_t n){if(at+n>sizeof(bank_flash))return false;memset(bank_flash+at,255,n);return true;}
 const save_bank_io_t *save_bank_platform(void){static const save_bank_io_t io={test_bank_read,test_bank_write,test_bank_erase};return &io;}
 #define TAG starter_save_tag
+#include "johto.c"
+#include "johto_routes.c"
+#include "johto_story.c"
+#include "story_transactions.c"
+#include "johto_activity.c"
+#include "activity_transactions.c"
 #include "save.c"
 // Persist/validate a modern candidate through the real storage envelope. Tests
 // that construct historical layouts still write their original raw bytes.
@@ -188,14 +194,15 @@ static void test_legacy_snapshot(save_v22_t *out,const save_t *s) {
     out->level=s->level;
     out->exp=s->exp;
     out->queue=s->queue;
-    out->dex=s->dex;
+    memcpy(out->dex.seen,s->dex.seen,19);memcpy(out->dex.caught,s->dex.caught,19);
+    memcpy(out->dex.shiny_seen,s->dex.shiny_seen,19);memcpy(out->dex.shiny_caught,s->dex.shiny_caught,19);
     out->motion_q10=s->motion_q10;
     out->scans=s->scans;
     out->last_uptime_us=s->last_uptime_us;
     out->opening_seen=s->opening_seen;
-    out->inventory=s->inventory;
+    memcpy(out->inventory.quantity,s->inventory.quantity,sizeof(out->inventory.quantity));
     out->challenge=s->challenge;
-    out->achievements=s->achievements;
+    out->achievements=(achievement_v25_t){.evolutions=s->achievements.evolutions,.claimed=s->achievements.claimed};
     out->refresh=s->refresh;
     out->exploration=s->exploration;
     out->dungeon=s->dungeon;
@@ -205,11 +212,12 @@ static void test_legacy_snapshot(save_v22_t *out,const save_t *s) {
     out->exploration_wins=s->exploration_wins;
     out->playtime_s=s->playtime_s;
     party_serialize(&s->members,out->party);
-    memcpy(out->move_policies,s->members.policies,sizeof(out->move_policies));
+    for(unsigned i=0;i<157;i++)memcpy(out->move_policies[i].disabled,s->members.policies[i].disabled,24);
 }
 #include "achievements.c"
 #include "dungeon_rewards.c"
 #ifndef TEST_REAL_DUNGEON
+bool dungeon_learned(unsigned slot,mon_t *out){(void)slot;(void)out;return false;}
 bool dungeon_party_locked(void){return false;}
 bool dungeon_award_details(uint32_t id,unsigned node,dungeon_award_details_t *out){(void)id;(void)node;*out=(dungeon_award_details_t){0};return true;}
 unsigned dungeon_recipients(uint32_t id,uint8_t slots[3]){(void)id;(void)slots;return 0;}
@@ -240,7 +248,7 @@ static void one_starter(unsigned sid) {
     assert(persisted.members.party_count==1&&persisted.members.party[0].species_id==sid&&persisted.opening_seen);
 }
 static void legacy(void) {
-    fresh();save_t saved={0};saved.version=SAVE_VERSION;nurture_init(&saved.pet);
+    fresh();save_t saved={0};saved.version=SAVE_VERSION;johto_init(&saved.johto);nurture_init(&saved.pet);
     saved.pet.intimacy=42*NURT_Q;saved.pet.satiety=37*NURT_Q;saved.pet.last_us=777777;
     party_t p;party_init(&p);
     mon_t first={.species_id=150,.level=57,.hp=83,.intimacy=42,.explore_value=89,.flags=1,.exp=exp_for_level(57)};
@@ -267,7 +275,7 @@ static void protected_error(int which) {
     else if(which==4)init_error=ESP_ERR_NVS_NEW_VERSION_FOUND;
     else if(which==5)damaged.members.party[0].species_id=0;
     else if(which==6)failure=1;
-    else if(which==7){damaged.members.box[0].species_id=152;damaged.members.box[0].level=12;}
+    else if(which==7){damaged.members.box[0].species_id=252;damaged.members.box[0].level=12;}
     else if(which==8){memset(&damaged.members,0,sizeof(damaged.members));damaged.species=damaged.level=damaged.exp=0;}
     else if(which==9){memset(&damaged.members,0,sizeof(damaged.members));damaged.species=damaged.level=damaged.exp=0;memset(damaged.dex.caught,0,DEX_BYTES);}
     else if(which==10){damaged.members.box[0].species_id=2;damaged.members.box[0].level=12;}
@@ -275,7 +283,7 @@ static void protected_error(int which) {
     else if(which==12)damaged.queue.count=255;
     else if(which==13)damaged.queue.count=ENC_QUEUE_CAP+1;
     else if(which==14)damaged.queue.items[0].species_id=0;
-    else if(which==15)damaged.queue.items[0].species_id=152;
+    else if(which==15)damaged.queue.items[0].species_id=252;
     else if(which==16)damaged.queue.items[0].uid=0;
     else if(which==17){damaged.queue.count=2;damaged.queue.items[1]=damaged.queue.items[0];}
     else if(which==18)damaged.queue.items[0].rarity=0;
@@ -390,11 +398,11 @@ def main() -> int:
                    "-Wno-unused-variable", "-Wno-unused-function", "-Wno-unused-parameter",
                    "-ffunction-sections", "-fdata-sections", "-I", str(temp), "-I", str(MAIN),
                    str(temp / "driver.c"), str(temp/'assets.S'), *[str(MAIN / name) for name in
-                   ("box_view.c", "party.c", "encounter.c", "nurture.c", "exp.c", "items.c", "exploration.c", "trainer.c", "combat.c", "battle.c", "evolution.c", "assets.c", "pokemon_names.c")], "-lz",
+                   ("capture.c", "box_view.c", "party.c", "encounter.c", "nurture.c", "exp.c", "items.c", "exploration.c", "trainer.c", "gym_rules.c", "combat.c", "battle.c", "evolution.c", "assets.c", "pokemon_names.c")], "-lz",
                    "-Wl,-dead_strip" if sys.platform == "darwin" else "-Wl,--gc-sections",
                    "-o", str(temp / "verify")]
         if args.sanitize:
-            command[1:1] = ["-fsanitize=address,undefined", "-fno-omit-frame-pointer"]
+            command[1:1] = ["-fsanitize=address,undefined", "-fno-sanitize-recover=all", "-fno-omit-frame-pointer"]
         subprocess.run(command, check=True)
         result = subprocess.run([str(temp / "verify")], capture_output=True, text=True)
         assert result.returncode == 0, result.stdout + result.stderr

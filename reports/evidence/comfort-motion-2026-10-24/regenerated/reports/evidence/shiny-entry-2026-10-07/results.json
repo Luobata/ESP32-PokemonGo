@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "version": "290e517edce250e32c42",
+  "checks": 1402,
+  "cases": [
+    "wild: player=0, enemy=0, 0 sparkle frames; no state mutation/replay",
+    "wild: player=0, enemy=1, 30 sparkle frames; no state mutation/replay",
+    "wild: player=1, enemy=0, 30 sparkle frames; no state mutation/replay",
+    "wild: player=1, enemy=1, 60 sparkle frames; no state mutation/replay",
+    "trainer: initial and player-only replacement sparkle; enemy-only replacement does not replay player",
+    "dungeon: selected owned shiny retains palette and entry effect"
+  ]
+}

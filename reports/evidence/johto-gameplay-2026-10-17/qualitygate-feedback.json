@@ -1,0 +1,40 @@
+{
+  "mode": "FAST_SCRIPT_FEEDBACK",
+  "trigger": "semantic_checkpoint",
+  "eligible": false,
+  "decision": {
+    "eligible": false,
+    "trigger": "semantic_checkpoint",
+    "reasons": [
+      "no script rule matched the changed paths"
+    ],
+    "repo_root": "/Users/bytedance/luobata/ESP32-PokemonGo",
+    "paths": [
+      "firmware/main/save.c",
+      "firmware/main/save.h",
+      "firmware/main/save_legacy.h",
+      "firmware/main/save_bank.c",
+      "firmware/main/usb_backup_device.c",
+      "firmware/main/world.c",
+      "firmware/main/world_johto.inc",
+      "firmware/main/johto.c",
+      "firmware/main/play_johto.c",
+      "firmware/main/trainer.c",
+      "firmware/main/combat.c",
+      "tools/save-manager/web/backup.mjs",
+      "tools/pipeline/verify_johto_save.py"
+    ],
+    "matched_rule_ids": [],
+    "fingerprint": "",
+    "report_only": true
+  },
+  "block_merge": false,
+  "report_only": true,
+  "findings": [],
+  "status": "skipped",
+  "execution": {
+    "engine_started": false,
+    "elapsed_ms": 18.4,
+    "timeout_budget_sec": 5
+  }
+}

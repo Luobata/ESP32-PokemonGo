@@ -1,0 +1,18 @@
+{
+  "first_post_restore_export": {
+    "result": "rejected",
+    "reason": "missing DATA block",
+    "missing_offset": 63360,
+    "next_received_offset": 63488,
+    "file_accepted": false,
+    "raw_log_location": "ignored private device evidence",
+    "cause": "not established; firmware/host transport must be distinguished"
+  },
+  "restore_receipt_matches_original": true,
+  "brightness_before_restore": 89,
+  "brightness_after_reboot": 100,
+  "retry_export_success": true,
+  "export_readback_verified": true,
+  "cross_build_restore": true,
+  "logical_world_comparison": "passed"
+}

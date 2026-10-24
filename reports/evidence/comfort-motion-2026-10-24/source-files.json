@@ -1,0 +1,94 @@
+[
+  {
+    "path": "firmware/main/sfx.c",
+    "sha256": "762a35d6b55ef7215171d02fd12544d85199d41c5b230bfa6dce7291bf58d7da"
+  },
+  {
+    "path": "firmware/main/play_battle.c",
+    "sha256": "4f19cbc457e66b93aecee1584e3317b4a68166adfb0b15282136dbea5c88764d"
+  },
+  {
+    "path": "firmware/main/battle_fx.h",
+    "sha256": "9a04a0019063231785f0fa410c6de49ec563fdae497723a0035d2aa39286e2a0"
+  },
+  {
+    "path": "firmware/main/capture_presentation.h",
+    "sha256": "966068d02fc8b23e103e8308e75aedc1ff6820783b78172227d32abd2b5b78a8"
+  },
+  {
+    "path": "firmware/main/battle_presentation.h",
+    "sha256": "33f08ca42938da1892b443fd48d0f333ecf6aea31e8203651390501de08c3a83"
+  },
+  {
+    "path": "firmware/main/play_capture.c",
+    "sha256": "43094eab9ce3321195114409bc0937cee1125c562b61f4c30210447e2263a361"
+  },
+  {
+    "path": "firmware/main/battle_motion.h",
+    "sha256": "2e73434a067709edd6badd0fb70b6068215e051f87672bf03dba3a33c7555d4d"
+  },
+  {
+    "path": "firmware/main/battle_timing.h",
+    "sha256": "667cdb61cf19c8acbdc41e5f7ff542b168b5e14eb2d9d0b82b7e55257af4ffc9"
+  },
+  {
+    "path": "firmware/main/play_enc.c",
+    "sha256": "1c082395eaa1d05f1316cfe9449355dc4161b66b116547d987444f019357e429"
+  },
+  {
+    "path": "firmware/main/play_trainer.c",
+    "sha256": "911fbe7da3be2e7de8f6cd470bc7fce1560216e4ccd2adc50eb00b6da723a3f0"
+  },
+  {
+    "path": "tools/inspector/moves.js",
+    "sha256": "e79dce894bc5461d0a1f524c6f7a9e72e9bd105d592c823543aeb696b008b3e7"
+  },
+  {
+    "path": "tools/pipeline/verify_johto_champion_ui.py",
+    "sha256": "504b1a9022d30f777d6f0c4e5c186de556d9ab79db259983a2e15b755cc92eda"
+  },
+  {
+    "path": "tools/pipeline/verify_scene_pacing.py",
+    "sha256": "d0b6cea1e46b0896d788e867f52b3a821167301a06a2933580013e11429cd0a0"
+  },
+  {
+    "path": "tools/pipeline/verify_animation_timing.py",
+    "sha256": "d9ecd1200d9c7020b5e674f68c309877f8e3ec49844a498fcf85f5c6a151375f"
+  },
+  {
+    "path": "tools/pipeline/verify_capture_capacity_ui.py",
+    "sha256": "aca62b5501c57471cea36a8f0c1d3aea253e00ee85d1d7b297306e63751ce20b"
+  },
+  {
+    "path": "tools/pipeline/verify_shiny_entry.py",
+    "sha256": "2918af74642fb38065d3d8d479c0b0af3057072f7cd0ae119ce9f25c87f7a109"
+  },
+  {
+    "path": "tools/pipeline/verify_battle_pace_ui.py",
+    "sha256": "1afaece1279b21de3e02b43403360849e4ef4e58c8040d0571018cc878b9a390"
+  },
+  {
+    "path": "tools/pipeline/verify_johto_activity_ui.py",
+    "sha256": "dc9d9a91178f2ab3976e623795ac5e9070f7a78c9a2afebd2d678c4b029e933b"
+  },
+  {
+    "path": "tools/pipeline/verify_battle_motion.py",
+    "sha256": "4e97f6551a31068ea3e9111197c1fce644331f1eef8f19fa17edd752dc814332"
+  },
+  {
+    "path": "tools/pipeline/verify_capture_animation.py",
+    "sha256": "13189dbad569c25ac30d67de66ad9d3b5edeb2a330e9634437914c9f6d408f04"
+  },
+  {
+    "path": "tools/pipeline/verify_battle_timeline_ui.py",
+    "sha256": "b9f7fccabdb9560f9aae2dcab6646292e0643494df8353e260eb42c3a6f90bb5"
+  },
+  {
+    "path": "tools/pipeline/verify_audio_switch.py",
+    "sha256": "a0658096560c9be53ef60217ddc9726026275778a61a693191239cd4da4104c7"
+  },
+  {
+    "path": "tools/pipeline/verify_battle_timeline.py",
+    "sha256": "9904ebbdf51726077e86020437c6874aa26bf54874ba26734c9ed0a4976ef39d"
+  }
+]

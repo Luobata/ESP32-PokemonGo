@@ -1,0 +1,72 @@
+[
+  {
+    "name": "verify_region_expansion.py",
+    "exit_code": 0,
+    "seconds": 12.4
+  },
+  {
+    "name": "verify_dungeon_stack.py",
+    "exit_code": 0,
+    "seconds": 1.4
+  },
+  {
+    "name": "verify_johto_save.py",
+    "exit_code": 0,
+    "seconds": 8.0
+  },
+  {
+    "name": "verify_johto_evolution.py",
+    "exit_code": 0,
+    "seconds": 10.4
+  },
+  {
+    "name": "verify_johto_evolution_ui.py",
+    "exit_code": 0,
+    "seconds": 2.6
+  },
+  {
+    "name": "verify_johto_activity.py",
+    "exit_code": 0,
+    "seconds": 4.6
+  },
+  {
+    "name": "verify_johto_activity_ui.py",
+    "exit_code": 0,
+    "seconds": 4.9
+  },
+  {
+    "name": "verify_johto_story.py",
+    "exit_code": 0,
+    "seconds": 5.0
+  },
+  {
+    "name": "verify_johto_story_ui.py",
+    "exit_code": 0,
+    "seconds": 0.7
+  },
+  {
+    "name": "verify_johto_champion.py",
+    "exit_code": 0,
+    "seconds": 6.5
+  },
+  {
+    "name": "verify_johto_champion_ui.py",
+    "exit_code": 0,
+    "seconds": 1.8
+  },
+  {
+    "name": "verify_johto_champion_balance.py",
+    "exit_code": 0,
+    "seconds": 11.6
+  },
+  {
+    "name": "verify_johto_routes.py",
+    "exit_code": 0,
+    "seconds": 7.3
+  },
+  {
+    "name": "verify_johto_routes_ui.py",
+    "exit_code": 0,
+    "seconds": 2.2
+  }
+]

@@ -64,9 +64,14 @@
   }
   async function reset(){
     if(![...document.querySelectorAll('input[type=number]')].every(e=>e.reportValidity()))return;
-    await changeScene('reset',Object.fromEntries(['page','pet','level','wild','rarity','seed','progress','region'].map(k=>[k,Number($(k).value)]).concat([['research',$('research').checked?1:0],['shiny',$('shiny').checked?1:0],['pet_shiny',$('pet_shiny').checked?1:0],['names',Number($('names').value)],['team',Number($('team').value)]])));
+    const narrativePage=$('page').value==='20';
+    await changeScene('reset',Object.fromEntries(['page','pet','level','wild','rarity','seed','progress','region','johto_badges'].map(k=>[k,Number($(k).value)]).concat([['research',$('research').checked?1:0],['shiny',$('shiny').checked?1:0],['pet_shiny',$('pet_shiny').checked?1:0],['names',Number($('names').value)],['team',Number($('team').value)]])));
+    if(narrativePage)await changeScene('narrative_fixture',{scene:Number($('narrative').value)});
+    else if($('page').value==='17'&&Number($('fieldwork').value)>=0)await changeScene('fieldwork_fixture',{scene:Number($('fieldwork').value)});
   }
   $('reset').onclick=reset;
+  $('narrative').onchange=()=>{$('page').value='20';return reset();};
+  $('fieldwork').onchange=()=>{$('page').value='17';return reset();};
   $('names').onchange=async()=>{
     const style=Number($('names').value);nameRequest++;
     try{await changeScene('names',{style});}
@@ -140,7 +145,7 @@
   $('zoom').onchange=zoom;window.addEventListener('resize',zoom);zoom();
   $('download').onclick=()=>{const a=document.createElement('a');a.download=`firmware-${lastPage}-${canvas.dataset.ms}ms.png`;a.href=canvas.toDataURL('image/png');a.click();};
   const params=new URLSearchParams(location.search);
-  for(const id of ['progress','region','level']){
+  for(const id of ['progress','region','level','johto_badges','narrative','fieldwork']){
     const value=params.get(id),input=$(id);
     if(value!==null&&/^\d+$/.test(value)){
       if(input.tagName==='SELECT'){if([...input.options].some(o=>o.value===value))input.value=value;}
@@ -148,7 +153,7 @@
     }
   }
   if(params.get('research')==='1')$('research').checked=true;
-  const hash=location.hash.match(/^#P([0-6]|9|1[0-6])$/);if(hash)$('page').value=hash[1];
+  const hash=location.hash.match(/^#P([0-6]|9|1[0-9]|20)$/);if(hash)$('page').value=hash[1];
   document.addEventListener('visibilitychange',()=>{suspendClock();scheduleClock();});
   reset();
 })();

@@ -106,6 +106,10 @@ int esp_codec_dev_write(void *dev, void *pcm, size_t size);
 int esp_codec_dev_read(void *dev, void *pcm, size_t size);
 int esp_codec_dev_set_out_vol(void *dev, unsigned volume);
 typedef void *QueueHandle_t;
+typedef unsigned portMUX_TYPE;
+#define portMUX_INITIALIZER_UNLOCKED 0
+#define portENTER_CRITICAL(p) ((void)(p))
+#define portEXIT_CRITICAL(p) ((void)(p))
 #define MALLOC_CAP_DMA 1
 #define portMAX_DELAY 0xffffffffu
 #define pdTRUE 1

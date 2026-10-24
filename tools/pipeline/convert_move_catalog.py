@@ -13,5 +13,5 @@ for r in rows:
  r['legacy_name']=legacy.get(r['id'],r['name'])
  r['animation']='GOLD_TRACK'
  r['animation_note']='原作图元、帧集、对象运动和背景状态轨迹 · 45ms采样 · 竖屏合成适配（未宣称逐像素等价）'
-assert len(rows)==191
+assert len(rows)==194
 (ROOT/'tools/inspector/move-catalog.json').write_text(json.dumps(sorted(rows,key=lambda m:m['id']),ensure_ascii=False,indent=2)+'\n')

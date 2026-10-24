@@ -1,0 +1,8 @@
+V22 codec: sparse/dense/random bytes, every truncation/bit corruption, length and capacity boundaries passed
+Assertion failed: (!save_bank_prepare(&io,NULL,fresh,sizeof(fresh),&next)), function main, file bank_faults.c, line 16.
+Traceback (most recent call last):
+  File "/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/verify_save_storage.py", line 53, in <module>
+    subprocess.run([str(p/'banks')],check=True)
+  File "/Users/bytedance/.pyenv/versions/3.12.0/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/pokewalk-save-bank-w8e2whxw/banks']' died with <Signals.SIGABRT: 6>.

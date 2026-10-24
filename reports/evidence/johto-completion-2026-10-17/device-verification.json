@@ -1,0 +1,56 @@
+{
+  "physical_device": "ESP32-C3, 8 MiB Flash",
+  "backup_before_flash": true,
+  "partition_table_unchanged": true,
+  "only_application_flashed": true,
+  "flash_regions_unchanged": {
+    "nvs": true,
+    "pokewalk_store": true
+  },
+  "app_sha256": "db4ba9094c3d9ff732186acb2c9eb2afab8e0968d54fe3d80399000335c7e7dc",
+  "v23_boot_migration": true,
+  "restores": [
+    {
+      "source": 29,
+      "container": 4,
+      "payload_bytes": 73728,
+      "cross_build": true,
+      "brightness_before": 90,
+      "brightness_after": 100,
+      "matching_reboot_receipt": true
+    },
+    {
+      "source": 23,
+      "container": 2,
+      "payload_bytes": 49152,
+      "cross_build": true,
+      "brightness_before": 90,
+      "brightness_after": 100,
+      "matching_reboot_receipt": true
+    }
+  ],
+  "final_export": {
+    "version": 29,
+    "container": 4,
+    "payload_bytes": 73728,
+    "disk_readback_verified": true,
+    "all_party_dex_inventory_match_original": true
+  },
+  "party_total": 109,
+  "warehouse_capacity": 753,
+  "memory_after_wifi_and_restore": {
+    "minimum_free": 12328,
+    "largest_block": 12288,
+    "debug_stack_minimum_observed": 520
+  },
+  "test_transport": "production JS receiver/envelope/decoder driven over real USB, device normal-menu confirmations",
+  "limitations": [
+    "No physical 759-individual stress run",
+    "No long-play through every chapter on physical device",
+    "No browser permission/download prompt end-to-end test",
+    "Not all task runtime stack minima sampled"
+  ],
+  "user_original_settings_restored": true,
+  "private_backups_committed": false,
+  "warehouse_screen_verified": "103/753, plus party 6/6"
+}

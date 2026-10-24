@@ -103,6 +103,9 @@ def parse(blob: bytes):
     if not m:
         return None
     w, h, fmt, band_h = int(m.group(1)), int(m.group(2)), m.group(3), int(m.group(4))
+    if not (0 < w <= 1024 and 0 < h <= 1024 and 0 < band_h <= h):
+        print("截图尺寸无效", file=sys.stderr)
+        return None
     # 固件吐的是**交换之后**的字节，也就是屏幕真正收到的大端 RGB565。
     # 早期版本吐交换前的小端 —— 那让截图看不见字节序类的错误
     # （屏幕紫的时候截图还是绿的）。两种都认，老图还能解。
@@ -124,31 +127,34 @@ def parse(blob: bytes):
     # split 后是 [前导, y1, 数据1, y2, 数据2, ...]
     for i in range(1, len(parts) - 1, 2):
         y = int(parts[i])
+        if y >= h or y % band_h or y in bands:
+            print(f"截图条带位置重复或无效: {y}", file=sys.stderr)
+            return None
         b64 = b"".join(l.strip() for l in parts[i + 1].splitlines()
                        if l.strip() and not l.startswith(b"I (")
                        and not l.startswith(b"E ("))
         try:
-            bands[y] = base64.b64decode(b64)
+            bands[y] = base64.b64decode(b64, validate=True)
         except Exception as e:
             print(f"  band {y} 解码失败: {e}", file=sys.stderr)
+            return None
+        expected = w * min(band_h, h - y) * 2
+        if len(bands[y]) != expected:
+            print(f"  band {y} 数据不完整: {len(bands[y])}/{expected} 字节，请重新抓图", file=sys.stderr)
+            return None
 
-    if not bands:
+    if set(bands) != set(range(0, h, band_h)):
+        print("截图缺少完整条带，请重新抓图", file=sys.stderr)
         return None
 
     rows = []
     for y in range(h):
         band_y = (y // band_h) * band_h
-        data = bands.get(band_y)
-        if data is None:
-            rows.append(b"\x00\x00\x00" * w)      # 缺的带填黑
-            continue
+        data = bands[band_y]
         off = (y - band_y) * w * 2
         row = bytearray()
         for x in range(w):
             i = off + x * 2
-            if i + 1 >= len(data):
-                row += b"\x00\x00\x00"
-                continue
             v = ((data[i] << 8) | data[i + 1]) if big_endian \
                 else (data[i] | (data[i + 1] << 8))
             row += bytes(rgb565_to_rgb888(v))

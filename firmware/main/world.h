@@ -308,3 +308,44 @@ bool world_sync_time(int64_t utc_us,uint8_t *recovered);
 
 // Serialize bounded backup flash work without collecting/saving another world.
 bool world_backup_exclusive(bool (*operation)(void *),void *context);
+
+// Chapter mutations save rewards, stamina and research in one transaction.
+#include "johto.h"
+#include "johto_routes.h"
+typedef enum { WORLD_JOHTO_OK, WORLD_JOHTO_LOCKED, WORLD_JOHTO_BUSY,
+ WORLD_JOHTO_FULL, WORLD_JOHTO_NO_STAMINA, WORLD_JOHTO_SAVE_FAILED,
+ WORLD_JOHTO_WRONG_PATH, WORLD_JOHTO_WRONG_PARTNER } world_johto_result_t;
+void world_johto_snapshot(johto_state_t *out);
+bool world_johto_available(void);
+world_johto_result_t world_johto_visit(void);
+world_johto_result_t world_johto_depart(void);
+world_johto_result_t world_johto_starter(unsigned species);
+world_johto_result_t world_johto_egg(bool hatch);
+world_johto_result_t world_johto_explore(unsigned route,encounter_t *out);
+world_johto_result_t world_johto_search(unsigned route,unsigned path,johto_search_t *out);
+world_johto_result_t world_johto_investigate(unsigned id,unsigned path,unsigned slot,const mon_t *expected);
+world_johto_result_t world_johto_legend(unsigned legend,encounter_t *out);
+
+// Unified exact-individual evolution; slots 0..5 are team, 6..458 warehouse.
+item_use_status_t world_evolve_individual(unsigned slot,const mon_t *expected,unsigned target);
+
+void world_johto_reward_progress(uint16_t claimed[JOHTO_REWARD_COUNT]);
+world_johto_result_t world_johto_reward_claim(unsigned id);
+
+#include "activity_transactions.h"
+void world_activity_snapshot(activity_store_t *);
+activity_result_t world_activity_action(const activity_request_t *,activity_result_data_t *);
+
+#include "story_transactions.h"
+void world_story_snapshot(johto_story_t *);
+activity_result_t world_story_action(const story_request_t *,story_result_t *);
+bool world_johto_final_available(void);
+
+bool world_story_feather(void);
+bool world_story_kanto_ready(void);
+const char *world_story_legend_hint(unsigned);
+#include "narrative.h"
+void world_narrative_snapshot(narrative_context_t *);
+unsigned world_narrative_update(unsigned scene,unsigned page,unsigned answer,bool begin);
+
+void world_endgame_snapshot(endgame_t *out);

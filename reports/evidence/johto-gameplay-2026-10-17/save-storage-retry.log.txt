@@ -1,0 +1,2 @@
+V22 codec: sparse/dense/random bytes, every truncation/bit corruption, length and capacity boundaries passed
+bank faults: 830 single/partial failures, 500 replacements, corrupt/missing bank rejection PASS

@@ -89,5 +89,44 @@
     "firmware/main/wifi_time.h": "717a680cc238df51001a168e6ccd700a82148a0e7a317d17f85213292dcf39e3",
     "firmware/main/world.h": "78d4c0a8a63cc9920991a82fa8a513c18c789238b0b4e6e864498543cc338eef"
   },
-  "provenance": "Synthetic nonempty V3 run built from published headers"
+  "provenance": "Synthetic nonempty V3 run built from published headers",
+  "additional_fixtures": [
+    {
+      "file": "v4-themed-run.bin",
+      "version": 4,
+      "size": 932,
+      "sha256": "9be915efb816be52a73c6867cf7d6d38da13083ddeab1308499e9bc95520292f",
+      "source_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+      "source_type": "dungeon_v4_t",
+      "source_hashes": {
+        "firmware/main/dungeon.h": "9c7852988801e988dbc56e14cf81b9318465c074eb2c4e1a2052fb456bf1b81a"
+      },
+      "provenance": "Synthetic V3 sample adapted using frozen V4 fields; V5 produced by production migration. No player data."
+    },
+    {
+      "file": "v5-individual-run.bin",
+      "version": 5,
+      "size": 944,
+      "sha256": "176d4cd8aa62c7b8c29c4ea6928fe01c75a13cbad45da79e34f70d3f6a52ef07",
+      "source_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+      "source_type": "dungeon_t",
+      "source_hashes": {
+        "firmware/main/dungeon.h": "9c7852988801e988dbc56e14cf81b9318465c074eb2c4e1a2052fb456bf1b81a"
+      },
+      "provenance": "Synthetic V3 sample adapted using frozen V4 fields; V5 produced by production migration. No player data."
+    },
+    {
+      "file": "v6-battle-traits.bin",
+      "version": 6,
+      "size": 944,
+      "sha256": "95a8eca9bad0196731ffe526fd51560943148d9d7082b2910595dc97ce4f43ba",
+      "source_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+      "source_type": "dungeon_t",
+      "source_hashes": {
+        "firmware/main/dungeon.c": "22d952f1c8d6f7d6ae3522a33288b8a436b0b126575156889339e1b015780a32",
+        "firmware/main/dungeon.h": "e276f39b40da84ccb2d14252b0fa583a5152633bbcfb2b66e45e208e92bf2804"
+      },
+      "provenance": "Synthetic frozen V5 fixture migrated with production V6 decoder. Former PP bytes normalized before trait validation; no player data."
+    }
+  ]
 }

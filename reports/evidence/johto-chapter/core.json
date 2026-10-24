@@ -1,0 +1,695 @@
+{
+  "state_bytes": 48,
+  "routes": [
+    {
+      "id": 0,
+      "name": "若叶郊野",
+      "activity": "初始伙伴研究",
+      "badges": 0,
+      "levels": [
+        35,
+        44
+      ],
+      "species": [
+        161,
+        163,
+        165,
+        167,
+        179,
+        187,
+        191,
+        194,
+        172,
+        173,
+        174,
+        183
+      ]
+    },
+    {
+      "id": 1,
+      "name": "桧皮林地",
+      "activity": "虫类观察",
+      "badges": 1,
+      "levels": [
+        38,
+        48
+      ],
+      "species": [
+        165,
+        166,
+        167,
+        168,
+        177,
+        187,
+        188,
+        190,
+        193,
+        204,
+        206,
+        214
+      ]
+    },
+    {
+      "id": 2,
+      "name": "满金原野",
+      "activity": "伙伴救助",
+      "badges": 2,
+      "levels": [
+        42,
+        52
+      ],
+      "species": [
+        189,
+        179,
+        180,
+        183,
+        184,
+        185,
+        191,
+        192,
+        209,
+        216,
+        231,
+        241
+      ]
+    },
+    {
+      "id": 3,
+      "name": "缘朱遗迹",
+      "activity": "遗迹调查",
+      "badges": 3,
+      "levels": [
+        48,
+        58
+      ],
+      "species": [
+        177,
+        178,
+        198,
+        200,
+        201,
+        202,
+        203,
+        207,
+        213,
+        234,
+        235,
+        236
+      ]
+    },
+    {
+      "id": 4,
+      "name": "烧焦塔",
+      "activity": "三兽踪迹",
+      "badges": 4,
+      "levels": [
+        52,
+        62
+      ],
+      "species": [
+        156,
+        162,
+        164,
+        181,
+        195,
+        197,
+        205,
+        210,
+        215,
+        218,
+        228,
+        229
+      ]
+    },
+    {
+      "id": 5,
+      "name": "冰雪之径",
+      "activity": "冰原远征",
+      "badges": 5,
+      "levels": [
+        58,
+        68
+      ],
+      "species": [
+        215,
+        217,
+        220,
+        221,
+        225,
+        238,
+        239,
+        240,
+        246,
+        247,
+        224,
+        232
+      ]
+    },
+    {
+      "id": 6,
+      "name": "漩涡列岛",
+      "activity": "银色之羽调查",
+      "badges": 6,
+      "levels": [
+        64,
+        76
+      ],
+      "species": [
+        158,
+        159,
+        170,
+        171,
+        184,
+        195,
+        211,
+        222,
+        223,
+        224,
+        226,
+        230
+      ]
+    },
+    {
+      "id": 7,
+      "name": "铃铛塔",
+      "activity": "虹色之羽调查",
+      "badges": 7,
+      "levels": [
+        70,
+        82
+      ],
+      "species": [
+        154,
+        157,
+        160,
+        169,
+        182,
+        186,
+        196,
+        199,
+        208,
+        212,
+        227,
+        248
+      ]
+    }
+  ],
+  "trainers": [
+    {
+      "name": "阿速",
+      "badge": "飞翼徽章",
+      "opening": "让你看看飞行的力量！",
+      "ending": "你的伙伴已经学会乘风前进。",
+      "team": [
+        [
+          164,
+          40
+        ],
+        [
+          176,
+          41
+        ],
+        [
+          18,
+          42
+        ]
+      ]
+    },
+    {
+      "name": "阿笔",
+      "badge": "昆虫徽章",
+      "opening": "小小的身体也有无限可能。",
+      "ending": "这枚徽章属于你的观察与耐心。",
+      "team": [
+        [
+          166,
+          44
+        ],
+        [
+          168,
+          45
+        ],
+        [
+          214,
+          46
+        ],
+        [
+          212,
+          47
+        ]
+      ]
+    },
+    {
+      "name": "小茜",
+      "badge": "标准徽章",
+      "opening": "准备好面对我们的默契了吗？",
+      "ending": "下一次，我们还会更强！",
+      "team": [
+        [
+          210,
+          49
+        ],
+        [
+          203,
+          50
+        ],
+        [
+          217,
+          51
+        ],
+        [
+          241,
+          52
+        ]
+      ]
+    },
+    {
+      "name": "松叶",
+      "badge": "魅影徽章",
+      "opening": "看清眼前，也看清心中的影子。",
+      "ending": "你已获得继续调查传说的资格。",
+      "team": [
+        [
+          200,
+          54
+        ],
+        [
+          94,
+          55
+        ],
+        [
+          198,
+          56
+        ],
+        [
+          197,
+          57
+        ]
+      ]
+    },
+    {
+      "name": "阿四",
+      "badge": "打击徽章",
+      "opening": "真正的力量来自不断磨练。",
+      "ending": "带着你的伙伴，继续前进吧！",
+      "team": [
+        [
+          237,
+          58
+        ],
+        [
+          107,
+          59
+        ],
+        [
+          106,
+          60
+        ],
+        [
+          62,
+          61
+        ],
+        [
+          214,
+          62
+        ]
+      ]
+    },
+    {
+      "name": "阿蜜",
+      "badge": "钢铁徽章",
+      "opening": "温柔，也可以很坚强。",
+      "ending": "银色之羽的线索就在海的另一边。",
+      "team": [
+        [
+          82,
+          64
+        ],
+        [
+          205,
+          65
+        ],
+        [
+          227,
+          66
+        ],
+        [
+          212,
+          67
+        ],
+        [
+          208,
+          68
+        ]
+      ]
+    },
+    {
+      "name": "柳伯",
+      "badge": "冰之徽章",
+      "opening": "经历风雪，才能懂得坚持。",
+      "ending": "你的热情，已经融化了冰雪。",
+      "team": [
+        [
+          87,
+          70
+        ],
+        [
+          91,
+          71
+        ],
+        [
+          215,
+          72
+        ],
+        [
+          225,
+          73
+        ],
+        [
+          221,
+          74
+        ]
+      ]
+    },
+    {
+      "name": "小椿",
+      "badge": "升龙徽章",
+      "opening": "让我们见识你与伙伴的羁绊。",
+      "ending": "你已经证明自己。去完成最后的调查吧！",
+      "team": [
+        [
+          130,
+          75
+        ],
+        [
+          148,
+          76
+        ],
+        [
+          181,
+          77
+        ],
+        [
+          248,
+          78
+        ],
+        [
+          230,
+          79
+        ],
+        [
+          149,
+          80
+        ]
+      ]
+    },
+    {
+      "name": "空木博士",
+      "badge": "城都研究大师",
+      "opening": "这一次，让我看看你们一路学到的一切。",
+      "ending": "答案，就在你和伙伴共同走过的旅途中。",
+      "team": [
+        [
+          154,
+          88
+        ],
+        [
+          157,
+          88
+        ],
+        [
+          160,
+          88
+        ],
+        [
+          196,
+          90
+        ],
+        [
+          212,
+          90
+        ],
+        [
+          248,
+          92
+        ]
+      ]
+    }
+  ],
+  "status": "PASS",
+  "scope": "isolated chapter core, not live world persistence",
+  "acquisition_plan": {
+    "1": "existing Kanto acquisition",
+    "2": "existing Kanto acquisition",
+    "3": "existing Kanto acquisition",
+    "4": "existing Kanto acquisition",
+    "5": "existing Kanto acquisition",
+    "6": "existing Kanto acquisition",
+    "7": "existing Kanto acquisition",
+    "8": "existing Kanto acquisition",
+    "9": "existing Kanto acquisition",
+    "10": "existing Kanto acquisition",
+    "11": "existing Kanto acquisition",
+    "12": "existing Kanto acquisition",
+    "13": "existing Kanto acquisition",
+    "14": "existing Kanto acquisition",
+    "15": "existing Kanto acquisition",
+    "16": "existing Kanto acquisition",
+    "17": "existing Kanto acquisition",
+    "18": "existing Kanto acquisition",
+    "19": "existing Kanto acquisition",
+    "20": "existing Kanto acquisition",
+    "21": "existing Kanto acquisition",
+    "22": "existing Kanto acquisition",
+    "23": "existing Kanto acquisition",
+    "24": "existing Kanto acquisition",
+    "25": "existing Kanto acquisition",
+    "26": "existing Kanto acquisition",
+    "27": "existing Kanto acquisition",
+    "28": "existing Kanto acquisition",
+    "29": "existing Kanto acquisition",
+    "30": "existing Kanto acquisition",
+    "31": "existing Kanto acquisition",
+    "32": "existing Kanto acquisition",
+    "33": "existing Kanto acquisition",
+    "34": "existing Kanto acquisition",
+    "35": "existing Kanto acquisition",
+    "36": "existing Kanto acquisition",
+    "37": "existing Kanto acquisition",
+    "38": "existing Kanto acquisition",
+    "39": "existing Kanto acquisition",
+    "40": "existing Kanto acquisition",
+    "41": "existing Kanto acquisition",
+    "42": "existing Kanto acquisition",
+    "43": "existing Kanto acquisition",
+    "44": "existing Kanto acquisition",
+    "45": "existing Kanto acquisition",
+    "46": "existing Kanto acquisition",
+    "47": "existing Kanto acquisition",
+    "48": "existing Kanto acquisition",
+    "49": "existing Kanto acquisition",
+    "50": "existing Kanto acquisition",
+    "51": "existing Kanto acquisition",
+    "52": "existing Kanto acquisition",
+    "53": "existing Kanto acquisition",
+    "54": "existing Kanto acquisition",
+    "55": "existing Kanto acquisition",
+    "56": "existing Kanto acquisition",
+    "57": "existing Kanto acquisition",
+    "58": "existing Kanto acquisition",
+    "59": "existing Kanto acquisition",
+    "60": "existing Kanto acquisition",
+    "61": "existing Kanto acquisition",
+    "62": "existing Kanto acquisition",
+    "63": "existing Kanto acquisition",
+    "64": "existing Kanto acquisition",
+    "65": "existing Kanto acquisition",
+    "66": "existing Kanto acquisition",
+    "67": "existing Kanto acquisition",
+    "68": "existing Kanto acquisition",
+    "69": "existing Kanto acquisition",
+    "70": "existing Kanto acquisition",
+    "71": "existing Kanto acquisition",
+    "72": "existing Kanto acquisition",
+    "73": "existing Kanto acquisition",
+    "74": "existing Kanto acquisition",
+    "75": "existing Kanto acquisition",
+    "76": "existing Kanto acquisition",
+    "77": "existing Kanto acquisition",
+    "78": "existing Kanto acquisition",
+    "79": "existing Kanto acquisition",
+    "80": "existing Kanto acquisition",
+    "81": "existing Kanto acquisition",
+    "82": "existing Kanto acquisition",
+    "83": "existing Kanto acquisition",
+    "84": "existing Kanto acquisition",
+    "85": "existing Kanto acquisition",
+    "86": "existing Kanto acquisition",
+    "87": "existing Kanto acquisition",
+    "88": "existing Kanto acquisition",
+    "89": "existing Kanto acquisition",
+    "90": "existing Kanto acquisition",
+    "91": "existing Kanto acquisition",
+    "92": "existing Kanto acquisition",
+    "93": "existing Kanto acquisition",
+    "94": "existing Kanto acquisition",
+    "95": "existing Kanto acquisition",
+    "96": "existing Kanto acquisition",
+    "97": "existing Kanto acquisition",
+    "98": "existing Kanto acquisition",
+    "99": "existing Kanto acquisition",
+    "100": "existing Kanto acquisition",
+    "101": "existing Kanto acquisition",
+    "102": "existing Kanto acquisition",
+    "103": "existing Kanto acquisition",
+    "104": "existing Kanto acquisition",
+    "105": "existing Kanto acquisition",
+    "106": "existing Kanto acquisition",
+    "107": "existing Kanto acquisition",
+    "108": "existing Kanto acquisition",
+    "109": "existing Kanto acquisition",
+    "110": "existing Kanto acquisition",
+    "111": "existing Kanto acquisition",
+    "112": "existing Kanto acquisition",
+    "113": "existing Kanto acquisition",
+    "114": "existing Kanto acquisition",
+    "115": "existing Kanto acquisition",
+    "116": "existing Kanto acquisition",
+    "117": "existing Kanto acquisition",
+    "118": "existing Kanto acquisition",
+    "119": "existing Kanto acquisition",
+    "120": "existing Kanto acquisition",
+    "121": "existing Kanto acquisition",
+    "122": "existing Kanto acquisition",
+    "123": "existing Kanto acquisition",
+    "124": "existing Kanto acquisition",
+    "125": "existing Kanto acquisition",
+    "126": "existing Kanto acquisition",
+    "127": "existing Kanto acquisition",
+    "128": "existing Kanto acquisition",
+    "129": "existing Kanto acquisition",
+    "130": "existing Kanto acquisition",
+    "131": "existing Kanto acquisition",
+    "132": "existing Kanto acquisition",
+    "133": "existing Kanto acquisition",
+    "134": "existing Kanto acquisition",
+    "135": "existing Kanto acquisition",
+    "136": "existing Kanto acquisition",
+    "137": "existing Kanto acquisition",
+    "138": "existing Kanto acquisition",
+    "139": "existing Kanto acquisition",
+    "140": "existing Kanto acquisition",
+    "141": "existing Kanto acquisition",
+    "142": "existing Kanto acquisition",
+    "143": "existing Kanto acquisition",
+    "144": "existing Kanto acquisition",
+    "145": "existing Kanto acquisition",
+    "146": "existing Kanto acquisition",
+    "147": "existing Kanto acquisition",
+    "148": "existing Kanto acquisition",
+    "149": "existing Kanto acquisition",
+    "150": "existing Kanto acquisition",
+    "151": "existing Kanto acquisition",
+    "161": "若叶郊野",
+    "163": "若叶郊野",
+    "165": "若叶郊野",
+    "167": "若叶郊野",
+    "179": "若叶郊野",
+    "187": "若叶郊野",
+    "191": "若叶郊野",
+    "194": "若叶郊野",
+    "172": "若叶郊野",
+    "173": "若叶郊野",
+    "174": "若叶郊野",
+    "183": "若叶郊野",
+    "166": "桧皮林地",
+    "168": "桧皮林地",
+    "177": "桧皮林地",
+    "188": "桧皮林地",
+    "190": "桧皮林地",
+    "193": "桧皮林地",
+    "204": "桧皮林地",
+    "206": "桧皮林地",
+    "214": "桧皮林地",
+    "189": "满金原野",
+    "180": "满金原野",
+    "184": "满金原野",
+    "185": "满金原野",
+    "192": "满金原野",
+    "209": "满金原野",
+    "216": "满金原野",
+    "231": "满金原野",
+    "241": "满金原野",
+    "178": "缘朱遗迹",
+    "198": "缘朱遗迹",
+    "200": "缘朱遗迹",
+    "202": "缘朱遗迹",
+    "203": "缘朱遗迹",
+    "207": "缘朱遗迹",
+    "213": "缘朱遗迹",
+    "234": "缘朱遗迹",
+    "235": "缘朱遗迹",
+    "236": "缘朱遗迹",
+    "156": "烧焦塔",
+    "162": "烧焦塔",
+    "164": "烧焦塔",
+    "181": "烧焦塔",
+    "195": "烧焦塔",
+    "197": "烧焦塔",
+    "205": "烧焦塔",
+    "210": "烧焦塔",
+    "215": "烧焦塔",
+    "218": "烧焦塔",
+    "228": "烧焦塔",
+    "229": "烧焦塔",
+    "217": "冰雪之径",
+    "220": "冰雪之径",
+    "221": "冰雪之径",
+    "225": "冰雪之径",
+    "238": "冰雪之径",
+    "239": "冰雪之径",
+    "240": "冰雪之径",
+    "246": "冰雪之径",
+    "247": "冰雪之径",
+    "224": "冰雪之径",
+    "232": "冰雪之径",
+    "158": "starter choice / first two Goldenrod rescues",
+    "159": "漩涡列岛",
+    "170": "漩涡列岛",
+    "171": "漩涡列岛",
+    "211": "漩涡列岛",
+    "222": "漩涡列岛",
+    "223": "漩涡列岛",
+    "226": "漩涡列岛",
+    "230": "漩涡列岛",
+    "154": "铃铛塔",
+    "157": "铃铛塔",
+    "160": "铃铛塔",
+    "169": "铃铛塔",
+    "182": "铃铛塔",
+    "186": "铃铛塔",
+    "196": "铃铛塔",
+    "199": "铃铛塔",
+    "208": "铃铛塔",
+    "212": "铃铛塔",
+    "227": "铃铛塔",
+    "248": "铃铛塔",
+    "152": "starter choice / first two Goldenrod rescues",
+    "155": "starter choice / first two Goldenrod rescues",
+    "175": "Togepi-only egg",
+    "201": "four ruins investigations, 26 forms",
+    "243": "dedicated repeatable investigation",
+    "244": "dedicated repeatable investigation",
+    "245": "dedicated repeatable investigation",
+    "249": "dedicated repeatable investigation",
+    "250": "dedicated repeatable investigation",
+    "251": "dedicated repeatable investigation",
+    "242": "evolution from 113 (EVOLVE_HAPPINESS)",
+    "233": "evolution from 137 (EVOLVE_TRADE)",
+    "153": "evolution from 152 (EVOLVE_LEVEL)",
+    "176": "evolution from 175 (EVOLVE_HAPPINESS)",
+    "219": "evolution from 218 (EVOLVE_LEVEL)",
+    "237": "evolution from 236 (EVOLVE_STAT)"
+  },
+  "pending_special_mechanics": []
+}

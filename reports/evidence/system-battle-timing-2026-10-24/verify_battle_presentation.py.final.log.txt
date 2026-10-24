@@ -1,0 +1,7 @@
+PASS battle presentation: 5386 real C samples, HP/EXP/entry boundaries and redraws
+  caught miss still removes HP: HP overshoot/revival
+  caught EXP multiply overflows uint32: EXP moved backward
+  caught cap still draws next-level progress: EXP at cap 1 points at a nonexistent next level
+  caught entry ends one pixel short: entry left residual displacement
+  caught HP starts during charge: wrong impact onset for 12 frames
+PASS negative probes: 5 compilable defects rejected

@@ -1,0 +1,316 @@
+[
+  {
+    "label": "idle_after_update",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 41112,
+        "draw_us": 24092,
+        "push_us": 17020
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 40634,
+        "draw_us": 18013,
+        "push_us": 22621
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 41063,
+        "draw_us": 23414,
+        "push_us": 17649
+      }
+    ],
+    "source": "chapter-entry"
+  },
+  {
+    "period_ms": 50,
+    "ticks": 191,
+    "frames": 39,
+    "bands": 300,
+    "window_us": 9975919,
+    "render_us": 815483,
+    "render_max_us": 46890,
+    "tick_p50_ms": 56,
+    "tick_p95_ms": 56,
+    "tick_max_us": 55379,
+    "late": 147,
+    "frame_p50_ms": 56,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 822528,
+    "bytes": 352,
+    "label": "new_story_entry_10s",
+    "source": "chapter-entry"
+  },
+  {
+    "period_ms": 50,
+    "ticks": 61,
+    "frames": 31,
+    "bands": 252,
+    "window_us": 2554077,
+    "render_us": 712297,
+    "render_max_us": 48421,
+    "tick_p50_ms": 56,
+    "tick_p95_ms": 56,
+    "tick_max_us": 85148,
+    "late": 41,
+    "frame_p50_ms": 56,
+    "frame_p95_ms": 152,
+    "frame_max_us": 818523,
+    "bytes": 352,
+    "label": "resume_dialog_0",
+    "source": "story-pause-resume"
+  },
+  {
+    "period_ms": 50,
+    "ticks": 60,
+    "frames": 31,
+    "bands": 252,
+    "window_us": 2568883,
+    "render_us": 716448,
+    "render_max_us": 48390,
+    "tick_p50_ms": 56,
+    "tick_p95_ms": 64,
+    "tick_max_us": 95271,
+    "late": 51,
+    "frame_p50_ms": 56,
+    "frame_p95_ms": 112,
+    "frame_max_us": 821711,
+    "bytes": 352,
+    "label": "resume_dialog_1",
+    "source": "story-pause-resume"
+  },
+  {
+    "period_ms": 50,
+    "ticks": 61,
+    "frames": 31,
+    "bands": 252,
+    "window_us": 2546016,
+    "render_us": 709117,
+    "render_max_us": 48495,
+    "tick_p50_ms": 56,
+    "tick_p95_ms": 56,
+    "tick_max_us": 56463,
+    "late": 46,
+    "frame_p50_ms": 56,
+    "frame_p95_ms": 160,
+    "frame_max_us": 775144,
+    "bytes": 352,
+    "label": "resume_dialog_2",
+    "source": "story-pause-resume"
+  },
+  {
+    "label": "johto_routes_after_update",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 40856,
+        "draw_us": 10149,
+        "push_us": 30707
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 40561,
+        "draw_us": 12890,
+        "push_us": 27671
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 39966,
+        "draw_us": 10185,
+        "push_us": 29781
+      }
+    ],
+    "source": "core-pages"
+  },
+  {
+    "label": "care_after_update",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 56859,
+        "draw_us": 42441,
+        "push_us": 14418
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 53827,
+        "draw_us": 40198,
+        "push_us": 13629
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 56585,
+        "draw_us": 40023,
+        "push_us": 16562
+      }
+    ],
+    "source": "core-pages"
+  },
+  {
+    "period_ms": 80,
+    "ticks": 125,
+    "frames": 21,
+    "bands": 126,
+    "window_us": 10129800,
+    "render_us": 455773,
+    "render_max_us": 22391,
+    "tick_p50_ms": 88,
+    "tick_p95_ms": 88,
+    "tick_max_us": 87168,
+    "late": 84,
+    "frame_p50_ms": 168,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 2040517,
+    "bytes": 352,
+    "label": "care_after_update_10s",
+    "source": "core-pages"
+  },
+  {
+    "label": "party_after_update",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 49745,
+        "draw_us": 37858,
+        "push_us": 11887
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 49573,
+        "draw_us": 38073,
+        "push_us": 11500
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 51272,
+        "draw_us": 39233,
+        "push_us": 12039
+      }
+    ],
+    "source": "core-pages"
+  },
+  {
+    "period_ms": 80,
+    "ticks": 125,
+    "frames": 29,
+    "bands": 87,
+    "window_us": 10103683,
+    "render_us": 357186,
+    "render_max_us": 14682,
+    "tick_p50_ms": 88,
+    "tick_p95_ms": 88,
+    "tick_max_us": 85019,
+    "late": 86,
+    "frame_p50_ms": 168,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 1222818,
+    "bytes": 352,
+    "label": "party_after_update_10s",
+    "source": "core-pages"
+  },
+  {
+    "label": "final_idle",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 41113,
+        "draw_us": 24251,
+        "push_us": 16862
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 40851,
+        "draw_us": 21132,
+        "push_us": 19719
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 41029,
+        "draw_us": 23804,
+        "push_us": 17225
+      }
+    ],
+    "source": "final-ui-and-change"
+  },
+  {
+    "period_ms": 50,
+    "ticks": 198,
+    "frames": 27,
+    "bands": 168,
+    "window_us": 9708107,
+    "render_us": 451756,
+    "render_max_us": 28699,
+    "tick_p50_ms": 56,
+    "tick_p95_ms": 56,
+    "tick_max_us": 55327,
+    "late": 150,
+    "frame_p50_ms": 56,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 826269,
+    "bytes": 352,
+    "label": "final_narrative_10s",
+    "source": "final-ui-and-change"
+  },
+  {
+    "label": "final_narrative",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 42287,
+        "draw_us": 24146,
+        "push_us": 18141
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 41740,
+        "draw_us": 26539,
+        "push_us": 15201
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 41919,
+        "draw_us": 24387,
+        "push_us": 17532
+      }
+    ],
+    "source": "final-ui-and-change"
+  },
+  {
+    "period_ms": 80,
+    "ticks": 124,
+    "frames": 21,
+    "bands": 126,
+    "window_us": 9995399,
+    "render_us": 459895,
+    "render_max_us": 22476,
+    "tick_p50_ms": 88,
+    "tick_p95_ms": 88,
+    "tick_max_us": 86977,
+    "late": 80,
+    "frame_p50_ms": 176,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 2031529,
+    "bytes": 352,
+    "label": "final_care_10s",
+    "source": "final-care-change"
+  }
+]

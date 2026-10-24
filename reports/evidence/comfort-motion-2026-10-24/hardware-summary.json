@@ -1,0 +1,32 @@
+{
+  "capture_result_ms": [
+    9124,
+    9151,
+    9149
+  ],
+  "capture_end_ms": [
+    9925,
+    9952,
+    9958
+  ],
+  "capture_frame_p95_ms": [
+    48,
+    48,
+    48
+  ],
+  "completed_sampled_actions": 19,
+  "max_completion_overshoot_ms": 47,
+  "save_protected_flash_ranges_unchanged": true,
+  "new_partition": false,
+  "resource_minimum_heap_bytes": 11208,
+  "resource_largest_block_bytes": 10752,
+  "resource_lvgl_stack_free_bytes": 4348,
+  "resource_audio_stack_free_bytes": 1972,
+  "not_measured": [
+    "every move on hardware",
+    "acoustic speaker output",
+    "all story/activity animations on hardware"
+  ],
+  "coverage_note": "Wild/trainer/capture actual LCD; shared activity/story paths have native end-to-end coverage. Music counters are not acoustic measurements.",
+  "continuous_gameplay_minimum_heap_bytes": 11216
+}

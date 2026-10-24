@@ -2,6 +2,7 @@
 """Pack extracted Gold display tracks into allocation-free indexed C tables."""
 import argparse,json,hashlib
 from pathlib import Path
+from pack_gold_objects import pack_objects
 ROOT=Path(__file__).resolve().parents[2]
 p=argparse.ArgumentParser();p.add_argument('--tracks',type=Path,default=Path('/tmp/pokewalk-gold-tracks/tracks.json'));p.add_argument('--check',action='store_true');a=p.parse_args()
 r=json.loads(a.tracks.read_text());out=['// Generated from pinned Gold machine-code animation execution. Do not edit.','#pragma once','#include <stdint.h>',
@@ -17,7 +18,8 @@ out.append('static const uint16_t gold_maps[][240] = {');out.extend(plain(v)+','
 flat=[];spans=[]
 for rows in r['objects']:
  spans.append((len(flat),len(rows)));flat.extend(rows)
-table('gold_object_t','gold_objects',flat,lambda o:plain([o[2],o[0],o[1],o[3],o[0]-o[4],o[1]-o[5]]));table('gold_span_t','gold_object_spans',spans,plain)
+objects, object_manifest=pack_objects([(o[2],o[0],o[1],o[3],o[0]-o[4],o[1]-o[5]) for o in flat])
+out.append(objects.rstrip());table('gold_span_t','gold_object_spans',spans,plain)
 table('gold_frame_t','gold_frames',r['frames'],plain)
 flat=[];spans=[]
 for rows in r['clips']:spans.append((len(flat),len(rows)));flat.extend(rows)
@@ -33,6 +35,7 @@ manifest=dict(source_commit=coverage['source_commit'],rom_sha1=coverage['rom_sha
               cases=coverage['cases'],tiles=len(r['tiles']),frames=len(r['frames']),clips=len(r['clips']),
               tracks_sha256=hashlib.sha256(a.tracks.read_bytes()).hexdigest(),header_sha256=hashlib.sha256(header.encode()).hexdigest(),
               full_visual_equivalence=False,notes='ROM not distributed. VBlank waits/audio replaced for offline stepping; portrait mapping and compositing are adaptations. Dynamic battler body reloads use the current species.')
+manifest['object_packing']=object_manifest
 meta=json.dumps(manifest,indent=2)+'\n';mp=ROOT/'assets/gold_fx_sources.json'
 if a.check:
  assert path.read_text()==header,'Gold track header is stale'

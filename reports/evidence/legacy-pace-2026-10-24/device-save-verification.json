@@ -1,0 +1,19 @@
+{
+  "save_version": 30,
+  "container_version": 4,
+  "bytes": 73728,
+  "cross_build_restore": true,
+  "pre_backup_disk_readback": true,
+  "pre_backup_ack": true,
+  "successful_reboot_receipt": true,
+  "brightness_before": 100,
+  "brightness_changed": 89,
+  "brightness_restored": 100,
+  "level_restored": 56,
+  "experience_restored": 265670,
+  "production_decoder_field_comparison": true,
+  "final_page": "idle",
+  "online_browser_e2e": false,
+  "offline_browser_e2e": false,
+  "first_export_retry_required": true
+}

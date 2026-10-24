@@ -27,6 +27,7 @@
 #include "screen_idle.h"
 #include "dbg.h"
 #include "usb_backup.h"
+#include "console_record.h"
 #include "esp_system.h"
 #include "render.h"
 #include "ui_pixel.h"
@@ -139,6 +140,7 @@ void app_main(void) {
     // First app action: silence a connected PA and, in silent builds, the
     // codec before scans, display initialization, gameplay or debug tasks.
     esp_err_t quiet = bsp_audio_boot_quiet();
+    console_record_init();
     if (quiet != ESP_OK) ESP_LOGE(TAG, "Early audio shutdown failed: %s", esp_err_to_name(quiet));
 #if CONFIG_POKEWALK_SILENT_BOOT
     ESP_LOGI(TAG, "Silent build: audio output disabled for this boot");

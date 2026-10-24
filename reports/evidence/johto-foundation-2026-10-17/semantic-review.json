@@ -1,0 +1,12 @@
+{
+  "status": "completed",
+  "job_id": "dual-semantic:Luobata/ESP32-PokemonGo:qgcf_eafa91b7a5df6404b6fc8f5e0cf43c7ba44e91112c37e2aaf2bf900670693f56",
+  "fingerprint": "qgcf_eafa91b7a5df6404b6fc8f5e0cf43c7ba44e91112c37e2aaf2bf900670693f56",
+  "model_review_performed": true,
+  "targets": [
+    "assets/gold_fx_sources.json",
+    "data/pokemon_johto/names_sizes.json"
+  ],
+  "finding_count": 0,
+  "limits": "Central review matched two JSON data files only; not a review of the complete embedded implementation."
+}

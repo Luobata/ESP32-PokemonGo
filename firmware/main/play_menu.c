@@ -19,30 +19,33 @@
 #include "wifi_time.h"
 #include "lvgl.h"
 
-#define MENU_COUNT 10
+#define MENU_COUNT 11
 #define MENU_X 120
 #define MENU_Y 64
 #define MENU_W 112
 #define MENU_H 184
 #define ROW_Y 72
-#define ROW_STEP 17
+#define ROW_STEP 16
 #define OPTION_Y 48
 #define OPTION_STEP 18
 enum { OPTION_NAMES, OPTION_SCREEN_OFF, OPTION_MUTE, OPTION_VOLUME, OPTION_BACKUP, OPTION_IMPORT, OPTION_WIFI, OPTION_BRIGHTNESS, OPTION_BATTERY, OPTION_RETURN, OPTION_COUNT };
 
-SCREEN_ASSERT_WITHIN_BAND(menu_title, 8, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(menu_title, 8, 16);
 SCREEN_ASSERT_ALLOW_CROSS_BAND(menu_portrait, 88, 96);
-SCREEN_ASSERT_WITHIN_BAND(menu_description, 252, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(menu_description, 252, 16);
 SCREEN_ASSERT_ALLOW_CROSS_BAND(menu_option_names, OPTION_Y, 16);
 SCREEN_ASSERT_ALLOW_CROSS_BAND(menu_option_screen, OPTION_Y + OPTION_STEP, 16);
 SCREEN_ASSERT_ALLOW_CROSS_BAND(menu_option_return, OPTION_Y + OPTION_STEP * 3, 16);
 
-static const char *LABELS[MENU_COUNT] = {"图鉴", "队伍", "道具", "照料", "挑战", "选项", "成就", "探索", "秘境", "关闭"};
+static const char *LABELS[MENU_COUNT] = {"图鉴", "队伍", "道具", "照料", "挑战", "选项", "成就", "探索", "秘境", "城都", "关闭"};
 static const char *DESCRIPTIONS[MENU_COUNT] = {
     "查看见过和捕获的伙伴", "查看伙伴 选择出战队首", "查看和使用随身道具",
-    "喂食 玩耍 等待体力恢复", "道馆 徽章 联盟 赤红", "译名 声音与屏幕设置", "查看成长 领取成就奖励", "选择路线 追踪野生伙伴", "租借伙伴闯关 获取奖励", "回到冒险中",
+    "喂食 玩耍 等待体力恢复", "道馆 徽章 联盟 赤红", "译名 声音与屏幕设置", "查看成长 领取成就奖励", "选择路线 追踪野生伙伴", "携带伙伴闯关 获取奖励", "新的伙伴与城都调查", "回到冒险中",
 };
 static uint8_t s_selected;
+static bool s_johto_visible;
+static unsigned menu_count(void){return s_johto_visible?11:10;}
+static unsigned menu_id(unsigned row){return !s_johto_visible&&row==9?10:row;}
 static bool s_options;
 static bool s_backup_view;
 static bool s_wifi_view;
@@ -205,15 +208,25 @@ static void draw_main(int band_y)
     game_ui_text_centered(band_y, 8, 220, 104, 16, text, GAME_UI_MUTED);
 
     game_ui_box(band_y, MENU_X, MENU_Y, MENU_W, MENU_H);
-    for (unsigned row = 0; row < MENU_COUNT; row++) {
+    for (unsigned row = 0; row < menu_count(); row++) {
         int y = ROW_Y + row * ROW_STEP;
-        render_text(156, y - band_y, LABELS[row], GAME_UI_INK);
+        render_text(156, y - band_y, LABELS[menu_id(row)], GAME_UI_INK);
         if(row==6&&s_claimable)render_text(212,y-band_y,"!",GAME_UI_ACCENT);
         if (row == s_selected) game_ui_cursor(band_y, 136, y + 4);
     }
     if(s_selected==6&&s_claimable){snprintf(text,sizeof(text),"可领取 %u 项奖励",s_claimable);game_ui_text_centered(band_y,8,252,224,16,text,GAME_UI_INK);}
-    else game_ui_text_centered(band_y, 8, 252, 224, 16, DESCRIPTIONS[s_selected], GAME_UI_MUTED);
+    else game_ui_text_centered(band_y, 8, 252, 224, 16, DESCRIPTIONS[menu_id(s_selected)], GAME_UI_MUTED);
     game_ui_footer(band_y, GAME_UI_NAV_HINT);
+}
+
+static void redraw_status(void)
+{
+    if (s_options || s_backup_view || s_wifi_view) return;
+    for (int y = 0; y < 60; y += SCREEN_BAND_H) {
+        screen_band_clear(GAME_UI_BG);
+        draw_main(y);
+        screen_push_band(y);
+    }
 }
 
 static void draw_all(void)
@@ -252,13 +265,15 @@ void play_menu_enter(void)
         s_option_selected = 0;
         s_audio_save_failed = false;
     }
+    s_johto_visible=world_johto_available();if(s_selected>=menu_count())s_selected=0;
     world_snapshot(&s_world);
     world_party_snapshot(&s_party);
     achievement_view_t achievements;world_achievements_snapshot(&achievements);s_claimable=0;
     for(unsigned i=0;i<ACHIEVEMENT_COUNT;i++)
-        if(!(achievements.store.claimed&(1u<<i))&&achievement_progress(&achievements,i)==achievement_info(i)->target)s_claimable++;
+        if(!achievement_claimed(&achievements,i)&&achievement_progress(&achievements,i)==achievement_info(i)->target)s_claimable++;
     s_backup_timer=lv_timer_create(backup_refresh,250,NULL);
     screen_set_redraw(draw_all);
+    battery_ui_set_redraw(redraw_status);
     draw_all();
 }
 
@@ -319,7 +334,7 @@ void play_menu_key(bsp_btn_t btn, bsp_btn_ev_t ev)
     if (nav_direction(btn, ev) != 0) {
         if (s_options)
             s_option_selected = (s_option_selected + OPTION_COUNT + nav_direction(btn, ev)) % OPTION_COUNT;
-        else s_selected = (s_selected + MENU_COUNT + nav_direction(btn, ev)) % MENU_COUNT;
+        else s_selected = (s_selected + menu_count() + nav_direction(btn, ev)) % menu_count();
         draw_all();
         return;
     }
@@ -349,7 +364,7 @@ void play_menu_key(bsp_btn_t btn, bsp_btn_ev_t ev)
                                              ? POKEMON_NAMES_GS_LEGACY : POKEMON_NAMES_OFFICIAL);
             draw_all();
         } else {
-            switch (s_selected) {
+            switch (menu_id(s_selected)) {
             case 0: nav_open(PAGE_DEX); break;
             case 1: nav_open(PAGE_PARTY); break;
             case 2: nav_open(PAGE_BAG); break;
@@ -359,7 +374,8 @@ void play_menu_key(bsp_btn_t btn, bsp_btn_ev_t ev)
             case 6: nav_open(PAGE_ACHIEVEMENTS); break;
             case 7: nav_open(PAGE_EXPLORATION); break;
             case 8: nav_open(PAGE_DUNGEON); break;
-            case 9: nav_back(PAGE_IDLE); break;
+            case 9: nav_open(PAGE_JOHTO); break;
+            case 10: nav_back(PAGE_IDLE); break;
             default: break;
             }
         }

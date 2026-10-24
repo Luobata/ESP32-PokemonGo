@@ -27,3 +27,9 @@ typedef struct {
 void evo_check(uint8_t intimacy_pct, uint16_t explore_value,
                uint8_t trigger, uint8_t evolve_to, uint8_t evolve_level,
                evo_check_t *out);
+
+#define EVO_OPTION_MAX 5
+// Pure branch catalogue. Base level evolution comes from the species asset.
+typedef struct { uint8_t target,item,level,intimacy,badges; const char *training; } evo_option_t;
+unsigned evo_options(uint16_t species,uint8_t trigger,uint16_t target,uint8_t level,evo_option_t out[EVO_OPTION_MAX]);
+bool evo_option_ready(const evo_option_t *,unsigned level,unsigned intimacy,unsigned badges,unsigned quantity);

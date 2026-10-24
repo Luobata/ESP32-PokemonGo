@@ -1,0 +1,154 @@
+{
+  "source_head": "67a4a25749463d50750c9448ff9d5217d1379094",
+  "working_tree_changes": true,
+  "bytes": 3201456,
+  "sha256": "a7620e4c7121b58da3e543163c26a3a72e591406ec6725411f069989e373c1ca",
+  "app_capacity": 3407872,
+  "app_remaining": 206416,
+  "play_johto_static_bytes": 2016,
+  "play_johto_static_symbols": [
+    {
+      "symbol": "available_probe",
+      "bytes": 4
+    },
+    {
+      "symbol": "chapter",
+      "bytes": 48
+    },
+    {
+      "symbol": "endgame",
+      "bytes": 96
+    },
+    {
+      "symbol": "error",
+      "bytes": 4
+    },
+    {
+      "symbol": "fade",
+      "bytes": 4
+    },
+    {
+      "symbol": "found",
+      "bytes": 16
+    },
+    {
+      "symbol": "goal_title",
+      "bytes": 4
+    },
+    {
+      "symbol": "guided",
+      "bytes": 1
+    },
+    {
+      "symbol": "hatch_frames",
+      "bytes": 4
+    },
+    {
+      "symbol": "hatch_shiny",
+      "bytes": 1
+    },
+    {
+      "symbol": "idle",
+      "bytes": 800
+    },
+    {
+      "symbol": "next_scene",
+      "bytes": 4
+    },
+    {
+      "symbol": "notice",
+      "bytes": 4
+    },
+    {
+      "symbol": "path",
+      "bytes": 4
+    },
+    {
+      "symbol": "probe_actor",
+      "bytes": 16
+    },
+    {
+      "symbol": "probe_clock",
+      "bytes": 12
+    },
+    {
+      "symbol": "probe_help",
+      "bytes": 1
+    },
+    {
+      "symbol": "probe_id",
+      "bytes": 4
+    },
+    {
+      "symbol": "probe_party",
+      "bytes": 104
+    },
+    {
+      "symbol": "probe_path",
+      "bytes": 4
+    },
+    {
+      "symbol": "progress",
+      "bytes": 760
+    },
+    {
+      "symbol": "refresh_ms",
+      "bytes": 4
+    },
+    {
+      "symbol": "requested_action",
+      "bytes": 4
+    },
+    {
+      "symbol": "requested_goal",
+      "bytes": 1
+    },
+    {
+      "symbol": "requested_index",
+      "bytes": 4
+    },
+    {
+      "symbol": "resume_route",
+      "bytes": 1
+    },
+    {
+      "symbol": "reward_claimed",
+      "bytes": 10
+    },
+    {
+      "symbol": "rewards_from_route",
+      "bytes": 1
+    },
+    {
+      "symbol": "route",
+      "bytes": 4
+    },
+    {
+      "symbol": "search",
+      "bytes": 24
+    },
+    {
+      "symbol": "selected",
+      "bytes": 4
+    },
+    {
+      "symbol": "timer",
+      "bytes": 4
+    },
+    {
+      "symbol": "view",
+      "bytes": 4
+    },
+    {
+      "symbol": "world",
+      "bytes": 56
+    }
+  ],
+  "save_version": 31,
+  "world_bytes": 39944,
+  "container_format": 4,
+  "payload_bytes": 73728,
+  "flashed": false,
+  "runtime_heap_measured": false,
+  "runtime_fps_measured": false
+}

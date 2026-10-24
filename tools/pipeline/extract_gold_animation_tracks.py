@@ -17,7 +17,7 @@ class Engine:
  def __init__(self,src):
   self.src=src
   palpath='gfx/battle_anims/battle_anims.pal'
-  if (src/palpath).read_bytes()!=subprocess.check_output(['git','-C',str(src),'show',COMMIT+':'+palpath]):raise ValueError('Palette differs from pinned Gold source')
+  if hashlib.sha256((src/palpath).read_bytes()).hexdigest()!='a50a2b3d717f33c3a2c5fa690099406c6dd8182bb45fe90d265ace06ccd240d3':raise ValueError('Palette differs from pinned Gold source')
   rom=src/'pokegold.gbc' 
   if hashlib.sha1(rom.read_bytes()).hexdigest()!=ROM_SHA1:raise ValueError('Gold ROM does not match the original source build')
   self.syms={m[3]:(int(m[1],16),int(m[2],16)) for m in re.finditer(r'^([0-9a-f]+):([0-9a-f]+) (\S+)$',(src/'pokegold.sym').read_text(),re.M)}

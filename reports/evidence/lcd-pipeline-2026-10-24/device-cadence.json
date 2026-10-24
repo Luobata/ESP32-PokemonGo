@@ -1,0 +1,579 @@
+[
+  {
+    "period_ms": 45,
+    "ticks": 187,
+    "frames": 42,
+    "bands": 672,
+    "window_us": 2951371,
+    "render_us": 2007835,
+    "render_max_us": 72337,
+    "tick_p50_ms": 48,
+    "tick_p95_ms": 56,
+    "tick_max_us": 74002,
+    "late": 158,
+    "frame_p50_ms": 64,
+    "frame_p95_ms": 104,
+    "frame_max_us": 104301,
+    "bytes": 352,
+    "label": "wild_entrance",
+    "source": "final-combat",
+    "mean_render_ms": 47.806
+  },
+  {
+    "label": "wild_choice",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 47049,
+        "draw_us": 34311,
+        "push_us": 12738
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 45302,
+        "draw_us": 33454,
+        "push_us": 11848
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 46860,
+        "draw_us": 35042,
+        "push_us": 11818
+      }
+    ],
+    "source": "final-combat"
+  },
+  {
+    "period_ms": 40,
+    "ticks": 248,
+    "frames": 248,
+    "bands": 496,
+    "window_us": 10118940,
+    "render_us": 2438512,
+    "render_max_us": 12916,
+    "tick_p50_ms": 48,
+    "tick_p95_ms": 48,
+    "tick_max_us": 47103,
+    "late": 160,
+    "frame_p50_ms": 48,
+    "frame_p95_ms": 48,
+    "frame_max_us": 49192,
+    "bytes": 352,
+    "label": "capture_pointer",
+    "source": "final-combat",
+    "mean_render_ms": 9.833
+  },
+  {
+    "period_ms": 40,
+    "ticks": 50,
+    "frames": 50,
+    "bands": 758,
+    "window_us": 2606845,
+    "render_us": 1855592,
+    "render_max_us": 46446,
+    "tick_p50_ms": 48,
+    "tick_p95_ms": 56,
+    "tick_max_us": 533633,
+    "late": 37,
+    "frame_p50_ms": 48,
+    "frame_p95_ms": 56,
+    "frame_max_us": 568132,
+    "bytes": 352,
+    "label": "capture_throw_first_2_5s",
+    "source": "final-combat",
+    "mean_render_ms": 37.112
+  },
+  {
+    "period_ms": 45,
+    "ticks": 163,
+    "frames": 141,
+    "bands": 1708,
+    "window_us": 10108967,
+    "render_us": 8587707,
+    "render_max_us": 87189,
+    "tick_p50_ms": 72,
+    "tick_p95_ms": 88,
+    "tick_max_us": 88992,
+    "late": 147,
+    "frame_p50_ms": 72,
+    "frame_p95_ms": 88,
+    "frame_max_us": 590801,
+    "bytes": 352,
+    "label": "wild_battle_active",
+    "source": "final-active-battle",
+    "mean_render_ms": 60.906
+  },
+  {
+    "period_ms": 45,
+    "ticks": 181,
+    "frames": 71,
+    "bands": 940,
+    "window_us": 7053782,
+    "render_us": 4795161,
+    "render_max_us": 995843,
+    "tick_p50_ms": 48,
+    "tick_p95_ms": 88,
+    "tick_max_us": 997020,
+    "late": 143,
+    "frame_p50_ms": 88,
+    "frame_p95_ms": 104,
+    "frame_max_us": 1500298,
+    "bytes": 352,
+    "label": "wild_battle_active_2",
+    "source": "final-active-battle",
+    "mean_render_ms": 67.537
+  },
+  {
+    "period_ms": 40,
+    "ticks": 52,
+    "frames": 52,
+    "bands": 776,
+    "window_us": 2702354,
+    "render_us": 1903448,
+    "render_max_us": 46411,
+    "tick_p50_ms": 48,
+    "tick_p95_ms": 56,
+    "tick_max_us": 559855,
+    "late": 36,
+    "frame_p50_ms": 48,
+    "frame_p95_ms": 48,
+    "frame_max_us": 596299,
+    "bytes": 352,
+    "label": "capture_throw_2_first_2_5s",
+    "source": "final-capture-repeat",
+    "mean_render_ms": 36.605
+  },
+  {
+    "period_ms": 40,
+    "ticks": 42,
+    "frames": 42,
+    "bands": 616,
+    "window_us": 2673386,
+    "render_us": 1408152,
+    "render_max_us": 43084,
+    "tick_p50_ms": 48,
+    "tick_p95_ms": 48,
+    "tick_max_us": 979914,
+    "late": 38,
+    "frame_p50_ms": 48,
+    "frame_p95_ms": 48,
+    "frame_max_us": 1012060,
+    "bytes": 352,
+    "label": "capture_throw_3_first_2_5s",
+    "source": "final-capture-repeat",
+    "mean_render_ms": 33.527
+  },
+  {
+    "label": "trainer_hall",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 42269,
+        "draw_us": 13564,
+        "push_us": 28705
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 43088,
+        "draw_us": 13622,
+        "push_us": 29466
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 42721,
+        "draw_us": 14008,
+        "push_us": 28713
+      }
+    ],
+    "source": "final-trainer"
+  },
+  {
+    "period_ms": 45,
+    "ticks": 165,
+    "frames": 98,
+    "bands": 1568,
+    "window_us": 10192402,
+    "render_us": 6330506,
+    "render_max_us": 568365,
+    "tick_p50_ms": 56,
+    "tick_p95_ms": 88,
+    "tick_max_us": 570003,
+    "late": 141,
+    "frame_p50_ms": 96,
+    "frame_p95_ms": 104,
+    "frame_max_us": 1253833,
+    "bytes": 352,
+    "label": "trainer_intro_sendout",
+    "source": "final-trainer",
+    "mean_render_ms": 64.597
+  },
+  {
+    "period_ms": 45,
+    "ticks": 152,
+    "frames": 90,
+    "bands": 1440,
+    "window_us": 10407428,
+    "render_us": 7374798,
+    "render_max_us": 572338,
+    "tick_p50_ms": 56,
+    "tick_p95_ms": 96,
+    "tick_max_us": 571188,
+    "late": 142,
+    "frame_p50_ms": 96,
+    "frame_p95_ms": 104,
+    "frame_max_us": 1271838,
+    "bytes": 352,
+    "label": "trainer_battle_1",
+    "source": "final-trainer",
+    "mean_render_ms": 81.942
+  },
+  {
+    "period_ms": 45,
+    "ticks": 160,
+    "frames": 92,
+    "bands": 1472,
+    "window_us": 10138677,
+    "render_us": 6819907,
+    "render_max_us": 547977,
+    "tick_p50_ms": 56,
+    "tick_p95_ms": 88,
+    "tick_max_us": 550014,
+    "late": 146,
+    "frame_p50_ms": 88,
+    "frame_p95_ms": 104,
+    "frame_max_us": 1211994,
+    "bytes": 352,
+    "label": "trainer_battle_2",
+    "source": "final-trainer",
+    "mean_render_ms": 74.129
+  },
+  {
+    "period_ms": 250,
+    "ticks": 41,
+    "frames": 41,
+    "bands": 492,
+    "window_us": 10103086,
+    "render_us": 1309337,
+    "render_max_us": 34733,
+    "tick_p50_ms": 256,
+    "tick_p95_ms": 256,
+    "tick_max_us": 255004,
+    "late": 30,
+    "frame_p50_ms": 256,
+    "frame_p95_ms": 264,
+    "frame_max_us": 257667,
+    "bytes": 352,
+    "label": "idle",
+    "source": "final-common",
+    "mean_render_ms": 31.935
+  },
+  {
+    "label": "idle_full",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 42411,
+        "draw_us": 18258,
+        "push_us": 24153
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 42724,
+        "draw_us": 22167,
+        "push_us": 20557
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 41973,
+        "draw_us": 25933,
+        "push_us": 16040
+      }
+    ],
+    "source": "final-common"
+  },
+  {
+    "period_ms": 80,
+    "ticks": 125,
+    "frames": 21,
+    "bands": 126,
+    "window_us": 9869108,
+    "render_us": 466339,
+    "render_max_us": 22663,
+    "tick_p50_ms": 88,
+    "tick_p95_ms": 88,
+    "tick_max_us": 85425,
+    "late": 81,
+    "frame_p50_ms": 168,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 2040359,
+    "bytes": 352,
+    "label": "care",
+    "source": "final-common",
+    "mean_render_ms": 22.207
+  },
+  {
+    "label": "care_full",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 58860,
+        "draw_us": 47502,
+        "push_us": 11358
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 55040,
+        "draw_us": 44018,
+        "push_us": 11022
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 54960,
+        "draw_us": 40244,
+        "push_us": 14716
+      }
+    ],
+    "source": "final-common"
+  },
+  {
+    "label": "menu_full",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 64422,
+        "draw_us": 48133,
+        "push_us": 16289
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 60243,
+        "draw_us": 48907,
+        "push_us": 11336
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 64227,
+        "draw_us": 52451,
+        "push_us": 11776
+      }
+    ],
+    "source": "final-common"
+  },
+  {
+    "label": "dex_full",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 84665,
+        "draw_us": 70998,
+        "push_us": 13667
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 84950,
+        "draw_us": 73546,
+        "push_us": 11404
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 84623,
+        "draw_us": 73188,
+        "push_us": 11435
+      }
+    ],
+    "source": "final-common"
+  },
+  {
+    "period_ms": 80,
+    "ticks": 125,
+    "frames": 30,
+    "bands": 90,
+    "window_us": 10010646,
+    "render_us": 389061,
+    "render_max_us": 15514,
+    "tick_p50_ms": 88,
+    "tick_p95_ms": 88,
+    "tick_max_us": 87146,
+    "late": 83,
+    "frame_p50_ms": 168,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 1221694,
+    "bytes": 352,
+    "label": "party",
+    "source": "final-common",
+    "mean_render_ms": 12.969
+  },
+  {
+    "label": "party_full",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 52942,
+        "draw_us": 41233,
+        "push_us": 11709
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 56981,
+        "draw_us": 45437,
+        "push_us": 11544
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 53137,
+        "draw_us": 41900,
+        "push_us": 11237
+      }
+    ],
+    "source": "final-common"
+  },
+  {
+    "period_ms": 80,
+    "ticks": 125,
+    "frames": 30,
+    "bands": 180,
+    "window_us": 9976736,
+    "render_us": 545515,
+    "render_max_us": 20004,
+    "tick_p50_ms": 88,
+    "tick_p95_ms": 88,
+    "tick_max_us": 86951,
+    "late": 95,
+    "frame_p50_ms": 168,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 1220093,
+    "bytes": 352,
+    "label": "party_detail",
+    "source": "final-common",
+    "mean_render_ms": 18.184
+  },
+  {
+    "label": "party_detail_full",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 45415,
+        "draw_us": 27100,
+        "push_us": 18315
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 44154,
+        "draw_us": 26301,
+        "push_us": 17853
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 43642,
+        "draw_us": 26399,
+        "push_us": 17243
+      }
+    ],
+    "source": "final-common"
+  },
+  {
+    "label": "warehouse_full",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 50040,
+        "draw_us": 37619,
+        "push_us": 12421
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 50435,
+        "draw_us": 34197,
+        "push_us": 16238
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 50168,
+        "draw_us": 29315,
+        "push_us": 20853
+      }
+    ],
+    "source": "final-common"
+  },
+  {
+    "label": "exploration_full",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 48806,
+        "draw_us": 23995,
+        "push_us": 24811
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 46048,
+        "draw_us": 30920,
+        "push_us": 15128
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 45596,
+        "draw_us": 30753,
+        "push_us": 14843
+      }
+    ],
+    "source": "final-common"
+  },
+  {
+    "label": "johto_full",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 41313,
+        "draw_us": 17112,
+        "push_us": 24201
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 41357,
+        "draw_us": 17298,
+        "push_us": 24059
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 42089,
+        "draw_us": 13753,
+        "push_us": 28336
+      }
+    ],
+    "source": "final-common"
+  }
+]

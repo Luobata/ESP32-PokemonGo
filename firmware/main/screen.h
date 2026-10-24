@@ -12,9 +12,9 @@
 #define SCREEN_W 240
 #define SCREEN_H 320
 
-// 横带高度。240×80×2 = 37.5KB，在 231KB 可用堆里安全，
-// 且 80 整除 320（4 条，不用处理余数）。
-#define SCREEN_BAND_H 80
+// 20-row tiles leave RAM for 753 independent partners and the save transaction.
+// Layout/repaint regions use pixels, never a fixed number of tiles.
+#define SCREEN_BAND_H 20
 #define SCREEN_BANDS (SCREEN_H / SCREEN_BAND_H)
 
 // Opt-in guard for elements that must be wholly contained in one band.
@@ -34,9 +34,9 @@
 // 但**动画重绘时必须重画所有涉及的带**，否则两半不同帧 = 撕裂（BUG-1）。
 // 用这个宏的地方必须在 tick/动画回调里重画全部跨带。
 #define SCREEN_ASSERT_ALLOW_CROSS_BAND(name, y, h) \
-    _Static_assert((h) > 0 && (h) <= SCREEN_BAND_H * 2 && \
+    _Static_assert((h) > 0 && \
                    (y) >= 0 && (y) + (h) <= SCREEN_H, \
-                   #name " cross-band: h must be <= 2*band_h and on-screen")
+                   #name " cross-band: must be on-screen")
 
 // 页面重画回调。截图时用 —— 见 screen_dump 的说明。
 typedef void (*screen_redraw_cb_t)(void);
@@ -64,6 +64,8 @@ typedef void (*screen_redraw_cb_t)(void);
 // timers/input continue running. A blank loaded screen alone still queues a
 // background flush that can overwrite directly rendered bands after startup.
 void screen_own_display(void);
+// Wait for the last queued LCD band; caller holds the UI lock.
+void screen_flush(void);
 
 // 当前横带的缓冲。直接写它比逐像素函数快得多 —— 画 sprite 时用。
 uint16_t *screen_band(void);
@@ -84,6 +86,14 @@ void screen_set_redraw(screen_redraw_cb_t cb);
 void screen_set_overlay(void (*draw_band)(int band_y));
 // Restore the current page before revealing the backlight after screen idle.
 void screen_redraw_current(void);
+// Read-only diagnostic replay under the LVGL lock; no gameplay advancement.
+void screen_profile_current(void);
+// Optional normal-loop measurement; all calls require the existing LVGL lock.
+// J starts, K stops/reports. No per-frame serial output or heap allocation.
+void screen_cadence_start(void);
+void screen_cadence_report(void);
+void screen_cadence_begin(unsigned period_ms);
+void screen_cadence_end(void);
 
 // 截图：让页面重画一遍，每条带 base64 吐到串口。
 // PC 侧用 `python3 tools/device/screenshot.py` 收成 PNG。

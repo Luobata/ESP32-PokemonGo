@@ -1,0 +1,43 @@
+I (7341) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=74078 pending=2 pet=115 level=55 exp=257175 stamina_q10=96660 mood_q10=56789
+I (7341) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=2096
+I (7342) dbg: @@MEMORY_STATE free=17444 minimum=11604 largest=11264 stack_free=2096
+I (7342) dbg: @@AUDIO_PROFILE chunks=287 render_avg_us=1345 render_max_us=1893 gap_max_us=22521 late=0 switches=1 switch_render_max_us=1648 opens=1 errors=0 stack_free=1976
+I (7343) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924
+I (9063) dbg: @@DISPLAY_STATE off=0 brightness=100 page=1 scans=74078 pending=2 pet=115 level=55 exp=257175 stamina_q10=96760 mood_q10=56786
+I (9063) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=2032
+I (9064) dbg: @@MEMORY_STATE free=17444 minimum=11604 largest=11264 stack_free=2032
+I (9064) dbg: @@AUDIO_PROFILE chunks=366 render_avg_us=1338 render_max_us=1893 gap_max_us=22521 late=0 switches=2 switch_render_max_us=1648 opens=1 errors=0 stack_free=1976
+I (9065) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924
+I (9698) screen: @@CADENCE_START
+I (9820) p2: @@TRANS start id=5 idx=0 wild=43 pet=55 open=1 frames=64
+I (9955) p2: @@TRANS id=5 frame=6/64 q=93 tiles=264/1200 flash=0
+I (10054) p2: @@TRANS id=5 frame=12/64 q=187 tiles=432/1200 flash=0
+I (10159) p2: @@TRANS id=5 frame=18/64 q=281 tiles=640/1200 flash=0
+I (10258) p2: @@TRANS id=5 frame=24/64 q=375 tiles=768/1200 flash=0
+I (10357) p2: @@TRANS id=5 frame=30/64 q=468 tiles=880/1200 flash=0
+I (10457) p2: @@TRANS id=5 frame=36/64 q=562 tiles=984/1200 flash=0
+I (10554) p2: @@TRANS id=5 frame=42/64 q=656 tiles=1060/1200 flash=0
+I (10660) p2: @@TRANS id=5 frame=48/64 q=750 tiles=1120/1200 flash=0
+I (10765) p2: @@TRANS id=5 frame=54/64 q=843 tiles=1176/1200 flash=0
+I (10871) p2: @@TRANS id=5 frame=60/64 q=937 tiles=1196/1200 flash=0
+I (10970) p2: @@TRANS id=5 frame=64/64 q=1000 tiles=1200/1200 flash=0
+I (17828) dbg: @@DISPLAY_STATE off=0 brightness=100 page=2 scans=74078 pending=2 pet=115 level=55 exp=257175 stamina_q10=96960 mood_q10=56780
+I (17828) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1940
+I (17831) dbg: @@MEMORY_STATE free=17444 minimum=11604 largest=11264 stack_free=1940
+I (17831) dbg: @@AUDIO_PROFILE chunks=373 render_avg_us=1481 render_max_us=3794 gap_max_us=22015 late=0 switches=1 switch_render_max_us=1357 opens=0 errors=0 stack_free=1976
+I (17832) dbg: @@UI_STACK timer_free=3544 lvgl_free=4892
+I (17833) dbg: @@BATTLE_VIEW phase=choice move=0 by_pet=0 pet_hp=197 wild_hp=91
+I (18818) dbg: @@DISPLAY_STATE off=0 brightness=100 page=3 scans=74078 pending=2 pet=115 level=55 exp=257175 stamina_q10=96960 mood_q10=56780
+I (18818) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1632
+I (18819) dbg: @@MEMORY_STATE free=17444 minimum=11604 largest=11264 stack_free=1632
+I (18819) dbg: @@AUDIO_PROFILE chunks=418 render_avg_us=1469 render_max_us=3794 gap_max_us=22015 late=0 switches=1 switch_render_max_us=1357 opens=0 errors=0 stack_free=1976
+I (18820) dbg: @@UI_STACK timer_free=3544 lvgl_free=4892
+I (19423) screen: @@CADENCE period_ms=40 ticks=182 frames=68 bands=766 window_us=9706195 render_us=2161885 render_max_us=65525 tick_p50_ms=48 tick_p95_ms=56 tick_max_us=78071 late=141 frame_p50_ms=48 frame_p95_ms=96 frame_max_us=4263599 bytes=352
+I (20051) screen: @@CADENCE_START
+I (30196) screen: @@CADENCE period_ms=45 ticks=214 frames=121 bands=1782 window_us=7593881 render_us=4783361 render_max_us=77364 tick_p50_ms=48 tick_p95_ms=72 tick_max_us=513124 late=174 frame_p50_ms=48 frame_p95_ms=72 frame_max_us=1054049 bytes=352
+I (30797) dbg: @@DISPLAY_STATE off=0 brightness=100 page=2 scans=74078 pending=1 pet=115 level=55 exp=257175 stamina_q10=97360 mood_q10=56768
+I (30797) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=1632
+I (30798) dbg: @@MEMORY_STATE free=17444 minimum=11604 largest=11264 stack_free=1632
+I (30798) dbg: @@AUDIO_PROFILE chunks=487 render_avg_us=1204 render_max_us=4157 gap_max_us=49999 late=4 switches=2 switch_render_max_us=4157 opens=0 errors=0 stack_free=1976
+I (30799) dbg: @@UI_STACK timer_free=3544 lvgl_free=4524
+I (30799) dbg: @@BATTLE_VIEW phase=choice move=0 by_pet=0 pet_hp=197 wild_hp=91

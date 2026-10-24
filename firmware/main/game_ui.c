@@ -28,6 +28,7 @@ void game_ui_title(int band_y, const char *title, const char *right_text)
 void game_ui_box(int band_y, int x, int y, int w, int h)
 {
     if (w < 24 || h < 24 || w % 8 || h % 8 || w > SCREEN_W || h > SCREEN_H) return;
+    if (y + h <= band_y || y >= band_y + SCREEN_BAND_H) return;
     battle_hud_draw_message_box(rect, &band_y, x, y, (uint8_t)(w / 8),
                                 (uint8_t)(h / 8), 1, GAME_UI_BG);
 }
@@ -67,6 +68,9 @@ void game_ui_list_marker(int band_y, int x, int y, unsigned index, unsigned coun
 void game_ui_text_centered(int band_y, int x, int y, int w, int h,
                            const char *text, uint16_t color)
 {
+    int excess = (int)render_font_size() - h;
+    int margin = excess > 0 ? (excess + 1) / 2 : 0;
+    if (y + h + margin <= band_y || y - margin >= band_y + SCREEN_BAND_H) return;
     render_bounds_t ink;
     if (!render_text_ink_bounds(text, &ink)) return;
     render_text(x + (w - ink.w) / 2 - ink.x,
@@ -77,8 +81,11 @@ void game_ui_sprite_centered(int band_y, int x, int y, int w, int h,
                              const uint8_t *data, int sw, int sh, int scale,
                              const uint16_t *palette)
 {
+    if (scale <= 0) return;
+    int excess = sh * scale - h, margin = excess > 0 ? (excess + 1) / 2 : 0;
+    if (y + h + margin <= band_y || y - margin >= band_y + SCREEN_BAND_H) return;
     render_bounds_t ink;
-    if (scale <= 0 || !render_sprite_ink_bounds(data, sw, sh, &ink)) return;
+    if (!render_sprite_ink_bounds(data, sw, sh, &ink)) return;
     render_sprite_2bpp_wh(x + (w - ink.w * scale) / 2 - ink.x * scale,
                           y + (h - ink.h * scale) / 2 - ink.y * scale - band_y,
                           data, sw, sh, scale, palette);
@@ -89,6 +96,8 @@ void game_ui_thumbnail_centered(int band_y, int x, int y, int w, int h,
                                 const uint16_t *palette)
 {
     if (!data || size <= 0 || dest_size <= 0) return;
+    int excess = dest_size - h, margin = excess > 0 ? (excess + 1) / 2 : 0;
+    if (y + h + margin <= band_y || y - margin >= band_y + SCREEN_BAND_H) return;
     // Measure the same pixel-center sampling used by the thumbnail renderer.
     int left = dest_size, top = dest_size, right = 0, bottom = 0;
     const int stride = (size + 3) / 4;
@@ -130,6 +139,7 @@ void game_ui_cursor(int band_y, int x, int y)
 
 void game_ui_text_fitted(int band_y, int x, int y, int width, const char *text, uint16_t color)
 {
+    if (y + (int)render_font_size() <= band_y || y >= band_y + SCREEN_BAND_H) return;
     char line[192]; size_t n = 0;
     while (text[n] && n < sizeof(line)-5) {
         unsigned char c = (unsigned char)text[n];

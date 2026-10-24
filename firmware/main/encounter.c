@@ -111,6 +111,7 @@ uint16_t enc_pick_species(const uint8_t bssid[6], uint32_t ts, uint8_t rarity)
     // 数组要 151×2 字节，而这个函数每次遭遇才调一次，两趟不值一提。
     uint16_t n = 0;
     uint32_t total = assets_species_count();
+    if(total>151)total=151; // Johto species require chapter-specific discovery.
     species_t sp;
     for (uint16_t id = 1; id <= total; id++) {
         if (!assets_species(id, &sp)) continue;

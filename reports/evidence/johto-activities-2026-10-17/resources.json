@@ -1,0 +1,33 @@
+{
+  "app_bytes": 3029136,
+  "app_sha256": "e1924afc7030cc3e2b96be04dd951fd57fabc1526c2ace85d9814b5681ea54fa",
+  "factory_bytes": 3407872,
+  "factory_free": 378736,
+  "flash_bytes": 8388608,
+  "save_bytes": 23480,
+  "activities_bytes": 1056,
+  "runtime_heap_measured": false,
+  "sections": {
+    ".rtc.text": 0,
+    ".rtc.force_fast": 0,
+    ".rtc_noinit": 7792,
+    ".rtc.force_slow": 32,
+    ".rtc_reserved": 40,
+    ".iram0.text": 78758,
+    ".dram0.dummy": 78848,
+    ".dram0.data": 14036,
+    ".dram0.bss": 172128,
+    ".iram0.text_end": 90,
+    ".iram0.data": 0,
+    ".iram0.bss": 0,
+    ".dram0.heap_start": 0
+  },
+  "activity_symbols": [
+    "3fcb4988 00000030 b final_rewards",
+    "3fca45b4 00000420 b s_activities",
+    "3fc99310 00005bb8 b s_save_buf",
+    "3fcc0488 00000004 b state",
+    "3fcb4b40 00000420 b state",
+    "42016a24 00000028 t state"
+  ]
+}

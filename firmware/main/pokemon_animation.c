@@ -1,7 +1,12 @@
 #include "pokemon_animation.h"
+#include "gb_clock.h"
 
 #include <string.h>
-#include "pokemon_animation_assets.h"
+#ifndef POKEWALK_ANIMATION_HEADER
+#define POKEWALK_ANIMATION_HEADER "pokemon_animation_assets.h"
+#endif
+#include POKEWALK_ANIMATION_HEADER
+#include "pokemon_slow_timing.h"
 
 static const pokemon_anim_record_t *record(uint16_t species)
 {
@@ -20,18 +25,32 @@ bool pokemon_anim_info(uint16_t species, pokemon_anim_info_t *out)
     return true;
 }
 
-pokemon_anim_sample_t pokemon_anim_sample(uint16_t species, uint32_t elapsed_ms)
+uint32_t pokemon_anim_duration_ms(uint16_t species, bool slow)
 {
     const pokemon_anim_record_t *r = record(species);
-    uint64_t tick = (uint64_t)elapsed_ms * 60u / 1000u;
-    if (!r || tick >= r->duration_ticks) return (pokemon_anim_sample_t){0, true};
-    unsigned low = 0, high = r->run_count;
+    return r ? gb_frames_to_ms(slow ? POKEMON_SLOW_RECORDS[species-1].ticks : r->duration_ticks) : 0;
+}
+
+pokemon_anim_sample_t pokemon_anim_sample(uint16_t species, uint32_t elapsed_ms)
+{
+    return pokemon_anim_sample_mode(species, elapsed_ms, false);
+}
+
+pokemon_anim_sample_t pokemon_anim_sample_mode(uint16_t species, uint32_t elapsed_ms, bool slow)
+{
+    const pokemon_anim_record_t *r = record(species);
+    uint32_t tick = gb_frames_from_ms(elapsed_ms);
+    if (!r) return (pokemon_anim_sample_t){0, true};
+    const pokemon_slow_record_t *s = &POKEMON_SLOW_RECORDS[species-1];
+    if (tick >= (slow ? s->ticks : r->duration_ticks)) return (pokemon_anim_sample_t){0, true};
+    const pokemon_anim_run_t *runs = slow ? POKEMON_SLOW_RUNS+s->start : POKEMON_ANIM_RUNS+r->run_start;
+    unsigned low = 0, high = slow ? s->count : r->run_count;
     while (low < high) {
         unsigned middle = low + (high - low) / 2;
-        if (tick < POKEMON_ANIM_RUNS[r->run_start + middle].end_tick) high = middle;
+        if (tick < runs[middle].end_tick) high = middle;
         else low = middle + 1;
     }
-    return (pokemon_anim_sample_t){POKEMON_ANIM_RUNS[r->run_start + low].frame, false};
+    return (pokemon_anim_sample_t){runs[low].frame, false};
 }
 
 bool pokemon_anim_decode(uint16_t species, uint8_t frame, uint8_t *buffer,
@@ -74,11 +93,16 @@ void pokemon_idle_reset(pokemon_idle_t *idle, uint16_t species)
 
 bool pokemon_idle_step(pokemon_idle_t *idle, uint32_t delta_ms)
 {
+    return pokemon_idle_step_mode(idle, delta_ms, false);
+}
+
+bool pokemon_idle_step_mode(pokemon_idle_t *idle, uint32_t delta_ms, bool slow)
+{
     pokemon_anim_info_t info;
     if (!pokemon_anim_info(idle->species, &info)) return false;
-    uint32_t period = ((uint32_t)info.duration_ticks * 1000u + 59u) / 60u + 2000u;
+    uint32_t period = pokemon_anim_duration_ms(idle->species, slow) + 2000u;
     idle->elapsed_ms = ((uint64_t)idle->elapsed_ms + delta_ms) % period;
-    uint8_t frame = pokemon_anim_sample(idle->species, idle->elapsed_ms).frame;
+    uint8_t frame = pokemon_anim_sample_mode(idle->species, idle->elapsed_ms, slow).frame;
     if (frame == idle->frame) return false;
     idle->frame = frame;
     pokemon_anim_decode(idle->species, frame, idle->buffer, sizeof(idle->buffer), &idle->sprite);

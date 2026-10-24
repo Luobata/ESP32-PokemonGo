@@ -1,0 +1,13 @@
+{
+  "source_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+  "legacy_cases": 764,
+  "changed_legacy_cases": [],
+  "legacy_move_tick_ms": 45,
+  "current_move_tick_ms": 45,
+  "previous_absorption_ms": 360,
+  "recent_absorption_ms": 151,
+  "candidate_absorption_ms": 369,
+  "legacy_trainer_sendout_min_ms": 2880,
+  "recent_sendout_min_ms": 1800,
+  "candidate_sendout_min_ms": 2880
+}

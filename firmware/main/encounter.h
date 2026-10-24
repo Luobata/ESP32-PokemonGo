@@ -18,7 +18,7 @@
 // Keep the physical V5 save layout unchanged; gameplay only exposes five.
 #define ENC_QUEUE_CAP 16
 #define ENC_QUEUE_LIMIT 5
-#define DEX_SPECIES 151
+#define DEX_SPECIES 251
 #define DEX_BYTES ((DEX_SPECIES + 7) / 8)    // 19
 
 // V19 provenance: 1..8 are badge exploration activities; 9 is map exploration.

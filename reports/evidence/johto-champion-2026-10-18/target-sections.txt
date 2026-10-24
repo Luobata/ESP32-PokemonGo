@@ -1,0 +1,38 @@
+firmware/build/PokeWalk.elf  :
+section                    size         addr
+.rtc.text                     0   1342177280
+.rtc.force_fast               0   1342177280
+.rtc_noinit                7792   1342177280
+.rtc.force_slow              32   1342185072
+.rtc_reserved                40   1342185432
+.iram0.text               78758   1077411840
+.dram0.dummy              78848   1070071808
+.dram0.data               14036   1070150656
+.noinit                       0   1070164692
+.dram0.bss               168936   1070164704
+.flash.text             1383196   1107296288
+.flash_rodata_dummy     1441792   1006632992
+.flash.appdesc              256   1008074784
+.flash.rodata           1652620   1008075040
+.flash.tdata                  0   1009727660
+.flash.rodata_noload      13107   1009727660
+.iram0.text_end              90   1077490598
+.iram0.data                   0   1077490688
+.iram0.bss                    0   1077490688
+.dram0.heap_start             8   1070333640
+.debug_aranges            96760            0
+.debug_info             5467813            0
+.debug_abbrev            561942            0
+.debug_line             4068315            0
+.debug_frame             357956            0
+.debug_str               652486            0
+.debug_loc              2262719            0
+.debug_ranges            152488            0
+.debug_line_str           11345            0
+.debug_loclists           82551            0
+.debug_rnglists            5733            0
+.comment                    134            0
+.riscv.attributes           106            0
+Total                  18559859
+
+

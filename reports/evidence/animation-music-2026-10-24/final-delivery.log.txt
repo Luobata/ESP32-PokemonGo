@@ -1,0 +1,20 @@
+I (79787) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=74067 pending=3 pet=115 level=55 exp=257175 stamina_q10=102400 mood_q10=57047
+I (79788) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1896
+I (79788) dbg: @@MEMORY_STATE free=17432 minimum=11392 largest=11264 stack_free=1896
+I (79788) dbg: @@AUDIO_PROFILE chunks=3594 render_avg_us=2321 render_max_us=4379 gap_max_us=52217 late=4 switches=1 switch_render_max_us=1603 opens=1 errors=0 stack_free=1992
+I (79789) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924
+I (80766) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=74067 pending=3 pet=115 level=55 exp=257175 stamina_q10=102400 mood_q10=57047
+I (80766) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1896
+I (80767) dbg: @@MEMORY_STATE free=17432 minimum=11392 largest=11264 stack_free=1896
+I (80767) dbg: @@AUDIO_PROFILE chunks=3639 render_avg_us=2324 render_max_us=4379 gap_max_us=52217 late=4 switches=1 switch_render_max_us=1603 opens=1 errors=0 stack_free=1992
+I (80768) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924
+I (81765) dbg: @@DISPLAY_STATE off=0 brightness=100 page=9 scans=74067 pending=3 pet=115 level=55 exp=257175 stamina_q10=102400 mood_q10=57047
+I (81765) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1896
+I (81766) dbg: @@MEMORY_STATE free=17432 minimum=11392 largest=11264 stack_free=1896
+I (81766) dbg: @@AUDIO_PROFILE chunks=3685 render_avg_us=2324 render_max_us=4379 gap_max_us=52217 late=4 switches=1 switch_render_max_us=1603 opens=1 errors=0 stack_free=1992
+I (81767) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924
+I (82715) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=74067 pending=3 pet=115 level=55 exp=257175 stamina_q10=102400 mood_q10=57044
+I (82715) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1832
+I (82716) dbg: @@MEMORY_STATE free=17432 minimum=11392 largest=11264 stack_free=1832
+I (82716) dbg: @@AUDIO_PROFILE chunks=3729 render_avg_us=2324 render_max_us=4379 gap_max_us=52217 late=4 switches=1 switch_render_max_us=1603 opens=1 errors=0 stack_free=1992
+I (82717) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924

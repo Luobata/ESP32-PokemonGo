@@ -1,0 +1,196 @@
+[
+  {
+    "name": "verify_usb_backup.py",
+    "exit": 0,
+    "seconds": 2.2
+  },
+  {
+    "name": "verify_usb_import.py",
+    "exit": 0,
+    "seconds": 3.9
+  },
+  {
+    "name": "verify_usb_stream.py",
+    "exit": 0,
+    "seconds": 2.1
+  },
+  {
+    "name": "verify_save_import_compatibility.py",
+    "exit": 0,
+    "seconds": 4.6
+  },
+  {
+    "name": "verify_save_storage.py",
+    "exit": 0,
+    "seconds": 18.4
+  },
+  {
+    "name": "verify_usb_import_device.py",
+    "exit": 0,
+    "seconds": 0.7
+  },
+  {
+    "name": "verify_save_import_web.mjs",
+    "exit": 0,
+    "seconds": 0.5
+  },
+  {
+    "name": "verify_usb_backup_checkpoint.py",
+    "exit": 0,
+    "seconds": 3.6
+  },
+  {
+    "name": "verify_save_manager_distribution.py",
+    "exit": 0,
+    "seconds": 1.9
+  },
+  {
+    "name": "verify_firmware_update.py",
+    "exit": 0,
+    "seconds": 0.9
+  },
+  {
+    "name": "verify_nvs_restore_roundtrip.py",
+    "exit": 0,
+    "seconds": 13.7
+  },
+  {
+    "name": "verify_region_expansion.py",
+    "exit": 0,
+    "seconds": 6.7
+  },
+  {
+    "name": "verify_dungeon_stack.py",
+    "exit": 0,
+    "seconds": 0.6
+  },
+  {
+    "name": "verify_save_stack.py",
+    "exit": 0,
+    "seconds": 6.1
+  },
+  {
+    "name": "verify_johto_save.py",
+    "exit": 0,
+    "seconds": 4.7,
+    "initial_exit": 1,
+    "rerun": true
+  },
+  {
+    "name": "verify_johto_fieldwork.py",
+    "exit": 0,
+    "seconds": 5.2
+  },
+  {
+    "name": "verify_johto_routes.py",
+    "exit": 0,
+    "seconds": 4.9
+  },
+  {
+    "name": "verify_johto_routes_ui.py",
+    "exit": 0,
+    "seconds": 1.8
+  },
+  {
+    "name": "verify_johto_evolution.py",
+    "exit": 0,
+    "seconds": 4.7
+  },
+  {
+    "name": "verify_johto_evolution_ui.py",
+    "exit": 0,
+    "seconds": 0.6
+  },
+  {
+    "name": "verify_johto_activity.py",
+    "exit": 0,
+    "seconds": 5.0
+  },
+  {
+    "name": "verify_johto_activity_ui.py",
+    "exit": 0,
+    "seconds": 9.7
+  },
+  {
+    "name": "verify_johto_story.py",
+    "exit": 0,
+    "seconds": 4.6
+  },
+  {
+    "name": "verify_johto_story_ui.py",
+    "exit": 0,
+    "seconds": 0.7,
+    "initial_exit": 1,
+    "rerun": true
+  },
+  {
+    "name": "verify_johto_champion.py",
+    "exit": 0,
+    "seconds": 4.7
+  },
+  {
+    "name": "verify_johto_champion_ui.py",
+    "exit": 0,
+    "seconds": 2.2
+  },
+  {
+    "name": "verify_johto_champion_balance.py",
+    "exit": 0,
+    "seconds": 8.1
+  },
+  {
+    "name": "verify_johto_narrative.py",
+    "exit": 0,
+    "seconds": 4.6
+  },
+  {
+    "name": "verify_johto_narrative_ui.py",
+    "exit": 0,
+    "seconds": 3.3
+  },
+  {
+    "name": "verify_scene_pacing.py",
+    "exit": 0,
+    "seconds": 0.6
+  },
+  {
+    "name": "verify_battle_timeline.py",
+    "exit": 0,
+    "seconds": 2.4
+  },
+  {
+    "name": "verify_battle_timeline_ui.py",
+    "exit": 0,
+    "seconds": 15.7
+  },
+  {
+    "name": "verify_comfort_motion.py",
+    "exit": 0,
+    "seconds": 5.3
+  },
+  {
+    "name": "verify_audio_switch.py",
+    "exit": 0,
+    "seconds": 1.6
+  },
+  {
+    "name": "verify_music.py",
+    "exit": 0,
+    "seconds": 3.7
+  },
+  {
+    "name": "verify_animation_timing.py",
+    "exit": 0,
+    "seconds": 1.0
+  },
+  {
+    "name": "verify_transition_bands.py",
+    "exit": 0,
+    "seconds": 2.0
+  },
+  {
+    "name": "verify_usb_console.py",
+    "exit": 0,
+    "seconds": 1.2
+  }
+]

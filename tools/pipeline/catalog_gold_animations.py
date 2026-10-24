@@ -28,8 +28,9 @@ BRANCHES = {'anim_call', 'anim_jump', 'anim_loop', 'anim_jumpuntil',
 def build(src):
     sources = {}
     for path in FILES:
-        expected = subprocess.check_output(['git', '-C', str(src), 'show', f'{COMMIT}:{path}'])
-        if (src / path).read_bytes() != expected:
+        manifest = json.loads((ROOT / 'tools/inspector/move-animation-sources.json').read_text())
+        expected = (src / path).read_bytes()
+        if manifest['source_commit'] != COMMIT or hashlib.sha256(expected).hexdigest() != manifest['source_files'][path]:
             raise ValueError(f'{path} differs from pinned Gold source')
         sources[path] = expected.decode()
     asm = sources[FILES[0]]

@@ -31,6 +31,8 @@ static inline void scene_screen_rect(void *ctx, int x, int y, int w, int h,
 
 static inline void scene_screen_p3_pet_hp(int band_y, uint16_t cur, uint16_t max)
 {
+    if (band_y >= SCENE_P3_PET_HP_Y + SCENE_P3_PET_HP_H ||
+        band_y + SCREEN_BAND_H <= SCENE_P3_PET_HP_Y) return;
     scene_p3_pet_hp(scene_screen_rect, &band_y, cur, max);
 }
 
@@ -38,6 +40,10 @@ static inline bool scene_screen_p3_pet_back(int band_y, const uint8_t *data,
                                             int w, int h, int shake_dx,
                                             const uint16_t palette[4])
 {
-    return scene_p3_pet_back(scene_screen_rect, &band_y, data, w, h,
-                             shake_dx, palette);
+    if (!data || !palette || w != h || (w != 32 && w != 48)) return false;
+    // Match the shared scene recipe, but decode only source rows in this band.
+    render_sprite_2bpp_wh(SCENE_P3_PET_BACK_X + shake_dx,
+        SCENE_P3_PET_BACK_Y - band_y, data, w, h,
+        SCENE_P3_PET_BACK_SIZE / w, palette);
+    return true;
 }

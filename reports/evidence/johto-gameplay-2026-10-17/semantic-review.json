@@ -1,0 +1,55 @@
+{
+  "status": "completed",
+  "fingerprint": "qgcf_ef1321271be78e3946276e0cebf59bd226202a5b2f876f06e58082063753065b",
+  "job_id": "dual-semantic:ESP32-PokemonGo:qgcf_ef1321271be78e3946276e0cebf59bd226202a5b2f876f06e58082063753065b",
+  "decision_available": true,
+  "delivery_state": "review_ready",
+  "findings": [],
+  "targets": [
+    {
+      "path": "assets/gold_fx_sources.json",
+      "rules": [
+        "GEC-TYPED-CONFIGURATION-CONTRACT"
+      ]
+    },
+    {
+      "path": "assets/johto_combat_sources.json",
+      "rules": [
+        "GEC-TYPED-CONFIGURATION-CONTRACT"
+      ]
+    },
+    {
+      "path": "assets/johto_trainer_sources.json",
+      "rules": [
+        "GEC-TYPED-CONFIGURATION-CONTRACT"
+      ]
+    },
+    {
+      "path": "assets/pokemon_animation_sources.json",
+      "rules": [
+        "GEC-TYPED-CONFIGURATION-CONTRACT"
+      ]
+    },
+    {
+      "path": "assets/pokemon_art_sources.json",
+      "rules": [
+        "GEC-TYPED-CONFIGURATION-CONTRACT"
+      ]
+    },
+    {
+      "path": "data/pokemon_johto/names_sizes.json",
+      "rules": [
+        "GEC-TYPED-CONFIGURATION-CONTRACT"
+      ]
+    },
+    {
+      "path": "tools/pipeline/fixtures/save_history/manifest.json",
+      "rules": [
+        "GEC-TYPED-CONFIGURATION-CONTRACT"
+      ]
+    }
+  ],
+  "shards": 31,
+  "next_action": "consume_findings_then_validate",
+  "coverage_note": "Only matched JSON configuration contracts were reviewed. No applicable C firmware semantic rules; this is not complete firmware coverage."
+}

@@ -15,7 +15,7 @@ def command(r,s):
  f=r.command(s); assert r.command('check')['mismatch']==0,s;checks+=1
  return f['pixels']
 
-def game(s):return {k:v for k,v in s.items() if k!='display'}
+def game(s):return {k:v for k,v in s.items() if k not in ('display','playtime_s')}
 
 # All species fit their original boxes, frame motion changes real page pixels.
 animated=[]
@@ -54,12 +54,17 @@ try:
   assert moving,('selected member did not sway',selected)
   command(r,'key 1 1')
  # Entire C wake hold is swallowed, including its classified LONG.
- before=game(r.inspect()); command(r,'key 2 3');assert r.inspect()['display']['off']
+ before=game(r.inspect());before_time=r.inspect()['playtime_s']; command(r,'key 2 3');assert r.inspect()['display']['off']
  command(r,'key 2 0');command(r,'tick 1600');command(r,'key 2 3');command(r,'key 2 4');command(r,'key 2 5')
  assert not r.inspect()['display']['off'] and game(r.inspect())==before
+ # The 1.6-second awake hold legitimately advances cumulative playtime.
+ assert 0<=r.inspect()['playtime_s']-before_time<=2
  command(r,'key 2 3');assert r.inspect()['display']['off']
- command(r,'tick 60000');assert r.inspect()['display']['off']
- command(r,'key 0 1');assert game(r.inspect())==before
+ sleep_time=r.inspect()['playtime_s'];command(r,'tick 60000');assert r.inspect()['display']['off'] and r.inspect()['playtime_s']==sleep_time
+ # Stamina is intentionally restored with time while the screen sleeps.
+ sleeping=game(r.inspect());assert 0<=sleeping['nurture']['stamina']-before['nurture']['stamina']<=2
+ expected={**before,'nurture':{**before['nurture'],'stamina':sleeping['nurture']['stamina']}};assert sleeping==expected
+ command(r,'key 0 1');assert game(r.inspect())==sleeping
  # Repeated exits must release timers instead of exhausting the timer pool.
  for _ in range(24):command(r,'page 5');command(r,'tick 80');command(r,'page 12');command(r,'tick 80')
  command(r,'key 1 2');command(r,'tick 59900');assert not r.inspect()['display']['off']

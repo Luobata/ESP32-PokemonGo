@@ -1,0 +1,1 @@
+PASS: capture has no reopen; mute/sleep immediate; silence expires after 2s; 390 chunks

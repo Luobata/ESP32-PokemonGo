@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/verify_capture_animation.py", line 61, in <module>
+    assert after['inventory'][0] == before['inventory'][0] - 1
+AssertionError

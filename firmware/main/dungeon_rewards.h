@@ -5,7 +5,7 @@
 #include "items.h"
 #define DUNGEON_ENTRY_COST 20
 // Stored atomically WITH party EXP and inventory in the world save.
-typedef struct {uint32_t xp;inventory_t items;uint8_t first_clear,first_elite,full;
+typedef struct {uint32_t xp;inventory_v25_t items;uint8_t first_clear,first_elite,full;
  // Former zeroed tail padding, without changing any persisted offsets or sizes.
  uint8_t partner_species,partner_shiny;
 } dungeon_receipt_t;

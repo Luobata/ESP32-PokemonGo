@@ -37,10 +37,10 @@ def scene():
 def animate(r, success):
     committed = r.inspect()
     frames = set()
-    for elapsed in range(40, 3481, 40):
+    for elapsed in range(40, 9921, 40):
         frames.add(tick(r)['pixels'])
         # Queued and held physical buttons cannot skip, reroll or spend again.
-        if elapsed < 3480:
+        if elapsed < 9921:
             for k in range(3):
                 key(r, k)
             state = r.inspect()
@@ -48,7 +48,9 @@ def animate(r, success):
             assert state['inventory'] == committed['inventory']
             assert state['party'] == committed['party']
             assert state['active'] == committed['active']
-            assert (state['music'] == 16) == (success and elapsed >= 2880)
+            if elapsed < 9117: assert state['music'] != 16
+            if elapsed >= 9157: assert (state['music'] == 16) == success
+    tick(r, 80)  # End may fall between the 40 ms callbacks; do not inject a skip.
     assert len(frames) >= 30, len(frames)
 
 cases = []
@@ -56,7 +58,7 @@ for success in (True, False):
     r = scene()
     try:
         before = r.inspect()
-        tick(r, 300 if success else 0); key(r, 0)
+        tick(r, 300 if success else 0); key(r, 2)
         after = r.inspect()
         assert after['inventory'][0] == before['inventory'][0] - 1
         assert after['party_count'] == before['party_count'] + success
@@ -67,13 +69,13 @@ for success in (True, False):
             until(r, lambda s: s['page'] == 2)
             assert r.inspect()['party_count'] == 2
         else:
-            key(r, 0)
+            key(r, 2)
             until(r, lambda s: s['page'] == 3)
             assert r.inspect()['active']['attacks'] == 1
             until(r, lambda s: s['presentation']['phase'] == 'choice')
             tick(r, 6000)
             assert r.inspect()['active']['attacks'] == 1
-            key(r, 0); assert r.inspect()['page'] == 4  # May try again without choosing battle.
+            key(r, 2); assert r.inspect()['page'] == 4  # May try again without choosing battle.
         cases.append('success and deferred fanfare' if success else 'breakout and exactly one retaliation')
     finally: r.close()
 
@@ -81,14 +83,14 @@ for success in (True, False):
 # hold the ball, no false victory, and retry the same mon without another item.
 r = scene()
 try:
-    before = r.inspect(); command(r, 'save_fail 1'); key(r, 0)
+    before = r.inspect(); command(r, 'save_fail 1'); key(r, 2)
     assert r.inspect()['inventory'] == before['inventory'] and not r.inspect()['display']['busy']
-    tick(r, 300); command(r, 'save_fail_after 1'); key(r, 0)
+    tick(r, 300); command(r, 'save_fail_after 1'); key(r, 2)
     assert r.inspect()['party_count'] == 1 and r.inspect()['inventory'][0] == 11
     animate(r, False)
     tick(r, 6000); assert r.inspect()['page'] == 4 and r.inspect()['music'] != 16
-    key(r, 2); assert r.inspect()['page'] == 4
-    key(r, 0)
+    command(r, 'key 1 3'); assert r.inspect()['page'] == 4
+    key(r, 2)
     assert r.inspect()['party_count'] == 2 and r.inspect()['inventory'][0] == 11
     assert r.inspect()['music'] == 16
     cases.append('atomic save failures and same-ball retry')
@@ -99,10 +101,10 @@ r = Renderer(exe)
 try:
     command(r, 'boot 3 139 100 137 1 3 0 0 0')
     until(r, lambda s: s['presentation']['phase'] == 'choice')
-    key(r, 1)
+    key(r, 1); key(r, 2)
     until(r, lambda s: s['presentation']['phase'] == 'result')
     assert r.inspect()['active']['won']
-    before = r.inspect(); key(r, 0); key(r, 0)
+    before = r.inspect(); key(r, 2); key(r, 2)
     assert r.inspect()['active'] is None
     animate(r, False)
     until(r, lambda s: s['page'] == 2)

@@ -1,0 +1,93 @@
+{
+  "options-final": [
+    {
+      "kind": "DISPLAY_STATE",
+      "brightness": 100,
+      "page": 0
+    },
+    {
+      "kind": "MEMORY_STATE",
+      "free": 17480,
+      "minimum": 11440,
+      "largest": 7168,
+      "stack_free": 1580
+    },
+    {
+      "kind": "UI_STACK",
+      "timer_free": 3544,
+      "lvgl_free": 5048
+    },
+    {
+      "kind": "DISPLAY_STATE",
+      "brightness": 100,
+      "page": 9
+    },
+    {
+      "kind": "MEMORY_STATE",
+      "free": 17480,
+      "minimum": 11440,
+      "largest": 7168,
+      "stack_free": 1580
+    },
+    {
+      "kind": "UI_STACK",
+      "timer_free": 3544,
+      "lvgl_free": 5048
+    }
+  ],
+  "dim-final": [
+    {
+      "kind": "DISPLAY_STATE",
+      "brightness": 100,
+      "page": 9
+    },
+    {
+      "kind": "MEMORY_STATE",
+      "free": 17480,
+      "minimum": 11440,
+      "largest": 7168,
+      "stack_free": 1580
+    },
+    {
+      "kind": "UI_STACK",
+      "timer_free": 3544,
+      "lvgl_free": 5048
+    },
+    {
+      "kind": "DISPLAY_STATE",
+      "brightness": 89,
+      "page": 9
+    },
+    {
+      "kind": "MEMORY_STATE",
+      "free": 17612,
+      "minimum": 11440,
+      "largest": 7168,
+      "stack_free": 1580
+    },
+    {
+      "kind": "UI_STACK",
+      "timer_free": 3544,
+      "lvgl_free": 5048
+    }
+  ],
+  "after_restore": [
+    {
+      "kind": "DISPLAY_STATE",
+      "brightness": 100,
+      "page": 0
+    },
+    {
+      "kind": "MEMORY_STATE",
+      "free": 17476,
+      "minimum": 9776,
+      "largest": 11264,
+      "stack_free": 1888
+    },
+    {
+      "kind": "UI_STACK",
+      "timer_free": 3544,
+      "lvgl_free": 5048
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "firmware/main/render.c": "317177e144ddd6c9c162a41cdd770a0e3d5bb64c372145e1883e8d138dfeecc8",
+  "firmware/main/game_ui.c": "0e0f3ec2a99950c50ce842e97fa64b78b70fdf09752fb687bde6afa7f230a87d",
+  "firmware/main/screen.c": "f8ce5636af293da5b9a14f1ceae8ef4ee43dd900be3ce5a3db5385e3eba731ac",
+  "firmware/main/screen.h": "6229c81e9dd0b7ed30b504e2d8c3f9778106c840209949e514c53de53be41247",
+  "firmware/main/dbg.c": "9eb8d0a0b36668d17b3bf52076ded3487c55eff67e092d6f32af17fa336a3004",
+  "firmware/main/exploration.c": "65c60852bf7fc408eb96d56d0bf765d484ea3a179c16179ce2a787ac00d90d9c",
+  "firmware/main/play_exploration.c": "04a7cc6e6418112ac937c5f1a674540c863780db30ef490a6953218a7c2376b3",
+  "tools/pipeline/verify_render_performance.py": "fec6e13281136754e6dfec590027522549ac5c5a3ea43ec2d7520c596fb28f7f",
+  "tools/pipeline/verify_exploration_duplicates.py": "02f9f407445659b4812cdc4ce39e0ff6828576eed8eed8c19577d6900b98de69",
+  "tools/pipeline/verify_exploration_duplicates_ui.py": "4d02463a76f5b382f1e2d1ddaabf973c6a6e93ac06b2a2360db2ea94c2b27f6d",
+  "firmware/main/usb_backup.c": "1e0977991b4e84560ba41948a231eab77a60db5fce2ac4971e4164d600f9f890",
+  "tools/pipeline/verify_usb_backup.py": "19d8c45315d44d4524d0853dc45c6bf950574891be09910c87c2a786a54ec45c",
+  "tools/pipeline/verify_usb_import.py": "37c56b7add80959d53666e3c8089a10866c31d5d8b0133a30dad92d9b63a29af",
+  "tools/pipeline/verify_usb_stream.py": "4ce044a63027112e5b811f63f522f73580e78c560f1eeb7d6e7fbdb81eda635a"
+}

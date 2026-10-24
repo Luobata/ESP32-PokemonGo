@@ -20,7 +20,7 @@ typedef struct {
 
  };};
  uint32_t run_id;
- inventory_t earned;
+ inventory_v25_t earned;
  dungeon_receipt_t receipt;
  uint8_t next_phase,pending,relay_mask;
 } dungeon_v2_t;
@@ -34,11 +34,11 @@ typedef struct {
    uint8_t phase,node,ids[3],choices[3],wins,guards,berries,stone;
   };};
   uint32_t run_id;
-  inventory_t earned;
+  inventory_v25_t earned;
   dungeon_receipt_t receipt;
   uint8_t next_phase,pending,relay_mask;
  };};
- mon_t members[3];
+ mon_v27_t members[3];
  uint8_t slots[3],count,base_level;
 } dungeon_v3_t;
 // V4 appends theme and reward direction, preserving in-progress V3 forest runs.
@@ -51,7 +51,26 @@ typedef struct {
    uint8_t phase,node,ids[3],choices[3],wins,guards,berries,stone;
   };};
   uint32_t run_id;
-  inventory_t earned;
+  inventory_v25_t earned;
+  dungeon_receipt_t receipt;
+  uint8_t next_phase,pending,relay_mask;
+ };};
+ mon_v27_t members[3];
+ uint8_t slots[3],count,base_level;
+ uint8_t v3_padding[sizeof(dungeon_v3_t)-offsetof(dungeon_v3_t,base_level)-1];
+ uint8_t theme,challenge,trail,boss_variant;
+} dungeon_v4_t;
+// V5 expands individuals; V6 defines former battle PP bytes as individual traits.
+typedef struct {
+ union {dungeon_v2_t v2;struct {
+  union {dungeon_v1_t v1;struct {
+   uint32_t version,seed,xp;
+   trainer_store_t battle;
+   uint16_t cards;
+   uint8_t phase,node,ids[3],choices[3],wins,guards,berries,stone;
+  };};
+  uint32_t run_id;
+  inventory_v25_t earned;
   dungeon_receipt_t receipt;
   uint8_t next_phase,pending,relay_mask;
  };};
@@ -60,7 +79,7 @@ typedef struct {
  uint8_t v3_padding[sizeof(dungeon_v3_t)-offsetof(dungeon_v3_t,base_level)-1];
  uint8_t theme,challenge,trail,boss_variant;
 } dungeon_t;
-_Static_assert(offsetof(dungeon_t,theme)==sizeof(dungeon_v3_t),"Freeze V3 run");
+_Static_assert(offsetof(dungeon_v4_t,theme)==sizeof(dungeon_v3_t),"Freeze V3 run");
 
 _Static_assert(offsetof(dungeon_t,members)==sizeof(dungeon_v2_t),"Preserve v2 dungeon prefix");
 _Static_assert(offsetof(dungeon_t,run_id)==sizeof(dungeon_v1_t),"Preserve old dungeon save prefix");
@@ -93,3 +112,5 @@ void play_dungeon_enter(void);
 void play_dungeon_exit(void);
 bool play_dungeon_screen_busy(void);
 void play_dungeon_key(bsp_btn_t b,bsp_btn_ev_t e);
+
+bool dungeon_learned(unsigned,mon_t *);

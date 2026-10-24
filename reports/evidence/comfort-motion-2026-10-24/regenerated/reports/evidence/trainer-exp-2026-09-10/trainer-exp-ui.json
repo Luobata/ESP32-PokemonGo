@@ -1,0 +1,27 @@
+{
+  "build": "290e517edce250e32c42",
+  "dirty_full_checks": 654,
+  "cases": [
+    {
+      "name": "route-win",
+      "party_exp_gain": 127,
+      "animated_bar_samples": 7
+    },
+    {
+      "name": "gym-win-retry",
+      "party_exp_gain": 274,
+      "animated_bar_samples": 14
+    },
+    {
+      "name": "gym-loss",
+      "party_exp_gain": 38,
+      "animated_bar_samples": 3
+    },
+    {
+      "name": "gym-win-replacement",
+      "party_exp_gain": 1048,
+      "animated_bar_samples": 14
+    }
+  ],
+  "passed": true
+}

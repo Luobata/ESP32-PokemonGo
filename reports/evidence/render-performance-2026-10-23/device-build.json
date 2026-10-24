@@ -1,0 +1,13 @@
+{
+  "base_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+  "source_state": "working tree with existing uncommitted Johto expansion and this performance/exploration repair",
+  "application_bytes": 3136880,
+  "sha256": "39ae9aabeee49b9dccea4e20387711eeb4b45895a1b225338cfffca6c7f90fe6",
+  "address": "0x10000",
+  "factory_bytes": 3407872,
+  "factory_free_bytes": 270992,
+  "flash_bytes": 8388608,
+  "app_only_update": true,
+  "protected_ranges_unchanged": true,
+  "partition_table_written": false
+}

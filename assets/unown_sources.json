@@ -1,0 +1,213 @@
+{
+  "commit": "7a7881d0d62e0ddbd82dcf10e7116807487ac651",
+  "inputs": {
+    "gfx/pokemon/unown_a/front.png": {
+      "git_blob": "decbe95442b96f00578e9e29fd9244ad31aee4db",
+      "sha256": "f907bdb79c96916fcf8edb4dfbeea9e61690ce360e53c39bec0da3723bae3629"
+    },
+    "gfx/pokemon/unown_b/front.png": {
+      "git_blob": "a45b799e9bc4168691f7efd54a80658fff92fd95",
+      "sha256": "9b227a871517f48e2e811b8169050c8a1f9de13d5d50090c217ed0ddbe1c5058"
+    },
+    "gfx/pokemon/unown_c/front.png": {
+      "git_blob": "4e2b2f151cc298b0250728704aebc2b5d1a900ef",
+      "sha256": "318ee999b34695b0b4f9913a9c65f1a3062972bb0a2bb89e957cca4d25f26ad1"
+    },
+    "gfx/pokemon/unown_d/front.png": {
+      "git_blob": "becc9240603d07190d1e93d24c0e7f316f3cf4f0",
+      "sha256": "f1ccbd00f9985437a6399cf574ed2a9663b66df466aaf68ac90f8b6ac92952fd"
+    },
+    "gfx/pokemon/unown_e/front.png": {
+      "git_blob": "8a9f132d1b9979854fb7ec23c35f2b8de0307b9d",
+      "sha256": "7d9cafa6b76a8a05ed92ce20f3ddd742b822744f171598a7da01e1c42ebb4bf5"
+    },
+    "gfx/pokemon/unown_f/front.png": {
+      "git_blob": "80b3f0dd27058118398d08da71bf3236fa77f2bd",
+      "sha256": "9e245e607ab5ea130bbdb0c8c7d7053fce8e74f0808a07c33091555f5b8573c8"
+    },
+    "gfx/pokemon/unown_g/front.png": {
+      "git_blob": "8bbfee819907001316827bcaa040be38aa9782d3",
+      "sha256": "da557b05306666189db98340f7b79a30e1dc269cc48c393a19fa7ea26dc4f161"
+    },
+    "gfx/pokemon/unown_h/front.png": {
+      "git_blob": "ba8635ecfcadd3709d3b3006e028de43899897a9",
+      "sha256": "688b588bbfb6c2eb56df430ec95d1902f60dae9bbd6b03011b402036bca1e147"
+    },
+    "gfx/pokemon/unown_i/front.png": {
+      "git_blob": "e396fc847c5562fbd578dc946b4c93614b79304b",
+      "sha256": "fffc211891c53e0da6c7c3200a083e3486b218e8b295405f537c7737fa0f0f2d"
+    },
+    "gfx/pokemon/unown_j/front.png": {
+      "git_blob": "3c7205edd73b92af6769e4ab6ad5722ad20e726b",
+      "sha256": "1c03bacafb70566be64ef8bdf275ff02504a8864d57d51db0422f0aa5a7d2d70"
+    },
+    "gfx/pokemon/unown_k/front.png": {
+      "git_blob": "fef1793bfda4ca25d9f5d4115b43daf125837492",
+      "sha256": "daba0644a583a5659659c2ef3f4283330e3dffda4cc4b50d2286157676cca2ef"
+    },
+    "gfx/pokemon/unown_l/front.png": {
+      "git_blob": "1aeb48a6db4cd2f449c98763dbd92c2e6a901f29",
+      "sha256": "b6acb072ddd40f4f76480b0e6cd61b808458e728918b307d21491017972f529d"
+    },
+    "gfx/pokemon/unown_m/front.png": {
+      "git_blob": "4a42a084fb0d73f209f28edffec84c17978c3cd1",
+      "sha256": "78d82e3febd739e97902c4f05b9a6ee0fdc087778d55ad2b987e24109557bc35"
+    },
+    "gfx/pokemon/unown_n/front.png": {
+      "git_blob": "ee86bb8091d1ac9d9dfbc90d28169ba753cc8f72",
+      "sha256": "948976600663e011a1e1156c5ed9b6e2588c45136809b375d67ef6d992b7009a"
+    },
+    "gfx/pokemon/unown_o/front.png": {
+      "git_blob": "35c35f107905a8c6131b89fc04763f868f6c69f2",
+      "sha256": "f5b1c945f666cd3c220c5bc6872632e5ae09155f1c6c680b96af186fe3ba091c"
+    },
+    "gfx/pokemon/unown_p/front.png": {
+      "git_blob": "8c9652a0aa2c26aadfd2b3440124c41dafba12be",
+      "sha256": "f54856943c59951b527a708cd044790a46a411959f73c00c10665beba0c3f6e0"
+    },
+    "gfx/pokemon/unown_q/front.png": {
+      "git_blob": "97900e745d3ef8ba51abc8d264f398bce77fb93c",
+      "sha256": "175c26127c90ac9bd1c7d1bf45cc41ea23f922337886826d57f9710e4b8c56d1"
+    },
+    "gfx/pokemon/unown_r/front.png": {
+      "git_blob": "c203ed47044916940612946228b47b25bbc8c451",
+      "sha256": "b760f3898950e417dd4f1e79ecee460d62acd884ac0373785d883747751e3609"
+    },
+    "gfx/pokemon/unown_s/front.png": {
+      "git_blob": "c7495eccdd69542bf2d344a1994f232737cf004c",
+      "sha256": "6ee87c2233403144fe74470d5862656154c953e9d90030c0b9723c8baf5a527d"
+    },
+    "gfx/pokemon/unown_t/front.png": {
+      "git_blob": "3f5b7c7a2cba1438eaf344ad4499431747da2222",
+      "sha256": "ea94f048520614c77c76bfbcb75e15c1fef227cc8642f9eaeaac832358994e27"
+    },
+    "gfx/pokemon/unown_u/front.png": {
+      "git_blob": "2eba23d5d05ff46460a225a0f62a33bda474b7b8",
+      "sha256": "1dfaf8f704408e2e3255353b1ccd35ccb9799cab545bfd41937a58e6cf17c573"
+    },
+    "gfx/pokemon/unown_v/front.png": {
+      "git_blob": "57fae628b58fa51c3f46add89f2a324b329e439d",
+      "sha256": "207de7b2ab4a0921a9b827fbdb805e092ccf233993f7e712de3561050f30a1b3"
+    },
+    "gfx/pokemon/unown_w/front.png": {
+      "git_blob": "34b335254ad5b87eb101cf458d5b7a8f9d040624",
+      "sha256": "a3ad0277be959fc8dd282c8c414de42fb879c83a67fd7b732004584b6229abd1"
+    },
+    "gfx/pokemon/unown_x/front.png": {
+      "git_blob": "e74987847a06630795b7b833f97a893dee6df8dd",
+      "sha256": "61f2cb538fdf07f15f77d7d01f3f3accaeba1050b2bde9a2b0cc0d29df5ea813"
+    },
+    "gfx/pokemon/unown_y/front.png": {
+      "git_blob": "f444a7206173a990620c25e1442fe419cda393c1",
+      "sha256": "cc0870f5c5c6e0b07903931a508b7c631ca8bbac74ef4a8e60a159a695e1ee18"
+    },
+    "gfx/pokemon/unown_z/front.png": {
+      "git_blob": "583044383c5a913aa0339fa69d7d435384e3d285",
+      "sha256": "25f05f0a45f66aa6ce89f17c7f0eff0a5ec51dad5bc462da89e4c6dded47c66e"
+    },
+    "gfx/pokemon/unown_a/back.png": {
+      "git_blob": "b1d6de88a1061fb527019eec2dda66d580cfda94",
+      "sha256": "9130463255823373147598c48b43f077fbda5c5467eca287e9e3a05b781934e6"
+    },
+    "gfx/pokemon/unown_b/back.png": {
+      "git_blob": "a77426a43cb6027a8226d5ed30d0e85a58cae398",
+      "sha256": "7158602bae987c1f09e9dcd14947cf88cb82e583a643480adf2eb1651134a692"
+    },
+    "gfx/pokemon/unown_c/back.png": {
+      "git_blob": "a76e6caab916e60e09322d785944a844e2975675",
+      "sha256": "7b69b4801850d41b18e0417d58f44edc44f9fc69cfc8b985362e85d31e2fa5d7"
+    },
+    "gfx/pokemon/unown_d/back.png": {
+      "git_blob": "1d4547c82d4ac65c3a92233171f6b09ef653d201",
+      "sha256": "95707fadf08d6a78c73342a91912715e6ec972bccb43893ece1aec61859e23cb"
+    },
+    "gfx/pokemon/unown_e/back.png": {
+      "git_blob": "dfe189c5e58864ab7d49ed8f1321222c6ebd0f1a",
+      "sha256": "42abce68c4ac0fdcbdeace244e23cc6136666427122f85f92302b79686b461a4"
+    },
+    "gfx/pokemon/unown_f/back.png": {
+      "git_blob": "f4f54b351588a9ab6f375fdc39d985fe53052cef",
+      "sha256": "eaab61d1779c3c473b869109ffe0539242d682b83d20d360f50201c65d711c2c"
+    },
+    "gfx/pokemon/unown_g/back.png": {
+      "git_blob": "c2d4e81cfd552da956e2a6f113a1d6684f1f7891",
+      "sha256": "0d34faf34fe35fe93a7589d9986cea97545a92c37bc9906fe0a15412f77b8656"
+    },
+    "gfx/pokemon/unown_h/back.png": {
+      "git_blob": "6677db077de5a16c14d910f285573d8b911bb1af",
+      "sha256": "3139783b2a9d45e16737b19ced7433cdf2db3551848e94925b1f8a485d6c0c2b"
+    },
+    "gfx/pokemon/unown_i/back.png": {
+      "git_blob": "3251ab92cb30d9550e2f252ae190ca028e6743fc",
+      "sha256": "de1931fbf42b1f82d478315abaa3734548d892fbf13de0ac2c5fd2fd08605fe2"
+    },
+    "gfx/pokemon/unown_j/back.png": {
+      "git_blob": "3e7dddd921567c71d8b2476ef9fe1064484b9454",
+      "sha256": "bd28d4173b4d36b53d1dc05300033fc4c6023bcd5eea2185ece25b811e5930a8"
+    },
+    "gfx/pokemon/unown_k/back.png": {
+      "git_blob": "3efb0a65e2461f4c87b326db40a335a07ee0ade8",
+      "sha256": "eb205e0c72d5607cfccaf2ba61ab1395e6fd0f527ec8740a6addd6d147435ca2"
+    },
+    "gfx/pokemon/unown_l/back.png": {
+      "git_blob": "4e14c7d9f8dbcf972b57c44181e6f220a64b7086",
+      "sha256": "7675f9c66534a65b4cefce09a5e10cad86909c0871fade5cc1e4bf439ba1be9c"
+    },
+    "gfx/pokemon/unown_m/back.png": {
+      "git_blob": "5e9b02d32a804a6117fce7efc8815717d20168e0",
+      "sha256": "8e5a1020539d77056a4a41c4322453afa57f4aaa59b0bbf132cdbfc8de9f9bce"
+    },
+    "gfx/pokemon/unown_n/back.png": {
+      "git_blob": "c6a7b1390391ab04267ceae5676dfd49892c00b7",
+      "sha256": "383f9634a5481f6a79b56374325c389c64956f2db1884964c3b02b1711d274c9"
+    },
+    "gfx/pokemon/unown_o/back.png": {
+      "git_blob": "6f94641ff84979d407f522c5fc4c0383ca837980",
+      "sha256": "2afbe7dce848c95e91b6d748aca5ef93c7bf436a7e4652d992b67eddf45a784d"
+    },
+    "gfx/pokemon/unown_p/back.png": {
+      "git_blob": "618b54087b413aa8a87dd1c1727c9ddb8d684a28",
+      "sha256": "78519b7953b625c5b33c6f88b63c26c0767608556d1d65c524a5c712bc284ea2"
+    },
+    "gfx/pokemon/unown_q/back.png": {
+      "git_blob": "5ee2eacb0ac5481d8c9424175c834a493abce1e3",
+      "sha256": "36b2e8633f730563b6a7a2dfee3ddaa26edd55372ff3b2cb0b4af07284b78be6"
+    },
+    "gfx/pokemon/unown_r/back.png": {
+      "git_blob": "355fe3fc69f98a882480a4fda1893d13269fad0a",
+      "sha256": "46ba804280bc00ef157863b550c9f14a12b7fc2767c07bef81ba00b4f269831f"
+    },
+    "gfx/pokemon/unown_s/back.png": {
+      "git_blob": "4a718be738e1aa97473b22e0e10a6b874b70984e",
+      "sha256": "248ae8a5c0de31fb7911934b01d6e1ccd884bd35429d7b88448b58cca13ceccd"
+    },
+    "gfx/pokemon/unown_t/back.png": {
+      "git_blob": "935d3f1fd73901cae4ea48f50fff55668827147b",
+      "sha256": "9ef4f25e84b08c751678a55fd5de53a03ba5f482264d858b0b8b1145b0d57c51"
+    },
+    "gfx/pokemon/unown_u/back.png": {
+      "git_blob": "80a4cd17cfb35b0c68124b6e0d0e810d28b37046",
+      "sha256": "eb148d2a278c872ca7fe169101c72f4705c852969f8bd26c3dfdcb881c5b9e3e"
+    },
+    "gfx/pokemon/unown_v/back.png": {
+      "git_blob": "e0bb0635dbcfa18ab81085120d1771fcd9d371f5",
+      "sha256": "383605539da6d8e5540d5b4adf8654e768097d133a0a69f4d674f73ea0485f80"
+    },
+    "gfx/pokemon/unown_w/back.png": {
+      "git_blob": "d5fb67f4d6dfef91346392dbd212f1ea88da1e41",
+      "sha256": "4ef6037ee8bdc99735efc70fae73a392dd71765c950fa639f8b1d3963aef0555"
+    },
+    "gfx/pokemon/unown_x/back.png": {
+      "git_blob": "f04142c773296ec205ff20f2dab95d91156ee68b",
+      "sha256": "ad16da64dc6cfff95e2dc4aa08004312de91fdd6e3d987feef7f4301473704a2"
+    },
+    "gfx/pokemon/unown_y/back.png": {
+      "git_blob": "c2452b00417a20053f88829ff57f5a713e16d5f2",
+      "sha256": "bfd9fea667c5c1453db14ae7ceedf97ea23b50d3a9255d89035ddfe66c9b7320"
+    },
+    "gfx/pokemon/unown_z/back.png": {
+      "git_blob": "73094c9faca07f6892f9f39378c29b646d98da97",
+      "sha256": "7d5966a3566575e40c562a87f8fc0519fad1f5372ebd80bd37ea3b1f650063d3"
+    }
+  }
+}

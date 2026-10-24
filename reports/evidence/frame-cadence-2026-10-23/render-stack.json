@@ -1,0 +1,100 @@
+{
+  "screen": {
+    "max_frame": 160,
+    "frames": {
+      "cadence_interval": 0,
+      "cadence_percentile": 0,
+      "capture_discard_log": 0,
+      "lv_obj_set_style_pad_all": 16,
+      "wait_dma_done": 16,
+      "screen_cadence_start": 16,
+      "screen_cadence_begin": 32,
+      "screen_cadence_end": 32,
+      "screen_cadence_report": 160,
+      "screen_own_display": 32,
+      "screen_band": 0,
+      "screen_band_clear": 0,
+      "screen_px": 0,
+      "screen_set_overlay": 0,
+      "screen_set_redraw": 0,
+      "screen_redraw_current": 16,
+      "screen_profile_current": 64,
+      "screen_emit_band": 96,
+      "screen_push_band": 32,
+      "screen_dump": 16,
+      "screen_dump_fap": 16
+    }
+  },
+  "play_care": {
+    "max_frame": 208,
+    "frames": {
+      "action_count": 0,
+      "draw_band": 144,
+      "redraw_status": 16,
+      "draw_benefits": 96,
+      "draw_all": 16,
+      "motion_tick_impl": 80,
+      "motion_tick": 16,
+      "refresh_evolution": 48,
+      "redraw_for_dump": 16,
+      "start_evolution": 48,
+      "play_care_enter": 128,
+      "play_care_exit": 16,
+      "play_care_screen_busy": 16,
+      "play_care_key": 208
+    }
+  },
+  "play_menu": {
+    "max_frame": 192,
+    "frames": {
+      "menu_count": 0,
+      "menu_id": 0,
+      "draw_main": 192,
+      "redraw_status": 16,
+      "draw_wifi": 112,
+      "draw_backup": 32,
+      "draw_options": 96,
+      "draw_all": 16,
+      "backup_refresh": 48,
+      "play_menu_enter": 96,
+      "play_menu_exit": 16,
+      "play_menu_presentation_snapshot": 0,
+      "play_menu_key": 48
+    }
+  },
+  "battery_ui": {
+    "max_frame": 48,
+    "frames": {
+      "rect": 32,
+      "sample": 32,
+      "tick": 16,
+      "battery_ui_set_redraw": 0,
+      "battery_ui_playtime_text": 16,
+      "battery_ui_draw": 48,
+      "battery_ui_start": 16,
+      "battery_ui_stop": 16
+    }
+  },
+  "render": {
+    "max_frame": 112,
+    "frames": {
+      "render_utf8_next": 0,
+      "render_text_width_sized": 32,
+      "glyph_index": 0,
+      "draw_glyph": 48,
+      "render_init": 32,
+      "render_font_size": 0,
+      "render_char_advance": 0,
+      "render_text_width": 16,
+      "render_text_ink_bounds": 112,
+      "render_sprite_ink_bounds": 80,
+      "render_text": 48,
+      "render_sprite_2bpp_wh": 80,
+      "render_sprite_2bpp": 16,
+      "render_sprite_2bpp_thumbnail": 80,
+      "render_selftest": 32,
+      "render_shake_dx": 0,
+      "render_flash_on": 0
+    }
+  }
+}

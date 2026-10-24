@@ -5,17 +5,25 @@
 #include "move_policy.h"
 
 #define PARTY_MAX     6
-#define BOX_SPECIES 151
+#define BOX_SPECIES 251
+#define LEGACY_BOX_SPECIES 151
 #define MON_BYTES    12
-#define BOX_CAPACITY 453
+#define BOX_CAPACITY 753
 #define LEGACY_PARTY_BYTES (2 + (PARTY_MAX + 151) * MON_BYTES)
 #define PARTY_BYTES LEGACY_PARTY_BYTES // Historical codec only; V23 stores native members.
+
+typedef struct {uint8_t species_id,level,hp,intimacy;uint16_t explore_value;uint8_t nickname_idx,flags;uint32_t exp;} mon_v27_t;
+_Static_assert(sizeof(mon_v27_t)==12,"Historical individual");
 
 typedef struct {
     uint8_t  species_id, level, hp, intimacy;
     uint16_t explore_value;
     uint8_t  nickname_idx, flags;   // flags bit0 = shiny
     uint32_t exp;
+    // V28 explicit per-individual extension: Smeargle has four recorded moves;
+    // other species use form / Hidden Power type (0 = deterministic legacy default).
+    union { uint8_t sketch[4]; struct {uint8_t form,hp_type,reserved[2];} traits; } special;
+
 } mon_t;
 
 typedef struct {

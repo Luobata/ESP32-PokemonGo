@@ -51,7 +51,7 @@ static const char *TAG = "p6";
 #define THUMB_SIZE 32
 #define PAGE_Y 260
 
-SCREEN_ASSERT_WITHIN_BAND(dex_page_number, PAGE_Y, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(dex_page_number, PAGE_Y, 16);
 
 static uint8_t s_page;
 static uint16_t s_species;
@@ -166,7 +166,7 @@ void play_dex_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
     if(s_detail){
         if(nav_direction(btn,ev)!=0){
-            s_species=(s_species+150+nav_direction(btn,ev))%151+1;s_feedback=NULL;
+            s_species=(s_species+DEX_SPECIES-1+nav_direction(btn,ev))%DEX_SPECIES+1;s_feedback=NULL;
         }else if(nav_return(btn,ev)){s_page=(s_species-1)/PER_PAGE;s_detail=false;}
         else if(nav_confirm(btn,ev)){
             exploration_view_t view;world_exploration_snapshot(&view);bool cancel=view.state.tracked_species==s_species;

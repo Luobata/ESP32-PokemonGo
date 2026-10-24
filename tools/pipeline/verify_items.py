@@ -38,7 +38,7 @@ static void initial_and_caps(void) {
     fresh();inventory_t inv;world_inventory_snapshot(&inv);
     assert(inv.quantity[ITEM_POKE]==12&&inv.quantity[ITEM_GREAT]==3&&inv.quantity[ITEM_ULTRA]==1);
     assert(inv.quantity[ITEM_BERRY]==2&&inv.quantity[ITEM_MILK]==2);
-    const uint8_t caps[]={99,30,20,1,20,20,20,20,9,9,9,9,9,5,5,30,30,30,30};
+    const uint8_t caps[]={99,30,20,1,20,20,20,20,9,9,9,9,9,5,5,30,30,30,30,9,9,9,9,9};
     for(unsigned i=0;i<ITEM_COUNT;i++) {
         assert(items_info(i)&&items_capacity(i)==caps[i]);
         if(i!=ITEM_POKE&&i!=ITEM_GREAT&&i!=ITEM_ULTRA&&i!=ITEM_BERRY&&i!=ITEM_MILK)assert(!inv.quantity[i]);
@@ -54,34 +54,35 @@ static void v5_migration(void) {
     ready(25,30);s_w.pet.intimacy=42*NURT_Q;s_w.pet.satiety=37*NURT_Q;
     mon_t extra={.species_id=150,.level=50,.exp=exp_for_level(50),.flags=1,.hp=83,.intimacy=17};
     assert(party_receive(&s_party,&extra));dex_mark_caught(&s_dex,150,true);world_debug_save();
-    save_v5_t old;memcpy(&old,disk,sizeof(old));old.version=5;
+    save_t current;assert(save_read(&current));save_v22_t legacy;test_legacy_snapshot(&legacy,&current);save_v5_t old;memcpy(&old,&legacy,sizeof(old));old.version=5;
     memset(disk,0,sizeof(disk));memcpy(disk,&old,sizeof(old));disk_len=sizeof(old);
     uint8_t original[sizeof(disk)];memcpy(original,disk,sizeof(disk));
     unsigned before_commits=commits;save_t read;
     assert(save_read_status(&read)==SAVE_READ_MIGRATED&&read.version==SAVE_VERSION&&read.inventory.quantity[ITEM_BERRY]==2);
-    assert(!memcmp(read.party,old.party,PARTY_BYTES)&&!memcmp(&read.dex,&old.dex,sizeof(old.dex)));
+    uint8_t serialized[PARTY_BYTES];party_serialize(&read.members,serialized);assert(!memcmp(serialized,old.party,PARTY_BYTES));
+    assert(!memcmp(read.dex.caught,old.dex.caught,19)&&!memcmp(read.dex.shiny_caught,old.dex.shiny_caught,19));
     assert(commits==before_commits&&!memcmp(original,disk,sizeof(disk))&&save_exists());
     reboot();memcpy(original,disk,sizeof(disk));assert(!s_dirty&&!world_needs_starter()&&s_w.species==25&&s_party.party_count==2);
     assert(s_w.level==30&&s_w.exp==old.exp&&s_w.pet.intimacy==old.pet.intimacy);
     failure=4;assert(world_item_use(25,ITEM_BERRY,NULL)==ITEM_USE_SAVE_FAILED);failure=0;
     assert(s_inventory.quantity[ITEM_BERRY]==2&&!memcmp(original,disk,sizeof(disk)));
     assert(world_item_use(25,ITEM_BERRY,NULL)==ITEM_USE_OK);
-    assert(disk_len==sizeof(save_t)&&s_inventory.quantity[ITEM_BERRY]==1);
+    assert(disk_len==sizeof(save_bank_ref_t)&&s_inventory.quantity[ITEM_BERRY]==1);
     reboot();assert(s_inventory.quantity[ITEM_BERRY]==1&&s_w.pet.satiety==67*NURT_Q);
     assert(s_party.party_count==2&&s_party.party[1].species_id==150&&dex_is_shiny_caught(&s_dex,150));
     assert(save_read_status(&read)==SAVE_READ_OK&&!s_dirty&&erase_calls==0);tests++;
 }
 static void malformed_inventory(void) {
     for(unsigned id=0;id<ITEM_COUNT;id++) {
-        ready(1,1);save_t invalid;memcpy(&invalid,disk,sizeof(invalid));
+        ready(1,1);save_t invalid;assert(save_read(&invalid));
         invalid.inventory.quantity[id]=items_capacity(id)+1;
-        memcpy(disk,&invalid,sizeof(invalid));uint8_t original[sizeof(disk)];memcpy(original,disk,sizeof(disk));
+        memcpy(disk,&invalid,sizeof(invalid));disk_len=sizeof(invalid);uint8_t original[sizeof(disk)];memcpy(original,disk,sizeof(disk));
         reboot();assert(!s_storage_ready&&world_needs_starter());
         assert(world_item_use(1,ITEM_BERRY,NULL)==ITEM_USE_STORAGE_UNAVAILABLE);
         world_debug_save();assert(!memcmp(original,disk,sizeof(disk))&&erase_calls==0);tests++;
     }
-    ready(1,1);save_t invalid;memcpy(&invalid,disk,sizeof(invalid));invalid.version=7;
-    memcpy(disk,&invalid,sizeof(invalid));uint8_t original[sizeof(disk)];memcpy(original,disk,sizeof(disk));
+    ready(1,1);save_t invalid;assert(save_read(&invalid));invalid.version=7;
+    memcpy(disk,&invalid,sizeof(invalid));disk_len=sizeof(invalid);uint8_t original[sizeof(disk)];memcpy(original,disk,sizeof(disk));
     reboot();assert(!s_storage_ready);world_debug_save();assert(!memcmp(original,disk,sizeof(disk)));tests++;
 }
 static void care_rules(void) {
@@ -361,7 +362,7 @@ def run(root: Path, sanitizer: bool = True) -> dict:
                 ('party.c','encounter.c','exploration.c','nurture.c','exp.c','items.c','evolution.c','combat.c','battle.c','assets.c','pokemon_names.c')],
             str(directory/'assets.S'),'-pthread','-lz',
             '-Wl,-dead_strip' if sys.platform=='darwin' else '-Wl,--gc-sections','-o',str(directory/'probe')]
-        if sanitizer:command[1:1]=['-fsanitize=address,undefined','-fno-omit-frame-pointer']
+        if sanitizer:command[1:1]=['-fsanitize=address,undefined','-fno-sanitize-recover=all','-fno-omit-frame-pointer']
         subprocess.run(command,check=True,capture_output=True,text=True)
         result=subprocess.run([str(directory/'probe')],capture_output=True,text=True,timeout=90)
         if result.returncode:raise AssertionError(result.stdout+'\n'+result.stderr)

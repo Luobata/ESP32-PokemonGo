@@ -1,0 +1,36 @@
+{
+  "mode": "FAST_SCRIPT_FEEDBACK",
+  "trigger": "semantic_checkpoint",
+  "eligible": false,
+  "decision": {
+    "eligible": false,
+    "trigger": "semantic_checkpoint",
+    "reasons": [
+      "no script rule matched the changed paths"
+    ],
+    "repo_root": "/Users/bytedance/luobata/ESP32-PokemonGo",
+    "paths": [
+      "firmware/main/gym_rules.c",
+      "firmware/main/gym_rules.h",
+      "firmware/main/endgame.h",
+      "firmware/main/trainer.c",
+      "firmware/main/combat.c",
+      "firmware/main/save.c",
+      "firmware/main/save.h",
+      "firmware/main/world.c",
+      "firmware/main/story_transactions.c"
+    ],
+    "matched_rule_ids": [],
+    "fingerprint": "",
+    "report_only": true
+  },
+  "block_merge": false,
+  "report_only": true,
+  "findings": [],
+  "status": "skipped",
+  "execution": {
+    "engine_started": false,
+    "elapsed_ms": 9.2,
+    "timeout_budget_sec": 5
+  }
+}

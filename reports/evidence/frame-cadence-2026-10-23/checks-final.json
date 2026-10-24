@@ -1,0 +1,157 @@
+[
+  {
+    "command": "python3 tools/pipeline/verify_usb_backup.py",
+    "exit_code": 0,
+    "seconds": 1.64
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_import.py",
+    "exit_code": 0,
+    "seconds": 3.41
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_stream.py",
+    "exit_code": 0,
+    "seconds": 2.15
+  },
+  {
+    "command": "python3 tools/pipeline/verify_save_import_compatibility.py",
+    "exit_code": 0,
+    "seconds": 4.47
+  },
+  {
+    "command": "python3 tools/pipeline/verify_save_storage.py",
+    "exit_code": 0,
+    "seconds": 11.82
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_import_device.py",
+    "exit_code": 0,
+    "seconds": 1.08
+  },
+  {
+    "command": "node tools/pipeline/verify_save_import_web.mjs",
+    "exit_code": 0,
+    "seconds": 0.41
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_backup_checkpoint.py",
+    "exit_code": 0,
+    "seconds": 3.42
+  },
+  {
+    "command": "python3 tools/pipeline/verify_save_manager_distribution.py",
+    "exit_code": 0,
+    "seconds": 1.52
+  },
+  {
+    "command": "python3 tools/pipeline/verify_firmware_update.py",
+    "exit_code": 0,
+    "seconds": 0.76
+  },
+  {
+    "command": "python3 tools/pipeline/verify_nvs_restore_roundtrip.py",
+    "exit_code": 0,
+    "seconds": 11.85
+  },
+  {
+    "command": "python3 tools/pipeline/verify_region_expansion.py",
+    "exit_code": 0,
+    "seconds": 8.24
+  },
+  {
+    "command": "python3 tools/pipeline/verify_dungeon_stack.py",
+    "exit_code": 0,
+    "seconds": 0.95
+  },
+  {
+    "command": "python3 tools/pipeline/verify_save_stack.py",
+    "exit_code": 0,
+    "seconds": 5.25
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_save.py",
+    "exit_code": 0,
+    "seconds": 4.74
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_routes.py",
+    "exit_code": 0,
+    "seconds": 4.53
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_routes_ui.py",
+    "exit_code": 0,
+    "seconds": 1.79
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_evolution.py",
+    "exit_code": 0,
+    "seconds": 4.48
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_evolution_ui.py",
+    "exit_code": 0,
+    "seconds": 0.58
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_activity.py",
+    "exit_code": 0,
+    "seconds": 4.58
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_activity_ui.py",
+    "exit_code": 0,
+    "seconds": 2.13
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_story.py",
+    "exit_code": 0,
+    "seconds": 4.39
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_story_ui.py",
+    "exit_code": 0,
+    "seconds": 0.69
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_champion.py",
+    "exit_code": 0,
+    "seconds": 4.34
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_champion_ui.py",
+    "exit_code": 0,
+    "seconds": 1.44
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_champion_balance.py",
+    "exit_code": 0,
+    "seconds": 7.54
+  },
+  {
+    "command": "python3 tools/pipeline/verify_render_bounds.py",
+    "exit_code": 0,
+    "seconds": 0.96
+  },
+  {
+    "command": "python3 tools/pipeline/verify_exploration_duplicates.py",
+    "exit_code": 0,
+    "seconds": 3.79
+  },
+  {
+    "command": "python3 tools/pipeline/verify_exploration_duplicates_ui.py",
+    "exit_code": 0,
+    "seconds": 0.24
+  },
+  {
+    "command": "python3 tools/pipeline/verify_box_details.py",
+    "exit_code": 0,
+    "seconds": 0.49
+  },
+  {
+    "command": "python3 tools/pipeline/verify_box_release.py",
+    "exit_code": 0,
+    "seconds": 4.42
+  }
+]

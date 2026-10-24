@@ -16,7 +16,7 @@ import dungeon
 
 sessions = {}
 lock = threading.Lock()
-PAGES = (*range(7), 9, 10, 11, 12, 13, 14, 15, 16)
+PAGES = (*range(7), 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
 
 
 def close_all():
@@ -39,9 +39,9 @@ def integer(data, name, default, lo, hi):
 
 
 def page_value(data):
-    value = integer(data, "page", 3, 0, 16)
+    value = integer(data, "page", 3, 0, 20)
     if value not in PAGES:
-        raise ValueError("页面必须是 P0–P6 或 P9–P16")
+        raise ValueError("页面必须是 P0–P6 或 P9–P20")
     return value
 
 
@@ -94,8 +94,8 @@ class Handler(SimpleHTTPRequestHandler):
                         renderer.close(); del sessions[stale]
                 if action == "reset":
                     progress = integer(data, "progress", 0, 0, 11)
-                    values = [page_value(data), integer(data, "pet", 25, 1, 151),
-                              integer(data, "level", 12, 1, 100), integer(data, "wild", 74, 1, 151),
+                    values = [page_value(data), integer(data, "pet", 25, 1, 251),
+                              integer(data, "level", 12, 1, 100), integer(data, "wild", 74, 1, 251),
                               integer(data, "rarity", 3, 1, 5), integer(data, "seed", 1, 0, 2**32 - 1),
                               integer(data, "shiny", 0, 0, 1), integer(data, "names", 0, 0, 1),
                               integer(data, "team", 0, 0, 1), integer(data, "pet_shiny", 0, 0, 1)]
@@ -136,6 +136,10 @@ class Handler(SimpleHTTPRequestHandler):
                         if integer(data, "move", 1, 1, 250) not in supported:
                             raise ValueError("此招式尚未实现")
                         command = f"move_preview {integer(data, 'move', 1, 1, 250)} {integer(data, 'side', 0, 0, 1)} {integer(data, 'frame', 0, 0, 255)} {integer(data, 'mode', 0, 0, 3)}"
+                    elif action == "narrative_fixture":
+                        command = f"narrative_fixture {integer(data, 'scene', 0, 0, 10)}"
+                    elif action == "fieldwork_fixture":
+                        command = f"fieldwork_fixture {integer(data, 'scene', 0, 0, 16)}"
                     elif action == "check":
                         command = "check"
                     elif action == "names":
@@ -151,6 +155,10 @@ class Handler(SimpleHTTPRequestHandler):
                     region = integer(data, 'region', 0, 0, 11)
                     research = integer(data, 'research', 0, 0, 1)
                     result = renderer.command(f"region_fixture {region} {research}")
+                if action == "reset" and values[0] in (17, 18) and data.get("johto_badges") is not None:
+                    badges = integer(data, "johto_badges", 0, 0, 8)
+                    renderer.command(f"johto_fixture {badges} 0")
+                    result = renderer.command(f"page {values[0]}")
                 state = renderer.inspect()
                 name_style = state["names"]
             self.send_response(200)

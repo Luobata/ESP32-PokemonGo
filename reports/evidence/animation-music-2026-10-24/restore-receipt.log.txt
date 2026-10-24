@@ -1,0 +1,5 @@
+I (11124) dbg: @@DISPLAY_STATE off=0 brightness=100 page=0 scans=74065 pending=3 pet=115 level=55 exp=257175 stamina_q10=102040 mood_q10=57107
+I (11124) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=3 stack_free=1896
+I (11125) dbg: @@MEMORY_STATE free=17432 minimum=11392 largest=11264 stack_free=1896
+I (11125) dbg: @@AUDIO_PROFILE chunks=446 render_avg_us=1486 render_max_us=2669 gap_max_us=21949 late=0 switches=1 switch_render_max_us=1603 opens=1 errors=0 stack_free=1992
+I (11129) dbg: @@UI_STACK timer_free=3544 lvgl_free=4924

@@ -1,0 +1,38 @@
+{
+  "status": "completed",
+  "fingerprint": "qgcf_e3c2f4bdc33394ddaa4cb67918087c33331eedcd345657cbae5997000a23bd77",
+  "findings": [],
+  "targets": [
+    {
+      "path": "assets/gold_fx_sources.json",
+      "rules": [
+        "GEC-TYPED-CONFIGURATION-CONTRACT"
+      ]
+    },
+    {
+      "path": "assets/pokemon_animation_sources.json",
+      "rules": [
+        "GEC-TYPED-CONFIGURATION-CONTRACT"
+      ]
+    },
+    {
+      "path": "assets/pokemon_art_sources.json",
+      "rules": [
+        "GEC-TYPED-CONFIGURATION-CONTRACT"
+      ]
+    },
+    {
+      "path": "tools/pipeline/fixtures/save_history/manifest.json",
+      "rules": [
+        "GEC-TYPED-CONFIGURATION-CONTRACT"
+      ]
+    }
+  ],
+  "c_semantic_rules_matched": false,
+  "next_action_consumed": "consume_findings_then_validate",
+  "local_validation": "all targeted checks and target build passed; no hardware verification",
+  "agent_action": "local_checks_passed; 0 actionable blocks",
+  "repair_origin": "UBSan log inspection, not QualityGate finding",
+  "semantic_repairs": 0,
+  "mutation": "disabled"
+}

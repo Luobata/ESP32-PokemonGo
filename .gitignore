@@ -29,6 +29,9 @@ tools/inspector/index.html
 .device-backup/
 # 固件构建产物
 firmware/build/
+firmware/build-*/
+tools/inspector/johto-assets/
+assets/johto-candidate/
 firmware/sdkconfig
 firmware/sdkconfig.old
 firmware/managed_components/
@@ -59,3 +62,6 @@ reports/**/music_preview.c
 
 # USB save-manager exports contain private device storage.
 *.pksave
+
+# Local review-run cache (may contain machine/session data).
+/.qualitygate/

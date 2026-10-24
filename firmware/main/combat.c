@@ -4,6 +4,7 @@
 #include "combat_moves.h"
 #include "combat_auto_moves.h"
 #include "combat_gen2_stats.h"
+#include "combat_johto.h"
 #include "pokemon_names.h"
 #include <stddef.h>
 #include "combat_selected_moves.h"
@@ -64,21 +65,44 @@ bool combat_move(uint16_t id,move_t *out){
 uint8_t combat_learn_level(uint16_t species,uint16_t move){
  unsigned level=255;
  if(!move_data(move))return 255;
+ if(species==201)return move==237?1:255;
+ if(species==235)return move==166?1:255;
+ if(species==202)return move==68||move==243||move==219||move==194?1:255;
  if(species&&species<=151){const uint16_t *r=COMBAT_AUTO_RANGES[species-1];for(unsigned i=0;i<r[1];i++){const uint8_t *v=COMBAT_AUTO_LEARN[r[0]+i];if(v[1]==move&&v[0]<level)level=v[0];}}
- for(unsigned guard=0;species&&species<=151&&guard<4;guard++,species=COMBAT_PARENTS[species-1]){
-  const uint16_t *range=COMBAT_LEARN_RANGES[species-1];
-  for(unsigned i=0;i<range[1];i++){const uint8_t *r=COMBAT_LEARN[range[0]+i];if(r[1]==move&&r[0]<level)level=r[0];}
+ for(unsigned guard=0;species&&species<=251&&guard<4;guard++){
+  if(species>151){
+   const uint16_t *range=COMBAT_JOHTO_RANGES[species-152];
+   for(unsigned i=0;i<range[1];i++){const uint8_t *r=COMBAT_JOHTO_LEARN[range[0]+i];if(r[1]==move&&r[0]<level)level=r[0];}
+   species=COMBAT_JOHTO_PARENTS[species-152];
+  }else{
+   const uint16_t *range=COMBAT_LEARN_RANGES[species-1];
+   for(unsigned i=0;i<range[1];i++){const uint8_t *r=COMBAT_LEARN[range[0]+i];if(r[1]==move&&r[0]<level)level=r[0];}
+   species=COMBAT_PARENTS[species-1];
+  }
  }
  return level;
 }
 int combat_known_moves(uint16_t species,uint8_t level,uint16_t *out,int capacity){
- if(!out||capacity<=0||!species||species>151)return 0;
+ if(!out||capacity<=0||!species||species>251)return 0;
  int count=0;for(unsigned id=1;id<=COMBAT_MAX_MOVE_ID&&count<capacity;id++)if(combat_learn_level(species,id)<=level)out[count++]=id;
  return count;
 }
+
+void combat_set_individual(combat_mon_t *b,const mon_t *m){memcpy(b->pp,m->special.sketch,4);}
+void combat_record_sketch(mon_t *m,const combat_mon_t *b){if(m->species_id==235&&b->species==235)memcpy(m->special.sketch,b->pp,4);}
+bool combat_individual_valid(const mon_t *m){
+ if(m->species_id==235){bool empty=false;for(unsigned i=0;i<4;i++){unsigned id=m->special.sketch[i];if(!id){empty=true;continue;}if(empty||id==165||id==166||!move_data(id))return false;for(unsigned j=0;j<i;j++)if(m->special.sketch[j]==id)return false;}return true;}
+ return (m->species_id==201?m->special.traits.form<26:!m->special.traits.form)&&m->special.traits.hp_type<=17&&!m->special.traits.reserved[0]&&!m->special.traits.reserved[1];
+}
+int combat_individual_moves(const mon_t *m,uint16_t *out,int cap){if(m->species_id!=235)return combat_known_moves(m->species_id,m->level,out,cap);int n=0;for(unsigned i=0;i<4&&n<cap;i++)if(m->special.sketch[i]&&move_data(m->special.sketch[i]))out[n++]=m->special.sketch[i];if(n<4&&n<cap)out[n++]=166;return n;}
+int combat_individual_enabled(const mon_t *m,const move_policy_t *p){uint16_t ids[COMBAT_MOVE_CAP];int n=combat_individual_moves(m,ids,COMBAT_MOVE_CAP),on=0;for(int i=0;i<n;i++)on+=move_policy_allows(p,ids[i]);return on;}
+static int battle_moves(const combat_mon_t *a,uint16_t *ids){mon_t m={.species_id=identity(a),.level=learn_level(a)};memcpy(m.special.sketch,a->pp,4);return combat_individual_moves(&m,ids,COMBAT_MOVE_CAP);}
+static bool can_sketch(const combat_mon_t *a,const combat_mon_t *d){if(a->species!=235||a->pp[3]||!d->last_move||d->last_move==165||d->last_move==166||!move_data(d->last_move))return false;for(unsigned i=0;i<4;i++)if(a->pp[i]==d->last_move)return false;return true;}
+
 uint16_t combat_stat(uint8_t species,uint8_t level,unsigned stat){
- if(!species||species>151||!level||level>100||stat>COMBAT_SP_DEFENSE)return 0;
- unsigned v=2u*(COMBAT_GEN2_STATS[species-1][stat]+15u)*level/100u;
+ if(!species||species>251||!level||level>100||stat>COMBAT_SP_DEFENSE)return 0;
+ const uint8_t *stats=species<=151?COMBAT_GEN2_STATS[species-1]:COMBAT_JOHTO_STATS[species-152];
+ unsigned v=2u*(stats[stat]+15u)*level/100u;
  return v+(stat==COMBAT_HP?level+10u:5u);
 }
 uint16_t combat_max_hp(uint8_t species,uint8_t level){return combat_stat(species,level,COMBAT_HP);}
@@ -101,11 +125,11 @@ void combat_migrate_gen2(combat_mon_t *m){
  m->safety.low_hp=(uint32_t)m->safety.low_hp*next/old;
  m->max_hp=next;
 }
-void combat_reset_volatile(combat_mon_t *m){uint16_t hp=m->hp,max=m->max_hp;uint8_t sp=m->species,lv=m->level,status=m->status,sleep=m->sleep;combat_init(m,sp,lv,max);m->hp=hp;m->safety.low_hp=hp;m->status=status;m->sleep=sleep;}
+void combat_reset_volatile(combat_mon_t *m){uint16_t hp=m->hp,max=m->max_hp;uint8_t sp=m->species,lv=m->level,status=m->status,sleep=m->sleep;uint8_t traits[4];memcpy(traits,m->pp,4);combat_init(m,sp,lv,max);memcpy(m->pp,traits,4);m->hp=hp;m->safety.low_hp=hp;m->status=status;m->sleep=sleep;}
 bool combat_valid(const combat_mon_t *m){
- if(!m->species||m->species>151||!m->level||m->level>100||!m->max_hp||m->hp>m->max_hp||m->status>5||m->sleep>4||m->seeded>1)return false;
+ if(!m->species||m->species>251||!m->level||m->level>100||!m->max_hp||m->hp>m->max_hp||m->status>5||m->sleep>4||m->seeded>1)return false;
  const int8_t stages[]={m->attack,m->defense,m->special,combat_sp_def_stage(m),m->speed,m->accuracy,m->evasion};for(unsigned i=0;i<7;i++)if(stages[i]<-6||stages[i]>6)return false;
- return m->converted<=1&&m->converted_type<BATTLE_TYPE_COUNT&&stored_move(m->mimic_move)&&stored_move(m->last_move)&&stored_move(m->charge_move)&&stored_move(m->disabled_move)&&m->transform_species<=151&&m->transform_level<=100&&m->confusion<=4&&m->toxic<=15&&m->trap<=5&&m->recharge<=1&&m->charge<=1&&m->bide<=3&&m->flinch<=1&&m->reflect<=5&&m->light_screen<=5&&m->disable_turns<=5&&m->substitute<=m->max_hp/4;
+ return m->converted<=1&&m->converted_type<BATTLE_TYPE_COUNT&&stored_move(m->mimic_move)&&stored_move(m->last_move)&&stored_move(m->charge_move)&&stored_move(m->disabled_move)&&m->transform_species<=251&&m->transform_level<=100&&m->confusion<=4&&m->toxic<=15&&m->trap<=5&&m->recharge<=1&&m->charge<=1&&m->bide<=3&&m->flinch<=1&&m->reflect<=5&&m->light_screen<=5&&m->disable_turns<=5&&m->substitute<=m->max_hp/4;
 }
 static bool self_effect(unsigned e){switch(e){
  case EFFECT_ATTACK_UP:case EFFECT_ATTACK_UP_2:case EFFECT_SP_ATK_UP:case EFFECT_SP_DEF_UP_2:case EFFECT_DEFENSE_UP:case EFFECT_DEFENSE_UP_2:case EFFECT_SPEED_UP_2:case EFFECT_EVASION_UP:case EFFECT_DEFENSE_CURL:case EFFECT_HEAL:case EFFECT_MIST:case EFFECT_LIGHT_SCREEN:case EFFECT_REFLECT:case EFFECT_FOCUS_ENERGY:case EFFECT_SUBSTITUTE:case EFFECT_TRANSFORM:case EFFECT_MIMIC:case EFFECT_CONVERSION:case EFFECT_BIDE:case EFFECT_SPLASH:return true;default:return false;}}
@@ -113,9 +137,9 @@ static bool has_type(const combat_mon_t *m,unsigned type){species_t s;return spe
 static bool immune_status(const combat_mon_t *d,unsigned status){return d->status||d->substitute||(status==1&&(has_type(d,TY_POISON)||has_type(d,TY_STEEL)))||(status==2&&has_type(d,TY_FIRE))||(status==5&&has_type(d,TY_ICE));}
 static bool fixed(unsigned effect){return effect==EFFECT_STATIC_DAMAGE||effect==EFFECT_LEVEL_DAMAGE||effect==EFFECT_PSYWAVE||effect==EFFECT_SUPER_FANG;}
 static unsigned effectiveness(const combat_mon_t *d,const move_t *m){species_t sp;species_info(d,&sp);return m->id==165?100:battle_effectiveness(m->type,sp.type1,sp.type2);}
-static unsigned estimate(const combat_mon_t *a,const combat_mon_t *d,const combat_move_data_t *data,unsigned ability,unsigned divisor,bool critical){
+static unsigned estimate(const combat_mon_t *a,const combat_mon_t *d,const combat_move_data_t *data,unsigned ability,unsigned divisor,bool critical,const combat_context_t *ctx){
  const move_t *m=&data->move;unsigned mult=effectiveness(d,m);if(!mult)return 0;
- switch(data->effect){case EFFECT_STATIC_DAMAGE:return m->power;case EFFECT_LEVEL_DAMAGE:return a->level;case EFFECT_SUPER_FANG:return d->hp/2?d->hp/2:1;case EFFECT_PSYWAVE:return a->level*3/4+1;case EFFECT_OHKO:return a->level>=d->level?d->hp:0;case EFFECT_COUNTER:return a->last_damage*2;case EFFECT_BIDE:return a->bide_damage*2;default:break;}
+ switch(data->effect){case EFFECT_STATIC_DAMAGE:return m->power;case EFFECT_LEVEL_DAMAGE:return a->level;case EFFECT_SUPER_FANG:return d->hp/2?d->hp/2:1;case EFFECT_PSYWAVE:return a->level*3/4+1;case EFFECT_OHKO:return a->level>=d->level?d->hp:0;case EFFECT_MIRROR_COAT:case EFFECT_COUNTER:return a->last_damage*2;case EFFECT_BIDE:return a->bide_damage*2;default:break;}
  species_t as;species_info(a,&as);
  int astage=m->special?a->special:a->attack,dstage=m->special?combat_sp_def_stage(d):d->defense;
  bool ignore=critical&&astage<=dstage;
@@ -134,9 +158,10 @@ static unsigned estimate(const combat_mon_t *a,const combat_mon_t *d,const comba
  if(m->id!=165&&(as.type1==m->type||as.type2==m->type))value=value*3/2;
  value=value*mult/100;
 
+ if(ctx&&ctx->damage)value=ctx->damage(ctx->opaque,a,d,m,value?value:1);
  return value?value:1;
 }
-static unsigned utility(const combat_mon_t *a,const combat_mon_t *d,const combat_move_data_t *m){
+static unsigned utility(const combat_mon_t *a,const combat_mon_t *d,const combat_move_data_t *m,const combat_context_t *ctx){
  unsigned e=m->effect;
  if(e==EFFECT_FORCE_SWITCH||e==EFFECT_TELEPORT||e==EFFECT_SPLASH)return 0; // No overworld escape/forced switching during auto duels.
  if(e==EFFECT_HEAL){if(a->hp*100u>=a->max_hp*60u)return 0;unsigned score=minimum(a->max_hp-a->hp,a->max_hp/2);return a->last_move==m->move.id?score/4:score*2;}
@@ -168,9 +193,9 @@ static unsigned utility(const combat_mon_t *a,const combat_mon_t *d,const combat
  if(e==EFFECT_RESET_STATS)return d->attack+d->defense+d->special+combat_sp_def_stage(d)+d->speed>0||a->attack+a->defense+a->special+combat_sp_def_stage(a)+a->speed<0?35:0;
  if(e==EFFECT_SUBSTITUTE)return a->substitute||a->hp<=a->max_hp/2?0:25;
  if(e==EFFECT_DREAM_EATER&&d->status!=4)return 0;
- if(e==EFFECT_COUNTER){move_t last;if(!a->last_damage||!combat_move(d->last_move,&last)||last.special)return 0;}
+ if(e==EFFECT_COUNTER||e==EFFECT_MIRROR_COAT){move_t last;if(!a->last_damage||!combat_move(d->last_move,&last)||(last.special!=(e==EFFECT_MIRROR_COAT)))return 0;}
  if(e==EFFECT_BIDE)return a->hp>a->max_hp/2?10:0;
- unsigned score=estimate(a,d,m,1024,50,false);if(e==EFFECT_FALSE_SWIPE&&!d->substitute)score=minimum(score,d->hp?d->hp-1:0);if(!score)return 0;
+ unsigned score=estimate(a,d,m,1024,50,false,ctx);if(e==EFFECT_FALSE_SWIPE&&!d->substitute)score=minimum(score,d->hp?d->hp-1:0);if(!score)return 0;
  if(e==EFFECT_MULTI_HIT)score*=3;
  if(e==EFFECT_DOUBLE_HIT||e==EFFECT_POISON_MULTI_HIT)score*=2;
  if(e==EFFECT_FLY||e==EFFECT_SOLARBEAM||e==EFFECT_SKY_ATTACK||e==EFFECT_SKULL_BASH||e==EFFECT_RAZOR_WIND||e==EFFECT_HYPER_BEAM)score=score*2/3;
@@ -182,7 +207,7 @@ static unsigned utility(const combat_mon_t *a,const combat_mon_t *d,const combat
 }
 static bool direct_attack(const combat_mon_t *a,const combat_mon_t *d,const combat_move_data_t *m){
  if(!(m->move.power||fixed(m->effect)||m->effect==EFFECT_OHKO||m->effect==EFFECT_COUNTER))return false;
- return utility(a,d,m)>0;
+ return utility(a,d,m,NULL)>0;
 }
 int combat_enabled_moves(uint16_t species,uint8_t level,const move_policy_t *p){
  uint16_t ids[COMBAT_MOVE_CAP];int n=combat_known_moves(species,level,ids,COMBAT_MOVE_CAP),count=0;
@@ -190,10 +215,13 @@ int combat_enabled_moves(uint16_t species,uint8_t level,const move_policy_t *p){
  return count;
 }
 uint16_t combat_choose(const combat_mon_t *a,const combat_mon_t *d,uint32_t *rng){return combat_choose_filtered(a,d,rng,NULL);}
-uint16_t combat_choose_filtered(const combat_mon_t *a,const combat_mon_t *d,uint32_t *rng,const move_policy_t *policy){
+uint16_t combat_choose_filtered(const combat_mon_t *a,const combat_mon_t *d,uint32_t *rng,const move_policy_t *policy){return combat_choose_context(a,d,rng,policy,NULL);}
+uint16_t combat_choose_context(const combat_mon_t *a,const combat_mon_t *d,uint32_t *rng,const move_policy_t *policy,const combat_context_t *ctx){
+ if(identity(a)==201)return move_policy_allows(policy,237)?237:165;
  if(a->charge&&move_policy_allows(policy,a->charge_move))return a->charge_move;
  if(a->bide&&move_policy_allows(policy,117))return 117;
- uint16_t ids[COMBAT_MOVE_CAP],selected=165;int count=combat_known_moves(identity(a),learn_level(a),ids,COMBAT_MOVE_CAP);
+ uint16_t ids[COMBAT_MOVE_CAP],selected=165;int count=battle_moves(a,ids);
+ if(move_policy_allows(policy,166)&&can_sketch(a,d))return 166;
  bool can_attack=false,can_transform=false;
  for(int i=0;i<count;i++){
   if(!move_policy_allows(policy,ids[i]))continue;
@@ -209,7 +237,8 @@ uint16_t combat_choose_filtered(const combat_mon_t *a,const combat_mon_t *d,uint
   if(!move_policy_allows(policy,ids[i]))continue;
   unsigned id=ids[i]==102&&a->mimic_move?a->mimic_move:ids[i];if(!move_policy_allows(policy,id))continue;if(a->disable_turns&&a->disabled_move==id)continue;
   if(must_attack&&!direct_attack(a,d,move_data(id)))continue;
-  unsigned score=utility(a,d,move_data(id));if(!score)continue;
+  unsigned score=utility(a,d,move_data(id),ctx);if(!score)continue;
+  if(ctx&&ctx->utility)score=ctx->utility(ctx->opaque,a,d,&move_data(id)->move,score);
   if(a->last_move==id)score=score*3/4+1;
   if(score>500)score=500;
   // Effective attacks get 3x the lottery weight; utility still distinguishes tactics.
@@ -244,6 +273,7 @@ static bool status_effect(combat_mon_t *a,combat_mon_t *d,const combat_move_data
  case EFFECT_FOCUS_ENERGY:if(a->focus)return false;a->focus=1;return true;
  case EFFECT_RESET_STATS:a->safety.special_defense=d->safety.special_defense=0;a->attack=a->defense=a->special=a->speed=a->accuracy=a->evasion=0;d->attack=d->defense=d->special=d->speed=d->accuracy=d->evasion=0;return true;
  case EFFECT_SUBSTITUTE:if(a->substitute||a->hp<=a->max_hp/4)return false;a->substitute=a->max_hp/4;hurt(a,a->substitute);return true;
+ case EFFECT_SKETCH:if(!can_sketch(a,d))return false;for(unsigned i=0;i<4;i++)if(!a->pp[i]){a->pp[i]=d->last_move;return true;}return false;
  case EFFECT_MIMIC:if(!d->last_move||d->last_move==102||d->last_move==165)return false;a->mimic_move=d->last_move;return true;
  case EFFECT_CONVERSION:{uint16_t ids[COMBAT_MOVE_CAP];int n=combat_known_moves(identity(a),learn_level(a),ids,COMBAT_MOVE_CAP);for(int i=0;i<n;i++){unsigned type=move_data(ids[i])->move.type;if(!has_type(a,type)){a->converted=1;a->converted_type=type;return true;}}return false;}
  case EFFECT_TRANSFORM:if(a->transform_species||d->transform_species)return false;a->transform_species=d->species;a->transform_level=d->level;a->attack=d->attack;a->defense=d->defense;a->special=d->special;a->safety.special_defense=combat_sp_def_stage(d);a->speed=d->speed;return true;
@@ -259,7 +289,8 @@ static void residual(combat_mon_t *a,combat_mon_t *d){
  if(a->disable_turns)a->disable_turns--;
 }
 void combat_turn(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint32_t *rng,unsigned divisor,uint16_t forced_move,struct battle_round *r){combat_turn_filtered(a,d,ability,rng,divisor,forced_move,r,NULL);}
-void combat_turn_filtered(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint32_t *rng,unsigned divisor,uint16_t forced_move,struct battle_round *r,const move_policy_t *policy){
+void combat_turn_filtered(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint32_t *rng,unsigned divisor,uint16_t forced_move,struct battle_round *r,const move_policy_t *policy){combat_turn_context(a,d,ability,rng,divisor,forced_move,r,policy,NULL);}
+void combat_turn_context(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint32_t *rng,unsigned divisor,uint16_t forced_move,struct battle_round *r,const move_policy_t *policy,const combat_context_t *ctx){
  if(forced_move && !move_policy_allows(policy,forced_move))forced_move=0;
  if(a->charge&&!move_policy_allows(policy,a->charge_move)){a->charge=0;a->charge_move=0;}
  if(a->bide&&!move_policy_allows(policy,117)){a->bide=0;a->bide_damage=0;}
@@ -273,7 +304,7 @@ void combat_turn_filtered(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint3
  else if(a->status==3&&roll(rng,100)<25){skip=true;r->skipped=3;}
  if(!skip&&a->confusion){a->confusion--;if(roll(rng,2)==0){hurt(a,a->max_hp/8?a->max_hp/8:1);skip=true;r->skipped=5;}}
  if(skip){a->charge=0;residual(a,d);return;}
- unsigned id=forced_move?forced_move:combat_choose_filtered(a,d,rng,policy);if(!move_data(id))id=165;
+ unsigned id=forced_move?forced_move:combat_choose_context(a,d,rng,policy,ctx);if(!move_data(id))id=165;
  unsigned effect=move_data(id)->effect;
  if(effect==EFFECT_METRONOME){
   unsigned attempts=0;
@@ -285,7 +316,9 @@ void combat_turn_filtered(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint3
  }
  else if(effect==EFFECT_MIRROR_MOVE){if(d->last_move&&d->last_move!=102&&d->last_move!=119&&d->last_move!=118)id=d->last_move;else r->no_effect=1;}
  if(!move_policy_allows(policy,id))r->no_effect=1;
- const combat_move_data_t *data=move_data(id);const move_t *m=&data->move;effect=data->effect;
+ combat_move_data_t adapted=*move_data(id);
+ if(id==237){unsigned type=a->species!=235&&a->pp[1]&&a->pp[1]<=17?a->pp[1]-1:a->species%17;adapted.move.type=type;adapted.move.power=60;adapted.move.special=type==1||type==2||type==3||type==4||type==5||type==10||type==14||type==15;}
+ const combat_move_data_t *data=&adapted;const move_t *m=&data->move;effect=data->effect;
  bool is_attack=m->power||fixed(effect)||effect==EFFECT_COUNTER||effect==EFFECT_BIDE||effect==EFFECT_OHKO;
  a->safety.status_streak=is_attack?0:minimum(a->safety.status_streak+1,2);
  move_t display;combat_move(id,&display);
@@ -306,15 +339,15 @@ void combat_turn_filtered(combat_mon_t *a,combat_mon_t *d,uint16_t ability,uint3
  if(!damaging){r->no_effect=!status_effect(a,d,data,rng);r->healed=a->hp>before?a->hp-before:0;residual(a,d);return;}
  r->mult=effectiveness(d,m);
  if(effect==EFFECT_DREAM_EATER&&d->status!=4)r->no_effect=1;
- if(effect==EFFECT_COUNTER){move_t last;if(!a->last_damage||!combat_move(d->last_move,&last)||last.special)r->no_effect=1;}
+ if(effect==EFFECT_COUNTER||effect==EFFECT_MIRROR_COAT){move_t last;if(!a->last_damage||!combat_move(d->last_move,&last)||(last.special!=(effect==EFFECT_MIRROR_COAT)))r->no_effect=1;}
  if(!r->mult||r->no_effect){if(effect==EFFECT_SELFDESTRUCT)a->hp=0;r->no_effect=1;residual(a,d);return;}
- bool variable=!fixed(effect)&&effect!=EFFECT_OHKO&&effect!=EFFECT_COUNTER&&effect!=EFFECT_BIDE;
+ bool variable=!fixed(effect)&&effect!=EFFECT_OHKO&&effect!=EFFECT_COUNTER&&effect!=EFFECT_MIRROR_COAT&&effect!=EFFECT_BIDE;
  if(variable){
   static const uint8_t crit_chance[]={17,32,64,85,128};
   unsigned crit=(a->focus?1:0)+((id==2||id==75||id==152||id==163||id==238)?2:0);
   r->critical=roll(rng,256)<crit_chance[crit];
  }
- unsigned value=estimate(a,d,data,ability,divisor,r->critical);
+ unsigned value=estimate(a,d,data,ability,divisor,r->critical,ctx);
  if(!value){r->no_effect=1;residual(a,d);return;}
  if(effect==EFFECT_PSYWAVE)value=1+roll(rng,a->level*3/2?a->level*3/2:1);
  if(variable){
@@ -415,4 +448,6 @@ const char *combat_feedback(const struct battle_round *r){
  return r->critical?"击中了要害！":battle_eff_label(r->mult);
 }
 
-int combat_priority(uint16_t move){return move==98||move==183||move==245?1:move==68?-1:0;}
+int combat_priority(uint16_t move){return move==98||move==183||move==245?1:move==68||move==243?-1:0;}
+
+bool combat_individual_knows(const mon_t *m,unsigned id){if(m->species_id!=235)return combat_learn_level(m->species_id,id)<=m->level;if(id==166)return !m->special.sketch[3];for(unsigned i=0;i<4;i++)if(m->special.sketch[i]==id)return true;return false;}

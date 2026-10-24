@@ -1,0 +1,132 @@
+[
+  {
+    "name": "verify_usb_backup.py",
+    "exit_code": 0,
+    "seconds": 1.8
+  },
+  {
+    "name": "verify_usb_stream.py",
+    "exit_code": 0,
+    "seconds": 2.6
+  },
+  {
+    "name": "verify_usb_import.py",
+    "exit_code": 0,
+    "seconds": 4.5
+  },
+  {
+    "name": "verify_usb_import_device.py",
+    "exit_code": 0,
+    "seconds": 0.6
+  },
+  {
+    "name": "verify_save_import_web.mjs",
+    "exit_code": 0,
+    "seconds": 0.4
+  },
+  {
+    "name": "verify_save_import_compatibility.py",
+    "exit_code": 0,
+    "seconds": 4.8
+  },
+  {
+    "name": "verify_save_manager_distribution.py",
+    "exit_code": 0,
+    "seconds": 1.8
+  },
+  {
+    "name": "verify_firmware_update.py",
+    "exit_code": 0,
+    "seconds": 0.8
+  },
+  {
+    "name": "verify_usb_backup_checkpoint.py",
+    "exit_code": 0,
+    "seconds": 4.0
+  },
+  {
+    "name": "verify_save_storage.py",
+    "exit_code": 0,
+    "seconds": 12.4
+  },
+  {
+    "name": "verify_region_expansion.py",
+    "exit_code": 0,
+    "seconds": 6.2
+  },
+  {
+    "name": "verify_johto_save.py",
+    "exit_code": 0,
+    "seconds": 5.3
+  },
+  {
+    "name": "verify_johto_evolution.py",
+    "exit_code": 0,
+    "seconds": 4.9
+  },
+  {
+    "name": "verify_johto_evolution_ui.py",
+    "exit_code": 0,
+    "seconds": 2.1
+  },
+  {
+    "name": "verify_nvs_restore_roundtrip.py",
+    "exit_code": 0,
+    "seconds": 13.7
+  },
+  {
+    "name": "verify_johto_activity.py",
+    "exit_code": 0,
+    "seconds": 4.7
+  },
+  {
+    "name": "verify_johto_story_ui.py",
+    "exit_code": 0,
+    "seconds": 0.9
+  },
+  {
+    "name": "verify_johto_story.py",
+    "exit_code": 0,
+    "seconds": 4.5
+  },
+  {
+    "name": "verify_johto_activity_ui.py",
+    "exit_code": 0,
+    "seconds": 5.6
+  },
+  {
+    "name": "verify_johto_champion.py",
+    "exit_code": 0,
+    "seconds": 4.7
+  },
+  {
+    "name": "verify_achievements.py",
+    "exit_code": 0,
+    "seconds": 4.0
+  },
+  {
+    "name": "verify_challenge_stamina.py",
+    "exit_code": 0,
+    "seconds": 4.0
+  },
+  {
+    "name": "verify_johto_routes_ui.py",
+    "exit_code": 0,
+    "seconds": 2.8
+  },
+  {
+    "name": "verify_johto_champion_ui.py",
+    "exit_code": 0,
+    "seconds": 2.5
+  },
+  {
+    "name": "verify_johto_routes.py",
+    "exit_code": 0,
+    "seconds": 5.6
+  },
+  {
+    "name": "verify_johto_champion_balance.py",
+    "exit_code": 0,
+    "seconds": 8.1
+  }
+]

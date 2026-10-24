@@ -1,0 +1,23 @@
+{
+  "device_app_sha256": "17477b450109d01a8cbd84e349a6348236678c0facdd7b484a4ad02fef4f84b0",
+  "device_elf_sha256": "900468f1fd500af8d96a2dbb20a05997baec945c880e0e00db510008b062dd9b",
+  "device_identity_method": "Production USB backup metadata matched ELF SHA-256 embedded in the previous verified image",
+  "clock_wall_ms": 9022.44,
+  "clock_device_ms": 9007,
+  "clock_ratio": 0.9982887112577085,
+  "isolated_comparison": {
+    "baseline_commit": "67a4a25",
+    "baseline_native_sha256": "9312675c38eedb963b61f17f76054fe2a4d581363c812ddd39be642dc0a76f3b",
+    "before_action_ms": 2280,
+    "current_action_ms": 4920,
+    "move_id": 9,
+    "same_seed": 123,
+    "entry_before_ms": 2250,
+    "entry_current_ms": 2250,
+    "render_sampling_ms": 40,
+    "scope": "Deterministic desktop playback of production page code; not a pre-Johto hardware recording"
+  },
+  "new_backup_readback_verified": true,
+  "firmware_modified_or_flashed": false,
+  "complaint_resolved": false
+}

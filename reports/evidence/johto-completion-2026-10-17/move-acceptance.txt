@@ -1,0 +1,1 @@
+{"moves": 194, "new_moves": 28, "sides": 2, "modes": 4, "pixel_checks": 6208, "renderer": "aa4d9e808644c75e45a8", "same_p3_renderer": true}

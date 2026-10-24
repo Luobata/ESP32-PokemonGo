@@ -22,6 +22,13 @@ static inline void lv_screen_load(lv_obj_t *o) { (void)o; }
 /* Native preview has no LVGL pixel renderer or refresh timer. Production
  * display ownership is exercised with real LVGL by verify_display_ownership. */
 typedef int lv_display_t;
+typedef struct { uint8_t *data; uint32_t data_size; } lv_draw_buf_t;
+static inline lv_draw_buf_t *lv_display_get_buf_active(lv_display_t *d) {
+    (void)d;
+    static uint32_t pixels[240 * 20 * 2 / 4];
+    static lv_draw_buf_t buffer = { (uint8_t *)pixels, sizeof(pixels) };
+    return &buffer;
+}
 static inline lv_display_t *lv_obj_get_display(lv_obj_t *o) { (void)o; static int display; return &display; }
 static inline void lv_display_enable_invalidation(lv_display_t *d, bool enabled) { (void)d; (void)enabled; }
 static inline lv_timer_t *lv_display_get_refr_timer(lv_display_t *d) { (void)d; return NULL; }

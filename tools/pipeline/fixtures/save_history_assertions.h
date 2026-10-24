@@ -1,6 +1,9 @@
 // Expectations describe synthetic progress, independent of current byte layout.
 // Shared by the decoder/world boot and real-NVS USB restore integration tests.
 static void history_assert(const save_t *s, unsigned version) {
+    assert(narrative_valid(&s->narrative));
+    if(version<31){assert(s->narrative.version==1&&!s->narrative.scene&&!s->narrative.seen&&!s->narrative.legend);}
+    else{assert(s->narrative.seen==7&&s->narrative.scene==N_BUG_REPORT+1&&s->narrative.page==2&&s->narrative.bug_evidence&&s->narrative.focus==2);}
     party_t p; assert(s->version==SAVE_VERSION && save_validate_world(s,&p));
     assert(s->species==25 && s->level==32 && s->exp==32768 && s->opening_seen);
     assert(p.party_count==2 && party_total(&p)==3);

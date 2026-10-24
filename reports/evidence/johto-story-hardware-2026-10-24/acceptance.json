@@ -1,0 +1,104 @@
+{
+  "date": "2026-10-24",
+  "device": "ESP32-C3 AI Passport 8 MiB",
+  "base_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+  "source_state": "existing uncommitted Johto worktree; prior source hash manifest retained",
+  "app_sha256": "bd7eb3b4b2be3df9a3e89fdca705fa5f8c27171738096cbdc3761bbb7eb3ac56",
+  "app_bytes": 3202208,
+  "app_partition_bytes": 3407872,
+  "save_version": 31,
+  "world_bytes": 39944,
+  "backup_container": 4,
+  "backup_payload_bytes": 73728,
+  "flash": {
+    "application_verified": true,
+    "protected_ranges_unchanged": true,
+    "partition_table_changed": false,
+    "automatic_reset_serial_response": false,
+    "normal_rts_reset_booted": true
+  },
+  "before_backup_sha256": "789bd4c8b8120351b4b2d6c5d9511008578d1e34b044209aef81acc37f373006",
+  "save_restore": "passed_on_final_build",
+  "ui": {
+    "older_save_welcome": true,
+    "pause_resume_same_page": true,
+    "repeat_resume_count": 3,
+    "next_goal_matches_badges": true,
+    "johto_menu": true,
+    "care_10_seconds": true,
+    "party_10_seconds": true,
+    "fieldwork_17_sites_hardware": false
+  },
+  "publication": false,
+  "v30_to_v31_restore": {
+    "brightness_before": 100,
+    "brightness_changed_and_checkpointed": 89,
+    "brightness_after_reboot": 100,
+    "matching_crc_receipt": true,
+    "fresh_export_decoded_with_production_save_decoder": true,
+    "party_warehouse_policies_dex_inventory_achievements_challenge_dungeon_johto_activities_story_endgame_narrative_equal": true
+  },
+  "v31_roundtrip": {
+    "matching_reboot_receipt": true,
+    "brightness_before": 100,
+    "brightness_changed_and_checkpointed": 89,
+    "brightness_after_reboot": 100,
+    "fresh_export_decoded_and_compared": true,
+    "all_compared_progress_equal": true,
+    "narrative_restored": true,
+    "wifi_active": true,
+    "upload_chunks": 576,
+    "complete_offsets": true,
+    "wifi_scan_records_during_transfer": 3,
+    "embedded_protocol_records": 0,
+    "staged": true
+  },
+  "first_candidate": {
+    "app_sha256": "262815a6c8f1151782d58b4a5293a7760abfdee364dceb9dff58f3b8a4c8f940",
+    "app_bytes": 3201808,
+    "v31_roundtrip": "timed out safely before staging: NEXT embedded in Wi-Fi JSON",
+    "brightness_after_failed_import": 89
+  },
+  "console_fix": {
+    "explicit_cross_task_mutex": true,
+    "static_bytes": 88,
+    "new_dynamic_allocations": 0,
+    "max_target_stack_frame": 16,
+    "firmware_format_unchanged": true,
+    "web_protocol_unchanged": true
+  },
+  "final_v30_restore": {
+    "matching_reboot_receipt": true,
+    "brightness_before": 89,
+    "brightness_after": 100,
+    "fresh_export_decoded_and_compared": true,
+    "all_compared_progress_equal": true,
+    "wifi_active": true,
+    "upload_chunks": 576,
+    "wifi_scan_records": 3,
+    "embedded_protocol_lines": 0
+  },
+  "final_ui": {
+    "welcome_displayed": true,
+    "care": true,
+    "narrative_tick_p95_ms": 56,
+    "care_tick_p95_ms": 88,
+    "narrative_render_max_us": 28699,
+    "care_render_max_us": 22476,
+    "narrative_intentional_bob_ms": 800,
+    "lcd_render_sources_unchanged": true
+  },
+  "final_device": {
+    "page": "idle",
+    "brightness": 100,
+    "species": 115,
+    "level": 58,
+    "experience": 293221,
+    "original_collection_progress_preserved": true
+  },
+  "screenshots": {
+    "initial_dialogue_and_menu_validated": true,
+    "incomplete_final_dialogue_capture_rejected": true,
+    "final_idle_complete": true
+  }
+}

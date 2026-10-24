@@ -1,0 +1,1 @@
+{"build": "41c969022f709a56aae6", "band_checks": 95, "default_on": true, "save_failure_preserves_display": true, "opt_out_all_pages": true, "disabled_stops_battery_reads": true, "reenable_immediate": true}

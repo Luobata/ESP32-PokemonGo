@@ -1,0 +1,182 @@
+[
+  {
+    "command": "python3 tools/pipeline/verify_power_audio.py",
+    "exitCode": 0,
+    "seconds": 1.46,
+    "log": "verify_power_audio.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_power_worker.py",
+    "exitCode": 1,
+    "seconds": 0.12,
+    "log": "verify_power_worker.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_display_init.py",
+    "exitCode": 0,
+    "seconds": 0.47,
+    "log": "verify_display_init.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_display_sleep.py",
+    "exitCode": 0,
+    "seconds": 1.3,
+    "log": "verify_display_sleep.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_silent_boot.py",
+    "exitCode": 0,
+    "seconds": 5.46,
+    "log": "verify_silent_boot.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_display_settings.py",
+    "exitCode": 0,
+    "seconds": 0.54,
+    "log": "verify_display_settings.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_wifi_time.py",
+    "exitCode": 0,
+    "seconds": 0.63,
+    "log": "verify_wifi_time.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_party.py",
+    "exitCode": 1,
+    "seconds": 0.13,
+    "log": "verify_party.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_world_party.py",
+    "exitCode": 1,
+    "seconds": 3.84,
+    "log": "verify_world_party.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_box_browser.py",
+    "exitCode": 0,
+    "seconds": 12.75,
+    "log": "verify_box_browser.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_audio_settings.py",
+    "exitCode": 0,
+    "seconds": 0.57,
+    "log": "verify_audio_settings.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_offline_stamina.py",
+    "exitCode": 0,
+    "seconds": 3.66,
+    "log": "verify_offline_stamina.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_achievement_capacity.py",
+    "exitCode": 1,
+    "seconds": 4.45,
+    "log": "verify_achievement_capacity.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_shiny_sources.py",
+    "exitCode": 1,
+    "seconds": 2.14,
+    "log": "verify_shiny_sources.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_shiny_entry.py",
+    "exitCode": 0,
+    "seconds": 14.3,
+    "log": "verify_shiny_entry.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_move_names.py",
+    "exitCode": 1,
+    "seconds": 6.13,
+    "log": "verify_move_names.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_move_settings.py",
+    "exitCode": 0,
+    "seconds": 5.14,
+    "log": "verify_move_settings.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_move_settings_ui.py",
+    "exitCode": 0,
+    "seconds": 0.91,
+    "log": "verify_move_settings_ui.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_move_settings_dungeon.py",
+    "exitCode": 0,
+    "seconds": 4.33,
+    "log": "verify_move_settings_dungeon.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_box_release.py",
+    "exitCode": 0,
+    "seconds": 4.23,
+    "log": "verify_box_release.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_box_release_ui.py",
+    "exitCode": 0,
+    "seconds": 0.61,
+    "log": "verify_box_release_ui.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_capture_capacity.py",
+    "exitCode": 1,
+    "seconds": 4.23,
+    "log": "verify_capture_capacity.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_capture_capacity_ui.py",
+    "exitCode": 0,
+    "seconds": 0.37,
+    "log": "verify_capture_capacity_ui.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_dungeon_rewards.py",
+    "exitCode": 1,
+    "seconds": 4.67,
+    "log": "verify_dungeon_rewards.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_exploration_balance.py",
+    "exitCode": 0,
+    "seconds": 7.64,
+    "log": "verify_exploration_balance.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_playtime.py",
+    "exitCode": 0,
+    "seconds": 3.72,
+    "log": "verify_playtime.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_exploration_events.py",
+    "exitCode": 0,
+    "seconds": 5.48,
+    "log": "verify_exploration_events.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_care_events_preview.py",
+    "exitCode": 0,
+    "seconds": 1.01,
+    "log": "verify_care_events_preview.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_region_trails_preview.py",
+    "exitCode": 0,
+    "seconds": 2.04,
+    "log": "verify_region_trails_preview.py.log"
+  },
+  {
+    "command": "python3 tools/pipeline/verify_achievements.py",
+    "exitCode": 0,
+    "seconds": 4.0,
+    "log": "verify_achievements.py.log"
+  }
+]

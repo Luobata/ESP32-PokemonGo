@@ -214,14 +214,12 @@ static void draw_all(void)
 
 static void draw_text_bands(void)
 {
-    draw_band(BAND_H * 2);
-    draw_band(BAND_H * 3);
+    for (int y=160;y<SCR_H;y+=BAND_H) draw_band(y);
 }
 
 static void draw_top_bands(void)
 {
-    draw_band(0);
-    draw_band(BAND_H);
+    for (int y=0;y<160;y+=BAND_H) draw_band(y);
 }
 
 static void redraw_for_dump(void) { draw_all(); }

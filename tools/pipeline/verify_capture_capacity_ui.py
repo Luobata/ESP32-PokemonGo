@@ -34,16 +34,16 @@ def main():
 
     # Full storage spends one ball, runs animation, then requires explicit
     # selection plus a default-cancel second confirmation. No silent replacement.
-    r = scene(453)
+    r = scene(753)
     try:
         before=r.inspect()
         cmd(r,'tick 300');cmd(r,'key 2 0');cmd(r,'key 2 4');cmd(r,'key 2 1')
-        cmd(r,'tick 3480')
-        assert r.inspect()['page']==4 and r.inspect()['box_count']==453
+        cmd(r,'tick 10000')
+        assert r.inspect()['page']==4 and r.inspect()['box_count']==753
         assert r.inspect()['inventory'][3]==before['inventory'][3]-1
         assert r.inspect()['exp']==before['exp']
         listing=cmd(r,'check')['pixels']
-        cmd(r,'key 0 1')  # Wrap to row 452, exercising widened indices.
+        cmd(r,'key 0 1')  # Wrap to row 752, exercising widened indices.
         confirmed=cmd(r,'key 2 1')  # Confirmation is visible, still no mutation.
         # Incoming identity remains visible above the old partner confirmation.
         assert confirmed['pixels'][40*480:56*480]==listing[40*480:56*480]
@@ -52,24 +52,24 @@ def main():
         cmd(r,'key 2 1')  # Default cancel returns to the list.
         assert r.inspect()['exp']==before['exp']
         cmd(r,'key 2 1');cmd(r,'key 1 1');cmd(r,'key 2 1')
-        assert r.inspect()['box_count']==453 and r.inspect()['active'] is None
+        assert r.inspect()['box_count']==753 and r.inspect()['active'] is None
         assert r.inspect()['exp']>before['exp']
         assert r.inspect()['inventory'][3]==before['inventory'][3]-1
     finally:r.close()
 
     # Declining a new catch also has a default-cancel confirmation.
-    r=scene(453)
+    r=scene(753)
     try:
-        before=r.inspect();cmd(r,'tick 300');cmd(r,'key 2 1');cmd(r,'tick 3480')
+        before=r.inspect();cmd(r,'tick 300');cmd(r,'key 2 1');cmd(r,'tick 10000')
         cmd(r,'key 1 3');cmd(r,'key 2 1')
         assert r.inspect()['page']==4 and r.inspect()['exp']==before['exp']
         cmd(r,'key 1 3');cmd(r,'key 1 1');cmd(r,'key 2 1')
-        assert r.inspect()['page']!=4 and r.inspect()['box_count']==453
+        assert r.inspect()['page']!=4 and r.inspect()['box_count']==753
         assert r.inspect()['exp']==before['exp'] and r.inspect()['party']==before['party']
     finally:r.close()
 
     # Repeated same-species captures use empty slots; no automatic best-of merge.
-    for count,target,team in ((452,0,1),(452,150,1),(453,0,0)):
+    for count,target,team in ((752,0,1),(752,150,1),(753,0,0)):
         r=scene(count,target,team)
         try:
             before=r.inspect();cmd(r,'tick 300');cmd(r,'key 2 1');after=r.inspect()
@@ -79,13 +79,13 @@ def main():
         finally:r.close()
 
     # Failed replacement preserves the old warehouse and retries the same ball.
-    r=scene(453)
+    r=scene(753)
     try:
-        before=r.inspect();cmd(r,'tick 300');cmd(r,'key 2 1');cmd(r,'tick 3480')
+        before=r.inspect();cmd(r,'tick 300');cmd(r,'key 2 1');cmd(r,'tick 10000')
         cmd(r,'key 2 1');cmd(r,'key 1 1');cmd(r,'save_fail 1');cmd(r,'key 2 1')
-        assert r.inspect()['exp']==before['exp'] and r.inspect()['box_count']==453
+        assert r.inspect()['exp']==before['exp'] and r.inspect()['box_count']==753
         cmd(r,'save_fail 0');cmd(r,'key 2 1')
-        assert r.inspect()['exp']>before['exp'] and r.inspect()['box_count']==453
+        assert r.inspect()['exp']>before['exp'] and r.inspect()['box_count']==753
         assert r.inspect()['inventory'][3]==before['inventory'][3]-1
     finally:r.close()
 

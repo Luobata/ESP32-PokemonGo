@@ -1,0 +1,3 @@
+V22 codec: sparse/dense/random bytes, every truncation/bit corruption, length and capacity boundaries passed
+differential save: unchanged=1 header sector; two changed=3 sectors; 1198 partial/I-O failures PASS
+bank faults: 1592 single/partial failures, 500 replacements, corrupt/missing bank rejection PASS

@@ -126,11 +126,15 @@ bool render_text_ink_bounds(const char *s, render_bounds_t *out)
             const uint8_t *g = s_font.glyphs + (size_t)gi * s_font.per;
             int dx = pen - ((cp < 0x80) ? s_font.size / 4 : 0);
             for (int y = 0; y < s_font.size; y++) {
-                for (int x = 0; x < s_font.size; x++) {
-                    if (!(g[y * row_bytes + x / 8] & (0x80 >> (x % 8)))) continue;
-                    int px = dx + x;
-                    if (!found || px < left) left = px;
-                    if (!found || px + 1 > right) right = px + 1;
+                for (int byte = 0; byte < row_bytes; byte++) {
+                    unsigned bits = g[y * row_bytes + byte];
+                    int remain = s_font.size - byte * 8;
+                    if (remain < 8) bits &= 0xffu << (8 - remain);
+                    if (!bits) continue;
+                    int first = dx + byte * 8 + __builtin_clz(bits) - 24;
+                    int last = dx + byte * 8 + 8 - __builtin_ctz(bits);
+                    if (!found || first < left) left = first;
+                    if (!found || last > right) right = last;
                     if (!found || y < top) top = y;
                     if (!found || y + 1 > bottom) bottom = y + 1;
                     found = true;
@@ -152,11 +156,18 @@ bool render_sprite_ink_bounds(const uint8_t *data, int w, int h,
     int left = w, top = h, right = 0, bottom = 0;
     const int row_bytes = (w + 3) / 4;
     for (int y = 0; y < h; y++) {
-        for (int x = 0; x < w; x++) {
-            if (((data[y * row_bytes + x / 4] >> (6 - 2 * (x % 4))) & 3) == 3) continue;
-            if (x < left) left = x;
+        for (int byte = 0; byte < row_bytes; byte++) {
+            unsigned value = data[y * row_bytes + byte];
+            // Keep one bit per opaque pixel; ignore padding pairs at the end.
+            unsigned opaque = ~(value & (value >> 1)) & 0x55u;
+            int remain = w - byte * 4;
+            if (remain < 4) opaque &= 0xffu << (2 * (4 - remain));
+            if (!opaque) continue;
+            int first = byte * 4 + (__builtin_clz(opaque) - 25) / 2;
+            int last = byte * 4 + 4 - __builtin_ctz(opaque) / 2;
+            if (first < left) left = first;
             if (y < top) top = y;
-            if (x + 1 > right) right = x + 1;
+            if (last > right) right = last;
             if (y + 1 > bottom) bottom = y + 1;
         }
     }
@@ -168,11 +179,16 @@ bool render_sprite_ink_bounds(const uint8_t *data, int w, int h,
 // 画一个字形到 canvas。1bpp → 前景色，0 位不画（透明）。
 static void draw_glyph(int gi, int x, int y, uint16_t fg)
 {
+    int first_row = y < 0 ? -y : 0, last_row = s_font.size;
+    int first_col = x < 0 ? -x : 0, last_col = s_font.size;
+    if (last_row > SCREEN_BAND_H - y) last_row = SCREEN_BAND_H - y;
+    if (last_col > SCREEN_W - x) last_col = SCREEN_W - x;
+    if (first_row >= last_row || first_col >= last_col) return;
     const uint8_t *g = s_font.glyphs + (size_t)gi * s_font.per;
     uint8_t row_bytes = (uint8_t)((s_font.size + 7) / 8);
 
-    for (uint16_t r = 0; r < s_font.size; r++) {
-        for (uint16_t c = 0; c < s_font.size; c++) {
+    for (int r = first_row; r < last_row; r++) {
+        for (int c = first_col; c < last_col; c++) {
             if (g[r * row_bytes + c / 8] >> (7 - c % 8) & 1) {
                 screen_px(x + c, y + r, fg);
             }
@@ -183,10 +199,11 @@ static void draw_glyph(int gi, int x, int y, uint16_t fg)
 int render_text(int x, int y, const char *s, uint16_t fg)
 {
     if (!s_font.ok || !s) return x;
+    bool visible = y < SCREEN_BAND_H && y + s_font.size > 0;
     while (*s) {
         uint16_t cp;
         s += render_utf8_next(s, &cp);
-        int gi = glyph_index(cp);
+        int gi = visible ? glyph_index(cp) : -1;
         if (gi >= 0) {
             // ASCII 半宽时把字形**左移**再画 —— 字形墨迹居中在
             // 16 格里（A 在 x=2~11），直接画会让相邻字符间距过大。
@@ -213,9 +230,15 @@ void render_sprite_2bpp_wh(int x, int y,
 {
     if (!data || w <= 0 || h <= 0 || scale <= 0) return;
     int row_bytes = (w * 2 + 7) / 8;
-
-    for (int sy = 0; sy < h; sy++) {
-        for (int sx = 0; sx < w; sx++) {
+    // Clip source rows before decoding. A 20-row band must not rasterize the
+    // entire sprite sixteen times and rely on screen_px to throw pixels away.
+    if (x >= SCREEN_W || y >= SCREEN_BAND_H || x + w * scale <= 0 || y + h * scale <= 0) return;
+    int first_y = y < 0 ? -y / scale : 0, last_y = (SCREEN_BAND_H - y + scale - 1) / scale;
+    int first_x = x < 0 ? -x / scale : 0, last_x = (SCREEN_W - x + scale - 1) / scale;
+    if (last_y > h) last_y = h;
+    if (last_x > w) last_x = w;
+    for (int sy = first_y; sy < last_y; sy++) {
+        for (int sx = first_x; sx < last_x; sx++) {
             uint8_t b = data[sy * row_bytes + (sx * 2) / 8];
             uint8_t shade = (b >> (6 - (sx * 2) % 8)) & 3;
             if (shade == 3) continue;         // 3 = 透明
@@ -246,9 +269,13 @@ void render_sprite_2bpp_thumbnail(int x, int y, const uint8_t *data,
 {
     if (!data || !palette || size <= 0 || dest_size <= 0 || dest_size > size) return;
     int row_bytes = (size + 3) / 4;
-    for (int dy = 0; dy < dest_size; dy++) {
+    int top = y < 0 ? -y : 0, bottom = dest_size;
+    int left = x < 0 ? -x : 0, right = dest_size;
+    if (bottom > SCREEN_BAND_H - y) bottom = SCREEN_BAND_H - y;
+    if (right > SCREEN_W - x) right = SCREEN_W - x;
+    for (int dy = top; dy < bottom; dy++) {
         int sy = ((2 * dy + 1) * size) / (2 * dest_size);
-        for (int dx = 0; dx < dest_size; dx++) {
+        for (int dx = left; dx < right; dx++) {
             int sx = ((2 * dx + 1) * size) / (2 * dest_size);
             uint8_t shade = (data[sy * row_bytes + sx / 4] >> (6 - 2 * (sx % 4))) & 3;
             if (shade != 3) screen_px(x + dx, y + dy, palette[shade]);

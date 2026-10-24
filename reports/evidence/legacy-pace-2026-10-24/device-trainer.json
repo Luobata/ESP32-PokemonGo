@@ -1,0 +1,218 @@
+{
+  "cadence": [
+    {
+      "period_ms": 80,
+      "ticks": 125,
+      "frames": 21,
+      "bands": 126,
+      "window_us": 10005023,
+      "render_us": 469451,
+      "render_max_us": 24813,
+      "tick_p50_ms": 88,
+      "tick_p95_ms": 88,
+      "tick_max_us": 86304,
+      "late": 85,
+      "frame_p50_ms": 168,
+      "frame_p95_ms": 4294967295,
+      "frame_max_us": 2038834,
+      "bytes": 352,
+      "label": "care_10s"
+    },
+    {
+      "period_ms": 45,
+      "ticks": 180,
+      "frames": 103,
+      "bands": 1648,
+      "window_us": 9803075,
+      "render_us": 6028208,
+      "render_max_us": 283352,
+      "tick_p50_ms": 48,
+      "tick_p95_ms": 88,
+      "tick_max_us": 321680,
+      "late": 155,
+      "frame_p50_ms": 88,
+      "frame_p95_ms": 104,
+      "frame_max_us": 874765,
+      "bytes": 352,
+      "label": "trainer_intro_sendout"
+    },
+    {
+      "period_ms": 45,
+      "ticks": 157,
+      "frames": 84,
+      "bands": 1344,
+      "window_us": 10178682,
+      "render_us": 6671001,
+      "render_max_us": 290454,
+      "tick_p50_ms": 56,
+      "tick_p95_ms": 96,
+      "tick_max_us": 292013,
+      "late": 140,
+      "frame_p50_ms": 88,
+      "frame_p95_ms": 104,
+      "frame_max_us": 1176510,
+      "bytes": 352,
+      "label": "trainer_battle_10s"
+    }
+  ],
+  "audio": [
+    {
+      "chunks": 942,
+      "render_avg_us": 1996,
+      "render_max_us": 2889,
+      "gap_max_us": 23217,
+      "late": 0,
+      "switches": 1,
+      "switch_render_max_us": 1765,
+      "opens": 1,
+      "errors": 0,
+      "stack_free": 1988
+    },
+    {
+      "chunks": 987,
+      "render_avg_us": 2018,
+      "render_max_us": 2900,
+      "gap_max_us": 23217,
+      "late": 0,
+      "switches": 2,
+      "switch_render_max_us": 2900,
+      "opens": 1,
+      "errors": 0,
+      "stack_free": 1988
+    },
+    {
+      "chunks": 492,
+      "render_avg_us": 2477,
+      "render_max_us": 2874,
+      "gap_max_us": 21867,
+      "late": 0,
+      "switches": 0,
+      "switch_render_max_us": 0,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1988
+    },
+    {
+      "chunks": 538,
+      "render_avg_us": 2453,
+      "render_max_us": 4133,
+      "gap_max_us": 22069,
+      "late": 0,
+      "switches": 1,
+      "switch_render_max_us": 1495,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1988
+    },
+    {
+      "chunks": 686,
+      "render_avg_us": 2246,
+      "render_max_us": 4133,
+      "gap_max_us": 22848,
+      "late": 0,
+      "switches": 2,
+      "switch_render_max_us": 2910,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1988
+    },
+    {
+      "chunks": 504,
+      "render_avg_us": 2042,
+      "render_max_us": 3876,
+      "gap_max_us": 39327,
+      "late": 0,
+      "switches": 2,
+      "switch_render_max_us": 2173,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1988
+    },
+    {
+      "chunks": 494,
+      "render_avg_us": 1875,
+      "render_max_us": 3037,
+      "gap_max_us": 40163,
+      "late": 0,
+      "switches": 0,
+      "switch_render_max_us": 0,
+      "opens": 0,
+      "errors": 0,
+      "stack_free": 1988
+    }
+  ],
+  "memory": [
+    {
+      "free": 17524,
+      "minimum": 11484,
+      "largest": 11264,
+      "stack_free": 2108
+    },
+    {
+      "free": 17524,
+      "minimum": 11484,
+      "largest": 11264,
+      "stack_free": 1884
+    },
+    {
+      "free": 17380,
+      "minimum": 11484,
+      "largest": 11264,
+      "stack_free": 1884
+    },
+    {
+      "free": 16780,
+      "minimum": 11484,
+      "largest": 11264,
+      "stack_free": 1676
+    },
+    {
+      "free": 17524,
+      "minimum": 11484,
+      "largest": 11264,
+      "stack_free": 1660
+    },
+    {
+      "free": 17392,
+      "minimum": 11484,
+      "largest": 11264,
+      "stack_free": 1660
+    },
+    {
+      "free": 17392,
+      "minimum": 11484,
+      "largest": 11264,
+      "stack_free": 1660
+    }
+  ],
+  "stacks": [
+    {
+      "timer_free": 3544,
+      "lvgl_free": 4924
+    },
+    {
+      "timer_free": 3544,
+      "lvgl_free": 4924
+    },
+    {
+      "timer_free": 3544,
+      "lvgl_free": 4924
+    },
+    {
+      "timer_free": 3544,
+      "lvgl_free": 4924
+    },
+    {
+      "timer_free": 3544,
+      "lvgl_free": 4924
+    },
+    {
+      "timer_free": 3544,
+      "lvgl_free": 4844
+    },
+    {
+      "timer_free": 3544,
+      "lvgl_free": 4828
+    }
+  ]
+}

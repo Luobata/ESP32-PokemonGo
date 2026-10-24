@@ -1,4 +1,5 @@
 #include "shiny_entry.h"
+#include "gb_clock.h"
 #include "shiny_entry_assets.h"
 #include "render.h"
 #include "screen.h"
@@ -32,7 +33,7 @@ void shiny_entry_draw(const shiny_entry_t *entry, int band_y,
     unsigned side = shiny_entry_side(entry);
     if (!side || band_y < 0 || band_y >= 240) return;
     unsigned ms = entry->elapsed_ms - ((side == 1 && (entry->mask & 2u)) ? SHINY_ENTRY_MS : 0);
-    unsigned tick = ms * 60u / 1000u;
+    unsigned tick = gb_frames_from_ms(ms);
     // Gold FLASH_INVERTED: normal / inverted / normal, five ticks each.
     // Same four luminance bands as the shared Gold move renderer.
     if (tick >= 5 && tick < 10) {

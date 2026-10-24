@@ -1,0 +1,611 @@
+{
+  "repository": "https://github.com/PokeAPI/pokeapi",
+  "commit": "5ee47a9a9c1229632ec4b473a9c1c53026e005dd",
+  "source_sha256": {
+    "languages": "fbb60019a6a461783d5671a995d5f590db61792a273e90faa0ed630d102a19b8",
+    "pokemon_species_names": "820cde17074cdb1c2b0595c997fb8f998e773bd5da3bb525dec85703c86c5fd9",
+    "pokemon": "16c81c33188b0eac403aa2f759fcbe9e42c611f722d263f5b5a6a5bff9f8ce6b"
+  },
+  "pokemon": [
+    {
+      "id": 152,
+      "name_zh": "菊草叶",
+      "height_dm": 9,
+      "weight_hg": 64
+    },
+    {
+      "id": 153,
+      "name_zh": "月桂叶",
+      "height_dm": 12,
+      "weight_hg": 158
+    },
+    {
+      "id": 154,
+      "name_zh": "大竺葵",
+      "height_dm": 18,
+      "weight_hg": 1005
+    },
+    {
+      "id": 155,
+      "name_zh": "火球鼠",
+      "height_dm": 5,
+      "weight_hg": 79
+    },
+    {
+      "id": 156,
+      "name_zh": "火岩鼠",
+      "height_dm": 9,
+      "weight_hg": 190
+    },
+    {
+      "id": 157,
+      "name_zh": "火暴兽",
+      "height_dm": 17,
+      "weight_hg": 795
+    },
+    {
+      "id": 158,
+      "name_zh": "小锯鳄",
+      "height_dm": 6,
+      "weight_hg": 95
+    },
+    {
+      "id": 159,
+      "name_zh": "蓝鳄",
+      "height_dm": 11,
+      "weight_hg": 250
+    },
+    {
+      "id": 160,
+      "name_zh": "大力鳄",
+      "height_dm": 23,
+      "weight_hg": 888
+    },
+    {
+      "id": 161,
+      "name_zh": "尾立",
+      "height_dm": 8,
+      "weight_hg": 60
+    },
+    {
+      "id": 162,
+      "name_zh": "大尾立",
+      "height_dm": 18,
+      "weight_hg": 325
+    },
+    {
+      "id": 163,
+      "name_zh": "咕咕",
+      "height_dm": 7,
+      "weight_hg": 212
+    },
+    {
+      "id": 164,
+      "name_zh": "猫头夜鹰",
+      "height_dm": 16,
+      "weight_hg": 408
+    },
+    {
+      "id": 165,
+      "name_zh": "芭瓢虫",
+      "height_dm": 10,
+      "weight_hg": 108
+    },
+    {
+      "id": 166,
+      "name_zh": "安瓢虫",
+      "height_dm": 14,
+      "weight_hg": 356
+    },
+    {
+      "id": 167,
+      "name_zh": "圆丝蛛",
+      "height_dm": 5,
+      "weight_hg": 85
+    },
+    {
+      "id": 168,
+      "name_zh": "阿利多斯",
+      "height_dm": 11,
+      "weight_hg": 335
+    },
+    {
+      "id": 169,
+      "name_zh": "叉字蝠",
+      "height_dm": 18,
+      "weight_hg": 750
+    },
+    {
+      "id": 170,
+      "name_zh": "灯笼鱼",
+      "height_dm": 5,
+      "weight_hg": 120
+    },
+    {
+      "id": 171,
+      "name_zh": "电灯怪",
+      "height_dm": 12,
+      "weight_hg": 225
+    },
+    {
+      "id": 172,
+      "name_zh": "皮丘",
+      "height_dm": 3,
+      "weight_hg": 20
+    },
+    {
+      "id": 173,
+      "name_zh": "皮宝宝",
+      "height_dm": 3,
+      "weight_hg": 30
+    },
+    {
+      "id": 174,
+      "name_zh": "宝宝丁",
+      "height_dm": 3,
+      "weight_hg": 10
+    },
+    {
+      "id": 175,
+      "name_zh": "波克比",
+      "height_dm": 3,
+      "weight_hg": 15
+    },
+    {
+      "id": 176,
+      "name_zh": "波克基古",
+      "height_dm": 6,
+      "weight_hg": 32
+    },
+    {
+      "id": 177,
+      "name_zh": "天然雀",
+      "height_dm": 2,
+      "weight_hg": 20
+    },
+    {
+      "id": 178,
+      "name_zh": "天然鸟",
+      "height_dm": 15,
+      "weight_hg": 150
+    },
+    {
+      "id": 179,
+      "name_zh": "咩利羊",
+      "height_dm": 6,
+      "weight_hg": 78
+    },
+    {
+      "id": 180,
+      "name_zh": "茸茸羊",
+      "height_dm": 8,
+      "weight_hg": 133
+    },
+    {
+      "id": 181,
+      "name_zh": "电龙",
+      "height_dm": 14,
+      "weight_hg": 615
+    },
+    {
+      "id": 182,
+      "name_zh": "美丽花",
+      "height_dm": 4,
+      "weight_hg": 58
+    },
+    {
+      "id": 183,
+      "name_zh": "玛力露",
+      "height_dm": 4,
+      "weight_hg": 85
+    },
+    {
+      "id": 184,
+      "name_zh": "玛力露丽",
+      "height_dm": 8,
+      "weight_hg": 285
+    },
+    {
+      "id": 185,
+      "name_zh": "树才怪",
+      "height_dm": 12,
+      "weight_hg": 380
+    },
+    {
+      "id": 186,
+      "name_zh": "蚊香蛙皇",
+      "height_dm": 11,
+      "weight_hg": 339
+    },
+    {
+      "id": 187,
+      "name_zh": "毽子草",
+      "height_dm": 4,
+      "weight_hg": 5
+    },
+    {
+      "id": 188,
+      "name_zh": "毽子花",
+      "height_dm": 6,
+      "weight_hg": 10
+    },
+    {
+      "id": 189,
+      "name_zh": "毽子棉",
+      "height_dm": 8,
+      "weight_hg": 30
+    },
+    {
+      "id": 190,
+      "name_zh": "长尾怪手",
+      "height_dm": 8,
+      "weight_hg": 115
+    },
+    {
+      "id": 191,
+      "name_zh": "向日种子",
+      "height_dm": 3,
+      "weight_hg": 18
+    },
+    {
+      "id": 192,
+      "name_zh": "向日花怪",
+      "height_dm": 8,
+      "weight_hg": 85
+    },
+    {
+      "id": 193,
+      "name_zh": "蜻蜻蜓",
+      "height_dm": 12,
+      "weight_hg": 380
+    },
+    {
+      "id": 194,
+      "name_zh": "乌波",
+      "height_dm": 4,
+      "weight_hg": 85
+    },
+    {
+      "id": 195,
+      "name_zh": "沼王",
+      "height_dm": 14,
+      "weight_hg": 750
+    },
+    {
+      "id": 196,
+      "name_zh": "太阳伊布",
+      "height_dm": 9,
+      "weight_hg": 265
+    },
+    {
+      "id": 197,
+      "name_zh": "月亮伊布",
+      "height_dm": 10,
+      "weight_hg": 270
+    },
+    {
+      "id": 198,
+      "name_zh": "黑暗鸦",
+      "height_dm": 5,
+      "weight_hg": 21
+    },
+    {
+      "id": 199,
+      "name_zh": "呆呆王",
+      "height_dm": 20,
+      "weight_hg": 795
+    },
+    {
+      "id": 200,
+      "name_zh": "梦妖",
+      "height_dm": 7,
+      "weight_hg": 10
+    },
+    {
+      "id": 201,
+      "name_zh": "未知图腾",
+      "height_dm": 5,
+      "weight_hg": 50
+    },
+    {
+      "id": 202,
+      "name_zh": "果然翁",
+      "height_dm": 13,
+      "weight_hg": 285
+    },
+    {
+      "id": 203,
+      "name_zh": "麒麟奇",
+      "height_dm": 15,
+      "weight_hg": 415
+    },
+    {
+      "id": 204,
+      "name_zh": "榛果球",
+      "height_dm": 6,
+      "weight_hg": 72
+    },
+    {
+      "id": 205,
+      "name_zh": "佛烈托斯",
+      "height_dm": 12,
+      "weight_hg": 1258
+    },
+    {
+      "id": 206,
+      "name_zh": "土龙弟弟",
+      "height_dm": 15,
+      "weight_hg": 140
+    },
+    {
+      "id": 207,
+      "name_zh": "天蝎",
+      "height_dm": 11,
+      "weight_hg": 648
+    },
+    {
+      "id": 208,
+      "name_zh": "大钢蛇",
+      "height_dm": 92,
+      "weight_hg": 4000
+    },
+    {
+      "id": 209,
+      "name_zh": "布鲁",
+      "height_dm": 6,
+      "weight_hg": 78
+    },
+    {
+      "id": 210,
+      "name_zh": "布鲁皇",
+      "height_dm": 14,
+      "weight_hg": 487
+    },
+    {
+      "id": 211,
+      "name_zh": "千针鱼",
+      "height_dm": 5,
+      "weight_hg": 39
+    },
+    {
+      "id": 212,
+      "name_zh": "巨钳螳螂",
+      "height_dm": 18,
+      "weight_hg": 1180
+    },
+    {
+      "id": 213,
+      "name_zh": "壶壶",
+      "height_dm": 6,
+      "weight_hg": 205
+    },
+    {
+      "id": 214,
+      "name_zh": "赫拉克罗斯",
+      "height_dm": 15,
+      "weight_hg": 540
+    },
+    {
+      "id": 215,
+      "name_zh": "狃拉",
+      "height_dm": 9,
+      "weight_hg": 280
+    },
+    {
+      "id": 216,
+      "name_zh": "熊宝宝",
+      "height_dm": 6,
+      "weight_hg": 88
+    },
+    {
+      "id": 217,
+      "name_zh": "圈圈熊",
+      "height_dm": 18,
+      "weight_hg": 1258
+    },
+    {
+      "id": 218,
+      "name_zh": "熔岩虫",
+      "height_dm": 7,
+      "weight_hg": 350
+    },
+    {
+      "id": 219,
+      "name_zh": "熔岩蜗牛",
+      "height_dm": 8,
+      "weight_hg": 550
+    },
+    {
+      "id": 220,
+      "name_zh": "小山猪",
+      "height_dm": 4,
+      "weight_hg": 65
+    },
+    {
+      "id": 221,
+      "name_zh": "长毛猪",
+      "height_dm": 11,
+      "weight_hg": 558
+    },
+    {
+      "id": 222,
+      "name_zh": "太阳珊瑚",
+      "height_dm": 6,
+      "weight_hg": 50
+    },
+    {
+      "id": 223,
+      "name_zh": "铁炮鱼",
+      "height_dm": 6,
+      "weight_hg": 120
+    },
+    {
+      "id": 224,
+      "name_zh": "章鱼桶",
+      "height_dm": 9,
+      "weight_hg": 285
+    },
+    {
+      "id": 225,
+      "name_zh": "信使鸟",
+      "height_dm": 9,
+      "weight_hg": 160
+    },
+    {
+      "id": 226,
+      "name_zh": "巨翅飞鱼",
+      "height_dm": 21,
+      "weight_hg": 2200
+    },
+    {
+      "id": 227,
+      "name_zh": "盔甲鸟",
+      "height_dm": 17,
+      "weight_hg": 505
+    },
+    {
+      "id": 228,
+      "name_zh": "戴鲁比",
+      "height_dm": 6,
+      "weight_hg": 108
+    },
+    {
+      "id": 229,
+      "name_zh": "黑鲁加",
+      "height_dm": 14,
+      "weight_hg": 350
+    },
+    {
+      "id": 230,
+      "name_zh": "刺龙王",
+      "height_dm": 18,
+      "weight_hg": 1520
+    },
+    {
+      "id": 231,
+      "name_zh": "小小象",
+      "height_dm": 5,
+      "weight_hg": 335
+    },
+    {
+      "id": 232,
+      "name_zh": "顿甲",
+      "height_dm": 11,
+      "weight_hg": 1200
+    },
+    {
+      "id": 233,
+      "name_zh": "多边兽２型",
+      "height_dm": 6,
+      "weight_hg": 325
+    },
+    {
+      "id": 234,
+      "name_zh": "惊角鹿",
+      "height_dm": 14,
+      "weight_hg": 712
+    },
+    {
+      "id": 235,
+      "name_zh": "图图犬",
+      "height_dm": 12,
+      "weight_hg": 580
+    },
+    {
+      "id": 236,
+      "name_zh": "无畏小子",
+      "height_dm": 7,
+      "weight_hg": 210
+    },
+    {
+      "id": 237,
+      "name_zh": "战舞郎",
+      "height_dm": 14,
+      "weight_hg": 480
+    },
+    {
+      "id": 238,
+      "name_zh": "迷唇娃",
+      "height_dm": 4,
+      "weight_hg": 60
+    },
+    {
+      "id": 239,
+      "name_zh": "电击怪",
+      "height_dm": 6,
+      "weight_hg": 235
+    },
+    {
+      "id": 240,
+      "name_zh": "鸭嘴宝宝",
+      "height_dm": 7,
+      "weight_hg": 214
+    },
+    {
+      "id": 241,
+      "name_zh": "大奶罐",
+      "height_dm": 12,
+      "weight_hg": 755
+    },
+    {
+      "id": 242,
+      "name_zh": "幸福蛋",
+      "height_dm": 15,
+      "weight_hg": 468
+    },
+    {
+      "id": 243,
+      "name_zh": "雷公",
+      "height_dm": 19,
+      "weight_hg": 1780
+    },
+    {
+      "id": 244,
+      "name_zh": "炎帝",
+      "height_dm": 21,
+      "weight_hg": 1980
+    },
+    {
+      "id": 245,
+      "name_zh": "水君",
+      "height_dm": 20,
+      "weight_hg": 1870
+    },
+    {
+      "id": 246,
+      "name_zh": "幼基拉斯",
+      "height_dm": 6,
+      "weight_hg": 720
+    },
+    {
+      "id": 247,
+      "name_zh": "沙基拉斯",
+      "height_dm": 12,
+      "weight_hg": 1520
+    },
+    {
+      "id": 248,
+      "name_zh": "班基拉斯",
+      "height_dm": 20,
+      "weight_hg": 2020
+    },
+    {
+      "id": 249,
+      "name_zh": "洛奇亚",
+      "height_dm": 52,
+      "weight_hg": 2160
+    },
+    {
+      "id": 250,
+      "name_zh": "凤王",
+      "height_dm": 38,
+      "weight_hg": 1990
+    },
+    {
+      "id": 251,
+      "name_zh": "时拉比",
+      "height_dm": 6,
+      "weight_hg": 50
+    }
+  ]
+}

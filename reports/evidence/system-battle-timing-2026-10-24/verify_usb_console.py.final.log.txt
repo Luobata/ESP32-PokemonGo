@@ -1,0 +1,1 @@
+{"passed": true, "wifi_records": 100, "usb_records": 1000, "negative_control_detected": true}

@@ -1,0 +1,17 @@
+{
+  "base_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+  "branch": "codex/exploration-balance-chain",
+  "uncommitted": true,
+  "app_bytes": 3129008,
+  "factory_bytes": 3407872,
+  "free_bytes": 278864,
+  "app_sha256": "938ca5fd78f922e4f1c2aadb81dcf1b3b160ab60cab3bbb3ff649d722be89fcc",
+  "flash_bytes": 8388608,
+  "logical_save_version": 30,
+  "world_bytes": 39912,
+  "backup_format": 4,
+  "backup_payload_bytes": 73728,
+  "hardware_validation": false,
+  "flashed": false,
+  "published": false
+}

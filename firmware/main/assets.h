@@ -104,3 +104,6 @@ void assets_palette(uint8_t set_idx, uint16_t out[4]);
 // Original paired palette variant. The shiny offset is computed in size_t,
 // so >128 palette pairs never wrap at an 8-bit set index. Invalid IDs are black/white.
 void assets_palette_variant(uint8_t set_idx, bool shiny, uint16_t out[4]);
+
+const uint8_t *assets_front_form(uint16_t,unsigned,uint8_t *);
+bool assets_back_form(uint16_t,unsigned,sprite_asset_t *);

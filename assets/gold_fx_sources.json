@@ -4625,6 +4625,34 @@
       "display_frames": 7
     },
     {
+      "move": 166,
+      "side": 0,
+      "param": 0,
+      "source_frames": 101,
+      "display_frames": 38
+    },
+    {
+      "move": 166,
+      "side": 0,
+      "param": 1,
+      "source_frames": 101,
+      "display_frames": 38
+    },
+    {
+      "move": 166,
+      "side": 1,
+      "param": 0,
+      "source_frames": 101,
+      "display_frames": 38
+    },
+    {
+      "move": 166,
+      "side": 1,
+      "param": 1,
+      "source_frames": 101,
+      "display_frames": 38
+    },
+    {
       "move": 172,
       "side": 0,
       "param": 0,
@@ -5129,6 +5157,34 @@
       "display_frames": 62
     },
     {
+      "move": 237,
+      "side": 0,
+      "param": 0,
+      "source_frames": 178,
+      "display_frames": 67
+    },
+    {
+      "move": 237,
+      "side": 0,
+      "param": 1,
+      "source_frames": 178,
+      "display_frames": 67
+    },
+    {
+      "move": 237,
+      "side": 1,
+      "param": 0,
+      "source_frames": 178,
+      "display_frames": 67
+    },
+    {
+      "move": 237,
+      "side": 1,
+      "param": 1,
+      "source_frames": 178,
+      "display_frames": 67
+    },
+    {
       "move": 238,
       "side": 0,
       "param": 0,
@@ -5211,6 +5267,34 @@
       "param": 1,
       "source_frames": 36,
       "display_frames": 14
+    },
+    {
+      "move": 243,
+      "side": 0,
+      "param": 0,
+      "source_frames": 142,
+      "display_frames": 53
+    },
+    {
+      "move": 243,
+      "side": 0,
+      "param": 1,
+      "source_frames": 142,
+      "display_frames": 53
+    },
+    {
+      "move": 243,
+      "side": 1,
+      "param": 0,
+      "source_frames": 142,
+      "display_frames": 53
+    },
+    {
+      "move": 243,
+      "side": 1,
+      "param": 1,
+      "source_frames": 142,
+      "display_frames": 53
     },
     {
       "move": 245,
@@ -5353,11 +5437,18 @@
       "display_frames": 56
     }
   ],
-  "tiles": 476,
-  "frames": 9143,
-  "clips": 395,
-  "tracks_sha256": "a9ac23f3ff86faab73e4c9c2afe9e81429d0117ae0f84c47c89106724948ae05",
-  "header_sha256": "328dfdb7c8a92080c5c8536e2e90f2e33cbbf435cd9f1611f2ac3db85a02185c",
+  "tiles": 480,
+  "frames": 9395,
+  "clips": 401,
+  "tracks_sha256": "7c98b9714f5d799d9040ad95f761bdaf562b64f530caa8be9b3ca6df9d5df319",
+  "header_sha256": "955c8f1c0cf84aabe0505e05308d838ab29872234b122cf7837c5fdfda5c26f2",
   "full_visual_equivalence": false,
-  "notes": "ROM not distributed. VBlank waits/audio replaced for offline stepping; portrait mapping and compositing are adaptations. Dynamic battler body reloads use the current species."
+  "notes": "ROM not distributed. VBlank waits/audio replaced for offline stepping; portrait mapping and compositing are adaptations. Dynamic battler body reloads use the current species.",
+  "object_packing": {
+    "objects": 106223,
+    "shapes": 1917,
+    "canonical_sha256": "0afdd7838747b9d224678a97987bf1a99f1579010e32415bbd0f0948155efd6d",
+    "original_bytes": 849784,
+    "indexed_bytes": 436394
+  }
 }

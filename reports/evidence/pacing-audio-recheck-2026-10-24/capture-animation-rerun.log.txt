@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/verify_capture_animation.py", line 63, in <module>
+    animate(r, success)
+  File "/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/verify_capture_animation.py", line 51, in animate
+    assert (state['music'] == 16) == (success and elapsed >= 7280)
+AssertionError

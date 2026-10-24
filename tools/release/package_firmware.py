@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Package the existing IDF build; never reads or writes a connected device."""
+import argparse
 import hashlib
 import json
 import shutil
@@ -9,7 +10,15 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-BUILD = ROOT / 'firmware/build'
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--build-dir', type=Path, default=ROOT / 'firmware/build',
+                    help='Existing verified IDF build (no compilation or device access).')
+BUILD = parser.parse_args().build_dir.resolve()
+# A capacity experiment is not a playable, migrated release candidate.
+cache = (BUILD / 'CMakeCache.txt').read_text()
+for line in cache.splitlines():
+    if line.startswith('POKEWALK_ASSET_PROBE_DIR:') and line.partition('=')[2]:
+        raise SystemExit('Refusing to package an asset-only capacity probe; rebuild with POKEWALK_ASSET_PROBE_DIR empty.')
 OUT = ROOT / 'release/community'
 OUT.mkdir(parents=True, exist_ok=True)
 IMAGES = [(0, 'bootloader/bootloader.bin', 'bootloader/bootloader.bin'),
@@ -32,6 +41,8 @@ report = {'artifact': merged.name, 'size': merged.stat().st_size,
           'protected_layout_pass': True,
           'checker_source': 'FoloToy/ai-passport@cd73a8a6f1f95e010bfd83a08e2b915e38408308 + PokeWalk data protection',
           'application_size': (BUILD / 'PokeWalk.bin').stat().st_size,
+          'application_sha256': hashlib.sha256((BUILD / 'PokeWalk.bin').read_bytes()).hexdigest(),
+          'source_commit': subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip(),
           'full_install_preserves_nvs': False,
           'full_install_warning': 'Full image padding overwrites NVS; back up before installation and import afterwards.',
           'community_upload_performed': False, 'ble_install_tested': False}

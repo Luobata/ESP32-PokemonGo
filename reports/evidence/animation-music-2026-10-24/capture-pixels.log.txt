@@ -1,0 +1,1 @@
+{"passed": true, "checks": 1110, "renderer": "94cbb9605f074d72c2e0", "scope": "capture throw/shrink/rock/reveal/outcome every 40ms and DMA immutability"}

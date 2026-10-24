@@ -1,0 +1,6 @@
+{
+  "checks": 38,
+  "resume_cycles": 20,
+  "init_failure_stages": 8,
+  "partial_failures_retry": true
+}

@@ -43,7 +43,7 @@
   if(!playing||document.hidden||!session){resetClock();return;}
   if(busy)return;
   const now=performance.now();clockRemainder+=now-clockAt;clockAt=now;
-  const steps=Math.floor(clockRemainder/45);if(!steps)return;clockRemainder-=steps*45;
+  const steps=Math.floor(clockRemainder/60);if(!steps)return;clockRemainder-=steps*60;
   busy=true;enqueue(async()=>{frame=(frame+steps)%frameCount;await render();}).finally(()=>busy=false);
  },45);
 })();

@@ -10,12 +10,17 @@ typedef enum {
     ITEM_FIRE_STONE, ITEM_WATER_STONE, ITEM_THUNDER_STONE, ITEM_LEAF_STONE, ITEM_MOON_STONE,
     ITEM_LINK_MACHINE, ITEM_GROWTH_MACHINE,
     ITEM_BERRY, ITEM_ENERGY_ROOT, ITEM_MILK, ITEM_JOY_COOKIE,
+    ITEM_SUN_STONE, ITEM_METAL_COAT, ITEM_KINGS_ROCK, ITEM_DRAGON_SCALE, ITEM_UPGRADE,
     ITEM_COUNT
 } item_id_t;
 #define ITEM_BALL_COUNT 8
 #define ITEM_NONE 255
 
 typedef enum { ITEM_KIND_BALL, ITEM_KIND_STONE, ITEM_KIND_MACHINE, ITEM_KIND_CARE } item_kind_t;
+#define ITEM_LEGACY_COUNT 19
+typedef struct { uint16_t quantity[ITEM_LEGACY_COUNT]; } inventory_v25_t;
+bool items_legacy_inventory_valid(const inventory_v25_t *);
+void items_legacy_inventory_init(inventory_v25_t *);
 typedef struct { uint16_t quantity[ITEM_COUNT]; } inventory_t;
 typedef struct {
     const char *name;       // NUL-terminated Chinese strings, static storage.

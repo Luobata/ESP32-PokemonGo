@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "checks": 2361,
+  "species": 251,
+  "pages": 17,
+  "baseline_sha256": "1907da687d885f0fc8ed59b4e197766dc09712e542997805d14c2577b88675ff",
+  "native_build": "095fe04ad3265bb457d6",
+  "host_command_seconds": [
+    2.636463511036709,
+    1.402293695951812
+  ],
+  "scope": "Pixel equality and repaint oracle, not device FPS"
+}

@@ -8,7 +8,7 @@ static unsigned band,pixels;
 static uint16_t raster[240*320];
 uint16_t *screen_band(void){return raster+band*240;}
 void screen_px(int x,int y,uint16_t color){
- assert(x>=0&&x<240&&y>=0&&y<80&&y+band<240);
+ assert(x>=0&&x<240&&y>=0&&y<SCREEN_BAND_H&&y+band<240);
  raster[(y+band)*240+x]=__builtin_bswap16(color);pixels++;
 }
 int main(void){
@@ -29,7 +29,7 @@ int main(void){
     unsigned count=battle_fx_frames(&r);assert(count>=2&&count<=255);
     for(unsigned f=0;f<count;f++){
      for(unsigned k=0;k<240*320;k++)raster[k]=0xffff;pixels=0;
-     for(band=0;band<320;band+=80)battle_fx_draw_scene_band(&r,f,band,(battle_fx_rect_t){8,140,96,96},(battle_fx_rect_t){124,24,112,112},&pet,&wild);
+     for(band=0;band<320;band+=SCREEN_BAND_H)battle_fx_draw_scene_band(&r,f,band,(battle_fx_rect_t){8,140,96,96},(battle_fx_rect_t){124,24,112,112},&pet,&wild);
      if(f>=count-2)assert(!pixels);
      assert(!memcmp(&r,&before,sizeof(r)));frames++;
     }
@@ -38,7 +38,7 @@ int main(void){
    }
   }
  }
- assert(moves==191);
+ assert(moves==194);
  printf("{\"moves\":%u,\"source_tracks_both_sides\":true,\"frames\":%u,\"clean_recovery\":true,\"message_window_protected\":true,\"immutable_outcomes\":true}\n",moves,frames);
 }
 '''

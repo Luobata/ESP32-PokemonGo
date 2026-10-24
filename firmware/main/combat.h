@@ -3,7 +3,8 @@
 #include <stdint.h>
 #include "assets.h"
 #include "move_policy.h"
-#define COMBAT_MOVE_CAP 191
+#include "party.h"
+#define COMBAT_MOVE_CAP 194
 #define COMBAT_MAX_MOVE_ID 250
 // Legacy prefix retained for save compatibility; no stored repertoire or PP economy.
 typedef struct {
@@ -50,3 +51,21 @@ const char *combat_feedback(const struct battle_round *round);
 int combat_priority(uint16_t move);
 
 void combat_finish_round(combat_mon_t *a,combat_mon_t *d,struct battle_round *out);
+
+// V29: pp bytes hold the explicit individual's traits, never consumed as PP.
+void combat_set_individual(combat_mon_t *,const mon_t *);
+void combat_record_sketch(mon_t *,const combat_mon_t *);
+int combat_individual_moves(const mon_t *,uint16_t *,int);
+int combat_individual_enabled(const mon_t *,const move_policy_t *);
+bool combat_individual_valid(const mon_t *);
+
+bool combat_individual_knows(const mon_t *,unsigned);
+
+// Explicit per-action context: ordinary/wild battles pass NULL. It owns no state.
+typedef struct {
+ void *opaque;
+ unsigned (*damage)(void *,const combat_mon_t *,const combat_mon_t *,const move_t *,unsigned);
+ unsigned (*utility)(void *,const combat_mon_t *,const combat_mon_t *,const move_t *,unsigned);
+} combat_context_t;
+uint16_t combat_choose_context(const combat_mon_t *,const combat_mon_t *,uint32_t *,const move_policy_t *,const combat_context_t *);
+void combat_turn_context(combat_mon_t *,combat_mon_t *,uint16_t,uint32_t *,unsigned,uint16_t,struct battle_round *,const move_policy_t *,const combat_context_t *);

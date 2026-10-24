@@ -1,0 +1,1 @@
+{"passed": true, "scope": "public-file allowlist, extracted offline server, MIME, GET/HEAD, no save exposure or upload API; Pages allowlist and repository subpath"}

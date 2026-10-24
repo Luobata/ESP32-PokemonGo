@@ -10,7 +10,7 @@
 
 typedef struct {
     uint8_t size, frame_count;
-    uint16_t duration_ticks;  // Original normal-speed 60 Hz script, including loop-end holds.
+    uint16_t duration_ticks;  // Original GBC frame ticks, including loop-end holds.
     uint8_t x, y, w, h;       // Union of nonwhite pixels in every played frame + base, in source pixels.
 } pokemon_anim_info_t;
 
@@ -23,7 +23,7 @@ typedef struct {
 bool pokemon_anim_info(uint16_t species, pokemon_anim_info_t *out);
 
 // Sample the original species-specific anim.asm. At/after the end, frame=0 and
-// finished=true. Source ticks are floor(elapsed_ms*60/1000); multiplication is
+// finished=true. Source ticks use 4,194,304 Hz / 70,224 clocks; multiplication is
 // widened so long pauses cannot wrap. Repeated redraws return the same frame.
 pokemon_anim_sample_t pokemon_anim_sample(uint16_t species, uint32_t elapsed_ms);
 
@@ -49,3 +49,8 @@ bool pokemon_idle_step(pokemon_idle_t *idle, uint32_t delta_ms);
 
 // Back pictures have no original frame scripts: use a small entrance sway.
 int pokemon_back_entrance_offset(uint32_t elapsed_ms);
+
+// Trainer fronts use Crystal Setup2 (per-command 5/4 duration), wild/menu use Setup.
+uint32_t pokemon_anim_duration_ms(uint16_t species, bool slow);
+pokemon_anim_sample_t pokemon_anim_sample_mode(uint16_t species, uint32_t elapsed_ms, bool slow);
+bool pokemon_idle_step_mode(pokemon_idle_t *idle, uint32_t delta_ms, bool slow);

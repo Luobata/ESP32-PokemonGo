@@ -490,3 +490,7 @@ void assets_selftest(void)
     ESP_LOGI(TAG, "凯西 Lv20 → %d 招 %.*s", n,
              n ? mv[0].name_zh_len : 0, n ? mv[0].name_zh : "");
 }
+
+#include "unown_assets.h"
+const uint8_t *assets_front_form(uint16_t id,unsigned form,uint8_t *size){if(id==201&&form<26){*size=56;return UNOWN_FRONT[form];}return assets_front_sprite(id,size);}
+bool assets_back_form(uint16_t id,unsigned form,sprite_asset_t *out){if(id==201&&form<26){*out=(sprite_asset_t){UNOWN_BACK[form],56,56};return true;}return assets_back_sprite_info(id,out);}

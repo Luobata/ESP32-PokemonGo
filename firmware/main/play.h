@@ -5,6 +5,9 @@
 // 下次同步上游会冲突。
 #pragma once
 
+typedef struct {unsigned view,id,path,selected,error,elapsed_ms,help;} play_fieldwork_view_t;
+void play_fieldwork_snapshot(play_fieldwork_view_t *out);
+
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -107,8 +110,11 @@ typedef struct {
     uint8_t wild_frame, shiny_side;
     uint16_t move_id;
     bool by_pet;
+    uint32_t elapsed_ms, duration_ms, hit_ms, hp_ms, feedback_ms;
+    uint8_t stage;
 } play_battle_view_t;
 void play_battle_presentation_snapshot(play_battle_view_t *out);
+void play_trainer_presentation_snapshot(play_battle_view_t *out);
 bool play_battle_can_leave(void);
 bool play_battle_screen_busy(void);
 
@@ -144,3 +150,32 @@ unsigned play_trainer_sendout_mask(void);
 unsigned play_trainer_shiny_side(void);
 
 void play_trainer_open_route(uint8_t route);
+
+void play_johto_enter(void);
+void play_johto_exit(void);
+void play_johto_key(bsp_btn_t,bsp_btn_ev_t);
+bool play_johto_screen_busy(void);
+
+void play_activity_enter(void);
+void play_activity_exit(void);
+void play_activity_key(bsp_btn_t,bsp_btn_ev_t);
+bool play_activity_screen_busy(void);
+bool activity_playing(void);
+void activity_set_playing(bool);
+
+bool play_story_screen_busy(void);
+void play_story_enter(void);
+void play_story_exit(void);
+void play_story_key(bsp_btn_t,bsp_btn_ev_t);
+
+void play_story_open_lake(void);
+void play_story_open_goal(unsigned action);
+void play_activity_open_goal(unsigned kind);
+void play_johto_open_goal(unsigned action,unsigned index);
+void play_narrative_enter(void);
+void play_narrative_exit(void);
+void play_narrative_key(bsp_btn_t,bsp_btn_ev_t);
+bool play_narrative_screen_busy(void);
+void play_narrative_legend(unsigned id);
+typedef struct {unsigned view,scene,page,selected,error,visible,elapsed_ms;bool replay;} play_narrative_view_t;
+void play_narrative_presentation_snapshot(play_narrative_view_t *);

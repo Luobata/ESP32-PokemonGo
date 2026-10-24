@@ -1,4 +1,5 @@
 #pragma once
+#define SAVE_BANK_CURRENT_VERSION 31
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -6,12 +7,22 @@
 // All offsets are relative to pokewalk_store. Existing partitions never move.
 #define SAVE_BANK_PARTITION_AT 0x380000u
 #define SAVE_BANK_PARTITION_SIZE 0x20000u
-#define SAVE_BANK_STRIDE 0x8000u
+#define SAVE_BANK_STRIDE 0x10000u
+#define SAVE_BANK_LEGACY_STRIDE 0x8000u
 #define SAVE_BANK_DATA_AT 0x1000u
-#define SAVE_BANK_IMAGE_SIZE 0x6000u
+#define SAVE_BANK_V23_IMAGE_SIZE 0x6000u
+#define SAVE_BANK_V27_IMAGE_SIZE 0x8000u
+#define SAVE_BANK_IMAGE_SIZE 0xc000u
 #define SAVE_BANK_PAYLOAD_MAX (SAVE_BANK_IMAGE_SIZE-SAVE_BANK_DATA_AT)
-#define SAVE_BANK_EXPORT_AT 0x10000u
-#define SAVE_BANK_EXPORT_SIZE 0xc000u
+// NVS snapshot occupies the two gaps between/after 48 KiB banks.
+#define SAVE_BANK_EXPORT_AT 0xc000u
+#define SAVE_BANK_EXPORT_SPLIT 0x4000u
+#define SAVE_BANK_EXPORT_TAIL 0x1c000u
+#define SAVE_BANK_EXPORT_SIZE 0x6000u
+_Static_assert(SAVE_BANK_IMAGE_SIZE==SAVE_BANK_EXPORT_AT,"Bank/export overlap");
+_Static_assert(SAVE_BANK_EXPORT_TAIL+SAVE_BANK_EXPORT_SIZE-SAVE_BANK_EXPORT_SPLIT<=SAVE_BANK_PARTITION_SIZE,"Snapshot exceeds partition");
+uint32_t save_bank_offset(unsigned bank);
+unsigned save_bank_next(int active);
 #define SAVE_BANK_REF_SIZE 32u
 typedef struct { uint8_t bytes[SAVE_BANK_REF_SIZE]; } save_bank_ref_t;
 typedef struct {

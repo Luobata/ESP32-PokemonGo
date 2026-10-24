@@ -1,0 +1,16 @@
+{
+  "verify_usb_backup.py": 0,
+  "verify_usb_import.py": 0,
+  "verify_usb_stream.py": 0,
+  "verify_save_storage.py": 0,
+  "verify_usb_import_device.py": 0,
+  "verify_save_import_web.mjs": 0,
+  "verify_save_manager_distribution.py": 0,
+  "verify_firmware_update.py": 0,
+  "verify_region_expansion.py": 0,
+  "verify_dungeon_stack.py": 0,
+  "verify_save_stack.py": 0,
+  "verify_items.py": 0,
+  "verify_achievements.py": 0,
+  "verify_johto_evolution_ui.py": 0
+}

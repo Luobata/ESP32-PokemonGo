@@ -1,0 +1,9 @@
+更新前的原始数据已备份并回读校验： /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmp9bp43ez9/backup/PokeWalk-before-update-001122334455-c72844f173b6461c91d9fd15fe676870
+更新前的原始数据已备份并回读校验： /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmpoerb4_tm/backup/PokeWalk-before-update-001122334455-5f6ca4b4ed3840ba9eede6cdbe637391
+更新前的原始数据已备份并回读校验： /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmpbwoho19u/backup/PokeWalk-before-update-001122334455-ae536b21bb6b47529d489ee0fdc29ac9
+app-only update, pre-write backup, protected data, unsafe inputs and interrupted update: passed
+更新前的原始数据已备份并回读校验： /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmpmlq2p2zx/backup/PokeWalk-before-update-001122334455-a2df5c9306cc49ff81d3140e5c75c2f4
+更新前的原始数据已备份并回读校验： /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmp6foccla2/backup/PokeWalk-before-update-001122334455-5abc424389204a6aacdc3c2e7e9980ac
+更新前的原始数据已备份并回读校验： /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmp5brqexxj/backup/PokeWalk-before-update-001122334455-66034f247c694f1ab7642439e2a703fa
+更新前的原始数据已备份并回读校验： /var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/tmpc2il4z5g/backup/PokeWalk-before-update-001122334455-834f3d8f1d664fedb4954347e44ea2bc
+additive V23 partition migration, exact old addresses/data, durable backup, v2 pending journal and no-reset failure paths: passed

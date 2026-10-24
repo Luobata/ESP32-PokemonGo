@@ -1,0 +1,1 @@
+{"commit": "656583c939d30f920a316177311a502dd222b57c", "source_verified": false, "source_hashes": {}, "capture_result_frames": 434, "capture_end_frames": 470, "source_result_ms": 7267, "source_end_ms": 7870, "result_ms": 9117, "end_ms": 9921, "absorption_ms": 492, "trainer_sendout_min_ms": 3180, "turn_pause_ms": 900, "display_quantum_ms": 40}

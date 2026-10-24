@@ -1,0 +1,161 @@
+{
+  "scope": "Read-back verification and full-page redraw recheck of the already-flashed final application; documentation-only follow-up. Not animation FPS.",
+  "application_sha256": "39ae9aabeee49b9dccea4e20387711eeb4b45895a1b225338cfffca6c7f90fe6",
+  "readback_address": "0x10000",
+  "readback_verified_bytes": 3136880,
+  "readback_digest_matched": true,
+  "previously_tested_source_hashes_unchanged": true,
+  "application_rewritten_in_this_followup": false,
+  "reboot_progress_check": {
+    "page": 0,
+    "brightness_percent": 100,
+    "leader_species": 115,
+    "level": 54,
+    "exp": 241927
+  },
+  "samples": [
+    {
+      "page": 0,
+      "label": "idle",
+      "samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 76068,
+          "draw_us": 26677,
+          "push_us": 49391
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 81370,
+          "draw_us": 29727,
+          "push_us": 51643
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 77027,
+          "draw_us": 29492,
+          "push_us": 47535
+        }
+      ]
+    },
+    {
+      "page": 6,
+      "label": "care",
+      "samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 105137,
+          "draw_us": 57564,
+          "push_us": 47573
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 106932,
+          "draw_us": 54245,
+          "push_us": 52687
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 105225,
+          "draw_us": 52202,
+          "push_us": 53023
+        }
+      ]
+    },
+    {
+      "page": 9,
+      "label": "menu",
+      "samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 108147,
+          "draw_us": 56135,
+          "push_us": 52012
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 108862,
+          "draw_us": 58857,
+          "push_us": 50005
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 107794,
+          "draw_us": 55346,
+          "push_us": 52448
+        }
+      ]
+    },
+    {
+      "page": 10,
+      "label": "party",
+      "samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 111495,
+          "draw_us": 64472,
+          "push_us": 47023
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 114251,
+          "draw_us": 69973,
+          "push_us": 44278
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 110390,
+          "draw_us": 65320,
+          "push_us": 45070
+        }
+      ]
+    },
+    {
+      "page": 15,
+      "label": "johto",
+      "samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 67276,
+          "draw_us": 20836,
+          "push_us": 46440
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 64996,
+          "draw_us": 16921,
+          "push_us": 48075
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 64709,
+          "draw_us": 17535,
+          "push_us": 47174
+        }
+      ]
+    }
+  ],
+  "medians_ms": {
+    "idle": 77.027,
+    "care": 105.225,
+    "menu": 108.147,
+    "party": 111.495,
+    "johto": 64.996
+  },
+  "animation_fps_measured": false
+}

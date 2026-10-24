@@ -1,0 +1,20 @@
+{
+  "app_bytes": 3191536,
+  "app_capacity": 3407872,
+  "app_free_bytes": 216336,
+  "app_sha256": "9084b2ce7d55b90346f9f012953c1680ed61893afcb292fb70ab3788cfd73f91",
+  "world_bytes": 39944,
+  "app_partition_offset": 65536,
+  "save_version": 31,
+  "usb_container_version": 4,
+  "backup_payload_bytes": 73728,
+  "rtc_codec_bytes": 7792,
+  "page_static_data_bytes": {
+    "play_narrative": 1014,
+    "play_johto": 1871,
+    "play_story": 323
+  },
+  "scene_count": 25,
+  "dialogue_pages": 56,
+  "flashed_this_turn": false
+}

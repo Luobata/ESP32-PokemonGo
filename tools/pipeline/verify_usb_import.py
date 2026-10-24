@@ -34,7 +34,7 @@ static void init(void){transcript[0]=0;snapshots=staged=restarts=0;valid_payload
 static void offer_for(unsigned version,const char *firmware){char s[300];snprintf(s,sizeof(s),"!PWBACKUP OFFER %s 001122334455 %s %u 24576 %08x\n",session,firmware,version,restore_crc32(incoming,sizeof(incoming)));feed(s);}
 static void offer(void){offer_for(test_schema,"1111111111111111111111111111111111111111111111111111111111111111");}
 static void upload(bool corrupt){char s[400];for(unsigned at=0;at<sizeof(incoming);at+=128){int n=snprintf(s,sizeof(s),"!PWBACKUP RDATA %s 1 %u ",session,at);for(unsigned i=0;i<128;i++)n+=snprintf(s+n,sizeof(s)-n,"%02x",incoming[at+i]^(corrupt&&at==0&&i==0));strcpy(s+n,"\n");feed(s);}snprintf(s,sizeof(s),"!PWBACKUP RFIN %s 1\n",session);feed(s);}
-static void accept(void){usb_backup_import_mode(true);offer();assert(usb_backup_state()==USB_RESTORE_OFFER);assert(snapshots==0);usb_backup_restore_confirm(true);assert(snapshots==1);for(unsigned i=0;i<192;i++)usb_backup_tick(i);assert(usb_backup_state()==USB_BACKUP_WAIT_ACK);}
+static void accept(void){usb_backup_import_mode(true);offer();assert(usb_backup_state()==USB_RESTORE_OFFER);assert(snapshots==0);usb_backup_restore_confirm(true);assert(snapshots==1);for(unsigned i=0;i<192;i++)usb_backup_tick(i*20);assert(usb_backup_state()==USB_BACKUP_WAIT_ACK);}
 int main(void){
  for(unsigned i=0;i<sizeof(nvs);i++){original[i]=i;incoming[i]=i*7+3;}memset(build,17,32);uint32_t crc;
  reset();assert(restore_journal_prepare(&io,incoming,build));int prep_calls=calls;assert(!memcmp(nvs,original,sizeof(nvs)));
@@ -83,7 +83,7 @@ int main(void){
  for(unsigned version=5;version<=SAVE_VERSION;version++){
   init();usb_backup_import_mode(true);offer_for(version,"2222222222222222222222222222222222222222222222222222222222222222");
   assert(usb_backup_state()==USB_RESTORE_OFFER);usb_backup_restore_confirm(true);
-  for(unsigned i=0;i<192;i++)usb_backup_tick(i);
+  for(unsigned i=0;i<192;i++)usb_backup_tick(i*20);
   feed("!PWBACKUP ACK 0123456789abcdef0123456789abcdef 1\n");upload(false);
   assert(staged==1&&usb_backup_state()==USB_RESTORE_STAGED);
  }
@@ -101,7 +101,7 @@ int main(void){
  init();offer();assert(strstr(transcript,"OPEN_IMPORT"));assert(!snapshots);usb_backup_import_mode(true);offer();usb_backup_restore_confirm(false);assert(usb_backup_state()==USB_BACKUP_IDLE);assert(!snapshots&&!staged);assert(strstr(transcript,"CANCELLED"));
  init();accept();upload(false);assert(!staged); // no disk ACK, no incoming accepted
  feed("!PWBACKUP ACK ffffffffffffffffffffffffffffffff 1\n");assert(usb_backup_state()==USB_BACKUP_WAIT_ACK);
- feed("!PWBACKUP ACK 0123456789abcdef0123456789abcdef 1\n");assert(usb_backup_state()==USB_RESTORE_RECEIVING);upload(false);assert(staged==1&&usb_backup_state()==USB_RESTORE_STAGED);cmd("BYE");usb_backup_tick(1300);assert(restarts==1);puts(transcript);
+ feed("!PWBACKUP ACK 0123456789abcdef0123456789abcdef 1\n");assert(usb_backup_state()==USB_RESTORE_RECEIVING);upload(false);assert(staged==1&&usb_backup_state()==USB_RESTORE_STAGED);cmd("BYE");usb_backup_tick(5000);assert(restarts==1);puts(transcript);
  init();accept();feed("!PWBACKUP ACK 0123456789abcdef0123456789abcdef 1\n");upload(true);assert(!staged&&usb_backup_state()==USB_BACKUP_FAILED);
  init();accept();feed("!PWBACKUP ACK 0123456789abcdef0123456789abcdef 1\n");feed("!PWBACKUP RFIN 0123456789abcdef0123456789abcdef 1\n");assert(!staged&&usb_backup_state()==USB_BACKUP_FAILED);
  init();accept();usb_backup_tick(16000);assert(!staged&&usb_backup_state()==USB_BACKUP_FAILED);
@@ -126,7 +126,7 @@ assert.equal(r.accept('!PWBACKUP RESTORED 0123456789abcdef0123456789abcdef 1 123
 '''
 with tempfile.TemporaryDirectory() as d:
  t=Path(d);(t/'test.c').write_text(C);(t/'test.mjs').write_text(JS)
- subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-I',str(ROOT/'firmware/main'),str(t/'test.c'),str(ROOT/'firmware/main/usb_backup.c'),str(ROOT/'firmware/main/restore_journal.c'),'-o',str(t/'test')],check=True)
+ subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all','-I',str(ROOT/'firmware/main'),str(t/'test.c'),str(ROOT/'firmware/main/usb_backup.c'),str(ROOT/'firmware/main/restore_journal.c'),'-o',str(t/'test')],check=True)
  p=subprocess.run([str(t/'test')],text=True,capture_output=True,check=True);(t/'wire').write_text(p.stdout);print(p.stderr.strip())
  subprocess.run(['node',str(t/'test.mjs'),(ROOT/'tools/save-manager/web/backup.mjs').as_uri(),str(t/'wire')],check=True)
 print(json.dumps({'passed':True,'journal':'power interruption at every I/O boundary, corrupted image, write failure rollback, incompatible build','protocol':'physical consent, cancel, prebackup ACK, CRC, truncation, timeout, staged reboot','browser':'production decoder with real C transcript and corrupt files'}))

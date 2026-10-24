@@ -1,0 +1,2 @@
+PASS: 75% motion, fixed holds, exact inverse, 240 cadences, no drift
+{"motion_speed_percent": 75, "source_sample_ms": 45, "playback_sample_ms": 60, "capture_result_ms": 9117, "capture_end_ms": 9921, "negative_controls": 1}

@@ -24,3 +24,11 @@ void sfx_cry(uint16_t species);
 
 // Wake the sound worker after publishing a mute, volume, or screen state change.
 void sfx_notify_state(void);
+
+// Bounded, read-only timing diagnostics; never print from the PCM producer.
+typedef struct {
+    uint32_t chunks, render_us, render_max_us, gap_max_us, late_chunks;
+    uint32_t switches, switch_render_max_us, opens, errors;
+} sfx_profile_t;
+void sfx_profile_reset(void);
+sfx_profile_t sfx_profile_read(void);

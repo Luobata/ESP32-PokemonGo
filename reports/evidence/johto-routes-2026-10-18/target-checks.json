@@ -1,0 +1,17 @@
+[
+  {
+    "name": "verify_save_stack.py",
+    "exit_code": 0,
+    "output": "{\"target\": \"esp32c3\", \"stack_frames\": {\"save_storage_decode\": 48, \"save_decode_legacy\": 480, \"save_write\": 112, \"save_validate_world\": 16, \"save_decode\": 64, \"save_read_status\": 32}, \"codec_rtc_bytes\": 7792, \"main_dram_codec_bytes\": 0, \"rtc_used_bytes\": 7864, \"rtc_free_bytes\": 328, \"new_dynamic_allocations\": 0, \"runtime_heap_measured\": false, \"passed\": true}\n{\"expanded_storage_max_frame\": {\"save_bank\": 336, \"save_bank_device\": 16, \"usb_backup_device\": 320, \"restore_journal\": 400, \"world\": 432, \"play_capture\": 160, \"play_party\": 480, \"usb_backup\": 688, \"play_johto\": 160, \"johto\": 32, \"johto_routes\": 144, \"johto_activity\": 112, \"activity_transactions\": 176, \"play_activity\": 288, \"johto_story\": 64, \"story_transactions\": 48, \"play_story\": 272, \"gym_rules\": 112, \"trainer\": 432, \"combat\": 480, \"play_trainer\": 432}, \"new_storage_heap_allocations\": 0, \"runtime_stack_measured\": false, \"passed\": true}\n{\"wifi_hotpaths_in_flash\": true, \"iram_bytes\": 78848, \"iram_budget_bytes\": 81920, \"runtime_heap_measured\": false, \"passed\": true}\n"
+  },
+  {
+    "name": "verify_dungeon_stack.py",
+    "exit_code": 0,
+    "output": "{\"target\": \"esp32c3\", \"stack_frames\": {\"begin_battle\": 224, \"dungeon_load\": 32, \"dungeon_step\": 80, \"dungeon_switch\": 16, \"dungeon_retire\": 16, \"dungeon_resume\": 48, \"dungeon_abandon\": 16, \"dungeon_choose\": 16, \"dungeon_finish\": 16, \"dungeon_theme_open\": 320, \"dungeon_new_theme\": 240, \"dungeon_new\": 16}, \"passed\": true}\n"
+  },
+  {
+    "name": "verify_johto_routes_ui.py",
+    "exit_code": 0,
+    "output": "{'passed': True, 'native_build': 'c592e240060b57d01a6d', 'checks': 264, 'scope': 'actual C pages + host adapter; save transactions tested separately; no hardware timing claim'}\n"
+  }
+]

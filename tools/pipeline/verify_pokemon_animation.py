@@ -16,6 +16,7 @@ import subprocess
 import tempfile
 
 from pokemon_animation_oracle import COMMIT, OriginalMotion, load_original, rgb565
+from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
 MAIN = ROOT / 'firmware/main'
@@ -58,14 +59,14 @@ static void sample(unsigned sid, uint32_t ms) {
 }
 int main(void) {
     if (!assets_init() || !render_init()) return 2;
-    for (unsigned sid = 1; sid <= 151; sid++) {
+    for (unsigned sid = 1; sid <= assets_species_count(); sid++) {
         pokemon_anim_info_t info;
         species_t species;
         if (!pokemon_anim_info(sid, &info) || !assets_species(sid, &species)) return 4;
         printf("INFO %u %u %u %u %u %u %u %u\n", sid, info.size, info.frame_count,
                info.duration_ticks, info.x, info.y, info.w, info.h);
         for (unsigned tick = 0; tick <= info.duration_ticks + 2u; tick++) {
-            uint32_t ms = (tick * 1000u + 59u) / 60u;
+            uint32_t ms = ((uint64_t)tick * 70224u * 1000u + 4194303u) / 4194304u;
             sample(sid, ms);
             if (ms) sample(sid, ms-1u);
         }
@@ -113,25 +114,28 @@ int main(void) {
 '''
 
 
-def build_driver(directory: Path, source: Path) -> Path:
+def build_driver(directory: Path, source: Path, assets: Path | None = None) -> Path:
     (directory / 'driver.c').write_text(DRIVER)
     assembly = []
     for name in ASSETS:
         symbol = '_binary_' + name.replace('.', '_')
-        path = str(ROOT / 'assets' / name).replace('\\', '\\\\').replace('"', '\\"')
+        asset = assets/name if assets and (assets/name).exists() else ROOT/'assets'/name
+        path = str(asset).replace('\\', '\\\\').replace('"', '\\"')
         assembly += ['.balign 4', f'.global {symbol}_start', f'.global {symbol}_end',
                      f'{symbol}_start:', f'.incbin "{path}"', f'{symbol}_end:']
     (directory / 'assets.S').write_text('\n'.join(assembly) + '\n')
     executable = directory / 'driver'
-    subprocess.run(['cc', '-O1', '-std=gnu11', '-DHOST_BUILD=1', '-Wall', '-Wextra', '-Werror',
+    defines = ([f'-DPOKEWALK_ANIMATION_HEADER="{assets / "pokemon_animation_assets.h"}"']
+               if assets else [])
+    subprocess.run(['cc', '-O1', '-std=gnu11', '-DHOST_BUILD=1', *defines, '-Wall', '-Wextra', '-Werror',
                     '-Wno-unused-parameter', '-Wno-unused-function', '-Wno-unused-variable',
                     '-Wno-unused-but-set-variable', '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
                     '-I', str(MAIN), '-I', str(ROOT / 'tools/inspector/host/include'),
                     '-I', str(ROOT / 'firmware/components/bsp/include'),
-                    str(directory / 'driver.c'), str(source), str(MAIN / 'assets.c'),
-                    str(MAIN / 'pokemon_names.c'), str(MAIN / 'render.c'), str(MAIN / 'screen.c'),
+                    str(directory / 'driver.c'), str(source),
+                    *[str(MAIN/name) for name in ('assets.c','pokemon_names.c','combat.c','battle.c','exp.c','nurture.c','evolution.c','items.c')], str(MAIN / 'render.c'), str(MAIN / 'screen.c'),
                     str(directory / 'assets.S'), '-lz', '-o', str(executable)],
-                   check=True, capture_output=True, text=True)
+                   check=True, text=True)
     return executable
 
 
@@ -148,13 +152,14 @@ def pixels(motion: OriginalMotion, frame: int, shiny: bool) -> tuple[tuple[int, 
     return palette, bytes(result)
 
 
-def check(executable: Path, directory: Path, motions: dict[int, OriginalMotion]) -> Counter:
+def check(executable: Path, directory: Path, motions: dict[int, OriginalMotion], preview: Path | None = None) -> Counter:
     output = directory / 'renders.bin'
     with output.open('wb') as stream:
         subprocess.run([str(executable)], stdout=stream, check=True, timeout=60)
     stats = Counter()
     with output.open('rb') as stream:
         for sid, motion in motions.items():
+            sheet = Image.new('RGB',(ROI*2,ROI*len(motion.frames)), 'white') if preview else None
             fields = stream.readline().decode().split()
             expected = (sid, motion.size, len(motion.frames), len(motion.ticks),
                         motion.bbox[0], motion.bbox[1], motion.bbox[2]-motion.bbox[0], motion.bbox[3]-motion.bbox[1])
@@ -162,14 +167,14 @@ def check(executable: Path, directory: Path, motions: dict[int, OriginalMotion])
             stats['species'] += 1
             milliseconds = []
             for tick in range(len(motion.ticks)+3):
-                ms = (tick*1000+59)//60
+                ms = (tick*70224*1000+4194303)//4194304
                 milliseconds.append(ms)
                 if ms:
                     milliseconds.append(ms-1)
             milliseconds += [0xFFFFFFFF, 0]
             for ms in milliseconds:
                 fields = stream.readline().decode().split()
-                tick = ms*60//1000
+                tick = ms*4194304//(70224*1000)
                 finished = tick >= len(motion.ticks)
                 expected = (sid, ms, 0 if finished else motion.ticks[tick], int(finished))
                 assert fields[0] == 'TIME' and tuple(map(int, fields[1:])) == expected, f'#{sid}: original timing differs at {ms} ms'
@@ -187,6 +192,15 @@ def check(executable: Path, directory: Path, motions: dict[int, OriginalMotion])
                     assert actual == expected_pixels, f'#{sid} frame {frame} shiny={shiny}: actual C LCD pixels differ'
                     stats['c_renders'] += 1
                     stats['rgb565_pixels'] += ROI*ROI
+                    if sheet is not None:
+                        rgb=bytearray()
+                        for (v,) in struct.iter_unpack('>H',actual):
+                            r,g,b=v>>11,(v>>5)&63,v&31
+                            rgb.extend(((r<<3)|(r>>2),(g<<2)|(g>>4),(b<<3)|(b>>2)))
+                        sheet.paste(Image.frombytes('RGB',(ROI,ROI),bytes(rgb)),(ROI*int(shiny),ROI*frame))
+            if sheet is not None:
+                preview.mkdir(parents=True,exist_ok=True)
+                sheet.save(preview/f'{sid}.png')
         assert not stream.read(1), 'unexpected extra C output'
     return stats
 
@@ -196,13 +210,16 @@ def main() -> int:
     parser.add_argument('--src', type=Path, default=Path('/tmp/pokecrystal'))
     parser.add_argument('--report', type=Path, default=ROOT / 'reports/pokemon-animation-verification-2026-09-08.json')
     parser.add_argument('--negative', action='store_true')
+    parser.add_argument('--assets', type=Path, help='Isolated 151/251 asset set; leaves production assets intact')
+    parser.add_argument('--preview-dir',type=Path,help='Export only pixel-verified C render atlases for local review')
     args = parser.parse_args()
-    motions, hashes = load_original(args.src)
+    count = struct.unpack_from('<I', ((args.assets or ROOT/'assets')/'gen1.bin').read_bytes(),8)[0]
+    motions, hashes = load_original(args.src, count)
     negatives = []
     with tempfile.TemporaryDirectory(prefix='verify-pokemon-animation-') as name:
         directory = Path(name)
         source = MAIN / 'pokemon_animation.c'
-        stats = check(build_driver(directory, source), directory, motions)
+        stats = check(build_driver(directory, source, args.assets), directory, motions, args.preview_dir)
         print(f'PASS original front animations: {dict(stats)}')
         if args.negative:
             original = source.read_text()
@@ -216,7 +233,7 @@ def main() -> int:
                 assert original.count(old) == 1, f'negative anchor changed: {label}'
                 mutant = directory / 'pokemon_animation.c'
                 mutant.write_text(original.replace(old, new))
-                executable = build_driver(directory, mutant)
+                executable = build_driver(directory, mutant, args.assets)
                 try:
                     check(executable, directory, motions)
                 except AssertionError:
@@ -228,9 +245,11 @@ def main() -> int:
               'source_frames_range': [min(len(m.frames) for m in motions.values()), max(len(m.frames) for m in motions.values())],
               'duration_ticks_range': [min(len(m.ticks) for m in motions.values()), max(len(m.ticks) for m in motions.values())],
               'negatives_rejected': negatives, 'sanitizers': 'address,undefined',
-              'scope': '151 original front scripts, all 789 PNG frames, original normal/shiny palettes and 2x C LCD rendering; back static'}
+              'scope': f'{count} original front scripts, all source PNG frames, original normal/shiny palettes and 2x C LCD rendering; back static'}
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
+    if args.preview_dir:
+        (args.preview_dir/'timing.json').write_text(json.dumps({sid:{'ticks':m.ticks,'frames':len(m.frames),'size':m.size} for sid,m in motions.items()})+'\n')
     return 0
 
 

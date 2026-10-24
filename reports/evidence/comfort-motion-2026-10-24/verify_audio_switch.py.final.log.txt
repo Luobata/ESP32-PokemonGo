@@ -1,0 +1,2 @@
+PASS: capture has no reopen; mute/sleep immediate; full 9.9s capture stays open; idle silence expires after 8s; 1344 chunks
+PASS: negative control rejects the old 2 s capture keepalive

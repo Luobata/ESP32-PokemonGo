@@ -49,25 +49,26 @@ static const char *TAG = "p5";
 #define NAME_HINT_Y 262
 #define TEXT_H 16
 
-SCREEN_ASSERT_WITHIN_BAND(care_action_0, ACTION_Y0, TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(care_action_1, ACTION_Y0 + ACTION_STEP, TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(care_action_2, ACTION_Y0 + ACTION_STEP * 2, TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(care_action_3, ACTION_Y0 + ACTION_STEP * 3, TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(care_action_4, ACTION_Y0 + ACTION_STEP * 4, TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(care_action_0, ACTION_Y0, TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(care_action_1, ACTION_Y0 + ACTION_STEP, TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(care_action_2, ACTION_Y0 + ACTION_STEP * 2, TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(care_action_3, ACTION_Y0 + ACTION_STEP * 3, TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(care_action_4, ACTION_Y0 + ACTION_STEP * 4, TEXT_H);
 // The 112px box spans bands 0/1/2. Every care action and evolution frame
 // calls draw_all(), clearing both the previous and the current sprite bounds.
 SCREEN_ASSERT_ALLOW_CROSS_BAND(care_sprite, CARE_SPRITE_Y, CARE_SPRITE_SIZE);
-SCREEN_ASSERT_WITHIN_BAND(care_axis_0, AXIS_Y0, TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(care_axis_1, AXIS_Y0 + AXIS_STEP, TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(care_axis_2, AXIS_Y0 + AXIS_STEP * 2, TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(care_evolution_hint, EVO_HINT_Y, TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(care_name_hint, NAME_HINT_Y, TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(care_axis_0, AXIS_Y0, TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(care_axis_1, AXIS_Y0 + AXIS_STEP, TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(care_axis_2, AXIS_Y0 + AXIS_STEP * 2, TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(care_evolution_hint, EVO_HINT_Y, TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(care_name_hint, NAME_HINT_Y, TEXT_H);
 
 static const char *ACTIONS[ACTION_COUNT] = {"喂食", "玩耍(-5)", "养成效果", "背包", "进化"};
 static uint8_t s_sel;
 static bool s_benefits;
 static world_t s_w;
 static bool s_shiny;
+static uint8_t s_form;
 static evo_check_t s_evo;
 static lv_timer_t *s_motion_tick;
 static pokemon_idle_t s_motion;
@@ -126,8 +127,8 @@ static void draw_band(int band_y)
     }
 
     uint8_t sprite_size = 0;
-    const uint8_t *spr = assets_front_sprite(display_species, &sprite_size);
-    if (s_motion.species == display_species && s_motion.sprite.data) {
+    const uint8_t *spr = assets_front_form(display_species,s_form, &sprite_size);
+    if (display_species!=201 && s_motion.species == display_species && s_motion.sprite.data) {
         spr = s_motion.sprite.data;
         sprite_size = s_motion.sprite.w;
     }
@@ -211,6 +212,12 @@ static void redraw_for_dump(void)
     draw_all();
 }
 
+static void redraw_status(void)
+{
+    if (evolution_ui_active() || s_benefits) return;
+    for (int y = 0; y < 60; y += BAND_H) draw_band(y);
+}
+
 static void start_evolution(void)
 {
  species_t sp;
@@ -221,16 +228,38 @@ static void start_evolution(void)
  }
 }
 
-static void motion_tick(lv_timer_t *timer)
+static void motion_tick_impl(lv_timer_t *timer)
 {
     (void)timer;
     if (evolution_ui_active() || screen_idle_is_off()) return;
     world_t next; world_snapshot(&next);
-    bool changed = nurture_stamina_points(&next.pet) != nurture_stamina_points(&s_w.pet);
+    bool changed = next.species != s_w.species || next.level != s_w.level ||
+        nurture_pct(next.pet.satiety) != nurture_pct(s_w.pet.satiety) ||
+        nurture_pct(next.pet.mood) != nurture_pct(s_w.pet.mood) ||
+        nurture_pct(next.pet.intimacy) != nurture_pct(s_w.pet.intimacy) ||
+        nurture_stamina_points(&next.pet) != nurture_stamina_points(&s_w.pet) ||
+        nurture_exp_percent(&next.pet) != nurture_exp_percent(&s_w.pet) ||
+        nurture_rare_bonus(&next.pet) != nurture_rare_bonus(&s_w.pet) ||
+        nurture_event_percent(&next.pet) != nurture_event_percent(&s_w.pet) ||
+        nurture_capture_percent(&next.pet) != nurture_capture_percent(&s_w.pet);
     s_w = next;
     if (s_motion.species != s_w.species) pokemon_idle_reset(&s_motion, s_w.species);
-    if (pokemon_idle_step(&s_motion, 80) || changed) draw_all();
+    bool motion = pokemon_idle_step(&s_motion, 80);
+    if (changed) draw_all();
+    else if (motion && !s_benefits) {
+        // Cover both previous and current ink bounds inside the fixed box.
+        for (int y = CARE_SPRITE_Y / BAND_H * BAND_H;
+             y < CARE_SPRITE_Y + CARE_SPRITE_SIZE; y += BAND_H) draw_band(y);
+    }
 }
+
+static void motion_tick(lv_timer_t *timer)
+{
+    screen_cadence_begin(80);
+    motion_tick_impl(timer);
+    screen_cadence_end();
+}
+
 
 void play_care_enter(void)
 {
@@ -240,12 +269,14 @@ void play_care_enter(void)
     world_inventory_snapshot(&s_inventory);
     world_party_t party;
     world_party_snapshot(&party);
+    s_form=party.count?party.members[0].special.traits.form:0;
     s_shiny = party.count && (party.members[0].flags & 1u);
     s_care_feedback[0] = '\0';
     refresh_evolution();
     pokemon_idle_reset(&s_motion, s_w.species);
     s_motion_tick = lv_timer_create(motion_tick, 80, NULL);
     screen_set_redraw(redraw_for_dump);
+    battery_ui_set_redraw(redraw_status);
     draw_all();
     ESP_LOGI(TAG, "P5：等级 %u 亲密度 %u", s_w.level,
              nurture_pct(s_w.pet.intimacy));

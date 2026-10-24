@@ -1,4 +1,5 @@
 #include "usb_backup.h"
+#include "console_record.h"
 #include "restore_journal.h"
 #include "world.h"
 #include "save.h"
@@ -22,8 +23,9 @@ static const esp_partition_t *nvs_partition,*staging;
 static int boot_result;
 static uint32_t boot_crc;
 static esp_partition_t scratch;
-static bool scratch_mounted,upload_reserved;
+static bool scratch_mounted,upload_reserved,export_reserved;
 static unsigned upload_version,upload_size;
+static uint32_t snapshot_size,snapshot_bank;
 static uint32_t upload_bank;
 static bool locate(void) {
  nvs_partition=esp_partition_find_first(ESP_PARTITION_TYPE_DATA,ESP_PARTITION_SUBTYPE_DATA_NVS,"nvs");
@@ -64,38 +66,53 @@ static bool current_ref(save_bank_ref_t *ref) {
  nvs_close(h);
  return e==ESP_OK&&n==sizeof(*ref)&&save_bank_ref_valid(ref);
 }
-static bool copy_snapshot(void *result) {
- const save_bank_io_t *store=save_bank_platform();save_bank_ref_t ref;
- if(!locate()||!store||!current_ref(&ref))return false;
- int bank=save_bank_find(store,&ref);if(bank<0)return false;
- if(!store->erase(SAVE_BANK_EXPORT_AT,SAVE_BANK_EXPORT_SIZE))return false;
- uint8_t buf[256];uint32_t expected=~0u,actual=~0u;
- for(uint32_t at=0;at<USB_BACKUP_EXTENDED_BYTES;at+=sizeof(buf)){
-  bool read=at<USB_BACKUP_BYTES?read_part(false,at,buf,sizeof(buf)):
-    store->read(bank*SAVE_BANK_STRIDE+at-USB_BACKUP_BYTES,buf,sizeof(buf));
-  if(!read||!store->write(SAVE_BANK_EXPORT_AT+at,buf,sizeof(buf)))return false;
-  expected=crc_update(expected,buf,sizeof(buf));
- }
- for(uint32_t at=0;at<USB_BACKUP_EXTENDED_BYTES;at+=sizeof(buf)){
-  if(!store->read(SAVE_BANK_EXPORT_AT+at,buf,sizeof(buf)))return false;
-  actual=crc_update(actual,buf,sizeof(buf));
- }
- if(actual!=expected)return false;
- *(uint32_t*)result=~actual;return true;
-}
-static bool export_begin(uint32_t *bytes,uint32_t *crc) {
- if(!world_backup_snapshot(copy_snapshot,crc))return false;
- *bytes=USB_BACKUP_EXTENDED_BYTES;return true;
+static uint32_t snapshot_at(uint32_t at){
+ return at<SAVE_BANK_EXPORT_SPLIT?SAVE_BANK_EXPORT_AT+at:SAVE_BANK_EXPORT_TAIL+at-SAVE_BANK_EXPORT_SPLIT;
 }
 static bool export_read(uint32_t at,void *out,size_t n) {
  const save_bank_io_t *store=save_bank_platform();
- return store&&at<=USB_BACKUP_EXTENDED_BYTES&&n<=USB_BACKUP_EXTENDED_BYTES-at&&store->read(SAVE_BANK_EXPORT_AT+at,out,n);
+ if(!store||!export_reserved||!snapshot_size||at>snapshot_size||n>snapshot_size-at)return false;
+ // Callers use 128/256-byte chunks, but keep the public reader boundary safe.
+ uint8_t *p=out;
+ while(n){
+  uint32_t boundary=at<SAVE_BANK_EXPORT_SPLIT?SAVE_BANK_EXPORT_SPLIT:at<USB_BACKUP_BYTES?USB_BACKUP_BYTES:snapshot_size;
+  size_t chunk=n<boundary-at?n:boundary-at;
+  uint32_t source=at<USB_BACKUP_BYTES?snapshot_at(at):snapshot_bank+at-USB_BACKUP_BYTES;
+  if(!store->read(source,p,chunk))return false;
+  at+=chunk;p+=chunk;n-=chunk;
+ }
+ return true;
+}
+static bool copy_snapshot(void *result) {
+ const save_bank_io_t *store=save_bank_platform();save_bank_ref_t ref;
+ if(!locate()||!store||!current_ref(&ref)||ref.bytes[0]<28)return false;
+ int bank=save_bank_find(store,&ref);if(bank<0||bank>1)return false;
+ snapshot_size=USB_BACKUP_WAREHOUSE_BYTES;snapshot_bank=save_bank_offset(bank);
+ // The referenced bank is already immutable. Reserve it through matching ACK
+ // instead of copying a second 48 KiB image or allocating a large RAM buffer.
+ save_bank_reserve(true);export_reserved=true;
+ if(!store->erase(SAVE_BANK_EXPORT_AT,SAVE_BANK_EXPORT_SPLIT)||
+    !store->erase(SAVE_BANK_EXPORT_TAIL,SAVE_BANK_EXPORT_SIZE-SAVE_BANK_EXPORT_SPLIT))return false;
+ uint8_t buf[128],check[128];uint32_t crc=~0u;
+ for(uint32_t at=0;at<USB_BACKUP_BYTES;at+=sizeof(buf)){
+  if(!read_part(false,at,buf,sizeof(buf))||!store->write(snapshot_at(at),buf,sizeof(buf))||
+     !store->read(snapshot_at(at),check,sizeof(check))||memcmp(buf,check,sizeof(buf)))return false;
+ }
+ for(uint32_t at=0;at<snapshot_size;at+=sizeof(buf)){
+  if(!export_read(at,buf,sizeof(buf)))return false;
+  crc=crc_update(crc,buf,sizeof(buf));
+ }
+ *(uint32_t*)result=~crc;return true;
+}
+static bool export_begin(uint32_t *bytes,uint32_t *crc) {
+ if(!world_backup_snapshot(copy_snapshot,crc))return false;
+ *bytes=snapshot_size;return true;
 }
 static bool release_upload(void *unused) {
- (void)unused;save_bank_reserve(false);upload_reserved=false;return true;
+ (void)unused;save_bank_reserve(false);upload_reserved=false;export_reserved=false;snapshot_size=0;return true;
 }
 static void cancel(void) {
- if(upload_reserved)world_backup_exclusive(release_upload,NULL);
+ if(upload_reserved||export_reserved)world_backup_exclusive(release_upload,NULL);
  if(scratch_mounted&&nvs_flash_deinit_partition(scratch.label)==ESP_OK)scratch_mounted=false;
 }
 static bool prepare_upload(void *unused) {
@@ -103,19 +120,19 @@ static bool prepare_upload(void *unused) {
  if(!store)return rejected(USB_RESTORE_DETAIL_LAYOUT,"store",ESP_FAIL);
  if(!current_ref(&ref))return rejected(USB_RESTORE_DETAIL_READ,"current reference",ESP_FAIL);
  int active=save_bank_find(store,&ref);if(active<0)return rejected(USB_RESTORE_DETAIL_CONTENT,"current bank",ESP_FAIL);
- upload_bank=(1u-(unsigned)active)*SAVE_BANK_STRIDE;
+ upload_bank=save_bank_offset(save_bank_next(active));
  // Reserve before erasing the unreferenced bank. Background saves must not
  // reuse it until cancel/reboot; live progress and the committed bank stay intact.
  save_bank_reserve(true);upload_reserved=true;
  if(!erase_part(true,0,RESTORE_STAGE_SIZE)||
-    (upload_size==USB_BACKUP_EXTENDED_BYTES&&!store->erase(upload_bank,SAVE_BANK_STRIDE))) {
+    (upload_size>USB_BACKUP_BYTES&&!store->erase(upload_bank,SAVE_BANK_IMAGE_SIZE))) {
   release_upload(NULL);return rejected(USB_RESTORE_DETAIL_FLASH,"upload erase",ESP_FAIL);
  }
  return true;
 }
 static bool import_begin(uint32_t bytes,unsigned version) {
  if(!locate()||!save_bank_platform())return rejected(USB_RESTORE_DETAIL_LAYOUT,"layout",ESP_FAIL);
- if(!((version>=5&&version<=22&&bytes==USB_BACKUP_BYTES)||(version==23&&bytes==USB_BACKUP_EXTENDED_BYTES)))return false;
+ if(!((version>=5&&version<=22&&bytes==USB_BACKUP_BYTES)||(version==23&&bytes==USB_BACKUP_EXTENDED_BYTES)||(version>=24&&version<=27&&bytes==USB_BACKUP_EXPANDED_BYTES)||(version>=28&&version<=SAVE_VERSION&&bytes==USB_BACKUP_WAREHOUSE_BYTES)))return false;
  if(scratch_mounted){if(nvs_flash_deinit_partition(scratch.label)!=ESP_OK)return rejected(USB_RESTORE_DETAIL_NVS,"retry unmount",ESP_FAIL);scratch_mounted=false;}
  upload_size=bytes;upload_version=version;
  return world_backup_exclusive(prepare_upload,NULL);
@@ -141,7 +158,7 @@ static bool read_import(void *context,void *blob,size_t *size,uint8_t *opening) 
  if(((const save_t*)blob)->version!=version)return rejected(USB_RESTORE_DETAIL_VERSION,"schema",ESP_FAIL);
  // A V23 import must reference its uploaded bank, not coincidentally find a
  // pre-existing record on this device. Validate both the header and full bytes.
- if(version==23){
+ if(version>=23){
   save_bank_ref_t uploaded;
   const save_bank_io_t *store=save_bank_platform();
   if(*size!=sizeof(uploaded)||!store||!store->read(upload_bank,&uploaded,sizeof(uploaded))||
@@ -175,7 +192,7 @@ static bool import_finish(uint32_t crc) {
  return valid&&world_backup_exclusive(prepare_journal,&crc);
 }
 static const usb_backup_stream_t streams={export_begin,export_read,import_begin,import_write,import_finish,cancel};
-static void emit(const char *line) { fputs(line,stdout);fflush(stdout); }
+static void emit(const char *line) { console_record_begin();fputs(line,stdout);fflush(stdout);console_record_end(); }
 void usb_backup_device_start(void) {
  uint8_t mac[6];char id[13],build[65];
  if(esp_read_mac(mac,ESP_MAC_WIFI_STA)!=ESP_OK)return;

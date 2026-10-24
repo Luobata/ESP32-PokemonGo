@@ -1,0 +1,61 @@
+{
+  "passed": true,
+  "flash_application_sha256": "034ec97a12f24f4ec1ce4dc49c4023c3e57fd8ef930f9db48e418a027236588e",
+  "flash_application_only": true,
+  "protected_data_readback_equal": true,
+  "partition_changed": false,
+  "container_version": 4,
+  "payload_bytes": 73728,
+  "save_version": 30,
+  "cross_build_import": true,
+  "original_backup_disk_readback_verified": true,
+  "pre_import_backup_and_ack": true,
+  "brightness_before": 100,
+  "brightness_test_change": 89,
+  "brightness_restored": 100,
+  "matching_boot_receipt": true,
+  "re_export_and_decode": true,
+  "fields_equal": [
+    "party",
+    "warehouse",
+    "move_policies",
+    "level",
+    "experience",
+    "pokedex",
+    "inventory",
+    "achievements",
+    "dungeon_progress",
+    "research_rewards",
+    "exploration_wins",
+    "challenge",
+    "johto",
+    "activities",
+    "story",
+    "endgame"
+  ],
+  "normal_elapsed_time_and_scan_state_not_compared": true,
+  "serial_concurrency": [
+    {
+      "operation": "final-test-baseline-2",
+      "wifi_scan_records": 3,
+      "embedded_protocol_lines": 0,
+      "data_chunks": 576,
+      "next_acknowledgements": 576
+    },
+    {
+      "operation": "final-user-restore",
+      "wifi_scan_records": 3,
+      "embedded_protocol_lines": 0,
+      "data_chunks": 576,
+      "next_acknowledgements": 576
+    },
+    {
+      "operation": "final-after-restore",
+      "wifi_scan_records": 1,
+      "embedded_protocol_lines": 0,
+      "data_chunks": 576,
+      "next_acknowledgements": 0
+    }
+  ],
+  "private_payloads_not_published": true
+}

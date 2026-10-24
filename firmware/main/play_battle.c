@@ -27,7 +27,12 @@
 #include "battle_escape.h"
 #include "battle_fx.h"
 #include "esp_timer.h"
-static uint32_t s_move_started_ms;
+#include "presentation_clock.h"
+#include "battle_timing.h"
+static presentation_clock_t s_clock;
+static battle_timing_t s_timing;
+static bool s_track_preview;
+static void restart_clock(void) { presentation_clock_start(&s_clock,(uint32_t)(esp_timer_get_time()/1000)); }
 #include "battle_presentation.h"
 #include "game_ui.h"
 #include "exp.h"
@@ -38,6 +43,7 @@ static uint32_t s_move_started_ms;
 #include "render.h"
 #include "render_scene_screen.h"
 #include "screen.h"
+#include "screen_idle.h"
 #include "sfx.h"
 #include "music_director.h"
 #include "world.h"
@@ -76,29 +82,29 @@ extern uint32_t dbg_battle_seed;
 #define MSG_X 16
 #define MSG_RIGHT 224
 
-SCREEN_ASSERT_WITHIN_BAND(battle_wild_name, WILD_NAME_Y, 16);
-SCREEN_ASSERT_WITHIN_BAND(battle_wild_bar, WILD_BAR_Y, BATTLE_HUD_HP_HEIGHT);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_wild_name, WILD_NAME_Y, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_wild_bar, WILD_BAR_Y, BATTLE_HUD_HP_HEIGHT);
 _Static_assert(WILD_BAR_X + (WILD_FILL_TILES + 3) * BATTLE_HUD_TILE_SIZE *
                BATTLE_HUD_SCALE <= SCENE_P3_WILD_HUD_RIGHT,
                "Wild caught marker and HP must stay outside the front sprite");
-SCREEN_ASSERT_WITHIN_BAND(battle_wild_rarity, WILD_RARITY_Y, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_wild_rarity, WILD_RARITY_Y, 16);
 SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_wild_sprite_box,
                           SCENE_P3_WILD_TOP, SCENE_P3_WILD_MAX_SIZE);
-SCREEN_ASSERT_WITHIN_BAND(battle_wild_shiny, WILD_SHINY_Y, 7);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_wild_shiny, WILD_SHINY_Y, 7);
 // 主宠显示目标为 96px；共享配方从资产尺寸自动取 32x3 / 48x2。
 // 96 > 80 带高，跨带 1/2 —— 用 SCREEN_ASSERT_ALLOW_CROSS_BAND 显式声明，
 // 且 shake tick 必须重画带 1+2（见 tick 里的注释）。
 // PET_SPRITE_Y=140 keeps its last pixel at 235, above the message box.
 #define PET_SPRITE_DISPLAY SCENE_P3_PET_BACK_SIZE
 SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_pet_sprite, PET_SPRITE_Y, PET_SPRITE_DISPLAY);
-SCREEN_ASSERT_WITHIN_BAND(battle_pet_name, PET_NAME_Y, 16);
-SCREEN_ASSERT_WITHIN_BAND(battle_pet_bar, PET_BAR_Y, SCENE_P3_PET_HP_H);
-SCREEN_ASSERT_WITHIN_BAND(battle_pet_hp_value, PET_HP_VALUE_Y, 16);
-SCREEN_ASSERT_WITHIN_BAND(battle_round_message, MSG_Y, 16);
-SCREEN_ASSERT_WITHIN_BAND(battle_effect, MSG_DETAIL_Y, 16);
-SCREEN_ASSERT_WITHIN_BAND(battle_exp, MSG_DETAIL_Y, 16);
-SCREEN_ASSERT_WITHIN_BAND(battle_weak, MSG_DETAIL_Y, 16);
-SCREEN_ASSERT_WITHIN_BAND(battle_keys, MSG_HINT_Y, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_pet_name, PET_NAME_Y, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_pet_bar, PET_BAR_Y, SCENE_P3_PET_HP_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_pet_hp_value, PET_HP_VALUE_Y, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_round_message, MSG_Y, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_effect, MSG_DETAIL_Y, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_exp, MSG_DETAIL_Y, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_weak, MSG_DETAIL_Y, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(battle_keys, MSG_HINT_Y, 16);
 
 static lv_timer_t *s_tick;
 
@@ -115,7 +121,8 @@ static bool s_escape_prompt;
 // Read-only presentation of the recorded move. Each entry resets the phase;
 // no static hold counter can leak into the next battle after leaving a page.
 static uint8_t s_fx_frame;
-static uint8_t s_between_moves;
+static bool s_fx_visible;
+
 static bool s_entering, s_exp_anim, s_store_failed;
 static bool s_loot_failed, s_settle_failed;
 static bool s_wild_animating, s_escape_requested, s_counter_escape;
@@ -138,10 +145,16 @@ static const uint8_t *s_wild_sprite;
 static uint8_t s_wild_size;
 static scene_sprite_layout_t s_wild_layout;
 
+static bool actor_visible(const battle_round_t *r, bool pet)
+{
+    if (s_track_preview) return battle_fx_actor_visible(r,s_fx_frame,pet);
+    return !s_play_i || battle_timing_visible(&s_timing,s_clock.elapsed_ms,pet?0:1);
+}
+
 static void prepare_wild_sprite(uint16_t species)
 {
     memset(&s_wild_layout, 0, sizeof(s_wild_layout));
-    s_wild_sprite = assets_front_sprite(species, &s_wild_size);
+    s_wild_sprite = assets_front_form(species,nav_ctx()->enc.biome, &s_wild_size);
     if (!s_wild_sprite) {
         sprite_asset_t fallback;
         if (assets_back_sprite_info(species, &fallback) && fallback.w == fallback.h) {
@@ -155,7 +168,7 @@ static void prepare_wild_sprite(uint16_t species)
     }
     memset(&s_wild_anim_info, 0, sizeof(s_wild_anim_info));
     s_wild_anim_frame = 0;
-    if (s_wild_sprite && pokemon_anim_info(species, &s_wild_anim_info) &&
+    if (species!=201 && s_wild_sprite && pokemon_anim_info(species, &s_wild_anim_info) &&
         s_wild_anim_info.size == s_wild_size) {
         // One original-picture origin for every frame, including the resting
         // pose. The full animation's opaque union fits the enemy region.
@@ -170,6 +183,7 @@ static void prepare_wild_sprite(uint16_t species)
 
 static void sample_wild_motion(void)
 {
+    if(nav_ctx()->enc.species_id==201){if(s_wild_anim_ms>=900)s_wild_animating=false;return;}
     pokemon_anim_sample_t sample = pokemon_anim_sample(nav_ctx()->enc.species_id, s_wild_anim_ms);
     if (sample.frame != s_wild_anim_frame) {
         sprite_asset_t sprite;
@@ -195,12 +209,17 @@ void play_battle_presentation_snapshot(play_battle_view_t *out)
         .wild_hp = s_session.wild_hp, .phase = "choice"};
     if (s_play_i) {
         const battle_round_t *r = &s_res.rounds[0];
+        out->elapsed_ms=s_clock.elapsed_ms;out->duration_ms=s_timing.end;
+        out->hit_ms=s_timing.hit_start;out->hp_ms=s_timing.hp_start[s_timing.target];out->feedback_ms=s_timing.feedback_start;
+        out->stage=battle_timing_phase(&s_timing,s_clock.elapsed_ms);
         out->move_id = r->move_id;
         out->by_pet = r->by_pet;
         uint16_t hit = battle_fx_hit_frame(r);
         uint16_t elapsed = s_fx_frame > hit ? s_fx_frame - hit : 0;
-        out->pet_hp = battle_presentation_hp(s_pet_hp_from, s_session.pet_hp, false, elapsed);
-        out->wild_hp = battle_presentation_hp(s_wild_hp_from, s_session.wild_hp, false, elapsed);
+        unsigned pet_frame=s_track_preview?elapsed:battle_timing_hp_frame(&s_timing,s_clock.elapsed_ms,0);
+        unsigned wild_frame=s_track_preview?elapsed:battle_timing_hp_frame(&s_timing,s_clock.elapsed_ms,1);
+        out->pet_hp = (uint16_t)((int32_t)s_pet_hp_from+((int32_t)s_session.pet_hp-s_pet_hp_from)*(int)pet_frame/BATTLE_PRESENTATION_HP_FRAMES);
+        out->wild_hp = (uint16_t)((int32_t)s_wild_hp_from+((int32_t)s_session.wild_hp-s_wild_hp_from)*(int)wild_frame/BATTLE_PRESENTATION_HP_FRAMES);
         out->phase = s_counter_anim ? "retaliation" : "attack";
     } else if (s_done) out->phase = "result";
     else if (s_playing) out->phase = "battle";
@@ -252,13 +271,13 @@ static void draw_band(int band_y)
                              wild_layout.visible.w, wild_layout.visible.h};
     sprite_asset_t actor_sprite;render_bounds_t actor_ink;
     uint16_t pet_art_id=s_session.fighters[0].transform_species?s_session.fighters[0].transform_species:s_pet_species;
-    if(assets_back_sprite_info(pet_art_id,&actor_sprite)&&render_sprite_ink_bounds(actor_sprite.data,actor_sprite.w,actor_sprite.h,&actor_ink)){
+    if(assets_back_form(pet_art_id,s_session.fighters[0].pp[0],&actor_sprite)&&render_sprite_ink_bounds(actor_sprite.data,actor_sprite.w,actor_sprite.h,&actor_ink)){
         int scale=PET_SPRITE_DISPLAY/actor_sprite.w;
         pet=(battle_fx_rect_t){SCENE_P3_PET_BACK_X+actor_ink.x*scale,PET_SPRITE_Y+actor_ink.y*scale,actor_ink.w*scale,actor_ink.h*scale};
     }
     if(wild_sprite&&render_sprite_ink_bounds(wild_sprite,wild_size,wild_size,&actor_ink))
         wild=(battle_fx_rect_t){wild_layout.x+actor_ink.x*2,wild_layout.y+actor_ink.y*2,actor_ink.w*2,actor_ink.h*2};
-    battle_fx_pose_t pose = round ? battle_fx_pose_for_rects(round, s_fx_frame, pet, wild)
+    battle_fx_pose_t pose = round && s_fx_visible ? battle_fx_pose_for_rects(round, s_fx_frame, pet, wild)
                                  : (battle_fx_pose_t){0, 0};
 
     play_battle_view_t view;
@@ -290,7 +309,8 @@ static void draw_band(int band_y)
         }
         st[n] = '\0';
         render_text(8, Y(WILD_RARITY_Y), st, C_INK);
-        if (dex_is_caught(world_dex(), c->enc.species_id)) {
+        if (band_y < WILD_BAR_Y + 16 && band_y + BAND_H > WILD_BAR_Y &&
+            dex_is_caught(world_dex(), c->enc.species_id)) {
             battle_hud_draw_caught(scene_screen_rect, &band_y,
                                   WILD_CAUGHT_X, WILD_BAR_Y,
                                   BATTLE_HUD_SCALE, SCENE_P3_BG);
@@ -298,17 +318,19 @@ static void draw_band(int band_y)
     }
     // Always reserve the caught slot; changing species never shifts the HP.
     // A three-tile fill keeps the right edge at 120, outside all front sprites.
+    if (band_y < WILD_BAR_Y + 16 && band_y + BAND_H > WILD_BAR_Y)
     battle_hud_draw_hp(scene_screen_rect, &band_y, WILD_BAR_X, WILD_BAR_Y,
                        WILD_FILL_TILES, BATTLE_HUD_SCALE,
                        BATTLE_HUD_WILD, w_hp, s_res.wild_hp_max, SCENE_P3_BG);
     }
 
     // -- 野怪 front sprite -----------------------------------------------
-    if (wild_sprite && has_wild && battle_fx_actor_visible(round,s_fx_frame,false)) {
+    if (wild_sprite && has_wild && actor_visible(s_fx_visible?round:NULL,false)) {
         uint16_t pal[4];
         assets_palette_variant(wild_art.palette, c->enc.is_shiny, pal);
-        render_sprite_2bpp(wild_layout.x + pose.wild_dx, Y(wild_layout.y),
-                           wild_sprite, wild_size, SCENE_P3_WILD_SCALE, pal);
+        unsigned rows=s_play_i&&!s_track_preview?battle_timing_faint_rows(&s_timing,s_clock.elapsed_ms,1,wild_size):0;
+        render_sprite_2bpp_wh(wild_layout.x + pose.wild_dx, Y(wild_layout.y)+rows*SCENE_P3_WILD_SCALE,
+                           wild_sprite, wild_size, wild_size-rows, SCENE_P3_WILD_SCALE, pal);
     }
 
     // Shiny marker sits left of the wild sprite, clear of names and HP.
@@ -330,12 +352,16 @@ static void draw_band(int band_y)
 
     // -- 主宠 ------------------------------------------------------------
     sprite_asset_t pet_spr;
-    if (has_pet && battle_fx_actor_visible(round,s_fx_frame,true) && assets_back_sprite_info(pet_art_id, &pet_spr)) {
+    if (has_pet && actor_visible(s_fx_visible?round:NULL,true) && assets_back_form(pet_art_id,s_session.fighters[0].pp[0], &pet_spr)) {
         uint16_t pal[4];
         species_t drawn=pet_sp;assets_species(pet_art_id,&drawn);
         assets_palette_variant(drawn.palette, s_pet_shiny, pal);
-        scene_screen_p3_pet_back(band_y, pet_spr.data, pet_spr.w, pet_spr.h,
-                                  pose.pet_dx+(s_wild_animating?pokemon_back_entrance_offset(s_wild_anim_ms):0), pal);
+        unsigned rows=s_play_i&&!s_track_preview?battle_timing_faint_rows(&s_timing,s_clock.elapsed_ms,0,pet_spr.h):0;
+        int dx=pose.pet_dx+(s_wild_animating?pokemon_back_entrance_offset(s_wild_anim_ms):0);
+        if(rows && pet_spr.w)render_sprite_2bpp_wh(SCENE_P3_PET_BACK_X+dx,
+            SCENE_P3_PET_BACK_Y+rows*(SCENE_P3_PET_BACK_SIZE/pet_spr.w)-band_y,
+            pet_spr.data,pet_spr.w,pet_spr.h-rows,SCENE_P3_PET_BACK_SIZE/pet_spr.w,pal);
+        else scene_screen_p3_pet_back(band_y,pet_spr.data,pet_spr.w,pet_spr.h,dx,pal);
     }
     if (!s_entering) {
     if (has_pet) {
@@ -346,14 +372,15 @@ static void draw_band(int band_y)
     snprintf(buf, sizeof(buf), "%u/%u", p_hp, s_res.pet_hp_max);
     render_text(SCR_W - 8 - render_text_width(buf), Y(PET_HP_VALUE_Y), buf, C_INK);
     battle_presentation_exp_t xp = visible_exp();
+    if (band_y < 240 && band_y + BAND_H > 224)
     battle_hud_draw_exp(scene_screen_rect, &band_y, 120, 224, 7, BATTLE_HUD_SCALE,
                         xp.got, xp.need, SCENE_P3_BG);
     }
 
-    if (round) {
+    if (round && s_fx_visible) {
         battle_fx_actor_t pa={0},wa={.data=wild_sprite,.w=wild_size,.h=wild_size};
         sprite_asset_t back_art;
-        if(assets_back_sprite_info(pet_art_id,&back_art)){
+        if(assets_back_form(pet_art_id,s_session.fighters[0].pp[0],&back_art)){
             pa.data=back_art.data;pa.w=back_art.w;pa.h=back_art.h;
             species_t art_sp=pet_sp;assets_species(pet_art_id,&art_sp);
             assets_palette_variant(art_sp.palette,s_pet_shiny,pa.palette);
@@ -364,6 +391,7 @@ static void draw_band(int band_y)
 
     shiny_entry_draw(&s_shiny_entry, band_y, pet, wild);
 
+    if (band_y >= 240) {
     battle_hud_draw_message_box(scene_screen_rect, &band_y,
                                 0, 240, 15, 5, BATTLE_HUD_SCALE, SCENE_P3_BG);
 
@@ -454,9 +482,11 @@ static void draw_band(int band_y)
         : s_escape_requested ? "招式结束后尝试逃跑"
         : s_playing ? "长按B逃跑" : "A上 B下 C确认 长按B返回";
     char attack_hint[80];
-    if (!s_done && s_playing && !s_escape_requested && s_play_i > 0 && s_play_i <= s_res.round_count) {
+    if (!s_done && s_playing && !s_escape_requested && s_play_i > 0 && s_play_i <= s_res.round_count &&
+        (s_track_preview || s_clock.elapsed_ms>=s_timing.feedback_start)) {
         const battle_round_t *r = &s_res.rounds[s_play_i-1];
         const char *effect = combat_feedback(r);
+        if(!s_track_preview&&s_timing.faint_mask&&s_clock.elapsed_ms>=s_timing.faint_start)effect="失去战斗能力";
         if(r->charging||r->skipped||r->self_target||r->no_effect||!r->damage)snprintf(attack_hint,sizeof(attack_hint),"%s",effect?effect:"长按B逃跑");
         else if (r->missed) snprintf(attack_hint,sizeof(attack_hint),"长按B逃跑");
         else snprintf(attack_hint,sizeof(attack_hint),"%s -%uHP 长按B逃跑",effect?effect:"",r->damage);
@@ -470,6 +500,7 @@ static void draw_band(int band_y)
         const char *const labels[] = {s_done ? (s_session.won ? "投球" : "照料") : "捕获", s_done ? "返回" : "战斗", "逃跑"};
         game_ui_action_row(band_y, MSG_X, MSG_HINT_Y, MSG_RIGHT - MSG_X, labels, s_done ? 2 : 3, s_choice);
     } else game_ui_text_centered(band_y, MSG_X, MSG_HINT_Y, MSG_RIGHT - MSG_X, 16, hint, C_INK);
+    }
 
     #undef Y
     screen_push_band(band_y);
@@ -536,6 +567,7 @@ static bool settle_battle(void)
     s_exp_sound_level = exp_to_level(s_exp_from, LEVEL_MAX);
     s_exp_frame = 0;
     s_exp_anim = s_res.exp > 0 || s_pet_exp > s_exp_from;
+    restart_clock();
     ESP_LOGI(TAG, "战斗结束：%s %u 次攻击，野怪剩 %u%%",
              s_session.won ? "胜" : "败", s_session.attack_count,
              battle_session_hp_ratio(&s_session));
@@ -559,7 +591,12 @@ static bool begin_attack(void)
     s_res.round_count = 1;
     s_play_i = 1;
     s_fx_frame = 0;
-    s_move_started_ms = (uint32_t)(esp_timer_get_time()/1000);
+    s_fx_visible = false;
+    uint16_t before[2]={s_pet_hp_from,s_wild_hp_from};
+    uint16_t after[2]={s_session.pet_hp,s_session.wild_hp};
+    uint16_t maximum[2]={s_session.pet_hp_max,s_session.wild_hp_max};
+    s_timing=battle_timing_plan(&s_res.rounds[0],before,after,maximum);
+    restart_clock();
     return true;
 }
 
@@ -585,82 +622,77 @@ static void attempt_escape(void)
     s_store_failed = false;
     s_escape_feedback = result.escaped ? ESCAPE_SUCCESS : ESCAPE_FAILED;
     s_escape_hold = 0;
+    restart_clock();
     draw_all();
 }
 
-static void tick(lv_timer_t *t)
+static void tick_impl(lv_timer_t *t)
 {
     (void)t;
-    static unsigned slow_phase;
-    bool active_move=s_playing&&s_play_i&&!s_between_moves&&!s_entering&&!s_wild_animating&&!shiny_entry_side(&s_shiny_entry)&&!s_escape_feedback&&!s_exp_anim;
-    if(!active_move&&!shiny_entry_side(&s_shiny_entry)&&++slow_phase%2)return;
-    if(s_settle_failed)return;
+    uint32_t previous=s_clock.elapsed_ms;
+    uint32_t ms=presentation_clock_sample(&s_clock,(uint32_t)(esp_timer_get_time()/1000),screen_idle_is_off()||s_settle_failed);
+    if(s_settle_failed||screen_idle_is_off())return;
     if (shiny_entry_side(&s_shiny_entry)) {
-        if (shiny_entry_step(&s_shiny_entry, BATTLE_FX_TICK_MS)) sfx_play(SFX_SHINY);
+        if (shiny_entry_step(&s_shiny_entry, battle_motion_delta(previous,ms))) sfx_play(SFX_SHINY);
         draw_all();
         return;
     }
     if (s_entering) {
-        if (++s_entry_frame >= BATTLE_PRESENTATION_ENTRY_FRAMES) {
+        s_entry_frame=presentation_sample(battle_motion_source_ms(ms),90,BATTLE_PRESENTATION_ENTRY_FRAMES);
+        if (s_entry_frame >= BATTLE_PRESENTATION_ENTRY_FRAMES) {
             s_entering = false;
             s_wild_animating = true;
             s_wild_anim_ms = 0;
-            if (s_wild_animating) sample_wild_motion();
+            sample_wild_motion();
+            restart_clock();
         }
-        draw_all();
-        return;
+        draw_all();return;
     }
     if (s_wild_animating) {
-        s_wild_anim_ms += 90;
+        s_wild_anim_ms = battle_motion_source_ms(ms);
         sample_wild_motion();
         if (!s_wild_animating) {
             shiny_entry_begin(&s_shiny_entry, (s_pet_shiny ? 1u : 0u) | (nav_ctx()->enc.is_shiny ? 2u : 0u));
+            restart_clock();
             if (shiny_entry_side(&s_shiny_entry)) sfx_play(SFX_SHINY);
         }
-        draw_all();
-        return;
+        draw_all();return;
     }
     if (s_escape_feedback) {
-        if (++s_escape_hold < 12) return;
+        if (ms < 1080u) return;
         if (s_escape_feedback == ESCAPE_SUCCESS) { encounter_gone(); return; }
         s_escape_feedback = ESCAPE_NONE;
         s_playing = true;
         if (!begin_attack()) { encounter_gone(); return; }
-        draw_all();
-        return;
+        draw_all();return;
     }
     if (s_exp_anim) {
-        if (++s_exp_frame >= BATTLE_PRESENTATION_EXP_FRAMES) s_exp_anim = false;
+        s_exp_frame=presentation_sample(battle_motion_source_ms(ms),90,BATTLE_PRESENTATION_EXP_FRAMES);
+        if (s_exp_frame >= BATTLE_PRESENTATION_EXP_FRAMES) s_exp_anim = false;
         uint8_t level = visible_exp().level;
         if (level > s_exp_sound_level) { sfx_play(SFX_LEVEL_UP); s_exp_sound_level = level; }
-        draw_all();
-        return;
+        draw_all();return;
     }
     if (!s_playing) return;
-    if (s_between_moves) { s_between_moves--; return; }
     if (s_play_i) {
-        const battle_round_t *r = &s_res.rounds[0];
-        uint16_t frames = battle_fx_frames(r);
-        uint16_t hp_end = battle_fx_hit_frame(r) + BATTLE_PRESENTATION_HP_FRAMES + 1;
-        if (hp_end > frames) frames = hp_end;
-        if (s_fx_frame + 1 < frames) {
-            unsigned elapsed_frame = ((uint32_t)(esp_timer_get_time()/1000)-s_move_started_ms)/BATTLE_FX_TICK_MS;
-            if (elapsed_frame <= s_fx_frame) return;
-            unsigned previous = s_fx_frame;
-            s_fx_frame = elapsed_frame < frames ? elapsed_frame : frames-1;
-            unsigned hit = battle_fx_hit_frame(r);
-            if (previous < hit && s_fx_frame >= hit)
-                if(r->move_id) sfx_move(r->move_id, r->move_type, r->missed);
-            draw_band(0);
-            draw_band(BAND_H);
-            draw_band(BAND_H * 2);
+        const battle_round_t *r=&s_res.rounds[0];
+        unsigned phase=battle_timing_phase(&s_timing,ms);
+#ifdef CONFIG_POKEWALK_DEBUG_KEYS
+        if(phase!=battle_timing_phase(&s_timing,previous))
+            ESP_LOGI(TAG,"@@BATTLE_TIME wild move=%u stage=%u elapsed=%lu end=%lu",r->move_id,phase,(unsigned long)ms,(unsigned long)s_timing.end);
+#endif
+        s_fx_visible=phase==BATTLE_TIME_MOVE;
+        s_fx_frame=s_fx_visible?battle_fx_elapsed_frame(ms):0;
+        if(previous<s_timing.hit_start&&ms>=s_timing.hit_start&&r->move_id)
+            sfx_move(r->move_id,r->move_type,r->missed);
+        if (phase != BATTLE_TIME_DONE) {
+            // Redraw the message on stage boundaries, not every sprite sample.
+            if(battle_timing_phase(&s_timing,previous)!=phase)draw_all();
+            else if(phase!=BATTLE_TIME_TEXT&&phase!=BATTLE_TIME_FEEDBACK)for (int y=0;y<240;y+=BAND_H) draw_band(y);
             return;
         }
-        s_counter_anim = false;
-        s_play_i = 0;
-        s_between_moves = 5;
-        draw_all();
-        return;
+        s_counter_anim=false;s_play_i=0;s_fx_visible=false;
+        // Every stage has completed; the next action cannot cut HP/text short.
     }
     if (s_session.finished) {
         if (!settle_battle()) { s_settle_failed=true;draw_all();return; }
@@ -676,6 +708,14 @@ static void tick(lv_timer_t *t)
     draw_all();
 }
 
+static void tick(lv_timer_t *timer)
+{
+    screen_cadence_begin(BATTLE_FX_TICK_MS);
+    tick_impl(timer);
+    screen_cadence_end();
+}
+
+
 void play_battle_enter(void)
 {
     shiny_entry_begin(&s_shiny_entry, 0);
@@ -683,8 +723,9 @@ void play_battle_enter(void)
     memset(&s_res, 0, sizeof(s_res));
     s_play_i = 0;
     s_fx_frame = 0;
-    s_move_started_ms = (uint32_t)(esp_timer_get_time()/1000);
-    s_between_moves = 0;
+    s_fx_visible = false;
+    restart_clock();
+    s_track_preview = false;
     s_counter_anim = false;
     s_counter_escape = s_escape_requested = s_wild_animating = false;
     s_escape_feedback = ESCAPE_NONE;
@@ -710,6 +751,8 @@ void play_battle_enter(void)
         if (!battle_session_init(&s_session, w.species, w.level,
                                   c->enc.species_id, (c->enc.level ? c->enc.level : battle_wild_level_for_pet(c->enc.rarity, w.level)),
                                   nurture_ability_factor(&w.pet), seed)) { encounter_gone(); return; }
+        world_party_t owned;world_party_snapshot(&owned);if(owned.count)combat_set_individual(&s_session.fighters[0],&owned.members[0]);
+        s_session.fighters[1].pp[0]=c->enc.species_id==201?c->enc.biome:0;if(c->enc.species_id!=235)s_session.fighters[1].pp[1]=1+c->enc.ts%17;
         s_session.intro_seen = intro_seen;
         s_session.move_policy = policy;
         // Existing weakened encounters retain their saved wild HP percentage.
@@ -737,6 +780,7 @@ void play_battle_enter(void)
     if (s_session.retaliation_pending && !begin_attack()) { encounter_gone(); return; }
     screen_set_redraw(redraw_for_dump);
     draw_all();
+    restart_clock();
     s_tick = lv_timer_create(tick, BATTLE_FX_TICK_MS, NULL);
 }
 
@@ -773,7 +817,7 @@ static void perform_battle_action(unsigned action)
         !s_entering && !s_wild_animating && !shiny_entry_side(&s_shiny_entry) && !s_counter_anim &&
         !s_escape_feedback && !s_session.retaliation_pending) {
         s_escape_requested = true;
-        draw_band(BAND_H * 3);
+        for (int y=240;y<SCR_H;y+=BAND_H) draw_band(y);
         return;
     }
     // The failed throw already committed the retaliation obligation. Neither
@@ -888,7 +932,7 @@ bool play_battle_move_preview(unsigned id,unsigned side,unsigned frame,unsigned 
  s_pet_hp_from=side?500:250;s_wild_hp_from=side?250:500;
  r.pet_hp=s_session.pet_hp;r.wild_hp=s_session.wild_hp;
  s_res.pet_hp_max=s_res.wild_hp_max=500;s_res.round_count=1;s_res.rounds[0]=r;
- s_play_i=1;s_fx_frame=frame<battle_fx_frames(&r)?frame:battle_fx_frames(&r)-1;
+ s_track_preview=true;s_play_i=1;s_fx_visible=true;s_fx_frame=frame<battle_fx_frames(&r)?frame:battle_fx_frames(&r)-1;
  draw_all();return true;
 }
 #endif

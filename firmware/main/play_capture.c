@@ -19,12 +19,15 @@
 // 所以实际是一整条带。**仍然只画一条而不是四条** ——
 // 这是 1.2 秒往复能跑顺的前提。
 
+#include "capture_presentation.h"
+#include "screen_idle.h"
 #include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "esp_log.h"
 #include "esp_timer.h"
+#include "presentation_clock.h"
 #include "lvgl.h"
 
 #include "assets.h"
@@ -68,12 +71,12 @@ static const char *TAG = "p4";
 #define HOLD_TICKS 25                 // 25 × 40ms = 1.0s
 
 SCREEN_ASSERT_ALLOW_CROSS_BAND(capture_sprite, SPRITE_Y, SPRITE_SIZE);
-SCREEN_ASSERT_WITHIN_BAND(capture_ball, BALL_Y, 24);
-SCREEN_ASSERT_WITHIN_BAND(capture_instruction, INSTRUCTION_Y, 16);
-SCREEN_ASSERT_WITHIN_BAND(capture_bar_box, BAR_BOX_Y, 32);
-SCREEN_ASSERT_WITHIN_BAND(capture_bar, BAR_Y, BAR_H);
-SCREEN_ASSERT_WITHIN_BAND(capture_message, MSG_Y, 16);
-SCREEN_ASSERT_WITHIN_BAND(capture_footer, 280, 40);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(capture_ball, BALL_Y, 24);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(capture_instruction, INSTRUCTION_Y, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(capture_bar_box, BAR_BOX_Y, 32);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(capture_bar, BAR_Y, BAR_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(capture_message, MSG_Y, 16);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(capture_footer, 280, 40);
 
 static lv_timer_t *s_tick;
 static battle_session_t s_session;
@@ -110,8 +113,9 @@ static void capture_member_label(const mon_t *mon,char *out,size_t size) {
     else snprintf(out,size,"#%u Lv%u",mon->species_id,mon->level);
 }
 static void draw_replacements(int band) {
-    char text[80];
-    game_ui_title(band,s_replace==REPLACE_LIST?"仓库已满":s_replace==REPLACE_DISCARD?"放走新伙伴？":"替换伙伴？","453格");
+    char text[80], capacity[16];
+    snprintf(capacity,sizeof(capacity),"%u格",BOX_CAPACITY);
+    game_ui_title(band,s_replace==REPLACE_LIST?"仓库已满":s_replace==REPLACE_DISCARD?"放走新伙伴？":"替换伙伴？",capacity);
 
     if(s_replace==REPLACE_LIST){
         game_ui_text_fitted(band,12,64,216,"选择要替换的仓库伙伴",GAME_UI_INK);
@@ -150,11 +154,20 @@ static uint8_t s_chain_choice;
 static bool s_hold_active;
 static bool s_return_to_battle;
 static uint16_t s_capture_exp;
-static uint8_t s_hold;
+static bool s_hold_skip;
+static presentation_clock_t s_clock;
+static void start_clock(void){presentation_clock_start(&s_clock,(uint32_t)(esp_timer_get_time()/1000));}
 
 // Outcome commits once at throw time; presentation never rerolls or spends items.
-#define CAPTURE_REVEAL_MS 2880
-#define CAPTURE_END_MS 3480
+// Gold ThrowPokeBall: 36+16+16, return 8+16, bounce 4*32+8,
+// then four 48-frame checks. Each anim_wait also has its dispatch frame.
+// This yields 434 frames before the result, plus 36 for breakout. Keep the original
+// phase clock with the absorption adaptation in capture_presentation.h,
+// sampled on our 40 ms display timer; outcomes still commit once.
+#define CAPTURE_REVEAL_FRAME 434u
+#define CAPTURE_END_FRAME 470u
+#define CAPTURE_REVEAL_MS capture_frame_ms(CAPTURE_REVEAL_FRAME)
+#define CAPTURE_END_MS capture_frame_ms(CAPTURE_END_FRAME)
 static bool s_animating;
 static uint32_t s_anim_ms;
 static music_id_t s_previous_music;
@@ -174,14 +187,29 @@ static void capture_image(int band_y, const uint8_t *data, int w, int h,
                           int cx, int cy, int size, int tilt, const uint16_t *pal)
 {
     if (!data || size <= 0) return;
+    // Reject whole off-band images before sampling. Keep the original integer
+    // transform (including truncation for negative tilt) for identical pixels.
+    int margin = (size * (tilt < 0 ? -tilt : tilt) + 31) / 32;
+    int top = cy - size / 2, left = cx - size / 2;
+    int y0 = band_y - top - margin, y1 = band_y + SCREEN_BAND_H - top + margin;
+    if (y0 < 0) y0 = 0;
+    if (y1 > size) y1 = size;
+    int x0 = -left - margin, x1 = SCREEN_W - left + margin;
+    if (x0 < 0) x0 = 0;
+    if (x1 > size) x1 = size;
     int stride = (w + 3) / 4;
-    for (int y = 0; y < size; y++) for (int x = 0; x < size; x++) {
-        int sx = x * w / size, sy = y * h / size;
+    for (int y = y0; y < y1; y++) {
+      int sy = y * h / size;
+      for (int x = x0; x < x1; x++) {
+        int dx = x - size / 2, dy = y - size / 2;
+        int px = cx + dx - dy * tilt / 16;
+        int py = cy + dy + dx * tilt / 16 - band_y;
+        if ((unsigned)px >= SCREEN_W || (unsigned)py >= SCREEN_BAND_H) continue;
+        int sx = x * w / size;
         int shade = (data[sy * stride + sx / 4] >> (6 - (sx % 4) * 2)) & 3;
         if (shade == 3) continue;
-        int dx = x - size / 2, dy = y - size / 2;
-        screen_px(cx + dx - dy * tilt / 16,
-                  cy + dy + dx * tilt / 16 - band_y, pal[shade]);
+        screen_px(px, py, pal[shade]);
+      }
     }
 }
 
@@ -196,40 +224,27 @@ static void capture_star(int band_y, int x, int y, int radius, uint16_t color)
 static void draw_capture_stage(int band_y, const uint8_t *spr, int size,
                                const uint16_t *pal)
 {
-    unsigned t = s_anim_ms;
+    unsigned t = capture_source_frame(s_anim_ms);
     int monster_size = size * 2;
-    if (t >= 400 && t < 760) monster_size = monster_size * (760 - t) / 360;
-    else if (t >= 760 && (t < CAPTURE_REVEAL_MS || s_caught || s_capture_pending)) monster_size = 0;
-    else if (t >= CAPTURE_REVEAL_MS && t < CAPTURE_END_MS)
-        monster_size = monster_size * (t - CAPTURE_REVEAL_MS) / (CAPTURE_END_MS - CAPTURE_REVEAL_MS);
+    if (t >= 71 && t < 80) monster_size = monster_size * (80 - t) / 9;
+    else if (t >= 80 && (t < CAPTURE_REVEAL_FRAME || s_caught || s_capture_pending)) monster_size = 0;
+    else if (t >= CAPTURE_REVEAL_FRAME && t < CAPTURE_END_FRAME)
+        monster_size = monster_size * (t - CAPTURE_REVEAL_FRAME) / (CAPTURE_END_FRAME - CAPTURE_REVEAL_FRAME);
     int monster_y = 98;
-    if (t >= CAPTURE_REVEAL_MS && t < CAPTURE_END_MS && !s_caught && !s_capture_pending)
-        monster_y = 184 - 86 * (t - CAPTURE_REVEAL_MS) / (CAPTURE_END_MS - CAPTURE_REVEAL_MS);
+    if (t >= CAPTURE_REVEAL_FRAME && t < CAPTURE_END_FRAME && !s_caught && !s_capture_pending)
+        monster_y = 184 - 86 * (t - CAPTURE_REVEAL_FRAME) / (CAPTURE_END_FRAME - CAPTURE_REVEAL_FRAME);
     capture_image(band_y, spr, size, size, 120, monster_y, monster_size, 0, pal);
 
-    int bx = 120, by = 184, tilt = 0;
-    if (t < 400) {
-        bx = 28 + 92 * t / 400;
-        by = 192 - 86 * t / 400 - 80 * t * (400 - t) / 160000;
-    } else if (t < 760) by = 106;
-    else if (t < 1080) {
-        int dt = t - 760;
-        by = 106 + 78 * dt * dt / (320 * 320);
-    } else if (t < CAPTURE_REVEAL_MS) {
-        // Three distinct rocks, separated by a pause at rest.
-        static const int8_t rock[] = {0, -2, -4, -2, 0, 2, 4, 2, 0, 0, 0, 0, 0, 0, 0};
-        tilt = rock[((t - 1080) % 600) / 40];
-        bx += tilt;
-        by -= tilt < 0 ? -tilt / 2 : tilt / 2;
-    }
+    capture_ball_pose_t pose=capture_ball_pose(s_anim_ms);
+    int bx=pose.x,by=pose.y,tilt=pose.tilt;
     ui_art_t ball;
-    bool broken = t >= CAPTURE_REVEAL_MS && !s_caught && !s_capture_pending;
-    bool opened = (t >= 400 && t < 760) || (broken && t < CAPTURE_REVEAL_MS + 240);
+    bool broken = t >= CAPTURE_REVEAL_FRAME && !s_caught && !s_capture_pending;
+    bool opened = (t >= 37 && t < 97) || (broken && t < CAPTURE_REVEAL_FRAME + 14);
     if ((!broken || opened) && assets_ui(opened ? "ball_open" : "ball_24", &ball))
         capture_image(band_y, ball.data, ball.w, ball.h, bx, by, 32, tilt,
                       ball_assets_palette(s_ball));
-    if (t >= CAPTURE_REVEAL_MS && t < CAPTURE_END_MS) {
-        int spread = 12 + (t - CAPTURE_REVEAL_MS) / 16;
+    if (t >= CAPTURE_REVEAL_FRAME && t < CAPTURE_END_FRAME) {
+        int spread = 12 + (t - CAPTURE_REVEAL_FRAME);
         uint16_t color = s_caught ? RGB_HEX(0xe8b820) : GAME_UI_ACCENT;
         capture_star(band_y, 120 - spread, 168 - spread / 2, 4, color);
         capture_star(band_y, 120 + spread, 168 - spread / 2, 4, color);
@@ -327,7 +342,7 @@ static void draw_band(int band_y)
     // 正面按实际源尺寸 2x 居中。缺图回退也必须读取 BACK 的真实尺寸，
     // 不能把 GSC 48px 记录按旧的 32px 步长解码。
     uint8_t sprite_size = 0;
-    const uint8_t *spr = assets_front_sprite(c->enc.species_id, &sprite_size);
+    const uint8_t *spr = assets_front_form(c->enc.species_id,c->enc.biome, &sprite_size);
     if (!spr) {
         sprite_asset_t fallback;
         if (assets_back_sprite_info(c->enc.species_id, &fallback) && fallback.w == fallback.h) {
@@ -375,13 +390,13 @@ static void draw_band(int band_y)
                 : "在蓝色区域投球", GAME_UI_MUTED);
 
     // 判定条
-    if (band_y == BAR_BAND * BAND_H) draw_bar_band(band_y);
+    if (band_y < BAR_BOX_Y+32 && band_y+BAND_H > BAR_BOX_Y) draw_bar_band(band_y);
 
     }
 
     // 结果
     if (s_animating && s_anim_ms < CAPTURE_REVEAL_MS) {
-        render_text(12, Y(MSG_Y), s_anim_ms < 1080 ? "投出精灵球！" : "捕获中", GAME_UI_INK);
+        render_text(12, Y(MSG_Y), s_anim_ms < capture_frame_ms(97) ? "投出精灵球！" : "捕获中", GAME_UI_INK);
     } else if (s_capture_pending) {
         render_text(12, Y(MSG_Y), "已命中，保存失败", GAME_UI_INK);
     } else if (s_hold_active && c->done_note == NAV_NOTE_CAUGHT) {
@@ -453,30 +468,42 @@ static void redraw_for_dump(void)
     s_replaying = false;
 }
 
-static void tick(lv_timer_t *t)
+static void tick_impl(lv_timer_t *t)
 {
-    if (s_chain_prompt) return;
+    uint32_t ms=presentation_clock_sample(&s_clock,(uint32_t)(esp_timer_get_time()/1000),screen_idle_is_off());
+    if (s_chain_prompt || screen_idle_is_off()) return;
     if (s_animating) {
         uint32_t before = s_anim_ms;
-        s_anim_ms += CAPTURE_TICK_MS;
-        if (s_anim_ms == 1080 || s_anim_ms == 1680 || s_anim_ms == 2280) sfx_play(SFX_MENU);
-        if (before < CAPTURE_REVEAL_MS && s_anim_ms >= CAPTURE_REVEAL_MS) capture_reveal();
+        s_anim_ms=ms;
+        for(unsigned shake=0;shake<3;shake++) {
+            uint32_t cue=capture_frame_ms(287+shake*49);
+            if(before<cue&&s_anim_ms>=cue)sfx_play(SFX_MENU);
+        }
+        if (before < CAPTURE_REVEAL_MS && s_anim_ms >= CAPTURE_REVEAL_MS) {
+            capture_reveal();
+#ifdef CONFIG_POKEWALK_DEBUG_KEYS
+            ESP_LOGI(TAG,"@@CAPTURE_PHASE result elapsed_ms=%lu",(unsigned long)s_anim_ms);
+#endif
+        }
         if (s_anim_ms >= CAPTURE_END_MS) {
+#ifdef CONFIG_POKEWALK_DEBUG_KEYS
+            ESP_LOGI(TAG,"@@CAPTURE_PHASE end elapsed_ms=%lu",(unsigned long)s_anim_ms);
+#endif
             s_anim_ms = CAPTURE_END_MS;
             s_animating = false;
             s_hold_active = !s_capture_pending;
-            s_hold = 0;
+            s_hold_skip = false; start_clock();
         }
         draw_all();
         return;
     }
 
     if (s_hold_active) {
-        if (++s_hold < (s_caught ? 80 : HOLD_TICKS)) return;
+        if (!s_hold_skip && ms < (s_caught ? 3200u : HOLD_TICKS * CAPTURE_TICK_MS)) return;
 
         // 先清状态和 timer 指针，再从唯一出口切页；exit 不会重复删除。
         s_hold_active = false;
-        s_hold = 0;
+        s_hold_skip = false; start_clock();
         s_tick = NULL;
         lv_timer_delete(t);
         if(s_return_to_battle)nav_go(PAGE_BATTLE);else nav_end_encounter();
@@ -486,7 +513,14 @@ static void tick(lv_timer_t *t)
     if (s_caught || s_fled || s_capture_pending) return;
     // **只重画判定条那一带** —— 指针在动，别的都是静态的。
     // 全屏重画 150KB/帧跑不动 1.2 秒的往复。
-    draw_band(BAR_BAND * BAND_H);
+    for (int y=(BAR_BOX_Y/BAND_H)*BAND_H;y<BAR_BOX_Y+32;y+=BAND_H) draw_band(y);
+}
+
+static void tick(lv_timer_t *timer)
+{
+    screen_cadence_begin(CAPTURE_TICK_MS);
+    tick_impl(timer);
+    screen_cadence_end();
 }
 
 void play_capture_enter(void)
@@ -534,7 +568,7 @@ void play_capture_enter(void)
     memset(&s_pending_mon, 0, sizeof(s_pending_mon));
     s_hold_active = false;
     s_return_to_battle = false;s_capture_exp=0;
-    s_hold = 0;
+    s_hold_skip = false; start_clock();
     nav_ctx()->done_note = NAV_NOTE_NONE;
     s_animating = false;
     s_anim_ms = 0;
@@ -557,7 +591,7 @@ void play_capture_exit(void)
     if (s_tick) { lv_timer_delete(s_tick); s_tick = NULL; }
     s_hold_active = false;
     s_animating = false;
-    s_hold = 0;
+    s_hold_skip = false; start_clock();
 }
 
 bool play_capture_can_leave(void) { return !s_chain_prompt && !s_animating && !s_capture_pending && !s_hold_active && s_session.finished; }
@@ -626,7 +660,7 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
                     music_director_play(s_previous_music);nav_end_encounter();return;
                 }
                 if(save_caught_result_at(s_replace_slot,&s_replace_expected)){
-                    capture_reveal();s_hold_active=true;s_hold=0;
+                    capture_reveal();s_hold_active=true;s_hold_skip=false;start_clock();
                 }
             }
         }
@@ -635,7 +669,7 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 
     // 停留期任何页面按键都只加速同一条 timer 导航路径。
     if (s_hold_active) {
-        if (nav_confirm(btn, ev)) s_hold = (s_caught ? 80 : HOLD_TICKS) - 1;
+        if (nav_confirm(btn, ev)) s_hold_skip = true;
         return;
     }
     if (nav_return(btn, ev)) {
@@ -646,7 +680,7 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 
     if (s_capture_pending) {
         if (btn == BSP_BTN_OK) {
-            if (save_caught_result()) { capture_reveal(); s_hold_active = true; s_hold = 0; }
+            if (save_caught_result()) { capture_reveal(); s_hold_active = true; s_hold_skip = false; start_clock(); }
             draw_all();
         }
         return;
@@ -666,7 +700,7 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         if (s_inventory.quantity[s_ball] == 0) {
             ESP_LOGI(TAG, "没有球了");
             s_no_ball = true;
-            draw_band((MSG_Y / BAND_H) * BAND_H);
+            for (int y=(MSG_Y/BAND_H)*BAND_H;y<MSG_Y+16;y+=BAND_H) draw_band(y);
             return;
         }
         s_no_ball = false;
@@ -729,11 +763,12 @@ void play_capture_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         }
         s_animating = true;
         s_anim_ms = 0;
+        start_clock();
         s_previous_music = music_director_current();
         music_director_play(MUSIC_NONE);
         sfx_play(SFX_BALL_THROW);
         s_hold_active = false;
-        s_hold = 0;
+        s_hold_skip = false; start_clock();
         draw_all();
         break;
     }

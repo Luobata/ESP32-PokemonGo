@@ -1,0 +1,12 @@
+[
+  {
+    "optimization": "-Og",
+    "bytes": 97461111,
+    "sha256": "6e505426e3e03b2b7d5c64d7d130ec897dacc13efd8a8fbd752ab9693f7df7d2"
+  },
+  {
+    "optimization": "-O2",
+    "bytes": 97461111,
+    "sha256": "6e505426e3e03b2b7d5c64d7d130ec897dacc13efd8a8fbd752ab9693f7df7d2"
+  }
+]

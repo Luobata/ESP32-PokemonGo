@@ -1,0 +1,2 @@
+I (95796) screen_idle: @@DISPLAY off timeout_ms=60000
+I (148750) restore: @@IMPORT_MEMORY valid=1 free=15960 minimum=11496 largest=11264 stack_free=1764

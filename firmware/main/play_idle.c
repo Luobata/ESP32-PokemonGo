@@ -16,7 +16,7 @@
 // ## 分块横带渲染
 //
 // 整屏 240×320×2 = 150KB，占 231KB 可用堆的 65% —— 太冒险
-// （WiFi 栈与 LVGL 还要用）。改成 240×80 的横带（37.5KB），
+// （WiFi 栈与 LVGL 还要用）。使用 240×20 的横带（9.4KB），
 // 画 4 次推 4 次。
 //
 // 这正是 docs/01-constitution.md 那条「无法整帧缓冲，必须分块渲染」
@@ -74,23 +74,24 @@ static uint8_t s_breath_i;
 
 // 呼吸的完整范围 y52..153 位于带 0/1；两条带始终一起刷新。
 SCREEN_ASSERT_ALLOW_CROSS_BAND(idle_sprite, SPRITE_Y - 6, SPRITE_SIZE + 6);
-SCREEN_ASSERT_WITHIN_BAND(idle_mood, MOOD_Y, TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(idle_satiety_label, AXIS_Y(0), TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(idle_satiety_bar, AXIS_Y(0), BAR_H);
-SCREEN_ASSERT_WITHIN_BAND(idle_mood_label, AXIS_Y(1), TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(idle_mood_bar, AXIS_Y(1), BAR_H);
-SCREEN_ASSERT_WITHIN_BAND(idle_stamina_label, AXIS_Y(2), TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(idle_stamina_bar, AXIS_Y(2), BAR_H);
-SCREEN_ASSERT_WITHIN_BAND(idle_progress_label, PROGRESS_Y, TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(idle_progress_bar, PROGRESS_Y, BAR_H);
-SCREEN_ASSERT_WITHIN_BAND(idle_exp, EXP_Y, TEXT_H);
-SCREEN_ASSERT_WITHIN_BAND(idle_footer, 280, 40);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(idle_mood, MOOD_Y, TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(idle_satiety_label, AXIS_Y(0), TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(idle_satiety_bar, AXIS_Y(0), BAR_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(idle_mood_label, AXIS_Y(1), TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(idle_mood_bar, AXIS_Y(1), BAR_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(idle_stamina_label, AXIS_Y(2), TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(idle_stamina_bar, AXIS_Y(2), BAR_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(idle_progress_label, PROGRESS_Y, TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(idle_progress_bar, PROGRESS_Y, BAR_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(idle_exp, EXP_Y, TEXT_H);
+SCREEN_ASSERT_ALLOW_CROSS_BAND(idle_footer, 280, 40);
 
 // 世界快照。每次重画前刷一次 —— **一帧之内不再变**，
 // 否则同一帧里四条轴可能读到不同时刻的值（后台任务随时在改）。
 static world_t s_w;
 static uint8_t s_action;
 static bool s_shiny;
+static unsigned s_form;
 // 每条横带使用同一世界快照，所有坐标都相对整屏。
 static void draw_band(int band_y, int8_t breath)
 {
@@ -125,14 +126,14 @@ static void draw_band(int band_y, int8_t breath)
     render_text(12, Y(MOOD_Y), MOOD[nurture_mood(&s_w.pet)], GAME_UI_MUTED);
 
     sprite_asset_t spr;
-    if (has_species && assets_back_sprite_info(s_w.species, &spr) &&
-        spr.w == spr.h && (spr.w == 32 || spr.w == 48)) {
+    if (has_species && assets_back_form(s_w.species, s_form, &spr) &&
+        spr.w == spr.h && (spr.w == 32 || spr.w == 48 || spr.w == 56)) {
         uint16_t pal[4];
         assets_palette_variant(sp.palette, s_shiny, pal);
         // RBY 32@3 / GSC 48@2 share the same 96px display box.
         game_ui_sprite_centered(band_y, (SCR_W - SPRITE_SIZE) / 2,
                                  SPRITE_Y + breath * 3, SPRITE_SIZE, SPRITE_SIZE,
-                                 spr.data, spr.w, spr.h, SPRITE_SIZE / spr.w, pal);
+                                 spr.data, spr.w, spr.h, spr.w==56?1:SPRITE_SIZE / spr.w, pal);
     }
 
     static const char *AXIS[3] = {"饱食", "心情", "体能"};
@@ -177,15 +178,14 @@ static void redraw_for_dump(void)
 }
 
 // 呼吸只影响精灵所在的带。精灵占 y=52~154（含向上浮动 6px），
-// 落在第 0 条带（0~79）与第 1 条带（80~159）——
+// 覆盖屏幕上部 y=0..159 的横带——
 // 页面文档说「状态栏与三条轴是静态的，不参与逐帧重绘」。
 static void draw_sprite_bands(int8_t breath)
 {
-    draw_band(0, breath);
-    draw_band(BAND_H, breath);
+    for (int y=0;y<160;y+=BAND_H) draw_band(y, breath);
 }
 
-static void tick(lv_timer_t *t)
+static void tick_impl(lv_timer_t *t)
 {
     (void)t;
 
@@ -205,12 +205,12 @@ static void tick(lv_timer_t *t)
 
     // 底部带（240~319）也每拍画 —— 遭遇角标要闪，
     // 它的相位跟着 s_breath_i 走（见 draw_band 里那段）。
-    // 没有待处理遭遇时这一带是静态的，但每拍重画 37.5KB 的代价
+    // 没有待处理遭遇时这一带是静态的，但每拍重画底部区域的代价
     // 与精灵带同量级，不值得为省它加一层判断。
-    draw_band(BAND_H * 3, BREATH[s_breath_i]);
+    for (int y=240;y<SCR_H;y+=BAND_H) draw_band(y, BREATH[s_breath_i]);
 
     // 三条养成轴的显示值变化时立即补带 2，使局部刷新与当前快照一致。
-    if (axes_changed) draw_band(BAND_H * 2, BREATH[s_breath_i]);
+    if (axes_changed) for (int y=160;y<240;y+=BAND_H) draw_band(y, BREATH[s_breath_i]);
 
     // 每 2 分钟打一行三条轴 —— **长跑观测用**。
     //
@@ -230,6 +230,14 @@ static void tick(lv_timer_t *t)
     }
 }
 
+static void tick(lv_timer_t *timer)
+{
+    screen_cadence_begin(250);
+    tick_impl(timer);
+    screen_cadence_end();
+}
+
+
 void play_idle_enter(void)
 {
     // **不建屏**。LVGL 那张空屏由 screen_own_display() 建一次，
@@ -242,6 +250,7 @@ void play_idle_enter(void)
     world_party_t party;
     world_party_snapshot(&party);
     s_shiny = party.count && (party.members[0].flags & 1u);
+    s_form = party.count ? party.members[0].special.traits.form : 0;
     screen_set_redraw(redraw_for_dump);
     draw_all(0);
     s_tick = lv_timer_create(tick, 250, NULL);   // 4 fps
@@ -276,7 +285,8 @@ void play_idle_key(bsp_btn_t btn, bsp_btn_ev_t ev)
 {
     if (nav_direction(btn, ev)) {
         s_action = nav_list_selection(btn, ev, 3, s_action);
-        draw_band(240, BREATH[s_breath_i]); return;
+        for (int y=240;y<SCR_H;y+=BAND_H) draw_band(y, BREATH[s_breath_i]);
+        return;
     }
     if (!nav_confirm(btn, ev)) return;
     if (s_action == 0) nav_open(PAGE_CARE);

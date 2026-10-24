@@ -103,7 +103,7 @@ static bool stage_test(unsigned version){
 }
 static void reset(void){failure=0;cancel();assert(!mounted);memset(image,0,sizeof(image));image[0]=17;blob_len=sizeof(save_v17_t);journals=checkpoints=decoded=validated=0;detail=USB_RESTORE_DETAIL_NONE;}
 int main(void){
- (void)denied_import_malloc;memset(banks,255,sizeof(banks));payload[0]=23;assert(save_bank_prepare(save_bank_platform(),NULL,payload,sizeof(payload),&ref));
+ (void)denied_import_malloc;memset(banks,255,sizeof(banks));payload[0]=SAVE_VERSION;assert(save_bank_prepare(save_bank_platform(),NULL,payload,sizeof(payload),&ref));
  boot_result=1;game_loaded=false;usb_backup_device_start();assert(reported==3);
  game_loaded=true;usb_backup_device_start();assert(reported==1);boot_result=2;usb_backup_device_start();assert(reported==2);
  memset(live_data,0xa5,sizeof(live_data));
@@ -124,9 +124,9 @@ int main(void){
  reset();image[0]=16;blob_len=sizeof(save_v16_t);assert(stage_test(16)&&journals==1);
  reset();live.address=0x8000;assert(!stage_test(17)&&!journals&&detail==USB_RESTORE_DETAIL_LAYOUT);live.address=0x9000;
  reset();failure=11;assert(!stage_test(17)&&journals==1&&!mounted&&detail==USB_RESTORE_DETAIL_JOURNAL);
- reset();uint32_t size,crc;assert(export_begin(&size,&crc)&&size==USB_BACKUP_EXTENDED_BYTES&&checkpoints==1);
+ reset();uint32_t size,crc;assert(export_begin(&size,&crc)&&size==USB_BACKUP_WAREHOUSE_BYTES&&checkpoints==1);
  uint8_t chunk[128];assert(export_read(0,chunk,sizeof(chunk))&&!memcmp(chunk,live_data,sizeof(chunk)));assert(!export_read(size,chunk,1));
- assert(import_begin(USB_BACKUP_EXTENDED_BYTES,23)&&reservation);failure=12;assert(!import_write(USB_BACKUP_BYTES,chunk,sizeof(chunk)));cancel();assert(!reservation);
+ cancel();assert(!reservation);assert(import_begin(USB_BACKUP_EXTENDED_BYTES,23)&&reservation);failure=12;assert(!import_write(USB_BACKUP_BYTES,chunk,sizeof(chunk)));cancel();assert(!reservation);
  for(unsigned i=0;i<sizeof(live_data);i++)assert(live_data[i]==0xa5);
  assert(mounts&&unmounts&&!import_allocations);puts("stream device import: fixed chunks, zero decoder allocations, flash/NVS/memory/schema/checkpoint/journal errors, cancellation and reservation isolation passed");
 }
@@ -136,5 +136,5 @@ with tempfile.TemporaryDirectory() as d:
     for name in ('esp_partition.h','esp_app_desc.h','esp_mac.h','esp_system.h','esp_log.h','nvs.h','nvs_flash.h'):
         (t/name).write_text('#include "device.h"\n')
     (t/'test.c').write_text(C)
-    subprocess.run(['cc','-std=c11','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-I',str(t),'-I',str(ROOT/'firmware/main'),str(t/'test.c'),str(ROOT/'firmware/main/save_bank.c'),'-o',str(t/'test')],check=True)
+    subprocess.run(['cc','-std=c11','-D_POSIX_C_SOURCE=200809L','-Wall','-Wextra','-Werror','-fsanitize=address,undefined','-fno-sanitize-recover=all','-I',str(t),'-I',str(ROOT/'firmware/main'),str(t/'test.c'),str(ROOT/'firmware/main/save_bank.c'),'-o',str(t/'test')],check=True)
     subprocess.run([str(t/'test')],check=True)

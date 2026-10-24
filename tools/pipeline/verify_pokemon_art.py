@@ -35,6 +35,7 @@ C_DRIVER = r'''
 #include "render.h"
 #include "screen.h"
 #include "bsp_display.h"
+bool screen_idle_is_off(void) { return false; }
 static unsigned char lcd[SCREEN_W * SCREEN_H * 2]; // Host fixture only.
 static const void *pending;
 static int pending_y;
@@ -55,7 +56,7 @@ int esp_lcd_panel_io_tx_param(esp_lcd_panel_io_handle_t io, int cmd,
 }
 int main(void) {
     if (!assets_init() || !render_init()) return 2;
-    for (unsigned sid = 1; sid <= 151; sid++) {
+    for (unsigned sid = 1; sid <= assets_species_count(); sid++) {
         species_t sp; sprite_asset_t back; uint8_t front_size = 0;
         const uint8_t *front = assets_front_sprite(sid, &front_size);
         if (!assets_species(sid, &sp) || !assets_back_sprite_info(sid, &back) ||
@@ -111,12 +112,13 @@ def unpack_shades(data):
 
 def gameplay_bytes(data):
     data = bytearray(data)
-    require(struct.unpack_from('<4sHHI', data) == (b'GEN1', 1, 32, 151), 'invalid gameplay header')
-    for sid in range(151): data[16 + sid * 32 + 23] = 0
+    magic, version, stride, count = struct.unpack_from('<4sHHI', data)
+    require((magic, version, stride) == (b'GEN1', 1, 32) and count in (151,251), 'invalid gameplay header')
+    for sid in range(count): data[16 + sid * 32 + 23] = 0
     return bytes(data)
 
 
-def check(src: Path, assets: Path, reference: Path | None):
+def check(src: Path, assets: Path, reference: Path | None, preview: Path | None = None):
     tree_text = subprocess.check_output(['git', '-C', str(src), 'ls-tree', '-r', COMMIT], text=True)
     tree = {line.split('\t', 1)[1]: line.split()[2] for line in tree_text.splitlines()}
     source_hashes = {}
@@ -129,23 +131,25 @@ def check(src: Path, assets: Path, reference: Path | None):
     make = pinned('Makefile').decode()
     reverse = set(re.findall(r'gfx/pokemon/([^/]+)/normal\.gbcpal: tools/gbcpal \+= --reverse', make))
     table = pinned('data/pokemon/palettes.asm').decode()
-    names = re.findall(r'INCBIN "gfx/pokemon/([^/]+)/normal\.gbcpal", middle_colors', table)[:151]
-    require(len(names) == 151, 'source species table is incomplete')
+    count = struct.unpack_from('<I', (assets/'gen1.bin').read_bytes(), 8)[0]
+    require(count in (151,251), 'unsupported species count')
+    names = re.findall(r'INCBIN "gfx/pokemon/([^/]+)/normal\.gbcpal", middle_colors', table)[:count]
+    require(len(names) == count, 'source species table is incomplete')
     blobs = {n: (assets / n).read_bytes() for n in FILES}
-    fronts = read_fronts(blobs['gen1_front.bin'])
+    fronts = read_fronts(blobs['gen1_front.bin'],count)
     back_blob = blobs['gen1_back.bin']
-    magic, ver, bw, bh, per, count = struct.unpack_from('<4sHHHHI', back_blob)
-    require((magic, ver, bw, bh, per, count) == (b'BACK', 1, 48, 48, 576, 151), 'back schema is not original Crystal 48x48')
+    magic, ver, bw, bh, per, back_count = struct.unpack_from('<4sHHHHI', back_blob)
+    require((magic, ver, bw, bh, per, back_count) == (b'BACK', 1, 48, 48, 576, count), 'back schema is not original Crystal 48x48')
     require(len(back_blob) == 16 + per * count, 'invalid back length')
-    backs = {sid: (48, back_blob[16+(sid-1)*per:16+sid*per]) for sid in range(1, 152)}
+    backs = {sid: (48, back_blob[16+(sid-1)*per:16+sid*per]) for sid in range(1, count+1)}
     p = blobs['palettes.bin']
-    magic, ver, pairs, colors, count = struct.unpack_from('<4sHHHH', p)
-    require(magic == b'PALS' and ver == 1 and colors == 4 and count == 151 and 1 <= pairs <= 151, 'invalid palette header')
-    require(len(p) == 12 + pairs * 16 + 151, 'invalid paired palette length')
+    magic, ver, pairs, colors, palette_count = struct.unpack_from('<4sHHHH', p)
+    require(magic == b'PALS' and ver == 1 and colors == 4 and palette_count == count and 1 <= pairs <= 256, 'invalid palette header')
+    require(len(p) == 12 + pairs * 16 + count, 'invalid paired palette length')
     palettes = [struct.unpack_from('<4H', p, 12 + n * 8) for n in range(pairs * 2)]
     indices = p[12 + pairs * 16:]
     require(all(i < pairs for i in indices), 'invalid per-species palette index')
-    require(indices == bytes(blobs['gen1.bin'][16+n*32+23] for n in range(151)), 'gameplay palette bytes disagree')
+    require(indices == bytes(blobs['gen1.bin'][16+n*32+23] for n in range(count)), 'gameplay palette bytes disagree')
     if reference:
         require(gameplay_bytes(reference.read_bytes()) == gameplay_bytes(blobs['gen1.bin']),
                 'gameplay bytes changed outside palette byte 23')
@@ -160,7 +164,8 @@ def check(src: Path, assets: Path, reference: Path | None):
         for sid, name in enumerate(names, 1):
             images, input_pals = {}, []
             for view in ('front', 'back'):
-                path = f'gfx/pokemon/{name}/{view}.png'; pinned(path)
+                image_name = 'unown_a' if name == 'unown' else name
+                path = f'gfx/pokemon/{image_name}/{view}.png'; pinned(path)
                 with Image.open(src/path) as image:
                     width, height = image.size
                     require(width in (40, 48, 56) and height >= width, f'#{sid} invalid source dimensions')
@@ -213,14 +218,15 @@ def check(src: Path, assets: Path, reference: Path | None):
         main, host = ROOT/'firmware/main', ROOT/'tools/inspector/host/include'
         subprocess.run(['cc', '-std=gnu11', '-O2', '-DHOST_BUILD=1', '-Wall', '-Wextra',
                         '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
-                        '-I', str(main), '-I', str(host), str(temp/'driver.c'),
-                        str(main/'assets.c'), str(main/'pokemon_names.c'),
+                        '-I', str(main), '-I', str(host),
+                        '-I', str(ROOT/'firmware/components/bsp/include'), str(temp/'driver.c'),
+                        *[str(main/name) for name in ('assets.c','pokemon_names.c','combat.c','battle.c','exp.c','nurture.c','evolution.c','items.c')],
                         str(main/'render.c'), str(main/'screen.c'),
                         str(temp/'assets.S'), '-lz', '-o', str(temp/'driver')], check=True)
         with (temp/'renders.bin').open('wb') as stream:
             subprocess.run([str(temp/'driver')], stdout=stream, check=True)
         with (temp/'renders.bin').open('rb') as stream:
-            for _ in range(604):
+            for _ in range(count*4):
                 fields = stream.readline().decode().split()
                 require(len(fields) == 7 and fields[0] == 'ART', 'C render protocol differs')
                 sid, view_index, shiny, w, h, pal_index = map(int, fields[1:])
@@ -237,10 +243,17 @@ def check(src: Path, assets: Path, reference: Path | None):
                         offset = ((70 + y*2 + dy) * 240 + 32) * 2
                         oracle[offset:offset+len(row)] = row
                 require(pixels == oracle, f'#{sid} {view} shiny={shiny}: actual C output differs from source pixels')
+                if preview and view == 'back':
+                    rgb=bytearray()
+                    for (v,) in struct.iter_unpack('>H',pixels):
+                        red,green,blue=v>>11,(v>>5)&63,v&31
+                        rgb.extend(((red<<3)|(red>>2),(green<<2)|(green>>4),(blue<<3)|(blue>>2)))
+                    preview.mkdir(parents=True,exist_ok=True)
+                    Image.frombytes('RGB',(240,320),bytes(rgb)).crop((32,70,144,182)).save(preview/f'back-{sid}-{shiny}.png')
                 stats['c_renders'] += 1
                 stats['compared_c_screen_pixels'] += 240 * 320
             require(not stream.read(1), 'extra C render output')
-    require(stats['source_images'] == 302 and stats['c_renders'] == 604, 'incomplete image/variant coverage')
+    require(stats['source_images'] == count*2 and stats['c_renders'] == count*4, 'incomplete image/variant coverage')
     require(all((assets/name).read_bytes() == blob for name, blob in blobs.items()), 'assets changed during verification')
     return {'status': 'PASS', 'repository': 'https://github.com/pret/pokecrystal', 'commit': COMMIT,
             'stats': dict(stats), 'front_size_counts': dict(sorted(size_counts.items())), 'back_size': [48, 48],
@@ -261,9 +274,10 @@ def main():
     ap.add_argument('--src', type=Path, default=Path('/tmp/pokecrystal'))
     ap.add_argument('--assets', type=Path, default=ROOT/'assets')
     ap.add_argument('--gameplay-reference', type=Path)
+    ap.add_argument('--preview-dir',type=Path)
     ap.add_argument('--report', type=Path, default=ROOT/'reports/pokemon-art-verification-2026-09-07.json')
     args = ap.parse_args()
-    result = check(args.src, args.assets, args.gameplay_reference)
+    result = check(args.src, args.assets, args.gameplay_reference, args.preview_dir)
     args.report.parent.mkdir(parents=True, exist_ok=True)
     args.report.write_text(json.dumps(result, ensure_ascii=False, indent=2)+'\n')
     print(json.dumps({k:v for k,v in result.items() if k not in ('source_inputs_sha256',)}, ensure_ascii=False, indent=2))

@@ -30,7 +30,7 @@ static uint16_t setup(unsigned target, bool won) {
     return uid;
 }
 static void full_guard(void) {
-    for(unsigned target=1;target<=151;target++)for(unsigned won=0;won<2;won++) {
+    for(unsigned target=1;target<=251;target++)for(unsigned won=0;won<2;won++) {
         uint16_t uid=setup(target,won);
         assert(!world_capture_has_room(target));
         assert(world_capture_break_chain_uid(uid)&&!s_exploration_wins);
@@ -40,9 +40,11 @@ static void full_guard(void) {
         assert(world_capture_ball_spend_uid(uid,ITEM_POKE,&session));
         party_t before=s_party;dex_t dex=s_dex;
         mon_t caught={.species_id=target,.level=78,.exp=exp_for_level(78),.hp=100,.flags=1};
+        // Capture assigns stable encounter traits; Smeargle stores sketches instead.
+        caught.special.traits.hp_type=target==235?0:1;
         assert(world_capture_replace_uid(uid,&caught,BOX_CAPACITY,NULL)==WORLD_CAPTURE_FULL);
         assert(!memcmp(&before,&s_party,sizeof(before))&&!memcmp(&dex,&s_dex,sizeof(dex)));
-        unsigned slot=(unsigned[]){150,151,254,255,256,451,452}[(target+won)%7];
+        unsigned slot=(unsigned[]){150,151,254,255,256,451,452,648,752}[(target+won)%9];
         mon_t expected=s_party.box[slot],stale=expected;stale.level++;
         assert(world_capture_replace_uid(uid,&caught,slot,&stale)==WORLD_CAPTURE_STALE);
         assert(world_capture_replace_uid(uid,&caught,BOX_CAPACITY,&expected)==WORLD_CAPTURE_INVALID);
@@ -51,7 +53,7 @@ static void full_guard(void) {
           assert(!memcmp(&before,&s_party,sizeof(before))&&s_inventory.quantity[ITEM_POKE]==balls-1);
         }
         assert(world_capture_replace_uid(uid,&caught,slot,&expected)==WORLD_CAPTURE_OK);
-        assert(party_total(&s_party)==459&&!memcmp(&s_party.box[slot],&caught,sizeof(caught)));
+        assert(party_total(&s_party)==759&&!memcmp(&s_party.box[slot],&caught,sizeof(caught)));
         assert(move_policy_allows(&s_party.policies[PARTY_MAX+slot],85));
         for(unsigned j=0;j<BOX_CAPACITY;j++)if(j!=slot)assert(!memcmp(&s_party.box[j],&before.box[j],sizeof(mon_t)));
         assert(world_capture_replace_uid(uid,&caught,slot,&caught)==WORLD_CAPTURE_INVALID);
@@ -62,12 +64,13 @@ static void full_guard(void) {
 static void room_and_retry(void) {
     uint16_t uid=setup(150,false);
     mon_t old=s_party.box[83];assert(world_box_release(83,&old)==WORLD_SWITCH_OK);
-    assert(world_capture_has_room(150)&&party_total(&s_party)==458);
+    assert(world_capture_has_room(150)&&party_total(&s_party)==758);
     assert(world_capture_break_chain_uid(uid)&&s_exploration_wins==0);
     battle_session_t session;assert(world_battle_get_uid(uid,&session));session.started=true;
     unsigned balls=s_inventory.quantity[ITEM_POKE];
     assert(world_capture_ball_spend_uid(uid,ITEM_POKE,&session));
     mon_t caught={.species_id=150,.level=78,.exp=exp_for_level(78),.hp=100,.flags=1,.nickname_idx=255};
+    caught.special.traits.hp_type=1;
     party_t before=s_party;unsigned written=writes;
     for(unsigned mode=0;mode<3;mode++) {
         failure=(int[]){1,2,4}[mode];assert(!world_capture_uid(uid,&caught));failure=0;
@@ -75,7 +78,7 @@ static void room_and_retry(void) {
         assert(s_inventory.quantity[ITEM_POKE]==balls-1);
     }
     assert(writes>written&&world_capture_uid(uid,&caught));
-    assert(!world_capture_uid(uid,&caught)&&party_total(&s_party)==459);
+    assert(!world_capture_uid(uid,&caught)&&party_total(&s_party)==759);
     assert(!memcmp(&s_party.box[83],&caught,sizeof(caught)));
     assert(move_policy_allows(&s_party.policies[PARTY_MAX+83],85));
     assert(s_inventory.quantity[ITEM_POKE]==balls-1);
@@ -91,7 +94,7 @@ static void existing_box_or_team_space(void) {
     s_party.box[23].species_id=1;s_party.party_count=5;
     assert(world_capture_has_room(150)&&party_receive(&s_party,&better));
     assert(!memcmp(&s_party.party[5],&better,sizeof(better)));
-    assert(!world_capture_has_room(0)&&!world_capture_has_room(152));tests++;
+    assert(!world_capture_has_room(0)&&!world_capture_has_room(252));tests++;
 }
 int main(void) {
     assert(assets_init());full_guard();room_and_retry();existing_box_or_team_space();

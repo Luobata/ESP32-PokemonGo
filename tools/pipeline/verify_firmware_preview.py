@@ -40,7 +40,7 @@ def main():
             if state['page'] == 3 and state['presentation']['phase'] == 'choice':
                 return
             assert state['page'] == 2 or (state['page'] == 3 and
-                state['presentation']['phase'] in ('entry', 'entrance-motion')), (
+                state['presentation']['phase'] in ('entry', 'entrance-motion', 'shiny-entry')), (
                     label, state['page'], state['presentation'])
             renderer.command('tick 60')
             check(renderer, f'{label} {tick}')
@@ -57,12 +57,12 @@ def main():
             check(r, f"P{page} enter")
             if page == 3:
                 finish_entry(r, 'P3 entry')
-                r.command("key 1 1")
+                r.command("key 1 1"); r.command("key 2 1")
             for tick in range(48):
                 r.command("tick 60")
                 check(r, f"P{page} tick {tick}")
             # Same key interface and lifecycle as the device, including transitions.
-            r.command("key 0 1")
+            r.command("key 2 1" if page == 2 else "key 0 1")
             for tick in range(24):
                 r.command("tick 60")
                 check(r, f"P{page} A/transition {tick}")
@@ -71,19 +71,17 @@ def main():
         finally:
             r.close()
 
-    # Long B on the actual encounter page is gameplay (discard), unlike the
-    # serial screenshot shortcut on other pages. Keep host input routing honest.
+    # Current navigation: C confirms, long B returns without discarding an encounter.
     r = Renderer(exe)
     try:
-        before = r.command("boot 2 25 12 74 3 1 0")
+        r.command("boot 2 25 12 74 3 1 0")
+        before = r.inspect()
         after = r.command("key 1 3")
-        assert after["page"] == "P2" and after["pixels"] != before["pixels"], "P2 long-B discard was swallowed"
-        check(r, "P2 long-B discard")
-        for _ in range(3):
-            r.command("key 1 3")
-            check(r, "P2 long-B empty queue")
-        empty = r.command("key 1 3")
-        assert empty["pixels"] == r.command("key 1 3")["pixels"], "empty queue discard is unstable"
+        assert after["page"] == "P1", "P2 long-B return was swallowed"
+        check(r, "P2 long-B return")
+        r.command("page 2")
+        assert r.inspect()['queue'] == before['queue']
+        check(r, "P2 preserved queue")
     finally:
         r.close()
 
@@ -95,7 +93,7 @@ def main():
             r.command(f"boot 3 {pet} {level} {wild} {rarity} {seed} 1")
             check(r, "P3 boundary")
             finish_entry(r, 'P3 boundary entry')
-            r.command("key 1 1")
+            r.command("key 1 1"); r.command("key 2 1")
             frames = set()
             for tick in range(110):
                 result = r.command("tick 60")
@@ -145,14 +143,14 @@ for(let i=0,j=0;i<rgba.length;i+=4,j+=3){
         screen.write_text(source)
         battle = mutant / "firmware/main/play_battle.c"
         source = battle.read_text()
-        assert source.count("            draw_band(BAND_H * 2);") == 1
-        battle.write_text(source.replace("            draw_band(BAND_H * 2);", "            /* negative: skip player dirty band */"))
+        assert source.count("for (int y=0;y<240;y+=BAND_H) draw_band(y);") == 1
+        battle.write_text(source.replace("for (int y=0;y<240;y+=BAND_H) draw_band(y);", "for (int y=0;y<140;y+=BAND_H) draw_band(y);"))
         mutant_exe, _ = module.build()
         r = module.Renderer(mutant_exe)
         try:
             r.command("boot 3 25 12 19 1 7 0")
             finish_entry(r, 'negative dirty-band entry')
-            r.command("key 1 1")
+            r.command("key 1 1"); r.command("key 2 1")
             found_stale = False
             for _ in range(36):
                 r.command("tick 60")
@@ -164,7 +162,7 @@ for(let i=0,j=0;i<rgba.length;i+=4,j+=3){
             r.close()
     print(json.dumps({"build": version, "pages": 8, "dirty_redraw_checks": checks,
                       "wire_colors": 65536, "negative_dma": "caught", "negative_dirty_band": "caught",
-                      "long_press_discard": "passed", "evidence": str(evidence)}, ensure_ascii=False))
+                      "long_press_return_preserves_queue": "passed", "evidence": str(evidence)}, ensure_ascii=False))
     return 0
 
 

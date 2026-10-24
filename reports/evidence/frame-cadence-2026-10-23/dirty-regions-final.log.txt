@@ -1,0 +1,1 @@
+{"passed": true, "checks": 6957, "renderer": "41c969022f709a56aae6", "scope": "care cycles/benefits, six party rows/details, before-after pixels and full-redraw oracle"}

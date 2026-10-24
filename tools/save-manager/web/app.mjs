@@ -108,7 +108,7 @@ $('disconnect').onclick=async()=>{
 $('import-file').onchange=async()=>{
   selectedImport=null;controls();
   try{const file=$('import-file').files[0];if(!file)return;
-    if(file.size>90000)throw Error('备份文件过大');selectedImport=await decodeBackup(await file.text());
+    if(file.size>120000)throw Error('备份文件过大');selectedImport=await decodeBackup(await file.text());
     $('import-info').textContent=`${file.name} · 校验通过 · 存档 V${selectedImport.metadata.save_version}`;
   }catch(e){$('import-info').textContent=e.message;status(e.message,true);}controls();
 };

@@ -1,0 +1,21 @@
+{
+  "source_base_commit": "67a4a25749463d50750c9448ff9d5217d1379094",
+  "uncommitted_changes": true,
+  "app_bytes": 3136016,
+  "factory_bytes": 3407872,
+  "factory_remaining_bytes": 271856,
+  "app_sha256": "57bc9599523fb73737c831be7d4bfa7ac361c070b7b4d87aacead26d23a888bc",
+  "partition_unchanged": true,
+  "writes": [
+    {
+      "offset": 65536,
+      "bytes": 3136016
+    }
+  ],
+  "protected_ranges_identical_after_flash": true,
+  "save_version": 30,
+  "save_record_bytes": 39912,
+  "backup_format": 4,
+  "backup_payload_bytes": 73728,
+  "warehouse_slots": 753
+}

@@ -1,0 +1,12 @@
+/Users/bytedance/luobata/ESP32-PokemonGo/firmware/main/save_bank_device.c:3:10: fatal error: 'freertos/FreeRTOS.h' file not found
+    3 | #include "freertos/FreeRTOS.h"
+      |          ^~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+Traceback (most recent call last):
+  File "/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/verify_nvs_restore_roundtrip.py", line 103, in <module>
+    run(args.idf_path,args.private_nvs,args.prune_legacy,args.validate_only,args.private_roundtrip)
+  File "/Users/bytedance/luobata/ESP32-PokemonGo/tools/pipeline/verify_nvs_restore_roundtrip.py", line 82, in run
+    subprocess.run(['cc','-std=gnu11',*flags,'-c',str(src),'-o',str(t/f'{name}.o')],check=True)
+  File "/Users/bytedance/.pyenv/versions/3.12.0/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['cc', '-std=gnu11', '-DLINUX_TARGET=1', '-DESP_PLATFORM', '-DHOST_BUILD', '-DDUNGEON_REAL_NVS_TEST', '-O1', '-g', '-fsanitize=address,undefined', '-fno-sanitize-recover=all', '-ffunction-sections', '-fdata-sections', '-I', '/var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/pokewalk-real-nvs-51xvt2k4', '-I', '/Users/bytedance/esp/esp-idf/components/nvs_flash/include', '-I', '/Users/bytedance/esp/esp-idf/components/nvs_flash/private_include', '-I', '/Users/bytedance/esp/esp-idf/components/nvs_flash/src', '-I', '/Users/bytedance/esp/esp-idf/components/esp_common/include', '-I', '/Users/bytedance/esp/esp-idf/components/esp_rom/include', '-I', '/Users/bytedance/luobata/ESP32-PokemonGo/firmware/main', '-I', '/Users/bytedance/luobata/ESP32-PokemonGo/firmware/components/bsp/include', '-c', '/Users/bytedance/luobata/ESP32-PokemonGo/firmware/main/save_bank_device.c', '-o', '/var/folders/qd/m9_7dd6d5cz75c374dn9v2_c0000gn/T/pokewalk-real-nvs-51xvt2k4/save_bank_device.o']' returned non-zero exit status 1.

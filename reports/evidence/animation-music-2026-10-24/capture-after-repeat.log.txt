@@ -1,0 +1,22 @@
+I (104159) dbg: @@MEMORY_STATE free=17444 minimum=11404 largest=11264 stack_free=1592
+I (104159) dbg: @@AUDIO_PROFILE chunks=2021 render_avg_us=1487 render_max_us=4293 gap_max_us=46446 late=1 switches=2 switch_render_max_us=4040 opens=0 errors=0 stack_free=1972
+I (104160) dbg: @@UI_STACK timer_free=3544 lvgl_free=4652
+I (105124) dbg: @@MEMORY_STATE free=17444 minimum=11404 largest=11264 stack_free=1592
+I (105125) dbg: @@AUDIO_PROFILE chunks=2065 render_avg_us=1491 render_max_us=4293 gap_max_us=46446 late=1 switches=2 switch_render_max_us=4040 opens=0 errors=0 stack_free=1972
+I (105125) dbg: @@UI_STACK timer_free=3544 lvgl_free=4652
+I (105755) screen: @@CADENCE_START
+I (115901) screen: @@CADENCE period_ms=45 ticks=209 frames=131 bands=1912 window_us=8194403 render_us=5680959 render_max_us=84886 tick_p50_ms=48 tick_p95_ms=72 tick_max_us=536687 late=157 frame_p50_ms=48 frame_p95_ms=72 frame_max_us=1077128 bytes=352
+I (116533) dbg: @@MEMORY_STATE free=17444 minimum=11404 largest=11264 stack_free=1592
+I (116533) dbg: @@AUDIO_PROFILE chunks=488 render_avg_us=1222 render_max_us=4161 gap_max_us=49079 late=4 switches=2 switch_render_max_us=4161 opens=0 errors=0 stack_free=1972
+I (116534) dbg: @@UI_STACK timer_free=3544 lvgl_free=4652
+I (117136) dbg: @@MEMORY_STATE free=17444 minimum=11404 largest=11264 stack_free=1592
+I (117136) dbg: @@AUDIO_PROFILE chunks=516 render_avg_us=1244 render_max_us=4161 gap_max_us=49079 late=4 switches=2 switch_render_max_us=4161 opens=0 errors=0 stack_free=1972
+I (117137) dbg: @@UI_STACK timer_free=3544 lvgl_free=4652
+I (118093) dbg: @@MEMORY_STATE free=17444 minimum=11404 largest=11264 stack_free=1592
+I (118093) dbg: @@AUDIO_PROFILE chunks=560 render_avg_us=1265 render_max_us=4161 gap_max_us=49079 late=4 switches=2 switch_render_max_us=4161 opens=0 errors=0 stack_free=1972
+I (118094) dbg: @@UI_STACK timer_free=3544 lvgl_free=4652
+I (118716) screen: @@CADENCE_START
+I (128873) screen: @@CADENCE period_ms=45 ticks=201 frames=157 bands=2204 window_us=9827009 render_us=7188123 render_max_us=87271 tick_p50_ms=48 tick_p95_ms=72 tick_max_us=511696 late=158 frame_p50_ms=48 frame_p95_ms=72 frame_max_us=1070759 bytes=352
+I (129476) dbg: @@MEMORY_STATE free=17444 minimum=11404 largest=11264 stack_free=1592
+I (129476) dbg: @@AUDIO_PROFILE chunks=488 render_avg_us=1218 render_max_us=4170 gap_max_us=49828 late=3 switches=2 switch_render_max_us=4170 opens=0 errors=0 stack_free=1972
+I (129477) dbg: @@UI_STACK timer_free=3544 lvgl_free=4572

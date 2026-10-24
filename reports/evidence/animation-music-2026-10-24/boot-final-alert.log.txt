@@ -1,0 +1,10 @@
+I (557) bsp_i2c:   发现设备 @ 0x18  <- ES8311 音频 codec
+I (1073) screen: Game owns panel; LVGL refresh paused; pipeline=1
+I (1082) ES8311: Work in Slave mode
+I (1085) bsp_audio: ES8311 就绪
+I (6241) dbg: @@DISPLAY_STATE off=0 brightness=100 page=11 scans=74077 pending=2 pet=115 level=55 exp=257175 stamina_q10=95860 mood_q10=56813
+I (6242) dbg: @@DUNGEON_STATE phase=5 node=7 count=3 run=2 pending=0 reset_reason=11 stack_free=2100
+I (6242) dbg: @@MEMORY_STATE free=17436 minimum=11496 largest=11264 stack_free=2100
+I (6243) dbg: @@AUDIO_PROFILE chunks=236 render_avg_us=2064 render_max_us=4279 gap_max_us=22118 late=0 switches=3 switch_render_max_us=2195 opens=1 errors=0 stack_free=1980
+I (6243) dbg: @@UI_STACK timer_free=3544 lvgl_free=4892
+I (6244) dbg: @@TRAINER_VIEW mode=2

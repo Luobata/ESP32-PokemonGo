@@ -12,7 +12,7 @@ static unsigned band;
 static uint16_t raster[240*320],source[256*256];
 uint16_t *screen_band(void){return raster+band*240;}
 void screen_px(int x,int y,uint16_t color){
- assert(x>=0&&x<240&&y>=0&&y<80);
+ assert(x>=0&&x<240&&y>=0&&y<SCREEN_BAND_H);
  raster[(y+band)*240+x]=__builtin_bswap16(color);
 }
 int main(void){
@@ -28,7 +28,8 @@ int main(void){
    // Compose all original tiles in their original coordinate space first.
    const gold_span_t *span=&gold_object_spans[f->objects];
    for(int j=span->count-1;j>=0;j--){
-    const gold_object_t *o=&gold_objects[span->offset+j];assert(o->tile<0x8000);
+    gold_object_t object=gold_object_at(span->offset+j);
+    const gold_object_t *o=&object;assert(o->tile<0x8000);
     for(unsigned y=0;y<8;y++)for(unsigned x=0;x<8;x++){
      unsigned index=raw_index(o->tile,o->flags&32?7-x:x,o->flags&64?7-y:y);
      int sx=o->x-8+(int)x,sy=o->y-16+(int)y;
@@ -36,7 +37,7 @@ int main(void){
     }
    }
    for(unsigned i=0;i<240*320;i++)raster[i]=0xffff;
-   for(band=0;band<240;band+=80)gold_fx_draw(&r,frame,band,0,0);
+   for(band=0;band<240;band+=SCREEN_BAND_H)gold_fx_draw(&r,frame,band,0,0);
    // Independently inverse-sample the completed original image. A segment
    // cannot acquire a separate offset/scale at its join with the next one.
    for(int y=0;y<240;y++)for(int x=0;x<240;x++){

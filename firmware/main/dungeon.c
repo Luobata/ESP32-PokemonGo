@@ -16,7 +16,7 @@
 extern bool dungeon_host_commit(const void *data,size_t len);
 extern bool dungeon_host_load(void *data,size_t len);
 #endif
-#define DUNGEON_VERSION 4
+#define DUNGEON_VERSION 6
 const char *const dungeon_nodes[8]={"林间入口","林间岔路","深林对战","营地","巡护精英","遗迹岔路","最后营地","森林首领"};
 const char *const dungeon_cards[DUNGEON_CARD_COUNT]={"烈焰印记","潮汐印记","雷鸣印记","强攻","冥想","坚守","疾风","会心","余温","营火","净化","接力盾","弱点追击","接力强攻","乘胜回复"};
 const char *const dungeon_desc[DUNGEON_CARD_COUNT]={"火系伙伴伤害增加25%","水系伙伴伤害增加25%","电系伙伴伤害增加25%","开场攻击提升一级","开场特攻提升一级","开场防御特防升一级","开场速度提升一级","开场更易击中要害","胜利存活伙伴回复15%","营地回复额外增加20%","开场清除异常状态","首次主动换入防御升一级","攻击异常对手伤害加25%","主动换入首击伤害加35%","攻击击倒对手回复15%"};
@@ -31,16 +31,18 @@ static const char *feedback;
 const char *dungeon_feedback(void){return feedback;}
 static uint32_t rng(dungeon_t *d){uint32_t x=d->seed?d->seed:1;x^=x<<13;x^=x>>17;x^=x<<5;return d->seed=x;}
 static bool valid(const dungeon_t *d){
- if(d->version!=DUNGEON_VERSION||d->phase>DUNGEON_TRAIL||d->node>7||d->cards>32767||d->guards>7||d->relay_mask>7||d->pending>1||d->next_phase>DUNGEON_LOST||!items_inventory_valid(&d->earned))return false;
+ if(d->version!=DUNGEON_VERSION||d->phase>DUNGEON_TRAIL||d->node>7||d->cards>32767||d->guards>7||d->relay_mask>7||d->pending>1||d->next_phase>DUNGEON_LOST||!items_legacy_inventory_valid(&d->earned))return false;
  if(d->theme>9||d->challenge>1||d->trail>2||d->boss_variant>2)return false;
  if(d->phase==DUNGEON_EMPTY)return true;
  if(!d->count)return d->phase==DUNGEON_LOST; // Archived rental run.
  if(d->count>3||!d->base_level||d->base_level>100)return false;
  for(unsigned i=0;i<3;i++)if(d->choices[i]>=DUNGEON_CARD_COUNT)return false;
  for(unsigned i=0;i<d->count;i++){
-  if(d->slots[i]>=PARTY_MAX||!d->ids[i]||d->ids[i]>151||d->members[i].species_id!=d->ids[i]||!d->members[i].level||d->members[i].level>100)return false;
+  if(d->slots[i]>=PARTY_MAX||!d->ids[i]||d->ids[i]>251||d->members[i].species_id!=d->ids[i]||!d->members[i].level||d->members[i].level>100||!combat_individual_valid(&d->members[i]))return false;
   for(unsigned j=0;j<i;j++)if(d->slots[i]==d->slots[j])return false;
  }
+ if(!trainer_store_valid(&d->battle))return false;
+ for(unsigned side=0;side<2;side++)for(unsigned i=0;i<d->battle.session.sides[side].count;i++){const combat_mon_t *b=&d->battle.session.sides[side].mons[i];mon_t m={.species_id=b->species};memcpy(m.special.sketch,b->pp,4);if(!combat_individual_valid(&m))return false;}
  return trainer_store_valid(&d->battle)&&d->battle.session.sides[0].count==d->count;
 }
 #if !defined(HOST_BUILD) || defined(DUNGEON_REAL_NVS_TEST)
@@ -50,9 +52,9 @@ static void prune_legacy_runs(unsigned retained_version)
 {
  nvs_handle_t h;
  if(nvs_open("pw_dungeon",NVS_READWRITE,&h)!=ESP_OK)return;
- static const char *const keys[]={"run_v1","run_v2","run_v3"};
+ static const char *const keys[]={"run_v1","run_v2","run_v3","run_v4","run_v5"};
  bool changed=false;
- for(unsigned i=0;i<3&&i+1<retained_version;i++){
+ for(unsigned i=0;i<5&&i+1<retained_version;i++){
   esp_err_t e=nvs_erase_key(h,keys[i]);
   if(e==ESP_OK)changed=true;
   else if(e!=ESP_ERR_NVS_NOT_FOUND)ESP_LOGW("dungeon","Legacy run cleanup deferred: %s",esp_err_to_name(e));
@@ -65,12 +67,29 @@ static bool commit(const dungeon_t *d){
  if(storage_error||!valid(d))return false;
 #if !defined(HOST_BUILD) || defined(DUNGEON_REAL_NVS_TEST)
  nvs_handle_t h;if(nvs_open("pw_dungeon",NVS_READWRITE,&h)!=ESP_OK)return false;
- esp_err_t e=nvs_set_blob(h,"run_v4",d,sizeof(*d));if(e==ESP_OK)e=nvs_commit(h);nvs_close(h);if(e!=ESP_OK)return false;
+ esp_err_t e=nvs_set_blob(h,"run_v6",d,sizeof(*d));if(e==ESP_OK)e=nvs_commit(h);nvs_close(h);if(e!=ESP_OK)return false;
  prune_legacy_runs(DUNGEON_VERSION);
 #else
  if(!dungeon_host_commit(d,sizeof(*d)))return false;
 #endif
  run=*d;return true;
+}
+static bool migrate_run(dungeon_t *saved,size_t len){
+ if(saved->version==6)return len==sizeof(*saved)&&valid(saved);
+ if(saved->version==5){if(len!=sizeof(*saved))return false;for(unsigned side=0;side<2;side++)for(unsigned i=0;i<6;i++)memset(saved->battle.session.sides[side].mons[i].pp,0,4);saved->version=6;return valid(saved);}
+ unsigned version=saved->version;
+ if((version!=3||len!=sizeof(dungeon_v3_t))&&(version!=4||len!=sizeof(dungeon_v4_t)))return false;
+ dungeon_v4_t *old=(dungeon_v4_t*)saved;
+ uint8_t slots[3],count=old->count,level=old->base_level;
+ uint8_t theme=version==4?old->theme:0,challenge=version==4?old->challenge:0;
+ uint8_t trail=version==4?old->trail:0,boss=version==4?old->boss_variant:0;
+ memcpy(slots,old->slots,3);
+ for(unsigned i=3;i-->0;){mon_v27_t m=old->members[i];memset(&saved->members[i],0,sizeof(mon_t));memcpy(&saved->members[i],&m,sizeof(m));}
+ memcpy(saved->slots,slots,3);saved->count=count;saved->base_level=level;
+ memset(saved->v3_padding,0,sizeof(saved->v3_padding));saved->theme=theme;saved->challenge=challenge;saved->trail=trail;saved->boss_variant=boss;saved->version=6;
+ // These bytes were retired PP in V3/V4, not individual traits.
+ for(unsigned side=0;side<2;side++)for(unsigned i=0;i<6;i++)memset(saved->battle.session.sides[side].mons[i].pp,0,4);
+ return valid(saved);
 }
 void dungeon_load(void){
  if(loaded)return;
@@ -78,10 +97,12 @@ void dungeon_load(void){
 #if !defined(HOST_BUILD) || defined(DUNGEON_REAL_NVS_TEST)
  nvs_handle_t h;dungeon_t *saved=&candidate;size_t len=sizeof(*saved);
  if(nvs_open("pw_dungeon",NVS_READONLY,&h)==ESP_OK){
-  unsigned retained_version=4;bool retained_valid=false;
-  esp_err_t e=nvs_get_blob(h,"run_v4",saved,&len);
-  if(e==ESP_ERR_NVS_NOT_FOUND){retained_version=3;memset(saved,0,sizeof(*saved));len=sizeof(dungeon_v3_t);e=nvs_get_blob(h,"run_v3",saved,&len);if(e==ESP_OK&&len==sizeof(dungeon_v3_t)&&saved->version==3){saved->version=4;len=sizeof(*saved);}}
-  if(e==ESP_OK&&len==sizeof(*saved)&&valid(saved)){run=*saved;retained_valid=true;}
+  unsigned retained_version=6;bool retained_valid=false;
+  esp_err_t e=nvs_get_blob(h,"run_v6",saved,&len);
+  if(e==ESP_ERR_NVS_NOT_FOUND){retained_version=5;memset(saved,0,sizeof(*saved));len=sizeof(*saved);e=nvs_get_blob(h,"run_v5",saved,&len);}
+  if(e==ESP_ERR_NVS_NOT_FOUND){retained_version=4;memset(saved,0,sizeof(*saved));len=sizeof(dungeon_v4_t);e=nvs_get_blob(h,"run_v4",saved,&len);}
+  if(e==ESP_ERR_NVS_NOT_FOUND){retained_version=3;memset(saved,0,sizeof(*saved));len=sizeof(dungeon_v3_t);e=nvs_get_blob(h,"run_v3",saved,&len);}
+  if(e==ESP_OK&&migrate_run(saved,len)){run=*saved;retained_valid=true;}
   // Legacy rental runs cannot be attached to owned individuals. Keep their
   // history; real inventory/EXP already credited remain in the world save.
   else if(e==ESP_ERR_NVS_NOT_FOUND){
@@ -97,8 +118,10 @@ void dungeon_load(void){
 #else
  dungeon_t *saved=&candidate;
  memset(saved,0,sizeof(*saved));bool got=dungeon_host_load(saved,sizeof(*saved));
- if(!got&&dungeon_host_load(saved,sizeof(dungeon_v3_t))&&saved->version==3){saved->version=4;got=true;}
- if(got&&valid(saved))run=*saved;
+ size_t length=sizeof(*saved);
+ if(!got){length=sizeof(dungeon_v4_t);got=dungeon_host_load(saved,length);}
+ if(!got){length=sizeof(dungeon_v3_t);got=dungeon_host_load(saved,length);}
+ if(got&&migrate_run(saved,length))run=*saved;
 #endif
 }
 const dungeon_t *dungeon_get(void){dungeon_load();return &run;}
@@ -169,12 +192,15 @@ bool dungeon_abandon(void){
  dungeon_t *d=&candidate;*d=run;d->phase=DUNGEON_LOST;return commit(d);
 }
 bool dungeon_new(const uint8_t slots[3],unsigned count,uint32_t seed){return dungeon_new_theme(slots,count,seed,0,false);}
+static __attribute__((noinline)) bool theme_challenge_ready(unsigned theme,bool challenge){
+ if(!theme||!challenge||theme>=9)return true;
+ exploration_view_t view;world_exploration_snapshot(&view);return view.regions.region[theme-1].clears!=0;
+}
 bool dungeon_new_theme(const uint8_t slots[3],unsigned count,uint32_t seed,unsigned theme,bool challenge){
  dungeon_load();if(!slots||!count||count>3)return false;TRACE_STAGE("entry_begin");
  if((run.phase==DUNGEON_ENTRY||(run.phase==DUNGEON_SETTLEMENT&&run.pending))&&!dungeon_resume())return false;
  if(storage_error||!world_dungeon_ready()||!dungeon_theme_open(theme))return false;
- exploration_view_t view;world_exploration_snapshot(&view);
- if(theme&&challenge&&theme<9&&!view.regions.region[theme-1].clears)return false;
+ if(!theme_challenge_ready(theme,challenge))return false;
  world_party_t owned;world_party_snapshot(&owned);
  dungeon_progress_t progress;world_dungeon_progress(&progress);if(progress.run_id==UINT32_MAX)return false;
  dungeon_t *d=&candidate;memset(d,0,sizeof(*d));d->version=DUNGEON_VERSION;d->seed=seed;d->count=count;d->theme=theme;d->challenge=challenge;d->boss_variant=seed%3;
@@ -223,6 +249,7 @@ bool dungeon_step(trainer_event_t *out){
  d->battle.session.ability=1024+boost+(pursuit?256:0)+(relay?358:0);
  battle_policies(d,selected_policies);
  if(!trainer_step_filtered(&d->battle,out,selected_policies))return false;
+ for(unsigned i=0;i<d->count;i++)combat_record_sketch(&d->members[i],&d->battle.session.sides[0].mons[i]);
  bool hit=out->kind==TRAINER_ATTACK&&out->side==0&&!out->attack.missed&&out->attack.damage;
  bool knockout=hit&&out->before_hp[1]&&!d->battle.session.sides[1].mons[enemy].hp&&(d->cards&(1u<<14));
  if(hit&&relay)d->relay_mask&=~(1u<<slot);
@@ -255,7 +282,7 @@ bool dungeon_resume(void){
  if(d->run_id){
   if(!world_dungeon_award(d->run_id,d->node,d->seed,&d->receipt))return false;
   d->xp+=d->receipt.xp;
-  for(unsigned i=0;i<ITEM_COUNT;i++)d->earned.quantity[i]+=d->receipt.items.quantity[i];
+  for(unsigned i=0;i<ITEM_LEGACY_COUNT;i++)d->earned.quantity[i]+=d->receipt.items.quantity[i];
  }else memset(&d->receipt,0,sizeof(d->receipt));
  d->pending=0;return commit(d);
 }
@@ -294,3 +321,5 @@ bool dungeon_award_details(uint32_t id,unsigned node,dungeon_award_details_t *ou
  }
  return true;
 }
+
+bool dungeon_learned(unsigned slot,mon_t *out){for(unsigned i=0;i<run.count;i++)if(run.slots[i]==slot){*out=run.members[i];return true;}return false;}

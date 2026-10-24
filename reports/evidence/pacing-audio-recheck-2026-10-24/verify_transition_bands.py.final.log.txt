@@ -1,0 +1,1 @@
+{"passed": true, "variants": 10, "band_checks": 14352, "sanitizers": "ASan/UBSan fatal", "negative_control_detected": true}

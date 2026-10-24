@@ -11,7 +11,7 @@ static unsigned duration(const cry_note_t *n,unsigned tempo,uint32_t *remainder)
  unsigned t=n->frames*tempo+*remainder;*remainder=t%256;return t/256?t/256:1;
 }
 uint32_t cry_duration_ms(uint16_t id){
- if(!id||id>151)return 0;
+ if(!id||id>251)return 0;
  const cry_species_t *sp=&cry_species[id];unsigned max=0;
  for(unsigned ch=0;ch<3;ch++){
   const cry_track_t *t=&cry_scores[sp->base][ch];unsigned frames=0;uint32_t rem=0;
@@ -20,7 +20,7 @@ uint32_t cry_duration_ms(uint16_t id){
  }
  return (samples(max)*1000u+AUDIO_SAMPLE_RATE-1)/AUDIO_SAMPLE_RATE;
 }
-void cry_start(cry_player_t *p,uint16_t id){memset(p,0,sizeof(*p));p->species=id<=151?id:0;}
+void cry_start(cry_player_t *p,uint16_t id){memset(p,0,sizeof(*p));p->species=id<=251?id:0;}
 bool cry_sample(cry_player_t *p,int16_t *out){
  *out=0;if(!p->species)return false;
  const cry_species_t *sp=&cry_species[p->species];bool active=false;int mix=0;

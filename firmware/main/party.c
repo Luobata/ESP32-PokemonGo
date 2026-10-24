@@ -2,7 +2,7 @@
 
 #include "party.h"
 
-_Static_assert(sizeof(mon_t) == MON_BYTES, "mon_t layout must stay 12 bytes");
+_Static_assert(sizeof(mon_t) == 16, "Version V28 individual layout");
 
 static void wr16(uint8_t *p, uint16_t v)
 {
@@ -43,6 +43,7 @@ static void mon_serialize(const mon_t *m, uint8_t *out)
 
 static void mon_deserialize(mon_t *m, const uint8_t *in)
 {
+    memset(m,0,sizeof(*m));
     m->species_id = in[0];
     m->level = in[1];
     m->hp = in[2];
@@ -132,7 +133,7 @@ void party_serialize(const party_t *p, uint8_t *out)
     uint8_t count = p->party_count > PARTY_MAX ? PARTY_MAX : p->party_count;
     out[0] = count;
     uint8_t box_count = 0;
-    for (uint16_t i = 0; i < BOX_SPECIES; i++) {
+    for (uint16_t i = 0; i < LEGACY_BOX_SPECIES; i++) {
         if (p->box[i].species_id) box_count++;
     }
     out[1] = box_count;
@@ -143,7 +144,7 @@ void party_serialize(const party_t *p, uint8_t *out)
     }
 
     uint8_t *box_out = party_out + PARTY_MAX * MON_BYTES;
-    for (uint16_t i = 0; i < BOX_SPECIES; i++) {
+    for (uint16_t i = 0; i < LEGACY_BOX_SPECIES; i++) {
         if (p->box[i].species_id) {
             mon_serialize(&p->box[i], box_out + (size_t)i * MON_BYTES);
         }
@@ -164,10 +165,10 @@ bool party_deserialize(party_t *p, const uint8_t *in, uint16_t len)
     }
 
     const uint8_t *box_in = party_in + PARTY_MAX * MON_BYTES;
-    for (uint16_t i = 0; i < BOX_SPECIES; i++) {
+    for (uint16_t i = 0; i < LEGACY_BOX_SPECIES; i++) {
         mon_t m;
         mon_deserialize(&m, box_in + (size_t)i * MON_BYTES);
-        if (m.species_id >= 1 && m.species_id <= BOX_SPECIES) {
+        if (m.species_id >= 1 && m.species_id <= LEGACY_BOX_SPECIES) {
             next->box[i] = m;
         }
     }

@@ -8,3 +8,6 @@ bool evolution_ui_active(void);
 bool evolution_ui_key(bsp_btn_t,bsp_btn_ev_t);
 void evolution_ui_stop(void);
 unsigned evolution_ui_frame(void);
+
+#include "party.h"
+bool evolution_ui_begin_individual(unsigned slot,const mon_t *expected,unsigned target);
