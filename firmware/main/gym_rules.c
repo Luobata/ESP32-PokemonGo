@@ -46,7 +46,7 @@ static unsigned scale(void *opaque,const combat_mon_t *a,const combat_mon_t *d,c
   if(k==GYM_SWARM)percent=100+25*g->stacks;
   if(k==GYM_VEIL&&!m->broken)percent=g->kind==GYM_ELM?100:140;
   if(k==GYM_FIST&&!m->broken&&g->kind!=GYM_ELM)percent=130;
-  if(k==GYM_CHEER&&i>=s->sides[1].count-2){for(unsigned n=0;n+2<s->sides[1].count;n++)if(s->sides[1].mons[n].hp){percent=125;break;}}
+  if(k==GYM_CHEER&&i>=(unsigned)(s->sides[1].count-2)){for(unsigned n=0;n+2<s->sides[1].count;n++)if(s->sides[1].mons[n].hp){percent=125;break;}}
   if(k==GYM_FIST&&!m->broken&&!m->once&&g->round>=m->until&&move->type==(g->kind==GYM_ELM?TY_FIRE:TY_FIGHTING))percent=g->kind==GYM_ELM?150:200;
   if(k==GYM_COLD)percent=100+(move->type==TY_ICE?25:10)*g->stacks;
   if(k==GYM_DRAGON&&!m->broken&&g->round<m->until)percent=130;

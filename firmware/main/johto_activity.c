@@ -128,7 +128,7 @@ bool activity_sea_next(activity_run_t *r,unsigned choice){
  if(r->phase==ACT_DEEP_PATH&&choice<2){r->path=choice;r->node=4;return sea_battle(r,false);}
  return false;
 }
-static bool pending_add(activity_store_t *s,unsigned item,unsigned n){if(n>UINT16_MAX-s->pending.quantity[item])return false;s->pending.quantity[item]+=n;return true;}
+static bool pending_add(activity_store_t *s,unsigned item,unsigned n){if(n>(unsigned)(UINT16_MAX-s->pending.quantity[item]))return false;s->pending.quantity[item]+=n;return true;}
 bool activity_bank(activity_store_t *s){
  activity_run_t *r=&s->run;if(!activity_expedition(r->kind)||r->phase!=ACT_RELAY||r->banked)return false;
  for(unsigned i=0;i<ITEM_COUNT;i++)if(!pending_add(s,i,r->earned.quantity[i]))return false;
