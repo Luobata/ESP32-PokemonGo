@@ -22,77 +22,89 @@ jobs:
         run: python3 -m pip install Pillow
       - name: Run production C power and save regression
         run: |
-          python3 tools/pipeline/verify_power_audio.py
-          python3 tools/pipeline/verify_power_worker.py
-          python3 tools/pipeline/verify_display_init.py
-          python3 tools/pipeline/verify_display_sleep.py
-          python3 tools/pipeline/verify_silent_boot.py
-          python3 tools/pipeline/verify_display_settings.py
-          python3 tools/pipeline/verify_wifi_time.py
-          python3 tools/pipeline/verify_usb_backup.py
-          python3 tools/pipeline/verify_usb_import.py
-          python3 tools/pipeline/verify_usb_stream.py
-          python3 tools/pipeline/verify_party.py
-          python3 tools/pipeline/verify_world_party.py
-          python3 tools/pipeline/verify_box_browser.py
-          python3 tools/pipeline/verify_save_import_compatibility.py
-          python3 tools/pipeline/verify_save_storage.py
-          python3 tools/pipeline/verify_usb_import_device.py
-          python3 tools/pipeline/verify_firmware_update.py
-          node tools/pipeline/verify_save_import_web.mjs
-          python3 tools/pipeline/verify_audio_settings.py
-          python3 tools/pipeline/verify_offline_stamina.py
-          python3 tools/pipeline/verify_usb_backup_checkpoint.py
-          python3 tools/pipeline/verify_achievement_capacity.py
-          python3 tools/pipeline/verify_shiny_sources.py
-          python3 tools/pipeline/verify_shiny_entry.py
-          python3 tools/pipeline/verify_move_names.py
-          python3 tools/pipeline/verify_move_settings.py
-          python3 tools/pipeline/verify_move_settings_ui.py
-          python3 tools/pipeline/verify_move_settings_dungeon.py
-          python3 tools/pipeline/verify_box_release.py
-          python3 tools/pipeline/verify_box_release_ui.py
-          python3 tools/pipeline/verify_capture_capacity.py
-          python3 tools/pipeline/verify_capture_capacity_ui.py
-          python3 tools/pipeline/verify_dungeon_rewards.py
-          python3 tools/pipeline/verify_region_expansion.py
-          python3 tools/pipeline/verify_exploration_balance.py
-          python3 tools/pipeline/verify_playtime.py
-          python3 tools/pipeline/verify_exploration_events.py
-          python3 tools/pipeline/verify_care_events_preview.py
-          python3 tools/pipeline/verify_region_trails_preview.py
-          python3 tools/pipeline/verify_achievements.py
-          python3 tools/pipeline/verify_transition_bands.py
-          python3 tools/pipeline/verify_display_ownership.py
-          python3 tools/pipeline/verify_device_screenshot.py
-          python3 tools/pipeline/verify_firmware_preview.py
-          python3 tools/pipeline/verify_render_bounds.py
-          python3 tools/pipeline/verify_animation_timing.py
-          python3 tools/pipeline/verify_scene_pacing.py
-          python3 tools/pipeline/verify_battle_timeline.py
-          python3 tools/pipeline/verify_battle_motion.py
-          python3 tools/pipeline/verify_battle_timeline_ui.py
-          python3 tools/pipeline/verify_battle_pace_ui.py
-          python3 tools/pipeline/compile_pokemon_slow_timing.py --check
-          python3 tools/pipeline/verify_audio_switch.py
-          python3 tools/pipeline/verify_music.py
-          python3 tools/pipeline/verify_usb_console.py
-          python3 tools/pipeline/verify_johto_save.py
-          python3 tools/pipeline/verify_johto_routes.py
-          python3 tools/pipeline/verify_johto_routes_ui.py
-          python3 tools/pipeline/verify_johto_fieldwork.py
-          python3 tools/pipeline/verify_johto_fieldwork_ui.py
-          python3 tools/pipeline/verify_johto_evolution.py
-          python3 tools/pipeline/verify_johto_evolution_ui.py
-          python3 tools/pipeline/verify_johto_activity.py
-          python3 tools/pipeline/verify_johto_activity_ui.py
-          python3 tools/pipeline/verify_johto_story.py
-          python3 tools/pipeline/verify_johto_story_ui.py
-          python3 tools/pipeline/verify_johto_champion.py
-          python3 tools/pipeline/verify_johto_champion_ui.py
-          python3 tools/pipeline/verify_johto_champion_balance.py
-          python3 tools/pipeline/verify_johto_narrative.py
-          python3 tools/pipeline/verify_johto_narrative_ui.py
+          failures=()
+          run_check() {
+            if "$@"; then
+              echo "PASS: $*"
+            else
+              failures+=("$*")
+            fi
+          }
+          run_check python3 tools/pipeline/verify_power_audio.py
+          run_check python3 tools/pipeline/verify_power_worker.py
+          run_check python3 tools/pipeline/verify_display_init.py
+          run_check python3 tools/pipeline/verify_display_sleep.py
+          run_check python3 tools/pipeline/verify_silent_boot.py
+          run_check python3 tools/pipeline/verify_display_settings.py
+          run_check python3 tools/pipeline/verify_wifi_time.py
+          run_check python3 tools/pipeline/verify_usb_backup.py
+          run_check python3 tools/pipeline/verify_usb_import.py
+          run_check python3 tools/pipeline/verify_usb_stream.py
+          run_check python3 tools/pipeline/verify_party.py
+          run_check python3 tools/pipeline/verify_world_party.py
+          run_check python3 tools/pipeline/verify_box_browser.py
+          run_check python3 tools/pipeline/verify_save_import_compatibility.py
+          run_check python3 tools/pipeline/verify_save_storage.py
+          run_check python3 tools/pipeline/verify_usb_import_device.py
+          run_check python3 tools/pipeline/verify_firmware_update.py
+          run_check node tools/pipeline/verify_save_import_web.mjs
+          run_check python3 tools/pipeline/verify_audio_settings.py
+          run_check python3 tools/pipeline/verify_offline_stamina.py
+          run_check python3 tools/pipeline/verify_usb_backup_checkpoint.py
+          run_check python3 tools/pipeline/verify_achievement_capacity.py
+          run_check python3 tools/pipeline/verify_shiny_sources.py
+          run_check python3 tools/pipeline/verify_shiny_entry.py
+          run_check python3 tools/pipeline/verify_move_names.py
+          run_check python3 tools/pipeline/verify_move_settings.py
+          run_check python3 tools/pipeline/verify_move_settings_ui.py
+          run_check python3 tools/pipeline/verify_move_settings_dungeon.py
+          run_check python3 tools/pipeline/verify_box_release.py
+          run_check python3 tools/pipeline/verify_box_release_ui.py
+          run_check python3 tools/pipeline/verify_capture_capacity.py
+          run_check python3 tools/pipeline/verify_capture_capacity_ui.py
+          run_check python3 tools/pipeline/verify_dungeon_rewards.py
+          run_check python3 tools/pipeline/verify_region_expansion.py
+          run_check python3 tools/pipeline/verify_exploration_balance.py
+          run_check python3 tools/pipeline/verify_playtime.py
+          run_check python3 tools/pipeline/verify_exploration_events.py
+          run_check python3 tools/pipeline/verify_care_events_preview.py
+          run_check python3 tools/pipeline/verify_region_trails_preview.py
+          run_check python3 tools/pipeline/verify_achievements.py
+          run_check python3 tools/pipeline/verify_transition_bands.py
+          run_check python3 tools/pipeline/verify_display_ownership.py
+          run_check python3 tools/pipeline/verify_device_screenshot.py
+          run_check python3 tools/pipeline/verify_firmware_preview.py
+          run_check python3 tools/pipeline/verify_render_bounds.py
+          run_check python3 tools/pipeline/verify_animation_timing.py
+          run_check python3 tools/pipeline/verify_scene_pacing.py
+          run_check python3 tools/pipeline/verify_battle_timeline.py
+          run_check python3 tools/pipeline/verify_battle_motion.py
+          run_check python3 tools/pipeline/verify_battle_timeline_ui.py
+          run_check python3 tools/pipeline/verify_battle_pace_ui.py
+          run_check python3 tools/pipeline/compile_pokemon_slow_timing.py --check
+          run_check python3 tools/pipeline/verify_audio_switch.py
+          run_check python3 tools/pipeline/verify_music.py
+          run_check python3 tools/pipeline/verify_usb_console.py
+          run_check python3 tools/pipeline/verify_johto_save.py
+          run_check python3 tools/pipeline/verify_johto_routes.py
+          run_check python3 tools/pipeline/verify_johto_routes_ui.py
+          run_check python3 tools/pipeline/verify_johto_fieldwork.py
+          run_check python3 tools/pipeline/verify_johto_fieldwork_ui.py
+          run_check python3 tools/pipeline/verify_johto_evolution.py
+          run_check python3 tools/pipeline/verify_johto_evolution_ui.py
+          run_check python3 tools/pipeline/verify_johto_activity.py
+          run_check python3 tools/pipeline/verify_johto_activity_ui.py
+          run_check python3 tools/pipeline/verify_johto_story.py
+          run_check python3 tools/pipeline/verify_johto_story_ui.py
+          run_check python3 tools/pipeline/verify_johto_champion.py
+          run_check python3 tools/pipeline/verify_johto_champion_ui.py
+          run_check python3 tools/pipeline/verify_johto_champion_balance.py
+          run_check python3 tools/pipeline/verify_johto_narrative.py
+          run_check python3 tools/pipeline/verify_johto_narrative_ui.py
+          if (( ${#failures[@]} )); then
+            printf 'FAILED: %s\n' "${failures[@]}"
+            exit 1
+          fi
       - name: Build and verify release components
         uses: espressif/esp-idf-ci-action@9d38657f3d789ca759b2b37aaf5ceffbc42c4f0d # v1
         with:
