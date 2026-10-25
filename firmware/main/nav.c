@@ -27,6 +27,8 @@ typedef struct {
 // **顺序必须与 page_id_t 一致** —— 用下标索引，错位不会报错，
 // 只会「按 C 进了图鉴」。加页面时两处一起改。
 static const page_t PAGES[PAGE_COUNT] = {
+    [PAGE_RADAR] = {"P21 遭遇雷达",play_radar_enter,play_field_exit,play_field_key},
+    [PAGE_FIELDMAP] = {"P22 地图漫游",play_fieldmap_enter,play_field_exit,play_field_key},
     [PAGE_NARRATIVE] = {"P20 城都剧情",play_narrative_enter,play_narrative_exit,play_narrative_key},
     [PAGE_STORY] = {"P19 冒险笔记",play_story_enter,play_story_exit,play_story_key},
     [PAGE_ACTIVITY] = {"P18 城都活动", play_activity_enter, play_activity_exit, play_activity_key},
@@ -150,6 +152,7 @@ bool nav_screen_busy(void)
     if(evolution_ui_active())return true;
     if (!s_entered) return false;
     switch (s_cur) {
+    case PAGE_FIELDMAP: return play_field_screen_busy();
     case PAGE_STORY: return play_story_screen_busy();
     case PAGE_ACTIVITY: return play_activity_screen_busy();
     case PAGE_JOHTO: return play_johto_screen_busy();

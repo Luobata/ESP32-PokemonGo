@@ -53,6 +53,7 @@ static trainer_store_t challenge;
 static johto_state_t chapter;
 static johto_story_t journal;
 static narrative_t narrative;
+static field_state_t preview_field;
 static endgame_t endgame;
 static activity_store_t preview_activity;
 static uint16_t preview_research_rewards[JOHTO_REWARD_COUNT];
@@ -546,7 +547,7 @@ void sfx_move(uint16_t id, uint8_t type, bool missed) { if(host_muted)return; so
 static const page_id_t page_ids[] = {
     PAGE_OPENING, PAGE_IDLE, PAGE_ENCOUNTER, PAGE_BATTLE,
     PAGE_CAPTURE, PAGE_CARE, PAGE_DEX, PAGE_COUNT, PAGE_COUNT, PAGE_STARTER, PAGE_BAG,
-    PAGE_MENU, PAGE_PARTY, PAGE_TRAINER, PAGE_ACHIEVEMENTS, PAGE_EXPLORATION, PAGE_DUNGEON, PAGE_JOHTO, PAGE_ACTIVITY, PAGE_STORY, PAGE_NARRATIVE,
+    PAGE_MENU, PAGE_PARTY, PAGE_TRAINER, PAGE_ACHIEVEMENTS, PAGE_EXPLORATION, PAGE_DUNGEON, PAGE_JOHTO, PAGE_ACTIVITY, PAGE_STORY, PAGE_NARRATIVE, PAGE_RADAR, PAGE_FIELDMAP,
 };
 static bool valid_page(unsigned page)
 {
@@ -566,13 +567,13 @@ static void fixture(unsigned pet, unsigned level, unsigned wild, unsigned rarity
     host_muted=true;host_volume=AUDIO_VOLUME_DEFAULT;host_alert=0;host_notifying=false;
     memset(&achievements,0,sizeof(achievements));
     memset(&regions,0,sizeof(regions));exploration_init(&exploration);exploration_wins=0;memset(&exploration_updates,0,sizeof(exploration_updates));memset(&refresh,0,sizeof(refresh));
-    memset(&world, 0, sizeof(world));
+    memset(&world, 0, sizeof(world));memset(&preview_field,0,sizeof(preview_field));
     nurture_init(&world.pet);nurture_tick(&world.pet,esp_timer_get_time(),0,false);lv_timer_create(nurture_clock,60000,NULL);
     world.species = pet;
     world.level = level;
     world.exp = exp_for_level(level);
     world.progress = 70;
-    world.place_id = 1;
+    world.place_id = 1;world.last_ap_count=16;world.scans=1;
     enc_queue_init(&queue);
     dex_init(&dex);
     party_init(&party);
@@ -671,6 +672,8 @@ static void state(void)
     }
     printf("],\"dropped\":%u,\"active\":", queue.dropped);
     if (active_valid) encounter_state(&active_enc); else printf("null");
+    {unsigned v,m,p,e;int x,y;bool w;play_field_inspect(&v,&m,&p,&x,&y,&w,&e);
+     printf(",\"field\":{\"view\":%u,\"map\":%u,\"point\":%u,\"x\":%d,\"y\":%d,\"walking\":%u,\"error\":%u,\"serial\":%lu,\"visited\":[%u,%u,%u],\"stamina\":%u}",v,m,p,x,y,w,e,(unsigned long)preview_field.serial,preview_field.visited[0],preview_field.visited[1],preview_field.visited[2],nurture_stamina_points(&world.pet));}
     printf(",\"johto\":{\"phase\":%u,\"badges\":%u,\"visits\":%lu,\"egg_steps\":%u,\"research\":[",chapter.phase,chapter.badges,(unsigned long)chapter.explorations,chapter.egg_steps);
     for(unsigned i=0;i<8;i++)printf("%s%u",i?",":"",chapter.research[i]);
     printf("],\"clues\":[");for(unsigned i=0;i<8;i++)printf("%s%u",i?",":"",johto_track_clues(&chapter,i));
@@ -874,6 +877,8 @@ int main(void)
             exploration_updates.activity_progress[a]=b;exploration_updates.activity_uid[a]=0;
             if(c)exploration_updates.activity_claimed|=1u<<a;else exploration_updates.activity_claimed&=~(1u<<a);
             if(nav_current()==PAGE_EXPLORATION)nav_go(PAGE_EXPLORATION);
+        } else if (booted && !strcmp(cmd,"radar_fixture") && sscanf(line,"%*s %u %u",&a,&b)==2 && a<=64 && b<=65535) {
+            world.last_ap_count=a;world.place_id=b;world.scans++;screen_redraw_current();
         } else if (booted && !strcmp(cmd,"johto_fixture") && sscanf(line,"%*s %u %u",&a,&b)==2 && a<=8 && b<=65535) {
             narrative_init(&narrative);johto_story_init(&journal);memset(&endgame,0,sizeof(endgame));johto_init(&chapter);activity_init(&preview_activity);chapter.phase=JOHTO_ACTIVE;chapter.starter=152;chapter.badges=(1u<<a)-1;narrative.seen=(UINT64_C(1)<<N_SCENE_COUNT)-1;
             for(unsigned i=0;i<8;i++)chapter.research[i]=b;
@@ -1394,3 +1399,20 @@ unsigned world_narrative_update(unsigned scene,unsigned page,unsigned answer,boo
  narrative_context_t c;world_narrative_snapshot(&c);unsigned r=begin?narrative_begin(&c,scene):narrative_advance(&c,scene,page,answer);if(r)return r;
  if(host_save_fails())return N_SAVE_FAILED;narrative=c.state;return N_OK;
 }
+
+#include "field_adventure_core.h"
+void world_field_snapshot(field_view_t *out){
+ *out=(field_view_t){.state=preview_field,.online_s=now_ms/1000,.signals=world.last_ap_count,.scans=world.scans,.place=world.place_id,.stamina=nurture_stamina_points(&world.pet),.simulated=1};
+ for(unsigned i=0;i<FIELD_MAP_COUNT;i++)if(field_map_open(&chapter,i))out->open_maps|=1u<<i;
+}
+static unsigned preview_field_action(unsigned mode,unsigned point,encounter_t *out){
+ if(world_needs_starter())return FIELD_LOCKED;
+ if(active_valid||challenge.session.active||challenge.league_active||dungeon_party_locked()||preview_activity.run.kind)return FIELD_BUSY;
+ static save_t tx;memset(&tx,0,sizeof(tx));tx.field=preview_field;tx.johto=chapter;tx.story=journal;tx.pet=world.pet;tx.queue=queue;tx.dex=dex;tx.level=world.level;tx.refresh.online_s=now_ms/1000;tx.exploration_wins=exploration_wins;
+ encounter_t e;unsigned r=point<3?field_observe_apply(&tx,mode,point):field_search_apply(&tx,mode,world.last_ap_count,world.place_id,(uint32_t)(now_ms*1000),&e);
+ if(r)return r;if(host_save_fails())return FIELD_SAVE_FAILED;
+ preview_field=tx.field;chapter=tx.johto;journal=tx.story;world.pet=tx.pet;queue=tx.queue;world.pending=queue.count;dex=tx.dex;
+ if(point>=3){*out=e;sfx_encounter(e.rarity,e.is_shiny);}return FIELD_OK;
+}
+unsigned world_field_observe(unsigned map,unsigned point){if(point>=3)return FIELD_LOCKED;return preview_field_action(map,point,NULL);}
+unsigned world_field_search(unsigned mode,encounter_t *out){if(!out)return FIELD_LOCKED;return preview_field_action(mode,3,out);}

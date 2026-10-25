@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "build": "96a2130af6bebc864b21",
+  "full_reference_frames": 412,
+  "direction_pose_pairs": 16,
+  "scope": "Whole-scene Gold pixel reference vs real production band rendering; no hardware FPS claim"
+}

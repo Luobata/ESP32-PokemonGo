@@ -1,5 +1,5 @@
 {
-  "current_version": 31,
+  "current_version": 32,
   "oldest_version": 5,
   "description": "Synthetic progress, no player/device data. Little-endian, 8-byte int64 alignment.",
   "fixtures": [
@@ -1950,6 +1950,22 @@
         "firmware/main/narrative.h": "216e1e59ef85437506b69b615d54329814b53607d3ec91d2ca05445d468f1d51"
       },
       "provenance": "Synthetic fixture; frozen V30 prefix retained byte for byte except version, explicit V31 32-byte suffix. No player data."
+    },
+    {
+      "file": "v32-radar-fieldmaps.bin",
+      "version": 32,
+      "size": 39976,
+      "sha256": "22b00422dd82eb3179a9fb1904f49c62f8271394188962f4859920742d1f93f0",
+      "source_commit": "61278133593781fd7aa9110f77b671fcecbc660b",
+      "source_type": "save_t V32 frozen V31 prefix plus radar cooldown and field circuits",
+      "source_fixture": "v31-guided-narrative.bin",
+      "source_hashes": {
+        "firmware/main/save.h": "88bb5c8b3adf44a923a3a4106bbd2eb26e375a57aeee8ceffb7ce0e789f93e44",
+        "firmware/main/save.c": "60b40e7cca26cd191fd46bf22bd3dce6f111664f375b4e079aef8b7b90de4ba2",
+        "firmware/main/save_legacy.h": "5f1c6a8f54a5d6b3e465a1af8153d100be333e7944ab1590d0fc3f13991bd28f",
+        "firmware/main/field_adventure.h": "bbb88839d5c9093c7ef0484fba1577182e3291a0af0ebe9f48baf5397e84b6b8"
+      },
+      "provenance": "Synthetic fixture; immutable V31 bytes retained except explicit version. New 32-byte suffix contains cooldowns and incomplete circuits. Base commit plus working-source hashes, no player data."
     }
   ]
 }

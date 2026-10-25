@@ -19,7 +19,8 @@
 #include "wifi_time.h"
 #include "lvgl.h"
 
-#define MENU_COUNT 11
+#define MENU_COUNT 13
+#define MENU_VISIBLE 10
 #define MENU_X 120
 #define MENU_Y 64
 #define MENU_W 112
@@ -37,15 +38,15 @@ SCREEN_ASSERT_ALLOW_CROSS_BAND(menu_option_names, OPTION_Y, 16);
 SCREEN_ASSERT_ALLOW_CROSS_BAND(menu_option_screen, OPTION_Y + OPTION_STEP, 16);
 SCREEN_ASSERT_ALLOW_CROSS_BAND(menu_option_return, OPTION_Y + OPTION_STEP * 3, 16);
 
-static const char *LABELS[MENU_COUNT] = {"图鉴", "队伍", "道具", "照料", "挑战", "选项", "成就", "探索", "秘境", "城都", "关闭"};
+static const char *LABELS[MENU_COUNT] = {"图鉴", "队伍", "道具", "照料", "挑战", "选项", "成就", "探索", "秘境", "城都", "雷达", "漫游", "关闭"};
 static const char *DESCRIPTIONS[MENU_COUNT] = {
     "查看见过和捕获的伙伴", "查看伙伴 选择出战队首", "查看和使用随身道具",
-    "喂食 玩耍 等待体力恢复", "道馆 徽章 联盟 赤红", "译名 声音与屏幕设置", "查看成长 领取成就奖励", "选择路线 追踪野生伙伴", "携带伙伴闯关 获取奖励", "新的伙伴与城都调查", "回到冒险中",
+    "喂食 玩耍 等待体力恢复", "道馆 徽章 联盟 赤红", "译名 声音与屏幕设置", "查看成长 领取成就奖励", "选择路线 追踪野生伙伴", "携带伙伴闯关 获取奖励", "新的伙伴与城都调查", "附近信号 发现闪光伙伴", "走进地图 观察痕迹", "回到冒险中",
 };
 static uint8_t s_selected;
 static bool s_johto_visible;
-static unsigned menu_count(void){return s_johto_visible?11:10;}
-static unsigned menu_id(unsigned row){return !s_johto_visible&&row==9?10:row;}
+static unsigned menu_count(void){return s_johto_visible?13:12;}
+static unsigned menu_id(unsigned row){return !s_johto_visible&&row>=9?row+1:row;}
 static bool s_options;
 static bool s_backup_view;
 static bool s_wifi_view;
@@ -208,12 +209,15 @@ static void draw_main(int band_y)
     game_ui_text_centered(band_y, 8, 220, 104, 16, text, GAME_UI_MUTED);
 
     game_ui_box(band_y, MENU_X, MENU_Y, MENU_W, MENU_H);
-    for (unsigned row = 0; row < menu_count(); row++) {
-        int y = ROW_Y + row * ROW_STEP;
+    unsigned first=s_selected>=MENU_VISIBLE?s_selected-MENU_VISIBLE+1:0;
+    for (unsigned row = first; row < menu_count() && row < first+MENU_VISIBLE; row++) {
+        int y = ROW_Y + (row-first) * ROW_STEP;
         render_text(156, y - band_y, LABELS[menu_id(row)], GAME_UI_INK);
         if(row==6&&s_claimable)render_text(212,y-band_y,"!",GAME_UI_ACCENT);
         if (row == s_selected) game_ui_cursor(band_y, 136, y + 4);
     }
+    if(first)render_text(216,MENU_Y+2-band_y,"^",GAME_UI_MUTED);
+    if(first+MENU_VISIBLE<menu_count())render_text(216,MENU_Y+MENU_H-16-band_y,"v",GAME_UI_MUTED);
     if(s_selected==6&&s_claimable){snprintf(text,sizeof(text),"可领取 %u 项奖励",s_claimable);game_ui_text_centered(band_y,8,252,224,16,text,GAME_UI_INK);}
     else game_ui_text_centered(band_y, 8, 252, 224, 16, DESCRIPTIONS[menu_id(s_selected)], GAME_UI_MUTED);
     game_ui_footer(band_y, GAME_UI_NAV_HINT);
@@ -375,7 +379,9 @@ void play_menu_key(bsp_btn_t btn, bsp_btn_ev_t ev)
             case 7: nav_open(PAGE_EXPLORATION); break;
             case 8: nav_open(PAGE_DUNGEON); break;
             case 9: nav_open(PAGE_JOHTO); break;
-            case 10: nav_back(PAGE_IDLE); break;
+            case 10: nav_open(PAGE_RADAR); break;
+            case 11: nav_open(PAGE_FIELDMAP); break;
+            case 12: nav_back(PAGE_IDLE); break;
             default: break;
             }
         }

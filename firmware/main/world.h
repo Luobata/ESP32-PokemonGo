@@ -349,3 +349,5 @@ void world_narrative_snapshot(narrative_context_t *);
 unsigned world_narrative_update(unsigned scene,unsigned page,unsigned answer,bool begin);
 
 void world_endgame_snapshot(endgame_t *out);
+
+#include "field_adventure.h"

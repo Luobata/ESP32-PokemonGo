@@ -2,6 +2,8 @@
 // Shared by the decoder/world boot and real-NVS USB restore integration tests.
 static void history_assert(const save_t *s, unsigned version) {
     assert(narrative_valid(&s->narrative));
+    if(version<32){field_state_t empty={0};assert(!memcmp(&s->field,&empty,sizeof(empty)));}
+    else{assert(s->field.serial==9&&s->field.radar_due==135&&s->field.map_due[2]==182&&s->field.visited[1]==3&&s->field.map_claims==5);}
     if(version<31){assert(s->narrative.version==1&&!s->narrative.scene&&!s->narrative.seen&&!s->narrative.legend);}
     else{assert(s->narrative.seen==7&&s->narrative.scene==N_BUG_REPORT+1&&s->narrative.page==2&&s->narrative.bug_evidence&&s->narrative.focus==2);}
     party_t p; assert(s->version==SAVE_VERSION && save_validate_world(s,&p));

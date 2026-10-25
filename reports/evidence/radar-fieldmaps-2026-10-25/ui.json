@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "native_build": "96a2130af6bebc864b21",
+  "pixel_checks": 518,
+  "maps": 3,
+  "scope": "production renderer + simulated signals; world/save verified separately; no device FPS claim"
+}

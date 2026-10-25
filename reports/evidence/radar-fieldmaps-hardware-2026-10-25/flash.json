@@ -1,0 +1,34 @@
+{
+  "device": "AI Passport / ESP32-C3, 8 MiB Flash",
+  "source_base": "61278133593781fd7aa9110f77b671fcecbc660b",
+  "source_state": "codex/radar-field-maps, uncommitted changes",
+  "baseline_elf_sha256": "0720316df451d76a3dc6c5e0c720319c7e82b28e173f8c585df7e5d88055a160",
+  "baseline_factory_backup_sha256": "fff2219068d0f653d704e760e6960e1f2dbf77474d49a29138d6fc8382ae338e",
+  "application_sha256": "d15fff85e99fa079302fd55f448aa6f0e78a759dc5930861501a397d020d3a9a",
+  "application_bytes": 3227920,
+  "application_offset": "0x10000",
+  "data_unchanged": true,
+  "partition_added": false,
+  "protected_ranges": [
+    {
+      "offset": "0x8000",
+      "length": "0x8000"
+    },
+    {
+      "offset": "0x350000",
+      "length": "0x30000"
+    },
+    {
+      "offset": "0x380000",
+      "length": "0x20000"
+    }
+  ],
+  "partners": 123,
+  "johto_badges": 2,
+  "brightness": 100,
+  "wifi_scanning": true,
+  "audio_enabled": true,
+  "public_save_format": 4,
+  "save_version_before": 31,
+  "save_version_after": 32
+}

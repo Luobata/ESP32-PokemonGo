@@ -1,0 +1,40 @@
+[
+  {
+    "page": "idle",
+    "before_us": 41041,
+    "after_us": 41507,
+    "change_percent": 1.14
+  },
+  {
+    "page": "care",
+    "before_tick_p95": 88,
+    "after_tick_p95": 88,
+    "before_draw_max_us": 25876,
+    "after_draw_max_us": 24760
+  },
+  {
+    "page": "care",
+    "before_us": 53931,
+    "after_us": 56698,
+    "change_percent": 5.13
+  },
+  {
+    "page": "menu",
+    "before_us": 59953,
+    "after_us": 61055,
+    "change_percent": 1.84
+  },
+  {
+    "page": "party",
+    "before_tick_p95": 88,
+    "after_tick_p95": 88,
+    "before_draw_max_us": 14651,
+    "after_draw_max_us": 14361
+  },
+  {
+    "page": "party",
+    "before_us": 51434,
+    "after_us": 52433,
+    "change_percent": 1.94
+  }
+]

@@ -179,3 +179,10 @@ bool play_narrative_screen_busy(void);
 void play_narrative_legend(unsigned id);
 typedef struct {unsigned view,scene,page,selected,error,visible,elapsed_ms;bool replay;} play_narrative_view_t;
 void play_narrative_presentation_snapshot(play_narrative_view_t *);
+
+void play_radar_enter(void);
+void play_fieldmap_enter(void);
+void play_field_exit(void);
+void play_field_key(bsp_btn_t,bsp_btn_ev_t);
+bool play_field_screen_busy(void);
+void play_field_inspect(unsigned *,unsigned *,unsigned *,int *,int *,bool *,unsigned *);

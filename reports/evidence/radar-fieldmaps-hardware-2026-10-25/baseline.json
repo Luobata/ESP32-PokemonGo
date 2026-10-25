@@ -1,0 +1,142 @@
+[
+  {
+    "label": "idle",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 41041,
+        "draw_us": 23883,
+        "push_us": 17158
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 40828,
+        "draw_us": 23519,
+        "push_us": 17309
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 41562,
+        "draw_us": 21055,
+        "push_us": 20507
+      }
+    ]
+  },
+  {
+    "period_ms": 80,
+    "ticks": 125,
+    "frames": 21,
+    "bands": 126,
+    "window_us": 9974118,
+    "render_us": 457717,
+    "render_max_us": 25876,
+    "tick_p50_ms": 88,
+    "tick_p95_ms": 88,
+    "tick_max_us": 87074,
+    "late": 87,
+    "frame_p50_ms": 168,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 2036800,
+    "bytes": 352,
+    "label": "care"
+  },
+  {
+    "label": "care",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 56431,
+        "draw_us": 45461,
+        "push_us": 10970
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 53931,
+        "draw_us": 42143,
+        "push_us": 11788
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 53355,
+        "draw_us": 39317,
+        "push_us": 14038
+      }
+    ]
+  },
+  {
+    "label": "menu",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 60144,
+        "draw_us": 47259,
+        "push_us": 12885
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 59953,
+        "draw_us": 48577,
+        "push_us": 11376
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 59951,
+        "draw_us": 46771,
+        "push_us": 13180
+      }
+    ]
+  },
+  {
+    "period_ms": 80,
+    "ticks": 126,
+    "frames": 28,
+    "bands": 84,
+    "window_us": 10004000,
+    "render_us": 349236,
+    "render_max_us": 14651,
+    "tick_p50_ms": 88,
+    "tick_p95_ms": 88,
+    "tick_max_us": 85004,
+    "late": 91,
+    "frame_p50_ms": 176,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 1219571,
+    "bytes": 352,
+    "label": "party"
+  },
+  {
+    "label": "party",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 52877,
+        "draw_us": 39470,
+        "push_us": 13407
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 51434,
+        "draw_us": 37792,
+        "push_us": 13642
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 51349,
+        "draw_us": 39889,
+        "push_us": 11460
+      }
+    ]
+  }
+]

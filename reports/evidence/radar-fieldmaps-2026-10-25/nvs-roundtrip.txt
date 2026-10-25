@@ -1,0 +1,46 @@
+Real-NVS historical restore: v5-146c798.bin
+Real-NVS historical restore: v6-02e6913.bin
+Real-NVS historical restore: v7-02e6913.bin
+Real-NVS historical restore: v8-02e6913.bin
+Real-NVS historical restore: v9-02e6913.bin
+Real-NVS historical restore: v10-02e6913.bin
+Real-NVS historical restore: v11-02e6913.bin
+Real-NVS historical restore: v12-6791698.bin
+Real-NVS historical restore: v13-ceda89a.bin
+Real-NVS historical restore: v14-4b5f6ed.bin
+Real-NVS historical restore: v15-80ae06d.bin
+Real-NVS historical restore: v16-449d6a3.bin
+Real-NVS historical restore: v17-449d6a3.bin
+Real-NVS historical restore: v17-eb9a5d0.bin
+Real-NVS historical restore: v17-d080936.bin
+Real-NVS historical restore: v17-e80f241.bin
+Real-NVS historical restore: v17-75e1f86.bin
+Real-NVS historical restore: v17-0f76077.bin
+Real-NVS historical restore: v18-36a902a.bin
+Real-NVS historical restore: v18-68ffedd.bin
+Real-NVS historical restore: v19-0448424.bin
+Real-NVS historical restore: v20-dbc7945.bin
+Real-NVS historical restore: v21-8455929.bin
+Real-NVS historical restore: v22-pwz1.bin
+Real-NVS historical restore: v23-expanded.bin
+Real-NVS historical restore: v24-johto-policy.bin
+Real-NVS historical restore: v25-johto-dex.bin
+Real-NVS historical restore: v26-johto-evolution.bin
+Real-NVS historical restore: v27-johto-activities.bin
+Real-NVS historical restore: v28-warehouse-753.bin
+Real-NVS historical restore: v29-johto-story.bin
+Real-NVS historical restore: v30-champion-story.bin
+Real-NVS historical restore: v31-guided-narrative.bin
+Real-NVS historical restore: v32-radar-fieldmaps.bin
+V31 full 759-individual dense policies + live expedition and pending rewards: stored=32, 300 writes, GC/remount and export/import passed
+V31 interrupted bank/NVS writes: 185 fault points, old/new complete state after remount, retry and unrelated keys passed
+Real ESP-IDF NVS + production save/device/journal: historical V5-V31, distinct saves, schema rejection, settings, restore, second boot and rollback passed
+Synthetic shared-device occupancy: V21 raw save reproduces NOT_ENOUGH_SPACE; V31 preserves all keys and saves 300 times
+Validated dungeon cleanup scenario 0 passed
+Validated dungeon cleanup scenario 1 passed
+Validated dungeon cleanup scenario 2 passed
+Validated dungeon cleanup scenario 3 passed
+Validated dungeon cleanup scenario 4 passed
+Validated dungeon cleanup scenario 5 passed
+Validated dungeon cleanup scenario 6 passed
+Validated dungeon cleanup scenario 7 passed

@@ -11,6 +11,9 @@
 #include "johto_activity.h"
 #include "gym_rules.h"
 #endif
+#ifdef GUIDE_FIELD
+#include "field_adventure.h"
+#endif
 
 static void string(const char *s,unsigned n){
  putchar('"');for(unsigned i=0;i<n;i++){unsigned char c=s[i];if(c=='"'||c=='\\')putchar('\\');if(c>=32)putchar(c);}putchar('"');
@@ -77,6 +80,11 @@ int main(void){
  printf(",\"johtoGyms\":[");trainer_store_t champion={.defeated=1u<<13};
  for(unsigned i=0;i<9;i++){const trainer_info_t *t=trainer_info_progress(TRAINER_JOHTO_FIRST+i,&champion);printf("%s{\"name\":",i?",":"");STR(t->name);printf(",\"team\":");ids(t->species,t->count);printf(",\"levels\":");ids(t->levels,t->count);printf(",\"rule\":");STR(gym_rules_name(i+1));printf(",\"effect\":");STR(gym_rules_effect(i+1));printf(",\"hint\":");STR(gym_rules_hint(i+1));printf("}");}printf("]");
  printf(",\"researchRewards\":[");for(unsigned i=0;i<JOHTO_REWARD_COUNT;i++){const johto_research_reward_t *r=&JOHTO_REWARDS[i];printf("%s{\"item\":%u,\"route\":%u,\"badges\":%u,\"step\":%u}",i?",":"",19+i,EXPLORATION_MAPS+r->route,r->badges,r->step);}printf("]");
+#endif
+#ifdef GUIDE_FIELD
+ printf(",\"fieldAdventure\":{\"cost\":%u,\"radarCooldownSeconds\":%u,\"mapCooldownSeconds\":%u,\"radarDenominator\":%u,\"mapDenominator\":%u,\"maps\":[",FIELD_COST,FIELD_RADAR_COOLDOWN,FIELD_MAP_COOLDOWN,field_shiny_denominator(FIELD_RADAR),field_shiny_denominator(0));
+ for(unsigned i=0;i<FIELD_MAP_COUNT;i++)printf("%s{\"id\":%u,\"badges\":%u}",i?",":"",i,field_map_badges(i));
+ printf("]}");
 #endif
  printf("}\n");
 }

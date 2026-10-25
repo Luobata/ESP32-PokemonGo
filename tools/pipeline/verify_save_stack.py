@@ -48,7 +48,7 @@ with tempfile.TemporaryDirectory() as tmp:
 # Expanded storage must stay chunked. Catch accidental full-party locals and
 # fresh heap workspaces in the real target build, not just in host test binaries.
 module_limits={'save_bank':384,'save_bank_device':64,'usb_backup_device':384,
-               'restore_journal':448,'world':512,'play_capture':256,'play_party':512,'usb_backup':768,'play_johto':1024,'johto':128,'johto_routes':256,'johto_activity':256,'activity_transactions':256,'play_activity':512,'johto_story':128,'story_transactions':256,'play_story':512,'play_narrative':512,'narrative_script':64,'gym_rules':128,'trainer':512,'combat':512,'play_trainer':1024}
+               'restore_journal':448,'world':512,'play_capture':256,'play_party':512,'usb_backup':768,'play_johto':1024,'johto':128,'johto_routes':256,'field_adventure':256,'play_field':256,'johto_activity':256,'activity_transactions':256,'play_activity':512,'johto_story':128,'story_transactions':256,'play_story':512,'play_narrative':512,'narrative_script':64,'gym_rules':128,'trainer':512,'combat':512,'play_trainer':1024}
 module_frames={}
 module_limits['dbg']=256  # USB and real navigation run on the serial task too.
 module_limits['console_record']=64  # Cross-task record framing; no import-time allocation.

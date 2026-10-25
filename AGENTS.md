@@ -93,6 +93,15 @@
 
 2026-10-24 发布批次将以上开发阶段统一交付为 V31；各段“开发中/尚未发布”和未完成项描述的是当时状态。最终验证范围、公开状态和配套工具同步以 [本批发布记录](reports/johto-release-2026-10-24.md) 为准，不能把历史计划当成已通过检查。
 
+### V32：遭遇雷达与地图漫游（2026-10-25，开发预览）
+
+- 冻结 V31 的 39,944 字节前缀；新增 32 字节独立记录，总长 39,976 字节。V5～V31 样本保持原字节，追加 V32 样本；旧档的新记录初始化为空。分区、RTC codec、格式 4 的 72 KiB USB 载荷不变。
+- 雷达冷却、三张地图的观察位、搜寻序号与次数是持久进度。观察免费，不直接推进传说证据或孵蛋；成功地图搜寻才与 5 点体能、路线研究、孵蛋及锁定遭遇同事务提交。遭遇满五格时拒绝新搜寻，不替换列表中的已有个体；失败/重启不得吞体能、重抽已提交伙伴或跳过冷却。
+- 雷达复用后台扫描，只使用本地指纹判断环境；不存储原始 AP，不宣称 GPS、方向或距离。无信号、扫描过期或重启后尚未扫描时不能生成伙伴。网页信号明确标为模拟，不能当作真机 Wi-Fi 验收。
+- 基础闪光率：雷达 1/32，地图完整观察圈 1/24；不按星级降低。现有探索连胜仅追加加成；不得清除已经为闪光的结果。冷却按已有累计在线时钟计时，离页/重启保留，关机不推进。
+- 执行 `verify_field_adventure.py` / `verify_field_adventure_ui.py`，覆盖事务失败、旧档、重启、时钟、输入、活动入口与条带一致性；`verify_save_stack.py` 纳入新核心和页面。以上宿主/目标构建不代替本构建真机扫描、Wi-Fi 后导入、堆余量、帧率与音频验收；开发预览不直接发布为已验收固件。
+- 地图素材来源固定在 `assets/field_map_sources.json`；修改图块、调色板、人物帧或地点时执行 `compile_field_maps.py --check`（有原始源码时加 `--src`）及 `verify_field_map_art.py`。地图布局是三键调查适配，不能宣称原版完整地图。行走必须避开源碰撞表的树木、墙壁、水域和 NPC；镜头裁切在解码像素前完成，地图白色像素不当成精灵透明色。持续动作按经过时间采样，不能退回每条带扫描整张地图或运行时分配寻路工作区。
+
 ### 修改前的影响检查
 
 城都伙伴协作调查继续使用 V31 已有的六组 `legend_clues` 完成步数，不新增存档字节或复用填充。旧档已有步数与定位资格必须保留；未完成的步骤由明确地点和当前队伍伙伴的属性共同验证，普通探索不再暗中推进传说线索。`verify_johto_fieldwork.py` / `verify_johto_fieldwork_ui.py` 检查 17 个现场、错误准备免费、物理队员与快照一致、成功扣体能/孵蛋/研究/证据同事务、保存失败/重复输入/重启，以及新演出的实时时钟和条带一致性。
@@ -218,6 +227,10 @@ python3 tools/pipeline/verify_johto_routes.py
 python3 tools/pipeline/verify_johto_routes_ui.py
 python3 tools/pipeline/verify_johto_fieldwork.py
 python3 tools/pipeline/verify_johto_fieldwork_ui.py
+python3 tools/pipeline/verify_field_adventure.py
+python3 tools/pipeline/verify_field_adventure_ui.py
+python3 tools/pipeline/compile_field_maps.py --check
+python3 tools/pipeline/verify_field_map_art.py
 python3 tools/pipeline/export_fieldwork_guide.py --check
 python3 tools/pipeline/verify_guide.py
 python3 tools/pipeline/verify_johto_evolution.py

@@ -1,0 +1,71 @@
+{
+  "transport": "Real ESP32 USB serial + production web backup.mjs Receiver; local file write/readback",
+  "browser_web_serial_ui_tested": false,
+  "payload_bytes": 73728,
+  "chunk_bytes": 128,
+  "required_chunks": 576,
+  "wifi_scanning_enabled": true,
+  "operations": [
+    {
+      "name": "before-v31-verified",
+      "backup_chunks": 576,
+      "all_backup_offsets_present": true,
+      "complete_wifi_scan_records": 1,
+      "embedded_protocol_lines": 0
+    },
+    {
+      "name": "restore-v31",
+      "backup_chunks": 576,
+      "all_backup_offsets_present": true,
+      "complete_wifi_scan_records": 3,
+      "embedded_protocol_lines": 0,
+      "upload_chunks": 576,
+      "all_upload_offsets_present": true,
+      "reboot_receipt_matches_payload": true,
+      "brightness_test_before": 89,
+      "brightness_after": 100,
+      "level_after": 58,
+      "experience_after": 298368,
+      "encounters_after": 3
+    },
+    {
+      "name": "clean-v32",
+      "backup_chunks": 576,
+      "all_backup_offsets_present": true,
+      "complete_wifi_scan_records": 1,
+      "embedded_protocol_lines": 0
+    },
+    {
+      "name": "restore-v32",
+      "backup_chunks": 576,
+      "all_backup_offsets_present": true,
+      "complete_wifi_scan_records": 4,
+      "embedded_protocol_lines": 0,
+      "upload_chunks": 576,
+      "all_upload_offsets_present": true,
+      "reboot_receipt_matches_payload": true,
+      "brightness_test_before": 89,
+      "brightness_after": 100,
+      "level_after": 58,
+      "experience_after": 298368,
+      "encounters_after": 3
+    }
+  ],
+  "earlier_failed_backup": {
+    "accepted": false,
+    "first_missing_offset": 72832,
+    "retry_completed_before_flash": true,
+    "root_cause_confirmed": false
+  },
+  "final_readback": {
+    "version": 32,
+    "chunks": 576,
+    "all_offsets_present": true,
+    "progress_matches_original_v31": true,
+    "field_radar_claims": 0,
+    "field_map_claims": 0,
+    "brightness": 100,
+    "encounters": 3,
+    "page": "idle"
+  }
+}

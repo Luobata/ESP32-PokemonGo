@@ -1,0 +1,14 @@
+{
+  "guide": {
+    "passed": true,
+    "page_variants": 664,
+    "editions": 2,
+    "production_source_comparison": true
+  },
+  "fieldwork_export_check": true,
+  "save_manager_distribution": true,
+  "firmware_build": true,
+  "visual_review": "Local guide radar/map entry with real device screenshots; no clipping at current 764px viewport",
+  "release_application": "Retain hardware-tested d15fff85e99fa079302fd55f448aa6f0e78a759dc5930861501a397d020d3a9a",
+  "devbox": "Deferred under prior user instruction; GitHub Pages is current delivery target"
+}

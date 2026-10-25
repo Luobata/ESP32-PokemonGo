@@ -17,7 +17,8 @@ for edition,d in catalog.items():
  johto=d['features']['johto']; count=251 if johto else 151
  assert [p['id'] for p in d['pokemon']]==list(range(1,count+1))
  assert len(d['items'])==(24 if johto else 19) and len(d['maps'])==(20 if johto else 12) and len(d['achievements'])==(43 if johto else 16)
- assert d['warehouseCapacity']==(753 if johto else 453) and d['saveVersion']==(31 if johto else 23)
+ field=d['features'].get('radarMaps',False)
+ assert d['warehouseCapacity']==(753 if johto else 453) and d['saveVersion']==(32 if field else 31 if johto else 23)
  all_ids={p['id'] for p in d['pokemon']};move_ids={m['id'] for m in d['moves']}
  assert {i for m in d['maps'][:4] for i in m['pool']}==set(range(1,152))
  for p in d['pokemon']:
@@ -35,6 +36,13 @@ for edition,d in catalog.items():
   assert all(a in all_ids and b in all_ids for a,b in i['evolutions'])
  assert all(a['item'] in range(len(d['items'])) and a['quantity']>0 for a in d['achievements'])
  assert d['shiny']==[64,48,32,16]
+ if field:
+  f=d['fieldAdventure']
+  assert (f['cost'],f['radarCooldownSeconds'],f['mapCooldownSeconds'])==(5,120,180)
+  assert (f['radarDenominator'],f['mapDenominator'])==(32,24)
+  assert [m['badges'] for m in f['maps']]==[3,2,4]
+  assert len(f['radarPools'])==4 and all(len(pool)==8 and set(pool)<=all_ids for pool in f['radarPools'])
+  assert all(len(m['pool'])==8 and set(m['pool'])<=all_ids and m['levels']==d['maps'][m['routeId']]['levels'] for m in f['maps'])
  if args.check_source and edition=='release':
   for name,expected in d['sourceHashes'].items():
    assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==expected, 'Stale guide data: '+name
@@ -59,7 +67,8 @@ for(const edition of ['release','previous']){
    if(section==='moves'&&catalog[edition].features.moveSettings)assert(body.includes('至少保留 1 个')&&body.includes('选择自动出招范围'));
    if(section==='party'&&catalog[edition].features.boxRelease)assert(body.includes('直接在仓库放生')&&body.includes('默认取消'));
    if(section==='party'&&catalog[edition].features.expandedWarehouse)assert(body.includes(`${catalog[edition].warehouseCapacity} 格`)&&body.includes('同种宝可梦可以重复捕获'));
-   if(section==='save'&&catalog[edition].features.johto)assert(body.includes('V5–V31')&&body.includes('V31 可导出再导入')&&body.includes('重新下载离线工具'));
+   if(section==='save'&&catalog[edition].features.radarMaps)assert(body.includes('V5–V32')&&body.includes('V32 可导出再导入')&&body.includes('重新下载离线工具'));
+   else if(section==='save'&&catalog[edition].features.johto)assert(body.includes('V5–V31')&&body.includes('V31 可导出再导入')&&body.includes('重新下载离线工具'));
    else if(section==='save'&&catalog[edition].features.expandedWarehouse)assert(body.includes('V5–V23')&&body.includes('V23 可导出再导入')&&body.includes('重新下载离线工具'));
    else if(section==='save'&&catalog[edition].features.compressedSave)assert(body.includes('V5–V22')&&body.includes('V22 可导出再导入'));
    else if(section==='save'&&catalog[edition].features.moveSettings)assert(body.includes('V5–V21')&&body.includes('V21 可导出再导入'));
@@ -69,6 +78,13 @@ for(const edition of ['release','previous']){
    if(section==='johto'&&catalog[edition].features.johto)assert(body.includes('捕虫调查')&&body.includes('银色之羽')&&body.includes('任意 4 枚关都徽章'));
    if(section==='pokemon'&&id===175)assert(body.includes('神秘蛋专属伙伴'));
    if(section==='pokemon'&&id===133&&catalog[edition].features.johto)assert(body.includes('晨光训练')&&body.includes('夜行训练'));
+   if(section==='field'){
+    if(catalog[edition].features.radarMaps){
+     for(const phrase of ['1/32','1/24','120 秒','180 秒','关机期间不会减少','3.96%','4.99%','不挤掉已有遭遇'])assert(body.includes(phrase),phrase);
+     for(const m of catalog[edition].fieldAdventure.maps)for(const id of m.pool)assert(body.includes(`#pokemon/${id}`));
+    }else assert(body.includes('上一版攻略')&&!body.includes('src="radar.png"'));
+   }
+   if(section==='shiny'&&catalog[edition].features.radarMaps)assert(body.includes('遭遇雷达')&&body.includes('地图漫游')&&body.includes('1/32')&&body.includes('1/24'));
    if(section==='fieldwork'){
     assert(!body.includes('尚未发布')&&body.includes('需要安装城都版本固件'));
     assert(!/<details[^>]*\bopen\b/.test(body),'Answers must be hidden until explicitly opened');
@@ -96,7 +112,7 @@ console.log(JSON.stringify({passed:true,pages:checks,editions:2,calculators:true
 with tempfile.TemporaryDirectory() as tmp:
  test=Path(tmp)/'guide.cjs';test.write_text(js)
  subprocess.run(['node',str(test),str(WEB/'catalog.js'),str(WEB/'guide.mjs'),str(WEB/'fieldwork.js')],check=True)
-for name in ('index.html','guide.css','guide.mjs','catalog.js','fieldwork.js','pokemon.png','battle.png'):
+for name in ('index.html','guide.css','guide.mjs','catalog.js','fieldwork.js','pokemon.png','battle.png','radar.png','roam.png'):
  assert (WEB/name).stat().st_size>0
 assert 'href="guide/"' in (WEB.parent/'index.html').read_text()
 assert 'href="guide/#updates"' in (WEB.parent/'index.html').read_text()

@@ -18,7 +18,7 @@ label{display:block;font-size:12px;margin:14px 0 4px}select,input,button{font:in
 <header><h1>固件同源预览</h1><a href="firmware.html#P16">主题秘境 →</a> · <a href="moves.html">全部招式动画验收 →</a> · <a href="johto.html">城都开发预览 →</a><p>运行 ESP32 的页面绘制代码，查看 240 × 320 的实际像素和三键操作。</p></header>
 <div class="layout">
 <aside class="settings">
-<label for="page">页面</label><select id="page"><option value="0">P0 开场</option><option value="1">P1 待机</option><option value="2">P2 遭遇列表</option><option value="3" selected>P3 对战</option><option value="4">P4 捕获</option><option value="5">P5 照料</option><option value="6">P6 图鉴</option><option value="9">P9 初始伙伴</option><option value="10">P10 道具背包</option><option value="11">P11 菜单</option><option value="12">P12 队伍</option><option value="13">P13 道馆与联盟</option><option value="14">P14 成就与奖励</option><option value="16">P16 主题秘境</option><option value="15">P15 路线探索</option><option value="17">P17 城都之旅</option><option value="18">P18 捕虫与远征</option><option value="19">P19 冒险笔记</option><option value="20">P20 城都剧情</option><option disabled>P7 成绩 · 固件未实现</option><option disabled>P8 取名 · 固件未实现</option></select>
+<label for="page">页面</label><select id="page"><option value="0">P0 开场</option><option value="1">P1 待机</option><option value="2">P2 遭遇列表</option><option value="3" selected>P3 对战</option><option value="4">P4 捕获</option><option value="5">P5 照料</option><option value="6">P6 图鉴</option><option value="9">P9 初始伙伴</option><option value="10">P10 道具背包</option><option value="11">P11 菜单</option><option value="12">P12 队伍</option><option value="13">P13 道馆与联盟</option><option value="14">P14 成就与奖励</option><option value="16">P16 主题秘境</option><option value="15">P15 路线探索</option><option value="17">P17 城都之旅</option><option value="18">P18 捕虫与远征</option><option value="19">P19 冒险笔记</option><option value="20">P20 城都剧情</option><option value="21">P21 遭遇雷达（模拟信号）</option><option value="22">P22 地图漫游</option><option disabled>P7 成绩 · 固件未实现</option><option disabled>P8 取名 · 固件未实现</option></select>
 <div class="pair"><div><label for="pet">主宠编号</label><input id="pet" type="number" value="25" min="1" max="251"></div><div><label for="level">主宠等级</label><input id="level" type="number" value="12" min="1" max="100"></div></div>
 <div class="pair"><div><label for="wild">野怪编号</label><input id="wild" type="number" value="74" min="1" max="251"></div><div><label for="rarity">稀有度</label><select id="rarity"><option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option></select></div></div>
 <label for="team">预览队伍</label><select id="team"><option value="1" selected>六人队伍</option><option value="0">仅主宠</option></select>
@@ -42,7 +42,7 @@ label{display:block;font-size:12px;margin:14px 0 4px}select,input,button{font:in
 <p class="small">长按B 0.6 秒返回；长按C 1.5 秒熄屏，任意键唤醒。支持键盘 ↑ / ↓ / Enter，也兼容 A / B / C。</p>
 <label class="inline"><input id="bands" type="checkbox">显示 80px 横带参考线</label>
 <label for="zoom">像素缩放</label><select id="zoom"><option value="0" selected>自动 · 整数倍</option><option value="2">2 倍</option><option value="1">1 倍</option></select>
-<details><summary>预览范围</summary><p class="small">P0–P6、P9–P20 的布局、字体、精灵解码、RGB565 字节序、导航和战斗逻辑直接编译自固件。默认实时推进，可暂停后逐帧检查；世界状态来自测试场景。音乐与音效同样来自 C 混音器，需手动开启试听。WiFi、存档与 LCD 实际传输耗时需要真机验证。</p></details>
+<details><summary>预览范围</summary><p class="small">P0–P6、P9–P22 的布局、字体、精灵解码、RGB565 字节序、导航和战斗逻辑直接编译自固件。默认实时推进，可暂停后逐帧检查；世界状态来自测试场景。音乐与音效同样来自 C 混音器，需手动开启试听。WiFi、存档与 LCD 实际传输耗时需要真机验证。</p></details>
 <p class="small note">P7 / P8 仍可在页面模拟器查看设计稿。它们尚未进入固件。</p>
 </aside>
 <section class="stage">

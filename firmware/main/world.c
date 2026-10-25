@@ -102,6 +102,9 @@ bool dungeon_learned(unsigned,mon_t *);
 static johto_story_t s_story;
 static endgame_t s_endgame;
 static narrative_t s_narrative;
+static field_state_t s_field;
+static int64_t s_field_scan_us = -1;
+static uint16_t s_field_place;
 static bool narrative_final_locked(void);
 static activity_store_t s_activities;
 static uint16_t s_research_rewards[5];
@@ -263,7 +266,7 @@ static void collect_save_locked(save_t *sv)
     save_store_party(sv,&s_party);
     sv->queue = s_queue;
     sv->dex = s_dex;
-    sv->narrative=s_narrative;sv->story=s_story;sv->endgame=s_endgame;sv->johto = s_johto;sv->activities=s_activities;
+    sv->field=s_field;sv->narrative=s_narrative;sv->story=s_story;sv->endgame=s_endgame;sv->johto = s_johto;sv->activities=s_activities;
     memcpy(sv->research_rewards,s_research_rewards,sizeof(s_research_rewards));
     sv->motion_q10 = s_motion_q10;
     sv->scans = s_w.scans;
@@ -677,7 +680,7 @@ bool world_battle_set_uid(uint16_t uid, const battle_session_t *session)
         bool ok = save_write(&s_save_buf);
         xSemaphoreTake(s_lock, portMAX_DELAY);
         if (ok) {
-            s_narrative=s_save_buf.narrative;
+            s_field=s_save_buf.field;s_narrative=s_save_buf.narrative;
             enc_queue_take_uid(&s_queue, uid, &s_active.encounter);
             s_active.session = *session;
             s_w.pending = s_queue.count;
@@ -752,7 +755,7 @@ bool world_battle_loot_uid(uint16_t uid, item_loot_t *out)
         s_inventory = s_save_buf.inventory;
         s_challenge = s_save_buf.challenge;
         s_endgame = s_save_buf.endgame;
-        s_narrative = s_save_buf.narrative;
+        s_field=s_save_buf.field;s_narrative = s_save_buf.narrative;
         s_achievements = s_save_buf.achievements;
         session->loot_checked = true;
         session->loot_item = loot.item_id;
@@ -848,7 +851,7 @@ bool world_capture_ball_spend_uid(uint16_t uid, uint8_t ball,
     xSemaphoreTake(s_lock, portMAX_DELAY);
     if (ok) {
         s_inventory = s_save_buf.inventory;
-        s_narrative=s_save_buf.narrative;
+        s_field=s_save_buf.field;s_narrative=s_save_buf.narrative;
         if (!active) enc_queue_take_uid(&s_queue, uid, &s_active.encounter);
         s_active.session = next;
         s_w.pending = s_queue.count;
@@ -899,7 +902,7 @@ world_capture_result_t world_capture_replace_uid(uint16_t uid,const mon_t *mon,
     if (ok) {
         record_growth_locked(&s_starter_party);s_party=s_starter_party;
         s_w.exp = s_party.party[0].exp;s_w.level=s_party.party[0].level;
-        s_exploration_updates=s_save_buf.exploration_updates;s_narrative=s_save_buf.narrative;s_story=s_save_buf.story;s_endgame=s_save_buf.endgame;
+        s_exploration_updates=s_save_buf.exploration_updates;s_field=s_save_buf.field;s_narrative=s_save_buf.narrative;s_story=s_save_buf.story;s_endgame=s_save_buf.endgame;
         take_encounter_uid_locked(uid, NULL);
         dex_mark_caught(&s_dex, mon->species_id, (mon->flags & 1u) != 0);
         s_last_save_us = esp_timer_get_time();
@@ -1380,7 +1383,10 @@ static void scan_once(void)
 
     uint16_t n = MAX_APS;
     if (esp_wifi_scan_get_ap_records(&n, s_recs) != ESP_OK) return;
-    if (n == 0) return;
+    if (n == 0) {
+        if(lock_encounter_change()){s_w.last_ap_count=0;s_field_scan_us=esp_timer_get_time();unlock_encounter_change();}
+        return;
+    }
     s_last_n = (n < MAX_APS) ? n : MAX_APS;
 
     for (uint16_t i = 0; i < n && i < MAX_APS; i++) {
@@ -1393,6 +1399,10 @@ static void scan_once(void)
     sens_result_t r;
     uint32_t ts = (uint32_t)(esp_timer_get_time() / 1000000);
     sens_feed(&s_core, ts, s_aps, (uint8_t)n, &r);
+    // A stable local Wi-Fi fingerprint selects a habitat, never a GPS position.
+    // Only its folded hash crosses into the UI/world snapshot; no raw AP storage.
+    uint32_t field_hash=0;
+    for(unsigned i=0;i<s_core.place_count;i++)if(s_core.places[i].pid==r.place_id&&s_core.places[i].sig.n){field_hash=s_core.places[i].sig.hash[0];break;}
     s_scan_stable = r.state == SENS_STAYING && !r.transient_aps && r.distance < SENS_MOVE_THRESHOLD;
 
     refresh_from_scan(r.state==SENS_MOVING && r.transient_aps>0,r.distance);
@@ -1412,6 +1422,8 @@ static void scan_once(void)
         s_w.progress = world_progress_from_motion(s_motion_q10);
         s_w.scans++;
         s_w.last_ap_count = (uint8_t)n;
+        s_field_scan_us=esp_timer_get_time();
+        s_field_place=(uint16_t)(field_hash^(field_hash>>16));
         s_dirty = true;
         unlock_encounter_change();
     }
@@ -1585,7 +1597,7 @@ bool world_start(void)
     memset(s_battles, 0, sizeof(s_battles));
     memset(&s_active, 0, sizeof(s_active));
     enc_queue_init(&s_queue);
-    dex_init(&s_dex);narrative_init(&s_narrative);johto_init(&s_johto);johto_story_init(&s_story);memset(&s_endgame,0,sizeof(s_endgame));activity_init(&s_activities);memset(s_research_rewards,0,sizeof(s_research_rewards));
+    memset(&s_field,0,sizeof(s_field));s_field_scan_us=-1;s_field_place=0;dex_init(&s_dex);narrative_init(&s_narrative);johto_init(&s_johto);johto_story_init(&s_story);memset(&s_endgame,0,sizeof(s_endgame));activity_init(&s_activities);memset(s_research_rewards,0,sizeof(s_research_rewards));
     sens_init(&s_core);
 
     // 读档。没有存档就用刚才那份初始状态（新游戏）。
@@ -1627,7 +1639,7 @@ bool world_start(void)
         s_inventory = s_save_buf.inventory;
         s_challenge = s_save_buf.challenge;
         s_endgame = s_save_buf.endgame;
-        s_narrative = s_save_buf.narrative;
+        s_field=s_save_buf.field;s_narrative = s_save_buf.narrative;
         s_achievements = s_save_buf.achievements;
         s_story=s_save_buf.story;s_dex = s_save_buf.dex;s_johto=s_save_buf.johto;s_activities=s_save_buf.activities;memcpy(s_research_rewards,s_save_buf.research_rewards,sizeof(s_research_rewards));
         s_motion_q10 = s_save_buf.motion_q10;
@@ -1704,7 +1716,7 @@ static bool challenge_commit(bool reward, bool inventory_changed, unsigned stami
     if (ok) {
         s_challenge = s_save_buf.challenge;
         s_endgame = s_save_buf.endgame;
-        s_narrative = s_save_buf.narrative;
+        s_field=s_save_buf.field;s_narrative = s_save_buf.narrative;
         // Apply only this transaction's debit; keep recovery during the NVS write.
         s_w.pet.stamina -= stamina_cost * NURT_Q;
         s_achievements = s_save_buf.achievements;
@@ -1988,7 +2000,7 @@ exploration_event_t world_explore_path(unsigned direction)
     if(ok) {
         s_w.pet.stamina=s_w.pet.stamina>NURT_EXPLORE_COST?s_w.pet.stamina-NURT_EXPLORE_COST:0;
         s_exploration=s_save_buf.exploration;s_regions=s_save_buf.regions;s_exploration_updates=s_save_buf.exploration_updates;s_refresh=s_save_buf.refresh;s_queue=s_save_buf.queue;s_inventory=s_save_buf.inventory;
-        s_narrative=s_save_buf.narrative;s_story=s_save_buf.story;s_endgame=s_save_buf.endgame;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;
+        s_field=s_save_buf.field;s_narrative=s_save_buf.narrative;s_story=s_save_buf.story;s_endgame=s_save_buf.endgame;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;
         s_w.explore_value=s_party.party[0].explore_value;
         sync_leader_locked();
         if(event.species)dex_mark_seen(&s_dex,event.species,event.shiny);
@@ -2012,7 +2024,7 @@ bool world_battle_reward_uid(uint16_t uid,uint16_t *amount) {
  mon_t *leader=&s_starter_party.party[0];gain=leader->exp-s_party.party[0].exp;save_store_party(&s_save_buf,&s_starter_party);
  s_save_buf.exp=leader->exp;s_save_buf.level=leader->level;
  xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
- if(ok){s_narrative=s_save_buf.narrative;s_story=s_save_buf.story;s_endgame=s_save_buf.endgame;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;
+ if(ok){s_field=s_save_buf.field;s_narrative=s_save_buf.narrative;s_story=s_save_buf.story;s_endgame=s_save_buf.endgame;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;
   s_exploration_updates=s_save_buf.exploration_updates;s_exploration_wins=s_save_buf.exploration_wins;
   s_active.session.reward_settled=true;s_active.encounter.exp_granted=true;s_last_save_us=esp_timer_get_time();if(amount)*amount=gain;}
  else s_dirty=true;
@@ -2104,7 +2116,7 @@ exploration_kind_t world_research_claim(uint8_t route,uint16_t *gain){
  exp_award_party(&s_starter_party,1,(1u<<s_starter_party.party_count)-1,award);
  save_store_party(&s_save_buf,&s_starter_party);s_save_buf.exp=s_starter_party.party[0].exp;s_save_buf.level=s_starter_party.party[0].level;
  xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
- if(ok){if(gain)*gain=s_save_buf.exp-s_w.exp;s_narrative=s_save_buf.narrative;s_story=s_save_buf.story;s_endgame=s_save_buf.endgame;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;s_exploration=s_save_buf.exploration;s_regions=s_save_buf.regions;s_last_save_us=esp_timer_get_time();}
+ if(ok){if(gain)*gain=s_save_buf.exp-s_w.exp;s_field=s_save_buf.field;s_narrative=s_save_buf.narrative;s_story=s_save_buf.story;s_endgame=s_save_buf.endgame;record_growth_locked(&s_starter_party);s_party=s_starter_party;s_w.exp=s_save_buf.exp;s_w.level=s_save_buf.level;s_exploration=s_save_buf.exploration;s_regions=s_save_buf.regions;s_last_save_us=esp_timer_get_time();}
  unlock_encounter_change();return ok?EXPLORE_NONE:EXPLORE_SAVE_FAILED;
 }
 
@@ -2328,6 +2340,7 @@ bool world_backup_exclusive(bool (*operation)(void *),void *context) {
 }
 
 #include "world_johto.inc"
+#include "world_field.inc"
 
 #include "world_activity.inc"
 

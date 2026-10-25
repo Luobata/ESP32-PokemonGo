@@ -1,5 +1,5 @@
 #pragma once
-#define SAVE_BANK_CURRENT_VERSION 31
+#define SAVE_BANK_CURRENT_VERSION 32
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
