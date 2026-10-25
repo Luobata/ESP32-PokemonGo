@@ -1,0 +1,39 @@
+{
+  "upstream": "https://github.com/pret/pokegold",
+  "commit": "656583c939d30f920a316177311a502dd222b57c",
+  "source_sha256": {
+    "gfx/tilesets/bg_tiles.pal": "37d320da6d27b5c74dd9c5712941576d90292b352ad93b52cef46a6ccdff00e4",
+    "gfx/overworld/npc_sprites.pal": "22708424558995d7b33bd8199a909179ac7911167c498ff9a08f8683aa115293",
+    "gfx/tilesets/johto.png": "edfc528b3930157d586e70309a1e3f3b6854e1ced942f424e4e05a4ff1ba9d42",
+    "gfx/tilesets/johto_palette_map.asm": "8d94945822e772642d8115bc94349124088b8244a1869dcaee4517aedc383ba4",
+    "data/tilesets/johto_metatiles.bin": "6b2819162233464b2fe671da41a82ae8a1c65bb9b2ee4393691d896c3708397e",
+    "data/tilesets/johto_collision.asm": "6c249f0634df7c1daf8dc9be1a9a1f991bcb1f48f32f9885ebc9d2129ce1e33d",
+    "gfx/tilesets/park.png": "e61aca3539d6febb90523e96e1e3c20a15b0180c37921315b7cc21a7a9751fe7",
+    "gfx/tilesets/park_palette_map.asm": "b81f2f81ece0062f489f614b7efbcf59801a5acf7aa886766c21c0a137d3680b",
+    "data/tilesets/park_metatiles.bin": "62c2bcd6565265699b08768191d1fbe721ab8e04fafdb21395cce67415bf84a4",
+    "data/tilesets/park_collision.asm": "f3e66f7e873387265e5b759dc8c1067ab154cb7bca1eac6d43b8e8afb9870fe3",
+    "gfx/tilesets/tower.png": "b05a7ff3ca1531036fe46198aca32c563c1c828c0ac482f2061c3b3a823c7051",
+    "gfx/tilesets/tower_palette_map.asm": "ba99c7d945d758b21f18c0cf3afcec0545551b21e58d752df7b710a4c829f2de",
+    "data/tilesets/tower_metatiles.bin": "6919e06474e21772b13f454ee623dea6aa839957894879e7c298bc6a5983f80f",
+    "data/tilesets/tower_collision.asm": "b381314ce5bb7f0cf61cab47cde1177913651306a81eb715ade3026f012b2f9f",
+    "gfx/sprites/chris.png": "6dc9c88d2dc9d5300fb66367fc654aef58aa4c60fddb33ae7e5fe77ff70e0612",
+    "gfx/sprites/scientist.png": "43f37a0ecad4a7b5681f40ff55b98446735b2578c904847d88489f5639fb051c",
+    "gfx/sprites/bug_catcher.png": "e1e558b61d2f5b319160884fb263bbaa1b2c536a41e974604d793099e508eb38",
+    "data/sprites/facings.asm": "b4b189ad4150376bafcfc73a8092f07791f84d074701670141990c1c9dcbfa9e",
+    "data/sprites/sprites.asm": "f2da8c334c5a44418c68229eaf3c60b125542611904c64811b2903b13c772493",
+    "data/maps/environment_colors.asm": "945ab8c89bdfd7f64de6ea240f7ac64d0d0afd1768bd5ae81709cfc01624e80a",
+    "engine/overworld/map_object_action.asm": "43bc7d160f0ae9a73f5c065c1cf5ce3910a8eae661b54ee20603b03d6bdf4fa4"
+  },
+  "layout_sha256": "c475f13ff348eb388d3fed5c462f2ddbe9a743925172669c1e25e7b29b9b46ec",
+  "generated_sha256": "923ef9c769a7f0029f02edf6635fb42a199ad54c863a3b3c7d8d8a7242b9d78b",
+  "map_cells": [
+    16,
+    14
+  ],
+  "longest_route_cells": [
+    11,
+    12,
+    12
+  ],
+  "adaptation": "Compact custom layouts; original 8px tiles, day palettes, Chris/NPC sprites and facing/mirror frames. Integer 2x display with camera follow. No overworld ROM/emulator."
+}

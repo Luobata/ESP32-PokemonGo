@@ -237,7 +237,7 @@ static bool fields_valid(const save_t *s) {
         items_inventory_valid(&s->inventory) && battle_traits_valid(&s->challenge) && battle_traits_valid(&s->activities.run.battle) && trainer_store_valid(&s->challenge) &&
         enc_refresh_valid(&s->refresh) && exploration_valid(&s->exploration) &&
         exploration_regions_valid(&s->regions) && exploration_updates_valid(&s->exploration_updates) &&
-        rest_clock_valid(&s->rest_clock) && dungeon_progress_valid(&s->dungeon) && johto_valid(&s->johto) && activity_valid(&s->activities) && johto_story_valid(&s->story) && endgame_valid(&s->endgame) && endgame_battle_valid(&s->endgame,&s->challenge) && narrative_valid(&s->narrative);
+        rest_clock_valid(&s->rest_clock) && dungeon_progress_valid(&s->dungeon) && johto_valid(&s->johto) && activity_valid(&s->activities) && johto_story_valid(&s->story) && endgame_valid(&s->endgame) && endgame_battle_valid(&s->endgame,&s->challenge) && narrative_valid(&s->narrative) && field_state_valid(&s->field);
 }
 static bool members_valid(const save_t *s) {
     const party_t *p=&s->members;
@@ -476,8 +476,8 @@ static void expand_v27(save_t *out) {
 save_read_result_t save_decode(save_t *out,const void *blob,size_t len,uint8_t opening_seen) {
     if(!out||!blob||len<2||len>sizeof(*out))return SAVE_READ_ERROR;
     unsigned version=save_le16(blob);
-    if(version==28||version==29||version==30){
-        size_t historical_size=version==28?sizeof(save_v28_t):version==29?sizeof(save_v29_t):sizeof(save_v30_t);
+    if(version==28||version==29||version==30||version==31){
+        size_t historical_size=version==28?sizeof(save_v28_t):version==29?sizeof(save_v29_t):version==30?sizeof(save_v30_t):sizeof(save_v31_t);
         if(len==sizeof(save_bank_ref_t)){save_bank_ref_t ref;memcpy(&ref,blob,len);if(save_bank_length(&ref)!=historical_size||!save_bank_read(save_bank_platform(),&ref,out,sizeof(*out)))return SAVE_READ_ERROR;}
         else if(len==historical_size)memmove(out,blob,len);else return SAVE_READ_ERROR;
         if(out->version!=version)return SAVE_READ_ERROR;

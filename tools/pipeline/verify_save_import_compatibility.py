@@ -117,7 +117,7 @@ static void milk(void){
  trainer_mon_t *m=&s_challenge.session.sides[0].mons[0];m->hp=m->max_hp;m->status=1 /* poison */;
  assert(world_challenge_recover(0)&&!m->status&&m->hp==m->max_hp); // status-only recovery
 }
-int main(void){assert(assets_init());historical_compatibility();migration_boundaries();compatibility();milk();puts("{\"passed\":true,\"schemas\":\"V5-V31 historical fixtures, future/corrupt rejected\",\"milk\":\"low/high HP, cap, faint, status, turn cost, save failures and reboot\"}");return 0;}
+int main(void){assert(assets_init());historical_compatibility();migration_boundaries();compatibility();milk();puts("{\"passed\":true,\"schemas\":\"V5-V32 historical fixtures, future/corrupt rejected\",\"milk\":\"low/high HP, cap, faint, status, turn cost, save failures and reboot\"}");return 0;}
 '''
 if __name__ == '__main__':
     harness.CASES = c_cases() + harness.CASES

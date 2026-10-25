@@ -21,10 +21,11 @@
 #include "johto_story.h"
 #include "endgame.h"
 #include "narrative.h"
+#include "field_adventure.h"
 
 // 存档版本。**加字段时必须 +1** —— load 会拒绝不认识的版本，
 // 那比读到错位的字段好（错位不报错，只是数值离谱）。
-#define SAVE_VERSION 31 // Append-only guided narrative; V30 bytes remain frozen.
+#define SAVE_VERSION 32 // Append-only radar/map circuits; all V31 bytes remain frozen.
 #define SAVE_LEGACY_VERSION 5
 
 typedef struct {
@@ -55,6 +56,7 @@ typedef struct {
     _Alignas(8) johto_story_t story;
     _Alignas(8) endgame_t endgame;
     _Alignas(8) narrative_t narrative;
+    _Alignas(8) field_state_t field;
 } save_t;
 // V26 appends five items, 32 achievement claims and research reward receipts.
 
@@ -107,4 +109,5 @@ bool save_mark_opening_seen(void);
 
 _Static_assert(offsetof(save_t,endgame)==sizeof(save_v29_t),"Preserve the complete V29 prefix");
 _Static_assert(offsetof(save_t,narrative)==sizeof(save_v30_t),"Preserve the complete V30 prefix");
-_Static_assert(sizeof(save_t)==39944,"Version the narrative world layout");
+_Static_assert(offsetof(save_t,field)==sizeof(save_v31_t),"Preserve the complete V31 prefix");
+_Static_assert(sizeof(save_t)==39976,"Version the field adventure world layout");

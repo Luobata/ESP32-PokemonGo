@@ -740,3 +740,9 @@ typedef struct {gym_member_v30_t member[6];uint16_t round,pause_until,switch_aft
 typedef struct {gym_rules_v30_t battle;mon_v28_t lake_partner;uint16_t claimed;uint8_t version,champion_gyms,champion_elm,lake_stage,lake_level;} endgame_v30_t;
 typedef struct {save_v29_t prefix;_Alignas(8) endgame_v30_t endgame;} save_v30_t;
 _Static_assert(sizeof(save_v30_t)==39912,"Freeze V30 world");
+
+// Frozen V31. Do not follow the running narrative or encounter types.
+typedef struct { uint64_t seen; uint8_t pending[16]; uint16_t scene; uint8_t page,version,bug_evidence,legacy_final,focus,legend; } narrative_v31_t;
+_Static_assert(sizeof(narrative_v31_t)==32,"Freeze V31 narrative");
+typedef struct {save_v30_t prefix;_Alignas(8) narrative_v31_t narrative;} save_v31_t;
+_Static_assert(sizeof(save_v31_t)==39944,"Freeze V31 world");

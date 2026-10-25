@@ -21,7 +21,7 @@ static world_johto_result_t johto_transaction(void) {
 static world_johto_result_t johto_commit(bool received,bool discovery,unsigned debit) {
  xSemaphoreGive(s_lock);bool ok=save_write(&s_save_buf);xSemaphoreTake(s_lock,portMAX_DELAY);
  if(ok){
-  s_narrative=s_save_buf.narrative;s_story=s_save_buf.story;s_johto=s_save_buf.johto;s_inventory=s_save_buf.inventory;
+  s_field=s_save_buf.field;s_narrative=s_save_buf.narrative;s_story=s_save_buf.story;s_johto=s_save_buf.johto;s_inventory=s_save_buf.inventory;
   s_w.pet.stamina=s_w.pet.stamina>(int32_t)debit?s_w.pet.stamina-debit:0;
   if(received)s_party=s_save_buf.members;
   if(received||discovery)s_dex=s_save_buf.dex;

@@ -89,6 +89,10 @@ jobs:
           run_check python3 tools/pipeline/verify_johto_routes_ui.py
           run_check python3 tools/pipeline/verify_johto_fieldwork.py
           run_check python3 tools/pipeline/verify_johto_fieldwork_ui.py
+          run_check python3 tools/pipeline/verify_field_adventure.py
+          run_check python3 tools/pipeline/verify_field_adventure_ui.py
+          run_check python3 tools/pipeline/compile_field_maps.py --check
+          run_check python3 tools/pipeline/verify_field_map_art.py
           run_check python3 tools/pipeline/verify_johto_evolution.py
           run_check python3 tools/pipeline/verify_johto_evolution_ui.py
           run_check python3 tools/pipeline/verify_johto_activity.py

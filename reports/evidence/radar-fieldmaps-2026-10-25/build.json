@@ -1,0 +1,18 @@
+{
+  "development_preview": true,
+  "application_bytes": 3215344,
+  "application_sha256": "dc939d39fbce6ab55df0b65eea0f0e9d73e62818bc0499ec88c362cffcb1c8e4",
+  "factory_bytes": 3407872,
+  "factory_free_bytes": 192528,
+  "save_version": 32,
+  "save_bytes": 39976,
+  "save_added_bytes": 32,
+  "usb_format": 4,
+  "usb_bytes": 73728,
+  "partition_changed": false,
+  "rtc_codec_bytes": 7792,
+  "rtc_free_bytes": 328,
+  "new_heap_allocations": 0,
+  "hardware_flashed": false,
+  "runtime_heap_or_fps_measured": false
+}

@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "native_build": "5f07db342c1afe6de3cb",
+  "pixel_checks": 857,
+  "scope": "host production renderer; not device NVS/FPS",
+  "cases": [
+    "opening -> starter -> first route",
+    "pause and resume",
+    "wrong inference/hint",
+    "write failure/retry",
+    "read-only memories",
+    "trail choice",
+    "legend -> actual encounter",
+    "guided gym reward return",
+    "guided six-observation activity settlement",
+    "all 25 scenes/read-only pages",
+    "all eleven checkpoints",
+    "screen-off pause"
+  ]
+}

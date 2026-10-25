@@ -43,6 +43,8 @@ typedef enum {
     PAGE_ACTIVITY,      // P18 城都调查与远征
     PAGE_STORY,         // P19 冒险笔记
     PAGE_NARRATIVE,     // P20 Guided investigation and resumable dialogue.
+    PAGE_RADAR,          // P21 Wi-Fi encounter radar
+    PAGE_FIELDMAP,       // P22 walkable field sites
     PAGE_COUNT,
 } page_id_t;
 

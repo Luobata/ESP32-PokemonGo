@@ -171,6 +171,7 @@ const save_bank_io_t *save_bank_platform(void){static const save_bank_io_t io={t
 #define TAG starter_save_tag
 #include "johto.c"
 #include "johto_routes.c"
+#include "field_adventure.c"
 #include "johto_story.c"
 #include "story_transactions.c"
 #include "johto_activity.c"

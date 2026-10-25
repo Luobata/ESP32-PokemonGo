@@ -13,7 +13,7 @@ void music_director_page(unsigned page) {
  case PAGE_STARTER:music_director_play(MUSIC_LAB);break;
  case PAGE_IDLE:music_director_play(MUSIC_HOME);break;
  case PAGE_CARE:music_director_play(MUSIC_CENTER);break;
- case PAGE_EXPLORATION:case PAGE_ENCOUNTER:music_director_play(MUSIC_ROUTE);break;
+ case PAGE_RADAR:case PAGE_FIELDMAP:case PAGE_EXPLORATION:case PAGE_ENCOUNTER:music_director_play(MUSIC_ROUTE);break;
  case PAGE_BATTLE:music_director_play(MUSIC_WILD);break;
  case PAGE_CAPTURE:break; // Preserve the battle score while aiming a ball.
  default:if(s_current==MUSIC_NONE)music_director_play(MUSIC_HOME);break;

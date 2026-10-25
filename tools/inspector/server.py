@@ -16,7 +16,7 @@ import dungeon
 
 sessions = {}
 lock = threading.Lock()
-PAGES = (*range(7), 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
+PAGES = (*range(7), 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22)
 
 
 def close_all():
@@ -39,9 +39,9 @@ def integer(data, name, default, lo, hi):
 
 
 def page_value(data):
-    value = integer(data, "page", 3, 0, 20)
+    value = integer(data, "page", 3, 0, 22)
     if value not in PAGES:
-        raise ValueError("页面必须是 P0–P6 或 P9–P20")
+        raise ValueError("页面必须是 P0–P6 或 P9–P22")
     return value
 
 
@@ -155,7 +155,7 @@ class Handler(SimpleHTTPRequestHandler):
                     region = integer(data, 'region', 0, 0, 11)
                     research = integer(data, 'research', 0, 0, 1)
                     result = renderer.command(f"region_fixture {region} {research}")
-                if action == "reset" and values[0] in (17, 18) and data.get("johto_badges") is not None:
+                if action == "reset" and values[0] in (17, 18, 22) and data.get("johto_badges") is not None:
                     badges = integer(data, "johto_badges", 0, 0, 8)
                     renderer.command(f"johto_fixture {badges} 0")
                     result = renderer.command(f"page {values[0]}")

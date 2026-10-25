@@ -153,7 +153,7 @@
     }
   }
   if(params.get('research')==='1')$('research').checked=true;
-  const hash=location.hash.match(/^#P([0-6]|9|1[0-9]|20)$/);if(hash)$('page').value=hash[1];
+  const hash=location.hash.match(/^#P([0-6]|9|1[0-9]|2[0-2])$/);if(hash)$('page').value=hash[1];
   document.addEventListener('visibilitychange',()=>{suspendClock();scheduleClock();});
   reset();
 })();
