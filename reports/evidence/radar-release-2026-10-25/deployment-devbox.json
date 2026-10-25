@@ -1,0 +1,9 @@
+{
+  "status": "deferred",
+  "reason": "User explicitly chose GitHub and community first after company SSO expiry in the preceding release. Current request targets main, community and official guide.",
+  "current_delivery": [
+    "GitHub Pages",
+    "GitHub Release offline ZIP"
+  ],
+  "not_claimed_deployed": true
+}

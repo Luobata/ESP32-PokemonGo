@@ -1,5 +1,17 @@
 # AI Passport 社区发布
 
+## 2026-10-25 · 雷达与地图漫游：REV-3696 已提交审核
+
+代码已推送并通过 [PR #4](https://github.com/Luobata/ESP32-PokemonGo/pull/4) 合并 main（`612e17e`）。PR 固件 CI 全部通过；[GitHub v2026.10.25-radar-maps](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.25-radar-maps) 已公开，四个附件下载回读与真机验收应用一致。完整包 3,293,456 B，SHA-256 `93dd1a3468c4195c012072ce2fc2f71b12f59dbf7f158c3d1809b3d14a596f5d`。
+
+原社区项目 **234 / pokewalk** 的 **REV-3696** 当前 **pending（待审核）**；上一版 REV-3636 已通过。沿用皮卡丘对战暴鲤龙封面，附图增加雷达和地图漫游。中英文介绍、操作说明、更新日志、源码地址和固件摘要回读一致，没有另发评论。
+
+新增雷达及捕虫公园、阿露福遗迹、烧焦塔三张小地图。两种搜寻均耗 5 体能，雷达冷却 120 秒、每图 180 秒。基础闪光率分别为 **1/32（3.125%）**、**1/24（约 4.17%）**，叠加已有探索连携。官网的玩法、候选池、解锁、等级、闪光及更新说明已同步，在线 13 项资源和离线 ZIP 共 14 项核对一致。
+
+逻辑 V32 支持同设备 V5～V32；分区及备份容器不变。已完成 V31→V32 和 V32→V32 的真机亮度变化后覆盖恢复；历史全格式、满仓和故障边界仍区分宿主与真机范围。新玩法需升级固件，网页刷新可看新攻略；旧离线工具请重新下载。更新前先备份，已有设备优先用 USB 保档更新，完整安装须先备份再恢复。devbox 仍按用户先发布 GitHub 和社区的指示暂缓，当前使用官网或本次离线 ZIP。
+
+[中文发布说明](2026-10-25-radar-maps/changelog.zh.md) · [玩法攻略](https://luobata.github.io/ESP32-PokemonGo/guide/#field) · [闪光规则](https://luobata.github.io/ESP32-PokemonGo/guide/#shiny) · [验证与发布记录](../../reports/radar-release-2026-10-25.md)。
+
 ## 2026-10-24 · 城都的来信：REV-3636 已提交审核
 
 城都代码已提交推送并合入 main；[PR #3](https://github.com/Luobata/ESP32-PokemonGo/pull/3) 及合并后的 [main 固件 CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/40102746582) 均通过。[GitHub v2026.10.24-johto](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.24-johto) 已公开，标签对应 `590aaa794c3408b6da09931412cbe2b12a8aaf9a`。完整安装包、USB 保档更新包、manifest 和离线工具四个附件已从公开版本下载回读，与本地验收产物一致。

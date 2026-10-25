@@ -1,0 +1,9 @@
+{
+  "pr": 4,
+  "url": "https://github.com/Luobata/ESP32-PokemonGo/pull/4",
+  "mergedAt": "2026-10-25T09:20:40Z",
+  "merge_commit": "612e17e32b7af2a4b06ca1417a942dc953483e25",
+  "checked_branch_commit": "f975c06878b487d90b3e5d2eabf040cd6a587cc4",
+  "git_diff_checked_branch_to_merge_empty": true,
+  "pr_ci": "success"
+}
