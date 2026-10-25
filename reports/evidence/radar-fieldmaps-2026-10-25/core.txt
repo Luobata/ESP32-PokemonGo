@@ -3,4 +3,3 @@ mode 1: 1187/30000 shiny; rarity counts 935/24466 0/0 104/2338 148/3196 0/0
 mode 2: 1187/30000 shiny; rarity counts 248/6414 729/17640 179/4914 31/1032 0/0
 mode 3: 898/30000 shiny; rarity counts 393/13411 455/15122 39/1023 11/444 0/0
 PASS: V5-V32, unchanged rejection, real world/save bank commits, reboot cooldown, circuit/egg/stamina atomic, independent shiny probability
-

@@ -19,16 +19,27 @@ def catalog(root):
   if johto:files+=['johto.c','johto_routes.c','johto_story.c','johto_activity.c','gym_rules.c']
   command=['cc','-std=gnu11','-DHOST_BUILD','-O1','-ffunction-sections','-fdata-sections','-I',str(source),'-I',str(p),str(ROOT/'tools/pipeline/guide_catalog.c'),str(p/'assets.S')]+[str(source/f) for f in files]+['-lz',('-Wl,-dead_strip' if sys.platform=='darwin' else '-Wl,--gc-sections'),'-o',str(p/'catalog')]
   if johto:command.insert(1,'-DGUIDE_JOHTO')
+  field=(source/'field_adventure.c').exists()
+  if field:command.insert(1,'-DGUIDE_FIELD')
   if development:command.insert(1,'-DGUIDE_VISITORS')
   result=subprocess.run(command,capture_output=True,text=True);assert result.returncode==0,result.stderr
   result=subprocess.run([str(p/'catalog')],capture_output=True,text=True);assert result.returncode==0,result.stderr
   data=json.loads(result.stdout)
+  if field:
+   field_source=(source/'field_adventure.c').read_text()
+   pools=json.loads(re.search(r'pools\[7\]\[8\]=\s*(\{.*?\});',field_source,re.S).group(1).replace('{','[').replace('}',']'))
+   routes=[int(n) for n in re.search(r'johto_route_level\(\(unsigned\[\]\)\{([^}]+)\}',field_source).group(1).split(',')]
+   names=re.findall(r'"([^"]+)"',re.search(r'maps\[\]=\{([^}]+)\}',(source/'play_field.c').read_text()).group(1))
+   assert len(pools)==7 and all(len(p)==8 for p in pools) and len(names)==len(routes)==3
+   data['fieldAdventure']['radarPools']=pools[3:]
+   for i,m in enumerate(data['fieldAdventure']['maps']):m.update(name=names[i],pool=pools[i],routeId=12+routes[i],levels=data['maps'][12+routes[i]]['levels'])
   pools=json.loads(re.search(r'POOLS\[4\]\[5\]\[16\]=\s*(\{.*?\});',(source/'exploration.c').read_text(),re.S).group(1).replace('{','[').replace('}',']'))
   for i in range(4):data['maps'][i]['pool']=sum(pools[i],[])
   data['cards']=list(zip(*[re.findall(r'"([^"]+)"',re.search(r'dungeon_'+key+r'\[DUNGEON_CARD_COUNT\]=\{(.*?)\};',(source/'dungeon.c').read_text(),re.S).group(1)) for key in ('cards','desc')]))
   data['features']={'expandedWarehouse':(source/'save_bank.h').exists(),'careEvents':development,'shinyEntry':(source/'shiny_entry.c').exists(),'nostalgicMoves':'pokemon_move_names_override' in (source/'pokemon_names.c').read_text(),'moveSettings':(source/'move_policy.h').exists(),'boxRelease':'world_box_release' in (source/'world.c').read_text(),'importStageDiagnostics':'world_backup_validate' in (source/'world.c').read_text(),'compressedSave':(source/'save_storage.h').exists()}
   data['sourceHashes']={str(f.relative_to(root)):hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(source.glob('*')) if f.suffix in ('.c','.h')}
   data['features']['johto']=johto
+  data['features']['radarMaps']=field
   data['warehouseCapacity']=int(re.search(r'#define BOX_CAPACITY\s+(\d+)',(source/'party.h').read_text()).group(1))
   data['saveVersion']=int(re.search(r'#define SAVE_VERSION\s+(\d+)',(source/'save.h').read_text()).group(1))
   assert len(data['pokemon'])==(251 if johto else 151) and len(data['items'])==(24 if johto else 19) and len(data['achievements'])==(43 if johto else 16)
@@ -58,8 +69,8 @@ def version_catalog(ref,version):
  return data
 
 def main():
- p=argparse.ArgumentParser();p.add_argument('--release-ref',default='v2026.10.24-johto');p.add_argument('--previous-ref',default='0c768bc')
- p.add_argument('--release-version',default='2026.10.24 · 城都的来信');p.add_argument('--previous-version',default='2026.10.12 · 453 格仓库');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--release-ref',default='v2026.10.25-radar-maps');p.add_argument('--previous-ref',default='v2026.10.24-johto')
+ p.add_argument('--release-version',default='2026.10.25 · 雷达与地图漫游');p.add_argument('--previous-version',default='2026.10.24 · 城都的来信');a=p.parse_args()
  out=ROOT/'tools/save-manager/web/guide';out.mkdir(parents=True,exist_ok=True)
  release=version_catalog(a.release_ref,a.release_version);previous=version_catalog(a.previous_ref,a.previous_version)
  (out/'catalog.js').write_text('export const CATALOG = '+json.dumps({'release':release,'previous':previous},ensure_ascii=False,separators=(',',':'))+';\n')
