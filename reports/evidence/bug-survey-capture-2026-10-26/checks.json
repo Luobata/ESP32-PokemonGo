@@ -1,0 +1,45 @@
+{
+  "native_build": "4cf665f6d43818aaac3a",
+  "firmware_sha256": "825c2b28cbce6259738f105eb5baa99bf1a8f710d29cda8515a752c368f74ba7",
+  "storage_unchanged": {
+    "schema": 32,
+    "world_bytes": 39976,
+    "usb_container": 4,
+    "usb_payload_bytes": 73728,
+    "partitions_changed": false,
+    "historical_fixtures_changed": false
+  },
+  "passed": [
+    "verify_activity_capture_windows.py",
+    "verify_activity_capture_timing.py",
+    "verify_johto_activity.py",
+    "verify_johto_activity_ui.py",
+    "verify_capture_timing.py",
+    "verify_combat_system.py",
+    "verify_save_import_compatibility.py",
+    "verify_save_storage.py",
+    "verify_usb_import_device.py",
+    "verify_usb_backup_checkpoint.py",
+    "verify_nvs_restore_roundtrip.py",
+    "verify_save_stack.py",
+    "verify_animation_timing.py",
+    "verify_scene_pacing.py",
+    "verify_render_bounds.py",
+    "verify_transition_bands.py",
+    "verify_display_ownership.py",
+    "verify_device_screenshot.py",
+    "ESP-IDF target build",
+    "git diff --check"
+  ],
+  "legacy_additional_check": {
+    "script": "verify_battle.py",
+    "passed": false,
+    "reason": "Existing standalone driver uses stats_t/do_hit which HEAD battle.c no longer defines; compilation fails before testing. This script was not modified. Current verify_combat_system.py and capture production UI checks pass."
+  },
+  "source_verification_limits": [
+    "No fixed upstream Gold/Crystal tree provided for optional source-hash verification in this run.",
+    "This is device test delivery, not a completed release gate or community publication."
+  ],
+  "firmware_source_diff_sha256": "c968c8a92bfa5c85173344483d34e0334a417cbc3ac32e7a52b0ec299555341c",
+  "base_commit": "1d1710f8392df3c6709ca4522027b900ab12c632"
+}

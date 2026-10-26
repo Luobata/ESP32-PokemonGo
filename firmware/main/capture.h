@@ -58,6 +58,9 @@ uint16_t cap_window_width(uint8_t capture_rate, uint16_t mood_bonus_q10,
 
 // 指针位置 —— 三角波往复，整数运算。
 uint16_t cap_pointer_position(uint32_t elapsed_ms);
+// One immutable timing sample shared by rendering and input handling.
+void cap_sample_window(uint16_t width, cap_ball_t ball, uint32_t elapsed_ms,
+                       cap_result_t *out);
 
 // 投一次球。命中是确定性的；只有「失败后逃不逃」用 seed。
 void cap_attempt(uint8_t capture_rate, uint16_t mood_bonus_q10,

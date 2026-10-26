@@ -1,0 +1,25 @@
+{
+  "container_format": 4,
+  "save_version": 32,
+  "payload_bytes": 73728,
+  "original_companions": 123,
+  "test_companions": 124,
+  "restored_companions": 123,
+  "prebackup_and_disk_readback_passed": true,
+  "matching_reboot_receipt": true,
+  "production_decoder_progress_comparison": true,
+  "brightness_before_restore": 89,
+  "brightness_after_restore": 100,
+  "wifi_scan_records_during_restore": 3,
+  "device_returned_to_idle": true,
+  "protocol_record_counts": {
+    "READY": 1,
+    "OFFERED": 1,
+    "BEGIN": 1,
+    "DATA": 576,
+    "END": 1,
+    "UPLOAD": 1,
+    "NEXT": 576,
+    "STAGED": 1
+  }
+}

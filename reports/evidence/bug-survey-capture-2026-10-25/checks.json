@@ -1,0 +1,61 @@
+{
+  "checks": [
+    {
+      "check": "verify_johto_activity",
+      "exit": 0
+    },
+    {
+      "check": "verify_johto_activity_ui",
+      "exit": 0
+    },
+    {
+      "check": "verify_battle_timeline_ui",
+      "exit": 0
+    },
+    {
+      "check": "verify_save_import_compatibility",
+      "exit": 0
+    },
+    {
+      "check": "verify_save_storage",
+      "exit": 0
+    },
+    {
+      "check": "verify_usb_backup_checkpoint",
+      "exit": 0
+    },
+    {
+      "check": "verify_usb_import_device",
+      "exit": 0
+    },
+    {
+      "check": "verify_save_stack",
+      "exit": 0
+    },
+    {
+      "check": "verify_device_screenshot",
+      "exit": 0
+    },
+    {
+      "check": "verify_nvs_restore_roundtrip",
+      "exit": 0
+    },
+    {
+      "check": "verify_activity_capture_timing",
+      "exit": 0
+    },
+    {
+      "check": "verify_capture_timing",
+      "exit": 0
+    },
+    {
+      "check": "inventory_assets",
+      "exit": 0
+    }
+  ],
+  "all_passed": true,
+  "storage_version": 32,
+  "world_bytes": 39976,
+  "usb_bytes": 73728,
+  "schema_changed": false
+}

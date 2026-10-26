@@ -1,0 +1,205 @@
+{
+  "baseline_application_sha256": "d15fff85e99fa079302fd55f448aa6f0e78a759dc5930861501a397d020d3a9a",
+  "application": {
+    "format": "pokewalk-app-update-v2",
+    "address": 65536,
+    "size": 3228432,
+    "sha256": "7b257c3436a23f9c46ef535a841b701443e97fa2a19e189048f63315c9509588",
+    "partition_sha256": "f0f6a27d3d10eba17bc1f6829f3890acee3a23ea637b3537dfa79d50b3174780"
+  },
+  "flash": {
+    "updated": true,
+    "data_unchanged": true,
+    "partition_added": false
+  },
+  "baseline_full_redraw": [
+    {
+      "label": "bug_pointer_full_redraw",
+      "static_samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 42033,
+          "draw_us": 22005,
+          "push_us": 20028
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 42527,
+          "draw_us": 16255,
+          "push_us": 26272
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 41275,
+          "draw_us": 21921,
+          "push_us": 19354
+        }
+      ]
+    }
+  ],
+  "final_measurements": [
+    {
+      "label": "bug_pointer_full_redraw",
+      "static_samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 41059,
+          "draw_us": 19404,
+          "push_us": 21655
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 39296,
+          "draw_us": 19632,
+          "push_us": 19664
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 42133,
+          "draw_us": 21476,
+          "push_us": 20657
+        }
+      ]
+    },
+    {
+      "period_ms": 50,
+      "ticks": 199,
+      "frames": 199,
+      "bands": 398,
+      "window_us": 10137713,
+      "render_us": 1308588,
+      "render_max_us": 9312,
+      "tick_p50_ms": 56,
+      "tick_p95_ms": 56,
+      "tick_max_us": 56443,
+      "late": 133,
+      "frame_p50_ms": 56,
+      "frame_p95_ms": 56,
+      "frame_max_us": 56288,
+      "bytes": 352,
+      "label": "bug_pointer_1"
+    },
+    {
+      "period_ms": 50,
+      "ticks": 199,
+      "frames": 199,
+      "bands": 398,
+      "window_us": 10110775,
+      "render_us": 1325319,
+      "render_max_us": 9049,
+      "tick_p50_ms": 56,
+      "tick_p95_ms": 56,
+      "tick_max_us": 57238,
+      "late": 130,
+      "frame_p50_ms": 56,
+      "frame_p95_ms": 56,
+      "frame_max_us": 57780,
+      "bytes": 352,
+      "label": "bug_pointer_2"
+    },
+    {
+      "period_ms": 50,
+      "ticks": 198,
+      "frames": 198,
+      "bands": 396,
+      "window_us": 10081142,
+      "render_us": 1321130,
+      "render_max_us": 9089,
+      "tick_p50_ms": 56,
+      "tick_p95_ms": 56,
+      "tick_max_us": 57263,
+      "late": 129,
+      "frame_p50_ms": 56,
+      "frame_p95_ms": 56,
+      "frame_max_us": 57779,
+      "bytes": 352,
+      "label": "bug_pointer_3"
+    },
+    {
+      "period_ms": 50,
+      "ticks": 281,
+      "frames": 264,
+      "bands": 4198,
+      "window_us": 13593870,
+      "render_us": 9750567,
+      "render_max_us": 284187,
+      "tick_p50_ms": 56,
+      "tick_p95_ms": 56,
+      "tick_max_us": 286002,
+      "late": 213,
+      "frame_p50_ms": 56,
+      "frame_p95_ms": 56,
+      "frame_max_us": 294989,
+      "bytes": 352,
+      "label": "bug_capture_complete_1"
+    },
+    {
+      "period_ms": 50,
+      "ticks": 280,
+      "frames": 262,
+      "bands": 4180,
+      "window_us": 13577290,
+      "render_us": 9664213,
+      "render_max_us": 282968,
+      "tick_p50_ms": 56,
+      "tick_p95_ms": 56,
+      "tick_max_us": 285000,
+      "late": 226,
+      "frame_p50_ms": 56,
+      "frame_p95_ms": 56,
+      "frame_max_us": 298482,
+      "bytes": 352,
+      "label": "bug_capture_complete_2"
+    },
+    {
+      "period_ms": 50,
+      "ticks": 279,
+      "frames": 279,
+      "bands": 3612,
+      "window_us": 14428652,
+      "render_us": 8562277,
+      "render_max_us": 287548,
+      "tick_p50_ms": 56,
+      "tick_p95_ms": 56,
+      "tick_max_us": 289311,
+      "late": 223,
+      "frame_p50_ms": 56,
+      "frame_p95_ms": 56,
+      "frame_max_us": 302996,
+      "bytes": 352,
+      "label": "bug_capture_complete_3"
+    }
+  ],
+  "brightness": 100,
+  "wifi_scanning": true,
+  "audio_on": true,
+  "original_companions": 123,
+  "baseline_animation_cadence_measured": false,
+  "final_test_companions": 124,
+  "intermediate_capture_before_moving_save_to_still_pose": [
+    {
+      "period_ms": 50,
+      "ticks": 268,
+      "frames": 263,
+      "bands": 4166,
+      "window_us": 13589822,
+      "render_us": 9479385,
+      "render_max_us": 40816,
+      "tick_p50_ms": 56,
+      "tick_p95_ms": 56,
+      "tick_max_us": 315507,
+      "late": 204,
+      "frame_p50_ms": 56,
+      "frame_p95_ms": 56,
+      "frame_max_us": 348382,
+      "bytes": 352,
+      "label": "bug_capture_complete_1"
+    }
+  ]
+}

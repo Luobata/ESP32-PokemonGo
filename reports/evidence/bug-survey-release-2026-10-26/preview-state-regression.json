@@ -1,0 +1,42 @@
+{
+  "failure_reproduced": true,
+  "only_changed_state_field": "display.submitted_bands",
+  "name_roundtrip_bands": [
+    64,
+    160
+  ],
+  "care_details_bands": [
+    128,
+    160
+  ],
+  "assertion_fix": "require positive submitted band delta, then compare every other state field and retain pixel checks",
+  "move_names": {
+    "core": {
+      "moves": 194,
+      "paired_combat_turns": 1552,
+      "save_unchanged": true,
+      "sanitized": true
+    },
+    "font_characters": 252,
+    "build": "4cf665f6d43818aaac3a",
+    "native_moves": 194,
+    "renamed_moves": 161,
+    "redraw_checks": 1134
+  },
+  "care_preview": {
+    "passed": true,
+    "build": "4cf665f6d43818aaac3a",
+    "checks": 193,
+    "pixel_band_mismatches": 0,
+    "capture_window_widths": [
+      26,
+      38
+    ],
+    "special_outcomes": [
+      "sparkle",
+      "supply",
+      "training"
+    ]
+  },
+  "firmware_changed": false
+}

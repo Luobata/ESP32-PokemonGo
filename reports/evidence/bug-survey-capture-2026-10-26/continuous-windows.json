@@ -1,0 +1,111 @@
+{
+  "build": "4cf665f6d43818aaac3a",
+  "pixel_checks": 1468,
+  "changed_target_windows": 96,
+  "species": [
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    46,
+    48,
+    123,
+    127,
+    165,
+    167,
+    193,
+    204,
+    214
+  ],
+  "yanma_retries": 14,
+  "yanma": [
+    {
+      "seed": 2,
+      "node": 4,
+      "ball": 0,
+      "width": 41
+    },
+    {
+      "seed": 3,
+      "node": 6,
+      "ball": 0,
+      "width": 41
+    },
+    {
+      "seed": 4,
+      "node": 2,
+      "ball": 0,
+      "width": 41
+    },
+    {
+      "seed": 6,
+      "node": 6,
+      "ball": 0,
+      "width": 41
+    },
+    {
+      "seed": 9,
+      "node": 3,
+      "ball": 0,
+      "width": 41
+    },
+    {
+      "seed": 9,
+      "node": 6,
+      "ball": 0,
+      "width": 41
+    },
+    {
+      "seed": 11,
+      "node": 1,
+      "ball": 0,
+      "width": 41
+    },
+    {
+      "seed": 12,
+      "node": 6,
+      "ball": 0,
+      "width": 41
+    },
+    {
+      "seed": 13,
+      "node": 2,
+      "ball": 0,
+      "width": 41
+    },
+    {
+      "seed": 14,
+      "node": 4,
+      "ball": 0,
+      "width": 41
+    },
+    {
+      "seed": 16,
+      "node": 5,
+      "ball": 0,
+      "width": 41
+    },
+    {
+      "seed": 17,
+      "node": 1,
+      "ball": 0,
+      "width": 41
+    },
+    {
+      "seed": 18,
+      "node": 6,
+      "ball": 0,
+      "width": 41
+    },
+    {
+      "seed": 19,
+      "node": 2,
+      "ball": 0,
+      "width": 41
+    }
+  ],
+  "hardware": false,
+  "passed": true
+}

@@ -1,0 +1,57 @@
+{
+  "project_id": 234,
+  "fields_verified": true,
+  "field_lengths": {
+    "title_zh": 18,
+    "title_en": 37,
+    "description_zh": 1017,
+    "description_en": 2493,
+    "instructions_zh": 5262,
+    "instructions_en": 7914,
+    "changelog_zh": 876,
+    "changelog_en": 2624
+  },
+  "firmware": {
+    "size": 3294816,
+    "sha256": "8b49d5151a9d5f46021218682faef745444e6e9dad27354a5cb9e21098c215f1",
+    "segments": 3
+  },
+  "images": [
+    {
+      "size": 61861,
+      "sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6",
+      "width": 480,
+      "height": 640,
+      "aspectRatio": "3:4"
+    },
+    {
+      "size": 4092,
+      "sha256": "1901051643e35fa19d0984e9dd66d59c1d479b47c4a7bd7858f937d2ae6ef7e1",
+      "width": 240,
+      "height": 320,
+      "aspectRatio": "3:4"
+    },
+    {
+      "size": 4583,
+      "sha256": "a06f0a196659e4abbfacacd66dd9ff7ed2f5024d3efa847fd96b410a0f47c613",
+      "width": 240,
+      "height": 320,
+      "aspectRatio": "3:4"
+    },
+    {
+      "size": 3246,
+      "sha256": "633c06ba98b0eddfabf7694caa298f7c1fb79d6da6b76bbc4d5385f2b79d6fda",
+      "width": 240,
+      "height": 320,
+      "aspectRatio": "3:4"
+    },
+    {
+      "size": 5114,
+      "sha256": "8d0d449afe351bd8df3c03db650089d22b2d3d2fe337c93cd94079b0ac9b7e27",
+      "width": 240,
+      "height": 320,
+      "aspectRatio": "3:4"
+    }
+  ],
+  "local_image_content_inspected": true
+}

@@ -1,0 +1,8 @@
+{
+  "build": "4cf665f6d43818aaac3a",
+  "cases": 306,
+  "visible_hits": 162,
+  "visible_misses": 144,
+  "old_clock_rule_disagreed": 100,
+  "duplicate_save_retry": false
+}

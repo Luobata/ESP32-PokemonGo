@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 """Exercise care details, visitor cards and special outcomes using firmware UI C."""
 from pathlib import Path
-import json,struct,sys
+import json,os,struct,sys
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'tools/inspector'))
 from native import Renderer,build,png
-OUT=ROOT/'reports/evidence/exploration-events-2026-10-06/ui'
+OUT=Path(os.environ.get('POKEWALK_EVIDENCE_DIR',ROOT/'reports/evidence/exploration-events-2026-10-06/ui'))
 
 def mix(x):
  x&=0xffffffff;x^=x>>16;x=x*0x7feb352d&0xffffffff;x^=x>>15;x=x*0x846ca68b&0xffffffff;return x^(x>>16)
@@ -19,7 +19,12 @@ def run():
  r=Renderer(exe)
  try:
   cmd(r,'boot 5 25 40 74 3 812 0 0 1');cmd(r,'nurture_fixture 100 100 100 100')
-  cmd(r,'key 1 1');cmd(r,'key 1 1');before=r.inspect();cmd(r,'key 2 1');snap(r,'care-bonuses');assert r.inspect()==before
+  cmd(r,'key 1 1');cmd(r,'key 1 1');before=r.inspect()
+  before_bands=before['display'].pop('submitted_bands')
+  cmd(r,'key 2 1');snap(r,'care-bonuses');after=r.inspect()
+  # A read-only detail view draws pixels; only that diagnostic counter may change.
+  assert after['display'].pop('submitted_bands')>before_bands
+  assert after==before
   cmd(r,'key 2 1');snap(r,'care-main');assert r.inspect()['page']==5
   cmd(r,'key 2 1');cmd(r,'key 1 3');assert r.inspect()['page']==5
   cmd(r,'page 3');cmd(r,'tick 6000');snap(r,'battle')

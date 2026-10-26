@@ -147,6 +147,7 @@
 - 动画帧率在正常更新循环中测量，以一帧所需的全部 LCD 提交完成为边界；一条 20 行条带不能算一帧。记录源码目标节奏、实际提交帧数/观测时长、帧间隔中位数/P95/最大值，以及超过目标帧间隔的次数。连续场景至少观察 10 秒，短动画完整重复至少 3 次；有意停顿、静态页面与后台等待单独标注，不能混入动画平均值掩盖卡顿。
 - 串口大写 `J` 开始正常循环采样，`K` 输出汇总；当前覆盖待机、照料、队伍、野生战斗和训练家战斗，最长 30 秒。采样期间固定页面，不运行截图、静态重绘或 USB 备份。分别记录定时器调用间隔、完成绘制的间隔和绘制耗时；未改变画面的定时器回调不算呈现帧。直方图分桶为 8 ms，P50/P95 是桶上界，`4294967295` 表示超出 504 ms 的桶范围，不能当作精确毫秒数。宝可梦动作之间的设计停顿需要结合回调间隔和绘制耗时判断，不能把它计为掉帧。
 - 如现有诊断未提供实际帧时间，先补充有资源预算的轻量计数/时间戳，再声称帧率通过；禁止用截图传输速度、串口每条日志时间、桌面 WASM 帧率替代 LCD 帧率。只在采样结束输出汇总，避免逐像素/逐条带日志改变被测性能。
+- 捕获条必须按一帧建立同一份目标、球种、蓝区和指针快照，输入判定使用最后呈现的位置；不能逐条带重新取时钟。捕虫换目标、换球、失败重试、离页返回及整局机会耗尽均需回归。`verify_activity_capture_windows.py` 在截图/额外重绘前检查新目标首帧，`verify_activity_capture_timing.py` 验证按下/松手、窗口端点、保存失败与局部重绘一致性；真机像素回读会重绘页面，不能单凭回读正常排除最初物理 LCD 帧残留。
 - 串口截图必须校验条带位置唯一、全部条带齐全、Base64 合法及每带字节数准确；即使收到 `SHOTEND`，也不能把缺失字节填黑后当成设备像素。2026-10-24 抓图曾有一带只有 6,612/9,600 B，旧解析器生成了假的黑横条；此类截图必须拒绝并重抓。运行 `verify_device_screenshot.py`，截图传输不完整与实际 LCD 渲染缺陷分开记录。
 - 基础页面覆盖待机、菜单、照料、队伍、仓库/筛选、图鉴、探索及城都；动画覆盖双方出场/换宠、闪光、全屏技能与光束、HP/经验、捕获和进化，并覆盖训练家/秘境战斗及本轮改动的活动。容量相关改动增加 759 个体的宿主检查和真机可用规模对照，不能把小存档结果当作满仓实测。
 - 比较耗时、帧间隔和最长停顿，不只比较平均 FPS。匹配条件下出现明显退化时复测至少 3 组，排除首次加载与测试干扰后定位；完整重绘中位数或动画 P95 帧间隔持续增加超过 15%，作为必须定位的回归信号。不得通过更换基线、删动画帧或偷偷降低目标节奏使检查通过；有意调整视觉时序需说明理由并验收体验。
@@ -237,6 +238,8 @@ python3 tools/pipeline/verify_johto_evolution.py
 python3 tools/pipeline/verify_johto_evolution_ui.py
 python3 tools/pipeline/verify_johto_activity.py
 python3 tools/pipeline/verify_johto_activity_ui.py
+python3 tools/pipeline/verify_activity_capture_timing.py
+python3 tools/pipeline/verify_activity_capture_windows.py
 python3 tools/pipeline/verify_johto_story.py
 python3 tools/pipeline/verify_johto_story_ui.py
 python3 tools/pipeline/verify_johto_champion.py

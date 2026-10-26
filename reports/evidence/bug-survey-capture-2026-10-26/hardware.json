@@ -1,0 +1,291 @@
+{
+  "hardware": "AI Passport / ESP32-C3, same connected device",
+  "date": "2026-10-26",
+  "original_application_sha256": "7b257c3436a23f9c46ef535a841b701443e97fa2a19e189048f63315c9509588",
+  "silent_baseline_application_sha256": "0a841281cdc9437ba702861e8bce48aea6aea811ce5a804785cdc2e2dbde9538",
+  "final_application_sha256": "825c2b28cbce6259738f105eb5baa99bf1a8f710d29cda8515a752c368f74ba7",
+  "final_application_bytes": 3229280,
+  "baseline": [
+    {
+      "label": "baseline-bug-find",
+      "static_samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 37499,
+          "draw_us": 17935,
+          "push_us": 19564
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 37346,
+          "draw_us": 17754,
+          "push_us": 19592
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 37526,
+          "draw_us": 17826,
+          "push_us": 19700
+        }
+      ]
+    },
+    {
+      "period_ms": 50,
+      "ticks": 199,
+      "frames": 199,
+      "bands": 398,
+      "window_us": 10052608,
+      "render_us": 1213984,
+      "render_max_us": 8991,
+      "tick_p50_ms": 56,
+      "tick_p95_ms": 56,
+      "tick_max_us": 54084,
+      "late": 126,
+      "frame_p50_ms": 56,
+      "frame_p95_ms": 56,
+      "frame_max_us": 54160,
+      "bytes": 352,
+      "label": "baseline-pointer-1"
+    },
+    {
+      "period_ms": 50,
+      "ticks": 200,
+      "frames": 200,
+      "bands": 400,
+      "window_us": 10119786,
+      "render_us": 1213769,
+      "render_max_us": 6310,
+      "tick_p50_ms": 56,
+      "tick_p95_ms": 56,
+      "tick_max_us": 53003,
+      "late": 126,
+      "frame_p50_ms": 56,
+      "frame_p95_ms": 56,
+      "frame_max_us": 53091,
+      "bytes": 352,
+      "label": "baseline-pointer-2"
+    },
+    {
+      "period_ms": 50,
+      "ticks": 200,
+      "frames": 200,
+      "bands": 400,
+      "window_us": 10123964,
+      "render_us": 1212894,
+      "render_max_us": 6349,
+      "tick_p50_ms": 56,
+      "tick_p95_ms": 56,
+      "tick_max_us": 53998,
+      "late": 126,
+      "frame_p50_ms": 56,
+      "frame_p95_ms": 56,
+      "frame_max_us": 53819,
+      "bytes": 352,
+      "label": "baseline-pointer-3"
+    }
+  ],
+  "baseline_throw": [
+    {
+      "period_ms": 50,
+      "ticks": 272,
+      "frames": 272,
+      "bands": 3584,
+      "window_us": 14106950,
+      "render_us": 8388799,
+      "render_max_us": 286838,
+      "tick_p50_ms": 56,
+      "tick_p95_ms": 56,
+      "tick_max_us": 288003,
+      "late": 225,
+      "frame_p50_ms": 56,
+      "frame_p95_ms": 56,
+      "frame_max_us": 301958,
+      "bytes": 352,
+      "label": "baseline-yanma-throw"
+    }
+  ],
+  "final_muted": [
+    {
+      "label": "final-muted-bug-find",
+      "static_samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 40872,
+          "draw_us": 25822,
+          "push_us": 15050
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 48273,
+          "draw_us": 32578,
+          "push_us": 15695
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 40739,
+          "draw_us": 25867,
+          "push_us": 14872
+        }
+      ]
+    },
+    {
+      "period_ms": 40,
+      "ticks": 250,
+      "frames": 250,
+      "bands": 500,
+      "window_us": 10092773,
+      "render_us": 2104178,
+      "render_max_us": 8681,
+      "tick_p50_ms": 40,
+      "tick_p95_ms": 48,
+      "tick_max_us": 44993,
+      "late": 71,
+      "frame_p50_ms": 40,
+      "frame_p95_ms": 48,
+      "frame_max_us": 45024,
+      "bytes": 352,
+      "label": "final-muted-pointer-1",
+      "frames_per_second": 24.77,
+      "mean_render_us": 8416.7
+    },
+    {
+      "period_ms": 40,
+      "ticks": 251,
+      "frames": 251,
+      "bands": 502,
+      "window_us": 10130105,
+      "render_us": 2113771,
+      "render_max_us": 8647,
+      "tick_p50_ms": 40,
+      "tick_p95_ms": 48,
+      "tick_max_us": 45000,
+      "late": 70,
+      "frame_p50_ms": 40,
+      "frame_p95_ms": 48,
+      "frame_max_us": 45026,
+      "bytes": 352,
+      "label": "final-muted-pointer-2",
+      "frames_per_second": 24.778,
+      "mean_render_us": 8421.4
+    },
+    {
+      "period_ms": 40,
+      "ticks": 252,
+      "frames": 252,
+      "bands": 504,
+      "window_us": 10141213,
+      "render_us": 2138590,
+      "render_max_us": 11504,
+      "tick_p50_ms": 40,
+      "tick_p95_ms": 48,
+      "tick_max_us": 45000,
+      "late": 72,
+      "frame_p50_ms": 40,
+      "frame_p95_ms": 48,
+      "frame_max_us": 45024,
+      "bytes": 352,
+      "label": "final-muted-pointer-3",
+      "frames_per_second": 24.849,
+      "mean_render_us": 8486.5
+    },
+    {
+      "period_ms": 40,
+      "ticks": 303,
+      "frames": 303,
+      "bands": 2790,
+      "window_us": 12552414,
+      "render_us": 6627083,
+      "render_max_us": 277430,
+      "tick_p50_ms": 40,
+      "tick_p95_ms": 48,
+      "tick_max_us": 279000,
+      "late": 124,
+      "frame_p50_ms": 40,
+      "frame_p95_ms": 48,
+      "frame_max_us": 292811,
+      "bytes": 352,
+      "label": "final-muted-miss",
+      "frames_per_second": 24.139,
+      "mean_render_us": 21871.6
+    }
+  ],
+  "final_muted_hit": [
+    {
+      "period_ms": 40,
+      "ticks": 351,
+      "frames": 336,
+      "bands": 3296,
+      "window_us": 13868215,
+      "render_us": 7596685,
+      "render_max_us": 277831,
+      "tick_p50_ms": 40,
+      "tick_p95_ms": 48,
+      "tick_max_us": 279139,
+      "late": 164,
+      "frame_p50_ms": 40,
+      "frame_p95_ms": 48,
+      "frame_max_us": 293604,
+      "bytes": 352,
+      "label": "final-muted-hit"
+    },
+    {
+      "input": "view=3 phase=1 node=4 species=193 attempts=2 ball=0 ready=1 visible_species=193 window=79..121 pointer=104 elapsed=90889 animation_ms=72169 pending=0 error=0 result_window=79..121 result_pointer=192 caught=0",
+      "result": "view=3 phase=2 node=4 species=193 attempts=3 ball=0 ready=1 visible_species=193 window=79..121 pointer=91 elapsed=90928 animation_ms=14367 pending=0 error=0 result_window=79..121 result_pointer=91 caught=1",
+      "passed": true
+    }
+  ],
+  "memory": {
+    "observed_minimum_free": 9508,
+    "observed_largest_block": 9216,
+    "lvgl_stack_free": 5048,
+    "timer_stack_free": 3544,
+    "debug_stack_free": 1616,
+    "audio_stack_free": 1980
+  },
+  "reported_previous_window_reproduced": false,
+  "yanma": {
+    "species": 193,
+    "logical_window": [
+      79,
+      121
+    ],
+    "painted_width_including_endpoints": 43,
+    "miss_pointer": 192,
+    "hit_pointer": 91
+  },
+  "notes": [
+    "Baseline was compiled without audio; final firmware has audio compiled and setting mute enabled. These are not strictly identical resource conditions.",
+    "J/K samples count all submitted LCD bands per frame, not individual strips as frames.",
+    "Capture windows include designed holds and Flash transaction; their aggregate FPS is not continuous-motion FPS.",
+    "Histogram P50/P95 values are 8 ms bucket upper bounds.",
+    "Readback screenshots replay production drawing. No physical LCD camera recording or physical button-to-photon measurement.",
+    "Initial final-firmware reboot was not muted; mistake disclosed and setting corrected before the final-muted samples.",
+    "Runtime Wi-Fi scanning remained enabled. Only the current player save was measured on device, not 759 individuals."
+  ],
+  "final_muted_third_throw": [
+    {
+      "period_ms": 40,
+      "ticks": 313,
+      "frames": 313,
+      "bands": 2826,
+      "window_us": 12850286,
+      "render_us": 6591804,
+      "render_max_us": 240189,
+      "tick_p50_ms": 40,
+      "tick_p95_ms": 48,
+      "tick_max_us": 242000,
+      "late": 139,
+      "frame_p50_ms": 40,
+      "frame_p95_ms": 48,
+      "frame_max_us": 255856,
+      "bytes": 352,
+      "label": "final-muted-third-throw"
+    }
+  ]
+}

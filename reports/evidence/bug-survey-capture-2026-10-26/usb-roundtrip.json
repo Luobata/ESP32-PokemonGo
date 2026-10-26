@@ -1,0 +1,57 @@
+{
+  "final_firmware_setting_restore": {
+    "backup_format": 4,
+    "payload_bytes": 73728,
+    "before_brightness_percent": 100,
+    "changed_setting_percent": 90,
+    "changed_pin_readback": 89,
+    "after_import_percent": 100,
+    "first_attempt": "TIMEOUT after last acknowledged offset 40960; data unchanged, brightness remained 89",
+    "retry": "All 576 chunks staged, matching successful reboot receipt and actual brightness restoration",
+    "wifi_scan_records_during_attempts": {
+      "test-roundtrip": 4,
+      "test-roundtrip-retry": 4
+    },
+    "retry_offset_count": 576,
+    "receipt_matched": true,
+    "mute_preserved_on_test_roundtrip": true
+  },
+  "player_progress_restored": true,
+  "final_flash_verified": true,
+  "original_progress_restore": {
+    "target_firmware": "0a841281cdc9437ba702861e8bce48aea6aea811ce5a804785cdc2e2dbde9538",
+    "reason_for_quiet_firmware": "Original backup had mute disabled. Restore without initializing audio, then enable and verify the persistent mute setting before final flash.",
+    "chunks_acknowledged": 576,
+    "wifi_scan_records": 4,
+    "receipt_matched": true,
+    "verified_boot": {
+      "species": 115,
+      "level": 58,
+      "exp": 298368,
+      "pending_encounters": 3,
+      "dungeon_phase": 5,
+      "dungeon_node": 7,
+      "dungeon_members": 3,
+      "dungeon_run": 2
+    },
+    "mute_setting_enabled_and_screenshot_verified": true
+  },
+  "final_app_sha256": "825c2b28cbce6259738f105eb5baa99bf1a8f710d29cda8515a752c368f74ba7",
+  "partitions_changed": false,
+  "protected_ranges_readback_equal": true,
+  "semantic_comparison_passed": true,
+  "final_backup_export_disk_readback_passed": true,
+  "final_mute_setting_verified": true,
+  "delivered_on_idle_page": true,
+  "original_and_final_progress": {
+    "companions": 124,
+    "leader_species": 115,
+    "level": 58,
+    "experience": 298368,
+    "pending_encounters": 3,
+    "party_crc32": "730dc099",
+    "dex_crc32": "7586a958",
+    "inventory_crc32": "c93f7831",
+    "temporary_activity_rewards_removed": true
+  }
+}
