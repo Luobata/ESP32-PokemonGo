@@ -4,7 +4,7 @@
   "revisionId": 3784,
   "status": "pending",
   "projectStatus": "published",
-  "category": "developer",
+  "category": "games",
   "hasImage": true,
   "firmwareSize": 3294816,
   "firmwareSha256": "8b49d5151a9d5f46021218682faef745444e6e9dad27354a5cb9e21098c215f1",
@@ -26,5 +26,6 @@
     "status": "approved",
     "firmwareSha256": "93dd1a3468c4195c012072ce2fc2f71b12f59dbf7f158c3d1809b3d14a596f5d"
   },
-  "images": "Original Gyarados cover plus four inspected local files submitted; pending server bytes not claimed as read back."
+  "images": "Original Gyarados cover plus four inspected local files submitted; pending server bytes not claimed as read back.",
+  "classification_at_submission": "developer"
 }
