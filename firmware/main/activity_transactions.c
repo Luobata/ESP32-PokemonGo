@@ -24,6 +24,7 @@ activity_result_t activity_apply(save_t *s,const activity_request_t *q,activity_
  switch(q->op){
  case ACTION_SURVEY:ok=activity_investigate(r,q->choice);if(ok)dex_mark_seen(&s->dex,r->found.species_id,r->found.flags&1);break;
  case ACTION_THROW:if(r->kind!=ACT_BUG||r->phase!=ACT_FIND||r->attempts>=3)return ACT_LOCKED;
+  if(q->expected.species_id&&memcmp(&q->expected,&r->found,sizeof(r->found)))return ACT_STALE;
   if(q->choice>=CAP_BALL_COUNT||!s->inventory.quantity[q->choice])return ACT_FULL;
   ok=activity_throw(r,q->choice,q->elapsed,1024+r->members[0].intimacy*3,&out->capture);if(ok)s->inventory.quantity[q->choice]--;break;
  case ACTION_KEEP:ok=activity_keep(r,q->choice!=0);break;

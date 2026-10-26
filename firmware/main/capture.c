@@ -130,24 +130,23 @@ void cap_attempt(uint8_t capture_rate, uint16_t mood_bonus_q10,
                          elapsed_ms, seed, NULL, out);
 }
 
+void cap_sample_window(uint16_t width, cap_ball_t ball, uint32_t elapsed_ms,
+                       cap_result_t *out)
+{
+    uint16_t start = (CAP_BAR_WIDTH - width) / 2;
+    uint16_t pointer = cap_pointer_position(elapsed_ms);
+    *out = (cap_result_t){.window_w = width, .window_start = start,
+        .window_end = start + width, .pointer = pointer, .ball = ball,
+        .caught = pointer >= start && pointer <= start + width};
+}
+
 void cap_attempt_context(uint8_t capture_rate, uint16_t mood_bonus_q10,
                          cap_ball_t ball, uint8_t hp_ratio, uint8_t rarity,
                          uint32_t elapsed_ms, uint32_t seed,
                          const cap_context_t *context, cap_result_t *out)
 {
-    memset(out, 0, sizeof(*out));
-
     uint16_t w = cap_window_width_context(capture_rate, mood_bonus_q10, ball, hp_ratio, context);
-    // 窗口居中
-    uint16_t start = (uint16_t)((CAP_BAR_WIDTH - w) / 2);
-    uint16_t p = cap_pointer_position(elapsed_ms);
-
-    out->window_w = w;
-    out->window_start = start;
-    out->window_end = (uint16_t)(start + w);
-    out->pointer = p;
-    out->ball = ball;
-    out->caught = (p >= start && p <= out->window_end);
+    cap_sample_window(w, ball, elapsed_ms, out);
 
     if (out->caught) return;
 

@@ -285,40 +285,16 @@ static uint16_t current_window(void)
 
 static bool s_replaying;
 
+static void sample_bar(void)
+{
+    if (s_thrown || s_replaying) return;
+    uint32_t elapsed = (uint32_t)((esp_timer_get_time() - s_t0) / 1000);
+    cap_sample_window(current_window(), s_ball, elapsed, &s_visible);
+}
+
 static void draw_bar_band(int band_y)
 {
-    // 位置仍为 capture.c 的 0..200，包含两端；框不占用判定尺度。
-    // 投球后冻结当次窗口，与冻结的 s_last.pointer 使用同一结果。
-    uint16_t w = s_thrown ? s_last.window_w : s_replaying ? s_visible.window_w : current_window();
-    uint16_t offset = s_thrown ? s_last.window_start : s_replaying ? s_visible.window_start : (CAP_BAR_WIDTH - w) / 2;
-    uint16_t start = (uint16_t)(BAR_X + offset);
-    uint16_t end = (uint16_t)(start + w);
-    uint32_t elapsed = (uint32_t)((esp_timer_get_time() - s_t0) / 1000);
-    uint16_t p = s_thrown ? s_last.pointer : s_replaying ? s_visible.pointer : cap_pointer_position(elapsed);
-
-    if (!s_thrown && !s_replaying) {
-        s_visible = (cap_result_t){.window_w = w, .window_start = offset,
-            .window_end = (uint16_t)(offset + w), .pointer = p, .ball = s_ball,
-            .caught = p >= offset && p <= offset + w};
-    }
-    game_ui_box(band_y, 8, BAR_BOX_Y, 224, 32);
-    for (int dy = 0; dy < BAR_H; dy++) {
-        int y = BAR_Y + dy - band_y;
-        for (int dx = 0; dx <= CAP_BAR_WIDTH; dx++) {
-            int x = BAR_X + dx;
-            bool in_win = (x >= start && x <= end);
-            screen_px(x, y, in_win ? GAME_UI_ACCENT : GAME_UI_BG);
-        }
-    }
-    // 黑色竖线与像素箭头的尖端都落在真实判定坐标 p。
-    for (int dy = 0; dy < BAR_H; dy++) {
-        screen_px(BAR_X + p, BAR_Y + dy - band_y, GAME_UI_INK);
-    }
-    ui_art_t cursor;
-    if (assets_ui("cursor", &cursor)) {
-        game_ui_cursor(band_y, BAR_X + p - cursor.w + 1,
-                        BAR_Y + (BAR_H - cursor.h) / 2);
-    }
+    game_ui_capture_bar(band_y, BAR_BOX_Y, s_thrown ? &s_last : &s_visible);
 }
 
 static void draw_band(int band_y)
@@ -428,6 +404,7 @@ static void draw_band(int band_y)
 
 static void draw_all(void)
 {
+    sample_bar();
     for (int y = 0; y < SCR_H; y += BAND_H) draw_band(y);
 }
 
@@ -513,6 +490,7 @@ static void tick_impl(lv_timer_t *t)
     if (s_caught || s_fled || s_capture_pending) return;
     // **只重画判定条那一带** —— 指针在动，别的都是静态的。
     // 全屏重画 150KB/帧跑不动 1.2 秒的往复。
+    sample_bar();
     for (int y=(BAR_BOX_Y/BAND_H)*BAND_H;y<BAR_BOX_Y+32;y+=BAND_H) draw_band(y);
 }
 

@@ -240,6 +240,7 @@ static void dispatch(char c)
             }
             if (nav_current() == PAGE_TRAINER)
                 ESP_LOGI(TAG, "@@TRAINER_VIEW mode=%u", play_trainer_mode());
+            if (nav_current() == PAGE_ACTIVITY) play_activity_debug_state();
             bsp_lvgl_unlock();
         }
         return;

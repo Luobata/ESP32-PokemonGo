@@ -30,6 +30,7 @@
 #include "dungeon.h"
 
 static uint64_t now_ms;
+static unsigned lcd_submitted_bands;
 static int battery_soc = 76;
 static unsigned battery_reads;
 int bsp_battery_soc(void) { battery_reads++; return battery_soc; }
@@ -110,12 +111,14 @@ static void advance(uint32_t ms)
             if (timers[i].active && timers[i].due <= end &&
                 (!next || timers[i].due < next->due)) next = &timers[i];
         if (!next) break;
-        now_ms = next->due;
-        next->due += next->period;
+        /* A synchronous save can advance the clock without running timers.
+         * Resume late callbacks once at real time, never rewind the clock. */
+        if (now_ms < next->due) now_ms = next->due;
+        next->due = now_ms + next->period;
         next->callback(next);
         screen_flush();
     }
-    now_ms = end;
+    if (now_ms < end) now_ms = end;
 }
 
 int esp_lcd_panel_draw_bitmap(esp_lcd_panel_handle_t p, int x0, int y0,
@@ -144,6 +147,7 @@ int esp_lcd_panel_io_tx_param(esp_lcd_panel_io_handle_t io, int cmd,
                SCREEN_W * SCREEN_BAND_H * 2);
         pending_pixels = NULL;
         last_presented_ms = now_ms;
+        lcd_submitted_bands++;
     }
     return 0;
 }
@@ -702,9 +706,9 @@ static void state(void)
     if(growth_visible)printf(",\"growth\":{\"species\":%u,\"before\":%u,\"after\":%u,\"page\":%u,\"moves\":%u}",ge.species,ge.before,ge.after,gp,gm);
     else printf(",\"growth\":null");
     printf(",\"can_leave\":%s", nav_can_leave() ? "true" : "false");
-    printf(",\"display\":{\"off\":%s,\"timeout_ms\":%u,\"backlight\":%u,\"busy\":%s}",
+    printf(",\"display\":{\"off\":%s,\"timeout_ms\":%u,\"backlight\":%u,\"busy\":%s,\"submitted_bands\":%u}",
            screen_idle_is_off() ? "true" : "false", screen_idle_timeout_ms(), backlight,
-           nav_screen_busy() ? "true" : "false");
+           nav_screen_busy() ? "true" : "false", lcd_submitted_bands);
     printf(",\"names\":%u", (unsigned)pokemon_names_get_style());
     if (nav_current() == PAGE_BAG) printf(",\"bag_selected\":%u", play_bag_selected_item());
     else printf(",\"bag_selected\":null");

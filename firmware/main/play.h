@@ -160,6 +160,7 @@ void play_activity_enter(void);
 void play_activity_exit(void);
 void play_activity_key(bsp_btn_t,bsp_btn_ev_t);
 bool play_activity_screen_busy(void);
+void play_activity_debug_state(void);
 bool activity_playing(void);
 void activity_set_playing(bool);
 

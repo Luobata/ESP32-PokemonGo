@@ -9,6 +9,7 @@
 #include "screen.h"
 #include "render.h"
 #include "esp_timer.h"
+#include "esp_log.h"
 #include "presentation_clock.h"
 #include "capture_presentation.h"
 #include "screen_idle.h"
@@ -32,7 +33,13 @@ static activity_request_t request;
 static activity_result_data_t result_data;
 static activity_result_t error;
 static lv_timer_t *timer;
-static uint32_t capture_start;
+static uint32_t capture_start, visible_capture_elapsed;
+static cap_result_t visible_capture;
+static mon_t capture_target;
+static bool capture_ready;
+#define CAPTURE_BAR_TOP 208
+#define ACTIVITY_TICK_MS 40
+static bool throw_pending, press_handled;
 static unsigned final_score,final_nodes,final_won,final_kind,final_partner;
 static uint32_t final_xp;
 static inventory_t final_rewards;
@@ -47,7 +54,6 @@ bool activity_battle_retire(void){return battle_action(ACTION_RETIRE,0,false,NUL
 static void refresh(void){world_activity_snapshot(&state);world_party_snapshot(&party);world_johto_snapshot(&chapter);world_inventory_snapshot(&bag);world_snapshot(&world);}
 static bool action(unsigned op,unsigned choice){memset(&request,0,sizeof(request));request.op=op;request.choice=choice;request.box_slot=BOX_CAPACITY;request.seed=(uint32_t)esp_timer_get_time();error=world_activity_action(&request,&result_data);refresh();return error==ACT_OK;}
 static const char *failure(void){return error==ACT_FULL?"空间不足 奖励仍保留":error==ACT_STAMINA?"体能不足 等待恢复":error==ACT_BUSY?"请先结束当前对战或秘境":error==ACT_STALE?"伙伴已变化 请重新选择":error==ACT_SAVE_FAILED?"保存失败 按C重试":"当前条件未满足";}
-static void rect(int x,int y,int w,int h,uint16_t c){for(int yy=y;yy<y+h;yy++)if(yy>=0&&yy<SCREEN_BAND_H)for(int xx=x;xx<x+w;xx++)if(xx>=0&&xx<SCREEN_W)screen_px(xx,yy,c);}
 static void text(int y,int top,const char *s){if(render_text_width(s)>224)game_ui_text_fitted(y,8,top,224,s,GAME_UI_INK);else game_ui_text_centered(y,8,top,224,16,s,GAME_UI_INK);}
 static void mon_name(const mon_t *m,char *s,size_t n){species_t sp;if(assets_species(m->species_id,&sp))snprintf(s,n,"%.*s%s",sp.name_zh_len,sp.name_zh,m->flags&1?"★":"");else snprintf(s,n,"暂无伙伴");}
 static void sprite(int y,int x,int top,int width,int height,const mon_t *m,int scale){species_t sp;uint8_t size;if(!assets_species(m->species_id,&sp))return;const uint8_t *p=assets_front_form(m->species_id,m->special.traits.form,&size);uint16_t pal[4];assets_palette_variant(sp.palette,m->flags&1,pal);if(p)game_ui_sprite_centered(y,x,top,width,height,p,size,size,scale,pal);}
@@ -68,9 +74,11 @@ static unsigned choices(void){
  if(r->phase==ACT_CAMP||r->phase==ACT_RELAY||r->phase==ACT_DEEP_PATH)return 2;
  return 1;
 }
-static void draw(void){
+/* Redraws (including USB screenshots) replay the last presented pointer.  The
+ * input judgment uses this same sample, never a later clock after CLICK/NVS. */
+static void draw_range(int first,int end){
  const activity_run_t *r=&state.run;
- for(int y=0;y<SCREEN_H;y+=SCREEN_BAND_H){screen_band_clear(GAME_UI_BG);char b[96];
+ for(int y=first/SCREEN_BAND_H*SCREEN_BAND_H;y<end;y+=SCREEN_BAND_H){screen_band_clear(GAME_UI_BG);char b[96];
  game_ui_title(y,(view==RUN||view==KEEP_CONFIRM||view==END_CONFIRM||view==BOX||view==BOX_CONFIRM)?activity_name(r->kind):"城都活动","");
  if(view==MENU){
   const char *labels[]={"继续未完成活动","捕虫调查","漩涡分层远征","活动奖励","返回城都","冰雪分层救援","铃铛塔分层试炼"};unsigned ids[7],n=menu_ids(ids);const char *rows[7];for(unsigned i=0;i<n;i++)rows[i]=labels[ids[i]];options(y,42,rows,n,29);
@@ -110,9 +118,10 @@ static void draw(void){
      render_sprite_2bpp_wh(pose.x-12,pose.y-12-y,icon.data,icon.w,icon.h,1,ball_assets_palette(ball));
     text(y,218,source<CAPTURE_RESULT_SOURCE_FRAME?"精灵球轻轻晃动着……":caught?"成功捕获伙伴！":"伙伴挣脱了精灵球！");}
 
-   else {mon_name(&r->found,b,sizeof(b));text(y,169,b);snprintf(b,sizeof(b),"%s ×%u 机会%u",cap_ball_name(ball),bag.quantity[ball],3-r->attempts);text(y,191,b);
-    species_t sp;assets_species(r->found.species_id,&sp);cap_context_t ctx={r->members[0].level,r->found.level,sp.speed,sp.weight_hg};unsigned w=cap_window_width_context(sp.catch_rate,1024+r->members[0].intimacy*3,ball,100,&ctx);unsigned x=cap_pointer_position((uint32_t)(esp_timer_get_time()/1000)-capture_start);game_ui_box(y,18,212,204,14);rect(20+(200-w)/2,215-y,w,8,0x249f);rect(20+x,212-y,2,14,GAME_UI_INK);
-    const char *labels[]={"投球","换球","继续观察","提前结算"};for(unsigned i=0;i<4;i++){int xx=30+(i%2)*112,yy=234+(i/2)*24;render_text(xx,yy-y,labels[i],GAME_UI_INK);if(selected==i)game_ui_cursor(y,xx-18,yy+4);}
+   else {mon_name(&r->found,b,sizeof(b));text(y,169,b);snprintf(b,sizeof(b),"%s ×%u 本局余%u球",cap_ball_name(ball),bag.quantity[ball],ACTIVITY_BUG_TRIES-r->attempts);text(y,191,b);
+    if(capture_ready)game_ui_capture_bar(y,CAPTURE_BAR_TOP,&visible_capture);
+    else text(y,218,r->attempts>=ACTIVITY_BUG_TRIES?"本局投球次数已用完":"此球已用完 请换球");
+    const char *labels[]={"投球","换球","继续观察","提前结算"};for(unsigned i=0;i<4;i++){int xx=30+(i%2)*112,yy=244+(i/2)*18;render_text(xx,yy-y,labels[i],!i&&!capture_ready?GAME_UI_MUTED:GAME_UI_INK);if(selected==i)game_ui_cursor(y,xx-18,yy+4);}
    }
   }else if(r->phase==ACT_COMPARE){
    sprite(y,4,64,112,84,&r->candidate,1);sprite(y,124,64,112,84,&r->found,1);mon_name(&r->candidate,b,sizeof(b));game_ui_text_fitted(y,4,158,112,b,GAME_UI_INK);mon_name(&r->found,b,sizeof(b));game_ui_text_fitted(y,124,158,112,b,GAME_UI_INK);
@@ -129,32 +138,81 @@ static void draw(void){
   else{text(y,112,"队伍已就绪");text(y,160,"[C]继续对战");}
  }
  if(error){game_ui_box(y,4,242,232,38);game_ui_text_fitted(y,10,252,220,failure(),GAME_UI_INK);}
- game_ui_footer(y,animation?"投球结果已保存":GAME_UI_NAV_HINT);screen_push_band(y);
+ game_ui_footer(y,throw_pending?"投球中……":animation?"投球结果已保存":GAME_UI_NAV_HINT);screen_push_band(y);
  }
 }
-static void run_screen(void){view=RUN;selected=0;refresh();capture_start=(uint32_t)(esp_timer_get_time()/1000);
+static void repaint(void){draw_range(0,SCREEN_H);}
+static void sample_pointer(void){
+ const activity_run_t *r=&state.run;species_t sp;
+ capture_ready=false;memset(&visible_capture,0,sizeof(visible_capture));
+ if(r->kind!=ACT_BUG||r->phase!=ACT_FIND||r->attempts>=ACTIVITY_BUG_TRIES||
+    ball>=CAP_BALL_COUNT||!bag.quantity[ball]||!assets_species(r->found.species_id,&sp))return;
+ visible_capture_elapsed=(uint32_t)(esp_timer_get_time()/1000)-capture_start;
+ cap_context_t ctx={r->members[0].level,r->found.level,sp.speed,sp.weight_hg};
+ unsigned w=cap_window_width_context(sp.catch_rate,1024+r->members[0].intimacy*3,ball,100,&ctx);
+ cap_sample_window(w,ball,visible_capture_elapsed,&visible_capture);
+ capture_target=r->found;capture_ready=true;
+}
+static void draw(void){if(!animation&&view==RUN&&state.run.phase==ACT_FIND)sample_pointer();repaint();}
+static void run_screen(void){view=RUN;selected=0;capture_ready=false;refresh();capture_start=(uint32_t)(esp_timer_get_time()/1000);
  if(state.run.phase==ACT_RELAY&&!state.run.banked)action(ACTION_BANK,0);
 }
 static void launch_battle(void){playing=true;nav_open(PAGE_TRAINER);}
-static void tick(lv_timer_t *t){
+static void tick_frame(lv_timer_t *t){
  (void)t;unsigned old=animation_clock.elapsed_ms;
  unsigned ms=presentation_clock_sample(&animation_clock,(uint32_t)(esp_timer_get_time()/1000),screen_idle_is_off());
  if(screen_idle_is_off())return;
  if(animation){
+  bool committed=false;
+  if(throw_pending&&ms>=capture_frame_ms(37)){
+   /* Show the open ball's intentional still pose before Flash work.  The
+    * flight responds immediately; persistence must not skip later movement
+    * or expose a successful capture before the transaction has committed. */
+   animation_clock.elapsed_ms=capture_frame_ms(37);repaint();screen_flush();
+   error=world_activity_action(&request,&result_data);throw_pending=false;
+   animation_clock.last_ms=(uint32_t)(esp_timer_get_time()/1000);
+   if(error){animation=0;refresh();music_director_play(MUSIC_ROUTE);draw();return;}
+   caught=result_data.capture.caught;refresh();
+   committed=true;
+   ms=animation_clock.elapsed_ms;
+  }
   for(unsigned i=0;i<3;i++){unsigned cue=capture_frame_ms(287+i*49);if(old<cue&&ms>=cue)sfx_play(SFX_MENU);}
   if(old<capture_frame_ms(CAPTURE_RESULT_SOURCE_FRAME)&&ms>=capture_frame_ms(CAPTURE_RESULT_SOURCE_FRAME)){
    if(caught)music_director_play(MUSIC_CAUGHT);else{sfx_play(SFX_ESCAPED);music_director_play(MUSIC_ROUTE);}
   }
   if(ms>=capture_frame_ms(CAPTURE_END_SOURCE_FRAME)+ (caught?3200u:1000u)){
    animation=0;refresh();selected=0;capture_start=(uint32_t)(esp_timer_get_time()/1000);
-  }draw();
- }else if(view==RUN&&state.run.phase==ACT_FIND)draw();
+  }
+  if(animation){
+   // Sprite, ball and result message stay inside these ten bands. The title,
+   // cleared action rows and footer are static throughout the performance.
+   draw_range(40,240);
+   if(committed)draw_range(280,SCREEN_H);
+  }else draw();
+ }else if(view==RUN&&state.run.phase==ACT_FIND&&capture_ready){sample_pointer();draw_range(CAPTURE_BAR_TOP,CAPTURE_BAR_TOP+32);}
 }
+static void tick(lv_timer_t *t){screen_cadence_begin(ACTIVITY_TICK_MS);tick_frame(t);screen_cadence_end();}
 void play_activity_open_goal(unsigned k){requested_kind=k;guided=true;nav_open(PAGE_ACTIVITY);}
-void play_activity_enter(void){refresh();error=0;selected=animation=0;view=state.run.kind?RUN:MENU;capture_start=(uint32_t)(esp_timer_get_time()/1000);if(view==RUN)run_screen();else if(requested_kind&&activity_open(requested_kind,&chapter)){kind=requested_kind;team_mask=0;hard=0;view=TEAM;}requested_kind=0;screen_set_redraw(draw);timer=lv_timer_create(tick,50,NULL);music_director_play(MUSIC_ROUTE);draw();}
+void play_activity_enter(void){refresh();error=0;selected=animation=0;throw_pending=press_handled=capture_ready=false;view=state.run.kind?RUN:MENU;capture_start=(uint32_t)(esp_timer_get_time()/1000);if(view==RUN)run_screen();else if(requested_kind&&activity_open(requested_kind,&chapter)){kind=requested_kind;team_mask=0;hard=0;view=TEAM;}requested_kind=0;screen_set_redraw(repaint);timer=lv_timer_create(tick,ACTIVITY_TICK_MS,NULL);music_director_play(MUSIC_ROUTE);draw();}
 void play_activity_exit(void){if(timer){lv_timer_delete(timer);timer=NULL;}}
 bool play_activity_screen_busy(void){return animation!=0;}
+void play_activity_debug_state(void){
+ ESP_LOGI("activity","@@ACTIVITY_VIEW view=%u phase=%u node=%u species=%u attempts=%u ball=%u ready=%u visible_species=%u window=%u..%u pointer=%u elapsed=%lu animation_ms=%lu pending=%u error=%u result_window=%u..%u result_pointer=%u caught=%u",
+  view,state.run.phase,state.run.node,state.run.found.species_id,state.run.attempts,ball,capture_ready,capture_target.species_id,
+  visible_capture.window_start,visible_capture.window_end,visible_capture.pointer,(unsigned long)visible_capture_elapsed,
+  (unsigned long)animation_clock.elapsed_ms,throw_pending,error,result_data.capture.window_start,result_data.capture.window_end,result_data.capture.pointer,caught);
+}
 void play_activity_key(bsp_btn_t b,bsp_btn_ev_t e){
+ /* Only timing-sensitive throws use PRESS; ordinary menus still use CLICK.
+  * Consume the rest of the gesture even if saving failed (no silent retry). */
+ if(b==BSP_BTN_OK){
+  if(e==BSP_BTN_CLICK&&press_handled){press_handled=false;return;}
+  if(e==BSP_BTN_PRESS){
+   press_handled=animation!=0;
+   if(animation)return;
+   if(!animation&&view==RUN&&state.run.phase==ACT_FIND&&selected==0){press_handled=true;e=BSP_BTN_CLICK;}
+  }
+ }
  if(animation)return;
  int direction=nav_direction(b,e);bool confirm=nav_confirm(b,e),back=nav_return(b,e);if(!direction&&!confirm&&!back)return;
  if(back){error=0;selected=0;if(view==MENU){if(guided){guided=false;nav_go(PAGE_NARRATIVE);}else nav_back(PAGE_JOHTO);return;}if(view==KEEP_CONFIRM||view==END_CONFIRM||view==BOX||view==BOX_CONFIRM)run_screen();else view=MENU;draw();return;}
@@ -171,7 +229,11 @@ void play_activity_key(bsp_btn_t b,bsp_btn_ev_t e){
  else if(view==FINISHED){if(guided){guided=false;nav_go(PAGE_NARRATIVE);return;}view=MENU;selected=0;}
  else if(view==RUN){activity_run_t *r=&state.run;
   if(r->phase==ACT_PATH){if(selected==3){view=END_CONFIRM;selected=0;}else if(action(ACTION_SURVEY,selected))run_screen();}
-  else if(r->phase==ACT_FIND){if(selected==0){memset(&request,0,sizeof(request));request.op=ACTION_THROW;request.choice=ball;request.elapsed=(uint32_t)(esp_timer_get_time()/1000)-capture_start;error=world_activity_action(&request,&result_data);if(!error){caught=result_data.capture.caught;animation=1;presentation_clock_start(&animation_clock,(uint32_t)(esp_timer_get_time()/1000));music_director_play(MUSIC_NONE);sfx_play(SFX_BALL_THROW);}}else if(selected==1)ball=(ball+1)%CAP_BALL_COUNT;else if(selected==2){if(action(ACTION_SKIP,0))run_screen();}else{view=END_CONFIRM;selected=0;}}
+  else if(r->phase==ACT_FIND){if(selected==0){if(!capture_ready){draw();return;}memset(&request,0,sizeof(request));request.op=ACTION_THROW;request.choice=visible_capture.ball;request.elapsed=visible_capture_elapsed;request.expected=capture_target;
+   throw_pending=true;caught=false;animation=1;
+   presentation_clock_start(&animation_clock,(uint32_t)(esp_timer_get_time()/1000));
+   music_director_play(MUSIC_NONE);sfx_play(SFX_BALL_THROW);
+  }else if(selected==1)ball=(ball+1)%CAP_BALL_COUNT;else if(selected==2){if(action(ACTION_SKIP,0))run_screen();}else{view=END_CONFIRM;selected=0;}}
   else if(r->phase==ACT_COMPARE){bool replace=!r->candidate.species_id||selected!=0;if(replace&&(r->candidate.flags&1)){view=KEEP_CONFIRM;selected=0;}else if(action(ACTION_KEEP,replace))run_screen();}
   else if(r->phase==ACT_SETTLE){final_score=activity_score(r);final_nodes=r->node;final_won=r->won;final_kind=r->kind;final_partner=r->candidate.species_id;final_xp=r->banked_xp;if(action(ACTION_SETTLE,0)){final_xp+=result_data.exp_gained;final_rewards=result_data.rewards;view=FINISHED;selected=0;}else if(error==ACT_FULL&&state.run.kind==ACT_BUG&&state.run.candidate.species_id){view=BOX;selected=0;error=0;}}
   else if(r->phase==ACT_BATTLE){launch_battle();return;}

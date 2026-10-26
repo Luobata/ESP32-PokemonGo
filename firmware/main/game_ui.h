@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "battle_hud.h"
+#include "capture.h"
 
 #define GAME_UI_BG BATTLE_HUD_ORIGINAL_BACKGROUND
 #define GAME_UI_INK C_INK
@@ -31,6 +32,9 @@ void game_ui_thumbnail_centered(int band_y, int x, int y, int w, int h,
                                 const uint16_t *palette);
 // Original frame-1 tiles at 1x; width/height must be multiples of 8 and >=24.
 void game_ui_box(int band_y, int x, int y, int w, int h);
+// Shared capture strip: 224x32 frame, inclusive 0..200 timing coordinates.
+// The caller samples once per presented frame, never once per LCD band.
+void game_ui_capture_bar(int band_y, int top, const cap_result_t *sample);
 // A 16px-high status gauge, with stepped black ends and a blue fill.
 void game_ui_meter(int band_y, int x, int y, int w, uint8_t pct);
 void game_ui_cursor(int band_y, int x, int y);

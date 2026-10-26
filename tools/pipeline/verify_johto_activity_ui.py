@@ -21,7 +21,9 @@ def setup():
  r.close();r=Renderer(exe)
  cmd('boot 1 145 95 74 3 81 0 0 0');cmd('party_add 154 95 80 7 0');cmd('party_add 248 95 80 7 1');cmd('johto_fixture 8 0');cmd('page 18')
 def finish_capture():
- before=r.inspect();elapsed=0
+ # The throw responds before Flash; exactly one commit occurs in the ball's
+ # still phase. Observe the already committed result for the remaining motion.
+ cmd('tick 900');before=r.inspect();elapsed=900
  while r.inspect()['display']['busy'] and elapsed<14000:
   cmd('tick 50');elapsed+=50
   after=r.inspect();assert after['inventory']==before['inventory'] and after['party']==before['party']

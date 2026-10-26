@@ -1,0 +1,45 @@
+{
+  "build": "b08ff8a4bb02af27ea24",
+  "cases": 1152,
+  "visible_hits": 912,
+  "visible_misses": 240,
+  "between_frames": 1056,
+  "species": [
+    10,
+    165,
+    214
+  ],
+  "edge_cases": 54,
+  "bands_per_pointer_frame": [
+    2
+  ],
+  "timelines": [
+    {
+      "save_delay_ms": 0,
+      "result_ms": 9150,
+      "exit_ms": 13150
+    },
+    {
+      "save_delay_ms": 180,
+      "result_ms": 9330,
+      "exit_ms": 13330
+    },
+    {
+      "save_delay_ms": 400,
+      "result_ms": 9550,
+      "exit_ms": 13550
+    },
+    {
+      "save_delay_ms": 2000,
+      "result_ms": 11150,
+      "exit_ms": 15150
+    }
+  ],
+  "baseline": {
+    "attempts_after_press": 0,
+    "animation_after_press": false,
+    "visible_hit_rejected": true
+  },
+  "physical_device_fps_measured": false,
+  "passed": true
+}

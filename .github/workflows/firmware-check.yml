@@ -97,6 +97,8 @@ jobs:
           run_check python3 tools/pipeline/verify_johto_evolution_ui.py
           run_check python3 tools/pipeline/verify_johto_activity.py
           run_check python3 tools/pipeline/verify_johto_activity_ui.py
+          run_check python3 tools/pipeline/verify_activity_capture_timing.py
+          run_check python3 tools/pipeline/verify_activity_capture_windows.py
           run_check python3 tools/pipeline/verify_johto_story.py
           run_check python3 tools/pipeline/verify_johto_story_ui.py
           run_check python3 tools/pipeline/verify_johto_champion.py

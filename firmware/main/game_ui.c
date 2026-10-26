@@ -33,6 +33,22 @@ void game_ui_box(int band_y, int x, int y, int w, int h)
                                 (uint8_t)(h / 8), 1, GAME_UI_BG);
 }
 
+void game_ui_capture_bar(int band_y, int top, const cap_result_t *sample)
+{
+    if (top + 32 <= band_y || top >= band_y + SCREEN_BAND_H) return;
+    game_ui_box(band_y, 8, top, 224, 32);
+    // Clear the ENTIRE logical bar, including the old window's outer pixels.
+    // Narrowing a window must never leave a larger, apparently hittable area.
+    const int x = (SCREEN_W - CAP_BAR_WIDTH) / 2, y = top + 9;
+    rect(&band_y, x, y, CAP_BAR_WIDTH + 1, 16, GAME_UI_BG);
+    rect(&band_y, x + sample->window_start, y, sample->window_w + 1, 16, GAME_UI_ACCENT);
+    rect(&band_y, x + sample->pointer, y, 1, 16, GAME_UI_INK);
+    ui_art_t cursor;
+    if (assets_ui("cursor", &cursor))
+        game_ui_cursor(band_y, x + sample->pointer - cursor.w + 1,
+                       y + (16 - cursor.h) / 2);
+}
+
 void game_ui_footer(int band_y, const char *hint)
 {
     game_ui_box(band_y, 0, 280, 240, 40);

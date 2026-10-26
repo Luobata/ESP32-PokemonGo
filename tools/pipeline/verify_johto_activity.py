@@ -18,7 +18,13 @@ static void bug_cases(void){
  assert(start(ACT_BUG,1)==ACT_BUSY);assert(world_set_leader(1,&s_party.party[1],NULL)==WORLD_SWITCH_BUSY);
  for(unsigned i=0;i<6;i++){
   assert(act(ACTION_SURVEY,i%3)==ACT_OK);mon_t found=s_activities.run.found;reboot();assert(!memcmp(&found,&s_activities.run.found,sizeof(found)));
-  if(i<3){s_inventory.quantity[ITEM_MASTER]=1;world_debug_save();unsigned balls=s_inventory.quantity[ITEM_MASTER];failure=4;activity_result_t got=act(ACTION_THROW,ITEM_MASTER);assert(got==ACT_SAVE_FAILED&&s_inventory.quantity[ITEM_MASTER]==balls);failure=0;
+  if(i<3){
+   q=(activity_request_t){.op=ACTION_THROW,.choice=ITEM_MASTER,.elapsed=300,.expected=found};
+   q.expected.level++;unsigned previous_seed=s_activities.run.seed;
+   unsigned previous_balls=s_inventory.quantity[ITEM_MASTER];
+   assert(world_activity_action(&q,&event)==ACT_STALE);
+   assert(s_activities.run.attempts==i&&s_activities.run.seed==previous_seed&&s_inventory.quantity[ITEM_MASTER]==previous_balls);
+   s_inventory.quantity[ITEM_MASTER]=1;world_debug_save();unsigned balls=s_inventory.quantity[ITEM_MASTER];failure=4;activity_result_t got=act(ACTION_THROW,ITEM_MASTER);assert(got==ACT_SAVE_FAILED&&s_inventory.quantity[ITEM_MASTER]==balls);failure=0;
    assert(act(ACTION_THROW,ITEM_MASTER)==ACT_OK&&event.capture.caught&&s_activities.run.attempts==i+1);reboot();assert(s_activities.run.phase==ACT_COMPARE);assert(act(ACTION_KEEP,1)==ACT_OK);
   }else {assert(act(ACTION_THROW,ITEM_MASTER)==ACT_LOCKED);assert(act(ACTION_SKIP,0)==ACT_OK);}
  }
