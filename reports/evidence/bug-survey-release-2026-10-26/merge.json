@@ -1,0 +1,11 @@
+{
+  "headRefOid": "8f9dc84165ad27228e85494c6f0847f388c174cb",
+  "mergeCommit": {
+    "oid": "63311038ae0d4ce4f2af4d15ce190f8d38ba0f46"
+  },
+  "mergedAt": "2026-10-26T06:40:53Z",
+  "number": 5,
+  "state": "MERGED",
+  "url": "https://github.com/Luobata/ESP32-PokemonGo/pull/5",
+  "tree_matches_verified_pr": true
+}

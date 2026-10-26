@@ -1,5 +1,17 @@
 # AI Passport 社区发布
 
+## 2026-10-26 · 捕虫调查投球修复与流畅度优化：REV-3784 已提交审核
+
+[PR #5](https://github.com/Luobata/ESP32-PokemonGo/pull/5) 已合并 main（`6331103`），最终 PR 固件 CI 全部通过。[GitHub v2026.10.26-bug-survey](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.26-bug-survey) 已公开；完整安装、USB 保档更新、manifest 和离线工具四个附件下载回读一致。沿用真机验收应用，完整包 3,294,816 B，SHA-256 `8b49d5151a9d5f46021218682faef745444e6e9dad27354a5cb9e21098c215f1`。
+
+社区原项目 **234 / pokewalk** 新修订 **REV-3784** 当前 **pending（待审核）**，上一公开版 REV-3696 已 approved。双语介绍、操作和发布说明、源码及固件摘要回读一致；提交原皮卡丘对战暴鲤龙封面与雷达、漫游、赤红、照料四张附图，没有另发评论。新版服务自动处理分类，当前待审快照为 developer，公开版仍为 games；未手动修改分类或 Remix 策略。
+
+选中「投球」后按下 C 即响应，用最后显示的指针判定；普通捕获与捕虫共用蓝区/箭头，切换目标与球种重建显示，投球目标与判定锁定。指针仅刷新捕获条、投球只刷新变化区域，静止姿态提交存档并暂停动作时钟。真机指针约 24.8 FPS，1.2 秒往复与捕获公式、动作时长保持。整局六点合计三次投球，机会或当前球耗尽时禁用无效投球。官网操作说明和版本页同步更新，在线资源与离线 ZIP 共 14 项核对一致。
+
+存档仍为 V32，兼容同设备 V5～V32，分区和备份协议不变，支持格式 4 的离线工具继续可用。修复需要升级固件，单独刷新网页不会改变设备。更新前备份，已有设备优先用 USB 保档更新；社区完整安装后需导入备份。玩家反馈的首次蓝区过长尚未复现；一次 USB 超时安全拒绝覆盖后重试成功，未宣称所有蓝区或存档问题根治。devbox 仍按此前指示暂缓。
+
+[中文发布说明](2026-10-26-bug-survey/changelog.zh.md) · [官网更新](https://luobata.github.io/ESP32-PokemonGo/guide/#updates) · [完整验证记录](../../reports/bug-survey-release-2026-10-26.md)。
+
 ## 2026-10-25 · 雷达与地图漫游：REV-3696 已提交审核
 
 代码已推送并通过 [PR #4](https://github.com/Luobata/ESP32-PokemonGo/pull/4) 合并 main（`612e17e`）。PR 固件 CI 全部通过；[GitHub v2026.10.25-radar-maps](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.25-radar-maps) 已公开，四个附件下载回读与真机验收应用一致。完整包 3,293,456 B，SHA-256 `93dd1a3468c4195c012072ce2fc2f71b12f59dbf7f158c3d1809b3d14a596f5d`。

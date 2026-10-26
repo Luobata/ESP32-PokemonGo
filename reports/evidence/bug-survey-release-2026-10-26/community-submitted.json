@@ -1,0 +1,30 @@
+{
+  "id": 234,
+  "slug": "pokewalk",
+  "revisionId": 3784,
+  "status": "pending",
+  "projectStatus": "published",
+  "category": "developer",
+  "hasImage": true,
+  "firmwareSize": 3294816,
+  "firmwareSha256": "8b49d5151a9d5f46021218682faef745444e6e9dad27354a5cb9e21098c215f1",
+  "githubUrl": "https://github.com/Luobata/ESP32-PokemonGo",
+  "reviewedAt": null,
+  "bilingual_fields_match": true,
+  "field_sha256": {
+    "title_zh": "2fa7061a0a0b977733397b3cfbc66fea04586ac7c309af95a258e6f7ca7f0f9b",
+    "title_en": "a65175d871288be4f17fec979dd2ae9064c308e7d7d877bf57ea286e3c969d8f",
+    "description_zh": "aeb77824e0dd0d57f0b5a5ae95e8e6c2041fe8d2c644ddd57d36e17456bb1fdd",
+    "description_en": "1296abc777e7ab1e26f3e2b1919d4bc31c06e02aeb919372478e5b73a4f1caba",
+    "instructions_zh": "a4ca4985f3b018117c1f20bf5e7f23dd104974ac224b73001b5d6ebdf8a8b64a",
+    "instructions_en": "dd579d3450cf454c686c0fe1fba7947cb60491ee68fe4a29b2e480894519a721",
+    "changelog_zh": "99d19cc2182c73d78ddcb0376db1561054043c3f5d8fab8da99617d6ad7b9513",
+    "changelog_en": "20d8778a1eb7efae4770d3eb89ba66f51352f705f4546eac3d98c95afc858c95"
+  },
+  "published_revision": {
+    "id": 3696,
+    "status": "approved",
+    "firmwareSha256": "93dd1a3468c4195c012072ce2fc2f71b12f59dbf7f158c3d1809b3d14a596f5d"
+  },
+  "images": "Original Gyarados cover plus four inspected local files submitted; pending server bytes not claimed as read back."
+}

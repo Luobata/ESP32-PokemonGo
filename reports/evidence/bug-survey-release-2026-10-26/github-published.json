@@ -1,0 +1,32 @@
+{
+  "tag": "v2026.10.26-bug-survey",
+  "publishedAt": "2026-10-26T06:41:18Z",
+  "url": "https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.26-bug-survey",
+  "target": "63311038ae0d4ce4f2af4d15ce190f8d38ba0f46",
+  "assets": [
+    {
+      "name": "FoloToy-AI-Passport-full.bin",
+      "bytes": 3294816,
+      "sha256": "8b49d5151a9d5f46021218682faef745444e6e9dad27354a5cb9e21098c215f1",
+      "public_download_matches": true
+    },
+    {
+      "name": "PokeWalk-update.zip",
+      "bytes": 1634845,
+      "sha256": "6c829da63f95ed51dd48d86a31991ff1f3977a0be6efdf014fb2d87aa48cf238",
+      "public_download_matches": true
+    },
+    {
+      "name": "PokeWalkSaveManager.zip",
+      "bytes": 351476,
+      "sha256": "f951079aac1bba3f914a40300542b28eabd3a2257b0040cc9d60b79179e6b56b",
+      "public_download_matches": true
+    },
+    {
+      "name": "manifest.json",
+      "bytes": 1223,
+      "sha256": "c2e3ee97295ecdded1c6309e6bd2d9605abff7afd97548787f4dd4f55ca36eb8",
+      "public_download_matches": true
+    }
+  ]
+}

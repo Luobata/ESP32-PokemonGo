@@ -12,7 +12,7 @@
 
 「首次蓝区过长」原反馈未复现，不能宣称已确定其根因。首次 USB 导入曾在 40,960 B 后超时，安全拒绝覆盖；重试完整恢复亮度，随后恢复原进度并再次导出语义比对成功。传输停滞根因仍未知。额外旧脚本 `verify_battle.py` 引用过时接口编译失败，当前生产战斗回归通过；没有将旧脚本算作通过。
 
-初次 [PR CI](evidence/bug-survey-release-2026-10-26/ci-pr-first.json) 的 77 项宿主检查中，两项预览断言失败：`verify_move_names.py` 和 `verify_care_events_preview.py` 把新增的 `display.submitted_bands` 诊断计数纳入了“页面操作不改变进度”的整对象比较。本地复现只有该计数变化，分别为 64→160 与 128→160。修正为单独断言计数增加、其余字段逐项保持，并保留原像素检查；194 招式、1,134 次名称重绘及 193 项照料/事件预览检查通过。没有改固件或放宽存档检查。后续完整 CI 结果在发布状态中记录。[预览回归修复](evidence/bug-survey-release-2026-10-26/preview-state-regression.json)。
+初次 [PR CI](evidence/bug-survey-release-2026-10-26/ci-pr-first.json) 的 76 项宿主检查中，两项预览断言失败：`verify_move_names.py` 和 `verify_care_events_preview.py` 把新增的 `display.submitted_bands` 诊断计数纳入了“页面操作不改变进度”的整对象比较。本地复现只有该计数变化，分别为 64→160 与 128→160。修正为单独断言计数增加、其余字段逐项保持，并保留原像素检查；194 招式、1,134 次名称重绘及 193 项照料/事件预览检查通过。没有改固件或放宽存档检查。后续完整 CI 结果在发布状态中记录。[预览回归修复](evidence/bug-survey-release-2026-10-26/preview-state-regression.json)。
 
 ## 固件与素材
 
@@ -22,4 +22,10 @@
 
 ## 发布状态
 
-当前为打包验证快照，尚未上传本次社区修订；合并、GitHub、Pages 和社区回执在完成后补记。devbox 仍按用户「先完成 GitHub 和社区发布」的指示暂缓。
+- [PR #5](https://github.com/Luobata/ESP32-PokemonGo/pull/5) 已合并至 main，合并提交 `63311038ae0d4ce4f2af4d15ce190f8d38ba0f46`，文件树与验收分支 `8f9dc84165ad27228e85494c6f0847f388c174cb` 完全一致。[最终 PR CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/40279646950) 全部通过，包括 76 项宿主回归、ESP-IDF 构建、真实 NVS、目标栈及发布包校验。main 自动触发相同树的重复 CI，本记录快照时仍在运行，不把未结束的重复运行写作通过。[合并回执](evidence/bug-survey-release-2026-10-26/merge.json) · [PR 检查](evidence/bug-survey-release-2026-10-26/ci-pr.json) · [main 快照](evidence/bug-survey-release-2026-10-26/ci-main.json)。
+- [GitHub v2026.10.26-bug-survey](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.26-bug-survey) 已公开并设为 Latest，标签指向上述 main 合并提交。完整安装包、USB 更新包、manifest 和离线工具四个附件均从公开下载重新取回，与固定发布文件逐字节相同。[下载验证](evidence/bug-survey-release-2026-10-26/github-published.json)。
+- [Pages 部署](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/40281248940) 已成功，在线 13 项资源加离线 ZIP 共 14 项与本批源码一致。实际浏览器已核对捕虫操作与版本说明，保留上一版雷达/地图攻略供切换。[线上摘要](evidence/bug-survey-release-2026-10-26/pages-deployment.json) · [官网截图](evidence/bug-survey-release-2026-10-26/website-updates.png)。
+- 社区原项目 **234 / pokewalk** 已提交 **REV-3784**，当前 **pending（待审核，尚未公开）**，上一公开版 **REV-3696** 已审核通过。八个双语字段、源码 URL、固件长度和摘要回读一致；准确上传文件为原暴鲤龙封面加四张既有附图，待审 API 未返回图库字节，不声称已回读服务器图片。分类由新版发布服务自动处理，待审快照为 `developer`，上一公开版为 `games`；未手动改变分类或 Remix 策略。没有另发评论。[社区回执](evidence/bug-survey-release-2026-10-26/community-submitted.json)。
+- devbox 仍按用户「先完成 GitHub 和社区发布」的指示暂缓；本轮使用 GitHub Pages 与 Release 离线工具，不宣称已同步 devbox。
+
+manifest 中 `community_upload_performed: false` 反映打包时的快照，实际提交状态以上列独立回执为准。
