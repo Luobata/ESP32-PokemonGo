@@ -3,6 +3,7 @@
 import contextlib
 import io
 import json
+import os
 from pathlib import Path
 import struct
 import sys
@@ -14,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT/'tools/inspector'))
 from native import build, Renderer, png
 
-OUT = ROOT/'reports/evidence/legacy-move-names-2026-10-07'
+OUT = Path(os.environ.get('POKEWALK_EVIDENCE_DIR', ROOT/'reports/evidence/legacy-move-names-2026-10-07'))
 OUT.mkdir(parents=True, exist_ok=True)
 document = json.loads(MOVE_DATA.read_text())
 records = {r['id']: r['name'] for r in document['records']}
@@ -92,6 +93,7 @@ def command(r, text):
 
 def roundtrip(r, y, height, shot):
     before = r.inspect()
+    before_bands = before['display'].pop('submitted_bands')
     official = command(r,'names 0')
     legacy = command(r,'names 1')
     restored = command(r,'names 0')
@@ -99,6 +101,8 @@ def roundtrip(r, y, height, shot):
     area = slice(y*480,(y+height)*480)
     assert legacy['pixels'][area] != official['pixels'][area], shot
     after = r.inspect()
+    # Redrawing must advance presentation telemetry, but no game/settings state.
+    assert after['display'].pop('submitted_bands') > before_bands, shot
     assert {k:v for k,v in before.items() if k!='names'} == {k:v for k,v in after.items() if k!='names'}, shot
     if shot:
         (OUT/(shot+'-legacy.png')).write_bytes(png(legacy['pixels']))
