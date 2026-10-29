@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Drive the actual menu renderer and input routing, with desktop NVS/display stubs."""
 import json
+import os
 from pathlib import Path
 import sys
 
@@ -8,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT/'tools/inspector'))
 from native import Renderer, build, png
 
-out = ROOT/'reports/evidence/battery-inline-2026-10-03'
+out = Path(os.environ.get('POKEWALK_EVIDENCE_DIR', ROOT/'reports/evidence/audio-brightness-2026-10-29'))
 out.mkdir(parents=True, exist_ok=True)
 exe, version = build()
 r = Renderer(exe)
@@ -39,7 +40,11 @@ try:
     for _ in range(7):
         key(1)
     assert r.inspect()['menu_view']['option_selected'] == 7
+    screenshot('options-brightness')
+    options_pixels = cmd('check')['pixels']
     key(2)
+    assert cmd('check')['pixels'] != options_pixels  # Separate, visible adjustment screen.
+    screenshot('brightness-100')
     for _ in range(6):
         key(1)
     assert r.inspect()['display']['backlight'] == 40
@@ -52,11 +57,14 @@ try:
     assert r.inspect()['display']['backlight'] == 30
     key(0)
     key(2)  # complete edit, remain in options
+    key(2)  # reopen at the saved setting
+    assert r.inspect()['display']['backlight'] == 40
     key(2, 3)  # long C sleeps even inside options
     assert r.inspect()['display']['off']
     assert r.inspect()['display']['backlight'] == 0
     key(2)  # wake must not enter editing
     assert r.inspect()['display']['backlight'] == 40
+    key(2)  # finish the still-open editor after wake
     key(1)
     assert r.inspect()['menu_view']['option_selected'] == 8
     screenshot('options-battery')
@@ -87,6 +95,7 @@ finally:
 
 result = {'build': version, 'band_checks': checks, 'brightness_bounds': [10, 100],
           'wake_restores_brightness': True, 'save_failure_preserves_brightness': True,
+          'dedicated_editor': True, 'reenter_preserves_setting': True,
           'hardware_tested': False}
 (out/'preview.json').write_text(json.dumps(result, indent=2)+'\n')
 print(json.dumps(result))

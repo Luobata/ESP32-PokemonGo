@@ -40,6 +40,8 @@ def catalog(root):
   data['sourceHashes']={str(f.relative_to(root)):hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted(source.glob('*')) if f.suffix in ('.c','.h')}
   data['features']['johto']=johto
   data['features']['radarMaps']=field
+  data['features']['audibleDefault']='#define AUDIO_MUTED_DEFAULT false' in (source/'audio_settings.h').read_text()
+  data['features']['brightnessEditor']='static void draw_brightness(' in (source/'play_menu.c').read_text()
   data['warehouseCapacity']=int(re.search(r'#define BOX_CAPACITY\s+(\d+)',(source/'party.h').read_text()).group(1))
   data['saveVersion']=int(re.search(r'#define SAVE_VERSION\s+(\d+)',(source/'save.h').read_text()).group(1))
   assert len(data['pokemon'])==(251 if johto else 151) and len(data['items'])==(24 if johto else 19) and len(data['achievements'])==(43 if johto else 16)
@@ -69,8 +71,8 @@ def version_catalog(ref,version):
  return data
 
 def main():
- p=argparse.ArgumentParser();p.add_argument('--release-ref',default='v2026.10.26-bug-survey');p.add_argument('--previous-ref',default='v2026.10.25-radar-maps')
- p.add_argument('--release-version',default='2026.10.26 · 捕虫调查修复');p.add_argument('--previous-version',default='2026.10.25 · 雷达与地图漫游');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--release-ref',default='v2026.10.29-audio-brightness');p.add_argument('--previous-ref',default='v2026.10.26-bug-survey')
+ p.add_argument('--release-version',default='2026.10.29 · 声音与亮度');p.add_argument('--previous-version',default='2026.10.26 · 捕虫调查修复');a=p.parse_args()
  out=ROOT/'tools/save-manager/web/guide';out.mkdir(parents=True,exist_ok=True)
  release=version_catalog(a.release_ref,a.release_version);previous=version_catalog(a.previous_ref,a.previous_version)
  (out/'catalog.js').write_text('export const CATALOG = '+json.dumps({'release':release,'previous':previous},ensure_ascii=False,separators=(',',':'))+';\n')

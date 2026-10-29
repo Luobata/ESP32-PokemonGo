@@ -1,0 +1,2 @@
+PASS: muted boot creates no codec; unmute opens; mute/sleep close; live volume changes; sleep alert prioritizes shiny and closes codec; mute suppresses alerts
+

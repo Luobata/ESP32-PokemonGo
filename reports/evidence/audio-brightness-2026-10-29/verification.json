@@ -1,0 +1,47 @@
+{
+  "source_base": "dfc9098465b32a68f5218eb33fcd648ad1a7207a",
+  "preview_build": "f268ccf10bacc5bc06a0",
+  "firmware_build": {
+    "app_bytes": 3229696,
+    "app_sha256": "c0b775ab4514e2758c6f11b6c07934757eced329aa2acc033d241fb8f3a77178",
+    "silent_build": false,
+    "audio_dma_iram_safe": true,
+    "before": {
+      ".dram0.data": 14060,
+      ".dram0.bss": 171160
+    },
+    "after": {
+      ".dram0.data": 14060,
+      ".dram0.bss": 171160
+    },
+    "factory_free_bytes": 178176
+  },
+  "checks": [
+    "verify_audio_settings.py",
+    "verify_display_settings.py",
+    "verify_display_sleep.py",
+    "verify_display_settings_preview.py",
+    "verify_mute_preview.py",
+    "verify_silent_boot.py",
+    "verify_runtime_mute.py",
+    "verify_audio_switch.py",
+    "verify_save_import_compatibility.py",
+    "verify_nvs_restore_roundtrip.py",
+    "verify_save_stack.py",
+    "verify_shiny_entry.py",
+    "verify_firmware_preview.py"
+  ],
+  "source_sha256": {
+    "firmware/main/audio_settings.c": "fed2d6fc1b7a4564a449f4411ebd1e132a50987c97f513cf462ddff4c971e680",
+    "firmware/main/audio_settings.h": "bd39b5c58724e5707b5fcae5d7a5adbc7aff0a42d8e11c8a6f81000030a6d5d8",
+    "firmware/main/play_menu.c": "5f9ae5d59ccf21e85bb607e00f5167db7e8c7cfc00a66807c7a12a6c180204bc",
+    "tools/inspector/host/runtime.c": "69d6ade85c995f35845d949fdf9512e9064b1989034f90a433111e0f7d27ff5e"
+  },
+  "save_format_changed": false,
+  "nvs_keys_changed": false,
+  "partitions_changed": false,
+  "physical_device_tested": false,
+  "physical_audio_tested": false,
+  "flashed": false,
+  "published": false
+}

@@ -10,11 +10,14 @@ void audio_settings_init(void)
 {
     uint8_t value = 1, volume = AUDIO_VOLUME_DEFAULT;
     nvs_handle_t handle;
-    if (nvs_open("pokewalk", NVS_READONLY, &handle) == ESP_OK) {
-        if (nvs_get_u8(handle, "mute", &value) != ESP_OK || value > 1) value = 1;
+    esp_err_t opened = nvs_open("pokewalk", NVS_READONLY, &handle);
+    if (opened == ESP_OK) {
+        esp_err_t read = nvs_get_u8(handle, "mute", &value);
+        if (read == ESP_ERR_NVS_NOT_FOUND) value = AUDIO_MUTED_DEFAULT;
+        else if (read != ESP_OK || value > 1) value = 1;
         if (nvs_get_u8(handle, "volume", &volume) != ESP_OK || volume > 100) volume = AUDIO_VOLUME_DEFAULT;
         nvs_close(handle);
-    }
+    } else if (opened == ESP_ERR_NVS_NOT_FOUND) value = AUDIO_MUTED_DEFAULT;
     atomic_store(&s_muted, value != 0);
     atomic_store(&s_volume, volume);
 }

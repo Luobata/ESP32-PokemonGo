@@ -1,0 +1,14 @@
+{
+  "id": 234,
+  "slug": "pokewalk",
+  "revisionId": 3784,
+  "status": "approved",
+  "projectStatus": "published",
+  "firmwareSize": 3294816,
+  "firmwareSha256": "8b49d5151a9d5f46021218682faef745444e6e9dad27354a5cb9e21098c215f1",
+  "public_revision": {
+    "id": 3784,
+    "status": "approved",
+    "firmwareSha256": "8b49d5151a9d5f46021218682faef745444e6e9dad27354a5cb9e21098c215f1"
+  }
+}
