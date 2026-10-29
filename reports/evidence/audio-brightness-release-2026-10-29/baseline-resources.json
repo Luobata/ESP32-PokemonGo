@@ -1,0 +1,190 @@
+{
+  "MEMORY_STATE": {
+    "samples": [
+      {
+        "free": 23804,
+        "minimum": 19196,
+        "largest": 18432,
+        "stack_free": 2088
+      },
+      {
+        "free": 23660,
+        "minimum": 19196,
+        "largest": 18432,
+        "stack_free": 1960
+      },
+      {
+        "free": 23804,
+        "minimum": 19196,
+        "largest": 18432,
+        "stack_free": 1848
+      },
+      {
+        "free": 23804,
+        "minimum": 19196,
+        "largest": 18432,
+        "stack_free": 1848
+      },
+      {
+        "free": 23804,
+        "minimum": 19196,
+        "largest": 18432,
+        "stack_free": 1832
+      },
+      {
+        "free": 23804,
+        "minimum": 19196,
+        "largest": 18432,
+        "stack_free": 1688
+      },
+      {
+        "free": 23804,
+        "minimum": 19196,
+        "largest": 18432,
+        "stack_free": 1688
+      },
+      {
+        "free": 23804,
+        "minimum": 19196,
+        "largest": 18432,
+        "stack_free": 1464
+      }
+    ]
+  },
+  "AUDIO_PROFILE": {
+    "samples": [
+      {
+        "chunks": 0,
+        "render_avg_us": 0,
+        "render_max_us": 0,
+        "gap_max_us": 0,
+        "late": 0,
+        "switches": 0,
+        "switch_render_max_us": 0,
+        "opens": 0,
+        "errors": 0,
+        "stack_free": 3788
+      },
+      {
+        "chunks": 0,
+        "render_avg_us": 0,
+        "render_max_us": 0,
+        "gap_max_us": 0,
+        "late": 0,
+        "switches": 0,
+        "switch_render_max_us": 0,
+        "opens": 0,
+        "errors": 0,
+        "stack_free": 3788
+      },
+      {
+        "chunks": 0,
+        "render_avg_us": 0,
+        "render_max_us": 0,
+        "gap_max_us": 0,
+        "late": 0,
+        "switches": 0,
+        "switch_render_max_us": 0,
+        "opens": 0,
+        "errors": 0,
+        "stack_free": 3788
+      },
+      {
+        "chunks": 0,
+        "render_avg_us": 0,
+        "render_max_us": 0,
+        "gap_max_us": 0,
+        "late": 0,
+        "switches": 0,
+        "switch_render_max_us": 0,
+        "opens": 0,
+        "errors": 0,
+        "stack_free": 3788
+      },
+      {
+        "chunks": 0,
+        "render_avg_us": 0,
+        "render_max_us": 0,
+        "gap_max_us": 0,
+        "late": 0,
+        "switches": 0,
+        "switch_render_max_us": 0,
+        "opens": 0,
+        "errors": 0,
+        "stack_free": 3788
+      },
+      {
+        "chunks": 0,
+        "render_avg_us": 0,
+        "render_max_us": 0,
+        "gap_max_us": 0,
+        "late": 0,
+        "switches": 0,
+        "switch_render_max_us": 0,
+        "opens": 0,
+        "errors": 0,
+        "stack_free": 3788
+      },
+      {
+        "chunks": 0,
+        "render_avg_us": 0,
+        "render_max_us": 0,
+        "gap_max_us": 0,
+        "late": 0,
+        "switches": 0,
+        "switch_render_max_us": 0,
+        "opens": 0,
+        "errors": 0,
+        "stack_free": 3788
+      },
+      {
+        "chunks": 0,
+        "render_avg_us": 0,
+        "render_max_us": 0,
+        "gap_max_us": 0,
+        "late": 0,
+        "switches": 0,
+        "switch_render_max_us": 0,
+        "opens": 0,
+        "errors": 0,
+        "stack_free": 3788
+      }
+    ]
+  },
+  "UI_STACK": {
+    "samples": [
+      {
+        "timer_free": 3544,
+        "lvgl_free": 4924
+      },
+      {
+        "timer_free": 3544,
+        "lvgl_free": 4924
+      },
+      {
+        "timer_free": 3544,
+        "lvgl_free": 4924
+      },
+      {
+        "timer_free": 3544,
+        "lvgl_free": 4924
+      },
+      {
+        "timer_free": 3544,
+        "lvgl_free": 4924
+      },
+      {
+        "timer_free": 3544,
+        "lvgl_free": 4924
+      },
+      {
+        "timer_free": 3544,
+        "lvgl_free": 4924
+      },
+      {
+        "timer_free": 3544,
+        "lvgl_free": 4924
+      }
+    ]
+  }
+}

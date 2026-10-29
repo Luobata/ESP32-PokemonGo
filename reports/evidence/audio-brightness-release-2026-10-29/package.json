@@ -1,0 +1,60 @@
+{
+  "manifest": {
+    "artifact": "FoloToy-AI-Passport-full.bin",
+    "size": 3295232,
+    "sha256": "a3b1c5177340959d2eeebebba53b37f77205e6097237c0d9191aa8929119c499",
+    "flash_address": "0x0",
+    "protected_layout_pass": true,
+    "checker_source": "FoloToy/ai-passport@cd73a8a6f1f95e010bfd83a08e2b915e38408308 + PokeWalk data protection",
+    "application_size": 3229696,
+    "application_sha256": "74538aa9901866c1c61643032ab5d3b53cda896af5b78dded49eeba5f5cf106b",
+    "source_commit": "7e0a4f2d124016bfcb87fd12fad9c4a8f7aeed7a",
+    "full_install_preserves_nvs": false,
+    "full_install_warning": "Full image padding overwrites NVS; back up before installation and import afterwards.",
+    "community_upload_performed": false,
+    "ble_install_tested": false,
+    "usb_update": {
+      "artifact": "PokeWalk-update.zip",
+      "sha256": "b804e6e0d442d8d20d20d1301a38fba3bc0b025aa8e9b388104f299952e3c21f",
+      "writes": [
+        {
+          "address": 65536,
+          "size": 3229696
+        }
+      ],
+      "requires_existing_matching_partition_table": false,
+      "allows_only_additive_store_partition": true,
+      "conditional_writes": [
+        {
+          "address": 32768,
+          "size": 4096,
+          "when": "approved additive store migration only"
+        }
+      ]
+    }
+  },
+  "assets": [
+    {
+      "name": "FoloToy-AI-Passport-full.bin",
+      "size": 3295232,
+      "sha256": "a3b1c5177340959d2eeebebba53b37f77205e6097237c0d9191aa8929119c499"
+    },
+    {
+      "name": "PokeWalk-update.zip",
+      "size": 1635010,
+      "sha256": "b804e6e0d442d8d20d20d1301a38fba3bc0b025aa8e9b388104f299952e3c21f"
+    },
+    {
+      "name": "PokeWalkSaveManager.zip",
+      "size": 351880,
+      "sha256": "1317f3c86e19910d80d3bf436f2f46543503b04599e305d8a4e1957ae4a943b2"
+    },
+    {
+      "name": "manifest.json",
+      "size": 1223,
+      "sha256": "964ea507b8bb24fea7ce6c86c440ac30bb38012ec4af02a22405b5f4afb72d49"
+    }
+  ],
+  "tested_application_matches_full_and_usb_package": true,
+  "firmware_sources_unchanged_since_build": "7e0a4f2d124016bfcb87fd12fad9c4a8f7aeed7a"
+}

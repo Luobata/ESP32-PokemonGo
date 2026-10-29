@@ -1,0 +1,22 @@
+[
+  {
+    "path": "release/community/pokewalk-cover.png",
+    "sha256": "8df0a8c45900e64e8e02dd44ba3a548ba2694863f366887275c44072b33d42d6"
+  },
+  {
+    "path": "tools/save-manager/web/guide/radar.png",
+    "sha256": "1901051643e35fa19d0984e9dd66d59c1d479b47c4a7bd7858f937d2ae6ef7e1"
+  },
+  {
+    "path": "tools/save-manager/web/guide/roam.png",
+    "sha256": "a06f0a196659e4abbfacacd66dd9ff7ed2f5024d3efa847fd96b410a0f47c613"
+  },
+  {
+    "path": "reports/evidence/community-media-2026-09-13/reselection/04-red-challenge.png",
+    "sha256": "633c06ba98b0eddfabf7694caa298f7c1fb79d6da6b76bbc4d5385f2b79d6fda"
+  },
+  {
+    "path": "reports/evidence/exploration-release-2026-10-06/ui/care-bonuses.png",
+    "sha256": "8d0d449afe351bd8df3c03db650089d22b2d3d2fe337c93cd94079b0ac9b7e27"
+  }
+]

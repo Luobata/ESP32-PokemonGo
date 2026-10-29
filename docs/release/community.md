@@ -1,5 +1,17 @@
 # AI Passport 社区发布
 
+## 2026-10-29 · 声音与亮度设置：REV-4043 已提交审核
+
+[PR #6](https://github.com/Luobata/ESP32-PokemonGo/pull/6) 已合并 main（`c7eab74`），最终 PR 固件 CI 通过。[GitHub v2026.10.29-audio-brightness](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.29-audio-brightness) 已公开，四个附件已下载回读。官网攻略与离线 ZIP 同步更新，14 项公开资源一致。社区原项目 **234 / pokewalk** 已提交 **REV-4043**，当前 **pending（待审核）**，上一公开版 REV-3784 已 approved；原暴鲤龙封面、四张附图、games 分类和 Remix 设置保留，没有另发评论。
+
+新安装在缺少声音设置时默认有声、音量 55%，已有静音与音量选择保留。「屏幕亮度」增加独立调节页，显示百分比和亮度条，范围 10%–100%，A/B 按 10% 调整并立即保存，重启和唤醒继续使用原亮度。
+
+已完成真机保档烧录、亮度上下限及熄屏唤醒、旧备份跨构建导入、新备份在 Wi-Fi 与零音量音频运行下的覆盖恢复；最终 125 个伙伴及相关进度比对一致，设备恢复原静音、音量和亮度。61 项本地检查及构建通过；759 个体及历史全格式属于宿主/隔离 NVS 验证，不冒充真机满仓或扬声器实听。
+
+存档仍为 V32，支持同设备 V5–V32，分区和备份协议不变。需升级固件，刷新网页只更新说明；支持格式 4 的旧离线工具仍可用。已有设备优先使用 USB 保档更新包，社区完整安装前先备份、安装后导入。devbox 仍按此前指示暂缓。
+
+[中文发布说明](2026-10-29-audio-brightness/changelog.zh.md) · [官网更新](https://luobata.github.io/ESP32-PokemonGo/guide/#updates) · [验证与发布记录](../../reports/audio-brightness-release-2026-10-29.md)。
+
 ## 2026-10-26 · 捕虫调查投球修复与流畅度优化：REV-3784 已提交审核
 
 [PR #5](https://github.com/Luobata/ESP32-PokemonGo/pull/5) 已合并 main（`6331103`），最终 PR 固件 CI 全部通过。[GitHub v2026.10.26-bug-survey](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.26-bug-survey) 已公开；完整安装、USB 保档更新、manifest 和离线工具四个附件下载回读一致。沿用真机验收应用，完整包 3,294,816 B，SHA-256 `8b49d5151a9d5f46021218682faef745444e6e9dad27354a5cb9e21098c215f1`。

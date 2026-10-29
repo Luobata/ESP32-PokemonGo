@@ -1,0 +1,190 @@
+{
+  "MEMORY_STATE": {
+    "samples": [
+      {
+        "free": 22660,
+        "minimum": 18788,
+        "largest": 18432,
+        "stack_free": 2100
+      },
+      {
+        "free": 15748,
+        "minimum": 9992,
+        "largest": 9728,
+        "stack_free": 1824
+      },
+      {
+        "free": 15748,
+        "minimum": 9992,
+        "largest": 9728,
+        "stack_free": 1760
+      },
+      {
+        "free": 15748,
+        "minimum": 9992,
+        "largest": 9728,
+        "stack_free": 1760
+      },
+      {
+        "free": 15748,
+        "minimum": 9992,
+        "largest": 9728,
+        "stack_free": 1760
+      },
+      {
+        "free": 15748,
+        "minimum": 9992,
+        "largest": 9728,
+        "stack_free": 1760
+      },
+      {
+        "free": 15748,
+        "minimum": 9992,
+        "largest": 9728,
+        "stack_free": 1648
+      },
+      {
+        "free": 15748,
+        "minimum": 9992,
+        "largest": 9728,
+        "stack_free": 1648
+      }
+    ]
+  },
+  "AUDIO_PROFILE": {
+    "samples": [
+      {
+        "chunks": 0,
+        "render_avg_us": 0,
+        "render_max_us": 0,
+        "gap_max_us": 0,
+        "late": 0,
+        "switches": 0,
+        "switch_render_max_us": 0,
+        "opens": 0,
+        "errors": 0,
+        "stack_free": 3780
+      },
+      {
+        "chunks": 78,
+        "render_avg_us": 1350,
+        "render_max_us": 1630,
+        "gap_max_us": 21825,
+        "late": 0,
+        "switches": 1,
+        "switch_render_max_us": 1593,
+        "opens": 1,
+        "errors": 0,
+        "stack_free": 1988
+      },
+      {
+        "chunks": 141,
+        "render_avg_us": 1335,
+        "render_max_us": 1657,
+        "gap_max_us": 22007,
+        "late": 0,
+        "switches": 1,
+        "switch_render_max_us": 1593,
+        "opens": 1,
+        "errors": 0,
+        "stack_free": 1988
+      },
+      {
+        "chunks": 493,
+        "render_avg_us": 1903,
+        "render_max_us": 2874,
+        "gap_max_us": 22008,
+        "late": 0,
+        "switches": 0,
+        "switch_render_max_us": 0,
+        "opens": 0,
+        "errors": 0,
+        "stack_free": 1988
+      },
+      {
+        "chunks": 606,
+        "render_avg_us": 2013,
+        "render_max_us": 2884,
+        "gap_max_us": 22008,
+        "late": 0,
+        "switches": 1,
+        "switch_render_max_us": 2848,
+        "opens": 0,
+        "errors": 0,
+        "stack_free": 1988
+      },
+      {
+        "chunks": 494,
+        "render_avg_us": 2479,
+        "render_max_us": 4266,
+        "gap_max_us": 22807,
+        "late": 0,
+        "switches": 0,
+        "switch_render_max_us": 0,
+        "opens": 0,
+        "errors": 0,
+        "stack_free": 1988
+      },
+      {
+        "chunks": 827,
+        "render_avg_us": 2477,
+        "render_max_us": 4266,
+        "gap_max_us": 36231,
+        "late": 0,
+        "switches": 0,
+        "switch_render_max_us": 0,
+        "opens": 0,
+        "errors": 0,
+        "stack_free": 1988
+      },
+      {
+        "chunks": 1010,
+        "render_avg_us": 2460,
+        "render_max_us": 4266,
+        "gap_max_us": 36231,
+        "late": 0,
+        "switches": 1,
+        "switch_render_max_us": 1617,
+        "opens": 0,
+        "errors": 0,
+        "stack_free": 1988
+      }
+    ]
+  },
+  "UI_STACK": {
+    "samples": [
+      {
+        "timer_free": 3552,
+        "lvgl_free": 4924
+      },
+      {
+        "timer_free": 3544,
+        "lvgl_free": 4924
+      },
+      {
+        "timer_free": 3544,
+        "lvgl_free": 4924
+      },
+      {
+        "timer_free": 3544,
+        "lvgl_free": 4924
+      },
+      {
+        "timer_free": 3544,
+        "lvgl_free": 4924
+      },
+      {
+        "timer_free": 3544,
+        "lvgl_free": 4924
+      },
+      {
+        "timer_free": 3544,
+        "lvgl_free": 4924
+      },
+      {
+        "timer_free": 3544,
+        "lvgl_free": 4924
+      }
+    ]
+  }
+}

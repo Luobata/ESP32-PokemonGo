@@ -1,0 +1,236 @@
+{
+  "device": "ESP32-C3 / FoloToy AI Passport",
+  "conditions": {
+    "companions": 125,
+    "brightness_percent": 100,
+    "muted": true,
+    "wifi_scanning": true
+  },
+  "baseline": [
+    {
+      "label": "baseline-options",
+      "static_samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 40422,
+          "draw_us": 28121,
+          "push_us": 12301
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 40402,
+          "draw_us": 28467,
+          "push_us": 11935
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 40593,
+          "draw_us": 27424,
+          "push_us": 13169
+        }
+      ]
+    },
+    {
+      "label": "baseline-brightness-selected",
+      "static_samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 40256,
+          "draw_us": 28361,
+          "push_us": 11895
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 40367,
+          "draw_us": 27487,
+          "push_us": 12880
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 40147,
+          "draw_us": 27857,
+          "push_us": 12290
+        }
+      ]
+    },
+    {
+      "period_ms": 80,
+      "ticks": 125,
+      "frames": 21,
+      "bands": 126,
+      "window_us": 9935438,
+      "render_us": 393264,
+      "render_max_us": 19162,
+      "tick_p50_ms": 88,
+      "tick_p95_ms": 88,
+      "tick_max_us": 85007,
+      "late": 94,
+      "frame_p50_ms": 168,
+      "frame_p95_ms": 4294967295,
+      "frame_max_us": 2051157,
+      "bytes": 352,
+      "label": "baseline-care"
+    },
+    {
+      "period_ms": 80,
+      "ticks": 126,
+      "frames": 28,
+      "bands": 84,
+      "window_us": 9966407,
+      "render_us": 314491,
+      "render_max_us": 11489,
+      "tick_p50_ms": 88,
+      "tick_p95_ms": 88,
+      "tick_max_us": 84034,
+      "late": 83,
+      "frame_p50_ms": 168,
+      "frame_p95_ms": 4294967295,
+      "frame_max_us": 1223853,
+      "bytes": 352,
+      "label": "baseline-party"
+    },
+    {
+      "period_ms": 250,
+      "ticks": 41,
+      "frames": 41,
+      "bands": 492,
+      "window_us": 10131512,
+      "render_us": 1131052,
+      "render_max_us": 28067,
+      "tick_p50_ms": 256,
+      "tick_p95_ms": 256,
+      "tick_max_us": 252002,
+      "late": 33,
+      "frame_p50_ms": 256,
+      "frame_p95_ms": 256,
+      "frame_max_us": 252152,
+      "bytes": 352,
+      "label": "baseline-idle"
+    }
+  ],
+  "candidate_static": [
+    {
+      "label": "new-options",
+      "static_samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 40635,
+          "draw_us": 28571,
+          "push_us": 12064
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 40671,
+          "draw_us": 27499,
+          "push_us": 13172
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 40447,
+          "draw_us": 28494,
+          "push_us": 11953
+        }
+      ]
+    },
+    {
+      "label": "new-brightness-selected",
+      "static_samples": [
+        {
+          "sample": 0,
+          "bands": 16,
+          "total_us": 40470,
+          "draw_us": 28815,
+          "push_us": 11655
+        },
+        {
+          "sample": 1,
+          "bands": 16,
+          "total_us": 40944,
+          "draw_us": 27982,
+          "push_us": 12962
+        },
+        {
+          "sample": 2,
+          "bands": 16,
+          "total_us": 40416,
+          "draw_us": 28590,
+          "push_us": 11826
+        }
+      ]
+    }
+  ],
+  "candidate_animation": [
+    {
+      "period_ms": 80,
+      "ticks": 124,
+      "frames": 21,
+      "bands": 126,
+      "window_us": 10011992,
+      "render_us": 400625,
+      "render_max_us": 19532,
+      "tick_p50_ms": 88,
+      "tick_p95_ms": 88,
+      "tick_max_us": 85013,
+      "late": 99,
+      "frame_p50_ms": 168,
+      "frame_p95_ms": 4294967295,
+      "frame_max_us": 2047796,
+      "bytes": 352,
+      "label": "matched-new-care"
+    },
+    {
+      "period_ms": 80,
+      "ticks": 125,
+      "frames": 28,
+      "bands": 84,
+      "window_us": 10010245,
+      "render_us": 312958,
+      "render_max_us": 11815,
+      "tick_p50_ms": 88,
+      "tick_p95_ms": 88,
+      "tick_max_us": 84006,
+      "late": 88,
+      "frame_p50_ms": 168,
+      "frame_p95_ms": 4294967295,
+      "frame_max_us": 1219944,
+      "bytes": 352,
+      "label": "matched-new-party"
+    },
+    {
+      "period_ms": 250,
+      "ticks": 41,
+      "frames": 41,
+      "bands": 492,
+      "window_us": 10158421,
+      "render_us": 1136380,
+      "render_max_us": 28947,
+      "tick_p50_ms": 256,
+      "tick_p95_ms": 256,
+      "tick_max_us": 253000,
+      "late": 38,
+      "frame_p50_ms": 256,
+      "frame_p95_ms": 256,
+      "frame_max_us": 253892,
+      "bytes": 352,
+      "label": "matched-new-idle"
+    }
+  ],
+  "static_median_change_percent": [
+    0.53,
+    0.53
+  ],
+  "notes": [
+    "Continuous scenarios observed for 10 seconds; histogram window covers first-to-last callback.",
+    "4294967295 denotes the >504 ms histogram overflow, including designed animation pauses. It is not a measured millisecond value.",
+    "A later navigation error in the test helper occurred after all three candidate samples; it does not invalidate their recorded timings. Original save is restored separately."
+  ]
+}

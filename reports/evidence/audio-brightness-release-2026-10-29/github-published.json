@@ -1,0 +1,32 @@
+{
+  "tag": "v2026.10.29-audio-brightness",
+  "publishedAt": "2026-10-29T04:20:25Z",
+  "url": "https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.10.29-audio-brightness",
+  "target": "c7eab742e8178ca1f961661ae294918ede940573",
+  "assets": [
+    {
+      "name": "FoloToy-AI-Passport-full.bin",
+      "bytes": 3295232,
+      "sha256": "a3b1c5177340959d2eeebebba53b37f77205e6097237c0d9191aa8929119c499",
+      "public_download_matches": true
+    },
+    {
+      "name": "PokeWalk-update.zip",
+      "bytes": 1635010,
+      "sha256": "b804e6e0d442d8d20d20d1301a38fba3bc0b025aa8e9b388104f299952e3c21f",
+      "public_download_matches": true
+    },
+    {
+      "name": "PokeWalkSaveManager.zip",
+      "bytes": 351880,
+      "sha256": "1317f3c86e19910d80d3bf436f2f46543503b04599e305d8a4e1957ae4a943b2",
+      "public_download_matches": true
+    },
+    {
+      "name": "manifest.json",
+      "bytes": 1223,
+      "sha256": "964ea507b8bb24fea7ce6c86c440ac30bb38012ec4af02a22405b5f4afb72d49",
+      "public_download_matches": true
+    }
+  ]
+}

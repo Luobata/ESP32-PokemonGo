@@ -1,0 +1,3 @@
+Field claims radar=0 maps=0; original field state retained
+Persisted party/warehouse including policies, level/experience, Pokedex, pending encounters, exploration, inventory, challenge, Johto, activities, story, endgame, regions and field state are equal after migration
+

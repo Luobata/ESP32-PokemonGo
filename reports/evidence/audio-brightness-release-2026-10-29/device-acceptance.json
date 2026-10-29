@@ -1,0 +1,90 @@
+{
+  "passed": true,
+  "device": "ESP32-C3 / FoloToy AI Passport",
+  "companions": 125,
+  "application_sha256": "74538aa9901866c1c61643032ab5d3b53cda896af5b78dded49eeba5f5cf106b",
+  "previous_application_sha256": "825c2b28cbce6259738f105eb5baa99bf1a8f710d29cda8515a752c368f74ba7",
+  "flash": {
+    "application_verified": true,
+    "protected_data_unchanged": true,
+    "partition_changed": false
+  },
+  "settings": {
+    "brightness_range": [
+      10,
+      100
+    ],
+    "step": 10,
+    "screen_off_pwm_zero": true,
+    "wake_restores_brightness": true,
+    "persistent_change_before_import": {
+      "brightness": 40
+    },
+    "final": {
+      "brightness": 100,
+      "muted": true,
+      "volume": 55,
+      "battery_visible": true
+    }
+  },
+  "save": {
+    "transfers": [
+      {
+        "source": "previous_public_build",
+        "logical_version": 32,
+        "container_bytes": 73728,
+        "prebackup_written_and_read_back_before_ack": true,
+        "matched_successful_reboot_receipt": true,
+        "wifi_scanning": true,
+        "audio_running_at_zero_volume": false,
+        "import_memory": {
+          "valid": 1,
+          "free": 22452,
+          "minimum": 19084,
+          "largest": 18432,
+          "stack_free": 1768
+        }
+      },
+      {
+        "source": "current_build",
+        "logical_version": 32,
+        "container_bytes": 73728,
+        "prebackup_written_and_read_back_before_ack": true,
+        "matched_successful_reboot_receipt": true,
+        "wifi_scanning": true,
+        "audio_running_at_zero_volume": true,
+        "import_memory": {
+          "valid": 1,
+          "free": 14448,
+          "minimum": 9640,
+          "largest": 9216,
+          "stack_free": 1764
+        }
+      }
+    ],
+    "source_and_target_build_differ": true,
+    "final_semantic_comparison_passed": true,
+    "checked": [
+      "party and warehouse individuals and policies",
+      "level and experience",
+      "Pokedex and encounters",
+      "inventory and achievements",
+      "challenge and dungeon",
+      "Johto activities, story and narrative",
+      "regions and field adventure"
+    ],
+    "excluded_natural_elapsed_state": [
+      "care decay",
+      "elapsed online/playtime counters"
+    ]
+  },
+  "limitations": [
+    "New-user missing-setting defaults tested with production C host NVS, not by erasing the player device.",
+    "Audio task and codec exercised at volume 0; no speaker listening claim.",
+    "759 individuals and fault injection covered by host/real-NVS harness, device has 125.",
+    "Physical long-C and full battle/capture animation matrix not rerun on this settings-only hardware pass.",
+    "First import applied settings, but closing/reopening the diagnostic serial port caused another USB reset before receipt collection. Repeated with the port held open through restart; both source builds produced matching receipts.",
+    "A helper navigation error after completed performance samples entered the encounter screen; original progress was subsequently restored and compared.",
+    "I2S emits already-disabled-channel messages during its existing defensive disable-before-enable flow; ESP_ERR_INVALID_STATE is deliberately handled, writes/open succeeded and audio error counter stayed zero."
+  ]
+}
