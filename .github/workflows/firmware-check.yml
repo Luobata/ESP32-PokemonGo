@@ -36,6 +36,7 @@ jobs:
           run_check python3 tools/pipeline/verify_display_sleep.py
           run_check python3 tools/pipeline/verify_silent_boot.py
           run_check python3 tools/pipeline/verify_display_settings.py
+          run_check python3 tools/pipeline/verify_display_settings_preview.py
           run_check python3 tools/pipeline/verify_wifi_time.py
           run_check python3 tools/pipeline/verify_usb_backup.py
           run_check python3 tools/pipeline/verify_usb_import.py
@@ -49,6 +50,7 @@ jobs:
           run_check python3 tools/pipeline/verify_firmware_update.py
           run_check node tools/pipeline/verify_save_import_web.mjs
           run_check python3 tools/pipeline/verify_audio_settings.py
+          run_check python3 tools/pipeline/verify_mute_preview.py
           run_check python3 tools/pipeline/verify_offline_stamina.py
           run_check python3 tools/pipeline/verify_usb_backup_checkpoint.py
           run_check python3 tools/pipeline/verify_achievement_capacity.py

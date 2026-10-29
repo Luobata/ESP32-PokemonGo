@@ -1,0 +1,13 @@
+{
+  "build": "f268ccf10bacc5bc06a0",
+  "band_checks": 76,
+  "brightness_bounds": [
+    10,
+    100
+  ],
+  "wake_restores_brightness": true,
+  "save_failure_preserves_brightness": true,
+  "dedicated_editor": true,
+  "reenter_preserves_setting": true,
+  "hardware_tested": false
+}

@@ -1,0 +1,15 @@
+{
+  "app_bytes": 3229696,
+  "app_sha256": "c0b775ab4514e2758c6f11b6c07934757eced329aa2acc033d241fb8f3a77178",
+  "silent_build": false,
+  "audio_dma_iram_safe": true,
+  "before": {
+    ".dram0.data": 14060,
+    ".dram0.bss": 171160
+  },
+  "after": {
+    ".dram0.data": 14060,
+    ".dram0.bss": 171160
+  },
+  "factory_free_bytes": 178176
+}

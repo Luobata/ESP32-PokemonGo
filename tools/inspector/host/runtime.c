@@ -519,7 +519,7 @@ bool world_evolve_leader(uint16_t from, uint16_t to)
 bool save_opening_seen(void) { return opening_seen; }
 bool save_mark_opening_seen(void) { opening_seen = true; return true; }
 static sound_mixer_t host_mixer;
-static bool host_muted = true;
+static bool host_muted = AUDIO_MUTED_DEFAULT;
 static uint8_t host_volume=AUDIO_VOLUME_DEFAULT;
 static unsigned host_alert;
 static bool host_notifying;
@@ -541,7 +541,7 @@ bool audio_settings_set_volume(uint8_t v){if(v>100||host_save_fails())return fal
 void sfx_notify_state(void) {}
 void sfx_encounter(uint8_t rarity,bool shiny){if(host_muted)return;unsigned priority=shiny?3:rarity>=4?2:1;if(priority>host_alert)host_alert=priority;}
 bool audio_settings_muted(void) {return host_muted;}
-void audio_settings_init(void) {host_muted=true;}
+void audio_settings_init(void) {host_muted=AUDIO_MUTED_DEFAULT;}
 bool audio_settings_set_muted(bool muted) {if(host_save_fails())return false;host_muted=muted;host_mixer.active=false;host_alert=0;return true;}
 void sfx_play(sfx_id_t id) { if(host_muted)return; sound_mixer_effect(&host_mixer,id); }
 void sfx_cry(uint16_t species) { if(!host_muted)sound_mixer_cry(&host_mixer,species); }
@@ -568,7 +568,7 @@ static void fixture(unsigned pet, unsigned level, unsigned wild, unsigned rarity
                     unsigned seed, unsigned shiny, bool new_game, bool full_team)
 {
     playtime_init(&playtime,0,esp_timer_get_time());
-    host_muted=true;host_volume=AUDIO_VOLUME_DEFAULT;host_alert=0;host_notifying=false;
+    host_muted=AUDIO_MUTED_DEFAULT;host_volume=AUDIO_VOLUME_DEFAULT;host_alert=0;host_notifying=false;
     memset(&achievements,0,sizeof(achievements));
     memset(&regions,0,sizeof(regions));exploration_init(&exploration);exploration_wins=0;memset(&exploration_updates,0,sizeof(exploration_updates));memset(&refresh,0,sizeof(refresh));
     memset(&world, 0, sizeof(world));memset(&preview_field,0,sizeof(preview_field));

@@ -2,6 +2,7 @@
 """Actual C shiny send-out integration, with independent pixel/lifecycle checks."""
 import io
 import json
+import os
 from pathlib import Path
 import sys
 from PIL import Image
@@ -10,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT/'tools/inspector'))
 from native import build, Renderer, png
 
-OUT = ROOT/'reports/evidence/shiny-entry-2026-10-07'
+OUT = Path(os.environ.get('POKEWALK_EVIDENCE_DIR', ROOT/'reports/evidence/shiny-entry-2026-10-07'))
 OUT.mkdir(parents=True, exist_ok=True)
 exe, version = build()
 checks = 0
@@ -34,6 +35,7 @@ def wild(pet, enemy):
     r = Renderer(exe)
     try:
         command(r, f'boot 3 25 40 130 4 123 {enemy} 0 0 {pet}')
+        command(r, 'audio_fixture 1')  # Explicit silent test, independent of fresh-install preferences.
         before = r.inspect()
         frames, sides = [], []
         for _ in range(350):

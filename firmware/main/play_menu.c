@@ -81,7 +81,7 @@ static void draw_options(int band_y)
     render_text(40, OPTION_Y + OPTION_STEP * 4 - band_y, "备份存档", GAME_UI_INK);
     render_text(40, OPTION_Y + OPTION_STEP * 5 - band_y, "导入存档", GAME_UI_INK);
     render_text(40, OPTION_Y + OPTION_STEP * 6 - band_y, "Wi-Fi校时", GAME_UI_INK);
-    render_text(40, OPTION_Y + OPTION_STEP * OPTION_BRIGHTNESS - band_y, "亮度", GAME_UI_INK);
+    render_text(40, OPTION_Y + OPTION_STEP * OPTION_BRIGHTNESS - band_y, "屏幕亮度", GAME_UI_INK);
     snprintf(value, sizeof(value), "%u%%", display_settings_brightness());
     render_text(212-render_text_width(value), OPTION_Y + OPTION_STEP * OPTION_BRIGHTNESS-band_y, value, GAME_UI_ACCENT);
     render_text(40, OPTION_Y + OPTION_STEP * OPTION_BATTERY-band_y, "电量显示", GAME_UI_INK);
@@ -97,8 +97,8 @@ static void draw_options(int band_y)
         snprintf(value, sizeof(value), "%s", audio_settings_muted() ? "静音开启 调整后仍静音" : "音乐 音效 遇敌提示");
         hint = s_audio_save_failed ? "保存失败 请重试" : "音量设置重启后保留";
     } else if (s_option_selected == OPTION_BRIGHTNESS) {
-        snprintf(value, sizeof(value), "屏幕亮度 即时生效");
-        hint = s_display_save_failed ? "保存失败 请重试" : "重启与唤醒后保留";
+        snprintf(value, sizeof(value), "按C调节屏幕亮度");
+        hint = "范围10%-100% 调整后保留";
     } else if (s_option_selected == OPTION_BATTERY) {
         snprintf(value, sizeof(value), "菜单与照料页显示电量");
         hint = s_display_save_failed ? "保存失败 按确认重试" : "按确认切换 重启后保留";
@@ -117,7 +117,26 @@ static void draw_options(int band_y)
     }
     game_ui_text_centered(band_y, 12, 240, 216, 16, value, GAME_UI_MUTED);
     game_ui_text_centered(band_y, 12, 260, 216, 16, hint, GAME_UI_INK);
-    game_ui_footer(band_y, (s_volume_edit || s_brightness_edit) ? "[A]加 [B]减 [C]完成" : GAME_UI_NAV_HINT);
+    game_ui_footer(band_y, s_volume_edit ? "[A]加 [B]减 [C]完成" : GAME_UI_NAV_HINT);
+}
+
+static void draw_brightness(int band_y)
+{
+    char value[8];
+    uint8_t brightness = display_settings_brightness();
+    game_ui_title(band_y, "屏幕亮度", "");
+    game_ui_box(band_y, 8, 56, 224, 160);
+    game_ui_text_centered(band_y, 24, 76, 192, 16, "当前亮度", GAME_UI_MUTED);
+    snprintf(value, sizeof(value), "%u%%", brightness);
+    game_ui_text_centered(band_y, 24, 112, 192, 16, value, GAME_UI_ACCENT);
+    game_ui_meter(band_y, 28, 148, 184, brightness);
+    render_text(28, 184 - band_y, "10%", GAME_UI_MUTED);
+    render_text(212 - render_text_width("100%"), 184 - band_y, "100%", GAME_UI_MUTED);
+    game_ui_text_centered(band_y, 12, 236, 216, 16,
+                          s_display_save_failed ? "保存失败 请重试" : "调整立即生效并保存",
+                          GAME_UI_INK);
+    game_ui_text_centered(band_y, 12, 260, 216, 16, "长按B返回", GAME_UI_MUTED);
+    game_ui_footer(band_y, "[A]加 [B]减 [C]完成");
 }
 
 static void draw_backup(int band_y)
@@ -239,6 +258,7 @@ static void draw_all(void)
         screen_band_clear(GAME_UI_BG);
         if (s_wifi_view) draw_wifi(band_y);
         else if (s_backup_view) draw_backup(band_y);
+        else if (s_brightness_edit) draw_brightness(band_y);
         else if (s_options) draw_options(band_y);
         else draw_main(band_y);
         screen_push_band(band_y);
@@ -355,7 +375,10 @@ void play_menu_key(bsp_btn_t btn, bsp_btn_ev_t ev)
             if (s_option_selected == OPTION_MUTE) {
                 s_audio_save_failed = !audio_settings_set_muted(!audio_settings_muted());
             } else if (s_option_selected == OPTION_VOLUME) s_volume_edit = true;
-            else if (s_option_selected == OPTION_BRIGHTNESS) s_brightness_edit = true;
+            else if (s_option_selected == OPTION_BRIGHTNESS) {
+                s_display_save_failed = false;
+                s_brightness_edit = true;
+            }
             else if (s_option_selected == OPTION_BATTERY) {
                 s_display_save_failed = !display_settings_set_battery_visible(!display_settings_battery_visible());
                 if (!s_display_save_failed) battery_ui_start();

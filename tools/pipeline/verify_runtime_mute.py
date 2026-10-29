@@ -10,6 +10,7 @@ s=s.replace('#include <stdio.h>','#include <stdio.h>\n#include <setjmp.h>\nstati
 s=s.replace('bool audio_settings_muted(void) {return false;}','bool audio_settings_muted(void) {return muted;}').replace('bool screen_idle_is_off(void) {return false;}','bool screen_idle_is_off(void) {return sleeping;}')
 s=s.replace('uint8_t audio_settings_volume(void) {return 55;}','uint8_t audio_settings_volume(void) {return desired_volume;}').replace('(void)d;(void)volume;volumes++;','(void)d;last_volume=volume;volumes++;').replace('(void)m;(void)id;}\nvoid sound_mixer_move', 'm->active=true;last_effect=id;}\nvoid sound_mixer_move')
 s=s.replace('(void)m;memset(out,0,n*2);','m->active=false;memset(out,0,n*2);')
+s=s.replace('(void)q;(void)out;(void)ticks;abort();','(void)q;(void)out;(void)ticks;return 0;')  # Wake at the next scripted receive.
 s=s.replace('(void)fn;(void)name;', 'worker=fn;(void)name;').replace('int esp_codec_dev_close(void *d) { (void)d;return 0; }','int esp_codec_dev_close(void *d) { (void)d;closed++;return 0; }')
 s=s.replace('void sound_mixer_music(sound_mixer_t *m,music_id_t id) {(void)m;(void)id;}','void sound_mixer_music(sound_mixer_t *m,music_id_t id) {m->music.id=id;}')
 s=s.replace('(void)q;(void)id;(void)wait;abort();','''(void)q;(void)id;(void)wait;
@@ -34,6 +35,6 @@ with tempfile.TemporaryDirectory() as d:
  txt=Path(base.__file__).read_text();pins=txt.split("(tmp/'bsp_pins.h').write_text('''",1)[1].split("''')",1)[0];(t/'bsp_pins.h').write_text(pins)
  (t/'bsp_i2c.h').write_text('#include "platform.h"\nesp_err_t bsp_i2c_init(void);void *bsp_i2c_bus(void);\n')
  (t/'bsp_audio.c').write_text((base.BSP/'src/bsp_audio.c').read_text())
- cmd=['cc','-std=c11','-O1','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-unused-variable','-fsanitize=address,undefined','-DCONFIG_POKEWALK_SILENT_BOOT=0','-DTEST_PA=-1','-I',str(t),'-I',str(base.BSP/'include'),'-I',str(base.MAIN),str(t/'driver.c'),str(t/'bsp_audio.c'),str(base.MAIN/'sfx.c'),'-o',str(t/'probe')]
+ cmd=['cc','-std=c11','-O1','-Wall','-Wextra','-Werror','-Wno-unused-function','-Wno-unused-variable','-fsanitize=address,undefined','-fno-sanitize-recover=all','-DCONFIG_POKEWALK_SILENT_BOOT=0','-DTEST_PA=-1','-I',str(t),'-I',str(base.BSP/'include'),'-I',str(base.BSP/'src'),'-I',str(base.MAIN),str(t/'driver.c'),str(t/'bsp_audio.c'),str(base.BSP/'src/bsp_es8311_sleep_check.c'),str(base.MAIN/'sfx.c'),'-o',str(t/'probe')]
  r=subprocess.run(cmd,capture_output=True,text=True);assert not r.returncode,r.stderr
  r=subprocess.run([str(t/'probe')],capture_output=True,text=True,timeout=10);assert not r.returncode,r.stderr;print(r.stdout)
