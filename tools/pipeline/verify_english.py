@@ -33,7 +33,7 @@ static void formats(void){
  assert(language_snprintf(got,sizeof(got),"%.*u",4,7u)==4&&!strcmp(got,"0007"));
  // Exercise runtime rejection without GCC's printf attribute rejecting the
  // deliberately invalid width at compile time.
- int (*runtime_format)(char*,size_t,const char*,...)=language_snprintf;
+ int (*volatile runtime_format)(char*,size_t,const char*,...)=language_snprintf;
  assert(runtime_format(got,sizeof(got),"%999999999999u",7u)==-1);
  assert(language_snprintf(got,sizeof(got),"%*u",4,7u)==-1);
  language_set_runtime(LANGUAGE_ZH_HANS);
