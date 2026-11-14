@@ -116,6 +116,8 @@ context.location.hash='#settings';vm.runInContext('render()',context);
 for(const text of ['繁體中文','最多支持 2 台','2.4GHz'])assert(nodes['#content'].innerHTML.includes(text),text);
 vm.runInContext('data.features.englishUi=true',context);vm.runInContext('render()',context);
 assert(nodes['#content'].innerHTML.includes('English'));
+vm.runInContext('data.features.japaneseUi=true',context);vm.runInContext('render()',context);
+assert(nodes['#content'].innerHTML.includes('日本語'));
 context.location.hash='#party';vm.runInContext('render()',context);assert(nodes['#content'].innerHTML.includes('第二行显示 ★'));
 console.log(JSON.stringify({passed:true,pages:checks,editions:2,calculators:true,links:true,escapedSearch:true}));
 '''

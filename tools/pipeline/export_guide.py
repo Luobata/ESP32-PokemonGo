@@ -45,6 +45,7 @@ def catalog(root):
   data['features']['brightnessEditor']='static void draw_brightness(' in (source/'play_menu.c').read_text()
   data['features']['traditionalUi']=(source/'language.c').exists()
   data['features']['englishUi']=(source/'language_english.h').exists()
+  data['features']['japaneseUi']=(source/'language_japanese.h').exists()
   data['features']['partyShinyBadge']='render_text(168, y + 20 - band_y, "★"' in (source/'play_party.c').read_text()
   data['features']['wifiSetupDiagnostics']='WIFI_SETUP_CLIENT_LIMIT' in (source/'wifi_time.h').read_text()
   data['warehouseCapacity']=int(re.search(r'#define BOX_CAPACITY\s+(\d+)',(source/'party.h').read_text()).group(1))
@@ -76,8 +77,8 @@ def version_catalog(ref,version):
  return data
 
 def main():
- p=argparse.ArgumentParser();p.add_argument('--release-ref',default='48b59fc3012b7031e50454bca9b1af09d557e9e3');p.add_argument('--previous-ref',default='v2026.10.29-audio-brightness')
- p.add_argument('--release-version',default='2026.11.14 · 三语言与配网改进');p.add_argument('--previous-version',default='2026.10.29 · 声音与亮度');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--release-ref',default='65c8361');p.add_argument('--previous-ref',default='v2026.11.14-multilingual')
+ p.add_argument('--release-version',default='2026.11.14 · 日本語追加');p.add_argument('--previous-version',default='2026.11.14 · 三语言与配网改进');a=p.parse_args()
  out=ROOT/'tools/save-manager/web/guide';out.mkdir(parents=True,exist_ok=True)
  release=version_catalog(a.release_ref,a.release_version);previous=version_catalog(a.previous_ref,a.previous_version)
  (out/'catalog.js').write_text('export const CATALOG = '+json.dumps({'release':release,'previous':previous},ensure_ascii=False,separators=(',',':'))+';\n')
