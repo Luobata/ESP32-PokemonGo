@@ -76,8 +76,8 @@ def version_catalog(ref,version):
  return data
 
 def main():
- p=argparse.ArgumentParser();p.add_argument('--release-ref',default='v2026.10.29-audio-brightness');p.add_argument('--previous-ref',default='v2026.10.26-bug-survey')
- p.add_argument('--release-version',default='2026.10.29 · 声音与亮度');p.add_argument('--previous-version',default='2026.10.26 · 捕虫调查修复');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--release-ref',default='087b2a924091c7b2f7253d4e6e95602c092537bb');p.add_argument('--previous-ref',default='v2026.10.29-audio-brightness')
+ p.add_argument('--release-version',default='2026.11.14 · 三语言与配网改进');p.add_argument('--previous-version',default='2026.10.29 · 声音与亮度');a=p.parse_args()
  out=ROOT/'tools/save-manager/web/guide';out.mkdir(parents=True,exist_ok=True)
  release=version_catalog(a.release_ref,a.release_version);previous=version_catalog(a.previous_ref,a.previous_version)
  (out/'catalog.js').write_text('export const CATALOG = '+json.dumps({'release':release,'previous':previous},ensure_ascii=False,separators=(',',':'))+';\n')

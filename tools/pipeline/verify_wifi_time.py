@@ -111,7 +111,8 @@ static int httpd_req_recv(httpd_req_t*r,char*b,size_t n){if(n>3)n=3;memcpy(b,bod
 static int httpd_stop(httpd_handle_t h){http_stops++;return 0;}
 static int httpd_start(httpd_handle_t*h,httpd_config_t*c){
  assert(c->stack_size==6144&&c->max_open_sockets==2&&c->lru_purge_enable);
- if(http_error)return http_error;*h=(void*)1;registrations=0;return 0;
+ if(http_error)return http_error;
+ *h=(void*)1;registrations=0;return 0;
 }
 static int httpd_register_uri_handler(httpd_handle_t h,const httpd_uri_t*u){return ++registrations==(unsigned)route_error?ESP_FAIL:0;}
 '''

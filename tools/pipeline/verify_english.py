@@ -31,7 +31,10 @@ static void formats(void){
  assert(language_snprintf(got,sizeof(got),"%.3s %c %04x","abcdef",'C',15u)==10&&!strcmp(got,"abc C 000f"));
  assert(language_snprintf(got,sizeof(got),"[%8s][%-8s][%3c]","队伍","x",'C')==25&&!strcmp(got,"[   Party][x       ][  C]"));
  assert(language_snprintf(got,sizeof(got),"%.*u",4,7u)==4&&!strcmp(got,"0007"));
- assert(language_snprintf(got,sizeof(got),"%999999999999u",7u)==-1);
+ // Exercise runtime rejection without GCC's printf attribute rejecting the
+ // deliberately invalid width at compile time.
+ int (*runtime_format)(char*,size_t,const char*,...)=language_snprintf;
+ assert(runtime_format(got,sizeof(got),"%999999999999u",7u)==-1);
  assert(language_snprintf(got,sizeof(got),"%*u",4,7u)==-1);
  language_set_runtime(LANGUAGE_ZH_HANS);
  assert(language_snprintf(got,sizeof(got),"经验 +%u",123u)==(int)strlen("经验 +123")&&!strcmp(got,"经验 +123"));
