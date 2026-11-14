@@ -1,0 +1,10 @@
+{
+  "join_exit": 0,
+  "get_status": 200,
+  "english_page": true,
+  "has_form": true,
+  "submit_status": 200,
+  "ack_bytes": 313,
+  "restore_exit": 0,
+  "scope": "One real Mac client; actual device hotspot GET and form ACK. Nonexistent QA SSID; not a successful home-router/SNTP or simultaneous two-client test."
+}

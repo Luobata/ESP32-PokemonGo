@@ -1,0 +1,38 @@
+[
+  {
+    "name": "verify_usb_backup",
+    "exit": 0
+  },
+  {
+    "name": "verify_usb_import",
+    "exit": 0
+  },
+  {
+    "name": "verify_usb_stream",
+    "exit": 0
+  },
+  {
+    "name": "verify_usb_console",
+    "exit": 0
+  },
+  {
+    "name": "verify_usb_backup_checkpoint",
+    "exit": 0
+  },
+  {
+    "name": "verify_usb_import_device",
+    "exit": 0
+  },
+  {
+    "name": "verify_english",
+    "exit": 0
+  },
+  {
+    "name": "verify_language_ui",
+    "exit": 0
+  },
+  {
+    "name": "verify_screen_idle_pages",
+    "exit": 1
+  }
+]

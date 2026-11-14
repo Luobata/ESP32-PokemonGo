@@ -1,0 +1,8 @@
+{
+  "operation": "restore-original",
+  "source_backup": "old public V32",
+  "observed_auto_sleep_during_transfer": true,
+  "restored": true,
+  "timeout": false,
+  "last_acknowledged_offset": 73728
+}

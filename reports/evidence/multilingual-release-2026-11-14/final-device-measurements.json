@@ -1,0 +1,82 @@
+[
+  {
+    "label": "final-english-options",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 49988,
+        "draw_us": 38080,
+        "push_us": 11908
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 49666,
+        "draw_us": 37796,
+        "push_us": 11870
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 49668,
+        "draw_us": 37336,
+        "push_us": 12332
+      }
+    ]
+  },
+  {
+    "period_ms": 80,
+    "ticks": 125,
+    "frames": 21,
+    "bands": 126,
+    "window_us": 9975477,
+    "render_us": 456199,
+    "render_max_us": 22200,
+    "tick_p50_ms": 88,
+    "tick_p95_ms": 88,
+    "tick_max_us": 84007,
+    "late": 94,
+    "frame_p50_ms": 168,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 2037413,
+    "bytes": 352,
+    "label": "final-english-care"
+  },
+  {
+    "period_ms": 80,
+    "ticks": 125,
+    "frames": 28,
+    "bands": 84,
+    "window_us": 10032513,
+    "render_us": 368375,
+    "render_max_us": 13525,
+    "tick_p50_ms": 88,
+    "tick_p95_ms": 88,
+    "tick_max_us": 85009,
+    "late": 101,
+    "frame_p50_ms": 168,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 1237375,
+    "bytes": 352,
+    "label": "final-english-party"
+  },
+  {
+    "period_ms": 250,
+    "ticks": 41,
+    "frames": 41,
+    "bands": 492,
+    "window_us": 10134483,
+    "render_us": 1212370,
+    "render_max_us": 30013,
+    "tick_p50_ms": 256,
+    "tick_p95_ms": 256,
+    "tick_max_us": 255000,
+    "late": 25,
+    "frame_p50_ms": 256,
+    "frame_p95_ms": 256,
+    "frame_max_us": 254983,
+    "bytes": 352,
+    "label": "final-english-idle"
+  }
+]

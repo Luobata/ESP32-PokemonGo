@@ -1,0 +1,72 @@
+[
+  {
+    "label": "english-options",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 48381,
+        "draw_us": 36535,
+        "push_us": 11846
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 48339,
+        "draw_us": 37050,
+        "push_us": 11289
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 48369,
+        "draw_us": 36829,
+        "push_us": 11540
+      }
+    ]
+  },
+  {
+    "label": "english-brightness-selected",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 48577,
+        "draw_us": 37199,
+        "push_us": 11378
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 48545,
+        "draw_us": 37395,
+        "push_us": 11150
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 48845,
+        "draw_us": 37605,
+        "push_us": 11240
+      }
+    ]
+  },
+  {
+    "period_ms": 80,
+    "ticks": 126,
+    "frames": 21,
+    "bands": 126,
+    "window_us": 9969563,
+    "render_us": 451615,
+    "render_max_us": 21765,
+    "tick_p50_ms": 88,
+    "tick_p95_ms": 88,
+    "tick_max_us": 83999,
+    "late": 86,
+    "frame_p50_ms": 168,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 2030091,
+    "bytes": 352,
+    "label": "english-care"
+  }
+]

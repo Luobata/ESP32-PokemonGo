@@ -1,0 +1,37 @@
+[
+  {
+    "scenario": "reconcile-english",
+    "source_save_version": 32,
+    "source_build_differs_from_final": true,
+    "staged_and_restored_match": true,
+    "upload_seconds": 100.3,
+    "recovery_positions": [
+      8192,
+      16384
+    ]
+  },
+  {
+    "scenario": "reconcile-old-backup",
+    "source_save_version": 32,
+    "source_build_differs_from_final": true,
+    "staged_and_restored_match": true,
+    "upload_seconds": 92.7,
+    "recovery_positions": []
+  },
+  {
+    "scenario": "final-build export/import roundtrip after AP initialization",
+    "source_save_version": 32,
+    "source_build_differs_from_final": false,
+    "staged_and_restored_match": true,
+    "upload_seconds": 92.7,
+    "recovery_positions": [],
+    "heap_during_upload": {
+      "free": 22572,
+      "minimum": 8040,
+      "largest": 16384,
+      "debug_stack_free": 1736,
+      "timer_stack_free": 3544,
+      "lvgl_stack_free": 4924
+    }
+  }
+]

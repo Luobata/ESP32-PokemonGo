@@ -1,0 +1,1 @@
+V5–32 stream, 576 export chunks, 72 KiB import, disk ACK, CRC, cancellation, version/length and I/O failures: passed

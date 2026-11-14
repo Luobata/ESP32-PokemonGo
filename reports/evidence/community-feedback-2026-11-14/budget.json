@@ -1,0 +1,150 @@
+{
+  "app_sha256": "9c3c448f4cde423e65e5b472b2d9729bcf2eb1886a5d7c5bb97f7c3ff260c137",
+  "app_bytes": 3299008,
+  "factory_capacity": 3407872,
+  "factory_free_bytes": 108864,
+  "flash_bytes": 8388608,
+  "partition_table_changed": false,
+  "baseline_sections": {
+    ".rtc.text": 0,
+    ".rtc.force_fast": 0,
+    ".rtc_noinit": 7792,
+    ".rtc.force_slow": 32,
+    ".rtc_reserved": 40,
+    ".iram0.text": 79076,
+    ".dram0.dummy": 79360,
+    ".dram0.data": 14060,
+    ".noinit": 0,
+    ".dram0.bss": 171160,
+    ".flash.text": 1434432,
+    ".flash_rodata_dummy": 1441792,
+    ".flash.appdesc": 256,
+    ".flash.rodata": 1702332,
+    ".flash.tdata": 0,
+    ".flash.rodata_noload": 13107,
+    ".iram0.text_end": 284,
+    ".iram0.data": 0,
+    ".iram0.bss": 0,
+    ".dram0.heap_start": 8,
+    ".debug_aranges": 98088,
+    ".debug_info": 5570720,
+    ".debug_abbrev": 570059,
+    ".debug_line": 4180570,
+    ".debug_frame": 364320,
+    ".debug_str": 658638,
+    ".debug_loc": 2338199,
+    ".debug_ranges": 166056,
+    ".debug_line_str": 11345,
+    ".debug_loclists": 82551,
+    ".debug_rnglists": 5733,
+    ".comment": 134,
+    ".riscv.attributes": 106
+  },
+  "candidate_sections": {
+    ".rtc.text": 0,
+    ".rtc.force_fast": 0,
+    ".rtc_noinit": 7792,
+    ".rtc.force_slow": 32,
+    ".rtc_reserved": 40,
+    ".iram0.text": 79076,
+    ".dram0.dummy": 79360,
+    ".dram0.data": 14060,
+    ".noinit": 0,
+    ".dram0.bss": 171176,
+    ".flash.text": 1436962,
+    ".flash_rodata_dummy": 1441792,
+    ".flash.appdesc": 256,
+    ".flash.rodata": 1768500,
+    ".flash.tdata": 0,
+    ".flash.rodata_noload": 13107,
+    ".iram0.text_end": 284,
+    ".iram0.data": 0,
+    ".iram0.bss": 0,
+    ".dram0.heap_start": 8,
+    ".debug_aranges": 98224,
+    ".debug_info": 5575745,
+    ".debug_abbrev": 571181,
+    ".debug_line": 4186903,
+    ".debug_frame": 364724,
+    ".debug_str": 659432,
+    ".debug_loc": 2341740,
+    ".debug_ranges": 166808,
+    ".debug_line_str": 11345,
+    ".debug_loclists": 82551,
+    ".debug_rnglists": 5733,
+    ".comment": 134,
+    ".riscv.attributes": 106
+  },
+  "section_delta": {
+    ".debug_aranges": 136,
+    ".debug_str": 794,
+    ".flash.text": 2530,
+    ".debug_abbrev": 1122,
+    ".debug_info": 5025,
+    ".debug_ranges": 752,
+    ".dram0.bss": 16,
+    ".flash.rodata": 66168,
+    ".debug_line": 6333,
+    ".debug_loc": 3541,
+    ".debug_frame": 404
+  },
+  "language_symbols": {
+    "current_language": [
+      {
+        "address": "3fcc061c",
+        "bytes": 1,
+        "section_type": "b"
+      }
+    ],
+    "language_chars": [
+      {
+        "address": "3c210eb0",
+        "bytes": 2092,
+        "section_type": "d"
+      }
+    ],
+    "language_phrases": [
+      {
+        "address": "3c20f998",
+        "bytes": 5400,
+        "section_type": "d"
+      }
+    ],
+    "language_phrase_groups": [
+      {
+        "address": "3c20f320",
+        "bytes": 1656,
+        "section_type": "d"
+      }
+    ],
+    "language_glyph_codes": [
+      {
+        "address": "3c20e778",
+        "bytes": 2982,
+        "section_type": "d"
+      }
+    ],
+    "language_glyph_pixels": [
+      {
+        "address": "3c202d18",
+        "bytes": 47712,
+        "section_type": "d"
+      }
+    ],
+    "setup_client_aids": [
+      {
+        "address": "3fcc0180",
+        "bytes": 4,
+        "section_type": "b"
+      }
+    ],
+    "html": [
+      {
+        "address": "3fcaf2a0",
+        "bytes": 1700,
+        "section_type": "b"
+      }
+    ]
+  },
+  "runtime_heap_measured": false
+}

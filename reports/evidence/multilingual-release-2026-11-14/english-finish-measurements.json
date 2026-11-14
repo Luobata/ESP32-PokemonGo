@@ -1,0 +1,38 @@
+[
+  {
+    "period_ms": 80,
+    "ticks": 125,
+    "frames": 28,
+    "bands": 84,
+    "window_us": 10015001,
+    "render_us": 363869,
+    "render_max_us": 13306,
+    "tick_p50_ms": 88,
+    "tick_p95_ms": 88,
+    "tick_max_us": 85007,
+    "late": 91,
+    "frame_p50_ms": 168,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 1216682,
+    "bytes": 352,
+    "label": "english-party"
+  },
+  {
+    "period_ms": 250,
+    "ticks": 41,
+    "frames": 41,
+    "bands": 492,
+    "window_us": 10091447,
+    "render_us": 1197010,
+    "render_max_us": 29508,
+    "tick_p50_ms": 256,
+    "tick_p95_ms": 256,
+    "tick_max_us": 254002,
+    "late": 21,
+    "frame_p50_ms": 256,
+    "frame_p95_ms": 256,
+    "frame_max_us": 254090,
+    "bytes": 352,
+    "label": "english-idle"
+  }
+]

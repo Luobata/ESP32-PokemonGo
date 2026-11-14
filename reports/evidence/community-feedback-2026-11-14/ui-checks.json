@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "native_build": "f09a96544ec411f81bc4",
+  "render_band_checks": 696,
+  "pages": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22
+  ],
+  "shiny_party_slots": 6,
+  "language_save_failure": true,
+  "network_boundary": "simulated",
+  "hardware_tested": false
+}

@@ -1,0 +1,19 @@
+{
+  "application_sha256": "e99ecc75c53befccab6dc3a38592776240ed89b55a6d3f5e0b464b0ec4f14f20",
+  "source_schema": 32,
+  "payload_bytes": 73728,
+  "matched_staged": true,
+  "matched_restored": true,
+  "upload_seconds": 100.3,
+  "fault_injection": {
+    "dropped_rdata_offset": 8192,
+    "dropped_next_offset": 16384
+  },
+  "device_positions": [
+    8192,
+    16384
+  ],
+  "wifi_before_import": "actual AP started and stopped within same boot",
+  "data_unchanged_on_previous_failed_attempt": true,
+  "note": "Core progress and settings are verified separately by post-restore export/production decoder."
+}

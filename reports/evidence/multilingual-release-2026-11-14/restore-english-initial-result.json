@@ -1,0 +1,8 @@
+{
+  "operation": "restore-english",
+  "source_backup": "new English V32",
+  "observed_auto_sleep_during_transfer": true,
+  "restored": false,
+  "timeout": true,
+  "last_acknowledged_offset": 31232
+}

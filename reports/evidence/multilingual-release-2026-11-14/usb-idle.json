@@ -1,0 +1,10 @@
+{
+  "passed": true,
+  "native_build": "bd2f9bab1d8e8ef3d1b6",
+  "pixel_checks": 211,
+  "slow_import_ms": 86400,
+  "retained_byte_lock_retries": true,
+  "negative_control_rejected": true,
+  "automatic_sleep_resumes_after_cancel": true,
+  "scope": "Production protocol, UI and timer with simulated flash; not hardware throughput"
+}

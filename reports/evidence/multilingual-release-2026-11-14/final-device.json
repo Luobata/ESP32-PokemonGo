@@ -1,0 +1,25 @@
+{
+  "chip": "ESP32-C3",
+  "application_sha256": "e99ecc75c53befccab6dc3a38592776240ed89b55a6d3f5e0b464b0ec4f14f20",
+  "actual_partners": 125,
+  "level": 58,
+  "experience": 298368,
+  "pokedex_crc32": "cf73c826",
+  "members_with_policies_crc32": "de4a62f9",
+  "inventory_crc32": "2ddb0133",
+  "core_progress_matches_original": true,
+  "settings_restored": {
+    "volume": 55,
+    "brightness": 100,
+    "mute": 1,
+    "language": 0
+  },
+  "language_absent_in_original_defaults_to": 0,
+  "test_audio_channels_opened": 0,
+  "after_wifi_import_heap": {
+    "free": 22572,
+    "minimum": 8040,
+    "largest": 16384
+  },
+  "scope": "Physical 125-partner device; 759-partner capacity and every historical schema are separately host/isolated NVS tested; no physical audible playback or simultaneous two-client router test."
+}

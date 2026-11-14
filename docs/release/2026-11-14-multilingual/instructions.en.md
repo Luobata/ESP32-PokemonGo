@@ -36,3 +36,5 @@ To restore, open Options > Import Save, choose a .pksave on the website and requ
 Update firmware for these features; save format and partitions are unchanged. Refresh the guide for new instructions; format-4 offline tools remain compatible. Back up before updating. A full community installation may erase progress, requiring restoration afterwards. Existing devices should prefer PokeWalk-update.zip from https://github.com/Luobata/ESP32-PokemonGo/releases/latest over USB; follow its README. It validates layout and backs up before writing. If export fails, keep existing backups and use the protected update instead of full installation over your only progress.
 Offline tool: unzip the download, run python3 server.py (Windows: py -3 server.py) with Python 3.8+, open http://localhost:8767/. Keep backups and errors on failure.
 Guide: https://luobata.github.io/ESP32-PokemonGo/guide/
+
+For resilient imports, refresh the website or download the new offline tool.

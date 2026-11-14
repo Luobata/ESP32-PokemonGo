@@ -1,0 +1,2 @@
+{"strings": 2960, "characters": 523, "phrases": 450, "glyphs": 1491, "glyph_bytes": 50694}
+{"passed":true,"corpus_strings":2962,"glyph_lookups":18203,"settings_fault_stages":4,"nvs_boundary":"simulated"}
