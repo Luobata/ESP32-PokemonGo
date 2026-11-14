@@ -30,6 +30,11 @@
 #include "dungeon.h"
 #include "wifi_time.h"
 #include "language.h"
+#include "usb_backup.h"
+
+static bool host_usb_snapshot(uint8_t *p,size_t n){memset(p,0,n);return true;}
+static void host_usb_emit(const char *line){(void)line;}
+static bool host_usb_stage(const uint8_t *p,size_t n,unsigned v){(void)p;(void)n;(void)v;return false;}
 
 static uint64_t now_ms;
 static unsigned lcd_submitted_bands;
@@ -882,6 +887,14 @@ int main(void)
             battery_soc = a == 101 ? -1 : (int)a;
         } else if (booted && !strcmp(cmd, "language") && sscanf(line, "%*s %u", &a) == 1 && a < LANGUAGE_COUNT) {
             language_set_runtime(a);screen_redraw_current();
+        } else if (booted && !strcmp(cmd, "usb_init")) {
+            usb_backup_init(host_usb_snapshot,host_usb_emit,"001122334455","0123456789abcdef",32);
+            usb_backup_restore_hooks(host_usb_stage,NULL,0,0);
+        } else if (booted && !strcmp(cmd, "usb_line")) {
+            for(const char *p=line+9;*p;p++)usb_backup_feed(*p);
+            usb_backup_feed('\n');
+        } else if (booted && !strcmp(cmd, "usb_poll") && sscanf(line,"%*s %u",&a)==1) {
+            usb_backup_tick(a);
         } else if (booted && !strcmp(cmd, "wifi_status") && sscanf(line, "%*s %u %u", &a, &b) == 2 && a <= WIFI_SETUP_CLIENT_LIMIT && b <= WIFI_FAILURE_CONNECTION) {
             host_wifi.setup_clients=a;host_wifi.failure=b;
             if(!host_wifi.setup)host_wifi.state=b?WIFI_TIME_OFFLINE:WIFI_TIME_UNCONFIGURED;

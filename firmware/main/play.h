@@ -58,6 +58,7 @@ uint8_t play_bag_selected_item(void); // Read-only native/test presentation stat
 // P11 金银式主菜单；选项只修改展示偏好，不含开发调试入口。
 void play_menu_enter(void);
 void play_menu_exit(void);
+bool play_menu_screen_busy(void);
 void play_menu_key(bsp_btn_t btn, bsp_btn_ev_t ev);
 typedef struct {
     uint8_t selected, option_selected;

@@ -189,6 +189,11 @@
 - 同日后续真机又捕获到仅有 `flockfile(stdout)` 时的嵌入式 NEXT；宿主共享一个 FILE 的测试曾遗漏这个风险。Wi-Fi 记录和 USB 协议行现在还必须持有显式的跨任务 `console_record` 锁直到 flush。该锁在启动工作任务前静态初始化，预算不超过 128 B；持锁期间不得反向获取世界/存档/LVGL 锁，也不能把会读取世界状态的整帧重画包在这个锁内。`verify_usb_console.py` 同时测试共享 FILE 与不同 FILE 共用同一输出口，并以去掉跨任务锁、保留 FILE 锁作为负向对照；这模拟并发边界，不等于已经证明实际设备上 FILE 指针不同。`verify_save_stack.py` 检查静态锁及目标栈。串口流测试通过后仍要在扫描开启时真机导入、核对匹配回执和实际设置恢复，不能把一次超时重试成功写成从未失败。
 - 烧录只使用已验证应用；写前备份、写后核对应用及受保护数据范围，重启确认进度，再在设备上复测。记录实际烧录摘要、性能原始样本及统计、像素检查、资源水位和存档验收结果。完整重绘通过不能表述为所有动画帧率通过；未测场景必须列为待验收，不能算通过或承诺以后绝不卡顿。
 
+### USB 传输与熄屏（2026-11-14）
+
+- 真机曾在自动熄屏的同一时点发生导入超时，保护机制未覆盖原进度。USB 导出、等待电脑写盘 ACK、接收和暂存阶段必须计入页面忙碌状态，避免 60 秒自动熄屏触发额外保存；结束或取消后恢复正常熄屏。不能仅做少于一分钟的传输测试。
+- 调试串口从 stdin 读取的字节在等待 LVGL 锁时不得丢弃。锁超时应保留该字节并让出 CPU 重试，不能继续读取下一个字符，也不能把丢帧统称为存档不兼容。`verify_usb_idle.py` 用真实页面/协议验证 86 秒导入期间不自动熄屏、取消后恢复熄屏，并对接收函数做锁失败注入及丢字节负向对照。自动化不替代真机长传输和实际覆盖验收；单次超时与重试结果必须如实记录。
+
 ## 每次发布前执行
 
 ### 界面语言回归（2026-11-14）
@@ -224,6 +229,7 @@ python3 tools/pipeline/verify_usb_backup.py
 python3 tools/pipeline/verify_usb_import.py
 python3 tools/pipeline/verify_usb_stream.py
 python3 tools/pipeline/verify_usb_console.py
+python3 tools/pipeline/verify_usb_idle.py
 python3 tools/pipeline/verify_save_import_compatibility.py
 python3 tools/pipeline/verify_save_storage.py
 python3 tools/pipeline/verify_usb_import_device.py

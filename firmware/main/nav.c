@@ -152,6 +152,7 @@ bool nav_screen_busy(void)
     if(evolution_ui_active())return true;
     if (!s_entered) return false;
     switch (s_cur) {
+    case PAGE_MENU: return play_menu_screen_busy();
     case PAGE_FIELDMAP: return play_field_screen_busy();
     case PAGE_STORY: return play_story_screen_busy();
     case PAGE_ACTIVITY: return play_activity_screen_busy();

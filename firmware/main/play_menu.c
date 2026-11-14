@@ -65,6 +65,13 @@ static world_t s_world;
 static world_party_t s_party;
 static unsigned s_claimable;
 
+bool play_menu_screen_busy(void)
+{
+    usb_backup_state_t st=usb_backup_state();
+    return st==USB_BACKUP_SENDING || st==USB_BACKUP_WAIT_ACK ||
+           st==USB_RESTORE_RECEIVING || st==USB_RESTORE_STAGED;
+}
+
 static void draw_options(int band_y)
 {
     char value[64];

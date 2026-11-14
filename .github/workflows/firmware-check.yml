@@ -90,6 +90,7 @@ jobs:
           run_check python3 tools/pipeline/verify_audio_switch.py
           run_check python3 tools/pipeline/verify_music.py
           run_check python3 tools/pipeline/verify_usb_console.py
+          run_check python3 tools/pipeline/verify_usb_idle.py
           run_check python3 tools/pipeline/verify_johto_save.py
           run_check python3 tools/pipeline/verify_johto_routes.py
           run_check python3 tools/pipeline/verify_johto_routes_ui.py
