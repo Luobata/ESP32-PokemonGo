@@ -5441,14 +5441,16 @@
   "frames": 9395,
   "clips": 401,
   "tracks_sha256": "7c98b9714f5d799d9040ad95f761bdaf562b64f530caa8be9b3ca6df9d5df319",
-  "header_sha256": "955c8f1c0cf84aabe0505e05308d838ab29872234b122cf7837c5fdfda5c26f2",
+  "header_sha256": "fe085c17ac6a2560174ffb5f920e7397ccc00434c980e99c7dc16e1a46cac982",
   "full_visual_equivalence": false,
   "notes": "ROM not distributed. VBlank waits/audio replaced for offline stepping; portrait mapping and compositing are adaptations. Dynamic battler body reloads use the current species.",
   "object_packing": {
     "objects": 106223,
     "shapes": 1917,
+    "stored_occurrences": 86740,
+    "pairs": 27566,
     "canonical_sha256": "0afdd7838747b9d224678a97987bf1a99f1579010e32415bbd0f0948155efd6d",
     "original_bytes": 849784,
-    "indexed_bytes": 436394
+    "indexed_bytes": 318770
   }
 }

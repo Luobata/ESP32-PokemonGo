@@ -68,9 +68,11 @@ static void draw_range(int top,int bottom){
    game_ui_box(y,8,164,224,112);
    if(choosing()){
     // Inference keeps its observation visible; explicit failure explains why.
-    game_ui_text_fitted(y,16,172,208,misses?script->hint:p->line[0],GAME_UI_INK);
-    for(unsigned i=0;i<script->choices;i++){game_ui_text_fitted(y,38,200+i*24,182,script->choice[i],GAME_UI_INK);if(i==selected)game_ui_cursor(y,18,204+i*24);}
-   }else if(language_get()==LANGUAGE_EN){game_ui_paragraph(y,16,176,208,90,p->line,3,visible(),GAME_UI_INK);}
+    bool japanese=language_get()==LANGUAGE_JA;
+    if(japanese)game_ui_text_wrapped(y,16,172,208,36,misses?script->hint:p->line[0],GAME_UI_INK);
+    else game_ui_text_fitted(y,16,172,208,misses?script->hint:p->line[0],GAME_UI_INK);
+    for(unsigned i=0;i<script->choices;i++){int cy=japanese?212+i*20:200+i*24;game_ui_text_fitted(y,38,cy,182,script->choice[i],GAME_UI_INK);if(i==selected)game_ui_cursor(y,18,cy+4);}
+   }else if(language_uses_catalog()){game_ui_paragraph(y,16,176,208,90,p->line,3,visible(),GAME_UI_INK);}
    else{unsigned remaining=visible();for(unsigned i=0;i<3;i++){prefix(b,p->line[i],remaining);game_ui_text_fitted(y,16,180+i*28,208,b,GAME_UI_INK);unsigned n=chars(p->line[i]);remaining=remaining>n?remaining-n:0;}}
    game_ui_footer(y,replay?"[C]继续 长按B结束回看":choosing()?GAME_UI_NAV_HINT:"[C]继续 长按B暂停");
    if(clock_state.elapsed_ms<300)game_ui_fade_background(y,16-clock_state.elapsed_ms*16/300);

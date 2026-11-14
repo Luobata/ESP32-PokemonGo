@@ -121,7 +121,7 @@ static inline uint16_t display_next(language_reader_t *reader)
 
 static const uint8_t *display_glyph(uint16_t cp, bool traditional)
 {
-    const uint8_t *glyph = (traditional || language_get()==LANGUAGE_EN) && s_font.size == 16 ? language_glyph(cp) : NULL;
+    const uint8_t *glyph = (traditional || language_uses_catalog()) && s_font.size == 16 ? language_glyph(cp) : NULL;
     if (glyph) return glyph;
     int index = glyph_index(cp);
     return index >= 0 ? s_font.glyphs + (size_t)index * s_font.per : NULL;

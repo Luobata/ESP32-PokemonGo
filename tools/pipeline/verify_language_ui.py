@@ -31,11 +31,11 @@ try:
     key(r,'B',True);assert not r.inspect()['menu_view']['options']
     key(r,'C');assert r.inspect()['menu_view']['options']
     for _ in range(9):key(r,'B')
-    assert r.inspect()['language']==1;key(r,'C');assert r.inspect()['language']==2;shot(r,'settings-english');key(r,'C');assert r.inspect()['language']==0
+    assert r.inspect()['language']==1;key(r,'C');assert r.inspect()['language']==2;shot(r,'settings-english');key(r,'C');assert r.inspect()['language']==3;shot(r,'settings-japanese');key(r,'C');assert r.inspect()['language']==0
     # Wi-Fi association status and all diagnostic labels in both languages.
     for _ in range(3):key(r,'A')
     key(r,'C');key(r,'C')
-    for lang in (0,1,2):
+    for lang in (0,1,2,3):
         cmd(r,f'language {lang}')
         for clients in (0,1,2):cmd(r,f'wifi_status {clients} 0');shot(r,f'wifi-{lang}-{clients}-clients')
     key(r,'C')
@@ -66,7 +66,7 @@ try:
 finally:normal.close();shiny.close()
 
 pages=[0,1,2,3,4,5,6,9,10,11,12,13,14,15,16,17,18,19,20,21,22]
-for lang,page in ((lang,page) for lang in (1,2) for page in pages):
+for lang,page in ((lang,page) for lang in (1,2,3) for page in pages):
     r=Renderer(exe)
     try:
         cmd(r,f'boot {page} 149 60 193 4 42 0 0 1 1')
@@ -76,7 +76,7 @@ for lang,page in ((lang,page) for lang in (1,2) for page in pages):
     finally:r.close()
 # Dynamic battle prompts and the whole capture motion also use translated ink
 # bounds; inspect every frame, not only static landing pages.
-for lang,page in ((lang,page) for lang in (1,2) for page in (3,4)):
+for lang,page in ((lang,page) for lang in (1,2,3) for page in (3,4)):
     r=Renderer(exe)
     try:
         cmd(r,f'boot {page} 149 60 193 4 42 0 0 1 1');cmd(r,f'language {lang}')

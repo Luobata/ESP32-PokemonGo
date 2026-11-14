@@ -18,7 +18,7 @@ out.append('static const uint16_t gold_maps[][240] = {');out.extend(plain(v)+','
 flat=[];spans=[]
 for rows in r['objects']:
  spans.append((len(flat),len(rows)));flat.extend(rows)
-objects, object_manifest=pack_objects([(o[2],o[0],o[1],o[3],o[0]-o[4],o[1]-o[5]) for o in flat])
+objects, object_manifest=pack_objects([(o[2],o[0],o[1],o[3],o[0]-o[4],o[1]-o[5]) for o in flat],spans)
 out.append(objects.rstrip());table('gold_span_t','gold_object_spans',spans,plain)
 table('gold_frame_t','gold_frames',r['frames'],plain)
 flat=[];spans=[]

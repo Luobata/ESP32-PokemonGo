@@ -3,8 +3,12 @@
 #include <stdint.h>
 #include <stddef.h>
 
-typedef enum { LANGUAGE_ZH_HANS, LANGUAGE_ZH_HANT, LANGUAGE_EN, LANGUAGE_COUNT } language_t;
+typedef enum { LANGUAGE_ZH_HANS, LANGUAGE_ZH_HANT, LANGUAGE_EN, LANGUAGE_JA, LANGUAGE_COUNT } language_t;
 language_t language_get(void);
+static inline bool language_uses_catalog(void) {
+    language_t language=language_get();
+    return language==LANGUAGE_EN || language==LANGUAGE_JA;
+}
 const char *language_label(void);
 // Persistence lives outside the renderer. Runtime setter is also used by preview.
 bool language_set_runtime(language_t language);

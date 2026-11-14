@@ -195,7 +195,7 @@ static void draw_band(int band_y)
         const char *line = opening_line(&s_opening, i);
         uint16_t len = utf8_len(line);
         uint16_t visible = left < len ? left : len;
-        if(language_get()==LANGUAGE_EN) {
+        if(language_uses_catalog()) {
             line=language_text(line);
             visible=len?(uint16_t)((unsigned)visible*utf8_len(line)/len):0;
         }
