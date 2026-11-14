@@ -1,0 +1,41 @@
+{
+  "app_sha256": "9d39054f679d3d892db12343aa4976c19d3d8f2f81f9a69db96ff7580d3fa0b9",
+  "source_commit": "65c836159c67677266f9216d3cf6fb57bcef304b",
+  "app_only_update": true,
+  "protected_flash_readback_equal": true,
+  "partition_added": false,
+  "exports": [
+    {
+      "attempt": "verified-final",
+      "format_version": 4,
+      "save_version": 32,
+      "payload_bytes": 73728,
+      "firmware_build": "14859c3484a36669e6c3e5a5a14b3991ee524a64a618bc78a7221ab6734abc97",
+      "sha_crc_valid": true,
+      "production_decode_progress_equal": true
+    },
+    {
+      "attempt": "verified-repeat",
+      "format_version": 4,
+      "save_version": 32,
+      "payload_bytes": 73728,
+      "firmware_build": "14859c3484a36669e6c3e5a5a14b3991ee524a64a618bc78a7221ab6734abc97",
+      "sha_crc_valid": true,
+      "production_decode_progress_equal": true
+    }
+  ],
+  "final_settings": {
+    "language": 0,
+    "brightness": 100,
+    "mute": 1,
+    "volume": 55
+  },
+  "restored_original_progress": true,
+  "unresolved_single_prior_export_gap": {
+    "offset": 25216,
+    "next_offset": 25344,
+    "rejected_without_file_or_progress_overwrite": true,
+    "root_cause_not_localized": true
+  },
+  "device_audio": "muted; no acoustic acceptance claimed"
+}

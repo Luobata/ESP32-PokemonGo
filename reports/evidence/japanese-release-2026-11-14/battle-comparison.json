@@ -1,0 +1,108 @@
+{
+  "same_save_and_inputs": true,
+  "same_sampled_move_sequence": true,
+  "same_initial_and_final_hp": true,
+  "baseline_snapshots": [
+    [
+      "choice",
+      0,
+      0,
+      207,
+      106
+    ],
+    [
+      "attack",
+      9,
+      1,
+      207,
+      106
+    ],
+    [
+      "attack",
+      57,
+      0,
+      177,
+      56
+    ],
+    [
+      "attack",
+      128,
+      0,
+      166,
+      18
+    ],
+    [
+      "result",
+      0,
+      0,
+      166,
+      0
+    ]
+  ],
+  "candidate_snapshots": [
+    [
+      "choice",
+      0,
+      0,
+      207,
+      106
+    ],
+    [
+      "attack",
+      9,
+      1,
+      207,
+      106
+    ],
+    [
+      "attack",
+      57,
+      0,
+      184,
+      56
+    ],
+    [
+      "attack",
+      128,
+      0,
+      166,
+      18
+    ],
+    [
+      "result",
+      0,
+      0,
+      166,
+      0
+    ]
+  ],
+  "snapshot_note": "Intermediate HP is presentation state; the sampled HP animation positions are not identical and are retained here rather than discarded. Final HP and moves match.",
+  "baseline_frame_p95_ms": [
+    64,
+    72,
+    64
+  ],
+  "candidate_frame_p95_ms": [
+    64,
+    72,
+    64
+  ],
+  "baseline_render_max_us": [
+    86401,
+    73757,
+    494735
+  ],
+  "candidate_render_max_us": [
+    85854,
+    73597,
+    498097
+  ],
+  "baseline_firmware_sha256": "e99ecc75c53befccab6dc3a38592776240ed89b55a6d3f5e0b464b0ec4f14f20",
+  "candidate_firmware_sha256": "9d39054f679d3d892db12343aa4976c19d3d8f2f81f9a69db96ff7580d3fa0b9",
+  "conditions": {
+    "language": 0,
+    "brightness": 100,
+    "mute": true
+  },
+  "scope": "Three consecutive windows from one matched battle, not three independent battles; result pauses are included"
+}

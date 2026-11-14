@@ -1,0 +1,8 @@
+[
+  {
+    "passed": true,
+    "checks": 1270,
+    "renderer": "1ccec25e69ead3c0840f",
+    "scope": "capture throw/shrink/rock/reveal/outcome every 40ms and DMA immutability"
+  }
+]

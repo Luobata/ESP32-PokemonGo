@@ -1,0 +1,108 @@
+[
+  {
+    "label": "baseline-options",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 43804,
+        "draw_us": 30923,
+        "push_us": 12881
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 43701,
+        "draw_us": 31325,
+        "push_us": 12376
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 43655,
+        "draw_us": 31290,
+        "push_us": 12365
+      }
+    ]
+  },
+  {
+    "label": "baseline-brightness-selected",
+    "static_samples": [
+      {
+        "sample": 0,
+        "bands": 16,
+        "total_us": 43853,
+        "draw_us": 31438,
+        "push_us": 12415
+      },
+      {
+        "sample": 1,
+        "bands": 16,
+        "total_us": 43353,
+        "draw_us": 31171,
+        "push_us": 12182
+      },
+      {
+        "sample": 2,
+        "bands": 16,
+        "total_us": 43512,
+        "draw_us": 30822,
+        "push_us": 12690
+      }
+    ]
+  },
+  {
+    "period_ms": 80,
+    "ticks": 125,
+    "frames": 21,
+    "bands": 126,
+    "window_us": 9920182,
+    "render_us": 408116,
+    "render_max_us": 19750,
+    "tick_p50_ms": 88,
+    "tick_p95_ms": 88,
+    "tick_max_us": 84000,
+    "late": 94,
+    "frame_p50_ms": 168,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 2030703,
+    "bytes": 352,
+    "label": "baseline-care"
+  },
+  {
+    "period_ms": 80,
+    "ticks": 124,
+    "frames": 28,
+    "bands": 84,
+    "window_us": 10040220,
+    "render_us": 329730,
+    "render_max_us": 16124,
+    "tick_p50_ms": 88,
+    "tick_p95_ms": 88,
+    "tick_max_us": 84011,
+    "late": 91,
+    "frame_p50_ms": 168,
+    "frame_p95_ms": 4294967295,
+    "frame_max_us": 1229798,
+    "bytes": 352,
+    "label": "baseline-party"
+  },
+  {
+    "period_ms": 250,
+    "ticks": 41,
+    "frames": 41,
+    "bands": 492,
+    "window_us": 10072095,
+    "render_us": 1158429,
+    "render_max_us": 28748,
+    "tick_p50_ms": 256,
+    "tick_p95_ms": 256,
+    "tick_max_us": 253995,
+    "late": 24,
+    "frame_p50_ms": 256,
+    "frame_p95_ms": 256,
+    "frame_max_us": 253893,
+    "bytes": 352,
+    "label": "baseline-idle"
+  }
+]

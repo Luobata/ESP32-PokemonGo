@@ -1,5 +1,19 @@
 # AI Passport 社区发布
 
+## 2026-11-14 · 日本語追加：REV-5614 已提交审核
+
+[PR #8](https://github.com/Luobata/ESP32-PokemonGo/pull/8) 已合并 main（`76c8c88`），[PR 固件 CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/43586483251) 通过。[GitHub v2026.11.14-japanese](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.11.14-japanese) 已公开，四个附件下载回读一致；官网与离线 ZIP 共 14 项公开资源核对一致。固件固定在已验证源码 `65c8361`，应用 3,388,448 B，原应用分区剩余 19,424 B，未改变分区。
+
+「菜单 → 选项 → 语言」现在提供简体、繁体、English、日本語。日语覆盖菜单、剧情、活动、道具、配网页及伙伴/招式名称，设置立即保存并随备份恢复。新增字形、日语换行和长标签排版；金银对象表无损去重释放空间，逐帧像素和原动作时间保持。
+
+71 项本地检查与 CI 通过。真机静音完成四语言页面、同档新旧战斗对比、捕获流畅度、Wi-Fi 初始化后设置变化→导入覆盖及最终保档烧录；125 个伙伴和各系统进度与测试前一致，恢复原简体、100% 亮度、静音和音量。一次 USB 导出缺块被安全拒绝，链路丢失位置仍未定位；最终两次导出均完整校验。759 个体属于宿主容量测试，未宣称真机满仓或扬声器实听通过。
+
+世界仍为 V32，同设备 V5–V32 迁移保留，备份容器不变。日语需升级固件；此前更新过的网页/离线工具继续可用，官网已补充入口与说明。已有设备优先 USB 保档更新，社区完整安装前先备份、安装后恢复。devbox 继续按此前指示暂缓。
+
+社区原项目 **234 / pokewalk** 新修订 **REV-5614** 当前 **pending（待审核）**，上一公开版 REV-5609 已 approved。保留原暴鲤龙封面及四张附图，双语字段、源码、固件大小和摘要回读一致，没有额外评论。
+
+[中文发布说明](2026-11-14-japanese/changelog.zh.md) · [官网更新](https://luobata.github.io/ESP32-PokemonGo/guide/#updates) · [验证范围与证据](../../reports/japanese-release-2026-11-14.md)。
+
 ## 2026-11-14 · 三语言、闪光标志与配网改进：REV-5609 已提交审核
 
 [PR #7](https://github.com/Luobata/ESP32-PokemonGo/pull/7) 已合并 main（`fe08beb`），最终 [PR 固件 CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/43581245065) 全部通过。验收记录与官网说明 `7cab118` 已推送 main。[GitHub v2026.11.14-multilingual](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.11.14-multilingual) 已公开，四个附件下载回读一致；官网与离线 ZIP 共 14 项公开资源核对一致。

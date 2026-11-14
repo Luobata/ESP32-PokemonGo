@@ -1,0 +1,70 @@
+{
+  "settings_before": {
+    "volume": 55,
+    "brightness": 100,
+    "mute": 1,
+    "language": 3
+  },
+  "settings_changed": {
+    "volume": 55,
+    "mute": 1,
+    "language": 0,
+    "brightness": 40
+  },
+  "settings_restored": {
+    "volume": 55,
+    "brightness": 100,
+    "mute": 1,
+    "language": 3
+  },
+  "upload_bytes": 73728,
+  "upload_seconds": 92.64,
+  "crc_receipt_matches": true,
+  "post_restore_export_matches_core_progress": true,
+  "wifi": "real AP started for 10 seconds, stopped before import on same boot; ordinary scan worker resumed",
+  "memory_samples": [
+    {
+      "free": 22616,
+      "minimum": 18844,
+      "largest": 18432,
+      "stack_free": 2108
+    },
+    {
+      "free": 22616,
+      "minimum": 18844,
+      "largest": 18432,
+      "stack_free": 2088
+    },
+    {
+      "free": 9264,
+      "minimum": 8584,
+      "largest": 8704,
+      "stack_free": 1768
+    },
+    {
+      "free": 22572,
+      "minimum": 8040,
+      "largest": 16384,
+      "stack_free": 1752
+    }
+  ],
+  "ui_stack_samples": [
+    {
+      "timer_free": 3544,
+      "lvgl_free": 4972
+    },
+    {
+      "timer_free": 3544,
+      "lvgl_free": 4972
+    },
+    {
+      "timer_free": 3544,
+      "lvgl_free": 4972
+    },
+    {
+      "timer_free": 3544,
+      "lvgl_free": 4972
+    }
+  ],
+  "private_logs_committed": false
+}

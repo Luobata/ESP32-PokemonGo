@@ -1,0 +1,357 @@
+[
+  {
+    "command": "python3 tools/pipeline/verify_transition_bands.py",
+    "exit": 0,
+    "seconds": 3.9
+  },
+  {
+    "command": "python3 tools/pipeline/verify_display_ownership.py",
+    "exit": 0,
+    "seconds": 7.7
+  },
+  {
+    "command": "python3 tools/pipeline/verify_device_screenshot.py",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "command": "python3 tools/pipeline/verify_firmware_preview.py",
+    "exit": 0,
+    "seconds": 20.1
+  },
+  {
+    "command": "python3 tools/pipeline/verify_render_bounds.py",
+    "exit": 0,
+    "seconds": 1.6
+  },
+  {
+    "command": "python3 tools/pipeline/verify_language.py",
+    "exit": 0,
+    "seconds": 3.1
+  },
+  {
+    "command": "python3 tools/pipeline/generate_english.py --check",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "command": "python3 tools/pipeline/verify_english.py",
+    "exit": 0,
+    "seconds": 1.0
+  },
+  {
+    "command": "python3 tools/pipeline/generate_japanese.py --check",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "command": "python3 tools/pipeline/verify_japanese.py",
+    "exit": 0,
+    "seconds": 0.9
+  },
+  {
+    "command": "python3 tools/pipeline/compact_gold_tracks.py --check",
+    "exit": 0,
+    "seconds": 3.4
+  },
+  {
+    "command": "python3 tools/pipeline/verify_gold_object_packing.py",
+    "exit": 0,
+    "seconds": 1.2
+  },
+  {
+    "command": "python3 tools/pipeline/verify_language_ui.py",
+    "exit": 0,
+    "seconds": 4.4
+  },
+  {
+    "command": "python3 tools/pipeline/verify_animation_timing.py",
+    "exit": 0,
+    "seconds": 1.0
+  },
+  {
+    "command": "python3 tools/pipeline/verify_scene_pacing.py",
+    "exit": 0,
+    "seconds": 0.6
+  },
+  {
+    "command": "python3 tools/pipeline/verify_battle_timeline.py",
+    "exit": 0,
+    "seconds": 2.0
+  },
+  {
+    "command": "python3 tools/pipeline/verify_battle_motion.py",
+    "exit": 0,
+    "seconds": 1.2
+  },
+  {
+    "command": "python3 tools/pipeline/verify_battle_timeline_ui.py",
+    "exit": 0,
+    "seconds": 16.4
+  },
+  {
+    "command": "python3 tools/pipeline/verify_battle_pace_ui.py",
+    "exit": 0,
+    "seconds": 3.0
+  },
+  {
+    "command": "python3 tools/pipeline/compile_pokemon_slow_timing.py --check",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "command": "python3 tools/pipeline/verify_audio_switch.py",
+    "exit": 0,
+    "seconds": 1.9
+  },
+  {
+    "command": "python3 tools/pipeline/verify_music.py",
+    "exit": 0,
+    "seconds": 3.7
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_backup.py",
+    "exit": 0,
+    "seconds": 1.8
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_import.py",
+    "exit": 0,
+    "seconds": 3.5
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_stream.py",
+    "exit": 0,
+    "seconds": 2.5
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_console.py",
+    "exit": 0,
+    "seconds": 1.8
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_idle.py",
+    "exit": 0,
+    "seconds": 3.8
+  },
+  {
+    "command": "python3 tools/pipeline/verify_save_import_compatibility.py",
+    "exit": 0,
+    "seconds": 5.7
+  },
+  {
+    "command": "python3 tools/pipeline/verify_save_storage.py",
+    "exit": 0,
+    "seconds": 18.7
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_import_device.py",
+    "exit": 0,
+    "seconds": 0.6
+  },
+  {
+    "command": "node tools/pipeline/verify_save_import_web.mjs",
+    "exit": 0,
+    "seconds": 0.4
+  },
+  {
+    "command": "python3 tools/pipeline/verify_usb_backup_checkpoint.py",
+    "exit": 0,
+    "seconds": 3.9
+  },
+  {
+    "command": "python3 tools/pipeline/verify_save_manager_distribution.py",
+    "exit": 0,
+    "seconds": 1.9
+  },
+  {
+    "command": "python3 tools/pipeline/verify_firmware_update.py",
+    "exit": 0,
+    "seconds": 1.0
+  },
+  {
+    "command": "python3 tools/pipeline/verify_nvs_restore_roundtrip.py",
+    "exit": 0,
+    "seconds": 13.5
+  },
+  {
+    "command": "python3 tools/pipeline/verify_region_expansion.py",
+    "exit": 0,
+    "seconds": 6.8
+  },
+  {
+    "command": "python3 tools/pipeline/verify_dungeon_stack.py",
+    "exit": 0,
+    "seconds": 0.8
+  },
+  {
+    "command": "python3 tools/pipeline/verify_save_stack.py",
+    "exit": 0,
+    "seconds": 8.1
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_save.py",
+    "exit": 0,
+    "seconds": 4.9
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_routes.py",
+    "exit": 0,
+    "seconds": 5.0
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_routes_ui.py",
+    "exit": 0,
+    "seconds": 8.0
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_fieldwork.py",
+    "exit": 0,
+    "seconds": 5.2
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_fieldwork_ui.py",
+    "exit": 0,
+    "seconds": 12.8
+  },
+  {
+    "command": "python3 tools/pipeline/verify_field_adventure.py",
+    "exit": 0,
+    "seconds": 5.1
+  },
+  {
+    "command": "python3 tools/pipeline/verify_field_adventure_ui.py",
+    "exit": 0,
+    "seconds": 3.8
+  },
+  {
+    "command": "python3 tools/pipeline/compile_field_maps.py --check",
+    "exit": 0,
+    "seconds": 0.6
+  },
+  {
+    "command": "python3 tools/pipeline/verify_field_map_art.py",
+    "exit": 0,
+    "seconds": 9.7
+  },
+  {
+    "command": "python3 tools/pipeline/export_fieldwork_guide.py --check",
+    "exit": 0,
+    "seconds": 0.1
+  },
+  {
+    "command": "python3 tools/pipeline/verify_guide.py",
+    "exit": 0,
+    "seconds": 0.4
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_evolution.py",
+    "exit": 0,
+    "seconds": 4.9
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_evolution_ui.py",
+    "exit": 0,
+    "seconds": 0.6
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_activity.py",
+    "exit": 0,
+    "seconds": 5.2
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_activity_ui.py",
+    "exit": 0,
+    "seconds": 9.4
+  },
+  {
+    "command": "python3 tools/pipeline/verify_activity_capture_timing.py",
+    "exit": 0,
+    "seconds": 70.2
+  },
+  {
+    "command": "python3 tools/pipeline/verify_activity_capture_windows.py",
+    "exit": 0,
+    "seconds": 3.4
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_story.py",
+    "exit": 0,
+    "seconds": 5.0
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_story_ui.py",
+    "exit": 0,
+    "seconds": 0.7
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_champion.py",
+    "exit": 0,
+    "seconds": 4.7
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_champion_ui.py",
+    "exit": 0,
+    "seconds": 2.0
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_champion_balance.py",
+    "exit": 0,
+    "seconds": 8.8
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_narrative.py",
+    "exit": 0,
+    "seconds": 4.9
+  },
+  {
+    "command": "python3 tools/pipeline/verify_johto_narrative_ui.py",
+    "exit": 0,
+    "seconds": 3.7
+  },
+  {
+    "command": "POKEWALK_TEST_LANGUAGE=2 python3 tools/pipeline/verify_johto_narrative_ui.py",
+    "exit": 0,
+    "seconds": 3.8
+  },
+  {
+    "command": "POKEWALK_TEST_LANGUAGE=2 python3 tools/pipeline/verify_johto_fieldwork_ui.py",
+    "exit": 0,
+    "seconds": 6.7
+  },
+  {
+    "command": "POKEWALK_TEST_LANGUAGE=3 python3 tools/pipeline/verify_johto_narrative_ui.py",
+    "exit": 0,
+    "seconds": 3.4
+  },
+  {
+    "command": "POKEWALK_TEST_LANGUAGE=3 python3 tools/pipeline/verify_johto_fieldwork_ui.py",
+    "exit": 0,
+    "seconds": 6.7
+  },
+  {
+    "command": "python3 tools/pipeline/verify_wifi_time.py",
+    "exit": 0,
+    "seconds": 1.1
+  },
+  {
+    "command": "python3 tools/pipeline/verify_wifi_time_preview.py",
+    "exit": 0,
+    "seconds": 0.3
+  },
+  {
+    "command": "python3 tools/pipeline/verify_display_settings.py",
+    "exit": 0,
+    "seconds": 0.5
+  },
+  {
+    "command": "python3 tools/pipeline/verify_move_names.py",
+    "exit": 0,
+    "seconds": 8.0
+  },
+  {
+    "command": "python3 tools/pipeline/verify_silent_boot.py",
+    "exit": 0,
+    "seconds": 6.6
+  }
+]

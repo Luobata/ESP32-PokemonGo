@@ -1,0 +1,10 @@
+[
+  {
+    "passed": true,
+    "checks": 19826,
+    "moves": 194,
+    "both_sides": true,
+    "renderer": "1ccec25e69ead3c0840f",
+    "scope": "all emitted frames, original palettes and HUD overlays; pixel oracle not FPS"
+  }
+]

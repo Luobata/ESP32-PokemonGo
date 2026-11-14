@@ -1,0 +1,33 @@
+{
+  "tagName": "v2026.11.14-japanese",
+  "isDraft": false,
+  "url": "https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.11.14-japanese",
+  "targetCommitish": "47d8abfde3fbf667b436cf1fdddc740fa1d27c92",
+  "publishedAt": "2026-11-14T11:03:25Z",
+  "assets": [
+    {
+      "name": "FoloToy-AI-Passport-full.bin",
+      "bytes": 3453984,
+      "sha256": "daeaf82e3fc9b5701f8da31a2e48452154f3c3ace724613304762882848edf8f",
+      "public_download_matches_verified_artifact": true
+    },
+    {
+      "name": "manifest.json",
+      "bytes": 1223,
+      "sha256": "1389e7b493f09bfe923adbec7b256063ca7e552c5eb420286c5a786ffc2b1e15",
+      "public_download_matches_verified_artifact": true
+    },
+    {
+      "name": "PokeWalk-update.zip",
+      "bytes": 1841531,
+      "sha256": "ecc134efa812e4cfdd802ae64cc0e066e0cd9860c22f7928df7c4d09a061b5ec",
+      "public_download_matches_verified_artifact": true
+    },
+    {
+      "name": "PokeWalkSaveManager.zip",
+      "bytes": 355119,
+      "sha256": "64e0102941f0cfc7c9a62d1986a207b6b837c89923cdd11b3a18fbd68c6564fb",
+      "public_download_matches_verified_artifact": true
+    }
+  ]
+}
