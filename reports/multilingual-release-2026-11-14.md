@@ -1,6 +1,6 @@
 # 三语言、队伍闪光标志与配网改进
 
-本批从公开版 `868a3f2` 开始，纳入此前尚未发布的配网改动。英文已按用户追加要求一并完成。发布仍更新原项目 234 / pokewalk，保留暴鲤龙封面和四张附图。最终发布回执在本记录末尾补充。
+本批从公开版 `868a3f2` 开始，纳入此前尚未发布的配网改动。英文已按用户追加要求一并完成。发布仍更新原项目 234 / pokewalk，保留暴鲤龙封面和四张附图。最终发布回执见文末。
 
 ## 交付范围
 
@@ -71,4 +71,11 @@
 
 再次导出后，生产解码逐项确认 125 个伙伴、技能策略、等级/经验、图鉴、遭遇、道具、挑战/秘境及城都各活动进度与原备份一致；包含捕获验收产生的临时变化也已还原。最终为简体、亮度 100%、静音、音量设置 55%。
 
-[PR #7](https://github.com/Luobata/ESP32-PokemonGo/pull/7) 的最终 [CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/43581245065) 全部通过。GitHub/官网及社区回执在发布后追加，不把待审核表述为已上线。
+[PR #7](https://github.com/Luobata/ESP32-PokemonGo/pull/7) 的最终 [CI](https://github.com/Luobata/ESP32-PokemonGo/actions/runs/43581245065) 全部通过。代码经 `fe08beb` 合并 main，验收与指南 `7cab118` 已推送。
+
+
+[GitHub 版本 v2026.11.14-multilingual](https://github.com/Luobata/ESP32-PokemonGo/releases/tag/v2026.11.14-multilingual) 已公开，完整安装、USB 保档包、manifest 和离线工具四个附件下载回读一致。Pages 部署 `43582456792` 通过，14 项公开资源（含离线 ZIP）与最终源码产物一致。
+
+社区项目 **234 / pokewalk** 的 **REV-5609** 已提交，状态 **pending**；上一公开修订 REV-4043 为 approved。双语介绍、操作与更新内容在服务端裁掉末尾空白后完全一致；源码地址、固件大小和 SHA-256 回读一致。上传原暴鲤龙封面和四张检查过的附图；未读回待审图片字节，不声称服务端图片逐字节回读。未另发评论。公开上线时间以社区审核结果为准。
+
+[社区回执](evidence/multilingual-release-2026-11-14/community-submitted.json) · [发布附件回读](evidence/multilingual-release-2026-11-14/github-release-assets.json) · [官网回读](evidence/multilingual-release-2026-11-14/pages-deployment.json) · [真机最终状态](evidence/multilingual-release-2026-11-14/final-device.json)。

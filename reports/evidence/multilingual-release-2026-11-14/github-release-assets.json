@@ -1,0 +1,26 @@
+[
+  {
+    "name": "PokeWalkSaveManager.zip",
+    "size": 354267,
+    "sha256": "1c600831036339c0bdb7c5e8a72ed41b900c8de4808c3cfb67c58226900c2a25",
+    "download_matches_verified_artifact": true
+  },
+  {
+    "name": "manifest.json",
+    "size": 1223,
+    "sha256": "41989465b448d4473e98ea63994733cf75277cf6ba418251b4d5a80aee878a44",
+    "download_matches_verified_artifact": true
+  },
+  {
+    "name": "PokeWalk-update.zip",
+    "size": 1722917,
+    "sha256": "ee70d753fff0029baf5848cdff6bb6c3f53dd2f61a4e1367e440878178535026",
+    "download_matches_verified_artifact": true
+  },
+  {
+    "name": "FoloToy-AI-Passport-full.bin",
+    "size": 3446736,
+    "sha256": "33e1b02cd7683bd72e77d82e0ed49442efcc44e9f4aef91dc322d7e8152cc994",
+    "download_matches_verified_artifact": true
+  }
+]
