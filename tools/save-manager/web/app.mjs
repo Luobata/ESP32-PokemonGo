@@ -118,7 +118,7 @@ $('connect').onclick=async()=>{
     writer=port.writable.getWriter();reader=port.readable.getReader();
     session=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');receiver=new Receiver(session);
     void readLoop();await send(`!PWBACKUP HELLO ${session}`);status('等待设备响应…');
-    heartbeat=setInterval(()=>{send(`!PWBACKUP ${connected?'PING':'HELLO'} ${session}`).then(()=>probeUpload()).catch(e=>{status(e.message,true);void reader?.cancel();});},4000);
+    heartbeat=setInterval(()=>{send(`!PWBACKUP ${connected?'PING':'HELLO'} ${session}`).then(()=>probeUpload()).catch(e=>{closing=true;status(e.message,true);void reader?.cancel();});},4000);
   }catch(e){status(e.name==='NotFoundError'?'未选择设备。':e.message,true);if(reader)await reader.cancel();else await cleanup();}
 };
 $('disconnect').onclick=async()=>{
