@@ -1,0 +1,11 @@
+{
+  "font": "Hiragino Sans W3",
+  "font_index": 0,
+  "size": 16,
+  "font_sha256": "ce6d52b962d4f23acc6dae01eb59c2ddae1fd0b561a87240433623f5e76b8a92",
+  "glyphs": 949,
+  "native_label_fallback": [
+    "\u7b80"
+  ],
+  "sha256": "a3370267dceafe401624e0c2ea1f320b1e5e0dccba776411f8b516f48b5b5542"
+}

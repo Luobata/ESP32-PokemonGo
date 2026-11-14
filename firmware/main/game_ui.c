@@ -6,10 +6,57 @@
 #include <stdio.h>
 #include "combat.h"
 
+// Japanese uses character wrapping, not ASCII byte/word wrapping. Keep closing
+// punctuation with the preceding character and never split UTF-8 or voiced kana.
+static bool japanese_closing(uint16_t cp) {
+    // Small kana belong to the previous syllable (e.g. ジョ); do not orphan
+    // them at the start of a line during the gradual text reveal either.
+    if ((cp>=0x3041&&cp<=0x3049&&(cp&1)) ||
+        (cp>=0x30a1&&cp<=0x30a9&&(cp&1))) return true;
+    switch(cp) {
+    case 0x3063: case 0x3083: case 0x3085: case 0x3087: case 0x308e:
+    case 0x3095: case 0x3096: case 0x30c3: case 0x30e3: case 0x30e5:
+    case 0x30e7: case 0x30ee: case 0x30f5: case 0x30f6: return true;
+    default: break;
+    }
+    return cp==0x3001||cp==0x3002||cp==0xff01||cp==0xff1f||cp==0x300d||cp==0x300f||
+           cp==0xff09||cp==0x30fc||cp==0x2026||cp==0x3099||cp==0x309a;
+}
+static unsigned japanese_paragraph(int band_y,int x,int y,int width,int height,
+                                  const char *const *parts,unsigned count,unsigned reveal,uint16_t color) {
+    char line[64];unsigned used=0,shown=0,row=0,characters=0;int pixels=0;
+    for(unsigned part=0;part<count;part++) {
+        const char *p=language_text(parts[part]);if(!p)continue;
+        while(*p) {
+            const char *cluster=p;uint16_t cp;unsigned bytes=render_utf8_next(p,&cp);
+            int advance=render_char_advance(cp);p+=bytes;
+            while(*p) {uint16_t next;unsigned step=render_utf8_next(p,&next);if(!japanese_closing(next))break;p+=step;advance+=render_char_advance(next);}
+            if(used&&(pixels+advance>width||used+(unsigned)(p-cluster)>=sizeof(line))) {
+                line[used]=0;if((int)(row*18+16)<=height)render_text(x,y+row*18-band_y,line,color);
+                row++;used=characters=0;pixels=0;
+            }
+            for(const char *q=cluster;q<p;) {
+                uint16_t c;unsigned step=render_utf8_next(q,&c);
+                if(shown<reveal&&used+step<sizeof(line)){memcpy(line+used,q,step);used+=step;}
+                shown++;characters++;q+=step;
+            }
+            pixels+=advance;
+            // A partial reveal ends only at a full UTF-8 character.
+            if(shown>=reveal) {
+                line[used]=0;if(used&&(int)(row*18+16)<=height)render_text(x,y+row*18-band_y,line,color);
+                return row+(characters?1:0);
+            }
+        }
+    }
+    if(used){line[used]=0;if((int)(row*18+16)<=height)render_text(x,y+row*18-band_y,line,color);row++;}
+    return row;
+}
+
 unsigned game_ui_paragraph(int band_y,int x,int y,int width,int height,
                           const char *const *parts,unsigned count,unsigned reveal,uint16_t color)
 {
     if(y+height<=band_y||y>=band_y+SCREEN_BAND_H)return 0;
+    if(language_get()==LANGUAGE_JA)return japanese_paragraph(band_y,x,y,width,height,parts,count,reveal,color);
     char line[64];unsigned used=0,shown=0,row=0;
     unsigned cols=width/8;if(cols>sizeof(line)-1)cols=sizeof(line)-1;
     if(!cols)return 0;
@@ -46,7 +93,7 @@ unsigned game_ui_paragraph(int band_y,int x,int y,int width,int height,
     return row;
 }
 void game_ui_text_wrapped(int band_y,int x,int y,int width,int height,const char *text,uint16_t color) {
-    if(language_get()==LANGUAGE_EN)game_ui_paragraph(band_y,x,y,width,height,&text,1,~0u,color);
+    if(language_uses_catalog())game_ui_paragraph(band_y,x,y,width,height,&text,1,~0u,color);
     else game_ui_text_fitted(band_y,x,y,width,text,color);
 }
 
@@ -63,7 +110,7 @@ static void rect(void *ctx, int x, int y, int w, int h, uint16_t color)
 
 void game_ui_title(int band_y, const char *title, const char *right_text)
 {
-    if(language_get()==LANGUAGE_EN)game_ui_text_fitted(band_y,12,8,208-(right_text&&*right_text?render_text_width(right_text)+8:0),title,GAME_UI_INK);
+    if(language_uses_catalog())game_ui_text_fitted(band_y,12,8,208-(right_text&&*right_text?render_text_width(right_text)+8:0),title,GAME_UI_INK);
     else render_text(12, 8 - band_y, title, GAME_UI_INK);
     if (right_text && *right_text)
         render_text(228 - render_text_width(right_text), 8 - band_y,
@@ -134,7 +181,7 @@ void game_ui_text_centered(int band_y, int x, int y, int w, int h,
     int margin = excess > 0 ? (excess + 1) / 2 : 0;
     if (y + h + margin <= band_y || y - margin >= band_y + SCREEN_BAND_H) return;
     text=language_text(text);
-    if(language_get()==LANGUAGE_EN && render_text_width(text)>w) {
+    if(language_uses_catalog() && render_text_width(text)>w) {
         game_ui_text_fitted(band_y,x,y+(h-16)/2,w,text,color);return;
     }
     render_bounds_t ink;
@@ -252,7 +299,7 @@ void game_ui_fade_background(int band_y,unsigned amount) {
 }
 
 void game_ui_move_settings(int y,uint16_t species,uint8_t level,unsigned selected,const move_policy_t *policy,const char *feedback){
- uint16_t ids[COMBAT_MOVE_CAP];int n=combat_known_moves(species,level,ids,COMBAT_MOVE_CAP);char text[80];
+ uint16_t ids[COMBAT_MOVE_CAP];int n=combat_known_moves(species,level,ids,COMBAT_MOVE_CAP);char text[64];
  language_snprintf(text,sizeof(text),"启用 %d/%d",combat_enabled_moves(species,level,policy),n);game_ui_title(y,"招式设置",text);
  selected%=(unsigned)n+1;unsigned top=selected/5*5;
  for(unsigned row=0;row<5&&top+row<=(unsigned)n;row++){

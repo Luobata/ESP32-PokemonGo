@@ -151,7 +151,10 @@ static void draw_band(int band_y)
     for (int i = 0; i < 3; i++) {
         int y = AXIS_Y0 + i * AXIS_STEP;
         render_text(12, Y(y), AXIS[i], GAME_UI_INK);
-        game_ui_meter(band_y, 56, y, 128, value[i]);
+        // Japanese labels such as ごきげん need five full-width cells. Keep
+        // the value column fixed and shorten only the visual meter.
+        int meter_x = language_get()==LANGUAGE_JA ? 100 : 56;
+        game_ui_meter(band_y, meter_x, y, 184-meter_x, value[i]);
         language_snprintf(buf, sizeof(buf), "%u", value[i]);
         render_text(228 - render_text_width(buf), Y(y), buf, GAME_UI_INK);
     }

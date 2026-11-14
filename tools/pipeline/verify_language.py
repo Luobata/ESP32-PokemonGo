@@ -40,12 +40,15 @@ int main(void){
  }
  fail=0;assert(language_settings_set(LANGUAGE_ZH_HANT));language_set_runtime(LANGUAGE_ZH_HANS);
  language_settings_init();assert(language_get()==LANGUAGE_ZH_HANT&&disk==1);
- for(int invalid=3;invalid<=255;invalid+=252){disk=invalid;language_settings_init();assert(language_get()==LANGUAGE_ZH_HANS);}
+ for(int invalid=4;invalid<=255;invalid+=251){disk=invalid;language_settings_init();assert(language_get()==LANGUAGE_ZH_HANS);}
  disk=1;fail=4;language_settings_init();assert(language_get()==LANGUAGE_ZH_HANS);
  fail=0;language_settings_init();assert(language_get()==LANGUAGE_ZH_HANT);
  for(fail=1;fail<=3;fail++){assert(!language_settings_set(LANGUAGE_EN));assert(language_get()==LANGUAGE_ZH_HANT&&disk==1);}
  fail=0;assert(language_settings_set(LANGUAGE_EN));language_set_runtime(LANGUAGE_ZH_HANS);
  language_settings_init();assert(language_get()==LANGUAGE_EN&&disk==2);
+ for(fail=1;fail<=3;fail++){assert(!language_settings_set(LANGUAGE_JA));assert(language_get()==LANGUAGE_EN&&disk==2);}
+ fail=0;assert(language_settings_set(LANGUAGE_JA));language_set_runtime(LANGUAGE_ZH_HANS);
+ language_settings_init();assert(language_get()==LANGUAGE_JA&&disk==3);
  language_set_runtime(LANGUAGE_ZH_HANT);
  unsigned count=0,glyphs=0;
  while(fgets(line,sizeof(line),stdin)){

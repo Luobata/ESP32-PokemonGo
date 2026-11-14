@@ -16,7 +16,7 @@ static void append(char *out,size_t size,size_t *used,const char *text,size_t by
 }
 int language_snprintf(char *out,size_t size,const char *format,...) {
     va_list args;va_start(args,format);
-    if(language_get()!=LANGUAGE_EN) {
+    if(!language_uses_catalog()) {
         int result=vsnprintf(out,size,format,args);va_end(args);return result;
     }
     const char *p=language_text(format);size_t used=0;
@@ -77,6 +77,17 @@ int language_snprintf(char *out,size_t size,const char *format,...) {
     }
     va_end(args);
     if(size)out[used<size?used:size-1]=0;
+    // snprintf's byte limit may bisect a Japanese codepoint. Preserve the
+    // required byte count, but make the stored prefix valid UTF-8 for drawing.
+    if(language_get()==LANGUAGE_JA && size && used>=size) {
+        size_t end=size-1,lead=end;
+        while(lead&&((unsigned char)out[lead-1]&0xc0)==0x80)lead--;
+        if(lead) {
+            lead--;unsigned char c=(unsigned char)out[lead];
+            unsigned expected=c<0x80?1:c<0xe0?2:c<0xf0?3:4;
+            if(end-lead<expected)out[lead]=0;
+        }
+    }
     return used>INT_MAX?-1:(int)used;
 invalid:
     va_end(args);if(size)out[0]=0;return -1;

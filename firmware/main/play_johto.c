@@ -136,7 +136,7 @@ static void draw_range(int top,int bottom){
    if(view==FIELD_NOTES||view==FIELD_RESULT){
     game_ui_text_fitted(y,12,40,216,probe->title,GAME_UI_INK);probe_art(y);game_ui_box(y,8,164,224,110);
     if(view==FIELD_NOTES){
-     if(language_get()==LANGUAGE_EN){
+     if(language_uses_catalog()){
       const char *parts[]={probe_help?probe->help:probe->clue[0],probe_help?probe->observation:probe->clue[1]};
       game_ui_paragraph(y,16,174,208,72,parts,2,~0u,GAME_UI_INK);
       game_ui_text_fitted(y,16,252,208,"成功调查5体能 准备免费",GAME_UI_MUTED);
@@ -147,14 +147,14 @@ static void draw_range(int top,int bottom){
      }
      const char *choices[]={"调查","提示","队伍"};game_ui_actions(y,choices,3,selected);actions=true;
     }else{
-     if(language_get()==LANGUAGE_EN){const char *parts[]={probe->action,probe->found,probe->next};game_ui_paragraph(y,16,174,208,90,parts,3,~0u,GAME_UI_INK);}
+     if(language_uses_catalog()){const char *parts[]={probe->action,probe->found,probe->next};game_ui_paragraph(y,16,174,208,90,parts,3,~0u,GAME_UI_INK);}
      else{
      game_ui_text_fitted(y,16,174,208,probe->action,GAME_UI_INK);game_ui_text_fitted(y,16,202,208,probe->found,GAME_UI_INK);game_ui_text_fitted(y,16,236,208,probe->next,GAME_UI_MUTED);
      }
      hint="[C]记录线索并继续";
     }
    }else if(view==FIELD_PATHS){
-    if(language_get()==LANGUAGE_EN)game_ui_paragraph(y,12,40,216,54,probe->clue,2,~0u,GAME_UI_INK);
+    if(language_uses_catalog())game_ui_paragraph(y,12,40,216,54,probe->clue,2,~0u,GAME_UI_INK);
     else{
     game_ui_text_fitted(y,12,40,216,probe->clue[0],GAME_UI_INK);game_ui_text_fitted(y,12,64,216,probe->clue[1],GAME_UI_MUTED);
     }

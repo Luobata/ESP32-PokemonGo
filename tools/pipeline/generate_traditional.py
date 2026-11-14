@@ -24,7 +24,7 @@ def dictionaries():
 def corpus():
  texts=[]
  for path in sorted([*MAIN.glob('*.c'),*MAIN.glob('*.h')]):
-  if path.name in ('language_data.h','language_glyphs.h','language_english.h','language_latin.h'):continue
+  if path.name in ('language_data.h','language_glyphs.h','language_english.h','language_latin.h','language_japanese.h','language_japanese_glyphs.h'):continue
   # Consume comments and literals together, so http:// inside a string is not
   # misclassified as a comment and cannot hide later Chinese text.
   tokens=re.finditer(r'"((?:[^"\\]|\\.)*)"|/\*.*?\*/|//[^\n]*',path.read_text(),re.S)

@@ -96,7 +96,7 @@ static void make_save(uint16_t species,unsigned level){
  assert(save_write(&current));
  nvs_handle_t h;assert(nvs_open("pokewalk",NVS_READWRITE,&h)==ESP_OK);
  assert(nvs_set_u8(h,"volume",(uint8_t)level)==ESP_OK);assert(nvs_set_u8(h,"brightness",(uint8_t)(level+10))==ESP_OK);
- assert(nvs_set_u8(h,"language",level%3)==ESP_OK);
+ assert(nvs_set_u8(h,"language",(level+3)%4)==ESP_OK);
  assert(nvs_commit(h)==ESP_OK);nvs_close(h);
  assert(nvs_open("pw_dungeon",NVS_READWRITE,&h)==ESP_OK);
  assert(nvs_set_blob(h,"run_v3",dungeon_history,sizeof(dungeon_history))==ESP_OK);
@@ -353,7 +353,7 @@ int main(int argc,char **argv){
  assert(loaded.species==25&&loaded.level==32&&!memcmp(&loaded,&wanted,sizeof(wanted)));
  nvs_handle_t h;uint8_t value;assert(nvs_open("pokewalk",NVS_READONLY,&h)==ESP_OK);
  assert(nvs_get_u8(h,"volume",&value)==ESP_OK&&value==32);assert(nvs_get_u8(h,"brightness",&value)==ESP_OK&&value==42);
- assert(nvs_get_u8(h,"language",&value)==ESP_OK&&value==2);nvs_close(h);
+ assert(nvs_get_u8(h,"language",&value)==ESP_OK&&value==3);nvs_close(h);
  assert(nvs_flash_deinit()==ESP_OK);assert(reboot_restore());assert(boot_result==0);assert(save_init());assert(save_read(&loaded)&&loaded.species==25); // another boot stays restored
  current=loaded;assert(snapshot(image,sizeof(image)));make_save(1,7);assert(stage(image,sizeof(image),SAVE_VERSION));
  flash[temp.address+0x1000]^=1;assert(nvs_flash_deinit()==ESP_OK);assert(reboot_restore());assert(boot_result==2);assert(save_init());assert(save_read(&loaded)&&!memcmp(&loaded,&before,sizeof(before)));

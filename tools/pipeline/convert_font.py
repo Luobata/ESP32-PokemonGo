@@ -124,7 +124,7 @@ def _firmware_chars(repo: str) -> tuple[set, int]:
     n = 0
     pat = re.compile(r'"((?:[^"\\]|\\.)*)"')
     for path in sorted(glob.glob(os.path.join(repo, "firmware", "main", "*.c")) + glob.glob(os.path.join(repo, "firmware", "main", "*.h"))):
-        if os.path.basename(path) in ("language_data.h", "language_glyphs.h", "language_english.h", "language_latin.h"):
+        if os.path.basename(path) in ("language_data.h", "language_glyphs.h", "language_english.h", "language_latin.h", "language_japanese.h", "language_japanese_glyphs.h"):
             continue  # Traditional text has its own generated glyph atlas.
         n += 1
         with open(path, encoding="utf-8") as f:

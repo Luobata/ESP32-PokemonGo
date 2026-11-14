@@ -2226,8 +2226,9 @@ static const char language_english_pool[] =
 "Adventure with your partner\0"
 "First clear unlocks Hard\0"
 "Standby refills in ~1 hour\0"
+"Japanese\0"
 ;
-static const struct { uint32_t hash; uint16_t check,offset; } language_english[] = {
+static const language_translation_t language_english[] = {
  {0x00111c2a,0x2a18,9255},
  {0x002a6c74,0x3888,48077},
  {0x003bfe7b,0x3d73,38311},
@@ -3393,6 +3394,7 @@ static const struct { uint32_t hash; uint16_t check,offset; } language_english[]
  {0x7fc8a83f,0xc1f7,32700},
  {0x801893bb,0xf884,43642},
  {0x8051ec96,0x1ed6,41984},
+ {0x805f5ce7,0x3bbc,52158},
  {0x80909b56,0xe73b,48860},
  {0x80a46449,0x4750,40446},
  {0x80ae1412,0xeb41,30943},
