@@ -41,11 +41,31 @@ async function save(q){
 async function nextChunk(id,offset){
   const t=transfer;
   if(!t?.backedUp||id!==t.id||offset!==t.offset||offset>t.file.bytes.length)throw Error('导入接收状态不匹配');
+  t.probeOffset=null;t.probes=0;t.lastSend=Date.now();
   if(offset===t.file.bytes.length){await send(`!PWBACKUP RFIN ${session} ${id}`);status('传送完成，设备正在校验并暂存…');return;}
   const hex=Array.from(t.file.bytes.slice(offset,offset+128),b=>b.toString(16).padStart(2,'0')).join('');
   t.offset+=128;
   await send(`!PWBACKUP RDATA ${session} ${id} ${offset} ${hex}`);
   $('progress').value=t.offset/t.file.bytes.length;status(`正在导入 ${Math.round(t.offset/t.file.bytes.length*100)}%`);
+}
+async function probeUpload(){
+  const t=transfer;
+  if(!t?.backedUp||!t.lastSend||Date.now()-t.lastSend<4000)return;
+  if((t.probes||0)>=3)throw Error('导入传输连续中断，尚未确认恢复成功，请重新连接并保留备份');
+  t.probes=(t.probes||0)+1;t.probeOffset=t.offset;t.lastSend=Date.now();
+  await send(`!PWBACKUP RPOS ${session} ${t.id}`);
+}
+async function resumeUpload(id,offset){
+  const t=transfer;
+  // NEXT may have arrived after the query. A stale POS must not resend an
+  // in-flight chunk or move the cursor backwards after genuine progress.
+  if(!t?.backedUp||t.probeOffset==null||t.probeOffset!==t.offset)return;
+  if(id!==t.id||!Number.isSafeInteger(offset)||offset<0||offset>t.file.bytes.length||offset%128||
+     (offset!==t.offset&&offset!==t.offset-128))throw Error('设备导入位置不匹配，原存档未替换');
+  const probes=t.probes;
+  t.offset=offset;
+  await nextChunk(id,offset);
+  t.probes=probes; // Bound retries until a real NEXT acknowledges progress.
 }
 async function line(text){
   const result=receiver.accept(text);
@@ -56,6 +76,7 @@ async function line(text){
   if(result?.complete)await save(result.complete);
   if(result?.upload)await nextChunk(result.upload,0);
   if(result?.next)await nextChunk(result.next.id,result.next.offset);
+  if(result?.position)await resumeUpload(result.position.id,result.position.offset);
   if(result?.staged){
     if(!transfer||result.staged!==transfer.file.metadata.crc32)throw Error('设备暂存确认不匹配');
     rememberRestore({crc:result.staged,device:transfer.file.metadata.device_id});transfer=null;connected=false;
@@ -97,7 +118,7 @@ $('connect').onclick=async()=>{
     writer=port.writable.getWriter();reader=port.readable.getReader();
     session=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');receiver=new Receiver(session);
     void readLoop();await send(`!PWBACKUP HELLO ${session}`);status('等待设备响应…');
-    heartbeat=setInterval(()=>{send(`!PWBACKUP ${connected?'PING':'HELLO'} ${session}`).catch(e=>{status(e.message,true);void reader?.cancel();});},4000);
+    heartbeat=setInterval(()=>{send(`!PWBACKUP ${connected?'PING':'HELLO'} ${session}`).then(()=>probeUpload()).catch(e=>{status(e.message,true);void reader?.cancel();});},4000);
   }catch(e){status(e.name==='NotFoundError'?'未选择设备。':e.message,true);if(reader)await reader.cancel();else await cleanup();}
 };
 $('disconnect').onclick=async()=>{

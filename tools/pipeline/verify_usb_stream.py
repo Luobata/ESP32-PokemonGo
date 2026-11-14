@@ -47,6 +47,20 @@ int main(void){
  start(22,0);offer(22,49152);assert(strstr(output,"INCOMPATIBLE")&&!begins);
  start(23,0);offer(24,49152);assert(strstr(output,"INCOMPATIBLE")&&!begins);
  start(24,0);offer(28,57344);assert(strstr(output,"INCOMPATIBLE")&&!begins);
+ // Lost upload frames/replies can query the committed cursor, but only after
+ // the matching on-disk prebackup ACK. Queries never write or rewind bytes.
+ start(CURRENT_VERSION,0);accept();output[0]=0;
+ feed("!PWBACKUP RPOS 0123456789abcdef0123456789abcdef 1\n");assert(!output[0]);
+ ack();output[0]=0;
+ feed("!PWBACKUP RPOS ffffffffffffffffffffffffffffffff 1\n");assert(!output[0]);
+ feed("!PWBACKUP RPOS 0123456789abcdef0123456789abcdef 2\n");assert(!output[0]);
+ feed("!PWBACKUP RPOS 0123456789abcdef0123456789abcdef 1\n");assert(strstr(output,"POS 1 0\n"));
+ char first[400];int len=snprintf(first,sizeof(first),"!PWBACKUP RDATA %s 1 0 ",token);
+ for(unsigned i=0;i<128;i++){len+=snprintf(first+len,sizeof(first)-len,"%02x",incoming[i]);}
+ strcpy(first+len,"\n");feed(first);
+ output[0]=0;feed("!PWBACKUP RPOS 0123456789abcdef0123456789abcdef 1\n");
+ assert(strstr(output,"POS 1 128\n")&&!memcmp(received,incoming,128)&&!finishes);
+ command("BYE");output[0]=0;feed("!PWBACKUP RPOS 0123456789abcdef0123456789abcdef 1\n");assert(!output[0]);
  printf("V5–%u stream, 576 export chunks, 72 KiB import, disk ACK, CRC, cancellation, version/length and I/O failures: passed\n",CURRENT_VERSION);
 }
 '''

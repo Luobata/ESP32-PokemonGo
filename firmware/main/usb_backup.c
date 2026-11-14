@@ -73,7 +73,11 @@ static void command(void) {
         return;
     }
     if(sscanf(line,"!PWBACKUP %11s %32s %u %c",verb,token,&id,&extra)==3 && !strcmp(token,session)&&id==request_id) {
-        if(!strcmp(verb,"ACK")&&state==USB_BACKUP_WAIT_ACK) {
+        if(!strcmp(verb,"RPOS")&&connected&&state==USB_RESTORE_RECEIVING) {
+            // Read-only reconciliation after a lost data frame or NEXT reply.
+            // Never rewind, write, or acknowledge bytes not yet committed.
+            char out[80];snprintf(out,sizeof(out),"!PWBACKUP POS %lu %lu\n",(unsigned long)request_id,(unsigned long)offset);send_line(out);
+        } else if(!strcmp(verb,"ACK")&&state==USB_BACKUP_WAIT_ACK) {
             if(!importing){if(stream&&stream->cancel)stream->cancel();state=USB_BACKUP_DONE;}
             else {
                 if(stream&&stream->cancel)stream->cancel();

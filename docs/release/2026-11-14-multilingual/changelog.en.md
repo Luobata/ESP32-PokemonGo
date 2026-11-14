@@ -8,3 +8,5 @@ This update
 
 Install the firmware to use these features; refreshing the guide alone does not update the device. Save V32, partition layout and backup format are unchanged. Same-device V5–V32 backups migrate automatically; offline tools supporting format 4 remain compatible. Backups without a language preference default to Simplified Chinese.
 Existing players should prefer the USB save-preserving update package. Back up before a community full installation and restore afterwards as needed. Keep a readable backup before updating.
+
+The web and offline tools now query the device's committed upload position after a stall and retry a missing frame with a strict limit. Refresh the website or download the new offline tool for this recovery; backup formats and overwrite protections remain unchanged.
