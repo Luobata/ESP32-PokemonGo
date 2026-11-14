@@ -69,6 +69,10 @@ int main(void){
 def main():
     assert (MAIN/'language_english.h').read_text()==generate()
     catalog=json.loads((DATA/'en.json').read_text())
+    # Physical-device rows: the party status has a fixed 32 px slot; these
+    # option/care hints have a 216 px line, with no need for truncation.
+    for source,columns in [('出战',4),('养成效果可查看当前加成',27),('按C调节屏幕亮度',27)]:
+        assert len(catalog[source])<=columns,(source,catalog[source])
     files=json.loads((DATA/'english_sources.json').read_text())
     missing=[]
     for file in files:
