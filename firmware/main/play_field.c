@@ -1,3 +1,4 @@
+#include "language.h"
 // P21/P22: one production renderer, bounded state, no canvas or full framebuffer.
 #include "play.h"
 #include "field_adventure.h"
@@ -60,9 +61,9 @@ static void radar(int b){
  unsigned sweep=(clock_state.elapsed_ms/160)%16;line(b,120,116,120+ring[sweep][0],116+ring[sweep][1],0x3c68);
  for(unsigned i=0;i<status.signals&&i<12;i++){unsigned a=(i*7+status.place)%16;int scale=1+i%3;rect(b,118+ring[a][0]*scale/4,114+ring[a][1]*scale/4,3,3,0x3c68);}
  rect(b,118,114,5,5,GAME_UI_ACCENT);
- snprintf(t,sizeof(t),"附近信号 %u  体能 %u",status.signals,status.stamina);text(b,200,t,GAME_UI_INK);
+ language_snprintf(t,sizeof(t),"附近信号 %u  体能 %u",status.signals,status.stamina);text(b,200,t,GAME_UI_INK);
  unsigned wait=field_remaining(&status.state,FIELD_RADAR,status.online_s);
- if(wait)snprintf(t,sizeof(t),"下次追踪 %u:%02u",wait/60,wait%60);else snprintf(t,sizeof(t),"%s",status.signals?"可以追踪 消耗 5 体能":"扫描中 请稍候");text(b,222,t,GAME_UI_INK);
+ if(wait)language_snprintf(t,sizeof(t),"下次追踪 %u:%02u",wait/60,wait%60);else language_snprintf(t,sizeof(t),"%s",status.signals?"可以追踪 消耗 5 体能":"扫描中 请稍候");text(b,222,t,GAME_UI_INK);
  text(b,244,error?failure():"闪光 1/32 · 连胜另有加成",error?C_HP_RED:GAME_UI_ACCENT);
  text(b,264,"环境感应 不代表方向距离",GAME_UI_MUTED);
  game_ui_footer(b,selection?"A/B选择 C查看遭遇 长按B返回":"A/B选择 C追踪 长按B返回");
@@ -128,10 +129,10 @@ static void map_art(int b){
 }
 static void map_draw(int b){
  char t[64];unsigned n=status.state.visited[map_id];n=(n&1)+((n>>1)&1)+((n>>2)&1);
- snprintf(t,sizeof(t),"记录 %u/3",n);game_ui_title(b,maps[map_id],t);map_art(b);
+ language_snprintf(t,sizeof(t),"记录 %u/3",n);game_ui_title(b,maps[map_id],t);map_art(b);
  // Gold frame-1 dialogue tiles; keep readable margins at native 240x320.
  game_ui_box(b,0,224,240,96);
- snprintf(t,sizeof(t),"%u/6 %s",point+1,spots[map_id][point]);render_text(16,236-b,t,GAME_UI_INK);
+ language_snprintf(t,sizeof(t),"%u/6 %s",point+1,spots[map_id][point]);render_text(16,236-b,t,GAME_UI_INK);
  if(error){game_ui_text_fitted(b,16,258,208,failure(),C_HP_RED);render_text(16,278-b,"未消耗资源 可以稍后重试",GAME_UI_MUTED);}
  else if(point<3){
   game_ui_text_fitted(b,16,258,208,notes[map_id][point][0],GAME_UI_INK);
@@ -139,7 +140,7 @@ static void map_draw(int b){
   if(status.state.visited[map_id]&(1u<<point))render_text(176,236-b,"已记录",GAME_UI_MUTED);
  }else if(point==3){
   unsigned wait=field_remaining(&status.state,map_id,status.online_s);
-  if(wait)snprintf(t,sizeof(t),"休息中 %u:%02u",wait/60,wait%60);else snprintf(t,sizeof(t),"三处记录齐全后 消耗 5");
+  if(wait)language_snprintf(t,sizeof(t),"休息中 %u:%02u",wait/60,wait%60);else language_snprintf(t,sizeof(t),"三处记录齐全后 消耗 5");
   game_ui_text_fitted(b,16,258,208,t,GAME_UI_INK);
   game_ui_text_fitted(b,16,278,208,"闪光 1/24 连胜另有加成",GAME_UI_INK);
  }else{
@@ -153,8 +154,8 @@ static void draw_band(int b){
  screen_band_clear(GAME_UI_BG);
  if(view==RADAR)radar(b);
  else if(view==MAP)map_draw(b);
- else if(view==LIST){game_ui_title(b,"地图漫游","城都");text(b,48,"走到现场 观察伙伴的痕迹",GAME_UI_MUTED);for(unsigned i=0;i<3;i++){int y=82+i*54;game_ui_box(b,12,y,216,46);render_text(36,y+6-b,maps[i],GAME_UI_INK);char t[48];snprintf(t,sizeof(t),status.open_maps&(1u<<i)?"开放 · 闪光 1/24":"需要 %u 枚城都徽章",field_map_badges(i));render_text(36,y+25-b,t,GAME_UI_MUTED);if(selection==i)game_ui_cursor(b,20,y+11);}text(b,254,error?failure():"观察免费 搜寻消耗 5 体能",error?C_HP_RED:GAME_UI_MUTED);game_ui_footer(b,GAME_UI_NAV_HINT);}
- else{game_ui_title(b,"发现伙伴",found.is_shiny?"闪光":"");species_t sp;uint8_t size;const uint8_t *sprite=assets_front_sprite(found.species_id,&size);char t[64];if(assets_species(found.species_id,&sp)){uint16_t pal[4];assets_palette_variant(sp.palette,found.is_shiny,pal);if(sprite)game_ui_sprite_centered(b,16,50,208,126,sprite,size,size,2,pal);snprintf(t,sizeof(t),"%.*s Lv%u",sp.name_zh_len,sp.name_zh,found.level);text(b,194,t,GAME_UI_INK);}text(b,224,"已经加入遭遇列表",GAME_UI_INK);text(b,250,"可以战斗或直接尝试捕获",GAME_UI_MUTED);game_ui_footer(b,"C查看遭遇 长按B继续探索");}
+ else if(view==LIST){game_ui_title(b,"地图漫游","城都");text(b,48,"走到现场 观察伙伴的痕迹",GAME_UI_MUTED);for(unsigned i=0;i<3;i++){int y=82+i*54;game_ui_box(b,12,y,216,46);render_text(36,y+6-b,maps[i],GAME_UI_INK);char t[48];language_snprintf(t,sizeof(t),status.open_maps&(1u<<i)?"开放 · 闪光 1/24":"需要 %u 枚城都徽章",field_map_badges(i));render_text(36,y+25-b,t,GAME_UI_MUTED);if(selection==i)game_ui_cursor(b,20,y+11);}text(b,254,error?failure():"观察免费 搜寻消耗 5 体能",error?C_HP_RED:GAME_UI_MUTED);game_ui_footer(b,GAME_UI_NAV_HINT);}
+ else{game_ui_title(b,"发现伙伴",found.is_shiny?"闪光":"");species_t sp;uint8_t size;const uint8_t *sprite=assets_front_sprite(found.species_id,&size);char t[64];if(assets_species(found.species_id,&sp)){uint16_t pal[4];assets_palette_variant(sp.palette,found.is_shiny,pal);if(sprite)game_ui_sprite_centered(b,16,50,208,126,sprite,size,size,2,pal);language_snprintf(t,sizeof(t),"%.*s Lv%u",sp.name_zh_len,sp.name_zh,found.level);text(b,194,t,GAME_UI_INK);}text(b,224,"已经加入遭遇列表",GAME_UI_INK);text(b,250,"可以战斗或直接尝试捕获",GAME_UI_MUTED);game_ui_footer(b,"C查看遭遇 长按B继续探索");}
  screen_push_band(b);
 }
 static void draw(void){for(int b=0;b<SCREEN_H;b+=SCREEN_BAND_H)draw_band(b);}

@@ -1,9 +1,54 @@
+#include "language.h"
 #include "game_ui.h"
 #include "assets.h"
 #include "render.h"
 #include <string.h>
 #include <stdio.h>
 #include "combat.h"
+
+unsigned game_ui_paragraph(int band_y,int x,int y,int width,int height,
+                          const char *const *parts,unsigned count,unsigned reveal,uint16_t color)
+{
+    if(y+height<=band_y||y>=band_y+SCREEN_BAND_H)return 0;
+    char line[64];unsigned used=0,shown=0,row=0;
+    unsigned cols=width/8;if(cols>sizeof(line)-1)cols=sizeof(line)-1;
+    if(!cols)return 0;
+    for(unsigned part=0;part<count;part++) {
+        const char *p=language_text(parts[part]);if(!p)continue;
+        while(*p) {
+            while(*p==' ')p++;
+            if(!*p)break;
+            const char *word=p;while(*p&&*p!=' ')p++;unsigned length=p-word;
+            if(used && used+1+length>cols) {
+                unsigned visible=reveal>shown?reveal-shown:0;if(visible>used)visible=used;
+                line[visible]=0;
+                if((int)(row*18+16)<=height)render_text(x,y+row*18-band_y,line,color);
+                shown+=used+1;used=0;row++;
+            }
+            if(used)line[used++]=' ';
+            for(unsigned i=0;i<length;i++) {
+                if(used==cols) {
+                    unsigned visible=reveal>shown?reveal-shown:0;if(visible>used)visible=used;
+                    line[visible]=0;
+                    if((int)(row*18+16)<=height)render_text(x,y+row*18-band_y,line,color);
+                    shown+=used;used=0;row++;
+                }
+                line[used++]=word[i];
+            }
+        }
+    }
+    if(used) {
+        unsigned visible=reveal>shown?reveal-shown:0;if(visible>used)visible=used;
+        line[visible]=0;
+        if((int)(row*18+16)<=height)render_text(x,y+row*18-band_y,line,color);
+        row++;
+    }
+    return row;
+}
+void game_ui_text_wrapped(int band_y,int x,int y,int width,int height,const char *text,uint16_t color) {
+    if(language_get()==LANGUAGE_EN)game_ui_paragraph(band_y,x,y,width,height,&text,1,~0u,color);
+    else game_ui_text_fitted(band_y,x,y,width,text,color);
+}
 
 static void rect(void *ctx, int x, int y, int w, int h, uint16_t color)
 {
@@ -18,7 +63,8 @@ static void rect(void *ctx, int x, int y, int w, int h, uint16_t color)
 
 void game_ui_title(int band_y, const char *title, const char *right_text)
 {
-    render_text(12, 8 - band_y, title, GAME_UI_INK);
+    if(language_get()==LANGUAGE_EN)game_ui_text_fitted(band_y,12,8,208-(right_text&&*right_text?render_text_width(right_text)+8:0),title,GAME_UI_INK);
+    else render_text(12, 8 - band_y, title, GAME_UI_INK);
     if (right_text && *right_text)
         render_text(228 - render_text_width(right_text), 8 - band_y,
                       right_text, GAME_UI_MUTED);
@@ -87,6 +133,10 @@ void game_ui_text_centered(int band_y, int x, int y, int w, int h,
     int excess = (int)render_font_size() - h;
     int margin = excess > 0 ? (excess + 1) / 2 : 0;
     if (y + h + margin <= band_y || y - margin >= band_y + SCREEN_BAND_H) return;
+    text=language_text(text);
+    if(language_get()==LANGUAGE_EN && render_text_width(text)>w) {
+        game_ui_text_fitted(band_y,x,y+(h-16)/2,w,text,color);return;
+    }
     render_bounds_t ink;
     if (!render_text_ink_bounds(text, &ink)) return;
     render_text(x + (w - ink.w) / 2 - ink.x,
@@ -155,6 +205,7 @@ void game_ui_cursor(int band_y, int x, int y)
 
 void game_ui_text_fitted(int band_y, int x, int y, int width, const char *text, uint16_t color)
 {
+    text=language_text(text);
     if (y + (int)render_font_size() <= band_y || y >= band_y + SCREEN_BAND_H) return;
     char line[192]; size_t n = 0;
     while (text[n] && n < sizeof(line)-5) {
@@ -178,17 +229,17 @@ void game_ui_text_fitted(int band_y, int x, int y, int width, const char *text, 
 
 void game_ui_moves(int y,uint16_t species,uint8_t level,unsigned selected,bool in_battle){
  uint16_t ids[COMBAT_MOVE_CAP];int count=combat_known_moves(species,level,ids,COMBAT_MOVE_CAP);char text[80];
- snprintf(text,sizeof(text),"已学会 %d",count);game_ui_title(y,"技能",text);
+ language_snprintf(text,sizeof(text),"已学会 %d",count);game_ui_title(y,"技能",text);
  if(!count){game_ui_text_centered(y,16,112,208,16,"暂时没有已学招式",GAME_UI_MUTED);game_ui_footer(y,GAME_UI_BACK_HINT);return;}
  selected%=count;unsigned top=selected/5*5;
  for(unsigned row=0;row<5&&top+row<(unsigned)count;row++){
   unsigned index=top+row;move_t m;combat_move(ids[index],&m);int sy=44+row*34;
-  snprintf(text,sizeof(text),"%.*s",m.name_zh_len,m.name_zh);render_text(32,sy-y,text,GAME_UI_INK);
-  snprintf(text,sizeof(text),"Lv%u",combat_learn_level(species,m.id));render_text(228-render_text_width(text),sy-y,text,GAME_UI_MUTED);
+  language_snprintf(text,sizeof(text),"%.*s",m.name_zh_len,m.name_zh);render_text(32,sy-y,text,GAME_UI_INK);
+  language_snprintf(text,sizeof(text),"Lv%u",combat_learn_level(species,m.id));render_text(228-render_text_width(text),sy-y,text,GAME_UI_MUTED);
   game_ui_list_marker(y,8,sy,index,count,selected);
  }
  game_ui_box(y,8,216,224,56);
- game_ui_text_fitted(y,16,228,208,combat_description(ids[selected]),GAME_UI_INK);
+ game_ui_text_wrapped(y,16,228,208,42,combat_description(ids[selected]),GAME_UI_INK);
  game_ui_text_centered(y,16,250,208,16,"升级自动学会 永不遗忘",GAME_UI_MUTED);
  game_ui_footer(y,in_battle?"A上 B下 C继续 长按B返回":GAME_UI_NAV_HINT);
 }
@@ -202,7 +253,7 @@ void game_ui_fade_background(int band_y,unsigned amount) {
 
 void game_ui_move_settings(int y,uint16_t species,uint8_t level,unsigned selected,const move_policy_t *policy,const char *feedback){
  uint16_t ids[COMBAT_MOVE_CAP];int n=combat_known_moves(species,level,ids,COMBAT_MOVE_CAP);char text[80];
- snprintf(text,sizeof(text),"启用 %d/%d",combat_enabled_moves(species,level,policy),n);game_ui_title(y,"招式设置",text);
+ language_snprintf(text,sizeof(text),"启用 %d/%d",combat_enabled_moves(species,level,policy),n);game_ui_title(y,"招式设置",text);
  selected%=(unsigned)n+1;unsigned top=selected/5*5;
  for(unsigned row=0;row<5&&top+row<=(unsigned)n;row++){
   unsigned i=top+row;int sy=44+row*34;
@@ -212,12 +263,12 @@ void game_ui_move_settings(int y,uint16_t species,uint8_t level,unsigned selecte
   // Pixel checkbox shares the monochrome Gold/Silver frame language.
   rect(&y,26,sy+2,12,12,GAME_UI_INK);rect(&y,28,sy+4,8,8,GAME_UI_BG);
   if(enabled){rect(&y,29,sy+7,3,3,GAME_UI_INK);rect(&y,32,sy+5,3,5,GAME_UI_INK);}
-  move_t m;combat_move(ids[i],&m);snprintf(text,sizeof(text),"%.*s",m.name_zh_len,m.name_zh);
+  move_t m;combat_move(ids[i],&m);language_snprintf(text,sizeof(text),"%.*s",m.name_zh_len,m.name_zh);
   game_ui_text_fitted(y,44,sy,140,text,enabled?GAME_UI_INK:GAME_UI_MUTED);
   render_text(192,sy-y,enabled?"启用":"禁用",enabled?GAME_UI_ACCENT:GAME_UI_MUTED);
  }
  game_ui_box(y,8,216,224,56);
- game_ui_text_fitted(y,16,226,208,selected<(unsigned)n?combat_description(ids[selected]):"恢复所有已学招式",GAME_UI_INK);
+ game_ui_text_wrapped(y,16,226,208,42,selected<(unsigned)n?combat_description(ids[selected]):"恢复所有已学招式",GAME_UI_INK);
  game_ui_text_fitted(y,16,250,208,feedback&&*feedback?feedback:"新学招式默认启用",GAME_UI_MUTED);
  game_ui_footer(y,"A上 B下 C切换 长按B返回");
 }

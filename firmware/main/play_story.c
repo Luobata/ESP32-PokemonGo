@@ -1,3 +1,4 @@
+#include "language.h"
 // Adventure journal: persistent choices, receipts, and full-box confirmation.
 #include "play.h"
 #include "nav.h"
@@ -42,18 +43,18 @@ static void sprite(int y,unsigned id,unsigned form,bool shiny,int x,int top,int 
 static void draw(void){
  for(int y=0;y<SCREEN_H;y+=SCREEN_BAND_H){char b[96];screen_band_clear(GAME_UI_BG);game_ui_title(y,"冒险笔记","");
  if(view==HOME){unsigned ids[8],n=menu(ids);for(unsigned i=0;i<n;i++)row(y,i,42+i*29,label(ids[i]));if(johto_badges(&chapter)<2)text(y,230,"两枚城都徽章开放伙伴救助");}
- else if(view==RESCUE){if(story.rescue_step<3)text(y,44,"满金原野的伙伴求救了");if(!story.rescue_step){snprintf(b,sizeof(b),"满金调查 %u/%u",chapter.research[2],johto_rescue_at(&story));text(y,84,b);text(y,126,story.rescues<2?"前两次救助补齐未选御三家":"后续救助发现幼年伙伴");text(y,170,"无需额外体能 可暂停续接");text(y,220,johto_rescue_ready(&story,&chapter)?"[C]跟随求救声":"继续探索满金原野");}
- else if(story.rescue_step<3){unsigned a=johto_rescue_answer(&story);snprintf(b,sizeof(b),"%s指向%s",story.rescue_step==1?"脚印":"求救声",(const char*[]){"左侧草丛","中间树林","右侧山坡"}[a]);text(y,84,b);text(y,120,"观察线索 找到安全的方向");for(unsigned i=0;i<3;i++)row(y,i,168+i*30,(const char*[]){"走左侧草丛","穿过中间树林","沿右侧山坡"}[i]);}
- else{species_t sp;assets_species(story.rescue_partner.species_id,&sp);snprintf(b,sizeof(b),"%.*s Lv35%s",sp.name_zh_len,sp.name_zh,story.rescue_partner.flags&1?" ★":"");sprite(y,story.rescue_partner.species_id,0,story.rescue_partner.flags&1,64,44,2);text(y,166,b);text(y,194,"伙伴已脱险 一起回家吧！");text(y,228,"[C]接回伙伴");}}
+ else if(view==RESCUE){if(story.rescue_step<3)text(y,44,"满金原野的伙伴求救了");if(!story.rescue_step){language_snprintf(b,sizeof(b),"满金调查 %u/%u",chapter.research[2],johto_rescue_at(&story));text(y,84,b);text(y,126,story.rescues<2?"前两次救助补齐未选御三家":"后续救助发现幼年伙伴");text(y,170,"无需额外体能 可暂停续接");text(y,220,johto_rescue_ready(&story,&chapter)?"[C]跟随求救声":"继续探索满金原野");}
+ else if(story.rescue_step<3){unsigned a=johto_rescue_answer(&story);language_snprintf(b,sizeof(b),"%s指向%s",story.rescue_step==1?"脚印":"求救声",(const char*[]){"左侧草丛","中间树林","右侧山坡"}[a]);text(y,84,b);text(y,120,"观察线索 找到安全的方向");for(unsigned i=0;i<3;i++)row(y,i,168+i*30,(const char*[]){"走左侧草丛","穿过中间树林","沿右侧山坡"}[i]);}
+ else{species_t sp;assets_species(story.rescue_partner.species_id,&sp);language_snprintf(b,sizeof(b),"%.*s Lv35%s",sp.name_zh_len,sp.name_zh,story.rescue_partner.flags&1?" ★":"");sprite(y,story.rescue_partner.species_id,0,story.rescue_partner.flags&1,64,44,2);text(y,166,b);text(y,194,"伙伴已脱险 一起回家吧！");text(y,228,"[C]接回伙伴");}}
  else if(view==LAKE){
   if(endgame.lake_stage!=LAKE_GUARD_DONE){sprite(y,130,0,true,64,44,2);}
   if(!endgame.lake_stage){text(y,168,"湖边发现了红色的身影。");text(y,198,"首次调查消耗10体能");text(y,226,"失败可续接 伙伴固定闪光");text(y,254,"[C]前往愤怒之湖");}
   else if(endgame.lake_stage==LAKE_RUMOR){text(y,166,"湖面泛起异常的波纹。");text(y,196,"红色鳞片指向湖边旧设施。");text(y,226,"空木：先关闭干扰电波！");text(y,254,"[C]跟随线索");}
-  else if(endgame.lake_stage==LAKE_FACILITY){text(y,168,"守卫挡住了设施的入口。");snprintf(b,sizeof(b),"对手 Lv%u-%u",endgame.lake_level-5,endgame.lake_level-1);text(y,198,b);text(y,226,"重试免费 战败影响养成");text(y,254,"[C]挑战电波守卫");}
+  else if(endgame.lake_stage==LAKE_FACILITY){text(y,168,"守卫挡住了设施的入口。");language_snprintf(b,sizeof(b),"对手 Lv%u-%u",endgame.lake_level-5,endgame.lake_level-1);text(y,198,b);text(y,226,"重试免费 战败影响养成");text(y,254,"[C]挑战电波守卫");}
   else if(endgame.lake_stage==LAKE_GUARD_DONE){text(y,54,"控制台指示：先切断电源");text(y,86,"再拆下发射装置。");text(y,120,"避免让湖中的伙伴受伤。");for(unsigned i=0;i<3;i++)row(y,i,170+i*32,(const char*[]){"提高发射功率","切断干扰电源","继续等待"}[i]);}
-  else if(endgame.lake_stage==LAKE_SIGNAL_OFF){text(y,166,"电波停止了！它仍很愤怒。");snprintf(b,sizeof(b),"红色暴鲤龙 Lv%u",endgame.lake_level);text(y,194,b);text(y,222,"降攻或控制平息狂怒");text(y,254,"[C]安抚它 重试免费");}
+  else if(endgame.lake_stage==LAKE_SIGNAL_OFF){text(y,166,"电波停止了！它仍很愤怒。");language_snprintf(b,sizeof(b),"红色暴鲤龙 Lv%u",endgame.lake_level);text(y,194,b);text(y,222,"降攻或控制平息狂怒");text(y,254,"[C]安抚它 重试免费");}
   else if(endgame.lake_stage==LAKE_CALM){text(y,166,"暴鲤龙终于平静下来了。");text(y,196,capture_seen?"它愿意成为新的同行伙伴。":"空木：它已经信任你了。");text(y,226,"剧情收服必定成功 不耗球");text(y,254,capture_seen?"[C]接回伙伴":"[C]投出精灵球");}
-  else{snprintf(b,sizeof(b),"红色暴鲤龙 Lv%u ★",endgame.lake_level);text(y,168,b);text(y,198,"空木：谢谢你救下它。");text(y,228,"红色的羁绊 已记录");text(y,256,"成就页可领取纪念奖励");}
+  else{language_snprintf(b,sizeof(b),"红色暴鲤龙 Lv%u ★",endgame.lake_level);text(y,168,b);text(y,198,"空木：谢谢你救下它。");text(y,228,"红色的羁绊 已记录");text(y,256,"成就页可领取纪念奖励");}
  }
  else if(view==LAKE_CAPTURE){
   unsigned ms=story_clock.elapsed_ms,source=capture_source_frame(ms);
@@ -63,16 +64,16 @@ static void draw(void){
   if(source>=CAPTURE_RESULT_SOURCE_FRAME&&source<CAPTURE_END_SOURCE_FRAME){render_text(80,146-y,"★",GAME_UI_ACCENT);render_text(145,140-y,"★",GAME_UI_ACCENT);render_text(114,114-y,"★",GAME_UI_ACCENT);}
   text(y,234,source>=CAPTURE_RESULT_SOURCE_FRAME?"红色暴鲤龙成为伙伴了！":"精灵球轻轻晃动着……");
  }
- else if(view==RUINS){for(unsigned i=0;i<count();i++){snprintf(b,sizeof(b),"%s遗迹 %s",(const char*[]){"化石","海流","羽翼","生命"}[i],story.ruins&(1u<<i)?"已解谜":"观察墙面");row(y,i,62+i*40,b);}text(y,240,"解谜免费 调查消耗5体能");}
- else if(view==PUZZLE){unsigned step=story.ruin_group==group?story.ruin_step:0;snprintf(b,sizeof(b),"%s",(const char*[]){"先日出 再月升 后星明","星光渐隐 日出后月升","月光渐暗 星落后日出","星落月隐 日光照石壁"}[group]);text(y,66,b);snprintf(b,sizeof(b),"放置第 %u/3 个符号",step+1);text(y,112,b);for(unsigned i=0;i<3;i++)row(y,i,164+i*32,(const char*[]){"日","月","星"}[i]);}
- else if(view==LETTERS){text(y,44,"捕获后点亮对应字母");for(unsigned i=0;i<26;i++){snprintf(b,sizeof(b),"%c",'A'+i);int x=18+(i%7)*31,top=78+(i/7)*34;render_text(x,top-y,b,story.forms_caught&(1u<<i)?GAME_UI_INK:GAME_UI_MUTED);if(selected==i)for(unsigned dx=0;dx<16;dx++)screen_px(x+dx,top+18-y,GAME_UI_INK);}sprite(y,201,selected,false,92,212,1);}
+ else if(view==RUINS){for(unsigned i=0;i<count();i++){language_snprintf(b,sizeof(b),"%s遗迹 %s",(const char*[]){"化石","海流","羽翼","生命"}[i],story.ruins&(1u<<i)?"已解谜":"观察墙面");row(y,i,62+i*40,b);}text(y,240,"解谜免费 调查消耗5体能");}
+ else if(view==PUZZLE){unsigned step=story.ruin_group==group?story.ruin_step:0;language_snprintf(b,sizeof(b),"%s",(const char*[]){"先日出 再月升 后星明","星光渐隐 日出后月升","月光渐暗 星落后日出","星落月隐 日光照石壁"}[group]);text(y,66,b);language_snprintf(b,sizeof(b),"放置第 %u/3 个符号",step+1);text(y,112,b);for(unsigned i=0;i<3;i++)row(y,i,164+i*32,(const char*[]){"日","月","星"}[i]);}
+ else if(view==LETTERS){text(y,44,"捕获后点亮对应字母");for(unsigned i=0;i<26;i++){language_snprintf(b,sizeof(b),"%c",'A'+i);int x=18+(i%7)*31,top=78+(i/7)*34;render_text(x,top-y,b,story.forms_caught&(1u<<i)?GAME_UI_INK:GAME_UI_MUTED);if(selected==i)for(unsigned dx=0;dx<16;dx++)screen_px(x+dx,top+18-y,GAME_UI_INK);}sprite(y,201,selected,false,92,212,1);}
  else if(view==TOWER){for(unsigned i=0;i<3;i++)sprite(y,243+i,0,false,18+i*75,52+(i%2)*10,1);text(y,132,"三道身影穿过烟尘离开。");text(y,168,"雷鸣、焦痕与清澈的水流");text(y,200,"留下了不同方向的线索。");text(y,230,story.tower_seen?"传说调查中可查看下一站":"[C]记录三兽踪迹");}
  else if(view==PURIFY){text(y,62,"水流被落枝挡住了。");text(y,98,"先疏通源头 再让清水流下");for(unsigned i=0;i<3;i++)row(y,i,158+i*34,(const char*[]){"继续搅动下游","移开源头的落枝","堵住河流"}[i]);}
- else if(view==ENDING){if(chapter.phase==JOHTO_COMPLETE){text(y,62,"空木：这一路的相遇");text(y,96,"让我们的研究更加完整。");text(y,138,"谢谢你和伙伴们的努力！");text(y,182,"研究大师纪念章已记录");text(y,218,"森林中还有新的时空线索");text(y,252,"[C]记下这段旅程");}else{bool legends=true;for(unsigned i=0;i<5;i++)if(chapter.legend_clues[i]!=3)legends=false;const bool done[]={chapter.badges==255,kanto_ready,story.rescues>=1,!!(story.ruins&1),feather,story.tower_seen,legends,bug_evidence};const char *names[]={"八枚城都徽章","关都八徽章及赤红","完成一次伙伴救助","解开首组遗迹","漩涡远征银色之羽","烧焦塔三兽调查","三兽与双塔线索齐全","捕虫六节点观察"};for(unsigned i=0;i<8;i++){snprintf(b,sizeof(b),"%s %s",done[i]?"已":"待",names[i]);text(y,40+i*26,b);}text(y,258,legacy_final?"原挑战资格保留 可直接挑战":"线索完成即可 无需捕获");}}
+ else if(view==ENDING){if(chapter.phase==JOHTO_COMPLETE){text(y,62,"空木：这一路的相遇");text(y,96,"让我们的研究更加完整。");text(y,138,"谢谢你和伙伴们的努力！");text(y,182,"研究大师纪念章已记录");text(y,218,"森林中还有新的时空线索");text(y,252,"[C]记下这段旅程");}else{bool legends=true;for(unsigned i=0;i<5;i++)if(chapter.legend_clues[i]!=3)legends=false;const bool done[]={chapter.badges==255,kanto_ready,story.rescues>=1,!!(story.ruins&1),feather,story.tower_seen,legends,bug_evidence};const char *names[]={"八枚城都徽章","关都八徽章及赤红","完成一次伙伴救助","解开首组遗迹","漩涡远征银色之羽","烧焦塔三兽调查","三兽与双塔线索齐全","捕虫六节点观察"};for(unsigned i=0;i<8;i++){language_snprintf(b,sizeof(b),"%s %s",done[i]?"已":"待",names[i]);text(y,40+i*26,b);}text(y,258,legacy_final?"原挑战资格保留 可直接挑战":"线索完成即可 无需捕获");}}
  else if(view==PRIZE){text(y,44,"一次性研究纪念奖励");for(unsigned i=0;i<count();i++)row(y,i,86+i*32,items_info(ITEM_SUN_STONE+i)->name);}
- else if(view==BOX){text(y,40,"仓库已满 选择替换伙伴");unsigned start=selected/6*6;for(unsigned i=0;i<6&&start+i<BOX_CAPACITY;i++){mon_t m;if(!world_box_at(start+i,&m))continue;species_t sp;assets_species(m.species_id,&sp);snprintf(b,sizeof(b),"%u %.*s Lv%u%s",start+i+1,sp.name_zh_len,sp.name_zh,m.level,m.flags&1?"★":"");row(y,start+i,70+i*30,b);}text(y,260,"长按B保留待接回伙伴");}
- else if(view==CONFIRM){species_t sp;assets_species(replaced.species_id,&sp);snprintf(b,sizeof(b),"替换 %.*s Lv%u%s？",sp.name_zh_len,sp.name_zh,replaced.level,replaced.flags&1?"★":"");text(y,82,b);text(y,126,"原伙伴和技能设置会移除");row(y,0,190,"取消");row(y,1,226,"确认替换");}
- else if(view==FOUND){sprite(y,201,result.encounter.biome,result.encounter.is_shiny,64,46,2);text(y,178,"未知图腾出现了！");snprintf(b,sizeof(b),"形态 %c  Lv%u",'A'+result.encounter.biome,result.encounter.level);text(y,210,b);text(y,248,"[C]查看遭遇");}
+ else if(view==BOX){text(y,40,"仓库已满 选择替换伙伴");unsigned start=selected/6*6;for(unsigned i=0;i<6&&start+i<BOX_CAPACITY;i++){mon_t m;if(!world_box_at(start+i,&m))continue;species_t sp;assets_species(m.species_id,&sp);language_snprintf(b,sizeof(b),"%u %.*s Lv%u%s",start+i+1,sp.name_zh_len,sp.name_zh,m.level,m.flags&1?"★":"");row(y,start+i,70+i*30,b);}text(y,260,"长按B保留待接回伙伴");}
+ else if(view==CONFIRM){species_t sp;assets_species(replaced.species_id,&sp);language_snprintf(b,sizeof(b),"替换 %.*s Lv%u%s？",sp.name_zh_len,sp.name_zh,replaced.level,replaced.flags&1?"★":"");text(y,82,b);text(y,126,"原伙伴和技能设置会移除");row(y,0,190,"取消");row(y,1,226,"确认替换");}
+ else if(view==FOUND){sprite(y,201,result.encounter.biome,result.encounter.is_shiny,64,46,2);text(y,178,"未知图腾出现了！");language_snprintf(b,sizeof(b),"形态 %c  Lv%u",'A'+result.encounter.biome,result.encounter.level);text(y,210,b);text(y,248,"[C]查看遭遇");}
  if(error){game_ui_box(y,8,238,224,42);text(y,252,error==ACT_SAVE_FAILED?"保存失败 请重试":error==ACT_FULL?"空间不足 奖励仍保留":error==ACT_STAMINA?"体能不足":error==ACT_BUSY?"请先结束正在进行的活动":"再观察一下线索或条件");}
  game_ui_footer(y,view==LAKE_CAPTURE?"收服中……":GAME_UI_NAV_HINT);screen_push_band(y);}
 }

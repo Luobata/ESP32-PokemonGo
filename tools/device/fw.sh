@@ -62,6 +62,8 @@ idf() {
 # 代价是 2 秒（PIL 渲 800 个字形），换掉一类「本可以不发生」的失败。
 # 没装 PIL 时跳过并提示 —— 字库产物已入库，只有改文案才需要重生成。
 regen_font() {
+  python3 "$REPO/tools/pipeline/generate_traditional.py" --check || return 1
+  python3 "$REPO/tools/pipeline/generate_english.py" --check || return 1
   if python3 -c "import PIL" 2>/dev/null; then
     python3 "$REPO/tools/pipeline/convert_font.py" >/dev/null 2>&1 \
       && echo "字库已同步（扫 firmware/main/*.c 的中文）" \

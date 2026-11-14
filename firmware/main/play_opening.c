@@ -1,3 +1,4 @@
+#include "language.h"
 // main/play_opening.c —— P0 大木博士开场。
 
 #include <stddef.h>
@@ -194,6 +195,10 @@ static void draw_band(int band_y)
         const char *line = opening_line(&s_opening, i);
         uint16_t len = utf8_len(line);
         uint16_t visible = left < len ? left : len;
+        if(language_get()==LANGUAGE_EN) {
+            line=language_text(line);
+            visible=len?(uint16_t)((unsigned)visible*utf8_len(line)/len):0;
+        }
         utf8_prefix(buf, sizeof(buf), line, visible);
         if (TEXT_LINE_Y[i] + text_offset + GLYPH <= 264)
             render_text(MARGIN, Y(TEXT_LINE_Y[i] + text_offset), buf, GAME_UI_INK);

@@ -25,6 +25,7 @@
 #include "save.h"
 #include "screen.h"
 #include "screen_idle.h"
+#include "language.h"
 #include "dbg.h"
 #include "usb_backup.h"
 #include "console_record.h"
@@ -187,6 +188,7 @@ void app_main(void) {
     bool world_ok = world_start();
     if (world_ok && !world_needs_starter()) dungeon_load(); // Retire superseded run keys after validation.
     display_settings_init();
+    language_settings_init();
     bsp_display_backlight(display_settings_brightness());
 
     bool btn_ok = (bsp_button_init(on_key, NULL) == ESP_OK);

@@ -1,3 +1,4 @@
+#include "language.h"
 // P10 inventory: four rows per pocket page, followed by a shared GSC textbox.
 // All item application and stock changes belong to world; this page is a reader.
 #include <stdio.h>
@@ -115,9 +116,20 @@ static void wrap_description(const char *text)
 {
     memset(s_description, 0, sizeof(s_description));
     if (!text) return;
+    text=language_text(text);
     unsigned row = 0;
     size_t used = 0;
     while (*text && row < BAG_DESCRIPTION_LINES) {
+        if (language_get()==LANGUAGE_EN) {
+            if (*text==' ' && !used) { text++; continue; }
+            if (*text!=' ' && (used==0 || s_description[row][used-1]==' ')) {
+                size_t word=0;while(text[word] && text[word]!=' ' && text[word]!='\n')word++;
+                if (used && (used+word)*8>BAG_TEXT_W) {
+                    if (s_description[row][used-1]==' ')s_description[row][used-1]=0;
+                    row++;used=0;continue;
+                }
+            }
+        }
         if (*text == '\n') { text++; row++; used = 0; continue; }
         size_t length = utf8_bytes(text);
         if (used + length >= sizeof(s_description[0])) { row++; used = 0; continue; }
@@ -190,15 +202,15 @@ static void draw_band(int band_y)
     char text[96];
     species_t sp;
     if (assets_species(s_world.species, &sp))
-        snprintf(text, sizeof(text), "%.*s Lv%u", sp.name_zh_len, sp.name_zh, s_world.level);
-    else snprintf(text, sizeof(text), "伙伴");
+        language_snprintf(text, sizeof(text), "%.*s Lv%u", sp.name_zh_len, sp.name_zh, s_world.level);
+    else language_snprintf(text, sizeof(text), "伙伴");
     game_ui_title(band_y, "背包", text);
 
     uint8_t start = pocket_start(), end = pocket_end(), first = first_row();
     const char *pocket = s_selected < ITEM_BALL_COUNT ? "精灵球"
                         : s_selected < ITEM_BERRY ? "进化道具" : s_selected < ITEM_SUN_STONE ? "养成道具" : "城都进化道具";
     render_text(12, 40 - band_y, pocket, GAME_UI_INK);
-    snprintf(text, sizeof(text), "%u/%u", (first - start) / BAG_ROWS + 1,
+    language_snprintf(text, sizeof(text), "%u/%u", (first - start) / BAG_ROWS + 1,
              (end - start + BAG_ROWS - 1) / BAG_ROWS);
     render_text(228 - render_text_width(text), 40 - band_y, text, GAME_UI_MUTED);
 
@@ -210,11 +222,11 @@ static void draw_band(int band_y)
         if (item == s_selected) game_ui_cursor(band_y, 12, y + 3);
         draw_item_icon(band_y, item, y);
         render_text(56, y - band_y, info ? info->name : "未知道具", color);
-        snprintf(text, sizeof(text), "x%u", s_inventory.quantity[item]);
+        language_snprintf(text, sizeof(text), "x%u", s_inventory.quantity[item]);
         render_text(228 - render_text_width(text), y - band_y, text, color);
     }
     render_text(12, 164 - band_y, "长按B返回", GAME_UI_MUTED);
-    snprintf(text, sizeof(text), "%02u/%u", s_selected + 1, ITEM_COUNT);
+    language_snprintf(text, sizeof(text), "%02u/%u", s_selected + 1, ITEM_COUNT);
     render_text(228 - render_text_width(text), 164 - band_y, text, GAME_UI_MUTED);
 
     game_ui_box(band_y, 8, BAG_DETAIL_Y, 224, BAG_DETAIL_H);
@@ -260,16 +272,16 @@ static void use_selected(void)
 {
     s_success = false;
     if (s_selected < ITEM_BALL_COUNT) {
-        snprintf(s_feedback, sizeof(s_feedback), "请在捕获页选球使用");
+        language_snprintf(s_feedback, sizeof(s_feedback), "请在捕获页选球使用");
         return;
     }
     item_use_result_t preview;
     if(items_apply(s_selected,s_world.species,s_world.level,&s_world.pet,&preview)==ITEM_USE_OK &&
        preview.species_after!=preview.species_before) {
         inventory_t inventory;world_inventory_snapshot(&inventory);
-        if(!inventory.quantity[s_selected]){snprintf(s_feedback,sizeof(s_feedback),"道具不足");return;}
+        if(!inventory.quantity[s_selected]){language_snprintf(s_feedback,sizeof(s_feedback),"道具不足");return;}
         if(!evolution_ui_begin(preview.species_before,preview.species_after,s_selected))
-            snprintf(s_feedback,sizeof(s_feedback),"无法开始进化");
+            language_snprintf(s_feedback,sizeof(s_feedback),"无法开始进化");
         return;
     }
     item_use_result_t result;
@@ -282,7 +294,7 @@ static void use_selected(void)
         sfx_play(result.species_before != result.species_after ? SFX_EVOLVE : SFX_CARE);
         species_t evolved;
         if (result.species_before != result.species_after && assets_species(result.species_after, &evolved)) {
-            snprintf(s_feedback, sizeof(s_feedback), "进化成%.*s了", evolved.name_zh_len, evolved.name_zh);
+            language_snprintf(s_feedback, sizeof(s_feedback), "进化成%.*s了", evolved.name_zh_len, evolved.name_zh);
             return;
         }
         const char *labels[] = {"饱食", "心情", "体能", "亲密"};
@@ -293,7 +305,7 @@ static void use_selected(void)
         for (unsigned i = 0; i < 4 && shown < 2; i++) {
             int delta = (int)nurture_pct(after[i]) - (int)nurture_pct(before[i]);
             if (!delta) continue;
-            used += (size_t)snprintf(s_feedback + used, sizeof(s_feedback) - used,
+            used += (size_t)language_snprintf(s_feedback + used, sizeof(s_feedback) - used,
                                      "%s%s%+d", shown ? " " : "", labels[i], delta);
             shown++;
         }
@@ -310,7 +322,7 @@ static void use_selected(void)
     case ITEM_USE_BUSY: message = "请先结束当前对战"; break;
     default: break;
     }
-    snprintf(s_feedback, sizeof(s_feedback), "%s", message);
+    language_snprintf(s_feedback, sizeof(s_feedback), "%s", message);
 }
 
 void play_bag_enter(void)

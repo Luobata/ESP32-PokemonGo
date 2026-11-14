@@ -52,6 +52,11 @@ module_limits={'save_bank':384,'save_bank_device':64,'usb_backup_device':384,
 module_frames={}
 module_limits['dbg']=256  # USB and real navigation run on the serial task too.
 module_limits['play_menu']=256  # Brightness editor reuses the existing screen bands.
+module_limits['wifi_time']=768  # HTTP form remains bounded; setup adds no large local buffer.
+module_limits['language']=96  # Streaming conversion; no per-line translation buffer.
+module_limits['language_settings']=64
+module_limits['language_format']=192  # Bounded integer scratch, no whole-message buffer.
+module_limits['game_ui']=592  # Existing move settings: baseline and candidate 592; wrap uses one 64-byte line.
 module_limits['console_record']=64  # Cross-task record framing; no import-time allocation.
 for module,limit in module_limits.items():
     entry=next(e for e in entries if e['file'].endswith('/main/'+module+'.c'))

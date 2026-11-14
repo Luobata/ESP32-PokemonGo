@@ -1,10 +1,10 @@
 name: Verify game firmware
 on:
   pull_request:
-    paths: ['firmware/**', 'assets/**', 'data/pokemon_names/**', 'tools/pipeline/**', 'tools/inspector/**', 'tools/release/**', '.github/workflows/firmware-check.yml']
+    paths: ['firmware/**', 'assets/**', 'data/pokemon_names/**', 'data/i18n/**', 'tools/pipeline/**', 'tools/inspector/**', 'tools/release/**', '.github/workflows/firmware-check.yml']
   push:
     branches: [main]
-    paths: ['firmware/**', 'assets/**', 'data/pokemon_names/**', 'tools/pipeline/**', 'tools/inspector/**', 'tools/release/**', '.github/workflows/firmware-check.yml']
+    paths: ['firmware/**', 'assets/**', 'data/pokemon_names/**', 'data/i18n/**', 'tools/pipeline/**', 'tools/inspector/**', 'tools/release/**', '.github/workflows/firmware-check.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -76,6 +76,10 @@ jobs:
           run_check python3 tools/pipeline/verify_device_screenshot.py
           run_check python3 tools/pipeline/verify_firmware_preview.py
           run_check python3 tools/pipeline/verify_render_bounds.py
+          run_check python3 tools/pipeline/verify_language.py
+          run_check python3 tools/pipeline/generate_english.py --check
+          run_check python3 tools/pipeline/verify_english.py
+          run_check python3 tools/pipeline/verify_language_ui.py
           run_check python3 tools/pipeline/verify_animation_timing.py
           run_check python3 tools/pipeline/verify_scene_pacing.py
           run_check python3 tools/pipeline/verify_battle_timeline.py
@@ -108,6 +112,8 @@ jobs:
           run_check python3 tools/pipeline/verify_johto_champion_balance.py
           run_check python3 tools/pipeline/verify_johto_narrative.py
           run_check python3 tools/pipeline/verify_johto_narrative_ui.py
+          run_check env POKEWALK_TEST_LANGUAGE=2 python3 tools/pipeline/verify_johto_narrative_ui.py
+          run_check env POKEWALK_TEST_LANGUAGE=2 python3 tools/pipeline/verify_johto_fieldwork_ui.py
           if (( ${#failures[@]} )); then
             printf 'FAILED: %s\n' "${failures[@]}"
             exit 1

@@ -1,3 +1,4 @@
+#include "language.h"
 // P14: fixed IDs, explicit claiming; rewards and claims commit in one world save.
 #include <stdio.h>
 #include "play.h"
@@ -15,7 +16,7 @@ static void draw_all(void) {
  for(unsigned i=0;i<ACHIEVEMENT_COUNT;i++)if(!achievement_claimed(&view,i)&&achievement_progress(&view,i)==achievement_info(i)->target)ready++;
  for(int y=0;y<SCREEN_H;y+=SCREEN_BAND_H){
   screen_band_clear(GAME_UI_BG);
-  snprintf(text,sizeof(text),"可领取 %u",ready);game_ui_title(y,selected>=32&&selected<42?"冠军挑战成就":selected<16?"关都成就":selected>=23&&selected<=28?"收集成就":"城都成就",text);
+  language_snprintf(text,sizeof(text),"可领取 %u",ready);game_ui_title(y,selected>=32&&selected<42?"冠军挑战成就":selected<16?"关都成就":selected>=23&&selected<=28?"收集成就":"城都成就",text);
   game_ui_box(y,8,40,224,136);
   unsigned top=selected/4*4;
   for(unsigned row=0;row<4&&top+row<ACHIEVEMENT_COUNT;row++){
@@ -26,8 +27,8 @@ static void draw_all(void) {
    if(id==selected)game_ui_cursor(y,16,sy+4);
   }
   game_ui_text_centered(y,16,188,208,16,a->description,GAME_UI_INK);
-  snprintf(text,sizeof(text),"%u/%u",progress,a->target);game_ui_text_centered(y,16,210,208,16,text,GAME_UI_MUTED);
-  snprintf(text,sizeof(text),"奖励 %s ×%u",items_info(a->item)->name,a->quantity);game_ui_text_centered(y,16,234,208,16,text,GAME_UI_ACCENT);
+  language_snprintf(text,sizeof(text),"%u/%u",progress,a->target);game_ui_text_centered(y,16,210,208,16,text,GAME_UI_MUTED);
+  language_snprintf(text,sizeof(text),"奖励 %s ×%u",items_info(a->item)->name,a->quantity);game_ui_text_centered(y,16,234,208,16,text,GAME_UI_ACCENT);
   game_ui_text_centered(y,16,258,208,16,feedback?feedback:"上下查看 长按B返回",GAME_UI_MUTED);
   game_ui_footer(y,GAME_UI_NAV_HINT);screen_push_band(y);
  }

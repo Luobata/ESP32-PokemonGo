@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT/'tools/inspector'))
 from native import Renderer, build, png
 
-out = Path(os.environ.get('POKEWALK_EVIDENCE_DIR', ROOT/'reports/evidence/audio-brightness-2026-10-29'))
+out = Path(os.environ.get('POKEWALK_EVIDENCE_DIR', ROOT/'.build/display-settings-preview'))
 out.mkdir(parents=True, exist_ok=True)
 exe, version = build()
 r = Renderer(exe)
@@ -86,7 +86,7 @@ try:
     key(2)
     screenshot('wifi-setup')
     key(1, 3)
-    for _ in range(3):
+    for _ in range(4):  # Wi-Fi -> brightness -> battery -> language -> return
         key(1)
     key(2)
     assert not r.inspect()['menu_view']['options']

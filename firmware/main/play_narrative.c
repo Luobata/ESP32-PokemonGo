@@ -1,3 +1,4 @@
+#include "language.h"
 // P20: the production story player. Desktop preview uses this same renderer.
 #include "play.h"
 #include "world.h"
@@ -30,7 +31,7 @@ static const narrative_page_t *current(void){return script&&page<narrative_pages
 static bool choosing(void){return view==DIALOG&&script->choices&&page+1==narrative_pages(scene);}
 static unsigned chars(const char *s){unsigned n=0;for(;s&&*s;s++)if(((uint8_t)*s&0xc0)!=0x80)n++;return n;}
 static unsigned visible(void){return complete_text?256:clock_state.elapsed_ms>300?(clock_state.elapsed_ms-300)/35:0;}
-static unsigned text_length(void){const narrative_page_t *p=current();return p?chars(p->line[0])+chars(p->line[1])+chars(p->line[2]):0;}
+static unsigned text_length(void){const narrative_page_t *p=current();return p?chars(language_text(p->line[0]))+chars(language_text(p->line[1]))+chars(language_text(p->line[2]))+(language_get()==LANGUAGE_EN?2:0):0;}
 static void prefix(char out[64],const char *s,unsigned n){unsigned bytes=0;while(s&&s[bytes]&&n){bytes++;while(((uint8_t)s[bytes]&0xc0)==0x80)bytes++;n--;}if(bytes>63)bytes=63;memcpy(out,s,bytes);out[bytes]=0;}
 static void rect(int band,int x,int y,int w,int h,uint16_t c){int lo=y>band?y:band,hi=y+h<band+SCREEN_BAND_H?y+h:band+SCREEN_BAND_H;for(int yy=lo;yy<hi;yy++)for(int xx=x;xx<x+w;xx++)screen_px(xx,yy-band,c);}
 static void background(int y,unsigned art){
@@ -63,13 +64,14 @@ static void draw_range(int top,int bottom){
  for(int y=top/SCREEN_BAND_H*SCREEN_BAND_H;y<bottom;y+=SCREEN_BAND_H){
   screen_band_clear(GAME_UI_BG);
   if(view==DIALOG){
-   const narrative_page_t *p=current();if(!p)continue;char b[64];snprintf(b,sizeof(b),"%u/%u",page+1,narrative_pages(scene));game_ui_title(y,p->speaker,b);artwork(y);
+   const narrative_page_t *p=current();if(!p)continue;char b[64];language_snprintf(b,sizeof(b),"%u/%u",page+1,narrative_pages(scene));game_ui_title(y,p->speaker,b);artwork(y);
    game_ui_box(y,8,164,224,112);
    if(choosing()){
     // Inference keeps its observation visible; explicit failure explains why.
     game_ui_text_fitted(y,16,172,208,misses?script->hint:p->line[0],GAME_UI_INK);
     for(unsigned i=0;i<script->choices;i++){game_ui_text_fitted(y,38,200+i*24,182,script->choice[i],GAME_UI_INK);if(i==selected)game_ui_cursor(y,18,204+i*24);}
-   }else{unsigned remaining=visible();for(unsigned i=0;i<3;i++){prefix(b,p->line[i],remaining);game_ui_text_fitted(y,16,180+i*28,208,b,GAME_UI_INK);unsigned n=chars(p->line[i]);remaining=remaining>n?remaining-n:0;}}
+   }else if(language_get()==LANGUAGE_EN){game_ui_paragraph(y,16,176,208,90,p->line,3,visible(),GAME_UI_INK);}
+   else{unsigned remaining=visible();for(unsigned i=0;i<3;i++){prefix(b,p->line[i],remaining);game_ui_text_fitted(y,16,180+i*28,208,b,GAME_UI_INK);unsigned n=chars(p->line[i]);remaining=remaining>n?remaining-n:0;}}
    game_ui_footer(y,replay?"[C]继续 长按B结束回看":choosing()?GAME_UI_NAV_HINT:"[C]继续 长按B暂停");
    if(clock_state.elapsed_ms<300)game_ui_fade_background(y,16-clock_state.elapsed_ms*16/300);
   }else if(view==MEMORIES){

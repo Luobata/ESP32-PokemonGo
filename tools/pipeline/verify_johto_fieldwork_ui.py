@@ -23,6 +23,8 @@ helpers=[0,1,1,2,2,2,5,3,5,0,5,2,4,2,3,4,3]
 legends=[0,0,0,1,1,1,2,2,3,3,3,4,4,4,5,5,5]
 def cmd(s):
  global checks
+ if s.startswith("boot ") and os.environ.get("POKEWALK_TEST_LANGUAGE"):
+  r.command(s);s="language "+os.environ["POKEWALK_TEST_LANGUAGE"]
  f=r.command(s);assert r.command('check')['mismatch']==0,s;checks+=1;return f
 def state():return r.inspect()
 def key(n,ev=1):cmd(f'key {n} {ev}')

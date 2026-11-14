@@ -6,9 +6,14 @@ ROOT=Path(__file__).resolve().parents[2];sys.path.insert(0,str(ROOT/'tools/inspe
 from native import Renderer,build,png
 out=Path(os.environ.get('POKEWALK_EVIDENCE_DIR',str(ROOT/'reports/evidence/johto-narrative-2026-10-24')));out.mkdir(parents=True,exist_ok=True)
 exe,version=build();r=Renderer(exe);checks=0
+# English has more letters than the equivalent Chinese dialogue. Keep the
+# production reveal clock; wait for its longest tested page before advancing.
+read_ms=5000 if os.environ.get('POKEWALK_TEST_LANGUAGE')=='2' else 2400
 
 def cmd(s):
  global checks
+ if s.startswith("boot ") and os.environ.get("POKEWALK_TEST_LANGUAGE"):
+  r.command(s);s="language "+os.environ["POKEWALK_TEST_LANGUAGE"]
  f=r.command(s);m=r.command('check')['mismatch'];assert m==0,(s,m,r.inspect());checks+=1;return f
 
 def key(n=2,event=1):return cmd(f'key {n} {event}')
@@ -17,7 +22,7 @@ def scene(n):cmd(f'narrative_fixture {n}');cmd('tick 2400')
 def shot(name):
  if r.inspect()['page']==20 and state()['view']==1:cmd('tick 2400')
  (out/(name+'.png')).write_bytes(png(cmd('tick 0')['pixels']))
-def nextpage():cmd('tick 2400');key()
+def nextpage():cmd(f'tick {read_ms}');key()
 try:
  cmd('boot 1 25 60 74 3 81 0 0 0');scene(0);shot('opening-oak')
  assert state()['scene']==0
@@ -69,7 +74,7 @@ try:
   for _ in range(sid):key(1)
   key();before=state()['seen'];assert state()['replay'] and state()['scene']==sid
   for p in range(n):
-   cmd('tick 2500');assert state()['page']==p;key()
+   cmd(f'tick {max(2500,read_ms)}');assert state()['page']==p;key()
   assert state()['view']==2 and state()['seen']==before
  # Frame comparison throughout fade, person motion, scenery, reveal and sleep.
  for fixture in range(11):

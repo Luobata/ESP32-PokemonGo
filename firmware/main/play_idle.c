@@ -1,3 +1,4 @@
+#include "language.h"
 // main/play_idle.c —— P1 待机页（F8：最小可玩闭环）。
 //
 // 对应 docs/pages/P1-idle.md。
@@ -102,15 +103,15 @@ static void draw_band(int band_y, int8_t breath)
     species_t sp;
     bool has_species = assets_species(s_w.species, &sp);
     if (has_species) {
-        snprintf(buf, sizeof(buf), "%.*s", sp.name_zh_len, sp.name_zh);
+        language_snprintf(buf, sizeof(buf), "%.*s", sp.name_zh_len, sp.name_zh);
     } else {
-        snprintf(buf, sizeof(buf), "#%03u", s_w.species);
+        language_snprintf(buf, sizeof(buf), "#%03u", s_w.species);
     }
-    snprintf(level, sizeof(level), "Lv%u", s_w.level);
+    language_snprintf(level, sizeof(level), "Lv%u", s_w.level);
     game_ui_title(band_y, buf, level);
 
     // 亲密度与长名称分行；两端的小信息不进入居中的精灵区域。
-    snprintf(buf, sizeof(buf), "%u", nurture_pct(s_w.pet.intimacy));
+    language_snprintf(buf, sizeof(buf), "%u", nurture_pct(s_w.pet.intimacy));
     int width = render_text_width(buf);
     render_text(228 - width, Y(MOOD_Y), buf, GAME_UI_INK);
     ui_art_t heart;
@@ -152,12 +153,12 @@ static void draw_band(int band_y, int8_t breath)
     if (xp > 100) xp = 100;
     render_text(12, Y(EXP_Y), "经验", GAME_UI_INK);
     game_ui_meter(band_y, AXIS_BAR_X, EXP_Y, 80, xp);
-    if (s_w.level >= LEVEL_MAX) snprintf(buf, sizeof(buf), "满级");
-    else snprintf(buf, sizeof(buf), "%u%%", xp);
+    if (s_w.level >= LEVEL_MAX) language_snprintf(buf, sizeof(buf), "满级");
+    else language_snprintf(buf, sizeof(buf), "%u%%", xp);
     render_text(228-render_text_width(buf), Y(EXP_Y), buf, GAME_UI_INK);
     unsigned wait=nurture_wait_minutes(&s_w.pet,100);
-    if(!wait)snprintf(buf,sizeof(buf),"体能已满 可以去探索");
-    else snprintf(buf,sizeof(buf),"体能回满约%u分钟",wait);
+    if(!wait)language_snprintf(buf,sizeof(buf),"体能已满 可以去探索");
+    else language_snprintf(buf,sizeof(buf),"体能回满约%u分钟",wait);
     game_ui_text_centered(band_y,12,PROGRESS_Y,216,16,buf,GAME_UI_MUTED);
 
     static const char *const actions[] = {"照料", "菜单", "遭遇"};

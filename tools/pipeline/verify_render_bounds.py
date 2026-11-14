@@ -60,6 +60,6 @@ with tempfile.TemporaryDirectory() as tmp:
     subprocess.run(['cc', '-std=gnu11', '-O1', '-g', '-fsanitize=address,undefined',
                     '-fno-sanitize-recover=all', '-I', str(ROOT / 'firmware/main'),
                     '-I', str(ROOT / 'tools/inspector/host/include'),
-                    str(tmp / 'test.c'), '-o', str(tmp / 'test')], check=True)
+                    str(tmp / 'test.c'), str(ROOT/'firmware/main/language.c'), '-o', str(tmp / 'test')], check=True)
     result = subprocess.check_output([str(tmp / 'test')], text=True)
     print(json.dumps(json.loads(result)))

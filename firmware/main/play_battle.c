@@ -1,3 +1,4 @@
+#include "language.h"
 // main/play_battle.c —— P3 遭遇详情 / 战斗。
 //
 // 对应 docs/pages/P3-battle.md。
@@ -292,10 +293,10 @@ static void draw_band(int band_y)
     if (!s_entering) {
     // -- 野怪 ------------------------------------------------------------
     if (has_wild) {
-        snprintf(buf, sizeof(buf), "%.*s Lv%u",
+        language_snprintf(buf, sizeof(buf), "%.*s Lv%u",
                  wild_sp.name_zh_len, wild_sp.name_zh, wlv);
     } else {
-        snprintf(buf, sizeof(buf), "#%03u Lv%u", c->enc.species_id, wlv);
+        language_snprintf(buf, sizeof(buf), "#%03u Lv%u", c->enc.species_id, wlv);
     }
     render_text(8, Y(WILD_NAME_Y), buf, C_INK);
 
@@ -369,7 +370,7 @@ static void draw_band(int band_y)
                                   pet_sp.name_zh_len, view.level);
     }
     scene_screen_p3_pet_hp(band_y, p_hp, s_res.pet_hp_max);
-    snprintf(buf, sizeof(buf), "%u/%u", p_hp, s_res.pet_hp_max);
+    language_snprintf(buf, sizeof(buf), "%u/%u", p_hp, s_res.pet_hp_max);
     render_text(SCR_W - 8 - render_text_width(buf), Y(PET_HP_VALUE_Y), buf, C_INK);
     battle_presentation_exp_t xp = visible_exp();
     if (band_y < 240 && band_y + BAND_H > 224)
@@ -415,27 +416,27 @@ static void draw_band(int band_y)
         const battle_round_t *r = &s_res.rounds[s_play_i - 1];
         char who[32];
         if (r->by_pet && has_pet) {
-            snprintf(who, sizeof(who), "%.*s",
+            language_snprintf(who, sizeof(who), "%.*s",
                      pet_sp.name_zh_len, pet_sp.name_zh);
         } else if (!r->by_pet && has_wild) {
-            snprintf(who, sizeof(who), "野生%.*s",
+            language_snprintf(who, sizeof(who), "野生%.*s",
                      wild_sp.name_zh_len, wild_sp.name_zh);
         } else {
             who[0] = '\0';
         }
         // 第一行：谁 + 效果提示（100 倍率不显示，
         // 每回合都弹「效果一般」会把「效果绝佳」的分量冲掉）
-        snprintf(buf, sizeof(buf), "%s", who);
+        language_snprintf(buf, sizeof(buf), "%s", who);
         game_ui_text_fitted(band_y, MSG_X, MSG_Y, MSG_RIGHT-MSG_X, buf, C_INK);
 
         // 第二行：做了什么 + 伤害
-        if (r->skipped) {snprintf(buf,sizeof(buf),"%s",combat_feedback(r));
+        if (r->skipped) {language_snprintf(buf,sizeof(buf),"%s",combat_feedback(r));
         } else if (r->missed) {
-            snprintf(buf, sizeof(buf), "的攻击落空了！");
+            language_snprintf(buf, sizeof(buf), "的攻击落空了！");
         } else {
             move_t display;
             bool named = combat_move(r->move_id, &display);
-            snprintf(buf, sizeof(buf), "使用了%.*s！",
+            language_snprintf(buf, sizeof(buf), "使用了%.*s！",
                      named ? display.name_zh_len : r->move_zh_len,
                      named ? display.name_zh : r->move_zh ? r->move_zh : "");
         }
@@ -444,18 +445,18 @@ static void draw_band(int band_y)
         unsigned gained = s_exp_anim
             ? (unsigned)s_res.exp * s_exp_frame / BATTLE_PRESENTATION_EXP_FRAMES : s_res.exp;
         if (s_res.won) {
-            if(exploration_chain_encounter(&nav_ctx()->enc))snprintf(buf,sizeof(buf),"连胜%lu 经验+%u",(unsigned long)world_exploration_chain(),gained);
-            else snprintf(buf, sizeof(buf), "胜利 经验 +%u", gained);
+            if(exploration_chain_encounter(&nav_ctx()->enc))language_snprintf(buf,sizeof(buf),"连胜%lu 经验+%u",(unsigned long)world_exploration_chain(),gained);
+            else language_snprintf(buf, sizeof(buf), "胜利 经验 +%u", gained);
             game_ui_text_fitted(band_y,MSG_X,MSG_Y,MSG_RIGHT-MSG_X,buf,C_INK);
             const item_info_t *item = items_info(s_session.loot_item);
-            if (s_loot_failed) snprintf(buf, sizeof(buf), "掉落保存失败，请重试");
+            if (s_loot_failed) language_snprintf(buf, sizeof(buf), "掉落保存失败，请重试");
             else if (item && s_session.loot_qty)
-                snprintf(buf, sizeof(buf), "获得%s ×%u", item->name, s_session.loot_qty);
-            else if (item && s_session.loot_full) snprintf(buf, sizeof(buf), "%s已满", item->name);
-            else snprintf(buf, sizeof(buf), "这次没有掉落");
+                language_snprintf(buf, sizeof(buf), "获得%s ×%u", item->name, s_session.loot_qty);
+            else if (item && s_session.loot_full) language_snprintf(buf, sizeof(buf), "%s已满", item->name);
+            else language_snprintf(buf, sizeof(buf), "这次没有掉落");
             render_text(MSG_X, Y(MSG_DETAIL_Y), buf, GAME_UI_MUTED);
         } else {
-            snprintf(buf, sizeof(buf), "战败 经验 +%u", gained);
+            language_snprintf(buf, sizeof(buf), "战败 经验 +%u", gained);
             render_text(MSG_X, Y(MSG_Y), buf, C_INK);
             game_ui_text_fitted(band_y,MSG_X,MSG_DETAIL_Y,MSG_RIGHT-MSG_X,exploration_chain_encounter(&nav_ctx()->enc)?"连胜中断 体能-20":"体能 -20 心情 -15",GAME_UI_MUTED);
         }
@@ -467,7 +468,7 @@ static void draw_band(int band_y)
             uint16_t chance = battle_escape_chance(
                 battle_effective_stat(pet_sp.speed, s_session.pet_level),
                 battle_effective_stat(wild_sp.speed, s_session.wild_level), s_session.escape_attempts);
-            snprintf(buf, sizeof(buf), "逃跑成功率 %u%%", chance * 100 / 256);
+            language_snprintf(buf, sizeof(buf), "逃跑成功率 %u%%", chance * 100 / 256);
             render_text(MSG_X, Y(MSG_DETAIL_Y), buf, GAME_UI_MUTED);
         }
     }
@@ -487,9 +488,9 @@ static void draw_band(int band_y)
         const battle_round_t *r = &s_res.rounds[s_play_i-1];
         const char *effect = combat_feedback(r);
         if(!s_track_preview&&s_timing.faint_mask&&s_clock.elapsed_ms>=s_timing.faint_start)effect="失去战斗能力";
-        if(r->charging||r->skipped||r->self_target||r->no_effect||!r->damage)snprintf(attack_hint,sizeof(attack_hint),"%s",effect?effect:"长按B逃跑");
-        else if (r->missed) snprintf(attack_hint,sizeof(attack_hint),"长按B逃跑");
-        else snprintf(attack_hint,sizeof(attack_hint),"%s -%uHP 长按B逃跑",effect?effect:"",r->damage);
+        if(r->charging||r->skipped||r->self_target||r->no_effect||!r->damage)language_snprintf(attack_hint,sizeof(attack_hint),"%s",effect?effect:"长按B逃跑");
+        else if (r->missed) language_snprintf(attack_hint,sizeof(attack_hint),"长按B逃跑");
+        else language_snprintf(attack_hint,sizeof(attack_hint),"%s -%uHP 长按B逃跑",effect?effect:"",r->damage);
         hint = attack_hint;
     }
     if (s_escape_prompt) {

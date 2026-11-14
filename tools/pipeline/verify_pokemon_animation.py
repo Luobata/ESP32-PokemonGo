@@ -133,7 +133,7 @@ def build_driver(directory: Path, source: Path, assets: Path | None = None) -> P
                     '-I', str(MAIN), '-I', str(ROOT / 'tools/inspector/host/include'),
                     '-I', str(ROOT / 'firmware/components/bsp/include'),
                     str(directory / 'driver.c'), str(source),
-                    *[str(MAIN/name) for name in ('assets.c','pokemon_names.c','combat.c','battle.c','exp.c','nurture.c','evolution.c','items.c')], str(MAIN / 'render.c'), str(MAIN / 'screen.c'),
+                    *[str(MAIN/name) for name in ('assets.c','pokemon_names.c','combat.c','battle.c','exp.c','nurture.c','evolution.c','items.c','language.c')], str(MAIN / 'render.c'), str(MAIN / 'screen.c'),
                     str(directory / 'assets.S'), '-lz', '-o', str(executable)],
                    check=True, text=True)
     return executable

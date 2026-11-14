@@ -191,6 +191,14 @@
 
 ## 每次发布前执行
 
+### 界面语言回归（2026-11-14）
+
+- 英文目录覆盖菜单、动态格式、剧情、道具、251 伙伴及招式；新增文案必须同步 `en.json` 并通过覆盖检查。英文需按词换行和检查完整剧情可见，不以省略关键线索替代排版。英文 Gold 字形和名称源固定，生成索引驻 Flash，不为翻译分配堆缓冲或扩大任务栈。语言编号 0/1/2 保持简体/繁体/英文；中文名称偏好切回中文后保留。
+
+- 简体／繁体／英文是显示偏好，独立于官方／怀旧译名。`pokewalk/language` 随 NVS 备份恢复；旧备份没有此键时默认简体，不修改世界存档版本或玩家进度。新增设置也必须纳入共享 NVS 容量与真实导入回归。
+- 新增中文文案后更新 `generate_traditional.py` 产物，保留固定 OpenCC 来源及游戏语境例外。构建检查字符覆盖、字形完整性及等长转换；不以扩大任务栈、临时堆缓冲或逐条带转换整页换取多语言。
+- 执行 `verify_language.py` 与 `verify_language_ui.py`，检查完整文案、歧义词、设置失败、两种译名及各页面局部刷新。显示偏好不能改变战斗时钟和按键规则；发布前仍需按上述规范分别验收简体／繁体／英文真机绘制成本与实际动画帧率。
+
 在仓库根目录执行以下现有检查；脚本更名时同步更新本文件，不得直接省略检查：
 
 ```sh
@@ -199,6 +207,10 @@ python3 tools/pipeline/verify_display_ownership.py
 python3 tools/pipeline/verify_device_screenshot.py
 python3 tools/pipeline/verify_firmware_preview.py
 python3 tools/pipeline/verify_render_bounds.py
+python3 tools/pipeline/verify_language.py
+python3 tools/pipeline/generate_english.py --check
+python3 tools/pipeline/verify_english.py
+python3 tools/pipeline/verify_language_ui.py
 python3 tools/pipeline/verify_animation_timing.py
 python3 tools/pipeline/verify_scene_pacing.py
 python3 tools/pipeline/verify_battle_timeline.py
@@ -247,6 +259,8 @@ python3 tools/pipeline/verify_johto_champion_ui.py
 python3 tools/pipeline/verify_johto_champion_balance.py
 python3 tools/pipeline/verify_johto_narrative.py
 python3 tools/pipeline/verify_johto_narrative_ui.py
+POKEWALK_TEST_LANGUAGE=2 python3 tools/pipeline/verify_johto_narrative_ui.py
+POKEWALK_TEST_LANGUAGE=2 python3 tools/pipeline/verify_johto_fieldwork_ui.py
 tools/device/fw.sh build
 ```
 

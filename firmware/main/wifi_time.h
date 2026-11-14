@@ -3,11 +3,15 @@
 #include <stdint.h>
 typedef enum { WIFI_TIME_UNCONFIGURED, WIFI_TIME_CONNECTING, WIFI_TIME_WAITING,
  WIFI_TIME_READY, WIFI_TIME_OFFLINE, WIFI_TIME_ERROR } wifi_time_state_t;
+#define WIFI_SETUP_CLIENT_LIMIT 2
+typedef enum { WIFI_FAILURE_NONE, WIFI_FAILURE_NOT_FOUND, WIFI_FAILURE_AUTH, WIFI_FAILURE_CONNECTION } wifi_time_failure_t;
 typedef struct {
  wifi_time_state_t state;
  bool setup;
  char ssid[16],password[9]; // Temporary provisioning AP only, never the home password.
  uint8_t recovered;
+ bool setup_failed; // Transient UI status, independent of background time sync.
+ uint8_t setup_clients, failure;
 } wifi_time_view_t;
 // Called after the game's STA interface is initialized. Poll runs in world_task.
 void wifi_time_start(void);

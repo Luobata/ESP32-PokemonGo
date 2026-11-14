@@ -1,3 +1,4 @@
+#include "language.h"
 #include "evolution_ui.h"
 #include "assets.h"
 #include "evolution.h"
@@ -87,10 +88,10 @@ static void draw(int band){
   game_ui_text_centered(band,16,248,208,16,"进化未保存",GAME_UI_INK);
   game_ui_text_centered(band,16,278,208,16,"C重试 长按B取消",GAME_UI_MUTED);
  }else if(committed){
-  if(assets_species(new_species,&named))snprintf(name,sizeof(name),"%.*s",named.name_zh_len,named.name_zh);else snprintf(name,sizeof(name),"伙伴");
-  snprintf(text,sizeof(text),"进化成%s了！",name);game_ui_text_centered(band,16,248,208,16,text,GAME_UI_INK);
-  if(new_moves)snprintf(text,sizeof(text),"新学会%u招 C确认",new_moves);
-  else snprintf(text,sizeof(text),"C确认继续冒险");
+  if(assets_species(new_species,&named))language_snprintf(name,sizeof(name),"%.*s",named.name_zh_len,named.name_zh);else language_snprintf(name,sizeof(name),"伙伴");
+  language_snprintf(text,sizeof(text),"进化成%s了！",name);game_ui_text_centered(band,16,248,208,16,text,GAME_UI_INK);
+  if(new_moves)language_snprintf(text,sizeof(text),"新学会%u招 C确认",new_moves);
+  else language_snprintf(text,sizeof(text),"C确认继续冒险");
   game_ui_text_centered(band,16,278,208,16,frame>=DONE_FRAME&&audio_stage>=3?text:"新伙伴诞生了",GAME_UI_MUTED);
  }else{
   game_ui_text_centered(band,16,248,208,16,"伙伴的样子正在变化！",GAME_UI_INK);

@@ -107,6 +107,16 @@ controls['#wins']={value:0};controls['#shiny-output']={};vm.runInContext('calcul
 nodes['#search'].value='珊瑚间的光点';vm.runInContext('render()',context);
 assert(nodes['#content'].innerHTML.includes('#fieldwork/9')&&!nodes['#content'].innerHTML.includes('灯笼鱼'),'Clue search must not reveal answers');
 nodes['#search'].value='<img src=x onerror=alert(1)>';vm.runInContext('render()',context);assert(!nodes['#content'].innerHTML.includes('<img src=x'));
+// Unreleased firmware features must stay hidden in the old public catalog,
+// then become discoverable when release export detects the new capabilities.
+nodes['#search'].value='';
+vm.runInContext('data=JSON.parse(JSON.stringify(CATALOG.release))',context);
+for(const feature of ['traditionalUi','partyShinyBadge','wifiSetupDiagnostics'])vm.runInContext(`data.features.${feature}=true`,context);
+context.location.hash='#settings';vm.runInContext('render()',context);
+for(const text of ['繁體中文','最多支持 2 台','2.4GHz'])assert(nodes['#content'].innerHTML.includes(text),text);
+vm.runInContext('data.features.englishUi=true',context);vm.runInContext('render()',context);
+assert(nodes['#content'].innerHTML.includes('English'));
+context.location.hash='#party';vm.runInContext('render()',context);assert(nodes['#content'].innerHTML.includes('第二行显示 ★'));
 console.log(JSON.stringify({passed:true,pages:checks,editions:2,calculators:true,links:true,escapedSearch:true}));
 '''
 with tempfile.TemporaryDirectory() as tmp:
