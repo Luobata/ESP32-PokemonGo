@@ -220,7 +220,7 @@ def check(src: Path, assets: Path, reference: Path | None, preview: Path | None 
                         '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
                         '-I', str(main), '-I', str(host),
                         '-I', str(ROOT/'firmware/components/bsp/include'), str(temp/'driver.c'),
-                        *[str(main/name) for name in ('assets.c','pokemon_names.c','combat.c','battle.c','exp.c','nurture.c','evolution.c','items.c')],
+                        *[str(main/name) for name in ('assets.c','pokemon_names.c','combat.c','battle.c','exp.c','nurture.c','evolution.c','items.c','language.c')],
                         str(main/'render.c'), str(main/'screen.c'),
                         str(temp/'assets.S'), '-lz', '-o', str(temp/'driver')], check=True)
         with (temp/'renders.bin').open('wb') as stream:

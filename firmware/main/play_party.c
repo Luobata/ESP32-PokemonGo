@@ -1,3 +1,4 @@
+#include "language.h"
 // P12: six visible party slots and a member detail view.
 // World transactions save each requested change before publishing it to the UI.
 #include <stdio.h>
@@ -90,8 +91,8 @@ static void member_name(const mon_t *member, char *out, size_t capacity)
 {
     species_t species;
     if (assets_species(member->species_id, &species))
-        snprintf(out, capacity, "%.*s", species.name_zh_len, species.name_zh);
-    else snprintf(out, capacity, "#%03u", member->species_id);
+        language_snprintf(out, capacity, "%.*s", species.name_zh_len, species.name_zh);
+    else language_snprintf(out, capacity, "#%03u", member->species_id);
 }
 
 static void draw_front(int band_y, const mon_t *member, int x, int y, int w, int h, bool thumbnail)
@@ -116,7 +117,7 @@ static void draw_front(int band_y, const mon_t *member, int x, int y, int w, int
 static void draw_list(int band_y)
 {
     char text[64], name[48];
-    snprintf(text, sizeof(text), "%u/%u", s_party.count, PARTY_MAX);
+    language_snprintf(text, sizeof(text), "%u/%u", s_party.count, PARTY_MAX);
     game_ui_title(band_y, "队伍", text);
     unsigned highest=1;for(unsigned i=0;i<s_party.count;i++)if(s_party.members[i].level>highest)highest=s_party.members[i].level;
     for (unsigned index = 0; index < PARTY_MAX; index++) {
@@ -131,16 +132,18 @@ static void draw_list(int band_y)
         draw_front(band_y, member, sprite_x, y + 2, THUMB_SIZE, THUMB_SIZE, true);
         member_name(member, name, sizeof(name));
         render_text(text_x, y + 2 - band_y, name, GAME_UI_INK);
-        snprintf(text, sizeof(text), "Lv%u", member->level);
+        language_snprintf(text, sizeof(text), "Lv%u", member->level);
         render_text(228 - render_text_width(text), y + 2 - band_y, text, GAME_UI_INK);
-        if(index)snprintf(text,sizeof(text),"分享%u%%",exp_party_percent(member->level,highest,false));
-        else snprintf(text,sizeof(text),"亲密 %u",member->intimacy);
+        if(index)language_snprintf(text,sizeof(text),"分享%u%%",exp_party_percent(member->level,highest,false));
+        else language_snprintf(text,sizeof(text),"亲密 %u",member->intimacy);
         render_text(text_x, y + 20 - band_y, text, GAME_UI_MUTED);
+        // Keep a fixed badge separate from the moving thumbnail and level.
+        if (member->flags & 1) render_text(168, y + 20 - band_y, "★", GAME_UI_ACCENT);
         if (index == 0) render_text(196, y + 20 - band_y, "出战", GAME_UI_ACCENT);
         game_ui_list_marker(band_y, 8, y + 10, index, s_party.count, s_selected);
     }
     if(!s_feedback[0]) { render_text(12, 260 - band_y, "C查看详情", GAME_UI_MUTED);
-    snprintf(text, sizeof(text), "仓库%u只", s_party.box_count);
+    language_snprintf(text, sizeof(text), "仓库%u只", s_party.box_count);
     render_text(228 - render_text_width(text), 260 - band_y, text, GAME_UI_MUTED);
     } else game_ui_text_centered(band_y,8,260,224,16,s_feedback,GAME_UI_ACCENT);
     game_ui_footer(band_y, game_ui_list_hint(s_party.count));
@@ -152,20 +155,20 @@ static void draw_detail(int band_y)
     if (!member) return;
     char name[48], text[64], level[16];
     member_name(member, name, sizeof(name));
-    snprintf(level, sizeof(level), "Lv%u", member->level);
+    language_snprintf(level, sizeof(level), "Lv%u", member->level);
     game_ui_title(band_y, name, level);
-    snprintf(text, sizeof(text), "#%03u", member->species_id);
+    language_snprintf(text, sizeof(text), "#%03u", member->species_id);
     render_text(12, 40 - band_y, text, GAME_UI_MUTED);
-    if (s_box_mode) snprintf(text, sizeof(text), "仓库伙伴");
-    else if (s_selected) snprintf(text, sizeof(text), "队员 %u", s_selected + 1);
-    else snprintf(text, sizeof(text), "出战伙伴");
+    if (s_box_mode) language_snprintf(text, sizeof(text), "仓库伙伴");
+    else if (s_selected) language_snprintf(text, sizeof(text), "队员 %u", s_selected + 1);
+    else language_snprintf(text, sizeof(text), "出战伙伴");
     render_text(228 - render_text_width(text), 40 - band_y, text, GAME_UI_INK);
     draw_front(band_y, member, 64, 64, 112, 112, false);
-    snprintf(text, sizeof(text), "亲密 %u", member->intimacy);
+    language_snprintf(text, sizeof(text), "亲密 %u", member->intimacy);
     render_text(12, 184 - band_y, text, GAME_UI_INK);
-    snprintf(text, sizeof(text), "探索 %u", member->explore_value);
+    language_snprintf(text, sizeof(text), "探索 %u", member->explore_value);
     render_text(228 - render_text_width(text), 184 - band_y, text, GAME_UI_INK);
-    snprintf(text, sizeof(text), "经验 %lu", (unsigned long)member->exp);
+    language_snprintf(text, sizeof(text), "经验 %lu", (unsigned long)member->exp);
     render_text(12, 208 - band_y, text, GAME_UI_MUTED);
     if (member->flags & 1) render_text(196, 208 - band_y, "闪光", GAME_UI_ACCENT);
     game_ui_box(band_y, 8, 232, 224, 40);
@@ -187,8 +190,8 @@ static void load_box(void){
  if (!s_box_count) s_box_details = s_skills = false;
 }
 static void draw_box(int band){
- char text[72],name[48];snprintf(text,sizeof(text),"%u/%u",s_party.box_count,BOX_CAPACITY);game_ui_title(band,"仓库",text);
- snprintf(text,sizeof(text),"%s / %s / %s",s_box_filters[s_box_options.filter],s_box_types[s_box_options.type],s_box_options.sort==BOX_SORT_LEVEL?"等级降序":s_box_options.sort==BOX_SORT_LEVEL_ASC?"等级升序":"编号");
+ char text[72],name[48];language_snprintf(text,sizeof(text),"%u/%u",s_party.box_count,BOX_CAPACITY);game_ui_title(band,"仓库",text);
+ language_snprintf(text,sizeof(text),"%s / %s / %s",s_box_filters[s_box_options.filter],s_box_types[s_box_options.type],s_box_options.sort==BOX_SORT_LEVEL?"等级降序":s_box_options.sort==BOX_SORT_LEVEL_ASC?"等级升序":"编号");
  game_ui_text_centered(band,8,36,224,16,text,GAME_UI_MUTED);
  game_ui_box(band,8,56,224,168);
  if(!s_box_count){
@@ -198,10 +201,10 @@ static void draw_box(int band){
  for(unsigned i=0,top=s_box_row/5*5;i<5&&top+i<s_box_count;i++){
   mon_t row; if(!world_box_at(s_box_ids[top+i],&row))continue; const mon_t *m=&row;int y=68+i*32;member_name(m,name,sizeof(name));render_text(54,y-band,name,GAME_UI_INK);
   if(m->flags&1)render_text(34,y-band,"★",GAME_UI_ACCENT);
-  snprintf(text,sizeof(text),"Lv%u",m->level);render_text(216-render_text_width(text),y-band,text,GAME_UI_INK);
+  language_snprintf(text,sizeof(text),"Lv%u",m->level);render_text(216-render_text_width(text),y-band,text,GAME_UI_INK);
   game_ui_list_marker(band,20,y,top+i,s_box_count,s_box_row);
  }
- member_name(&s_party.members[s_selected],name,sizeof(name));snprintf(text,sizeof(text),"换出 %s",name);game_ui_text_centered(band,8,236,224,16,text,GAME_UI_INK);
+ member_name(&s_party.members[s_selected],name,sizeof(name));language_snprintf(text,sizeof(text),"换出 %s",name);game_ui_text_centered(band,8,236,224,16,text,GAME_UI_INK);
  game_ui_text_centered(band,8,260,224,16,s_feedback[0]?s_feedback:s_box_paging?"快速翻页 C恢复逐只选择":"长按A筛选排序与翻页",s_box_paging?GAME_UI_ACCENT:GAME_UI_MUTED);
  game_ui_footer(band,s_box_paging?"A上页 B下页 C选择":game_ui_list_hint(s_box_count));
 }
@@ -215,7 +218,7 @@ static unsigned box_menu_count(void)
 static void draw_box_menu(int band)
 {
     char text[80];
-    snprintf(text, sizeof(text), "%u只匹配", s_box_count);
+    language_snprintf(text, sizeof(text), "%u只匹配", s_box_count);
     const char *title = s_box_menu == BOX_MENU_OPTIONS ? "仓库选项" :
         s_box_menu == BOX_MENU_FILTER ? "筛选伙伴" : s_box_menu == BOX_MENU_TYPE ? "按属性筛选" : "排序方式";
     game_ui_title(band, title, text);
@@ -224,12 +227,12 @@ static void draw_box_menu(int band)
         const char *label;
         if (s_box_menu == BOX_MENU_OPTIONS) {
             switch (i) {
-            case 0: snprintf(text, sizeof(text), "范围 %s", s_box_filters[s_box_options.filter]); break;
-            case 1: snprintf(text, sizeof(text), "属性 %s", s_box_types[s_box_options.type]); break;
-            case 2: snprintf(text, sizeof(text), "排序 %s", s_box_options.sort == BOX_SORT_LEVEL ? "等级从高到低" : "图鉴编号"); break;
-            case 3: snprintf(text, sizeof(text), "快速翻页"); break;
-            case 4: snprintf(text, sizeof(text), "清除筛选"); break;
-            default: snprintf(text, sizeof(text), "返回仓库"); break;
+            case 0: language_snprintf(text, sizeof(text), "范围 %s", s_box_filters[s_box_options.filter]); break;
+            case 1: language_snprintf(text, sizeof(text), "属性 %s", s_box_types[s_box_options.type]); break;
+            case 2: language_snprintf(text, sizeof(text), "排序 %s", s_box_options.sort == BOX_SORT_LEVEL ? "等级从高到低" : "图鉴编号"); break;
+            case 3: language_snprintf(text, sizeof(text), "快速翻页"); break;
+            case 4: language_snprintf(text, sizeof(text), "清除筛选"); break;
+            default: language_snprintf(text, sizeof(text), "返回仓库"); break;
             }
             label = text;
         } else label = s_box_menu == BOX_MENU_FILTER ? s_box_filters[i] :
@@ -260,26 +263,26 @@ static void draw_evolutions(int band) {
  if(s_evo_choice>=n)s_evo_choice=0;
  const evo_option_t *o=s_evo_confirm?&s_evo_option:&options[s_evo_choice];
  if(s_evo_confirm){
-  species_t sp;assets_species(o->target,&sp);snprintf(text,sizeof(text),"进化成%.*s？",sp.name_zh_len,sp.name_zh);
+  species_t sp;assets_species(o->target,&sp);language_snprintf(text,sizeof(text),"进化成%.*s？",sp.name_zh_len,sp.name_zh);
   game_ui_text_fitted(band,16,64,208,text,GAME_UI_INK);
   game_ui_text_centered(band,16,108,208,16,"等级 经验 闪光保留",GAME_UI_MUTED);
   game_ui_text_centered(band,16,140,208,16,"技能设置跟随这只伙伴",GAME_UI_MUTED);
-  snprintf(text,sizeof(text),"%s",o->item==ITEM_NONE?"不消耗道具":items_info(o->item)->name);
+  language_snprintf(text,sizeof(text),"%s",o->item==ITEM_NONE?"不消耗道具":items_info(o->item)->name);
   game_ui_text_centered(band,16,188,208,16,text,GAME_UI_ACCENT);
   static const char *const labels[]={"取消","确认进化"};game_ui_actions(band,labels,2,s_evo_confirm_choice);return;
  }
  for(unsigned i=0;i<n;i++){
-  species_t sp;assets_species(options[i].target,&sp);snprintf(text,sizeof(text),"%.*s",sp.name_zh_len,sp.name_zh);
+  species_t sp;assets_species(options[i].target,&sp);language_snprintf(text,sizeof(text),"%.*s",sp.name_zh_len,sp.name_zh);
   game_ui_text_fitted(band,32,44+i*27,184,text,GAME_UI_INK);
   if(i==s_evo_choice)game_ui_cursor(band,12,48+i*27);
  }
  inventory_t bag;world_inventory_snapshot(&bag);johto_state_t j;world_johto_snapshot(&j);
- if(o->item!=ITEM_NONE)snprintf(text,sizeof(text),"%s %u/1",items_info(o->item)->name,bag.quantity[o->item]);
- else if(o->intimacy)snprintf(text,sizeof(text),"亲密 %u/%u",m->intimacy,o->intimacy);
- else snprintf(text,sizeof(text),"等级 %u/%u",m->level,o->level);
+ if(o->item!=ITEM_NONE)language_snprintf(text,sizeof(text),"%s %u/1",items_info(o->item)->name,bag.quantity[o->item]);
+ else if(o->intimacy)language_snprintf(text,sizeof(text),"亲密 %u/%u",m->intimacy,o->intimacy);
+ else language_snprintf(text,sizeof(text),"等级 %u/%u",m->level,o->level);
  game_ui_text_centered(band,8,190,224,16,text,GAME_UI_INK);
- if(o->badges)snprintf(text,sizeof(text),"城都徽章 %u/%u",johto_badges(&j),o->badges);
- else snprintf(text,sizeof(text),"%s",o->item==ITEM_NONE?"不消耗道具":"消耗1个对应道具");
+ if(o->badges)language_snprintf(text,sizeof(text),"城都徽章 %u/%u",johto_badges(&j),o->badges);
+ else language_snprintf(text,sizeof(text),"%s",o->item==ITEM_NONE?"不消耗道具":"消耗1个对应道具");
  game_ui_text_centered(band,8,216,224,16,text,GAME_UI_MUTED);
  game_ui_text_centered(band,8,246,224,16,s_feedback[0]?s_feedback:o->training?o->training:evolution_ready(o)?"条件满足 C选择":"继续培养或收集道具",GAME_UI_ACCENT);
  game_ui_footer(band,GAME_UI_NAV_HINT);
@@ -292,7 +295,7 @@ static void draw_range(int top, int bottom)
         else if (s_release_confirm) {
             char name[48], level[24];
             member_name(&s_release_expected, name, sizeof(name));
-            snprintf(level, sizeof(level), "Lv%u", s_release_expected.level);
+            language_snprintf(level, sizeof(level), "Lv%u", s_release_expected.level);
             game_ui_title(y, "放生伙伴？", level);
             draw_front(y, &s_release_expected, 64, 44, 112, 112, false);
             game_ui_text_centered(y, 8, 168, 224, 16, name, GAME_UI_INK);
@@ -430,7 +433,7 @@ static void select_leader(void)
     default: break;
     }
     if (!s_success) refresh_snapshot();
-    snprintf(s_feedback, sizeof(s_feedback), "%s", message);
+    language_snprintf(s_feedback, sizeof(s_feedback), "%s", message);
 }
 
 static void exchange_member(void)
@@ -443,7 +446,7 @@ static void exchange_member(void)
         return;
     }
     const char *message = result == WORLD_SWITCH_OK ? "队伍已更换" : result == WORLD_SWITCH_BUSY ? "请先结束当前对战" : result == WORLD_SWITCH_SAVE_FAILED ? "保存失败 请重试" : result == WORLD_SWITCH_INVALID ? "仓库选择无效 请重试" : "伙伴已变 请重试";
-    snprintf(s_feedback, sizeof(s_feedback), "%s", message);
+    language_snprintf(s_feedback, sizeof(s_feedback), "%s", message);
     refresh_snapshot();
     load_box();
     if (result == WORLD_SWITCH_OK) {
@@ -470,7 +473,7 @@ void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
             s_evo_choice=nav_list_selection(btn,ev,n,s_evo_choice);
             if(confirm&&n){
                 if(evolution_ready(&options[s_evo_choice])){s_evo_expected=*view_member();s_evo_option=options[s_evo_choice];s_evo_confirm=true;s_evo_confirm_choice=0;}
-                else snprintf(s_feedback,sizeof(s_feedback),"进化条件尚未满足");
+                else language_snprintf(s_feedback,sizeof(s_feedback),"进化条件尚未满足");
             }else s_feedback[0]=0;
         }
         draw_all();return;
@@ -487,7 +490,7 @@ void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
                 result == WORLD_SWITCH_SAVE_FAILED ? "保存失败 请重试" :
                 result == WORLD_SWITCH_BUSY ? "请先结束对战或秘境" :
                 result == WORLD_SWITCH_STORAGE_UNAVAILABLE ? "存档暂不可用" : "伙伴已变 请重试";
-            snprintf(s_feedback, sizeof(s_feedback), "%s", message);
+            language_snprintf(s_feedback, sizeof(s_feedback), "%s", message);
             if (s_success || result == WORLD_SWITCH_STALE || result == WORLD_SWITCH_INVALID) {
                 s_release_confirm = s_box_details = false; s_action = 0;
                 refresh_snapshot(); load_box(); reset_motion();
@@ -542,7 +545,7 @@ void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
             s_feedback[0] = 0;
         } else if (confirm) {
             if (!dungeon_abandon()) {
-                snprintf(s_feedback, sizeof(s_feedback), "保存失败 请重试");
+                language_snprintf(s_feedback, sizeof(s_feedback), "保存失败 请重试");
             } else {
                 s_end_dungeon = false;
                 // Pending dungeon rewards may change the outgoing member's EXP.
@@ -566,7 +569,7 @@ void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
                 const char *message=r==WORLD_SWITCH_OK?(id?(move_policy_allows(&s_policy,id)?"已禁用 自动战斗不选用":"已启用"):"已全部启用"):
                     r==WORLD_SWITCH_LAST_MOVE?"至少保留一招":r==WORLD_SWITCH_BUSY?"对战或秘境中无法修改":
                     r==WORLD_SWITCH_SAVE_FAILED?"保存失败 请重试":r==WORLD_SWITCH_STORAGE_UNAVAILABLE?"存档暂不可用":"伙伴已变 请重试";
-                snprintf(s_feedback,sizeof(s_feedback),"%s",message);refresh_policy();
+                language_snprintf(s_feedback,sizeof(s_feedback),"%s",message);refresh_policy();
             }
         }
         draw_all(); return;
@@ -601,7 +604,7 @@ void play_party_key(bsp_btn_t btn, bsp_btn_ev_t ev)
         else exchange_member();
     } else if (s_action == 0) select_leader();
     else if (s_action == 1) {
-        if (s_selected) { s_success = false; snprintf(s_feedback, sizeof(s_feedback), "请先设为出战伙伴"); }
+        if (s_selected) { s_success = false; language_snprintf(s_feedback, sizeof(s_feedback), "请先设为出战伙伴"); }
         else { nav_open(PAGE_BAG); return; }
     } else if (s_action == 2) { s_skills = true; s_skill = 0; s_feedback[0]=0; refresh_policy(); }
     else { s_box_mode = true; s_box_details = false; s_box_menu = BOX_MENU_CLOSED; s_box_paging = false; s_box_row = s_action = 0; s_feedback[0] = 0; load_box(); reset_motion(); }

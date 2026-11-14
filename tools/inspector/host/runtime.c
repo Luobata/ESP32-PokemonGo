@@ -28,11 +28,20 @@
 #include "playtime.h"
 #include "battery_ui.h"
 #include "dungeon.h"
+#include "wifi_time.h"
+#include "language.h"
+#include "usb_backup.h"
+
+static bool host_usb_snapshot(uint8_t *p,size_t n){memset(p,0,n);return true;}
+static void host_usb_emit(const char *line){(void)line;}
+static bool host_usb_stage(const uint8_t *p,size_t n,unsigned v){(void)p;(void)n;(void)v;return false;}
 
 static uint64_t now_ms;
 static unsigned lcd_submitted_bands;
 static int battery_soc = 76;
 static unsigned battery_reads;
+static wifi_time_view_t host_wifi;
+static bool host_wifi_fail_setup;
 int bsp_battery_soc(void) { battery_reads++; return battery_soc; }
 static uint8_t backlight = 100;
 void bsp_display_backlight(uint8_t percent) { backlight = percent; }
@@ -531,6 +540,11 @@ bool display_settings_set_battery_visible(bool v){
     host_battery_visible=v;return true;
 }
 void display_settings_init(void) {host_brightness=DISPLAY_BRIGHTNESS_DEFAULT;}
+void language_settings_init(void) { language_set_runtime(LANGUAGE_ZH_HANS); }
+bool language_settings_set(language_t language) {
+ if((unsigned)language>=LANGUAGE_COUNT||host_save_fails())return false;
+ return language_set_runtime(language);
+}
 uint8_t display_settings_brightness(void){return host_brightness;}
 bool display_settings_set_brightness(uint8_t v){
     if(v<DISPLAY_BRIGHTNESS_MIN||v>100||host_save_fails())return false;
@@ -709,7 +723,7 @@ static void state(void)
     printf(",\"display\":{\"off\":%s,\"timeout_ms\":%u,\"backlight\":%u,\"busy\":%s,\"submitted_bands\":%u}",
            screen_idle_is_off() ? "true" : "false", screen_idle_timeout_ms(), backlight,
            nav_screen_busy() ? "true" : "false", lcd_submitted_bands);
-    printf(",\"names\":%u", (unsigned)pokemon_names_get_style());
+    printf(",\"names\":%u,\"language\":%u", (unsigned)pokemon_names_get_style(), (unsigned)language_get());
     if (nav_current() == PAGE_BAG) printf(",\"bag_selected\":%u", play_bag_selected_item());
     else printf(",\"bag_selected\":null");
     printf(",\"menu_view\":");
@@ -871,6 +885,22 @@ int main(void)
             state(); continue;
         } else if (booted && !strcmp(cmd, "battery") && sscanf(line, "%*s %u", &a) == 1 && a <= 101) {
             battery_soc = a == 101 ? -1 : (int)a;
+        } else if (booted && !strcmp(cmd, "language") && sscanf(line, "%*s %u", &a) == 1 && a < LANGUAGE_COUNT) {
+            language_set_runtime(a);screen_redraw_current();
+        } else if (booted && !strcmp(cmd, "usb_init")) {
+            usb_backup_init(host_usb_snapshot,host_usb_emit,"001122334455","0123456789abcdef",32);
+            usb_backup_restore_hooks(host_usb_stage,NULL,0,0);
+        } else if (booted && !strcmp(cmd, "usb_line")) {
+            for(const char *p=line+9;*p;p++)usb_backup_feed(*p);
+            usb_backup_feed('\n');
+        } else if (booted && !strcmp(cmd, "usb_poll") && sscanf(line,"%*s %u",&a)==1) {
+            usb_backup_tick(a);
+        } else if (booted && !strcmp(cmd, "wifi_status") && sscanf(line, "%*s %u %u", &a, &b) == 2 && a <= WIFI_SETUP_CLIENT_LIMIT && b <= WIFI_FAILURE_CONNECTION) {
+            host_wifi.setup_clients=a;host_wifi.failure=b;
+            if(!host_wifi.setup)host_wifi.state=b?WIFI_TIME_OFFLINE:WIFI_TIME_UNCONFIGURED;
+            screen_redraw_current();
+        } else if (booted && !strcmp(cmd, "wifi_setup_fail") && sscanf(line, "%*s %u", &a) == 1 && a <= 1) {
+            host_wifi_fail_setup = a != 0;
         } else if (booted && !strcmp(cmd, "save_delay") && sscanf(line, "%*s %u", &a) == 1 && a <= 2000) {
             save_delay_ms = a;
         } else if (booted && !strcmp(cmd, "save_fail") && sscanf(line, "%*s %u", &a) == 1 && a <= 10) {
@@ -1246,14 +1276,17 @@ exploration_event_t world_exploration_activity(unsigned id,bool claim){
 }
 
 // Native preview displays provisioning UI; it never configures the host network.
-#include "wifi_time.h"
-static wifi_time_view_t host_wifi;
 void wifi_time_start(void){}
 void wifi_time_poll(void){}
 bool wifi_time_scan_allowed(void){return true;}
 void wifi_time_view(wifi_time_view_t *out){if(out)*out=host_wifi;}
-void wifi_time_setup_request(bool start){host_wifi.setup=start;snprintf(host_wifi.ssid,sizeof(host_wifi.ssid),"PW-PREVIEW");snprintf(host_wifi.password,sizeof(host_wifi.password),"12345678");}
-void wifi_time_retry(void){}
+void wifi_time_setup_request(bool start){
+ if(start)host_wifi.setup_failed=host_wifi_fail_setup;
+ host_wifi.setup=start&&!host_wifi.setup_failed;
+ snprintf(host_wifi.ssid,sizeof(host_wifi.ssid),"PW-PREVIEW");
+ snprintf(host_wifi.password,sizeof(host_wifi.password),"%s",host_wifi.setup?"12345678":"");
+}
+void wifi_time_retry(void){host_wifi.setup_failed=false;}
 
 exploration_kind_t world_exploration_depth(void){
  if(world_needs_starter())return EXPLORE_SAVE_FAILED;

@@ -189,7 +189,20 @@
 - 同日后续真机又捕获到仅有 `flockfile(stdout)` 时的嵌入式 NEXT；宿主共享一个 FILE 的测试曾遗漏这个风险。Wi-Fi 记录和 USB 协议行现在还必须持有显式的跨任务 `console_record` 锁直到 flush。该锁在启动工作任务前静态初始化，预算不超过 128 B；持锁期间不得反向获取世界/存档/LVGL 锁，也不能把会读取世界状态的整帧重画包在这个锁内。`verify_usb_console.py` 同时测试共享 FILE 与不同 FILE 共用同一输出口，并以去掉跨任务锁、保留 FILE 锁作为负向对照；这模拟并发边界，不等于已经证明实际设备上 FILE 指针不同。`verify_save_stack.py` 检查静态锁及目标栈。串口流测试通过后仍要在扫描开启时真机导入、核对匹配回执和实际设置恢复，不能把一次超时重试成功写成从未失败。
 - 烧录只使用已验证应用；写前备份、写后核对应用及受保护数据范围，重启确认进度，再在设备上复测。记录实际烧录摘要、性能原始样本及统计、像素检查、资源水位和存档验收结果。完整重绘通过不能表述为所有动画帧率通过；未测场景必须列为待验收，不能算通过或承诺以后绝不卡顿。
 
+### USB 传输与熄屏（2026-11-14）
+
+- 真机曾在自动熄屏的同一时点发生导入超时，保护机制未覆盖原进度。USB 导出、等待电脑写盘 ACK、接收和暂存阶段必须计入页面忙碌状态，避免 60 秒自动熄屏触发额外保存；结束或取消后恢复正常熄屏。不能仅做少于一分钟的传输测试。
+- 调试串口从 stdin 读取的字节在等待 LVGL 锁时不得丢弃。锁超时应保留该字节并让出 CPU 重试，不能继续读取下一个字符，也不能把丢帧统称为存档不兼容。`verify_usb_idle.py` 用真实页面/协议验证 86 秒导入期间不自动熄屏、取消后恢复熄屏，并对接收函数做锁失败注入及丢字节负向对照。自动化不替代真机长传输和实际覆盖验收；单次超时与重试结果必须如实记录。
+
 ## 每次发布前执行
+
+### 界面语言回归（2026-11-14）
+
+- 英文目录覆盖菜单、动态格式、剧情、道具、251 伙伴及招式；新增文案必须同步 `en.json` 并通过覆盖检查。英文需按词换行和检查完整剧情可见，不以省略关键线索替代排版。英文 Gold 字形和名称源固定，生成索引驻 Flash，不为翻译分配堆缓冲或扩大任务栈。语言编号 0/1/2 保持简体/繁体/英文；中文名称偏好切回中文后保留。
+
+- 简体／繁体／英文是显示偏好，独立于官方／怀旧译名。`pokewalk/language` 随 NVS 备份恢复；旧备份没有此键时默认简体，不修改世界存档版本或玩家进度。新增设置也必须纳入共享 NVS 容量与真实导入回归。
+- 新增中文文案后更新 `generate_traditional.py` 产物，保留固定 OpenCC 来源及游戏语境例外。构建检查字符覆盖、字形完整性及等长转换；不以扩大任务栈、临时堆缓冲或逐条带转换整页换取多语言。
+- 执行 `verify_language.py` 与 `verify_language_ui.py`，检查完整文案、歧义词、设置失败、两种译名及各页面局部刷新。显示偏好不能改变战斗时钟和按键规则；发布前仍需按上述规范分别验收简体／繁体／英文真机绘制成本与实际动画帧率。
 
 在仓库根目录执行以下现有检查；脚本更名时同步更新本文件，不得直接省略检查：
 
@@ -199,6 +212,10 @@ python3 tools/pipeline/verify_display_ownership.py
 python3 tools/pipeline/verify_device_screenshot.py
 python3 tools/pipeline/verify_firmware_preview.py
 python3 tools/pipeline/verify_render_bounds.py
+python3 tools/pipeline/verify_language.py
+python3 tools/pipeline/generate_english.py --check
+python3 tools/pipeline/verify_english.py
+python3 tools/pipeline/verify_language_ui.py
 python3 tools/pipeline/verify_animation_timing.py
 python3 tools/pipeline/verify_scene_pacing.py
 python3 tools/pipeline/verify_battle_timeline.py
@@ -212,6 +229,7 @@ python3 tools/pipeline/verify_usb_backup.py
 python3 tools/pipeline/verify_usb_import.py
 python3 tools/pipeline/verify_usb_stream.py
 python3 tools/pipeline/verify_usb_console.py
+python3 tools/pipeline/verify_usb_idle.py
 python3 tools/pipeline/verify_save_import_compatibility.py
 python3 tools/pipeline/verify_save_storage.py
 python3 tools/pipeline/verify_usb_import_device.py
@@ -247,6 +265,8 @@ python3 tools/pipeline/verify_johto_champion_ui.py
 python3 tools/pipeline/verify_johto_champion_balance.py
 python3 tools/pipeline/verify_johto_narrative.py
 python3 tools/pipeline/verify_johto_narrative_ui.py
+POKEWALK_TEST_LANGUAGE=2 python3 tools/pipeline/verify_johto_narrative_ui.py
+POKEWALK_TEST_LANGUAGE=2 python3 tools/pipeline/verify_johto_fieldwork_ui.py
 tools/device/fw.sh build
 ```
 
@@ -278,3 +298,7 @@ tools/device/fw.sh build
 ## 保留用户选定的宣传封面
 
 用户选定的默认封面为皮卡丘对战暴鲤龙：`reports/evidence/community-cover-2026-09-10/cover.png`，发布副本 `release/community/pokewalk-cover.png`。社区更新与官网首页默认沿用此图，不因重新截图、界面更新或按钮文案变化自动替换。只有用户明确要求更换时才改封面；新玩法画面可用于附图。它是历史宣传帧，当前操作以新版使用说明为准。
+
+### USB 传输位置核对（2026-11-14）
+
+`RPOS` 只在已完成预备份 ACK 的接收状态、同一会话及请求 ID 下返回实际提交偏移，不能写入、回退或跳过数据。网页只允许继续当前偏移或补发最后一个未确认的 128 字节块；真正的 NEXT 进度使旧 POS 作废，连续查询/补发最多三次。历史工具和旧固件仍按原协议工作，新容错需刷新网页/离线包。执行生产 C 的 `verify_usb_stream.py` 与生产网页的 `verify_save_import_web.mjs`，覆盖丢数据、丢 NEXT、迟到 POS、越界/错误 ID、未预备份与取消；重试不能绕开最终 CRC、暂存、目标构建回执或实际读档结果。

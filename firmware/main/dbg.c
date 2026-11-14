@@ -266,6 +266,16 @@ static void dispatch(char c)
     }
 }
 
+// A byte already removed from stdin must survive a temporarily busy UI lock.
+// Dropping even one byte can turn a valid RDATA line into an ignored frame.
+static bool feed_backup_byte(char c)
+{
+    while (!bsp_lvgl_lock(1000)) vTaskDelay(pdMS_TO_TICKS(1));
+    bool consumed=usb_backup_feed(c);
+    bsp_lvgl_unlock();
+    return consumed;
+}
+
 static void dbg_task(void *arg)
 {
     (void)arg;
@@ -283,10 +293,7 @@ static void dbg_task(void *arg)
             continue;
         }
         // Reserve backup frames before any legacy single-key commands.
-        if (bsp_lvgl_lock(1000)) {
-            bool consumed=usb_backup_feed((char)c);bsp_lvgl_unlock();
-            if(consumed)continue;
-        } else continue;
+        if (feed_backup_byte((char)c)) continue;
         if (capture.active || (!sfx_command && !seed_command)) {
             int parsed = serial_capture_feed(&capture, (char)c);
             if (parsed == SERIAL_CAPTURE_READY && bsp_lvgl_lock(2000)) {

@@ -1,3 +1,4 @@
+#include "language.h"
 // main/play_enc.c —— P2 遭遇列表。
 //
 // 对应 docs/pages/P2-encounter-list.md。
@@ -126,7 +127,7 @@ static void draw_band(int band_y)
     species_t sp;
 
     // -- 标题 ----------------------------------------------------------
-    snprintf(buf, sizeof(buf), "%u", q->count);
+    language_snprintf(buf, sizeof(buf), "%u", q->count);
     game_ui_title(band_y, "刚才路上遇到", buf);
 
     // -- 列表 ----------------------------------------------------------
@@ -143,9 +144,9 @@ static void draw_band(int band_y)
 
         // 物种名
         if (assets_species(e->species_id, &sp)) {
-            snprintf(buf, sizeof(buf), "%.*s", sp.name_zh_len, sp.name_zh);
+            language_snprintf(buf, sizeof(buf), "%.*s", sp.name_zh_len, sp.name_zh);
         } else {
-            snprintf(buf, sizeof(buf), "#%03u", e->species_id);
+            language_snprintf(buf, sizeof(buf), "#%03u", e->species_id);
         }
         render_text(q->count<=3?32:24, Y(y), buf, GAME_UI_INK);
 

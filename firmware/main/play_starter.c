@@ -1,3 +1,4 @@
+#include "language.h"
 // P9: a fresh game's starter choice. Ownership and persistence live in world.
 #include <stdio.h>
 
@@ -35,7 +36,7 @@ static void draw_band(int band_y)
 {
     screen_band_clear(GAME_UI_BG);
     char buf[48];
-    snprintf(buf, sizeof(buf), "%u/%u", (unsigned)s_selection + 1, (unsigned)STARTER_COUNT);
+    language_snprintf(buf, sizeof(buf), "%u/%u", (unsigned)s_selection + 1, (unsigned)STARTER_COUNT);
     game_ui_title(band_y, "选择伙伴", buf);
     game_ui_text_centered(band_y, 12, 40, 216, 16, "让它成为你的伙伴", GAME_UI_MUTED);
 
@@ -44,7 +45,7 @@ static void draw_band(int band_y)
     uint16_t sid = STARTERS[s_selection];
     const uint8_t *front = assets_front_sprite(sid, &size);
     if (assets_species(sid, &species)) {
-        snprintf(buf, sizeof(buf), "%.*s", species.name_zh_len, species.name_zh);
+        language_snprintf(buf, sizeof(buf), "%.*s", species.name_zh_len, species.name_zh);
         game_ui_text_centered(band_y, 12, NAME_Y, 216, 24, buf, GAME_UI_INK);
         if (front && size && size * 2 <= SPRITE_SIZE) {
             uint16_t palette[4];

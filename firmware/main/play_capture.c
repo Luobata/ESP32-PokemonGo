@@ -1,3 +1,4 @@
+#include "language.h"
 // main/play_capture.c —— P4 捕获。
 //
 // 对应 docs/pages/P4-capture.md。
@@ -109,12 +110,12 @@ static void load_replacements(void) {
 }
 static void capture_member_label(const mon_t *mon,char *out,size_t size) {
     species_t sp;
-    if(assets_species(mon->species_id,&sp))snprintf(out,size,"%.*s Lv%u%s",sp.name_zh_len,sp.name_zh,mon->level,mon->flags&1?" ★":"");
-    else snprintf(out,size,"#%u Lv%u",mon->species_id,mon->level);
+    if(assets_species(mon->species_id,&sp))language_snprintf(out,size,"%.*s Lv%u%s",sp.name_zh_len,sp.name_zh,mon->level,mon->flags&1?" ★":"");
+    else language_snprintf(out,size,"#%u Lv%u",mon->species_id,mon->level);
 }
 static void draw_replacements(int band) {
     char text[80], capacity[16];
-    snprintf(capacity,sizeof(capacity),"%u格",BOX_CAPACITY);
+    language_snprintf(capacity,sizeof(capacity),"%u格",BOX_CAPACITY);
     game_ui_title(band,s_replace==REPLACE_LIST?"仓库已满":s_replace==REPLACE_DISCARD?"放走新伙伴？":"替换伙伴？",capacity);
 
     if(s_replace==REPLACE_LIST){
@@ -309,9 +310,9 @@ static void draw_band(int band_y)
     bool has = assets_species(c->enc.species_id, &sp);
 
     if (has) {
-        snprintf(buf, sizeof(buf), "%.*s", sp.name_zh_len, sp.name_zh);
+        language_snprintf(buf, sizeof(buf), "%.*s", sp.name_zh_len, sp.name_zh);
     } else {
-        snprintf(buf, sizeof(buf), "#%03u", c->enc.species_id);
+        language_snprintf(buf, sizeof(buf), "#%03u", c->enc.species_id);
     }
     game_ui_title(band_y, "捕获", buf);
 
@@ -340,7 +341,7 @@ static void draw_band(int band_y)
     if (s_chain_prompt) {
         game_ui_box(band_y, 8, 160, 224, 112);
         render_text(20, Y(174), "要中断连胜并捕获吗？", GAME_UI_INK);
-        snprintf(buf, sizeof(buf), "当前连胜 %lu", (unsigned long)world_exploration_chain());
+        language_snprintf(buf, sizeof(buf), "当前连胜 %lu", (unsigned long)world_exploration_chain());
         render_text(20, Y(196), buf, GAME_UI_INK);
         game_ui_text_fitted(band_y, 20, 218, 200, "确认后不论成败都会清零", GAME_UI_MUTED);
         static const char *const labels[] = {"取消", "捕获"};
@@ -359,7 +360,7 @@ static void draw_band(int band_y)
         render_sprite_2bpp_wh(12 - bounds.x, Y(BALL_Y - bounds.y),
                               ball.data, ball.w, ball.h, 1, ball_assets_palette(s_ball));
     }
-    snprintf(buf, sizeof(buf), "%s ×%u", cap_ball_name(s_ball),
+    language_snprintf(buf, sizeof(buf), "%s ×%u", cap_ball_name(s_ball),
              s_inventory.quantity[s_ball]);
     render_text(44, Y(BALL_Y + 4), buf, GAME_UI_INK);
     render_text(12, Y(INSTRUCTION_Y), s_box_full ? "满仓：捕获后选择替换" : s_session.won ? "战斗获胜，仅此一球"
@@ -377,7 +378,7 @@ static void draw_band(int band_y)
         render_text(12, Y(MSG_Y), "已命中，保存失败", GAME_UI_INK);
     } else if (s_hold_active && c->done_note == NAV_NOTE_CAUGHT) {
         render_text(12, Y(MSG_Y), "已捕获", GAME_UI_INK);
-        snprintf(buf,sizeof(buf),"经验 +%u",s_capture_exp);const char *note = buf;
+        language_snprintf(buf,sizeof(buf),"经验 +%u",s_capture_exp);const char *note = buf;
         render_text(228 - render_text_width(note), Y(MSG_Y), note, GAME_UI_MUTED);
     } else if (s_caught) {
         render_text(12, Y(MSG_Y), "捕获成功", GAME_UI_INK);

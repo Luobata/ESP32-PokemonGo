@@ -40,6 +40,11 @@ void game_ui_meter(int band_y, int x, int y, int w, uint8_t pct);
 void game_ui_cursor(int band_y, int x, int y);
 
 void game_ui_text_fitted(int band_y, int x, int y, int width, const char *text, uint16_t color);
+// English paragraphs wrap at word boundaries in the same physical text box.
+// Multiple script lines are joined without changing persistent page IDs.
+unsigned game_ui_paragraph(int band_y,int x,int y,int width,int height,
+                          const char *const *parts,unsigned count,unsigned reveal,uint16_t color);
+void game_ui_text_wrapped(int band_y,int x,int y,int width,int height,const char *text,uint16_t color);
 
 void game_ui_moves(int band_y,uint16_t species,uint8_t level,unsigned selected,bool in_battle);
 

@@ -82,7 +82,7 @@ def check(asset_source: Path = ROOT / 'firmware/main/assets.c') -> str:
                         '-I', str(ROOT / 'firmware/main'),
                         '-I', str(ROOT / 'tools/inspector/host/include'),
                         str(temp / 'probe.c'), str(asset_source),
-                        str(ROOT / 'firmware/main/pokemon_names.c'), str(temp / 'assets.S'),
+                        str(ROOT / 'firmware/main/exp.c'), str(ROOT / 'firmware/main/battle.c'), str(ROOT / 'firmware/main/combat.c'), str(ROOT / 'firmware/main/pokemon_names.c'), str(ROOT / 'firmware/main/language.c'), str(temp / 'assets.S'),
                         '-o', str(temp / 'probe')], check=True)
         return subprocess.check_output([str(temp / 'probe')], text=True).strip()
 

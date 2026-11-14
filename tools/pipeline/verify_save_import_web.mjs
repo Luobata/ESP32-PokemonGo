@@ -119,3 +119,45 @@ for(const [length,version] of [[WAREHOUSE_SIZE,28],[WAREHOUSE_SIZE,65535],[EXTEN
  assert.deepEqual((await decodeBackup(saved)).bytes,payload);
 }
 console.log('formats 2/3/4, full 48/56/72 KiB transfer/prebackup, future schemas and partition/digest rejection: passed');
+
+// Lost RDATA or NEXT must reconcile against the device's committed cursor.
+// Run the real UI sender, including stale replies and bounded retry failure.
+const lossyUpload=new (Object.getPrototypeOf(async function(){}).constructor)('Receiver','envelope','decodeBackup','SIZE','scenario',source+`
+ session='0123456789abcdef0123456789abcdef';receiver=new Receiver(session);
+ const sent=[];writer={write:async bytes=>sent.push(new TextDecoder().decode(bytes))};
+ transfer={id:'1',offset:0,backedUp:true,file:{bytes:new Uint8Array(384),metadata:{}}};
+ await nextChunk('1',0);
+ transfer.lastSend=Date.now()-5000;await probeUpload();
+ if(scenario==='lost-data')await line('!PWBACKUP POS 1 0');
+ if(scenario==='lost-next')await line('!PWBACKUP POS 1 128');
+ if(scenario==='stale'){
+   await line('!PWBACKUP NEXT 1 128');
+   await line('!PWBACKUP POS 1 128');
+ }
+ if(scenario==='unsolicited'){
+   transfer.probeOffset=null;await line('!PWBACKUP POS 1 0');
+ }
+ if(scenario==='wrong-id')await line('!PWBACKUP POS 2 0');
+ if(scenario==='ahead')await line('!PWBACKUP POS 1 256');
+ if(scenario==='unaligned')await line('!PWBACKUP POS 1 1');
+ if(scenario==='retry-limit'){
+   for(let i=0;i<3;i++){
+     await line('!PWBACKUP POS 1 0');transfer.lastSend=Date.now()-5000;await probeUpload();
+   }
+ }
+ if(scenario==='finish'){
+   await line('!PWBACKUP NEXT 1 128');await line('!PWBACKUP NEXT 1 256');
+   transfer.lastSend=Date.now()-5000;await probeUpload();await line('!PWBACKUP POS 1 384');
+ }
+ return {sent,offset:transfer.offset};
+`);
+const loss=async s=>{memory.clear();return lossyUpload(Receiver,envelope,decodeBackup,SIZE,s);};
+for(const kind of ['lost-data','lost-next','stale','unsolicited','finish']){
+ const r=await loss(kind),data=r.sent.filter(x=>x.includes(' RDATA '));
+ assert.equal(data.length,kind==='unsolicited'?1:kind==='finish'?3:2);
+ if(kind==='lost-data')assert.equal(data[0],data[1]);
+ if(kind==='lost-next'||kind==='stale')assert.match(data[1],/ 1 128 /);
+ if(kind==='finish')assert.match(r.sent.at(-1),/ RFIN .* 1/);
+}
+for(const kind of ['wrong-id','ahead','unaligned','retry-limit'])await assert.rejects(()=>loss(kind),/位置不匹配|连续中断/);
+console.log('production upload lost-data/lost-NEXT recovery, stale POS, prebackup cursor checks and retry limit: passed');

@@ -1,3 +1,4 @@
+#include "language.h"
 // P18: all displayed decisions mutate the same persisted activity as hardware.
 #include <stdio.h>
 #include "play.h"
@@ -55,7 +56,7 @@ static void refresh(void){world_activity_snapshot(&state);world_party_snapshot(&
 static bool action(unsigned op,unsigned choice){memset(&request,0,sizeof(request));request.op=op;request.choice=choice;request.box_slot=BOX_CAPACITY;request.seed=(uint32_t)esp_timer_get_time();error=world_activity_action(&request,&result_data);refresh();return error==ACT_OK;}
 static const char *failure(void){return error==ACT_FULL?"空间不足 奖励仍保留":error==ACT_STAMINA?"体能不足 等待恢复":error==ACT_BUSY?"请先结束当前对战或秘境":error==ACT_STALE?"伙伴已变化 请重新选择":error==ACT_SAVE_FAILED?"保存失败 按C重试":"当前条件未满足";}
 static void text(int y,int top,const char *s){if(render_text_width(s)>224)game_ui_text_fitted(y,8,top,224,s,GAME_UI_INK);else game_ui_text_centered(y,8,top,224,16,s,GAME_UI_INK);}
-static void mon_name(const mon_t *m,char *s,size_t n){species_t sp;if(assets_species(m->species_id,&sp))snprintf(s,n,"%.*s%s",sp.name_zh_len,sp.name_zh,m->flags&1?"★":"");else snprintf(s,n,"暂无伙伴");}
+static void mon_name(const mon_t *m,char *s,size_t n){species_t sp;if(assets_species(m->species_id,&sp))language_snprintf(s,n,"%.*s%s",sp.name_zh_len,sp.name_zh,m->flags&1?"★":"");else language_snprintf(s,n,"暂无伙伴");}
 static void sprite(int y,int x,int top,int width,int height,const mon_t *m,int scale){species_t sp;uint8_t size;if(!assets_species(m->species_id,&sp))return;const uint8_t *p=assets_front_form(m->species_id,m->special.traits.form,&size);uint16_t pal[4];assets_palette_variant(sp.palette,m->flags&1,pal);if(p)game_ui_sprite_centered(y,x,top,width,height,p,size,size,scale,pal);}
 static void options(int y,int top,const char *const *labels,unsigned count,int step){for(unsigned i=0;i<count;i++){render_text(32,top+i*step-y,labels[i],GAME_UI_INK);if(selected==i)game_ui_cursor(y,12,top+4+i*step);}}
 static unsigned menu_ids(unsigned out[7]){unsigned n=0;if(state.run.kind)out[n++]=0;else {if(activity_open(ACT_BUG,&chapter))out[n++]=1;if(activity_open(ACT_SEA,&chapter))out[n++]=2;if(activity_open(ACT_ICE,&chapter))out[n++]=5;if(activity_open(ACT_TOWER,&chapter))out[n++]=6;}out[n++]=3;out[n++]=4;return n;}
@@ -83,32 +84,32 @@ static void draw_range(int first,int end){
  if(view==MENU){
   const char *labels[]={"继续未完成活动","捕虫调查","漩涡分层远征","活动奖励","返回城都","冰雪分层救援","铃铛塔分层试炼"};unsigned ids[7],n=menu_ids(ids);const char *rows[7];for(unsigned i=0;i<n;i++)rows[i]=labels[ids[i]];options(y,42,rows,n,29);
   text(y,234,johto_badges(&chapter)<2?"两枚城都徽章开放捕虫":johto_badges(&chapter)<5?"五枚城都徽章开放冰雪远征":"独立活动 不影响探索连携");
-  snprintf(b,sizeof(b),"体能 %u/100",nurture_stamina_points(&world.pet));text(y,258,b);
+  language_snprintf(b,sizeof(b),"体能 %u/100",nurture_stamina_points(&world.pet));text(y,258,b);
  }else if(view==TEAM){
-  for(unsigned i=0;i<party.count;i++){mon_name(&party.members[i],b,sizeof(b));char row[96];snprintf(row,sizeof(row),"%.60s Lv%u %s",b,party.members[i].level,team_mask&(1u<<i)?"已选":"");game_ui_text_fitted(y,32,40+i*29,196,row,GAME_UI_INK);if(selected==i)game_ui_cursor(y,12,44+i*29);}
+  for(unsigned i=0;i<party.count;i++){mon_name(&party.members[i],b,sizeof(b));char row[96];language_snprintf(row,sizeof(row),"%.60s Lv%u %s",b,party.members[i].level,team_mask&(1u<<i)?"已选":"");game_ui_text_fitted(y,32,40+i*29,196,row,GAME_UI_INK);if(selected==i)game_ui_cursor(y,12,44+i*29);}
   text(y,224,"选好后出发");if(selected==party.count)game_ui_cursor(y,12,228);
-  snprintf(b,sizeof(b),"选择%u只自己的伙伴",kind==ACT_BUG?1:3);text(y,254,b);
+  language_snprintf(b,sizeof(b),"选择%u只自己的伙伴",kind==ACT_BUG?1:3);text(y,254,b);
  }else if(view==START){
   text(y,48,kind==ACT_BUG?"六次观察 最多三次投球":"六个节点 中继可带回");text(y,76,kind==ACT_BUG?"最终只带走一只伙伴":"战斗沿用已选技能设置");
-  snprintf(b,sizeof(b),"入场消耗%u体能",kind==ACT_BUG?10:20);text(y,104,b);
+  language_snprintf(b,sizeof(b),"入场消耗%u体能",kind==ACT_BUG?10:20);text(y,104,b);
   text(y,132,kind==ACT_BUG?"Lv35-50 只带走一只":(kind==ACT_ICE?"普通58-78 挑战72-92":kind==ACT_TOWER?"普通70-92 挑战82-100":"普通55-75 挑战70-90"));
   text(y,160,selected_level()<activity_min_level(kind,hard)?"等级偏低 请谨慎挑战":"暂停或重启可继续");const char *labels[]={"取消", "确认出发",hard?"难度 挑战":"难度 普通"};options(y,204,labels,choices(),24);
  }else if(view==REWARDS){
   unsigned top=selected/6*6;
-  for(unsigned i=0;i<6&&top+i<ITEM_COUNT+1;i++){unsigned id=top+i;if(id==ITEM_COUNT)snprintf(b,sizeof(b),"调查三局奖励 ×%u",state.bug_choices);else snprintf(b,sizeof(b),"%s ×%u",items_info(id)->name,state.pending.quantity[id]);render_text(32,48+i*30-y,b,GAME_UI_INK);if(selected==id)game_ui_cursor(y,12,52+i*30);}
-  snprintf(b,sizeof(b),"有效调查 %u局 下次%u/3",state.bug_completed,state.bug_completed%3);text(y,240,b);text(y,262,"满额道具保留在此");
+  for(unsigned i=0;i<6&&top+i<ITEM_COUNT+1;i++){unsigned id=top+i;if(id==ITEM_COUNT)language_snprintf(b,sizeof(b),"调查三局奖励 ×%u",state.bug_choices);else language_snprintf(b,sizeof(b),"%s ×%u",items_info(id)->name,state.pending.quantity[id]);render_text(32,48+i*30-y,b,GAME_UI_INK);if(selected==id)game_ui_cursor(y,12,52+i*30);}
+  language_snprintf(b,sizeof(b),"有效调查 %u局 下次%u/3",state.bug_completed,state.bug_completed%3);text(y,240,b);text(y,262,"满额道具保留在此");
  }else if(view==PRIZE){text(y,70,"完成三局有效调查");text(y,102,"选择一件进化道具");const char *labels[]={"太阳之石","王者之证"};options(y,166,labels,2,40);
  }else if(view==KEEP_CONFIRM||view==END_CONFIRM||view==BOX_CONFIRM){
   text(y,80,view==KEEP_CONFIRM?"确定替换闪光候选？":view==BOX_CONFIRM?"确定替换这位仓库伙伴？":"现在结束并结算调查？");
-  if(view==BOX_CONFIRM){mon_name(&replacing,b,sizeof(b));text(y,112,b);snprintf(b,sizeof(b),"Lv%u %s",replacing.level,replacing.flags&1?"闪光":"普通");text(y,144,b);text(y,176,"原伙伴和技能设置会移除");}
+  if(view==BOX_CONFIRM){mon_name(&replacing,b,sizeof(b));text(y,112,b);language_snprintf(b,sizeof(b),"Lv%u %s",replacing.level,replacing.flags&1?"闪光":"普通");text(y,144,b);text(y,176,"原伙伴和技能设置会移除");}
   else {text(y,132,view==KEEP_CONFIRM?"原候选不会加入仓库":"保留当前候选与已达奖励");}
   const char *labels[]={"取消","确认"};options(y,210,labels,2,30);
  }else if(view==BOX){
-  text(y,38,"仓库已满 选择替换目标");unsigned top=selected/6*6;for(unsigned i=0;i<6&&top+i<BOX_CAPACITY;i++){mon_t m;if(!world_box_at(top+i,&m))continue;mon_name(&m,b,sizeof(b));char row[96];snprintf(row,sizeof(row),"%u %.60s Lv%u",top+i+1,b,m.level);game_ui_text_fitted(y,28,66+i*30,204,row,GAME_UI_INK);if(selected==top+i)game_ui_cursor(y,8,70+i*30);}text(y,254,"长按B保留候选 稍后整理");
- }else if(view==FINISHED){text(y,62,"活动结算完成");snprintf(b,sizeof(b),"观察%u次 评分%u",final_nodes,final_score);if(activity_expedition(final_kind))snprintf(b,sizeof(b),"%s",final_won?(final_kind==ACT_SEA?"深层通关 银色之羽已记录":"深层通关 研究奖励已获得"):"已结束远征");text(y,102,b);
-  if(activity_expedition(final_kind)){snprintf(b,sizeof(b),"已获经验 %lu",(unsigned long)final_xp);text(y,136,b);if(final_won)text(y,168,"主题伙伴已加入遭遇列表");}else {text(y,138,final_partner?"伙伴已加入队伍或仓库":"观察记录已保存");snprintf(b,sizeof(b),"有效调查 %u/3",state.bug_completed%3);text(y,168,b);}unsigned item=0;while(item<ITEM_COUNT&&!final_rewards.quantity[item])item++;if(item<ITEM_COUNT){snprintf(b,sizeof(b),"%s ×%u 等补给",items_info(item)->name,final_rewards.quantity[item]);text(y,204,b);}text(y,230,"满额道具保留在活动奖励");text(y,260,"[C]返回活动");
+  text(y,38,"仓库已满 选择替换目标");unsigned top=selected/6*6;for(unsigned i=0;i<6&&top+i<BOX_CAPACITY;i++){mon_t m;if(!world_box_at(top+i,&m))continue;mon_name(&m,b,sizeof(b));char row[96];language_snprintf(row,sizeof(row),"%u %.60s Lv%u",top+i+1,b,m.level);game_ui_text_fitted(y,28,66+i*30,204,row,GAME_UI_INK);if(selected==top+i)game_ui_cursor(y,8,70+i*30);}text(y,254,"长按B保留候选 稍后整理");
+ }else if(view==FINISHED){text(y,62,"活动结算完成");language_snprintf(b,sizeof(b),"观察%u次 评分%u",final_nodes,final_score);if(activity_expedition(final_kind))language_snprintf(b,sizeof(b),"%s",final_won?(final_kind==ACT_SEA?"深层通关 银色之羽已记录":"深层通关 研究奖励已获得"):"已结束远征");text(y,102,b);
+  if(activity_expedition(final_kind)){language_snprintf(b,sizeof(b),"已获经验 %lu",(unsigned long)final_xp);text(y,136,b);if(final_won)text(y,168,"主题伙伴已加入遭遇列表");}else {text(y,138,final_partner?"伙伴已加入队伍或仓库":"观察记录已保存");language_snprintf(b,sizeof(b),"有效调查 %u/3",state.bug_completed%3);text(y,168,b);}unsigned item=0;while(item<ITEM_COUNT&&!final_rewards.quantity[item])item++;if(item<ITEM_COUNT){language_snprintf(b,sizeof(b),"%s ×%u 等补给",items_info(item)->name,final_rewards.quantity[item]);text(y,204,b);}text(y,230,"满额道具保留在活动奖励");text(y,260,"[C]返回活动");
  }else if(view==RUN){
-  snprintf(b,sizeof(b),"节点 %u/6",r->node);text(y,38,b);
+  language_snprintf(b,sizeof(b),"节点 %u/6",r->node);text(y,38,b);
   if(r->phase==ACT_PATH){text(y,72,"沿哪种痕迹继续调查？");const char *labels[]={activity_habitat(0),activity_habitat(1),activity_habitat(2),"提前结算"};options(y,108,labels,4,30);text(y,244,selected<3?activity_habitat_hint(selected):"保留当前候选和对应奖励");}
   else if(r->phase==ACT_FIND||animation){
    unsigned source=capture_source_frame(animation_clock.elapsed_ms);
@@ -118,22 +119,22 @@ static void draw_range(int first,int end){
      render_sprite_2bpp_wh(pose.x-12,pose.y-12-y,icon.data,icon.w,icon.h,1,ball_assets_palette(ball));
     text(y,218,source<CAPTURE_RESULT_SOURCE_FRAME?"精灵球轻轻晃动着……":caught?"成功捕获伙伴！":"伙伴挣脱了精灵球！");}
 
-   else {mon_name(&r->found,b,sizeof(b));text(y,169,b);snprintf(b,sizeof(b),"%s ×%u 本局余%u球",cap_ball_name(ball),bag.quantity[ball],ACTIVITY_BUG_TRIES-r->attempts);text(y,191,b);
+   else {mon_name(&r->found,b,sizeof(b));text(y,169,b);language_snprintf(b,sizeof(b),"%s ×%u 本局余%u球",cap_ball_name(ball),bag.quantity[ball],ACTIVITY_BUG_TRIES-r->attempts);text(y,191,b);
     if(capture_ready)game_ui_capture_bar(y,CAPTURE_BAR_TOP,&visible_capture);
     else text(y,218,r->attempts>=ACTIVITY_BUG_TRIES?"本局投球次数已用完":"此球已用完 请换球");
     const char *labels[]={"投球","换球","继续观察","提前结算"};for(unsigned i=0;i<4;i++){int xx=30+(i%2)*112,yy=244+(i/2)*18;render_text(xx,yy-y,labels[i],!i&&!capture_ready?GAME_UI_MUTED:GAME_UI_INK);if(selected==i)game_ui_cursor(y,xx-18,yy+4);}
    }
   }else if(r->phase==ACT_COMPARE){
    sprite(y,4,64,112,84,&r->candidate,1);sprite(y,124,64,112,84,&r->found,1);mon_name(&r->candidate,b,sizeof(b));game_ui_text_fitted(y,4,158,112,b,GAME_UI_INK);mon_name(&r->found,b,sizeof(b));game_ui_text_fitted(y,124,158,112,b,GAME_UI_INK);
-   if(r->candidate.species_id){snprintf(b,sizeof(b),"Lv%u %u星",r->candidate.level,activity_rarity(r->candidate.species_id));render_text(8,183-y,b,GAME_UI_MUTED);}snprintf(b,sizeof(b),"Lv%u %u星",r->found.level,activity_rarity(r->found.species_id));render_text(128,183-y,b,GAME_UI_MUTED);
-   snprintf(b,sizeof(b),"候选评分 %u / %u",r->candidate.species_id?20+activity_rarity(r->candidate.species_id)*10:0,20+activity_rarity(r->found.species_id)*10);text(y,203,b);
+   if(r->candidate.species_id){language_snprintf(b,sizeof(b),"Lv%u %u星",r->candidate.level,activity_rarity(r->candidate.species_id));render_text(8,183-y,b,GAME_UI_MUTED);}language_snprintf(b,sizeof(b),"Lv%u %u星",r->found.level,activity_rarity(r->found.species_id));render_text(128,183-y,b,GAME_UI_MUTED);
+   language_snprintf(b,sizeof(b),"候选评分 %u / %u",r->candidate.species_id?20+activity_rarity(r->candidate.species_id)*10:0,20+activity_rarity(r->found.species_id)*10);text(y,203,b);
    const char *labels[]={r->candidate.species_id?"保留原候选":"带走这只伙伴","改选新伙伴"};options(y,230,labels,choices(),26);
   }else if(r->phase==ACT_SETTLE){
-   if(r->kind==ACT_BUG){sprite(y,16,64,208,100,&r->candidate,2);unsigned score=activity_score(r);snprintf(b,sizeof(b),"评分 %u %s",score,score>=90?"金档":score>=50?"银档":score>=20?"铜档":"观察记录");text(y,180,b);snprintf(b,sizeof(b),"银档50 金档90 已见%u种",activity_observations(r));text(y,210,b);}
-   else {text(y,82,r->won?"海渊挑战完成！":"本次远征结束");snprintf(b,sizeof(b),"已带回经验 %lu",(unsigned long)r->banked_xp);text(y,122,b);snprintf(b,sizeof(b),"待带回经验 %lu",(unsigned long)r->xp);text(y,156,b);text(y,194,r->won?"龙之鳞片与水系伙伴线索":"已带回的收益不会扣回");}
+   if(r->kind==ACT_BUG){sprite(y,16,64,208,100,&r->candidate,2);unsigned score=activity_score(r);language_snprintf(b,sizeof(b),"评分 %u %s",score,score>=90?"金档":score>=50?"银档":score>=20?"铜档":"观察记录");text(y,180,b);language_snprintf(b,sizeof(b),"银档50 金档90 已见%u种",activity_observations(r));text(y,210,b);}
+   else {text(y,82,r->won?"海渊挑战完成！":"本次远征结束");language_snprintf(b,sizeof(b),"已带回经验 %lu",(unsigned long)r->banked_xp);text(y,122,b);language_snprintf(b,sizeof(b),"待带回经验 %lu",(unsigned long)r->xp);text(y,156,b);text(y,194,r->won?"龙之鳞片与水系伙伴线索":"已带回的收益不会扣回");}
    text(y,253,"[C]结算并带回");
   }else if(r->phase==ACT_CAMP){text(y,84,"到达确定的恢复营地");text(y,116,"生命异常仅影响本次远征");const char *labels[]={"存活伙伴回复60%","复苏伙伴并回复25%"};options(y,180,labels,2,38);}
-  else if(r->phase==ACT_RELAY){snprintf(b,sizeof(b),"已带回经验 %lu",(unsigned long)r->banked_xp);text(y,80,b);text(y,114,r->banked?"前半段补给已经安全保存":"尚未保存 按C重试中继");text(y,148,"深层失败会失去额外收益");const char *labels[]={"结算返回","继续深潜"};options(y,208,labels,2,34);}
+  else if(r->phase==ACT_RELAY){language_snprintf(b,sizeof(b),"已带回经验 %lu",(unsigned long)r->banked_xp);text(y,80,b);text(y,114,r->banked?"前半段补给已经安全保存":"尚未保存 按C重试中继");text(y,148,"深层失败会失去额外收益");const char *labels[]={"结算返回","继续深潜"};options(y,208,labels,2,34);}
   else if(r->phase==ACT_DEEP_PATH){text(y,68,"选择深层路线");text(y,100,"水域 水系对手／龙之鳞片");text(y,132,"精英 钢系／额外金属膜");text(y,164,"精英对手额外提高2级");const char *labels[]={"沿安全水域","迎战钢铁精英"};options(y,212,labels,2,30);}
   else{text(y,112,"队伍已就绪");text(y,160,"[C]继续对战");}
  }

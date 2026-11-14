@@ -1,3 +1,4 @@
+#include "language.h"
 // main/play_dex.c —— P6 图鉴。
 //
 // 对应 docs/pages/P6-dex.md。
@@ -67,19 +68,19 @@ static void draw_band(int band_y)
     char buf[48];
 
     // 标题 + 计数
-    snprintf(buf, sizeof(buf), "%u/%u", dex_count_caught(d), DEX_SPECIES);
+    language_snprintf(buf, sizeof(buf), "%u/%u", dex_count_caught(d), DEX_SPECIES);
     game_ui_title(band_y, "图鉴", buf);
 
     if(s_detail){
         exploration_view_t view;world_exploration_snapshot(&view);
         species_t sp;unsigned rarity=0;int route=exploration_habitat(s_species,&rarity);
         if(assets_species(s_species,&sp)){
-            snprintf(buf,sizeof(buf),"%03u %.*s",s_species,sp.name_zh_len,sp.name_zh);
+            language_snprintf(buf,sizeof(buf),"%03u %.*s",s_species,sp.name_zh_len,sp.name_zh);
             game_ui_text_centered(band_y,8,40,224,16,buf,GAME_UI_INK);
             uint8_t size;const uint8_t *art=assets_front_sprite(s_species,&size);uint16_t pal[4];assets_palette_variant(sp.palette,false,pal);
             if(art)game_ui_sprite_centered(band_y,8,64,224,112,art,size,size,2,pal);
         }
-        snprintf(buf,sizeof(buf),"%s  %u星",route>=0?exploration_route(route)->name:"未知",rarity);
+        language_snprintf(buf,sizeof(buf),"%s  %u星",route>=0?exploration_route(route)->name:"未知",rarity);
         game_ui_text_centered(band_y,8,184,224,16,buf,GAME_UI_INK);
         unsigned chapter=exploration_unlock_chapter(s_species);bool open=exploration_species_open(s_species,view.defeated);
         game_ui_text_centered(band_y,8,208,224,16,open?"已开放：可追踪获取":exploration_chapter(chapter)->condition,GAME_UI_MUTED);
@@ -119,13 +120,13 @@ static void draw_band(int band_y)
         }
 
         // 编号。见过但没抓到的标一下 —— 「见过」是 P6 的专有状态
-        snprintf(buf, sizeof(buf), "%03u", sid);
+        language_snprintf(buf, sizeof(buf), "%03u", sid);
         game_ui_text_centered(band_y, cx, cy + 34, CELL_W, 16, buf,
                                caught ? GAME_UI_INK : GAME_UI_MUTED);
     }
 
     // 页码
-    snprintf(buf, sizeof(buf), "%u/%u", s_page + 1,
+    language_snprintf(buf, sizeof(buf), "%u/%u", s_page + 1,
              (DEX_SPECIES + PER_PAGE - 1) / PER_PAGE);
     render_text(228 - render_text_width(buf), Y(PAGE_Y), buf, GAME_UI_MUTED);
 

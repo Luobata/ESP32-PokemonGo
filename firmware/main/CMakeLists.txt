@@ -14,6 +14,8 @@ idf_component_register(
          "ui_pixel_math.c"
          "assets.c"
          "pokemon_names.c"
+         "language.c"
+    "language_format.c" "language_settings.c"
          "sensing.c"
          "nurture.c"
          "items.c"
@@ -98,7 +100,7 @@ endif()
 
 # Raster hot loops run on every 20-row band. Keep debug symbols/assertions, but
 # optimize these stateless pixel kernels as in the native preview (-O2).
-set_source_files_properties(screen.c render.c game_ui.c gold_fx.c battle_hud.c
+set_source_files_properties(screen.c render.c language.c game_ui.c gold_fx.c battle_hud.c
     battle_fx.c pokemon_animation.c PROPERTIES COMPILE_OPTIONS "-O2")
 
 # The higher-priority PCM producer shares the C3's single core with LVGL.

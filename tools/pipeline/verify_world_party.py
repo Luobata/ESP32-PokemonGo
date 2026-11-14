@@ -301,7 +301,7 @@ def run(root: Path) -> dict:
                    '-ffunction-sections', '-fdata-sections', '-pthread', '-I', str(temp),
                    '-I', str(root / 'firmware/main'), str(temp / 'driver.c'),
                    *[str(root / 'firmware/main' / name) for name in
-                     ('box_view.c','party.c', 'encounter.c', 'exploration.c', 'battle.c', 'combat.c', 'gym_rules.c', 'pokemon_names.c', 'nurture.c', 'exp.c', 'items.c')], '-lz',
+                     ('box_view.c','party.c', 'encounter.c', 'exploration.c', 'battle.c', 'combat.c', 'gym_rules.c', 'pokemon_names.c','language.c', 'nurture.c', 'exp.c', 'items.c')], '-lz',
                    '-Wl,-dead_strip' if sys.platform == 'darwin' else '-Wl,--gc-sections',
                    '-o', str(temp / 'probe')]
         try:

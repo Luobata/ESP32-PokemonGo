@@ -359,7 +359,7 @@ def run(root: Path, sanitizer: bool = True) -> dict:
             '-Wno-unused-function','-Wno-unused-variable','-Wno-unused-parameter','-Wno-unused-but-set-variable',
             '-ffunction-sections','-fdata-sections','-I',str(directory),'-I',str(root/'firmware/main'),
             str(directory/'driver.c'),*[str(root/'firmware/main'/name) for name in
-                ('party.c','encounter.c','exploration.c','nurture.c','exp.c','items.c','evolution.c','combat.c','battle.c','assets.c','pokemon_names.c')],
+                ('party.c','encounter.c','exploration.c','nurture.c','exp.c','items.c','evolution.c','combat.c','battle.c','assets.c','pokemon_names.c','language.c')],
             str(directory/'assets.S'),'-pthread','-lz',
             '-Wl,-dead_strip' if sys.platform=='darwin' else '-Wl,--gc-sections','-o',str(directory/'probe')]
         if sanitizer:command[1:1]=['-fsanitize=address,undefined','-fno-sanitize-recover=all','-fno-omit-frame-pointer']

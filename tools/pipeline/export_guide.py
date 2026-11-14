@@ -16,6 +16,7 @@ def catalog(root):
   source=root/'firmware/main';development='exploration_visitors(' in (source/'exploration.c').read_text()
   johto=(source/'johto.c').exists()
   files=['assets.c','pokemon_names.c','exploration.c','items.c','encounter.c','nurture.c','party.c','trainer.c','combat.c','battle.c','exp.c','evolution.c','achievements.c']
+  if (source/'language.c').exists():files+=['language.c']
   if johto:files+=['johto.c','johto_routes.c','johto_story.c','johto_activity.c','gym_rules.c']
   command=['cc','-std=gnu11','-DHOST_BUILD','-O1','-ffunction-sections','-fdata-sections','-I',str(source),'-I',str(p),str(ROOT/'tools/pipeline/guide_catalog.c'),str(p/'assets.S')]+[str(source/f) for f in files]+['-lz',('-Wl,-dead_strip' if sys.platform=='darwin' else '-Wl,--gc-sections'),'-o',str(p/'catalog')]
   if johto:command.insert(1,'-DGUIDE_JOHTO')
@@ -42,6 +43,10 @@ def catalog(root):
   data['features']['radarMaps']=field
   data['features']['audibleDefault']='#define AUDIO_MUTED_DEFAULT false' in (source/'audio_settings.h').read_text()
   data['features']['brightnessEditor']='static void draw_brightness(' in (source/'play_menu.c').read_text()
+  data['features']['traditionalUi']=(source/'language.c').exists()
+  data['features']['englishUi']=(source/'language_english.h').exists()
+  data['features']['partyShinyBadge']='render_text(168, y + 20 - band_y, "★"' in (source/'play_party.c').read_text()
+  data['features']['wifiSetupDiagnostics']='WIFI_SETUP_CLIENT_LIMIT' in (source/'wifi_time.h').read_text()
   data['warehouseCapacity']=int(re.search(r'#define BOX_CAPACITY\s+(\d+)',(source/'party.h').read_text()).group(1))
   data['saveVersion']=int(re.search(r'#define SAVE_VERSION\s+(\d+)',(source/'save.h').read_text()).group(1))
   assert len(data['pokemon'])==(251 if johto else 151) and len(data['items'])==(24 if johto else 19) and len(data['achievements'])==(43 if johto else 16)
@@ -71,8 +76,8 @@ def version_catalog(ref,version):
  return data
 
 def main():
- p=argparse.ArgumentParser();p.add_argument('--release-ref',default='v2026.10.29-audio-brightness');p.add_argument('--previous-ref',default='v2026.10.26-bug-survey')
- p.add_argument('--release-version',default='2026.10.29 · 声音与亮度');p.add_argument('--previous-version',default='2026.10.26 · 捕虫调查修复');a=p.parse_args()
+ p=argparse.ArgumentParser();p.add_argument('--release-ref',default='48b59fc3012b7031e50454bca9b1af09d557e9e3');p.add_argument('--previous-ref',default='v2026.10.29-audio-brightness')
+ p.add_argument('--release-version',default='2026.11.14 · 三语言与配网改进');p.add_argument('--previous-version',default='2026.10.29 · 声音与亮度');a=p.parse_args()
  out=ROOT/'tools/save-manager/web/guide';out.mkdir(parents=True,exist_ok=True)
  release=version_catalog(a.release_ref,a.release_version);previous=version_catalog(a.previous_ref,a.previous_version)
  (out/'catalog.js').write_text('export const CATALOG = '+json.dumps({'release':release,'previous':previous},ensure_ascii=False,separators=(',',':'))+';\n')

@@ -96,6 +96,7 @@ static void make_save(uint16_t species,unsigned level){
  assert(save_write(&current));
  nvs_handle_t h;assert(nvs_open("pokewalk",NVS_READWRITE,&h)==ESP_OK);
  assert(nvs_set_u8(h,"volume",(uint8_t)level)==ESP_OK);assert(nvs_set_u8(h,"brightness",(uint8_t)(level+10))==ESP_OK);
+ assert(nvs_set_u8(h,"language",level%3)==ESP_OK);
  assert(nvs_commit(h)==ESP_OK);nvs_close(h);
  assert(nvs_open("pw_dungeon",NVS_READWRITE,&h)==ESP_OK);
  assert(nvs_set_blob(h,"run_v3",dungeon_history,sizeof(dungeon_history))==ESP_OK);
@@ -109,6 +110,7 @@ static void historical_restore(void){
   nvs_handle_t h;assert(nvs_open("pokewalk",NVS_READWRITE,&h)==ESP_OK);
   if(history[i].version<23)assert(nvs_set_blob(h,"state",history[i].data,history[i].size)==ESP_OK);
   assert(nvs_set_u8(h,"volume",61)==ESP_OK&&nvs_set_u8(h,"brightness",73)==ESP_OK);
+  esp_err_t erase_language=nvs_erase_key(h,"language");assert(erase_language==ESP_OK||erase_language==ESP_ERR_NVS_NOT_FOUND);
   assert(nvs_commit(h)==ESP_OK);nvs_close(h);
   if(history[i].version>=23){
    // Construct the old bank with immutable historical payload bytes, without
@@ -139,7 +141,8 @@ static void historical_restore(void){
 
   assert(nvs_open("pokewalk",NVS_READONLY,&h)==ESP_OK);uint8_t v;
   assert(nvs_get_u8(h,"volume",&v)==ESP_OK&&v==61);
-  assert(nvs_get_u8(h,"brightness",&v)==ESP_OK&&v==73);nvs_close(h);
+  assert(nvs_get_u8(h,"brightness",&v)==ESP_OK&&v==73);
+  assert(nvs_get_u8(h,"language",&v)==ESP_ERR_NVS_NOT_FOUND);nvs_close(h);
   // Commit normalized progress as world_start does, export/import it once
   // more, then reboot. No repeated rewards or double HP/stat conversion.
   save_t migrated=loaded;current=loaded;assert(save_write(&current));assert(snapshot(image,sizeof(image)));
@@ -349,7 +352,8 @@ int main(int argc,char **argv){
  assert(save_read_status(&loaded)==SAVE_READ_OK&&save_validate_world(&loaded,&party));
  assert(loaded.species==25&&loaded.level==32&&!memcmp(&loaded,&wanted,sizeof(wanted)));
  nvs_handle_t h;uint8_t value;assert(nvs_open("pokewalk",NVS_READONLY,&h)==ESP_OK);
- assert(nvs_get_u8(h,"volume",&value)==ESP_OK&&value==32);assert(nvs_get_u8(h,"brightness",&value)==ESP_OK&&value==42);nvs_close(h);
+ assert(nvs_get_u8(h,"volume",&value)==ESP_OK&&value==32);assert(nvs_get_u8(h,"brightness",&value)==ESP_OK&&value==42);
+ assert(nvs_get_u8(h,"language",&value)==ESP_OK&&value==2);nvs_close(h);
  assert(nvs_flash_deinit()==ESP_OK);assert(reboot_restore());assert(boot_result==0);assert(save_init());assert(save_read(&loaded)&&loaded.species==25); // another boot stays restored
  current=loaded;assert(snapshot(image,sizeof(image)));make_save(1,7);assert(stage(image,sizeof(image),SAVE_VERSION));
  flash[temp.address+0x1000]^=1;assert(nvs_flash_deinit()==ESP_OK);assert(reboot_restore());assert(boot_result==2);assert(save_init());assert(save_read(&loaded)&&!memcmp(&loaded,&before,sizeof(before)));

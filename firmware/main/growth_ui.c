@@ -1,3 +1,4 @@
+#include "language.h"
 #include <stdio.h>
 #include "growth_ui.h"
 #include "assets.h"
@@ -29,7 +30,7 @@ static unsigned pages(void) { return move_pages() + (s_evolution_ready ? 1 : 0);
 static void draw_band(int y) {
     char text[96],right[24];
     screen_band_clear(GAME_UI_BG);
-    snprintf(right,sizeof(right),"%u/%u",s_page+1,pages());
+    language_snprintf(right,sizeof(right),"%u/%u",s_page+1,pages());
     game_ui_title(y,"等级提升！",right);
     species_t sp;
     if(assets_species(s_event.species,&sp)) {
@@ -43,10 +44,10 @@ static void draw_band(int y) {
             game_ui_sprite_centered(y,72,36,96,80,s_motion.sprite.data,
                 s_motion.sprite.w,s_motion.sprite.h,scale,pal);
         }
-        snprintf(text,sizeof(text),"%.*s",sp.name_zh_len,sp.name_zh);
+        language_snprintf(text,sizeof(text),"%.*s",sp.name_zh_len,sp.name_zh);
         game_ui_text_centered(y,8,124,224,16,text,GAME_UI_INK);
     }
-    snprintf(text,sizeof(text),"Lv%u > Lv%u",s_event.before,s_event.after);
+    language_snprintf(text,sizeof(text),"Lv%u > Lv%u",s_event.before,s_event.after);
     game_ui_text_centered(y,8,148,224,16,text,GAME_UI_ACCENT);
     game_ui_box(y,8,172,224,104);
     if (s_evolution_ready && s_page == move_pages()) {
@@ -57,7 +58,7 @@ static void draw_band(int y) {
     game_ui_text_centered(y,16,182,208,16,s_count?"学会了新招式！":"伙伴变得更强了！",GAME_UI_INK);
     for(unsigned i=0;i<3&&s_page*3+i<s_count;i++) {
         move_t m;if(!combat_move(s_moves[s_page*3+i],&m))continue;
-        snprintf(text,sizeof(text),"%.*s",m.name_zh_len,m.name_zh);
+        language_snprintf(text,sizeof(text),"%.*s",m.name_zh_len,m.name_zh);
         game_ui_text_centered(y,16,204+i*22,208,16,text,GAME_UI_INK);
     }
     if(!s_count)game_ui_text_centered(y,16,224,208,16,"继续冒险，解锁更多招式",GAME_UI_MUTED);

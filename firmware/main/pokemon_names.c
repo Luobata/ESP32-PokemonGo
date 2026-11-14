@@ -8,6 +8,7 @@
 #include <string.h>
 
 #include "pokemon_names.h"
+#include "language.h"
 
 static atomic_uint_least8_t s_style = POKEMON_NAMES_OFFICIAL;
 static const char *const LEGACY[152] = {
@@ -377,6 +378,8 @@ const char *pokemon_names_style_label(void)
 const char *pokemon_names_override(uint16_t species, uint8_t *length)
 {
     if (length) *length = 0;
+    const char *english = language_species_name(species);
+    if (english) { if (length) *length=(uint8_t)strlen(english); return english; }
     if (pokemon_names_get_style() != POKEMON_NAMES_GS_LEGACY ||
         species < 1 || species >= sizeof(LEGACY)/sizeof(LEGACY[0]) || !LEGACY[species]) return NULL;
     if (length) *length = (uint8_t)strlen(LEGACY[species]);
@@ -388,6 +391,8 @@ uint16_t pokemon_names_legacy_count(void) { return 151; }
 const char *pokemon_move_names_override(uint16_t move, uint8_t *length)
 {
     if (length) *length = 0;
+    const char *english = language_move_name(move);
+    if (english) { if (length) *length=(uint8_t)strlen(english); return english; }
     if (pokemon_names_get_style() != POKEMON_NAMES_GS_LEGACY ||
         move < 1 || move >= sizeof(LEGACY_MOVES)/sizeof(LEGACY_MOVES[0]) || !LEGACY_MOVES[move]) return NULL;
     if (length) *length = (uint8_t)strlen(LEGACY_MOVES[move]);

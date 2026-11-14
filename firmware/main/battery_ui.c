@@ -1,3 +1,4 @@
+#include "language.h"
 #include "battery_ui.h"
 #include "display_settings.h"
 #include "bsp_battery.h"
@@ -21,7 +22,7 @@ void battery_ui_set_redraw(void (*redraw)(void)) { status_redraw = redraw; }
 
 void battery_ui_playtime_text(char *out, size_t size)
 {
-    snprintf(out, size, "时长 %lu:%02lu", (unsigned long)(playtime_minutes / 60),
+    language_snprintf(out, size, "时长 %lu:%02lu", (unsigned long)(playtime_minutes / 60),
              (unsigned long)(playtime_minutes % 60));
 }
 
@@ -53,8 +54,8 @@ void battery_ui_draw(int band_y, int right, int y)
 {
     if (!display_settings_battery_visible()) return;
     char text[16];
-    if (percent < 0) snprintf(text, sizeof(text), "--%%");
-    else snprintf(text, sizeof(text), "%d%%", percent);
+    if (percent < 0) language_snprintf(text, sizeof(text), "--%%");
+    else language_snprintf(text, sizeof(text), "%d%%", percent);
     int text_x = right - render_text_width(text);
     int x = text_x - 30;
     int top = y + 3 - band_y;

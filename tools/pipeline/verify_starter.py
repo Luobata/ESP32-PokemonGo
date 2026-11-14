@@ -399,7 +399,7 @@ def main() -> int:
                    "-Wno-unused-variable", "-Wno-unused-function", "-Wno-unused-parameter",
                    "-ffunction-sections", "-fdata-sections", "-I", str(temp), "-I", str(MAIN),
                    str(temp / "driver.c"), str(temp/'assets.S'), *[str(MAIN / name) for name in
-                   ("capture.c", "box_view.c", "party.c", "encounter.c", "nurture.c", "exp.c", "items.c", "exploration.c", "trainer.c", "gym_rules.c", "combat.c", "battle.c", "evolution.c", "assets.c", "pokemon_names.c")], "-lz",
+                   ("capture.c", "box_view.c", "party.c", "encounter.c", "nurture.c", "exp.c", "items.c", "exploration.c", "trainer.c", "gym_rules.c", "combat.c", "battle.c", "evolution.c", "assets.c", "pokemon_names.c", "language.c")], "-lz",
                    "-Wl,-dead_strip" if sys.platform == "darwin" else "-Wl,--gc-sections",
                    "-o", str(temp / "verify")]
         if args.sanitize:

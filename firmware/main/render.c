@@ -32,6 +32,7 @@
 
 #include "render.h"
 #include "screen.h"
+#include "language.h"
 
 static const char *TAG = "render";
 
@@ -107,7 +108,23 @@ uint8_t render_char_advance(uint16_t cp)
 
 int render_text_width(const char *s)
 {
-    return render_text_width_sized(s, s_font.size);
+    return render_text_width_sized(language_text(s), s_font.size);
+}
+
+static inline uint16_t display_next(language_reader_t *reader)
+{
+    if (reader->traditional) return language_next(reader);
+    uint16_t cp;
+    reader->source += render_utf8_next(reader->source, &cp);
+    return cp;
+}
+
+static const uint8_t *display_glyph(uint16_t cp, bool traditional)
+{
+    const uint8_t *glyph = (traditional || language_get()==LANGUAGE_EN) && s_font.size == 16 ? language_glyph(cp) : NULL;
+    if (glyph) return glyph;
+    int index = glyph_index(cp);
+    return index >= 0 ? s_font.glyphs + (size_t)index * s_font.per : NULL;
 }
 
 bool render_text_ink_bounds(const char *s, render_bounds_t *out)
@@ -118,12 +135,11 @@ bool render_text_ink_bounds(const char *s, render_bounds_t *out)
     int left = 0, top = 0, right = 0, bottom = 0, pen = 0;
     bool found = false;
     const int row_bytes = (s_font.size + 7) / 8;
-    while (*s) {
-        uint16_t cp;
-        s += render_utf8_next(s, &cp);
-        int gi = glyph_index(cp);
-        if (gi >= 0) {
-            const uint8_t *g = s_font.glyphs + (size_t)gi * s_font.per;
+    language_reader_t reader = language_reader(s);
+    while (*reader.source) {
+        uint16_t cp = display_next(&reader);
+        const uint8_t *g = display_glyph(cp, reader.traditional);
+        if (g) {
             int dx = pen - ((cp < 0x80) ? s_font.size / 4 : 0);
             for (int y = 0; y < s_font.size; y++) {
                 for (int byte = 0; byte < row_bytes; byte++) {
@@ -177,14 +193,13 @@ bool render_sprite_ink_bounds(const uint8_t *data, int w, int h,
 }
 
 // 画一个字形到 canvas。1bpp → 前景色，0 位不画（透明）。
-static void draw_glyph(int gi, int x, int y, uint16_t fg)
+static void draw_glyph(const uint8_t *g, int x, int y, uint16_t fg)
 {
     int first_row = y < 0 ? -y : 0, last_row = s_font.size;
     int first_col = x < 0 ? -x : 0, last_col = s_font.size;
     if (last_row > SCREEN_BAND_H - y) last_row = SCREEN_BAND_H - y;
     if (last_col > SCREEN_W - x) last_col = SCREEN_W - x;
     if (first_row >= last_row || first_col >= last_col) return;
-    const uint8_t *g = s_font.glyphs + (size_t)gi * s_font.per;
     uint8_t row_bytes = (uint8_t)((s_font.size + 7) / 8);
 
     for (int r = first_row; r < last_row; r++) {
@@ -200,16 +215,18 @@ int render_text(int x, int y, const char *s, uint16_t fg)
 {
     if (!s_font.ok || !s) return x;
     bool visible = y < SCREEN_BAND_H && y + s_font.size > 0;
-    while (*s) {
-        uint16_t cp;
-        s += render_utf8_next(s, &cp);
-        int gi = visible ? glyph_index(cp) : -1;
-        if (gi >= 0) {
+    // Invisible bands only need the advance; do not repeat translation work.
+    if (!visible) return x + render_text_width(s);
+    language_reader_t reader = language_reader(s);
+    while (*reader.source) {
+        uint16_t cp = display_next(&reader);
+        const uint8_t *g = display_glyph(cp, reader.traditional);
+        if (g) {
             // ASCII 半宽时把字形**左移**再画 —— 字形墨迹居中在
             // 16 格里（A 在 x=2~11），直接画会让相邻字符间距过大。
             // 左移 (16-8)/2 = 4 让墨迹落在 8px 步进的中间。
             int dx = (cp < 0x80) ? -(int)(s_font.size / 4) : 0;
-            draw_glyph(gi, x + dx, y, fg);
+            draw_glyph(g, x + dx, y, fg);
         }
         x += render_char_advance(cp);
     }

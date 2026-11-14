@@ -165,7 +165,7 @@ def compile_driver(directory: Path, implementation: str, assets_implementation: 
     subprocess.run(['cc', '-std=gnu11', '-O1', '-Wall', '-Wextra', '-Werror',
         '-Wno-unused-variable', '-Wno-unused-but-set-variable', '-fsanitize=address,undefined', '-fno-omit-frame-pointer',
         '-I', str(MAIN), '-I', str(ROOT / 'tools/inspector/host/include'),
-        str(directory / 'driver.c'), str(assets_path), str(MAIN / 'pokemon_names.c'),
+        str(directory / 'driver.c'), str(assets_path), str(MAIN / 'pokemon_names.c'), str(MAIN / 'language.c'),
         str(directory / 'assets.S'), '-o', str(exe)], check=True, capture_output=True)
     return exe
 

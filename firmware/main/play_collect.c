@@ -1,3 +1,4 @@
+#include "language.h"
 // main/play_collect.c —— 采集诊断页。
 //
 // ## 它曾经是采集器，现在是**观察窗**
